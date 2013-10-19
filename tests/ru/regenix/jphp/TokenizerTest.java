@@ -1,36 +1,161 @@
 package ru.regenix.jphp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.env.TraceInfo;
+import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.expr.*;
+import ru.regenix.jphp.lexer.tokens.expr.operator.*;
+import ru.regenix.jphp.lexer.tokens.expr.value.*;
+
+import java.math.BigInteger;
+
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TokenizerTest {
 
     @Test
     public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer("");
+        Tokenizer tokenizer = new Tokenizer(null, "");
 
         assertNull(tokenizer.nextToken());
         assertEquals("", tokenizer.getCode());
 
-        tokenizer = new Tokenizer(" ");
+        tokenizer = new Tokenizer(null, " ");
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer("  ");
+        tokenizer = new Tokenizer(null, "  ");
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer("\t");
+        tokenizer = new Tokenizer(null, "\t");
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer("\n");
+        tokenizer = new Tokenizer(null, "\n");
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer("\r");
+        tokenizer = new Tokenizer(null, "\r");
         assertNull(tokenizer.nextToken());
+    }
+
+    @Test
+    public void testScalarTokens(){
+        Token token;
+        Tokenizer tokenizer = new Tokenizer(null, "10 3.3 'foo' `bar` \"xyz\" 0xCC true false");
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof IntegerExprToken);
+        assertEquals(10L, ((IntegerExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof DoubleExprToken);
+        assertEquals(3.3, ((DoubleExprToken) token).getValue(), 0.01);
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.SINGLE, ((StringExprToken) token).getQuote());
+        assertEquals("foo", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.SHELL, ((StringExprToken) token).getQuote());
+        assertEquals("bar", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOUBLE, ((StringExprToken) token).getQuote());
+        assertEquals("xyz", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof HexExprValue);
+        assertEquals(new BigInteger("CC", 16).longValue(), ((HexExprValue) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof BooleanExprToken);
+        assertEquals(true, ((BooleanExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof BooleanExprToken);
+        assertEquals(false, ((BooleanExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertNull(token);
+    }
+
+    @Test
+    public void testStringSlashes(){
+        Token token;
+        Tokenizer tokenizer = new Tokenizer(null, " 'foo\\'bar' \"foo\\\"bar\" `foo\\`bar`");
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals("foo\\'bar", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals("foo\\\"bar", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals("foo\\`bar", ((StringExprToken) token).getValue());
+    }
+
+    @Test
+    public void testComplexOperators(){
+        Tokenizer tokenizer = new Tokenizer(null, "== >= <= === !== != && ||");
+
+        assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
+        assertTrue(tokenizer.nextToken() instanceof GreaterOrEqualExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SmallerOrEqualToken);
+        assertTrue(tokenizer.nextToken() instanceof IdenticalExprToken);
+        assertTrue(tokenizer.nextToken() instanceof NotIdenticalExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanNotEqualExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanAndExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanOrExprToken);
+    }
+
+    @Test
+    public void testSimpleOperators(){
+        Tokenizer tokenizer = new Tokenizer(null, "= + - / * % . and or new");
+
+        assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
+        assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
+        assertTrue(tokenizer.nextToken() instanceof MinusExprToken);
+        assertTrue(tokenizer.nextToken() instanceof DivExprToken);
+        assertTrue(tokenizer.nextToken() instanceof MulExprToken);
+        assertTrue(tokenizer.nextToken() instanceof ModExprToken);
+        assertTrue(tokenizer.nextToken() instanceof ConcatExprToken);
+
+        assertTrue(tokenizer.nextToken() instanceof BooleanAndExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanOrExprToken);
+        assertTrue(tokenizer.nextToken() instanceof NewExprToken);
+    }
+
+    @Test
+    public void testParseError(){
+        Throwable ex = null;
+        Tokenizer tokenizer = new Tokenizer(new Context(null, null), "  'foobar \n ");
+
+        try {
+            tokenizer.nextToken();
+        } catch (Throwable e){
+            ex = e;
+        }
+
+        assertTrue(ex instanceof ParseException);
+        TraceInfo traceInfo = ((ParseException) ex).getTraceInfo();
+        assertNotNull(traceInfo);
+        assertNull(traceInfo.getFile());
+        assertEquals(0, traceInfo.getStartLine());
+        assertEquals(1, traceInfo.getEndLine());
+        assertEquals(2, traceInfo.getStartPosition());
+        assertEquals(12, traceInfo.getEndPosition());
     }
 }

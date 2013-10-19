@@ -1,10 +1,19 @@
 package ru.regenix.jphp.lexer;
 
+import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.TokenFinder;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.StringExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
 public class Tokenizer {
+    protected Context context;
+    protected TokenFinder tokenFinder;
 
     private int currentPosition;
     private int currentLine;
@@ -12,15 +21,29 @@ public class Tokenizer {
     private final int codeLength;
     protected final String code;
 
-    public Tokenizer(String code){
+    protected Token prevToken;
+
+    public Tokenizer(Context context, String code){
+        this.context = context;
         this.currentPosition = -1;
         this.currentLine = 0;
         this.code = code;
         this.codeLength = code.length();
+        this.tokenFinder = new TokenFinder();
     }
 
     public String getCode() {
         return code;
+    }
+
+    protected Token buildToken(Class<? extends Token> clazz, TokenMeta meta){
+        try {
+            return prevToken = clazz.getConstructor(TokenMeta.class).newInstance(meta);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e.getTargetException());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected TokenMeta buildMeta(int startPosition, int startLine){
@@ -34,38 +57,92 @@ public class Tokenizer {
         if (endPosition < startPosition)
             return null;
 
-        if (endPosition == startPosition)
+        if (endPosition == startPosition){
+            if (startPosition + 1 >= codeLength)
+                return null;
             return code.substring(startPosition, startPosition + 1);
+        }
+
+        if (endPosition > codeLength)
+            endPosition = codeLength - 1;
 
         return code.substring(startPosition, endPosition);
     }
 
+    protected Token tryNextToken(){
+        int len = 0;
+        char ch;
+        if (currentPosition + 1 < codeLength){
+            ch = code.charAt(currentPosition + 1);
+            if (GrammarUtils.isDelimiter(ch) && !GrammarUtils.isSpace(ch)){
+                len = 1;
+                if (currentPosition + 2 < codeLength){
+                    ch = code.charAt(currentPosition + 2);
+                    if (GrammarUtils.isDelimiter(ch) && !GrammarUtils.isSpace(ch)){
+                        len = 2;
+                    }
+                }
+            }
+        }
+
+        if (len == 0)
+            return null;
+
+        String word = getWord(currentPosition, currentPosition + len + 1);
+        Class<? extends Token> tokenClass = tokenFinder.find(word);
+        if (tokenClass != null){
+            int startPosition = currentPosition;
+            currentPosition += len + 1;
+            return buildToken(tokenClass, buildMeta(startPosition, currentLine));
+        }
+        return null;
+    }
+
     public Token nextToken(){
         char ch;
+        char prev_ch = '\0';
         int startPosition = currentPosition + 1;
         int startLine = currentLine;
 
         StringExprToken.Quote string = null;
         boolean prevBackslash = false;
 
-        while (currentPosition < codeLength - 1){
+        if (codeLength == 0)
+            return null;
+
+        while (currentPosition < codeLength){
             currentPosition++;
+            if (currentPosition == codeLength)
+                break;
+
             ch = code.charAt(currentPosition);
+            if (currentPosition > 1)
+                prev_ch = code.charAt(currentPosition - 1);
 
             if (GrammarUtils.isNewline(ch))
                 currentLine++;
 
-            if (string == null){
+            if (string == null) {
                 string = GrammarUtils.isQuote(ch);
                 if (string != null)
                     continue;
 
                 if (GrammarUtils.isDelimiter(ch)){
-                    if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
-                        startPosition = currentPosition + 1;
-                        continue;
+                    if (GrammarUtils.isFloatDot(ch) && (prev_ch == '\0' || GrammarUtils.isNumeric(prev_ch))) {
+                         // double value
+                    } else {
+                        if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
+                            startPosition = currentPosition + 1;
+                            continue;
+                        }
+                        if (startPosition == currentPosition){
+                            Token token = tryNextToken();
+                            if (token != null)
+                                return token;
+                        }
+
+                        break;
                     }
-                    break;
                 }
             } else {
                 if (GrammarUtils.isBackslash(ch)){
@@ -87,7 +164,31 @@ public class Tokenizer {
         }
 
         TokenMeta meta = buildMeta(startPosition, startLine);
-        return meta == null ? null : new Token(meta);
+        if (meta == null)
+            return null;
+
+        if (string != null)
+            throw new ParseException(Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(), meta.toTraceInfo(context.getFile()));
+
+        Class<? extends Token> tokenClazz = tokenFinder.find(meta);
+        if (tokenClazz == null)
+            return prevToken = new Token(meta, TokenType.T_J_CUSTOM);
+        else {
+            return buildToken(tokenClazz, meta);
+        }
     }
 
+
+    public void reset(){
+        this.currentPosition = -1;
+        this.currentLine = 0;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public File getFile(){
+        return context.getFile();
+    }
 }

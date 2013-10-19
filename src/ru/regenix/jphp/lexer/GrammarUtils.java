@@ -1,11 +1,19 @@
 package ru.regenix.jphp.lexer;
 
-import ru.regenix.jphp.lexer.tokens.expr.StringExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
 
 public class GrammarUtils {
 
     public static boolean isSpace(char ch){
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+    }
+
+    public static boolean isNumeric(char ch){
+        return "0123456789".indexOf(ch) > -1;
+    }
+
+    public static boolean isFloatDot(char ch){
+        return '.' == ch;
     }
 
     public static StringExprToken.Quote isQuote(char ch){
@@ -24,7 +32,7 @@ public class GrammarUtils {
     }
 
     public static boolean isDelimiter(char ch){
-        return "+-=/*<>!?%@&^\\.|([{}]);,\t\n\r ".indexOf(ch) > -1;
+        return "+-=/*:<>!?%@&^\\.|([{}]);,\t\n\r ".indexOf(ch) > -1;
     }
 
     public static boolean isNewline(char ch){

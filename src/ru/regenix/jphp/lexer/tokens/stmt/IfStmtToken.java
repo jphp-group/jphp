@@ -1,9 +1,21 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
+import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 public class IfStmtToken extends StmtToken {
-    protected IfStmtToken(TokenMeta meta) {
-        super(meta);
+
+    private ExprStmtToken condition;
+
+    public IfStmtToken(TokenMeta meta) {
+        super(meta, TokenType.T_IF);
+    }
+
+    public ExprStmtToken getCondition() {
+        return condition;
+    }
+
+    public void setCondition(ExprStmtToken condition) {
+        this.condition = condition;
     }
 }
