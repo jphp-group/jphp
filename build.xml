@@ -1,0 +1,50 @@
+<project name="JVM-PHP" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!-- переменные нашего проекта -->
+    <property name="version" value="0.1-SNAPSHOT" />
+
+    <property name="lib.dir" value="lib" />
+    <property name="build.dir" value="build" />
+    <property name="src.dir" value="src" />
+    <property name="jar.dir" value="${build.dir}/jar" />
+    <property name="jar.file" value="${ant.project.name}-${version}.jar" />
+
+    <path id="lib.path.id">
+        <fileset dir="${lib.dir}" />
+    </path>
+
+    <path id="run.path.id">
+        <path refid="lib.path.id" />
+        <path location="${build.dir}" />
+    </path>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="resolve" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve/>
+    </target>
+
+    <target name="compile" depends="resolve" description="--> compile and run the project">
+        <mkdir dir="${build.dir}/classes" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id" />
+    </target>
+
+    <target name="jar" depends="compile" description="--> make a jar file for this project">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${jar.file}" basedir="${build.dir}/classes">
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar" excludes="*-javadoc.jar, *-sources.jar" />
+            <manifest>
+                <attribute name="Main-Class" value="ru.regenix.jphp.Main"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/${jar.file}" fork="true"/>
+    </target>
+
+    <target name="clean-build" depends="clean,jar"/>
+    <target name="main" depends="clean,run"/>
+</project>

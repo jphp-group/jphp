@@ -4,3 +4,8 @@
 *.jar
 *.war
 *.ear
+*.iml
+/build/
+/lib/
+/out/
+.idea/
