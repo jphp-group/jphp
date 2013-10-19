@@ -26,7 +26,7 @@
         <ivy:retrieve/>
     </target>
 
-    <target name="compile" depends="resolve" description="--> compile and run the project">
+    <target name="compile" description="--> compile and run the project">
         <mkdir dir="${build.dir}/classes" />
         <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id" />
     </target>
@@ -45,6 +45,6 @@
         <java jar="${jar.dir}/${jar.file}" fork="true"/>
     </target>
 
-    <target name="clean-build" depends="clean,jar"/>
+    <target name="build-all" depends="clean,resolve,jar"/>
     <target name="main" depends="clean,run"/>
 </project>
