@@ -5,21 +5,13 @@ import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
-public class DynamicCallExprToken extends CallExprToken {
-    private ExprStmtToken object;
+public class StaticCallExprToken extends CallExprToken {
+    private Token clazz;
     private Token method;
     private ExprStmtToken methodExpr;
 
-    public DynamicCallExprToken(TokenMeta meta) {
+    public StaticCallExprToken(TokenMeta meta) {
         super(meta);
-    }
-
-    public ExprStmtToken getObject() {
-        return object;
-    }
-
-    public void setObject(ExprStmtToken object) {
-        this.object = object;
     }
 
     public Token getMethod() {
@@ -40,5 +32,17 @@ public class DynamicCallExprToken extends CallExprToken {
 
     public void setMethodExpr(ExprStmtToken methodExpr) {
         this.methodExpr = methodExpr;
+    }
+
+    public Token getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(NameToken clazz) {
+        this.clazz = clazz;
+    }
+
+    public void setClazz(VariableExprToken clazz) {
+        this.clazz = clazz;
     }
 }

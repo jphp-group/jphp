@@ -1,36 +1,27 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.NameToken;
-import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 import java.util.List;
 
-public class MethodStmtToken extends StmtToken {
+public class MethodStmtToken extends FunctionStmtToken {
     private boolean isAbstract;
     private boolean isFinal;
     private boolean isStatic;
 
-    private Modifier modifier;
-    private boolean returnReference;
-
-    private NameToken name;
     private ClassStmtToken clazz;
-    private List<ArgumentStmtToken> arguments;
-    private List<Token> body;
 
     public MethodStmtToken(TokenMeta meta) {
-        super(meta, TokenType.T_FUNCTION);
+        super(meta);
     }
 
-    public NameToken getName() {
-        return name;
-    }
-
-    public void setName(NameToken name) {
-        this.name = name;
+    public MethodStmtToken(FunctionStmtToken token){
+        this(token.getMeta());
+        setArguments(token.arguments);
+        setBody(token.body);
+        setModifier(token.modifier);
+        setName(token.name);
+        setReturnReference(token.returnReference);
     }
 
     public boolean isAbstract() {
@@ -65,14 +56,6 @@ public class MethodStmtToken extends StmtToken {
         this.arguments = arguments;
     }
 
-    public List<Token> getBody() {
-        return body;
-    }
-
-    public void setBody(List<Token> body) {
-        this.body = body;
-    }
-
     public ClassStmtToken getClazz() {
         return clazz;
     }
@@ -83,25 +66,5 @@ public class MethodStmtToken extends StmtToken {
 
     public boolean isInterfacable(){
         return body == null;
-    }
-
-    public boolean isNop(){
-        return body != null && body.isEmpty();
-    }
-
-    public boolean isReturnReference() {
-        return returnReference;
-    }
-
-    public void setReturnReference(boolean returnReference) {
-        this.returnReference = returnReference;
-    }
-
-    public Modifier getModifier() {
-        return modifier;
-    }
-
-    public void setModifier(Modifier modifier) {
-        this.modifier = modifier;
     }
 }

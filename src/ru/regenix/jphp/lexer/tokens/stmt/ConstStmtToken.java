@@ -1,10 +1,11 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 public class ConstStmtToken extends StmtToken {
+    private ClassStmtToken clazz;
     private NameToken name;
     private ExprStmtToken value;
 
@@ -26,5 +27,13 @@ public class ConstStmtToken extends StmtToken {
 
     public void setValue(ExprStmtToken value) {
         this.value = value;
+    }
+
+    public ClassStmtToken getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(ClassStmtToken clazz) {
+        this.clazz = clazz;
     }
 }

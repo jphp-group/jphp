@@ -1,6 +1,9 @@
 package ru.regenix.jphp.lexer.tokens;
 
+import ru.regenix.jphp.env.TraceInfo;
 import ru.regenix.jphp.lexer.TokenType;
+
+import java.io.File;
 
 public class Token {
     protected final TokenMeta meta;
@@ -26,5 +29,13 @@ public class Token {
 
     public TokenMeta getMeta() {
         return meta;
+    }
+
+    public TraceInfo toTraceInfo(File file){
+        return getMeta().toTraceInfo(file);
+    }
+
+    public String getWord(){
+        return getMeta().getWord();
     }
 }

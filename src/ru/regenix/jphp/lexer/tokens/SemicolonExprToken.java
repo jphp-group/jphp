@@ -1,9 +1,8 @@
-package ru.regenix.jphp.lexer.tokens.expr;
+package ru.regenix.jphp.lexer.tokens;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
-public class SemicolonExprToken extends ExprToken {
+public class SemicolonExprToken extends Token {
 
     public SemicolonExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);

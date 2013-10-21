@@ -1,8 +1,9 @@
-package ru.regenix.jphp.lexer.tokens;
+package ru.regenix.jphp.lexer.tokens.expr;
 
 import ru.regenix.jphp.lexer.TokenType;
+import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
-public class NameToken extends Token {
+public class NameToken extends ExprToken {
 
     private String name;
 

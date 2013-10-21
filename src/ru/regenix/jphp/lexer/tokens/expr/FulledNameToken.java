@@ -1,4 +1,7 @@
-package ru.regenix.jphp.lexer.tokens;
+package ru.regenix.jphp.lexer.tokens.expr;
+
+import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 import java.util.ArrayList;
 import java.util.List;

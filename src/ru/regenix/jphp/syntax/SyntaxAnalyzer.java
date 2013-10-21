@@ -2,8 +2,10 @@ package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.syntax.generators.ClassGenerator;
-import ru.regenix.jphp.syntax.generators.Generator;
+import ru.regenix.jphp.syntax.generators.*;
+import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
+import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
+import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 
 import java.io.File;
 import java.util.*;
@@ -24,7 +26,16 @@ public class SyntaxAnalyzer {
         generators = new ArrayList<Generator>(50);
 
         generators.add(new ClassGenerator(this));
+        generators.add(new ConstGenerator(this));
+        generators.add(new FunctionGenerator(this));
+        generators.add(new NameGenerator(this));
 
+        // non-automatic
+        generators.add(new SimpleExprGenerator(this));
+        generators.add(new ConstExprGenerator(this));
+        generators.add(new BodyGenerator(this));
+
+        generators.add(new ExprGenerator(this));
         for (Generator generator : generators)
             map.put(generator.getClass(), generator);
 
@@ -57,6 +68,9 @@ public class SyntaxAnalyzer {
 
         if (clazz == null){
             for(Generator generator : generators){
+                if (!generator.isAutomatic())
+                    continue;
+
                 gen = generator.getToken(current, iterator);
                 if (gen != null)
                     break;

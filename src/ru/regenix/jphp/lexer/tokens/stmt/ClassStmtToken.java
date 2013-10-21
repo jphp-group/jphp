@@ -2,8 +2,7 @@ package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class ClassStmtToken extends StmtToken {
     private ImplementsStmtToken implement;
 
     private MethodStmtToken constructor;
-    private List<ClassConstStmtToken> constants;
+    private List<ConstStmtToken> constants;
     private List<ClassVarStmtToken> properties;
     private List<MethodStmtToken> methods;
 
@@ -75,11 +74,11 @@ public class ClassStmtToken extends StmtToken {
         this.constructor = constructor;
     }
 
-    public List<ClassConstStmtToken> getConstants() {
+    public List<ConstStmtToken> getConstants() {
         return constants;
     }
 
-    public void setConstants(List<ClassConstStmtToken> constants) {
+    public void setConstants(List<ConstStmtToken> constants) {
         this.constants = constants;
     }
 

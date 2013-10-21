@@ -9,8 +9,13 @@ import java.util.List;
 public class ExprStmtToken extends StmtToken {
     private List<Token> tokens;
 
-    public ExprStmtToken(TokenMeta meta) {
+    protected ExprStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
+    }
+
+    public ExprStmtToken(List<Token> tokens){
+        this(TokenMeta.of(tokens));
+        setTokens(tokens);
     }
 
     public List<Token> getTokens() {

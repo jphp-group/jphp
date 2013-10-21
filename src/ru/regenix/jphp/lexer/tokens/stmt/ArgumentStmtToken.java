@@ -2,13 +2,12 @@ package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 
 public class ArgumentStmtToken extends StmtToken {
     private boolean reference;
     private VariableExprToken name;
-    private ExprToken value;
+    private ExprStmtToken value;
 
     public ArgumentStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -22,11 +21,11 @@ public class ArgumentStmtToken extends StmtToken {
         this.name = name;
     }
 
-    public ExprToken getValue() {
+    public ExprStmtToken getValue() {
         return value;
     }
 
-    public void setValue(ExprToken value) {
+    public void setValue(ExprStmtToken value) {
         this.value = value;
     }
 

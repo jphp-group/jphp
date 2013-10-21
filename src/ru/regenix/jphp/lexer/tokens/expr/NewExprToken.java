@@ -1,7 +1,6 @@
 package ru.regenix.jphp.lexer.tokens.expr;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.FulledNameToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;

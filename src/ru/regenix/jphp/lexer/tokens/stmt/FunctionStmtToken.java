@@ -2,13 +2,19 @@ package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
+import java.util.List;
+
 public class FunctionStmtToken extends StmtToken {
-    private Modifier modifier;
-    private NamespaceStmtToken namespace;
-    private NameToken name;
+    protected Modifier modifier;
+    protected NamespaceStmtToken namespace;
+    protected NameToken name;
+
+    protected boolean returnReference;
+    protected List<ArgumentStmtToken> arguments;
+    protected BodyStmtToken body;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -36,5 +42,29 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
+    }
+
+    public boolean isReturnReference() {
+        return returnReference;
+    }
+
+    public void setReturnReference(boolean returnReference) {
+        this.returnReference = returnReference;
+    }
+
+    public List<ArgumentStmtToken> getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(List<ArgumentStmtToken> arguments) {
+        this.arguments = arguments;
+    }
+
+    public BodyStmtToken getBody() {
+        return body;
+    }
+
+    public void setBody(BodyStmtToken body) {
+        this.body = body;
     }
 }

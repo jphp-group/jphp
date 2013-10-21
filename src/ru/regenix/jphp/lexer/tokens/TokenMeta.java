@@ -23,7 +23,7 @@ public class TokenMeta {
         this.endPosition = endPosition;
     }
 
-    public static TokenMeta of(List<Token> tokens){
+    public static TokenMeta of(List<? extends Token> tokens){
         int startPosition = 0, startLine = 0, endPosition = 0, endLine = 0;
 
         StringBuilder builder = new StringBuilder();

@@ -6,6 +6,7 @@ import ru.regenix.jphp.lexer.tokens.TokenMeta;
 public class IfStmtToken extends StmtToken {
 
     private ExprStmtToken condition;
+    private BodyStmtToken body;
 
     public IfStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_IF);
@@ -17,5 +18,13 @@ public class IfStmtToken extends StmtToken {
 
     public void setCondition(ExprStmtToken condition) {
         this.condition = condition;
+    }
+
+    public BodyStmtToken getBody() {
+        return body;
+    }
+
+    public void setBody(BodyStmtToken body) {
+        this.body = body;
     }
 }

@@ -1,7 +1,6 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 import java.util.List;
@@ -11,7 +10,7 @@ public class ClosureStmtToken extends StmtToken {
     private List<ArgumentStmtToken> arguments;
     private List<ArgumentStmtToken> uses;
 
-    private List<Token> body;
+    private BodyStmtToken body;
 
     public ClosureStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -33,11 +32,11 @@ public class ClosureStmtToken extends StmtToken {
         this.uses = uses;
     }
 
-    public List<Token> getBody() {
+    public BodyStmtToken getBody() {
         return body;
     }
 
-    public void setBody(List<Token> body) {
+    public void setBody(BodyStmtToken body) {
         this.body = body;
     }
 

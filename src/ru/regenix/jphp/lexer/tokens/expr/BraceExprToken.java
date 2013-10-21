@@ -1,27 +1,92 @@
 package ru.regenix.jphp.lexer.tokens.expr;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 public class BraceExprToken extends ExprToken {
 
-    public enum Type { SIMPLE, ARRAY, BLOCK }
+    public enum Kind {
+        SIMPLE,
+        ARRAY,
+        BLOCK;
 
-    protected Type type;
+        public static String toOpen(Kind kind){
+            switch (kind){
+                case ARRAY: return "[";
+                case BLOCK: return "{";
+                case SIMPLE: return "(";
+            }
+            return null;
+        }
+
+        public static String toClose(Kind kind){
+            switch (kind){
+                case ARRAY: return "]";
+                case BLOCK: return "}";
+                case SIMPLE: return ")";
+            }
+            return null;
+        }
+    }
+
+    protected Kind kind;
     protected boolean closed;
 
     public BraceExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_BRACE);
         switch (meta.getWord().charAt(0)){
-            case '{': type = Type.BLOCK; break;
-            case '[': type = Type.ARRAY; break;
-            case '(': type = Type.SIMPLE; break;
-            case '}': type = Type.BLOCK; closed = true; break;
-            case ']': type = Type.ARRAY; closed = true; break;
-            case ')': type = Type.SIMPLE; closed = true; break;
+            case '{': kind = Kind.BLOCK; break;
+            case '[': kind = Kind.ARRAY; break;
+            case '(': kind = Kind.SIMPLE; break;
+            case '}': kind = Kind.BLOCK; closed = true; break;
+            case ']': kind = Kind.ARRAY; closed = true; break;
+            case ')': kind = Kind.SIMPLE; closed = true; break;
             default:
                 throw new IllegalArgumentException("Invalid " + meta.getWord() + " word for BraceExprToken");
         }
+    }
+
+    public Kind getKind() {
+        return kind;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public boolean isOpened(){
+        return !closed;
+    }
+
+    public boolean isClosed(Kind kind){
+        return isClosed() && this.kind == kind;
+    }
+
+    public boolean isOpened(Kind kind){
+        return isOpened() && this.kind == kind;
+    }
+
+    public boolean isBlockOpened(){
+        return kind == Kind.BLOCK && isOpened();
+    }
+
+    public boolean isBlockClosed(){
+        return kind == Kind.BLOCK && isClosed();
+    }
+
+    public boolean isArrayOpened(){
+        return kind == Kind.ARRAY && isOpened();
+    }
+
+    public boolean isArrayClosed(){
+        return kind == Kind.ARRAY && isClosed();
+    }
+
+    public boolean isSimpleOpened(){
+        return kind == Kind.SIMPLE && isOpened();
+    }
+
+    public boolean isSimpleClosed(){
+        return kind == Kind.SIMPLE && isClosed();
     }
 }

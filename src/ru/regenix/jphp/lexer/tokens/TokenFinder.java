@@ -45,6 +45,8 @@ public class TokenFinder {
         put("true", BooleanExprToken.class);
         put("false", BooleanExprToken.class);
         put(";", SemicolonExprToken.class);
+        put("&", AmpersandToken.class);
+        put(",", CommaToken.class);
 
         put("{", BraceExprToken.class);
         put("[", BraceExprToken.class);
@@ -64,6 +66,8 @@ public class TokenFinder {
         put("const", ConstStmtToken.class);
         put("implements", ImplementsStmtToken.class);
         put("namespace", NamespaceStmtToken.class);
+        put("abstract", AbstractStmtToken.class);
+        put("final", FinalStmtToken.class);
         put("private", PrivateStmtToken.class);
         put("protected", ProtectedStmtToken.class);
         put("public", PublicStmtToken.class);
