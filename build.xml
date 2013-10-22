@@ -5,9 +5,18 @@
 
     <property name="lib.dir" value="lib" />
     <property name="build.dir" value="build" />
+    <property name="test.dir" value="tests" />
     <property name="src.dir" value="src" />
     <property name="jar.dir" value="${build.dir}/jar" />
     <property name="jar.file" value="${ant.project.name}-${version}.jar" />
+
+    <path id="classpath.test">
+        <pathelement location="${build.dir}/classes" />
+        <pathelement location="${build.dir}/test-classes" />
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
 
     <path id="lib.path.id">
         <fileset dir="${lib.dir}" />
@@ -19,7 +28,7 @@
     </path>
 
     <target name="clean">
-        <delete dir="build"/>
+        <delete dir="${build.dir}"/>
     </target>
 
     <target name="resolve" description="--> retrieve dependencies with ivy">
@@ -47,4 +56,22 @@
 
     <target name="build-all" depends="clean,resolve,jar"/>
     <target name="main" depends="clean,run"/>
+
+    <target name="compileTest" depends="clean, resolve, compile">
+        <mkdir dir="${build.dir}/test-classes"/>
+        <javac includeantruntime="false" encoding="utf-8" srcdir="${test.dir}" destdir="${build.dir}/test-classes">
+            <classpath refid="classpath.test" />
+        </javac>
+    </target>
+
+    <target name="test" depends="compileTest">
+        <junit errorproperty="junit.failure" failureproperty="junit.failure">
+            <classpath refid="classpath.test" />
+            <formatter type="brief" usefile="false" />
+            <batchtest>
+                <fileset dir="${build.dir}/test-classes" includes="**/*Test.class" />
+            </batchtest>
+        </junit>
+        <fail if="junit.failure" message="Unit test(s) failed. See reports!"/>
+    </target>
 </project>
