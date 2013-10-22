@@ -10,14 +10,9 @@ import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
 
 import java.io.File;
-import java.util.List;
-import java.util.ListIterator;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -39,10 +34,4 @@ public class SyntaxAnalyzerTest {
         Tokenizer tokenizer = new Tokenizer(context, "foobar");
         new SyntaxAnalyzer(tokenizer);
     }
-
-    @Test
-    public void testNamedFunction(){
-
-    }
-
 }

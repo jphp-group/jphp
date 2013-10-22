@@ -26,8 +26,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     protected CallExprToken processCall(Token previous, Token current, ListIterator<Token> iterator){
         ExprStmtToken param;
-        CallExprToken result = (CallExprToken)current;
-        result.setName(previous);
 
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
         do {
@@ -38,7 +36,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 parameters.add(param);
 
         } while (param != null);
+        nextToken(iterator);
 
+        CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
+        result.setName(previous);
         result.setParameters(parameters);
         return result;
     }
