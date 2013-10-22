@@ -1,6 +1,9 @@
 PHP Compiler for JVM
 ====================
 
+[![Build Status](https://travis-ci.org/dim-s/jvm-php.png?branch=master)](https://travis-ci.org/dim-s/jvm-php)
+
+
 ### Are you seriously?
 
 Yes, we know about another implementation of PHP for JVM: http://quercus.caucho.com/,
