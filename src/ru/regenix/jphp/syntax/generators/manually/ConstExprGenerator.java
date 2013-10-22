@@ -1,14 +1,13 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
-import ru.regenix.jphp.lexer.tokens.expr.CommaToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.ArrayExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.CommaToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.ArrayKeyValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;
 
 import java.util.ListIterator;
@@ -43,10 +42,12 @@ public class ConstExprGenerator extends Generator<ExprStmtToken> {
         super(analyzer);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator) {
-        ExprStmtToken expr = (ExprStmtToken)analyzer.generateToken(current, iterator, ExprGenerator.class);
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
+                                  boolean commaSeparator, BraceExprToken.Kind closedBraceKind) {
+        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class).getToken(
+                current, iterator, commaSeparator, closedBraceKind
+        );
         for (Token token : expr.getTokens()){
             if (isOpenedBrace(token, BraceExprToken.Kind.SIMPLE) ||
                     isClosedBrace(token, BraceExprToken.Kind.SIMPLE))
@@ -56,6 +57,11 @@ public class ConstExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(token);
         }
         return expr;
+    }
+
+    @Override
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator) {
+        return getToken(current, iterator, false, null);
     }
 
     @Override

@@ -6,14 +6,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.env.TraceInfo;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.*;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 
+import java.io.File;
 import java.math.BigInteger;
 
 import static org.junit.Assert.*;
@@ -21,6 +24,8 @@ import static org.junit.Assert.*;
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TokenizerTest {
+
+    private Context context = new Context(new Environment(), new File("test.php"));
 
     @Test
     public void testSimple(){
@@ -157,5 +162,51 @@ public class TokenizerTest {
         assertEquals(1, traceInfo.getEndLine());
         assertEquals(2, traceInfo.getStartPosition());
         assertEquals(12, traceInfo.getEndPosition());
+    }
+
+    @Test
+    public void testComplex(){
+        Tokenizer tokenizer = new Tokenizer(context, "0==10==='30';");
+
+        assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
+        assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
+        assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
+        assertTrue(tokenizer.nextToken() instanceof IdenticalExprToken);
+        assertTrue(tokenizer.nextToken() instanceof StringExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+
+        tokenizer = new Tokenizer(context, "foobar =; 20;");
+
+        assertTrue(tokenizer.nextToken() instanceof NameToken);
+        assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+        assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+
+        tokenizer = new Tokenizer(context, "123foobar");
+        Token token = tokenizer.nextToken();
+        assertFalse(token instanceof IntegerExprToken);
+        assertFalse(token instanceof NameToken);
+        assertTrue(token.getClass() == Token.class);
+        assertEquals("123foobar", token.getWord());
+
+        assertNull(tokenizer.nextToken());
+    }
+
+    @Test
+    public void testBraces(){
+        Tokenizer tokenizer = new Tokenizer(context, " :: ->foobar('a', 1, 3.0);");
+
+        assertTrue(tokenizer.nextToken() instanceof StaticAccessExprToken);
+        assertTrue(tokenizer.nextToken() instanceof DynamicAccessExprToken);
+        assertTrue(tokenizer.nextToken() instanceof NameToken);
+        assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
+        assertTrue(tokenizer.nextToken() instanceof StringExprToken);
+        assertTrue(tokenizer.nextToken() instanceof CommaToken);
+        assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
+        assertTrue(tokenizer.nextToken() instanceof CommaToken);
+        assertTrue(tokenizer.nextToken() instanceof DoubleExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
     }
 }

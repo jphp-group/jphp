@@ -15,6 +15,7 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean returnReference;
     protected List<ArgumentStmtToken> arguments;
     protected BodyStmtToken body;
+    protected boolean interfacable;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -66,5 +67,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setBody(BodyStmtToken body) {
         this.body = body;
+    }
+
+    public boolean isInterfacable() {
+        return interfacable;
+    }
+
+    public void setInterfacable(boolean interfacable) {
+        this.interfacable = interfacable;
     }
 }

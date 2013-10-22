@@ -1,9 +1,9 @@
 package ru.regenix.jphp.lexer.tokens;
 
-
 import ru.regenix.jphp.env.TraceInfo;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 public class TokenMeta {
@@ -43,6 +43,10 @@ public class TokenMeta {
         }
 
         return new TokenMeta(builder.toString(), startLine, endLine, startPosition, endPosition);
+    }
+
+    public static TokenMeta of(Token... tokens){
+        return of(Arrays.asList(tokens));
     }
 
     public String getWord() {

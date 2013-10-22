@@ -32,7 +32,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         checkUnexpectedEnd(iterator);
 
         Token next = iterator.next();
-        Token name = analyzer.generateToken(next, iterator, NameGenerator.class);
+        Token name = analyzer.generator(NameGenerator.class).getToken(next, iterator);
         if (name != null && ((FulledNameToken) name).isSingle()){
             result.setName((NameToken)name);
         } else
@@ -81,8 +81,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         );
 
                     if (current instanceof ConstStmtToken){
-                        ConstStmtToken one =
-                                (ConstStmtToken)analyzer.generateToken(current, iterator, ConstGenerator.class);
+                        ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
                         constants.add(one);
                     } else if (isTokenClass(current, modifiers)){

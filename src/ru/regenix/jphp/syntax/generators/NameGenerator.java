@@ -47,4 +47,9 @@ public class NameGenerator extends Generator<NameToken> {
         }
         return null;
     }
+
+    @Override
+    public boolean isAutomatic() {
+        return false;
+    }
 }

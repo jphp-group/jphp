@@ -3,6 +3,7 @@ package ru.regenix.jphp.syntax.generators;
 import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
@@ -23,9 +24,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!isOpenedBrace(next, kind))
             unexpectedToken(next, BraceExprToken.Kind.toOpen(kind));
 
-        ExprStmtToken result = (ExprStmtToken)analyzer.generateToken(
-                nextToken(iterator), iterator, ExprGenerator.class
-        );
+        ExprStmtToken result = analyzer.generator(ExprGenerator.class).getToken(nextToken(iterator), iterator);
 
         if (!isClosedBrace(next, kind))
             unexpectedToken(next, BraceExprToken.Kind.toClose(kind));
@@ -35,26 +34,20 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
-        BodyStmtToken body = (BodyStmtToken) analyzer.generateToken(
-                nextToken(iterator), iterator, BodyGenerator.class
-        );
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setCondition(condition);
         result.setBody(body);
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
-        BodyStmtToken body = (BodyStmtToken) analyzer.generateToken(
-                nextToken(iterator), iterator, BodyGenerator.class
-        );
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setCondition(condition);
         result.setBody(body);
     }
 
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
-        BodyStmtToken body = (BodyStmtToken) analyzer.generateToken(
-                nextToken(iterator), iterator, BodyGenerator.class
-        );
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setBody(body);
 
         Token next = nextToken(iterator);
@@ -69,9 +62,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected List<Token> processSimpleExpr(Token current, ListIterator<Token> iterator){
-        ExprStmtToken token = (ExprStmtToken) analyzer.generateToken(
-                current, iterator, SimpleExprGenerator.class
-        );
+        ExprStmtToken token = analyzer.generator(SimpleExprGenerator.class).getToken(current, iterator);
         return token.getTokens();
     }
 
@@ -88,12 +79,19 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof DoStmtToken){
                 processDo((DoStmtToken)current, iterator);
                 tokens.add(current);
-            } else if (current instanceof ExprStmtToken || current instanceof FunctionStmtToken){
+            } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
+                if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                    break;
+                }
+
                 List<Token> tmp = processSimpleExpr(current, iterator);
                 tokens.addAll(tmp);
                 break;
             } else {
-               unexpectedToken(current);
+                if (!tokens.isEmpty())
+                    unexpectedToken(current);
+
+                break;
             }
 
             current = nextToken(iterator);

@@ -59,28 +59,25 @@ public class SyntaxAnalyzer {
         }
     }
 
-    public Token generateToken(Token current, ListIterator<Token> iterator){
-        return generateToken(current, iterator, null);
+    @SuppressWarnings("unchecked")
+    public <T extends Generator> T generator(Class<T> clazz){
+        Generator generator = map.get(clazz);
+        if (generator == null)
+            throw new AssertionError("Generator '"+clazz.getName()+"' not found");
+
+        return (T) generator;
     }
 
-    public Token generateToken(Token current, ListIterator<Token> iterator, Class<? extends Generator> clazz){
+    public Token generateToken(Token current, ListIterator<Token> iterator){
         Token gen = null;
 
-        if (clazz == null){
-            for(Generator generator : generators){
-                if (!generator.isAutomatic())
-                    continue;
+        for(Generator generator : generators){
+            if (!generator.isAutomatic())
+                continue;
 
-                gen = generator.getToken(current, iterator);
-                if (gen != null)
-                    break;
-            }
-        } else {
-            Generator generator = map.get(clazz);
-            if (generator == null)
-                throw new RuntimeException("Generator for " + clazz.getName() + " not found");
-
-            return generator.getToken(current, iterator);
+            gen = generator.getToken(current, iterator);
+            if (gen != null)
+                break;
         }
 
         return gen;

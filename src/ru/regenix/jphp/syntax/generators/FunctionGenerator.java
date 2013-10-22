@@ -1,10 +1,11 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
+import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.AmpersandToken;
+import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.CommaToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.AssignExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;
@@ -47,10 +48,13 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         next = nextToken(iterator);
         if (next instanceof AssignExprToken){
-            value = (ExprStmtToken) analyzer.generateToken(next, iterator, ConstExprGenerator.class);
+            value = analyzer.generator(ConstExprGenerator.class).getToken(
+                    nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE
+            );
         } else {
             if (next instanceof CommaToken || isClosedBrace(next, BraceExprToken.Kind.SIMPLE)){
-                iterator.previous();
+                if (next instanceof BraceExprToken)
+                    iterator.previous();
             } else
                 unexpectedToken(next);
         }
@@ -78,8 +82,14 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
     protected void processBody(FunctionStmtToken result, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
-        BodyStmtToken body = (BodyStmtToken) analyzer.generateToken(next, iterator, BodyGenerator.class);
-        result.setBody(body);
+        if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
+            BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(next, iterator);
+            result.setBody(body);
+        } else if (next instanceof SemicolonExprToken) {
+            result.setInterfacable(true);
+            result.setBody(null);
+        } else
+            unexpectedToken(next);
     }
 
     @Override
@@ -94,6 +104,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 if (!brace.isSimpleOpened())
                     unexpectedToken(brace, "(");
 
+                result.setName((NameToken)next);
                 processArguments(result, iterator);
                 processBody(result, iterator);
 

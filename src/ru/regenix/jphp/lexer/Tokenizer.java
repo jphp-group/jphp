@@ -58,7 +58,7 @@ public class Tokenizer {
             return null;
 
         if (endPosition == startPosition){
-            if (startPosition + 1 >= codeLength)
+            if (startPosition >= codeLength)
                 return null;
             return code.substring(startPosition, startPosition + 1);
         }
@@ -93,13 +93,15 @@ public class Tokenizer {
         if (tokenClass != null){
             int startPosition = currentPosition;
             currentPosition += len + 1;
-            return buildToken(tokenClass, buildMeta(startPosition, currentLine));
+            Token token = buildToken(tokenClass, buildMeta(startPosition, currentLine));
+            currentPosition -= 1;
+            return token;
         }
         return null;
     }
 
     public Token nextToken(){
-        char ch;
+        char ch = '\0';
         char prev_ch = '\0';
         int startPosition = currentPosition + 1;
         int startLine = currentLine;
@@ -164,8 +166,13 @@ public class Tokenizer {
         }
 
         TokenMeta meta = buildMeta(startPosition, startLine);
+        if (currentPosition != startPosition && GrammarUtils.isDelimiter(ch))
+            currentPosition -= 1;
+
         if (meta == null)
             return null;
+
+        //currentPosition -= 1;
 
         if (string != null)
             throw new ParseException(Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(), meta.toTraceInfo(context.getFile()));

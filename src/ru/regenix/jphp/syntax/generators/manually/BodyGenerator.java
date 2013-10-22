@@ -24,7 +24,8 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
         if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
             List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
             while (iterator.hasNext()){
-                ExprStmtToken expr = (ExprStmtToken)analyzer.generateToken(current, iterator, ExprGenerator.class);
+                current = nextToken(iterator);
+                ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
                 if (expr == null)
                     break;
 
