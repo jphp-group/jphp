@@ -16,7 +16,7 @@ import java.io.File;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SyntaxAnalyzerTest {
+public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
 
     private Context context = new Context(new Environment(), new File("test.php"));
 

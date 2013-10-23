@@ -24,9 +24,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!isOpenedBrace(next, kind))
             unexpectedToken(next, BraceExprToken.Kind.toOpen(kind));
 
-        ExprStmtToken result = analyzer.generator(ExprGenerator.class).getToken(nextToken(iterator), iterator);
+        ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, false, kind);
 
-        if (!isClosedBrace(next, kind))
+        if (!isClosedBrace(nextToken(iterator), kind))
             unexpectedToken(next, BraceExprToken.Kind.toClose(kind));
 
         return result;
@@ -94,8 +95,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             }
 
-            current = nextToken(iterator);
-        } while (iterator.hasNext());
+            if (iterator.hasNext())
+                current = nextToken(iterator);
+            else
+                current = null;
+        } while (current != null);
 
         if (tokens.isEmpty())
             return null;

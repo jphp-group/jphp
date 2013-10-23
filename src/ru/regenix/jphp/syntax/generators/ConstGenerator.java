@@ -4,18 +4,16 @@ package ru.regenix.jphp.syntax.generators;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
-import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.AssignExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ConstStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ListIterator;
 
 public class ConstGenerator extends Generator<ConstStmtToken> {
@@ -40,32 +38,8 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
                 current.toTraceInfo(analyzer.getFile())
             );
 
-        List<Token> exprTokens = new ArrayList<Token>();
-
-        while (iterator.hasNext()){
-            current = iterator.next();
-            if (isTokenClass(current, valueTokens)){
-                exprTokens.add(current);
-                continue;
-            }
-
-            if (current instanceof SemicolonExprToken){
-                if (exprTokens.isEmpty())
-                    throw new ParseException(
-                        Messages.ERR_PARSE_UNEXPECTED_X.fetch(current.getWord()),
-                        current.toTraceInfo(analyzer.getFile())
-                    );
-
-                break;
-            }
-
-            throw new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X.fetch(current.getType()),
-                current.toTraceInfo(analyzer.getFile())
-            );
-        }
-
-        result.setValue(new ExprStmtToken(exprTokens));
+        ExprStmtToken value = analyzer.generator(ConstExprGenerator.class).getToken(nextToken(iterator), iterator);
+        result.setValue(value);
     }
 
     @Override

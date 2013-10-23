@@ -21,8 +21,8 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
 
     @Override
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator) {
+        List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
         if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
-            List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
             while (iterator.hasNext()){
                 current = nextToken(iterator);
                 ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
@@ -31,15 +31,18 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
 
                 instructions.add(expr);
             }
-
-            if (instructions.isEmpty())
-                return null;
-
-            BodyStmtToken result = new BodyStmtToken(TokenMeta.of(instructions));
-            result.setInstructions(instructions);
-            return result;
+        } else {
+            ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
+            if (expr != null)
+                instructions.add(expr);
         }
-        return null;
+
+        if (instructions.isEmpty())
+            return null;
+
+        BodyStmtToken result = new BodyStmtToken(TokenMeta.of(instructions));
+        result.setInstructions(instructions);
+        return result;
     }
 
     @Override

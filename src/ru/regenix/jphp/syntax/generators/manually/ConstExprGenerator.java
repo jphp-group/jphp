@@ -48,6 +48,7 @@ public class ConstExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class).getToken(
                 current, iterator, commaSeparator, closedBraceKind
         );
+
         for (Token token : expr.getTokens()){
             if (isOpenedBrace(token, BraceExprToken.Kind.SIMPLE) ||
                     isClosedBrace(token, BraceExprToken.Kind.SIMPLE))

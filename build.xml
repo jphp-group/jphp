@@ -57,7 +57,7 @@
     <target name="build-all" depends="clean, jar"/>
     <target name="main" depends="clean,run"/>
 
-    <target name="compileTest" depends="clean, resolve, compile">
+    <target name="compileTest" depends="clean, compile">
         <mkdir dir="${build.dir}/test-classes"/>
         <javac includeantruntime="false" encoding="utf-8" srcdir="${test.dir}" destdir="${build.dir}/test-classes">
             <classpath refid="classpath.test" />

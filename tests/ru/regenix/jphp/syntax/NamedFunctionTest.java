@@ -21,7 +21,7 @@ import java.util.ListIterator;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NamedFunctionTest {
+public class NamedFunctionTest extends AbstractSyntaxTestCase {
 
     private Context context = new Context(new Environment(), new File("test.php"));
 

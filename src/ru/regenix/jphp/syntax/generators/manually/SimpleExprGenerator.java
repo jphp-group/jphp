@@ -105,9 +105,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 iterator.previous();
                 break;
             } else if (current instanceof SemicolonExprToken){
-                if (commaSeparator || closedBraceKind != null)
+                if (commaSeparator || closedBraceKind != null || tokens.isEmpty())
                     unexpectedToken(current);
                 break;
+            } else if (current instanceof BraceExprToken){
+                unexpectedToken(current);
             } else if (current instanceof ExprToken) {
                 Token token = processSimpleToken(current, previous);
                 if (token != null)
@@ -118,8 +120,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
 
             previous = current;
-            current  = nextToken(iterator);
-        } while (iterator.hasNext());
+            if (iterator.hasNext())
+                current = nextToken(iterator);
+            else
+                current = null;
+        } while (current != null);
 
         if (tokens.isEmpty())
             return null;
