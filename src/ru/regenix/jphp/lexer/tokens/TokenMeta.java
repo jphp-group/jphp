@@ -26,7 +26,7 @@ public class TokenMeta {
     public static TokenMeta of(List<? extends Token> tokens){
         int startPosition = 0, startLine = 0, endPosition = 0, endLine = 0;
 
-       // StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         int i = 0;
         int size = tokens.size();
         for(Token token : tokens){
@@ -34,7 +34,7 @@ public class TokenMeta {
                 startPosition = token.getMeta().startPosition;
                 startLine = token.getMeta().startLine;
             }
-            //builder.append(token.getMeta().word);
+            builder.append(token.getMeta().word);
             if (i == size - 1){
                 endPosition = token.getMeta().endPosition;
                 endLine = token.getMeta().endLine;
@@ -42,7 +42,7 @@ public class TokenMeta {
             i++;
         }
 
-        return new TokenMeta("", startLine, endLine, startPosition, endPosition);
+        return new TokenMeta(builder.toString(), startLine, endLine, startPosition, endPosition);
     }
 
     public static TokenMeta of(Token... tokens){

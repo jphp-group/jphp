@@ -11,7 +11,7 @@ import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.CallExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 

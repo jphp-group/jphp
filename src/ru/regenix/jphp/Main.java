@@ -6,16 +6,19 @@ import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
+import java.util.List;
+
 public class Main {
 
     public static void main(String[] args) {
         Environment environment = new Environment();
         Context context = new Context(environment, null);
 
-        Tokenizer tokenizer = new Tokenizer(context, "0 ==10; `cmd`;");
+        Tokenizer tokenizer = new Tokenizer(context, "if(true){ function myfunc(){ } }");
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
-        for(Token token : analyzer.getTree()){
+        List<Token> tree = analyzer.getTree();
+        for(Token token : tree){
             System.out.println(token.toString());
         }
     }

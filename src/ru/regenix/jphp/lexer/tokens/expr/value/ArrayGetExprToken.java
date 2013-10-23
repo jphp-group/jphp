@@ -1,12 +1,13 @@
-package ru.regenix.jphp.lexer.tokens.expr;
+package ru.regenix.jphp.lexer.tokens.expr.value;
 
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 import java.util.List;
 
-public class ArrayGetExprToken extends ExprToken {
+public class ArrayGetExprToken extends ValueExprToken {
     private List<ExprStmtToken> parameters;
 
     public ArrayGetExprToken(TokenMeta meta) {

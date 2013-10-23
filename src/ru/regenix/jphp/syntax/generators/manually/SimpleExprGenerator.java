@@ -5,11 +5,9 @@ import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.*;
-import ru.regenix.jphp.lexer.tokens.expr.ArrayGetExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.ArrayPushExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.AssignExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.AssignRefExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.ArrayGetExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.operator.*;
+import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.Generator;
@@ -44,9 +42,38 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
-    protected Token processSimpleToken(Token current, Token previous){
-        if (previous instanceof AssignExprToken && current instanceof AmpersandToken){
-            return new AssignRefExprToken(TokenMeta.of(previous, current));
+    protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator){
+        if (current instanceof AssignExprToken && next instanceof AmpersandToken){
+            iterator.next();
+            return new AssignRefExprToken(TokenMeta.of(current, next));
+        }
+
+        if ((current instanceof MinusExprToken || current instanceof PlusExprToken)
+                && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
+                        || next instanceof HexExprValue)){
+
+            if (!(previous instanceof OperatorExprToken)){
+                iterator.next();
+                // if it minus
+                if (current instanceof MinusExprToken){
+                    if (next instanceof IntegerExprToken){
+                        return new IntegerExprToken(TokenMeta.of(current, next));
+                    } else if (next instanceof DoubleExprToken){
+                        return new DoubleExprToken(TokenMeta.of(current, next));
+                    } else {
+                        return new HexExprValue(TokenMeta.of(current, next));
+                    }
+                }
+
+                // if it plus nothing
+                return next;
+            }
+        }
+
+        if (current instanceof MinusExprToken){
+            if (!(previous instanceof ValueExprToken)){
+                return new UnarMinusExprToken(current.getMeta());
+            }
         }
 
         return null;
@@ -81,6 +108,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                                   boolean commaSeparator, BraceExprToken.Kind closedBraceKind) {
         List<Token> tokens = new ArrayList<Token>();
         Token previous = null;
+        Token next = iterator.hasNext() ? iterator.next() : null;
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 if (previous instanceof NameToken || previous instanceof VariableExprToken){
@@ -111,7 +139,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof BraceExprToken){
                 unexpectedToken(current);
             } else if (current instanceof ExprToken) {
-                Token token = processSimpleToken(current, previous);
+                Token token = processSimpleToken(current, previous, next, iterator);
                 if (token != null)
                     current = token;
 
@@ -120,9 +148,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
 
             previous = current;
-            if (iterator.hasNext())
+            if (iterator.hasNext()){
                 current = nextToken(iterator);
-            else
+                next = iterator.hasNext() ? iterator.next() : null;
+            } else
                 current = null;
         } while (current != null);
 

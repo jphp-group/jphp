@@ -12,7 +12,11 @@ public class HexExprValue extends ValueExprToken {
 
     public HexExprValue(TokenMeta meta) {
         super(meta, TokenType.T_LNUMBER);
-        value = new BigInteger(meta.getWord().substring(2), 16).longValue();
+        String word = meta.getWord();
+        if (word.startsWith("-"))
+            value = - new BigInteger(meta.getWord().substring(3), 16).longValue();
+        else
+            value = new BigInteger(meta.getWord().substring(2), 16).longValue();
     }
 
     public long getValue() {

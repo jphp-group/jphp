@@ -2,6 +2,7 @@ package ru.regenix.jphp.lexer.tokens.expr;
 
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
