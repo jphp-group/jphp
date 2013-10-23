@@ -113,9 +113,6 @@ public class TokenFinder {
         if (token != null)
             return token;
 
-        if (word.startsWith("$"))
-            return VariableExprToken.class;
-
         if (word.matches("^[0-9]+$"))
             return IntegerExprToken.class;
 
@@ -125,8 +122,11 @@ public class TokenFinder {
         if (word.matches("^0x[0-9a-f]+$"))
             return HexExprValue.class;
 
-        if (word.matches("^[a-z_][\\w_0-9]*$"))
+        if (word.matches("^[a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]*$"))
             return NameToken.class;
+
+        if (word.matches("^[\\$][a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]*$"))
+            return VariableExprToken.class;
 
         return null;
     }
