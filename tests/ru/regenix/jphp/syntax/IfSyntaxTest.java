@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -42,6 +43,29 @@ public class IfSyntaxTest extends AbstractSyntaxTestCase {
         IfStmtToken token = (IfStmtToken) ((ExprStmtToken) tree.get(0)).getTokens().get(0);
         Assert.assertNotNull(token.getBody());
         Assert.assertNotNull(token.getCondition());
+    }
+
+    @Test
+    public void testAlternative(){
+        List<Token> tree = getSyntaxTree("if (true): 123; endif");
+        Assert.assertTrue(tree.size() == 1);
+        Assert.assertTrue(tree.get(0) instanceof ExprStmtToken);
+        Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().size() == 1);
+        Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().get(0) instanceof IfStmtToken);
+
+        IfStmtToken token = (IfStmtToken) ((ExprStmtToken) tree.get(0)).getTokens().get(0);
+        Assert.assertNotNull(token.getBody());
+        Assert.assertNotNull(token.getCondition());
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidAlternative(){
+        getSyntaxTree("if (true){ 123; endif");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testInvalidAlternative2(){
+        getSyntaxTree("if (true): 123; }");
     }
 
     @Test

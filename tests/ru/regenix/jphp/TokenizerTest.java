@@ -10,7 +10,7 @@ import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.env.TraceInfo;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
+import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.*;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
@@ -173,18 +173,20 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof IdenticalExprToken);
         assertTrue(tokenizer.nextToken() instanceof StringExprToken);
-        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(context, "foobar =; 20;");
+        tokenizer = new Tokenizer(context, "F =; 20;");
 
-        assertTrue(tokenizer.nextToken() instanceof NameToken);
+        Token token;
+        assertTrue((token = tokenizer.nextToken()) instanceof NameToken);
+        assertEquals("F", ((NameToken)token).getName());
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
-        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
-        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
         tokenizer = new Tokenizer(context, "123foobar");
-        Token token = tokenizer.nextToken();
+        token = tokenizer.nextToken();
         assertFalse(token instanceof IntegerExprToken);
         assertFalse(token instanceof NameToken);
         assertTrue(token.getClass() == Token.class);
@@ -207,6 +209,6 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof CommaToken);
         assertTrue(tokenizer.nextToken() instanceof DoubleExprToken);
         assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
-        assertTrue(tokenizer.nextToken() instanceof SemicolonExprToken);
+        assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
     }
 }

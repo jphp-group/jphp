@@ -2,6 +2,8 @@ package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
@@ -18,6 +20,9 @@ public class SyntaxAnalyzer {
     private List<Generator> generators;
     private final Map<Class<? extends Generator>, Generator> map = new HashMap<Class<? extends Generator>, Generator>();
 
+    private NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
+    private ClassStmtToken clazz;
+
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
 
@@ -25,6 +30,7 @@ public class SyntaxAnalyzer {
         tree = new ArrayList<Token>();
         generators = new ArrayList<Generator>(50);
 
+        generators.add(new NamespaceGenerator(this));
         generators.add(new ClassGenerator(this));
         generators.add(new ConstGenerator(this));
         generators.add(new FunctionGenerator(this));
@@ -89,5 +95,21 @@ public class SyntaxAnalyzer {
 
     public File getFile(){
         return tokenizer.getFile();
+    }
+
+    public NamespaceStmtToken getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(NamespaceStmtToken namespace) {
+        this.namespace = namespace;
+    }
+
+    public ClassStmtToken getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(ClassStmtToken clazz) {
+        this.clazz = clazz;
     }
 }

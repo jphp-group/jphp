@@ -1,6 +1,6 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
+import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
@@ -35,14 +35,18 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
-        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+                nextToken(iterator), iterator, EndifStmtToken.class
+        );
         result.setCondition(condition);
         result.setBody(body);
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
-        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+                nextToken(iterator), iterator, EndwhileStmtToken.class
+        );
         result.setCondition(condition);
         result.setBody(body);
     }
@@ -56,7 +60,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.setCondition(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
 
             next = nextToken(iterator);
-            if (next instanceof SemicolonExprToken)
+            if (next instanceof SemicolonToken)
                 return;
         }
         unexpectedToken(next);
@@ -67,11 +71,20 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         return token.getTokens();
     }
 
-    @Override
-    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator) {
+    @SuppressWarnings("unchecked")
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
+                                  Class<? extends EndStmtToken> endToken) {
         List<Token> tokens = new ArrayList<Token>();
         do {
-            if (current instanceof IfStmtToken){
+            if (current instanceof EndStmtToken){
+                if (endToken == null)
+                    unexpectedToken(current);
+
+                if (isTokenClass(current, endToken))
+                    break;
+
+                unexpectedToken(current);
+            } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken)current, iterator);
                 tokens.add(current);
             } else if (current instanceof WhileStmtToken){
@@ -82,6 +95,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 tokens.add(current);
             } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
                 if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                    if (endToken != null)
+                        unexpectedToken(current);
+
                     break;
                 }
 
@@ -105,5 +121,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             return null;
 
         return new ExprStmtToken(tokens);
+    }
+
+    @Override
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator) {
+        return getToken(current, iterator, null);
     }
 }

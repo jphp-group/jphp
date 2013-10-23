@@ -14,7 +14,7 @@ public class FulledNameToken extends NameToken {
         super(meta);
     }
 
-    public FulledNameToken(TokenMeta meta, List<Token> names) {
+    public FulledNameToken(TokenMeta meta, List<? extends Token> names) {
         super(meta);
         this.names = new ArrayList<NameToken>();
         for (Token name : names)

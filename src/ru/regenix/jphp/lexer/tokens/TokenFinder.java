@@ -42,9 +42,10 @@ public class TokenFinder {
         put("new", NewExprToken.class);
         put("instanceof", InstanceofExprToken.class);
         put(".", ConcatExprToken.class);
+        put(":", ColonToken.class);
         put("true", BooleanExprToken.class);
         put("false", BooleanExprToken.class);
-        put(";", SemicolonExprToken.class);
+        put(";", SemicolonToken.class);
         put("&", AmpersandToken.class);
         put(",", CommaToken.class);
 
@@ -60,8 +61,24 @@ public class TokenFinder {
         put("parent", ParentExprToken.class);
         put("$this", ThisExprToken.class);
 
-        put("class", ClassStmtToken.class);
         put("if", IfStmtToken.class);
+        put("else", ElseStmtToken.class);
+        put("elseif", ElseIfStmtToken.class);
+        put("while", WhileStmtToken.class);
+        put("do", DoStmtToken.class);
+        put("switch", SwitchStmtToken.class);
+        put("case", CaseStmtToken.class);
+        put("default", DefaultStmtToken.class);
+        put("declare", DeclareStmtToken.class);
+        put("return", ReturnStmtToken.class);
+        put("endif", EndifStmtToken.class);
+        put("endforeach", EndforeachStmtToken.class);
+        put("endfor", EndforStmtToken.class);
+        put("endwhile", EndwhileStmtToken.class);
+        put("endswitch", EndswitchStmtToken.class);
+        put("enddeclare", EnddeclareStmtToken.class);
+
+        put("class", ClassStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);
         put("implements", ImplementsStmtToken.class);
@@ -106,7 +123,7 @@ public class TokenFinder {
         if (word.matches("^0x[0-9a-f]+$"))
             return HexExprValue.class;
 
-        if (word.matches("^[a-z_]{1}[a-z_0-9]+$"))
+        if (word.matches("^[a-z_][\\w_0-9]*$"))
             return NameToken.class;
 
         return null;

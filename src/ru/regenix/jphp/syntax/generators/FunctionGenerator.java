@@ -1,6 +1,6 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.lexer.tokens.SemicolonExprToken;
+import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.AmpersandToken;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
@@ -85,7 +85,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
             BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(next, iterator);
             result.setBody(body);
-        } else if (next instanceof SemicolonExprToken) {
+        } else if (next instanceof SemicolonToken) {
             result.setInterfacable(true);
             result.setBody(null);
         } else

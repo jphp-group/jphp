@@ -2,10 +2,10 @@ package ru.regenix.jphp.syntax.generators;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
@@ -29,16 +29,13 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
     }
 
     protected void processName(ClassStmtToken result, ListIterator<Token> iterator){
-        checkUnexpectedEnd(iterator);
-
-        Token next = iterator.next();
-        Token name = analyzer.generator(NameGenerator.class).getToken(next, iterator);
-        if (name != null && ((FulledNameToken) name).isSingle()){
+        Token name = nextToken(iterator);
+        if (name instanceof NameToken){
             result.setName((NameToken)name);
         } else
             throw new ParseException(
-                    Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(next.getType(), "{"),
-                    next.toTraceInfo(analyzer.getFile())
+                    Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(name.getType(), TokenType.T_STRING),
+                    name.toTraceInfo(analyzer.getFile())
             );
     }
 
@@ -65,8 +62,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
     @SuppressWarnings("unchecked")
     protected void processBody(ClassStmtToken result, ListIterator<Token> iterator){
-        checkUnexpectedEnd(iterator);
-        Token token = iterator.next();
+        analyzer.setClazz(result);
+
+        Token token = nextToken(iterator);
         if (token instanceof BraceExprToken){
             BraceExprToken brace = (BraceExprToken)token;
             if (brace.isBlockOpened()){
@@ -92,6 +90,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 }
 
                 result.setConstants(constants);
+                analyzer.setClazz(null);
                 return;
             }
         }
