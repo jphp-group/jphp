@@ -61,6 +61,7 @@ public class TokenFinder {
         put("parent", ParentExprToken.class);
         put("$this", ThisExprToken.class);
 
+        put("as", AsStmtToken.class);
         put("if", IfStmtToken.class);
         put("else", ElseStmtToken.class);
         put("elseif", ElseIfStmtToken.class);
@@ -83,6 +84,7 @@ public class TokenFinder {
         put("const", ConstStmtToken.class);
         put("implements", ImplementsStmtToken.class);
         put("namespace", NamespaceStmtToken.class);
+        put("use", NamespaceUseStmtToken.class);
         put("abstract", AbstractStmtToken.class);
         put("final", FinalStmtToken.class);
         put("private", PrivateStmtToken.class);

@@ -4,24 +4,22 @@ import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NamespaceStmtToken extends StmtToken {
 
     private FulledNameToken name;
-    private List<NamespaceUseStmtToken> uses;
+    private final List<NamespaceUseStmtToken> uses;
     private BodyStmtToken body;
 
     public NamespaceStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_NAMESPACE);
+        this.uses = new ArrayList<NamespaceUseStmtToken>();
     }
 
     public List<NamespaceUseStmtToken> getUses() {
         return uses;
-    }
-
-    public void setUses(List<NamespaceUseStmtToken> uses) {
-        this.uses = uses;
     }
 
     public FulledNameToken getName() {

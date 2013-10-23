@@ -34,7 +34,6 @@ public class NamespaceGenerator extends Generator<NamespaceStmtToken> {
             if (name == null)
                 iterator.previous();
 
-
             analyzer.setNamespace(result);
             processBody(result, iterator);
             analyzer.setNamespace(NamespaceStmtToken.getDefault());

@@ -108,6 +108,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 ClassStmtToken result = (ClassStmtToken)next;
                 result.setAbstract(current instanceof AbstractStmtToken);
                 result.setFinal(current instanceof FinalStmtToken);
+                result.setNamespace(analyzer.getNamespace());
 
                 return result;
             } else {
@@ -126,10 +127,15 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         ClassStmtToken result = processDefine(current, iterator);
 
         if (result != null){
+            if (analyzer.getClazz() != null)
+                unexpectedToken(current);
+
+            analyzer.setClazz(result);
             processName(result, iterator);
             processExtends(result, iterator);
             processImplements(result, iterator);
             processBody(result, iterator);
+            analyzer.setClazz(null);
         }
 
         return result;

@@ -3,6 +3,7 @@ package ru.regenix.jphp.syntax;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
@@ -22,6 +23,7 @@ public class SyntaxAnalyzer {
 
     private NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
     private ClassStmtToken clazz;
+    private FunctionStmtToken function;
 
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
@@ -31,6 +33,7 @@ public class SyntaxAnalyzer {
         generators = new ArrayList<Generator>(50);
 
         generators.add(new NamespaceGenerator(this));
+        generators.add(new UseGenerator(this));
         generators.add(new ClassGenerator(this));
         generators.add(new ConstGenerator(this));
         generators.add(new FunctionGenerator(this));
@@ -111,5 +114,13 @@ public class SyntaxAnalyzer {
 
     public void setClazz(ClassStmtToken clazz) {
         this.clazz = clazz;
+    }
+
+    public FunctionStmtToken getFunction() {
+        return function;
+    }
+
+    public void setFunction(FunctionStmtToken function) {
+        this.function = function;
     }
 }

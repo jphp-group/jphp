@@ -96,10 +96,13 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator) {
         if (current instanceof FunctionStmtToken){
             FunctionStmtToken result = (FunctionStmtToken)current;
-            checkUnexpectedEnd(iterator);
 
-            Token next = iterator.next();
+            Token next = nextToken(iterator);
             if (next instanceof NameToken){
+                if (analyzer.getFunction() != null)
+                    unexpectedToken(current);
+
+                analyzer.setFunction(result);
                 BraceExprToken brace = nextAndExpected(iterator, BraceExprToken.class);
                 if (!brace.isSimpleOpened())
                     unexpectedToken(brace, "(");
@@ -108,6 +111,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 processArguments(result, iterator);
                 processBody(result, iterator);
 
+                analyzer.setFunction(null);
                 return result;
             } else if (next instanceof BraceExprToken){
                 // Closure
