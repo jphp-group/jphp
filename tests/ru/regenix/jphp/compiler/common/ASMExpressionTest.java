@@ -10,6 +10,9 @@ import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.lexer.tokens.expr.operator.MulExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
@@ -62,6 +65,21 @@ public class ASMExpressionTest {
         ExprStmtToken expression = getASMExpression("(1 + 2) * 3").getResult();
         Assert.assertEquals(5, expression.getTokens().size());
         Assert.assertEquals("12+3*", expression.getWord());
+    }
+
+    @Test
+    public void testCallExpr(){
+        ExprStmtToken expression = getASMExpression("func(1 + 2, 3) * 3").getResult();
+        Assert.assertEquals(3, expression.getTokens().size());
+
+        Assert.assertTrue(expression.getTokens().get(0) instanceof CallExprToken);
+        CallExprToken call = (CallExprToken)expression.getTokens().get(0);
+        Assert.assertEquals(2, call.getParameters().size());
+        Assert.assertEquals("12+", call.getParameters().get(0).getWord());
+        Assert.assertEquals("3", call.getParameters().get(1).getWord());
+
+        Assert.assertTrue(expression.getTokens().get(1) instanceof IntegerExprToken);
+        Assert.assertTrue(expression.getTokens().get(2) instanceof MulExprToken);
     }
 
     @Test(expected = ParseException.class)

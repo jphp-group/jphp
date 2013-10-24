@@ -11,8 +11,9 @@ import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.operator.MinusExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.GetVarExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
@@ -56,6 +57,21 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
 
         CallExprToken subCall = (CallExprToken)param.getTokens().get(0);
         Assert.assertTrue(subCall.getParameters().size() == 2);
+    }
+
+    @Test
+    public void testVarCall(){
+        List<Token> tokens = getSyntaxTree("$x - $func(1, 3, 4);");
+        Assert.assertEquals(1, tokens.size());
+        Assert.assertTrue(tokens.get(0) instanceof ExprStmtToken);
+
+        ExprStmtToken expr = (ExprStmtToken)tokens.get(0);
+        tokens = expr.getTokens();
+
+        Assert.assertTrue(tokens.size() == 3);
+        Assert.assertTrue(tokens.get(0) instanceof VariableExprToken);
+        Assert.assertTrue(tokens.get(1) instanceof MinusExprToken);
+        Assert.assertTrue(tokens.get(2) instanceof CallExprToken);
     }
 
     @Test(expected = ParseException.class)

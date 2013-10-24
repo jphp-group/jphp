@@ -69,6 +69,8 @@ public class TokenFinder {
         put("elseif", ElseIfStmtToken.class);
         put("while", WhileStmtToken.class);
         put("do", DoStmtToken.class);
+        put("for", ForStmtToken.class);
+        put("foreach", ForeachStmtToken.class);
         put("switch", SwitchStmtToken.class);
         put("case", CaseStmtToken.class);
         put("default", DefaultStmtToken.class);
@@ -95,6 +97,9 @@ public class TokenFinder {
         put("try", TryStmtToken.class);
         put("catch", CatchStmtToken.class);
         put("finally", FinallyStmtToken.class);
+        put("extends", ExtendsStmtToken.class);
+        put("implements", ImplementsStmtToken.class);
+        put("global", GlobalStmtToken.class);
 
         put("__line__", LineMacroToken.class);
         put("__file__", FileMacroToken.class);

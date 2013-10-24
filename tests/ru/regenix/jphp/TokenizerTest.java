@@ -16,6 +16,7 @@ import ru.regenix.jphp.lexer.tokens.expr.*;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.macro.*;
+import ru.regenix.jphp.lexer.tokens.stmt.*;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -250,5 +251,52 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof ClassMacroToken);
         assertTrue(tokenizer.nextToken() instanceof NamespaceMacroToken);
         assertTrue(tokenizer.nextToken() instanceof TraitMacroToken);
+    }
+
+    @Test
+    public void testStmt(){
+        Tokenizer tokenizer = new Tokenizer(
+                context,
+                "class function private public protected static final try catch for if foreach switch while " +
+                "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
+                "abstract use namespace finally extends implements global"
+        );
+
+        assertTrue(tokenizer.nextToken() instanceof ClassStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof FunctionStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof PrivateStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof PublicStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ProtectedStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof StaticStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof FinalStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof TryStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof CatchStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ForStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof IfStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ForeachStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof SwitchStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof WhileStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof DefaultStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ReturnStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof DeclareStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof CaseStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof DoStmtToken);
+
+        assertTrue(tokenizer.nextToken() instanceof ElseStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ElseIfStmtToken);
+
+        assertTrue(tokenizer.nextToken() instanceof EndifStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof EndforStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof EndforeachStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof EndwhileStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof EndswitchStmtToken);
+
+        assertTrue(tokenizer.nextToken() instanceof AbstractStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof NamespaceUseStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof NamespaceStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof FinallyStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ExtendsStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof ImplementsStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof GlobalStmtToken);
     }
 }

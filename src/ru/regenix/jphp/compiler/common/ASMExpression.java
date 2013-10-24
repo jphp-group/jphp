@@ -9,6 +9,8 @@ import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.GetVarExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ public class ASMExpression {
     protected ExprStmtToken result;
     protected ExprStmtToken expr;
 
-    public ASMExpression(Context context, ExprStmtToken expr){
+    public ASMExpression(Context context, ExprStmtToken expr, boolean recursive){
         this.context = context;
         this.expr = expr;
 
@@ -31,6 +33,13 @@ public class ASMExpression {
             int prior = getPriority(token);
 
             if (token instanceof ValueExprToken){
+                if (recursive){
+                    Token el = getRecursiveToken((ValueExprToken)token);
+                    if (el != null){
+                        result.add(el);
+                        continue;
+                    }
+                }
                 result.add(token);
             } else if (token instanceof BraceExprToken){
                 BraceExprToken brace = (BraceExprToken)token;
@@ -80,8 +89,28 @@ public class ASMExpression {
         this.result = new ExprStmtToken(result);
     }
 
+    public ASMExpression(Context context, ExprStmtToken expr) {
+        this(context, expr, true);
+    }
+
     public ExprStmtToken getResult(){
         return result;
+    }
+
+    private ValueExprToken getRecursiveToken(ValueExprToken token){
+        if (token instanceof CallExprToken){
+            CallExprToken call = (CallExprToken)token;
+            List<ExprStmtToken> newParameters = new ArrayList<ExprStmtToken>(call.getParameters().size());
+            for(ExprStmtToken param : call.getParameters()){
+                newParameters.add(new ASMExpression(context, param, true).getResult());
+            }
+            call.setParameters(newParameters);
+            return call;
+        } else if (token instanceof GetVarExprToken){
+            GetVarExprToken getVar = (GetVarExprToken)token;
+            getVar.setName(new ASMExpression(context, getVar.getName(), true).getResult());
+        }
+        return null;
     }
 
     private int getPriority(Token token){
@@ -92,7 +121,6 @@ public class ASMExpression {
     }
 
     /**
-     * @throws ru.regenix.jphp.exceptions.ParseException
      * @param token
      */
     protected void unexpectedToken(Token token){

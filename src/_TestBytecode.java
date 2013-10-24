@@ -1,9 +1,9 @@
 
 class _TestBytecode {
 
-    public void method(){
-        int y = 30;
-        if (y < 0)
-            y = 20;
+    private final static int MY_CONST = method();
+
+    public static int method(){
+        return 1;
     }
 }

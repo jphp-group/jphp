@@ -113,4 +113,14 @@ public class ClassStmtToken extends StmtToken {
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
     }
+
+    public String getFulledName(char delimiter){
+        return namespace == null
+                ? name.getName()
+                : namespace.getName().toName(delimiter) + delimiter + name.getName();
+    }
+
+    public String getFulledName(){
+        return getFulledName('\\');
+    }
 }
