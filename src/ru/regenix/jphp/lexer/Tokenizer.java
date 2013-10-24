@@ -10,6 +10,8 @@ import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Tokenizer {
     protected Context context;
@@ -101,6 +103,7 @@ public class Tokenizer {
     }
 
     public Token nextToken(){
+        boolean init = false;
         char ch = '\0';
         char prev_ch = '\0';
         int startPosition = currentPosition + 1;
@@ -118,12 +121,13 @@ public class Tokenizer {
                 break;
 
             ch = code.charAt(currentPosition);
-            if (currentPosition > 1)
+            if (currentPosition > 0 && init)
                 prev_ch = code.charAt(currentPosition - 1);
 
             if (GrammarUtils.isNewline(ch))
                 currentLine++;
 
+            init = true;
             if (string == null) {
                 string = GrammarUtils.isQuote(ch);
                 if (string != null)
@@ -145,7 +149,13 @@ public class Tokenizer {
 
                         break;
                     }
+                } else if (GrammarUtils.isVariableChar(ch)){
+                    if (GrammarUtils.isVariableChar(prev_ch)){
+                        currentPosition -= 1;
+                        break;
+                    }
                 }
+
             } else {
                 if (GrammarUtils.isBackslash(ch)){
                     prevBackslash = !prevBackslash;
@@ -185,6 +195,14 @@ public class Tokenizer {
         }
     }
 
+    public List<Token> fetchAll(){
+        List<Token> result = new ArrayList<Token>();
+        Token token;
+        while ((token = nextToken()) != null)
+            result.add(token);
+
+        return result;
+    }
 
     public void reset(){
         this.currentPosition = -1;

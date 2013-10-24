@@ -4,13 +4,16 @@ import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 
-public class GreaterOrEqualExprToken extends OperatorExprToken {
-    public GreaterOrEqualExprToken(TokenMeta meta) {
-        super(meta, TokenType.T_IS_GREATER_OR_EQUAL);
+/**
+ * or symbol
+ */
+public class BooleanOr2ExprToken extends OperatorExprToken {
+    public BooleanOr2ExprToken(TokenMeta meta) {
+        super(meta, TokenType.T_BOOLEAN_OR);
     }
 
     @Override
     public int getPriority() {
-        return 70;
+        return 190;
     }
 }

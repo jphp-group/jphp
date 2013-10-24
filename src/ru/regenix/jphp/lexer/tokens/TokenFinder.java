@@ -29,9 +29,10 @@ public class TokenFinder {
         put("^", PowExprToken.class);
 
         put("&&", BooleanAndExprToken.class);
-        put("and", BooleanAndExprToken.class);
+        put("and", BooleanAnd2ExprToken.class);
         put("||", BooleanOrExprToken.class);
-        put("or", BooleanOrExprToken.class);
+        put("or", BooleanOr2ExprToken.class);
+        put("xor", BooleanXorExprToken.class);
         put("!", BooleanNotExprToken.class);
 
         put("->", DynamicAccessExprToken.class);
@@ -48,6 +49,7 @@ public class TokenFinder {
         put(";", SemicolonToken.class);
         put("&", AmpersandToken.class);
         put(",", CommaToken.class);
+        put("$", DollarExprToken.class);
 
         put("{", BraceExprToken.class);
         put("[", BraceExprToken.class);
@@ -101,7 +103,7 @@ public class TokenFinder {
         put("__class__", ClassMacroToken.class);
         put("__method__", MethodMacroToken.class);
         put("__trait__", TraitMacroToken.class);
-        put("__namespace__", NamespaceStmtToken.class);
+        put("__namespace__", NamespaceMacroToken.class);
     }};
 
     public TokenFinder() {
@@ -113,7 +115,7 @@ public class TokenFinder {
         if (token != null)
             return token;
 
-        if (word.matches("^[1-9][0-9]*$"))
+        if (word.matches("^[1-9][0-9]*$") || word.matches("^[0]+$"))
             return IntegerExprToken.class;
 
         if (word.matches("^[0-9]+\\.[0-9]+$")) // 1.234

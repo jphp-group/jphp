@@ -5,7 +5,6 @@ import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 
 public class IntegerExprToken extends ValueExprToken {
-
     private long value;
 
     public IntegerExprToken(TokenMeta meta) {
@@ -15,5 +14,17 @@ public class IntegerExprToken extends ValueExprToken {
 
     public long getValue() {
         return value;
+    }
+
+    public boolean isByte(){
+        return value >= 0 && value <= 255;
+    }
+
+    public boolean isShort(){
+        return value >= 0 && value <= Short.MAX_VALUE;
+    }
+
+    public boolean isInteger(){
+        return value >= 0 && value <= Integer.MAX_VALUE;
     }
 }

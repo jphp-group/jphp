@@ -103,7 +103,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
     @SuppressWarnings("unchecked")
     protected ClassStmtToken processDefine(Token current, ListIterator<Token> iterator){
         if (isTokenClass(current, FinalStmtToken.class, AbstractStmtToken.class)){
-            Token next = iterator.next();
+            Token next = nextToken(iterator);
             if (next instanceof ClassStmtToken){
                 ClassStmtToken result = (ClassStmtToken)next;
                 result.setAbstract(current instanceof AbstractStmtToken);

@@ -4,6 +4,10 @@ import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
 
 public class GrammarUtils {
 
+    public static boolean isVariableChar(char ch){
+        return ch == '$';
+    }
+
     public static boolean isSpace(char ch){
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
     }

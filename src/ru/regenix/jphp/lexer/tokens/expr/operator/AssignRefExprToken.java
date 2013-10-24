@@ -8,4 +8,9 @@ public class AssignRefExprToken extends ExprToken {
     public AssignRefExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_EQUAL);
     }
+
+    @Override
+    public int getPriority() {
+        return 150;
+    }
 }

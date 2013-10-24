@@ -19,7 +19,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         super(analyzer);
     }
 
-    protected ExprStmtToken getInBraces(BraceExprToken.Kind kind, ListIterator<Token> iterator){
+    public ExprStmtToken getInBraces(BraceExprToken.Kind kind, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, kind))
             unexpectedToken(next, BraceExprToken.Kind.toOpen(kind));

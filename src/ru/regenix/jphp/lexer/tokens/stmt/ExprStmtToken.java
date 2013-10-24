@@ -4,6 +4,7 @@ import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ExprStmtToken extends StmtToken {
@@ -16,6 +17,10 @@ public class ExprStmtToken extends StmtToken {
     public ExprStmtToken(List<Token> tokens){
         this(TokenMeta.of(tokens));
         setTokens(tokens);
+    }
+
+    public ExprStmtToken(Token... tokens){
+        this(Arrays.asList(tokens));
     }
 
     public List<Token> getTokens() {

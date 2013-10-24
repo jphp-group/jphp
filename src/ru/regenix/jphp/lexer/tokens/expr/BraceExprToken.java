@@ -89,4 +89,11 @@ public class BraceExprToken extends ExprToken {
     public boolean isSimpleClosed(){
         return kind == Kind.SIMPLE && isClosed();
     }
+
+    @Override
+    public int getPriority() {
+        if (closed)
+            return 1001;
+        return 1000;
+    }
 }

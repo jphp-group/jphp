@@ -60,6 +60,9 @@ abstract public class Generator<T extends Token> {
     }
 
     protected boolean isTokenClass(Token token, Class<? extends Token>... classes){
+        if (token == null)
+            return false;
+
         Class<? extends Token> current = token.getClass();
         for (Class<? extends Token> clazz : classes){
             if (clazz == current || current.isAssignableFrom(clazz))

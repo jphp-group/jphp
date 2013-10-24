@@ -13,6 +13,9 @@ import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.GetVarExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 import java.io.File;
@@ -58,5 +61,52 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
     @Test(expected = ParseException.class)
     public void testInvalidSemicolon(){
         getSyntaxTree(";;");
+    }
+
+    @Test
+    public void testVarVar(){
+        List<Token> tokens = getSyntaxTree("$$foobar;");
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof ExprStmtToken);
+
+        ExprStmtToken expr = (ExprStmtToken)tokens.get(0);
+        tokens = expr.getTokens();
+
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof GetVarExprToken);
+
+        ExprStmtToken name = ((GetVarExprToken) tokens.get(0)).getName();
+        Assert.assertTrue(name.getTokens().size() == 1);
+        Assert.assertTrue(name.getTokens().get(0) instanceof VariableExprToken);
+
+
+
+        tokens = getSyntaxTree("$$$foobar;");
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof ExprStmtToken);
+        expr = (ExprStmtToken)tokens.get(0);
+        tokens = expr.getTokens();
+
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof GetVarExprToken);
+
+        name = ((GetVarExprToken) tokens.get(0)).getName();
+        Assert.assertTrue(name.getTokens().size() == 1);
+        Assert.assertTrue(name.getTokens().get(0) instanceof GetVarExprToken);
+
+
+
+        tokens = getSyntaxTree("${'foobar' . 'x'};");
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof ExprStmtToken);
+        expr = (ExprStmtToken)tokens.get(0);
+        tokens = expr.getTokens();
+
+        Assert.assertTrue(tokens.size() == 1);
+        Assert.assertTrue(tokens.get(0) instanceof GetVarExprToken);
+
+        name = ((GetVarExprToken) tokens.get(0)).getName();
+        Assert.assertTrue(name.getTokens().size() == 3);
+        Assert.assertTrue(name.getTokens().get(0) instanceof StringExprToken);
     }
 }

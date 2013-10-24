@@ -10,6 +10,7 @@ import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;
 
 import java.util.ArrayList;
@@ -42,7 +43,34 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected GetVarExprToken processVarVar(Token current, Token next, ListIterator<Token> iterator){
+        ExprStmtToken name = null;
+        if (next instanceof VariableExprToken){ // $$var
+            name = new ExprStmtToken(next);
+            iterator.next();
+        } else if (next instanceof DollarExprToken){ // $$$var
+            current = nextToken(iterator);
+            next    = nextToken(iterator);
+            name    = new ExprStmtToken(processVarVar(current, next, iterator));
+        } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){ // ${var}
+            name = analyzer.generator(ExprGenerator.class).getInBraces(
+                    BraceExprToken.Kind.BLOCK, iterator
+            );
+        }
+
+        if (name == null)
+            unexpectedToken(next);
+
+        GetVarExprToken result = new GetVarExprToken(TokenMeta.of(current, name));
+        result.setName(name);
+        return result;
+    }
+
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator){
+        if (current instanceof DollarExprToken){
+            return processVarVar(current, next, iterator);
+        }
+
         if (current instanceof AssignExprToken && next instanceof AmpersandToken){
             iterator.next();
             return new AssignRefExprToken(TokenMeta.of(current, next));
@@ -52,7 +80,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
                         || next instanceof HexExprValue)){
 
-            if (!(previous instanceof OperatorExprToken)){
+            if (!(previous instanceof ValueExprToken ||
+                    isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))){
                 iterator.next();
                 // if it minus
                 if (current instanceof MinusExprToken){
@@ -109,11 +138,21 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         List<Token> tokens = new ArrayList<Token>();
         Token previous = null;
         Token next = iterator.hasNext() ? iterator.next() : null;
+        if (next != null)
+            iterator.previous();
+
+        int braceOpened = 0;
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 if (previous instanceof NameToken || previous instanceof VariableExprToken){
                     tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
+                } else {
+                    braceOpened += 1;
+                    tokens.add(current);
                 }
+            } else if (braceOpened > 0 && isClosedBrace(current, BraceExprToken.Kind.SIMPLE)){
+                braceOpened -= 1;
+                tokens.add(current);
             } else if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)){
                 if (isTokenClass(previous,
                         NameToken.class,
@@ -151,6 +190,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (iterator.hasNext()){
                 current = nextToken(iterator);
                 next = iterator.hasNext() ? iterator.next() : null;
+                if (next != null)
+                    iterator.previous();
             } else
                 current = null;
         } while (current != null);

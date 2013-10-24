@@ -15,6 +15,7 @@ import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.*;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
+import ru.regenix.jphp.lexer.tokens.macro.*;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -128,7 +129,7 @@ public class TokenizerTest {
 
     @Test
     public void testSimpleOperators(){
-        Tokenizer tokenizer = new Tokenizer(null, "= + - / * % . and or new");
+        Tokenizer tokenizer = new Tokenizer(null, "= + - / * % . and or new && || ! xor");
 
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
@@ -138,9 +139,13 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof ModExprToken);
         assertTrue(tokenizer.nextToken() instanceof ConcatExprToken);
 
+        assertTrue(tokenizer.nextToken() instanceof BooleanAnd2ExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanOr2ExprToken);
+        assertTrue(tokenizer.nextToken() instanceof NewExprToken);
         assertTrue(tokenizer.nextToken() instanceof BooleanAndExprToken);
         assertTrue(tokenizer.nextToken() instanceof BooleanOrExprToken);
-        assertTrue(tokenizer.nextToken() instanceof NewExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanNotExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanXorExprToken);
     }
 
     @Test
@@ -210,5 +215,40 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof DoubleExprToken);
         assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
+    }
+
+    @Test
+    public void testVarVar(){
+        Tokenizer tokenizer = new Tokenizer(context, "$$foo $ $bar $$$foobar");
+
+        assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
+        assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
+        assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
+        assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
+        assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
+        assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
+        assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
+
+        tokenizer = new Tokenizer(context, "${'foobar'}");
+        assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
+        assertTrue(tokenizer.nextToken() instanceof StringExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
+    }
+
+    @Test
+    public void testMacro(){
+        Tokenizer tokenizer = new Tokenizer(
+                context, "__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__"
+        );
+
+        assertTrue(tokenizer.nextToken() instanceof LineMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof FileMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof DirMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof MethodMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof FunctionMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof ClassMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof NamespaceMacroToken);
+        assertTrue(tokenizer.nextToken() instanceof TraitMacroToken);
     }
 }

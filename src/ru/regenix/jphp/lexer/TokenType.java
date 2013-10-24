@@ -152,7 +152,8 @@ public enum TokenType {
     T_J_PLUS(1013),
     T_J_SMALLER(1014),
     T_J_UNAR_MINUS(1015),
-    T_J_FINALLY(1016);
+    T_J_FINALLY(1016),
+    T_J_BOOLEAN_XOR(1017);
 
     private int value;
     private static Map<Integer, TokenType> map = new HashMap<Integer, TokenType>();
