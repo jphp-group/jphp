@@ -1,9 +1,8 @@
-
 class _TestBytecode {
 
-    private final static int MY_CONST = method();
 
-    public static int method(){
-        return 1;
+    public static void method(){
+        int a = 2;
+        int y = 1 + a;
     }
 }

@@ -10,6 +10,7 @@ public class ConstantEntity extends Entity {
 
     protected final ClassEntity clazz;
     protected final ConstStmtToken constant;
+    protected FieldVisitor fv;
 
     public ConstantEntity(JvmCompiler compiler, ClassEntity clazz, ConstStmtToken constant) {
         super(compiler);
@@ -19,11 +20,15 @@ public class ConstantEntity extends Entity {
 
     @Override
     public void getResult() {
-        FieldVisitor fv = clazz.getCw().visitField(
-            Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
-            constant.getName().getName(),
-            Constants.MEMORY_CLASS,
-            null, null
-        );
+        if (clazz != null){
+            this.fv = clazz.getCw().visitField(
+                Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
+                constant.getName().getName(),
+                Constants.MEMORY_CLASS,
+                null, null
+            );
+        } else {
+
+        }
     }
 }

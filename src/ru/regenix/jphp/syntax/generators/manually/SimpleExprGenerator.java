@@ -145,7 +145,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 if (previous instanceof NameToken || previous instanceof VariableExprToken){
-                    tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
+                    tokens.add(current = processCall(previous, current, iterator));
                 } else {
                     braceOpened += 1;
                     tokens.add(current);

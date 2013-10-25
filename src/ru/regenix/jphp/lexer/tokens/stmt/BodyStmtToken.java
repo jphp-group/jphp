@@ -20,4 +20,9 @@ public class BodyStmtToken extends StmtToken {
     public void setInstructions(List<ExprStmtToken> instructions) {
         this.instructions = instructions;
     }
+
+    public static BodyStmtToken of(ExprStmtToken... instructions){
+        BodyStmtToken body = new BodyStmtToken(TokenMeta.of(instructions));
+        return body;
+    }
 }

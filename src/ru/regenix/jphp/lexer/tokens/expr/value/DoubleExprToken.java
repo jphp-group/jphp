@@ -16,4 +16,16 @@ public class DoubleExprToken extends ValueExprToken {
     public double getValue() {
         return value;
     }
+
+    public boolean isZero(){
+        return meta.getWord().matches("^0\\.[0]+$");
+    }
+
+    public boolean isOne(){
+        return meta.getWord().matches("^1\\.[0]+$");
+    }
+
+    public boolean isFloat(){
+        return value < Float.MAX_VALUE && value > Float.MIN_VALUE;
+    }
 }

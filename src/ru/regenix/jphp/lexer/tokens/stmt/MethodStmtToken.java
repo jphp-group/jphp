@@ -1,6 +1,7 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 
 import java.util.List;
 
@@ -66,5 +67,13 @@ public class MethodStmtToken extends FunctionStmtToken {
 
     public boolean isInterfacable(){
         return body == null;
+    }
+
+    public static MethodStmtToken of(String name, ClassStmtToken clazz){
+        MethodStmtToken mToken = new MethodStmtToken(clazz.getMeta());
+        mToken.setClazz(clazz);
+        mToken.setName(new NameToken(TokenMeta.of(name, clazz)));
+        mToken.setNamespace(null);
+        return mToken;
     }
 }

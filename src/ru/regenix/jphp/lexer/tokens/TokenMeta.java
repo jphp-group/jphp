@@ -49,6 +49,16 @@ public class TokenMeta {
         return of(Arrays.asList(tokens));
     }
 
+    public static TokenMeta of(String word, Token token){
+        return new TokenMeta(
+                word,
+                token.meta.startLine,
+                token.meta.endLine,
+                token.meta.startPosition,
+                token.meta.endPosition
+        );
+    }
+
     public String getWord() {
         return word;
     }
