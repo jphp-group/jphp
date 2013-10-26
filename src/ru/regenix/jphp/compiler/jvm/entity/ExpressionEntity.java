@@ -1,159 +1,132 @@
 package ru.regenix.jphp.compiler.jvm.entity;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.compiler.jvm.runtime._Memory;
 import ru.regenix.jphp.compiler.jvm.runtime.invokedynamic.CallableValue;
-import ru.regenix.jphp.compiler.jvm.runtime.Memory;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.*;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.PlusExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.StmtToken;
 
 import java.util.List;
-import java.util.Stack;
 
 public class ExpressionEntity extends Entity {
-
-    private enum ValueType {
-        BOOL, INT, LONG, FLOAT, DOUBLE, STRING, MEMORY;
-
-        public static boolean isScalar(ValueType type){
-            return type != MEMORY;
-        }
-    }
 
     protected final MethodEntity method;
     protected final ExprStmtToken expression;
 
     private MethodVisitor mv;
-    private Stack<ValueType> types;
-
 
     public ExpressionEntity(JvmCompiler compiler, MethodEntity method, ExprStmtToken expression) {
         super(compiler);
         this.method = method;
-        this.expression = new ASMExpression(compiler.getContext(), expression, true).getResult();
-        this.types = new Stack<ValueType>();
-    }
-
-    protected String toOpcodeClass(ValueType type){
-        if (type == null)
-            return "V"; // void;
-
-        switch (type){
-            case BOOL: return "Z";
-            case INT: return "I";
-            case LONG: return "J";
-            case FLOAT: return "F";
-            case DOUBLE: return "D";
-            case MEMORY: return "L" + Constants.MEMORY_CLASS + ";";
-        }
-
-        return null;
-    }
-
-    protected ValueType pop(){
-        ValueType type = types.pop();
-        switch (type){
-            case BOOL:
-            case INT:
-            case FLOAT:
-            case MEMORY:
-            case STRING: method.pop(); break;
-            default:
-                method.pop(2);
-        }
-
-        return type;
-    }
-
-    protected void writePushInt(long value){
-        if (value > 0 && value < Integer.MAX_VALUE){
-            method.push();
-            types.push(ValueType.INT);
-            int lval = (int)value;
-            switch (lval){
-                case 0: mv.visitInsn(Opcodes.ICONST_0); break;
-                case 1: mv.visitInsn(Opcodes.ICONST_1); break;
-                case 2: mv.visitInsn(Opcodes.ICONST_2); break;
-                case 3: mv.visitInsn(Opcodes.ICONST_3); break;
-                case 4: mv.visitInsn(Opcodes.ICONST_4); break;
-                case 5: mv.visitInsn(Opcodes.ICONST_5); break;
-                default: {
-                    if (value <= Byte.MAX_VALUE){
-                        mv.visitIntInsn(Opcodes.BIPUSH, lval);
-                    } else if (value <= Short.MAX_VALUE){
-                        mv.visitIntInsn(Opcodes.SIPUSH, lval);
-                    } else
-                        mv.visitLdcInsn(lval);
-                }
+        if (expression.getTokens().size() == 1){
+            Token token = expression.getTokens().get(0);
+            if (token instanceof StmtToken){
+                this.expression = expression;
+                return;
             }
+        }
+
+        this.expression = new ASMExpression(compiler.getContext(), expression, true).getResult();
+    }
+
+    protected void writePushMemory(Memory memory){
+        method.push(1);
+        if (memory instanceof NullMemory){
+            mv.visitFieldInsn(
+                    Opcodes.GETSTATIC,
+                    Type.getInternalName(NullMemory.class),
+                    "INSTANCE",
+                    Type.getInternalName(NullMemory.class)
+            );
+        } else if (memory instanceof FalseMemory){
+            mv.visitFieldInsn(
+                    Opcodes.GETSTATIC,
+                    Type.getInternalName(FalseMemory.class),
+                    "INSTANCE",
+                    Type.getInternalName(FalseMemory.class)
+            );
+        } else if (memory instanceof TrueMemory){
+            mv.visitFieldInsn(
+                    Opcodes.GETSTATIC,
+                    Type.getInternalName(TrueMemory.class),
+                    "INSTANCE",
+                    Type.getInternalName(TrueMemory.class)
+            );
+        } else if (memory instanceof ReferenceMemory){
+            mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(ReferenceMemory.class));
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V");
         } else {
-            if (value > Integer.MIN_VALUE){
-                method.push();
-                types.push(ValueType.INT);
-                mv.visitLdcInsn((int)value);
-            } else {
-                method.push(2);
-                types.push(ValueType.LONG);
-                mv.visitLdcInsn(value);
+            switch (memory.getType()){
+                case INT: {
+                    method.push(3);
+                    mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(LongMemory.class));
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitLdcInsn(memory.toLong());
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(LongMemory.class), Constants.INIT_METHOD, "(J)V");
+                } break;
+                case DOUBLE: {
+                    method.push(3);
+                    mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(DoubleMemory.class));
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitLdcInsn(memory.toDouble());
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(DoubleMemory.class), Constants.INIT_METHOD, "(D)V");
+                } break;
+                case STRING: {
+                    method.push(2);
+                    mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(StringMemory.class));
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitLdcInsn(memory.toString());
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(StringMemory.class), Constants.INIT_METHOD,
+                            Type.getMethodDescriptor(Type.getType(void.class), Type.getType(String.class)));
+                }
             }
         }
     }
 
     protected void writePushInt(IntegerExprToken value){
-        writePushInt(value.getValue());
+        writePushMemory(new LongMemory(value.getValue()));
     }
 
     protected void writePushHex(HexExprValue value){
         writePushInt(new IntegerExprToken(TokenMeta.of(value.getValue() + "", value)));
     }
 
+    protected void writePushBoolean(boolean value){
+        writePushMemory(value ? Memory.TRUE : Memory.FALSE);
+    }
+
     protected void writePushBoolean(BooleanExprToken value){
-        method.push();
-        types.push(ValueType.BOOL);
-        if (value.getValue())
-            mv.visitInsn(Opcodes.ICONST_1);
-        else
-            mv.visitInsn(Opcodes.ICONST_0);
+        writePushBoolean(value.getValue());
     }
 
     protected void writePushString(StringExprToken value){
-        method.push();
-        types.push(ValueType.STRING);
-        mv.visitLdcInsn(value.getValue());
+        writePushMemory(new StringMemory(value.getValue()));
     }
 
     protected void writePushDouble(DoubleExprToken value){
-        method.push();
-        types.push(ValueType.DOUBLE);
-        if (value.isZero()){
-            types.push(ValueType.FLOAT);
-            mv.visitInsn(Opcodes.FCONST_0);
-        } else if (value.isOne()){
-            types.push(ValueType.FLOAT);
-            mv.visitInsn(Opcodes.FCONST_1);
-        } else if (value.isFloat()){
-            types.push(ValueType.FLOAT);
-            mv.visitLdcInsn((float)value.getValue());
-        } else {
-            types.push(ValueType.DOUBLE);
-            method.push();
-            mv.visitLdcInsn(value.getValue());
-        }
+        writePushMemory(new DoubleMemory(value.getValue()));
     }
 
     protected void writePushEnv(){
         method.push();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        MethodEntity.LocalVariable variable = method.getLocalVariable("~env");
+        mv.visitVarInsn(Opcodes.ALOAD, variable.index);
     }
 
     protected void writePushDup(){
@@ -162,24 +135,13 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePushArgs(List<ExprStmtToken> args){
-        writePushInt(args.size());
+        mv.visitLdcInsn(args.size());
         mv.visitTypeInsn(Opcodes.ANEWARRAY, Constants.MEMORY_CLASS);
         int i = 0;
         for(ExprStmtToken arg : args){
             writePushDup();
-            writePushInt(i);
-
-            mv.visitTypeInsn(Opcodes.NEW, Constants.MEMORY_CLASS);
-            writePushDup();
+            mv.visitLdcInsn(i);
             writeExpression(arg);
-
-            mv.visitMethodInsn(
-               Opcodes.INVOKESPECIAL,
-               Constants.MEMORY_CLASS,
-               Constants.INIT_METHOD,
-               "(" + toOpcodeClass(types.pop()) + ")V"
-            );
-
             mv.visitInsn(Opcodes.AASTORE);
             i += 1;
         }
@@ -194,25 +156,29 @@ public class ExpressionEntity extends Entity {
                 "call",
                 "("
                         + Type.getType(Environment.class)
-                        + Type.getType(Memory[].class)
+                        + Type.getType(_Memory[].class)
                         + ")"
                         + Constants.MEMORY_CLASS
         );
     }
 
     protected void writePushNull(){
-        method.push();
-        mv.visitLdcInsn(Memory.NULL);
+        writePushMemory(Memory.NULL);
     }
 
     protected void writePushVariable(VariableExprToken value){
-        method.push();
         MethodEntity.LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null){
-            writePushNull();
-        } else {
-            mv.visitVarInsn(Opcodes.ILOAD, variable.index);
+            method.push();
+            Label label = writeLabel(mv, value.getMeta().getStartLine());
+            writePushMemory(new ReferenceMemory());
+            variable = method.addLocalVariable(value.getName(), label);
+            mv.visitVarInsn(Opcodes.ASTORE, variable.index);
+            method.pop();
         }
+
+        method.push();
+        mv.visitVarInsn(Opcodes.ALOAD, variable.index);
     }
 
     protected void writePush(ValueExprToken value){
@@ -233,28 +199,42 @@ public class ExpressionEntity extends Entity {
         }
     }
 
-    protected void writeOperatorPlus(){
-        ValueType v1 = pop();
-        ValueType v2 = pop();
-
-        if (ValueType.isScalar(v1) && ValueType.isScalar(v2)){
-            if (v1 == ValueType.INT && v2 == ValueType.INT){
-                mv.visitInsn(Opcodes.IADD);
-            } else if (v1 == ValueType.LONG && v2 == ValueType.LONG){
-                mv.visitInsn(Opcodes.LADD);
-            } else if (v1 == ValueType.FLOAT && v2 == ValueType.FLOAT){
-                mv.visitInsn(Opcodes.FADD);
-            } else if (v1 == ValueType.DOUBLE && v2 == ValueType.DOUBLE){
-                mv.visitInsn(Opcodes.DADD);
-            }
+    protected void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses){
+        Type[] args = new Type[paramClasses.length];
+        for(int i = 0; i < args.length; i++){
+            args[i] = Type.getType(paramClasses[i]);
         }
-        ------------>
+
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(clazz),
+                method,
+                Type.getMethodDescriptor(Type.getType(returnClazz), args)
+        );
     }
 
     protected void writeOperator(OperatorExprToken operator){
         if (operator instanceof PlusExprToken){
-            writeOperatorPlus();
+            writeSysDynamicCall(Memory.class, "plus", Memory.class, Memory.class);
+        } else if (operator instanceof MinusExprToken){
+            writeSysDynamicCall(Memory.class, "minus", Memory.class, Memory.class);
+        } else if (operator instanceof MulExprToken){
+            writeSysDynamicCall(Memory.class, "mul", Memory.class, Memory.class);
+        } else if (operator instanceof DivExprToken){
+            writeSysDynamicCall(Memory.class, "div", Memory.class, Memory.class);
+        } else if (operator instanceof ModExprToken){
+            writeSysDynamicCall(Memory.class, "mod", Memory.class, Memory.class);
+        } else if (operator instanceof ConcatExprToken){
+            writeSysDynamicCall(Memory.class, "concat", Memory.class, Memory.class);
+        } else if (operator instanceof AssignExprToken){
+            writeSysDynamicCall(Memory.class, "assign", Memory.class, Memory.class);
+        } else if (operator instanceof AssignRefExprToken){
+            writeSysDynamicCall(Memory.class, "assignRef", Memory.class, Memory.class);
         }
+    }
+
+    protected void writeReturn(ReturnStmtToken token){
+        writeExpression(new ASMExpression(compiler.getContext(), token.getValue()).getResult());
+        mv.visitInsn(Opcodes.ARETURN);
     }
 
     protected void writeExpression(ExprStmtToken expression){
@@ -263,6 +243,8 @@ public class ExpressionEntity extends Entity {
                 writePush((ValueExprToken)token);
             } else if (token instanceof OperatorExprToken){
                 writeOperator((OperatorExprToken)token);
+            } else if (token instanceof ReturnStmtToken){
+                writeReturn((ReturnStmtToken)token);
             }
         }
     }

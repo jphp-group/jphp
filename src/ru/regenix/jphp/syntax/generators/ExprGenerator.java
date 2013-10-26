@@ -51,6 +51,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setBody(body);
     }
 
+    protected void processReturn(ReturnStmtToken result, ListIterator<Token> iterator){
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator);
+        result.setValue(value);
+    }
+
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setBody(body);
@@ -86,6 +91,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
             } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken)current, iterator);
+                tokens.add(current);
+            } else if (current instanceof ReturnStmtToken){
+                processReturn((ReturnStmtToken)current, iterator);
                 tokens.add(current);
             } else if (current instanceof WhileStmtToken){
                 processWhile((WhileStmtToken)current, iterator);

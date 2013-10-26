@@ -1,8 +1,10 @@
 class _TestBytecode {
 
+    public _TestBytecode(int i){
 
-    public static void method(){
-        int a = 2;
-        int y = 1 + a;
+    }
+
+    public static _TestBytecode method(int i){
+        return new _TestBytecode(i);
     }
 }

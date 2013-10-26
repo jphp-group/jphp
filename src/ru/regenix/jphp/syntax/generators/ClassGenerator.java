@@ -1,6 +1,7 @@
 package ru.regenix.jphp.syntax.generators;
 
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.Token;
@@ -70,6 +71,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             if (brace.isBlockOpened()){
 
                 List<ConstStmtToken> constants = new ArrayList<ConstStmtToken>();
+                List<MethodStmtToken> methods = new ArrayList<MethodStmtToken>();
+                List<Token> modifiers = new ArrayList<Token>();
                 while (iterator.hasNext()){
                     Token current = iterator.next();
                     if (current instanceof ExprStmtToken)
@@ -82,14 +85,52 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
                         constants.add(one);
-                    } else if (isTokenClass(current, modifiers)){
+                        modifiers.clear();
+                    } else if (isTokenClass(current, ClassGenerator.modifiers)){
+                        for(Token modifier : modifiers){
+                            if (modifier.getType() == current.getType())
+                                unexpectedToken(current);
+                        }
+                        modifiers.add(current);
+                    } else if (current instanceof FunctionStmtToken) {
+                        FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
+                        MethodStmtToken method = new MethodStmtToken(function);
+                        method.setClazz(result);
 
-                    } else {
+                        for (Token modifier : modifiers){
+                            if (modifier instanceof AbstractStmtToken)
+                                method.setAbstract(true);
+                            else if (modifier instanceof StaticStmtToken)
+                                method.setStatic(true);
+                            else if (modifier instanceof FinalStmtToken){
+                                method.setFinal(true);
+                            } else if (modifier instanceof PublicStmtToken){
+                                if (method.getModifier() != null)
+                                    unexpectedToken(modifier);
 
+                                method.setModifier(Modifier.PUBLIC);
+                            } else if (modifier instanceof PrivateStmtToken){
+                                if (method.getModifier() != null)
+                                    unexpectedToken(modifier);
+
+                                method.setModifier(Modifier.PRIVATE);
+                            } else if (modifier instanceof ProtectedStmtToken)  {
+                                if (method.getModifier() != null)
+                                    unexpectedToken(modifier);
+
+                                method.setModifier(Modifier.PROTECTED);
+                            }
+                        }
+                        if (method.getModifier() == null)
+                            method.setModifier(Modifier.PUBLIC);
+
+                        methods.add(method);
+                        modifiers.clear();
                     }
                 }
 
                 result.setConstants(constants);
+                result.setMethods(methods);
                 analyzer.setClazz(null);
                 return;
             }

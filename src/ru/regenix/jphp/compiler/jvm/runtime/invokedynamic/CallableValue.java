@@ -1,6 +1,6 @@
 package ru.regenix.jphp.compiler.jvm.runtime.invokedynamic;
 
-import ru.regenix.jphp.compiler.jvm.runtime.Memory;
+import ru.regenix.jphp.compiler.jvm.runtime._Memory;
 import ru.regenix.jphp.compiler.jvm.runtime.PHPObject;
 import ru.regenix.jphp.env.Environment;
 
@@ -21,10 +21,10 @@ public class CallableValue {
         this.method = clazz;
     }
 
-    public Memory call(PHPObject self, Environment env, Memory[] args){
+    public _Memory call(PHPObject self, Environment env, _Memory[] args){
         try {
-            Memory memory = (Memory) method.invoke(self, args);
-            return memory == null ? Memory.NULL : memory;
+            _Memory memory = (_Memory) method.invoke(self, args);
+            return memory == null ? _Memory.NULL : memory;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,7 +38,7 @@ public class CallableValue {
         methodHandle = lookup.findVirtual(
                 thisClass,
                 name,
-                MethodType.methodType(Environment.class, Memory[].class)
+                MethodType.methodType(Environment.class, _Memory[].class)
         );
 
         return new ConstantCallSite(methodHandle.asType(type));
@@ -52,7 +52,7 @@ public class CallableValue {
         methodHandle = lookup.findStatic(
                 thisClass,
                 name,
-                MethodType.methodType(Environment.class, Memory[].class)
+                MethodType.methodType(Environment.class, _Memory[].class)
         );
 
         return new ConstantCallSite(methodHandle.asType(type));

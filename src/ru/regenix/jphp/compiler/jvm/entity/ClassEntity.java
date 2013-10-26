@@ -7,6 +7,7 @@ import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ConstStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -23,7 +24,7 @@ public class ClassEntity extends Entity {
 
     protected void writeInitStatic(){
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, Constants.STATIC_INIT_METHOD, "()V", null, null);
-        MethodEntity method = new MethodEntity(compiler, this, mv);
+        MethodEntity method = new MethodEntity(compiler, this, mv, Constants.STATIC_INIT_METHOD);
 
         mv.visitCode();
 
@@ -69,7 +70,7 @@ public class ClassEntity extends Entity {
     public void getResult() {
         cw = new ClassWriter(0);
         cw.visit(
-                V1_6, ACC_SUPER, clazz.getFulledName(Constants.NAME_DELIMITER), null,
+                V1_6, ACC_SUPER + ACC_PUBLIC, clazz.getFulledName(Constants.NAME_DELIMITER), null,
                 Constants.OBJECT_CLASS, null
         );
         cw.visitSource(compiler.getSourceFile(), null);
@@ -80,7 +81,11 @@ public class ClassEntity extends Entity {
             writeConstant(constant);
         }
 
-        writeInitStatic();
+        for (MethodStmtToken method : clazz.getMethods()){
+            new MethodEntity(compiler, this, method).getResult();
+        }
+
+        //writeInitStatic();
         cw.visitEnd();
     }
 

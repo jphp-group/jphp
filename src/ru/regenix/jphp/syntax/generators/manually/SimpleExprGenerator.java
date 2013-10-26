@@ -47,7 +47,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken name = null;
         if (next instanceof VariableExprToken){ // $$var
             name = new ExprStmtToken(next);
-            iterator.next();
+            nextToken(iterator);
         } else if (next instanceof DollarExprToken){ // $$$var
             current = nextToken(iterator);
             next    = nextToken(iterator);
@@ -145,7 +145,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 if (previous instanceof NameToken || previous instanceof VariableExprToken){
-                    tokens.add(current = processCall(previous, current, iterator));
+                    tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
                 } else {
                     braceOpened += 1;
                     tokens.add(current);

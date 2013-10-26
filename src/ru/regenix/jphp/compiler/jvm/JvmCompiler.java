@@ -21,7 +21,7 @@ public class JvmCompiler extends AbstractCompiler {
         this.classes = new ArrayList<ClassEntity>();
     }
 
-    protected void process(){
+    public void compile(){
         this.classes = new ArrayList<ClassEntity>();
         List<ExprStmtToken> externalCode = new ArrayList<ExprStmtToken>();
 
