@@ -27,4 +27,20 @@ public class IntegerExprToken extends ValueExprToken {
     public boolean isInteger(){
         return value >= 0 && value <= Integer.MAX_VALUE;
     }
+
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public Object toNumeric() {
+        return value;
+    }
 }

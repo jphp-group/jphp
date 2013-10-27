@@ -1,5 +1,7 @@
 package ru.regenix.jphp.compiler.jvm.entity;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.util.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -8,6 +10,10 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ConstStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import static org.objectweb.asm.Opcodes.*;
 

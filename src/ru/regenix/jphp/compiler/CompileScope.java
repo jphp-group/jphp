@@ -1,9 +1,9 @@
 package ru.regenix.jphp.compiler;
 
 
-import ru.regenix.jphp.compiler.jvm.runtime._Memory;
 import ru.regenix.jphp.compiler.jvm.runtime.invokedynamic.CallableValue;
 import ru.regenix.jphp.compiler.jvm.runtime.PHPObject;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
@@ -49,7 +49,7 @@ public class CompileScope {
         Map<String, CallableValue> map = new HashMap<String, CallableValue>();
         for (Method method : clazz.getMethods()){
             try {
-                Method m = clazz.getMethod(method.getName(), PHPObject.class, Environment.class, _Memory[].class);
+                Method m = clazz.getMethod(method.getName(), PHPObject.class, Environment.class, Memory[].class);
                 map.put(method.getName(), new CallableValue(m));
             } catch (NoSuchMethodException e) {
                 // ..

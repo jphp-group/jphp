@@ -23,6 +23,7 @@ public class MethodStmtToken extends FunctionStmtToken {
         setModifier(token.modifier);
         setName(token.name);
         setReturnReference(token.returnReference);
+        setLocal(token.local);
     }
 
     public boolean isAbstract() {

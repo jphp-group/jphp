@@ -1,7 +1,7 @@
 package ru.regenix.jphp.compiler.jvm;
 
 
-import ru.regenix.jphp.compiler.jvm.runtime._Memory;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 
 final public class Constants {
 
@@ -13,7 +13,7 @@ final public class Constants {
     public final static String INIT_METHOD = "<init>";
     public final static String STATIC_INIT_METHOD = "<cinit>";
     public final static String OBJECT_CLASS = toClassName(Object.class);
-    public final static String MEMORY_CLASS = toClassName(_Memory.class);
+    public final static String MEMORY_CLASS = toClassName(Memory.class);
 
     public static String toClassName(String name){
         if (name.startsWith("\\"))

@@ -22,4 +22,20 @@ public class HexExprValue extends ValueExprToken {
     public long getValue() {
         return value;
     }
+
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public Object toNumeric() {
+        return value;
+    }
 }

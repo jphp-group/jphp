@@ -34,11 +34,10 @@ public class IfSyntaxTest extends AbstractSyntaxTestCase {
     @Test
     public void testShortly(){
         List<Token> tree = getSyntaxTree("if (true) 'string'; 123;");
-        Assert.assertTrue(tree.size() == 1);
+        Assert.assertTrue(tree.size() == 2);
         Assert.assertTrue(tree.get(0) instanceof ExprStmtToken);
-        Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().size() == 2);
+        Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().size() == 1);
         Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().get(0) instanceof IfStmtToken);
-        Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().get(1) instanceof ExprToken);
 
         IfStmtToken token = (IfStmtToken) ((ExprStmtToken) tree.get(0)).getTokens().get(0);
         Assert.assertNotNull(token.getBody());

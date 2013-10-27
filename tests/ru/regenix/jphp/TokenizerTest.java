@@ -55,7 +55,7 @@ public class TokenizerTest {
     @Test
     public void testScalarTokens(){
         Token token;
-        Tokenizer tokenizer = new Tokenizer(null, "10 3.3 'foo' `bar` \"xyz\" 0xCC true false");
+        Tokenizer tokenizer = new Tokenizer(null, "10 3.3 'foo' '' `bar` \"xyz\" 0xCC true false");
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -69,6 +69,11 @@ public class TokenizerTest {
         assertTrue(token instanceof StringExprToken);
         assertEquals(StringExprToken.Quote.SINGLE, ((StringExprToken) token).getQuote());
         assertEquals("foo", ((StringExprToken) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.SINGLE, ((StringExprToken) token).getQuote());
+        assertEquals("", ((StringExprToken) token).getValue());
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);

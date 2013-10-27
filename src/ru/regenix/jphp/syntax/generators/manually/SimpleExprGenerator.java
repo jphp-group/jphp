@@ -71,6 +71,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return processVarVar(current, next, iterator);
         }
 
+        if (current instanceof VariableExprToken){
+            analyzer.getLocalScope().add((VariableExprToken) current);
+        }
+
         if (current instanceof AssignExprToken && next instanceof AmpersandToken){
             iterator.next();
             return new AssignRefExprToken(TokenMeta.of(current, next));

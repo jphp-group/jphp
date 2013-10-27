@@ -2,7 +2,7 @@
     <info organisation="ru.regenix" module="JVM-PHP"/>
     <dependencies>
         <dependency org="junit" name="junit" rev="4.11" />
-        <dependency org="org.ow2.asm" name="asm" rev="4.1" />
+        <dependency org="org.ow2.asm" name="asm-all" rev="4.1" />
         <dependency org="com.google.guava" name="guava" rev="15.0" />
     </dependencies>
 </ivy-module>

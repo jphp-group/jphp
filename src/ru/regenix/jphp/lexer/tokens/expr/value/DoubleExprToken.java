@@ -28,4 +28,19 @@ public class DoubleExprToken extends ValueExprToken {
     public boolean isFloat(){
         return value < Float.MAX_VALUE && value > Float.MIN_VALUE;
     }
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public Object toNumeric() {
+        return value;
+    }
 }

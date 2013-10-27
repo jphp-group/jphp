@@ -7,12 +7,13 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class MethodEntity extends Entity {
 
@@ -22,6 +23,9 @@ public class MethodEntity extends Entity {
 
     private int stackSize = 0;
     private int stackMaxSize = 0;
+    private Stack<Integer> stackSizes = new Stack<Integer>();
+    private Stack<Memory.Type> stackTypes = new Stack<Memory.Type>();
+
     private Map<String, LocalVariable> localVariables;
 
     protected MethodVisitor mv;
@@ -47,27 +51,48 @@ public class MethodEntity extends Entity {
         return localVariables;
     }
 
-    void push(int size){
+    void push(int size, Memory.Type type){
         stackSize += size;
         if (stackSize > stackMaxSize)
             stackMaxSize = stackSize;
+
+        stackTypes.push(type);
+        stackSizes.push(size);
     }
 
-    void push(){
-        push(1);
+    int getStackSize(){
+        return stackSize;
+    }
+
+    void push(Memory.Type type){
+        push( 1, type );
     }
 
     void pop(int size){
         stackSize -= size;
     }
 
-    void pop(){
-        pop(1);
+    Memory.Type pop(){
+        pop(stackSizes.pop());
+        return stackTypes.pop();
+    }
+
+    void popAll(){
+        stackSize = 0;
+        stackSizes.clear();
+        stackTypes.clear();
+    }
+
+    Memory.Type peek(){
+        return stackTypes.peek();
     }
 
     LocalVariable addLocalVariable(String variable, Label label, Class clazz){
         LocalVariable result;
-        localVariables.put(variable, result = new LocalVariable(variable, localVariables.size(), label, clazz));
+        localVariables.put(
+                variable,
+                result = new LocalVariable(variable, localVariables.size(), label, clazz)
+        );
         return result;
     }
 
@@ -78,6 +103,7 @@ public class MethodEntity extends Entity {
     LocalVariable getLocalVariable(String variable){
         return localVariables.get(variable);
     }
+
 
     @Override
     public void getResult() {
@@ -116,7 +142,7 @@ public class MethodEntity extends Entity {
                 new ExpressionEntity(compiler, this, instruction).getResult();
             }
         }
-        push();
+        push(Memory.Type.NULL);
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitInsn(Opcodes.ARETURN);
 
@@ -125,14 +151,14 @@ public class MethodEntity extends Entity {
         for(LocalVariable variable : localVariables.values()){
             mv.visitLocalVariable(
                     variable.name,
-                    Type.getDescriptor(variable.clazz),
+                    Type.getDescriptor(variable.clazz == null ? Object.class : variable.clazz),
                     null,
                     variable.label,
                     endL,
                     variable.index
             );
         }
-        mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
+        mv.visitMaxs(this.stackMaxSize + 1, this.localVariables.size());
         mv.visitEnd();
     }
 
@@ -141,12 +167,20 @@ public class MethodEntity extends Entity {
         public final String name;
         public final int index;
         public final Label label;
-        public final Class clazz;
+        public Class clazz;
 
         public LocalVariable(String name, int index, Label label, Class clazz){
             this.name = name;
             this.index = index;
             this.label = label;
+            this.clazz = clazz;
+        }
+
+        Class getClazz() {
+            return clazz;
+        }
+
+        void setClazz(Class clazz) {
             this.clazz = clazz;
         }
     }

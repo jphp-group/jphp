@@ -102,6 +102,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 if (analyzer.getFunction() != null)
                     unexpectedToken(current);
 
+                analyzer.addLocalScope();
                 analyzer.setFunction(result);
                 BraceExprToken brace = nextAndExpected(iterator, BraceExprToken.class);
                 if (!brace.isSimpleOpened())
@@ -110,6 +111,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 result.setName((NameToken)next);
                 processArguments(result, iterator);
                 processBody(result, iterator);
+
+                result.setLocal(analyzer.removeLocalScope());
 
                 analyzer.setFunction(null);
                 return result;

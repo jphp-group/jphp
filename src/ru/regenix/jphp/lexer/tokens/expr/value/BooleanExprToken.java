@@ -22,4 +22,19 @@ public class BooleanExprToken extends ValueExprToken {
     public boolean getValue() {
         return value;
     }
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
+    @Override
+    public Object toNumeric() {
+        return value ? 1L : 0L;
+    }
+
+    @Override
+    public String toString() {
+        return value ? "-1" : "";
+    }
 }

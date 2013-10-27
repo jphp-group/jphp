@@ -4,11 +4,8 @@ public class FalseMemory extends Memory {
 
     public static FalseMemory INSTANCE = new FalseMemory();
 
-    protected FalseMemory() {}
-
-    @Override
-    public Type getType() {
-        return Type.BOOL;
+    protected FalseMemory() {
+        super(Type.BOOL);
     }
 
     @Override
@@ -38,7 +35,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory plus(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT:
             case DOUBLE: return memory;
             default: return memory.toNumeric();
@@ -47,7 +44,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory minus(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return new LongMemory(-((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(-((DoubleMemory)memory).value);
             default: return minus(memory.toNumeric());
@@ -56,7 +53,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory mul(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return Memory.CONST_INT_0;
             case DOUBLE: return Memory.CONST_DOUBLE_0;
             case STRING: return mul(memory.toNumeric());
@@ -66,7 +63,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory div(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case DOUBLE: return CONST_DOUBLE_0;
             case INT: {
                 if (((LongMemory)memory).value == 0)
@@ -86,10 +83,27 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory concat(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case STRING: return memory;
             default:
                 return new StringMemory(memory.toString());
         }
+    }
+
+    @Override
+    public Memory smaller(Memory memory) {
+        switch (memory.type){
+            case INT: return 0 < ((LongMemory)memory).value ? TRUE : FALSE;
+            case DOUBLE: return 0 < ((DoubleMemory)memory).value ? TRUE : FALSE;
+            case BOOL: return 0 < memory.toLong() ? TRUE : FALSE;
+            case NULL: return FALSE;
+            default:
+                return smaller(memory.toNumeric());
+        }
+    }
+
+    @Override
+    public Memory minus(long value) {
+        return new LongMemory(- value);
     }
 }

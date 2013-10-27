@@ -2,15 +2,25 @@ package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
 public class LongMemory extends Memory {
 
+    protected final static int MAX_CACHE_STRING = 10000;
+    protected final static String[] STRING_VALUES;
+
+    static {
+        STRING_VALUES = new String[MAX_CACHE_STRING];
+        for(int i = 0; i < MAX_CACHE_STRING; i++){
+            STRING_VALUES[i] = String.valueOf(i);
+        }
+    }
+
     protected long value;
 
     public LongMemory(long value) {
+        super(Type.INT);
         this.value = value;
     }
 
-    @Override
-    public Type getType() {
-        return Type.INT;
+    public static Memory valueOf(long value){
+        return new LongMemory(value);
     }
 
     @Override
@@ -35,12 +45,15 @@ public class LongMemory extends Memory {
 
     @Override
     public String toString() {
+        if (value >= 0 && value < MAX_CACHE_STRING)
+            return STRING_VALUES[(int)value];
+
         return String.valueOf(value);
     }
 
     @Override
     public Memory plus(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return new LongMemory(value + ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value + ((DoubleMemory)memory).value);
             default: return plus(memory.toNumeric());
@@ -49,7 +62,7 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory minus(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return new LongMemory(value - ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value - ((DoubleMemory)memory).value);
             default: return minus(memory.toNumeric());
@@ -58,7 +71,7 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory mul(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return new LongMemory(value * ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value * ((DoubleMemory)memory).value);
             default: return mul(memory.toNumeric());
@@ -67,7 +80,7 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory div(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: {
                 long tmp = ((LongMemory)memory).value;
                 if (value % tmp == 0)
@@ -82,7 +95,7 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory mod(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case INT: return new LongMemory(value % ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value % ((DoubleMemory)memory).value);
             default: return new LongMemory(value % memory.toLong());
@@ -91,9 +104,30 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory concat(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case STRING: return new StringMemory(toString() + ((StringMemory)memory).value);
             default: return new StringMemory(toString() + memory.toString());
         }
+    }
+
+    @Override
+    public Memory smaller(Memory memory) {
+        switch (memory.type){
+            case DOUBLE: return value < ((DoubleMemory)memory).value ? TRUE : FALSE;
+            case INT: return value < ((LongMemory)memory).value ? TRUE : FALSE;
+            case NULL: return value < 0 ? TRUE : FALSE;
+            default:
+                return smaller(memory.toNumeric());
+        }
+    }
+
+    @Override
+    public Memory minus(long value) {
+        return new LongMemory(this.value - value);
+    }
+
+    @Override
+    public Memory plus(long value) {
+        return new LongMemory(this.value + value);
     }
 }

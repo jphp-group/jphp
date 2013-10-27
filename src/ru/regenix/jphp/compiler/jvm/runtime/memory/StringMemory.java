@@ -5,12 +5,12 @@ public class StringMemory extends Memory {
     String value = "";
 
     public StringMemory(String value) {
+        super(Type.STRING);
         this.value = value;
     }
 
-    @Override
-    public Type getType() {
-        return Type.STRING;
+    public static Memory valueOf(String value){
+        return new StringMemory(value);
     }
 
     @Override
@@ -92,11 +92,26 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public Memory minus(long value) {
+        return toNumeric().minus(value);
+    }
+
+    @Override
     public Memory concat(Memory memory) {
-        switch (memory.getType()){
+        switch (memory.type){
             case STRING: return new StringMemory(value + ((StringMemory)memory).value);
             default:
                 return new StringMemory(value + memory.toString());
         }
+    }
+
+    @Override
+    public Memory smaller(Memory memory) {
+        return toNumeric().smaller(memory);
+    }
+
+    @Override
+    public Memory concat(String value) {
+        return new StringMemory(value + value);
     }
 }

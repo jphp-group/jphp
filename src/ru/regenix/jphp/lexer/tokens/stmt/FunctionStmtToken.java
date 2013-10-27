@@ -4,6 +4,7 @@ import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 
 import java.util.List;
 
@@ -16,6 +17,8 @@ public class FunctionStmtToken extends StmtToken {
     protected List<ArgumentStmtToken> arguments;
     protected BodyStmtToken body;
     protected boolean interfacable;
+
+    protected List<VariableExprToken> local;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -75,5 +78,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setInterfacable(boolean interfacable) {
         this.interfacable = interfacable;
+    }
+
+    public List<VariableExprToken> getLocal() {
+        return local;
+    }
+
+    public void setLocal(List<VariableExprToken> local) {
+        this.local = local;
     }
 }

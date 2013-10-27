@@ -43,17 +43,26 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
+
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndwhileStmtToken.class
         );
         result.setCondition(condition);
         result.setBody(body);
+
+        result.setLocal(analyzer.removeLocalScope());
     }
 
     protected void processReturn(ReturnStmtToken result, ListIterator<Token> iterator){
-        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator);
-        result.setValue(value);
+        Token next = nextToken(iterator);
+        if (next instanceof SemicolonToken)
+            result.setValue(null);
+        else {
+            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(next, iterator);
+            result.setValue(value);
+        }
     }
 
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
@@ -92,12 +101,15 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken)current, iterator);
                 tokens.add(current);
+                break;
             } else if (current instanceof ReturnStmtToken){
                 processReturn((ReturnStmtToken)current, iterator);
                 tokens.add(current);
+                break;
             } else if (current instanceof WhileStmtToken){
                 processWhile((WhileStmtToken)current, iterator);
                 tokens.add(current);
+                break;
             } else if (current instanceof DoStmtToken){
                 processDo((DoStmtToken)current, iterator);
                 tokens.add(current);

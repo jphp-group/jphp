@@ -5,16 +5,13 @@ public class ReferenceMemory extends Memory {
     public Memory value;
 
     public ReferenceMemory(Memory value) {
+        super(Type.REFERENCE);
         this.value = value == null ? Memory.NULL : value;
     }
 
     public ReferenceMemory() {
+        super(Type.REFERENCE);
         this.value = Memory.NULL;
-    }
-
-    @Override
-    public Type getType() {
-        return Type.REFERENCE; // value.getType();
     }
 
     @Override
@@ -73,6 +70,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public Memory smaller(Memory memory) {
+        return value.smaller(memory);
+    }
+
+    @Override
     public Memory toImmutable() {
         return value;
     }
@@ -87,11 +89,28 @@ public class ReferenceMemory extends Memory {
         if(!value.isImmutable())
             return value.assign(memory);
 
-        return value = memory.toImmutable();
+        return value = memory;
+    }
+
+    @Override
+    public Memory assign(long value) {
+        this.value = new LongMemory(value);
+        return this.value;
+    }
+
+    @Override
+    public Memory assign(String value) {
+        this.value = new StringMemory(value);
+        return this.value;
     }
 
     @Override
     public Memory assignRef(Memory memory) {
         return value = memory;
+    }
+
+    @Override
+    public Memory minus(long value) {
+        return this.value.minus(value);
     }
 }

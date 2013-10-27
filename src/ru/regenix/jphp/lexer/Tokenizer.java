@@ -164,6 +164,12 @@ public class Tokenizer {
 
                 if (!prevBackslash){
                     if (GrammarUtils.isQuote(ch) == string){
+                        if (GrammarUtils.isQuote(prev_ch) == string){
+                            return new StringExprToken(
+                                    new TokenMeta("", startLine, startLine, startPosition, startPosition),
+                                    string
+                            );
+                        } else
                         return new StringExprToken(
                                 buildMeta(startPosition + 1, startLine),
                                 string

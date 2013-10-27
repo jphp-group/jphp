@@ -1,10 +1,12 @@
 class _TestBytecode {
 
-    public _TestBytecode(int i){
+    protected int N;
+
+    public void method(long i){
 
     }
 
-    public static _TestBytecode method(int i){
-        return new _TestBytecode(i);
+    public void method(){
+        Integer x = 10;
     }
 }

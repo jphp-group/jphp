@@ -2,6 +2,7 @@ package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
@@ -25,11 +26,14 @@ public class SyntaxAnalyzer {
     private ClassStmtToken clazz;
     private FunctionStmtToken function;
 
+    private Stack<List<VariableExprToken>> localStack;
+
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
+        localStack = new Stack<List<VariableExprToken>>();
         generators = new ArrayList<Generator>(50);
 
         generators.add(new NamespaceGenerator(this));
@@ -48,7 +52,9 @@ public class SyntaxAnalyzer {
         for (Generator generator : generators)
             map.put(generator.getClass(), generator);
 
+        addLocalScope();
         process();
+        removeLocalScope();
     }
 
     protected void process(){
@@ -66,6 +72,20 @@ public class SyntaxAnalyzer {
             Token gen = generateToken(current, iterator);
             tree.add(gen == null ? current : gen);
         }
+    }
+
+    public List<VariableExprToken> addLocalScope(){
+        List<VariableExprToken> local = new ArrayList<VariableExprToken>();
+        localStack.push(local);
+        return local;
+    }
+
+    public List<VariableExprToken> removeLocalScope(){
+        return localStack.pop();
+    }
+
+    public List<VariableExprToken> getLocalScope(){
+        return localStack.peek();
     }
 
     @SuppressWarnings("unchecked")
