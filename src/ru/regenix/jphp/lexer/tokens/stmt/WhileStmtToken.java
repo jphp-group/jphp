@@ -5,9 +5,10 @@ import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 
 import java.util.List;
+import java.util.Set;
 
 public class WhileStmtToken extends StmtToken {
-    private List<VariableExprToken> local;
+    private Set<VariableExprToken> local;
     private ExprStmtToken condition;
     private BodyStmtToken body;
     private boolean isDo;
@@ -40,11 +41,11 @@ public class WhileStmtToken extends StmtToken {
         isDo = aDo;
     }
 
-    public List<VariableExprToken> getLocal() {
+    public Set<VariableExprToken> getLocal() {
         return local;
     }
 
-    public void setLocal(List<VariableExprToken> local) {
+    public void setLocal(Set<VariableExprToken> local) {
         this.local = local;
     }
 }

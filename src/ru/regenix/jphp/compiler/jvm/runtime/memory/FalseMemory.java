@@ -101,11 +101,11 @@ public class FalseMemory extends Memory {
     }
 
     @Override
-    public Memory concat(Memory memory) {
+    public String concat(Memory memory) {
         switch (memory.type){
-            case STRING: return memory;
+            case STRING: return ((StringMemory)memory).value;
             default:
-                return new StringMemory(memory.toString());
+                return memory.toString();
         }
     }
 

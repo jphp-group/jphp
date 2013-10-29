@@ -22,6 +22,7 @@ import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.StmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.WhileStmtToken;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
@@ -135,7 +136,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePushDup(){
-        method.push(Memory.Type.NULL);
+        method.push(method.peek());
         mv.visitInsn(Opcodes.DUP);
     }
 
@@ -171,7 +172,15 @@ public class ExpressionEntity extends Entity {
         writePushMemory(Memory.NULL);
     }
 
-    protected void writeDefineVariables(List<VariableExprToken> values){
+    protected void writePushNewObject(Class clazz){
+        mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(clazz));
+        method.push(Memory.Type.REFERENCE);
+        writePushDup();
+        writeSysCall(clazz, Opcodes.INVOKESPECIAL, Constants.INIT_METHOD, void.class);
+        method.pop();
+    }
+
+    protected void writeDefineVariables(Collection<VariableExprToken> values){
         for(VariableExprToken value : values)
             writeDefineVariable(value);
     }
@@ -180,10 +189,19 @@ public class ExpressionEntity extends Entity {
         MethodEntity.LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null){
             Label label = writeLabel(mv, value.getMeta().getStartLine());
-
-            writePushNull();
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
+            if (method.method.getPassedLocal().contains(value)){
+                variable.setReference(true);
+            } else {
+                variable.setReference(false);
+            }
+
+            if (variable.isReference()){
+                writePushNewObject(ReferenceMemory.class);
+            } else {
+                writePushNull();
+            }
             mv.visitVarInsn(Opcodes.ASTORE, variable.index);
             method.pop();
         }
@@ -249,14 +267,37 @@ public class ExpressionEntity extends Entity {
         return null;
     }
 
-    protected void writeVariableAssign(VariableExprToken variable, Memory.Type valueType, boolean returnValue){
+    protected void writeVariableAssign(VariableExprToken variable, ValueExprToken R, boolean returnValue){
         MethodEntity.LocalVariable local = method.getLocalVariable(variable.getName());
         local.setClazz(Memory.class);
-        writePushBoxing(valueType);
-        mv.visitVarInsn(Opcodes.ASTORE, local.index);
 
-        if (!stack.empty() || returnValue){
+        boolean returned = !stack.empty() || returnValue;
+
+        if (local.isReference()){
+            method.push(Memory.Type.REFERENCE);
             mv.visitVarInsn(Opcodes.ALOAD, local.index);
+
+            if (R == null){
+                writeSysStaticCall(Memory.class, "assignRight", void.class, method.peek().toClass(), Memory.class);
+            } else {
+                writePush(R);
+                writePushBoxing(method.pop());
+                writeSysDynamicCall(Memory.class, "assign", void.class, Memory.class);
+            }
+            method.pop();
+            if (returned)
+                mv.visitVarInsn(Opcodes.ALOAD, local.index);
+        } else {
+            writePush(R);
+            writePushBoxing(method.peek());
+            if (returned)
+                writePushDup();
+
+            method.pop();
+            mv.visitVarInsn(Opcodes.ASTORE, local.index);
+        }
+
+        if (returned){
             method.push(Memory.Type.REFERENCE);
             stack.push(null);
         }
@@ -306,10 +347,8 @@ public class ExpressionEntity extends Entity {
         }
 
         if (operator instanceof AssignExprToken){
-            writePush(R);
-            Memory.Type Rt = method.pop();
             if (L instanceof VariableExprToken){
-                writeVariableAssign((VariableExprToken)L, Rt, returnValue);
+                writeVariableAssign((VariableExprToken)L, R, returnValue);
                 return;
             }
         }
@@ -338,7 +377,7 @@ public class ExpressionEntity extends Entity {
         } else if (operator instanceof AssignRefExprToken){
             name = "assignRef";
         } else if (operator instanceof ConcatExprToken){
-            name = "concatScalar";
+            name = "concat";
             operatorType = Memory.Type.STRING;
         } else if (operator instanceof SmallerExprToken){
             name = "smaller";
@@ -365,7 +404,7 @@ public class ExpressionEntity extends Entity {
             method.push(operatorType);
             stack.push(null);
             return;
-        } else if (L.isConstant()){
+        } else if ((L != null && L.isConstant()) || Lt.isConstant()){
             if ("plus".equals(name)
                     || "mul".equals(name)
                     || "equal".equals(name)

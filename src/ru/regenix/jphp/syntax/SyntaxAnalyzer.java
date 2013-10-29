@@ -26,14 +26,14 @@ public class SyntaxAnalyzer {
     private ClassStmtToken clazz;
     private FunctionStmtToken function;
 
-    private Stack<List<VariableExprToken>> localStack;
+    private Stack<Set<VariableExprToken>> localStack;
 
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
-        localStack = new Stack<List<VariableExprToken>>();
+        localStack = new Stack<Set<VariableExprToken>>();
         generators = new ArrayList<Generator>(50);
 
         generators.add(new NamespaceGenerator(this));
@@ -74,17 +74,17 @@ public class SyntaxAnalyzer {
         }
     }
 
-    public List<VariableExprToken> addLocalScope(){
-        List<VariableExprToken> local = new ArrayList<VariableExprToken>();
+    public Set<VariableExprToken> addLocalScope(){
+        Set<VariableExprToken> local = new HashSet<VariableExprToken>();
         localStack.push(local);
         return local;
     }
 
-    public List<VariableExprToken> removeLocalScope(){
+    public Set<VariableExprToken> removeLocalScope(){
         return localStack.pop();
     }
 
-    public List<VariableExprToken> getLocalScope(){
+    public Set<VariableExprToken> getLocalScope(){
         return localStack.peek();
     }
 

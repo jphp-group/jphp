@@ -21,6 +21,8 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
 
+
+
         Environment environment = new Environment();
         Context context = new Context(environment, new File("file.php"));
 
@@ -36,8 +38,8 @@ public class Main {
 
         Tokenizer tokenizer = new Tokenizer(context,
                         "class MyClass { " +
-                                "static function test(){" +
-                                    " $i = 10000000; while($i){ $i = $i - 1; $x = 'a' . 'b'; } " +
+                                "static function test(){ " +
+                                    " $i = 10000000; $x = ''; while($i = $i - 1){ $x = $i . 'a'; } " +
                                 "} " +
                         "}");
 
@@ -64,7 +66,6 @@ public class Main {
         Memory memory = null;
         long t = System.currentTimeMillis();
         memory = (Memory) method.invoke(null, environment, new Memory[]{});
-
         // System.out.println(memory.toString());
         System.out.println(System.currentTimeMillis() - t);
     }

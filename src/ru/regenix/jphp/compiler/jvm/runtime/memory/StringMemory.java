@@ -67,36 +67,7 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory toNumeric(){
-        return toNumeric(value);/*
-        int len = value.length();
-        boolean real = false;
-        int i = 0;
-        for(; i < len; i++){
-            char ch = value.charAt(i);
-            if (!('9' >= ch && ch >= '0')){
-                if (ch == '.'){
-                    if (real)
-                        break;
-                    real = true;
-                    continue;
-                }
-                if (i == 0)
-                    return CONST_INT_0;
-                else
-                    break;
-            }
-        }
-        if (real) {
-            if (len == i)
-                return new DoubleMemory(Double.parseDouble(value));
-            else
-                return new DoubleMemory(Double.parseDouble(value.substring(0, i)));
-        } else {
-            if (len == i)
-                return new LongMemory(Long.parseLong(value));
-            else
-                return new LongMemory(Long.parseLong(value.substring(0, i)));
-        }*/
+        return toNumeric(value);
     }
 
     @Override
@@ -148,11 +119,11 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory concat(Memory memory) {
+    public String concat(Memory memory) {
         switch (memory.type){
-            case STRING: return new StringMemory(value + ((StringMemory)memory).value);
+            case STRING: return value.concat(((StringMemory)memory).value);
             default:
-                return new StringMemory(value + memory.toString());
+                return (value + memory.toString());
         }
     }
 
@@ -177,12 +148,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory concat(String value) {
-        return new StringMemory(value + value);
-    }
-
-    @Override
-    public String concatScalar(String value){
-        return value + value;
+    public String concat(String value) {
+        return this.value.concat(value);
     }
 }

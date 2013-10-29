@@ -1,6 +1,8 @@
 class _TestBytecode {
 
-    public void method(int x){
-        boolean b = x != 0;
+    private int x;
+
+    public void method(){
+      x = 30;
     }
 }

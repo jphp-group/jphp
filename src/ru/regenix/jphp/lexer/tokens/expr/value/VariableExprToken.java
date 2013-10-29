@@ -16,4 +16,9 @@ public class VariableExprToken extends ValueExprToken {
     public String getName() {
         return name;
     }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

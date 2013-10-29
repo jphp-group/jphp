@@ -6,7 +6,10 @@ import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FunctionStmtToken extends StmtToken {
     protected Modifier modifier;
@@ -18,7 +21,8 @@ public class FunctionStmtToken extends StmtToken {
     protected BodyStmtToken body;
     protected boolean interfacable;
 
-    protected List<VariableExprToken> local;
+    protected Set<VariableExprToken> local;
+    protected Set<VariableExprToken> passedLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -29,6 +33,7 @@ public class FunctionStmtToken extends StmtToken {
         this.dynamicLocal = false;
         this.callsExist = false;
         this.varsExist = false;
+        this.passedLocal = new HashSet<VariableExprToken>();
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -87,12 +92,20 @@ public class FunctionStmtToken extends StmtToken {
         this.interfacable = interfacable;
     }
 
-    public List<VariableExprToken> getLocal() {
+    public Set<VariableExprToken> getLocal() {
         return local;
     }
 
-    public void setLocal(List<VariableExprToken> local) {
+    public void setLocal(Set<VariableExprToken> local) {
         this.local = local;
+    }
+
+    public Set<VariableExprToken> getPassedLocal() {
+        return passedLocal;
+    }
+
+    public void setPassedLocal(Set<VariableExprToken> passedLocal) {
+        this.passedLocal = passedLocal;
     }
 
     public boolean isDynamicLocal() {

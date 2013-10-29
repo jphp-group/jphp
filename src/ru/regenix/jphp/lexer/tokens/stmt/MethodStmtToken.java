@@ -24,6 +24,7 @@ public class MethodStmtToken extends FunctionStmtToken {
         setName(token.name);
         setReturnReference(token.returnReference);
         setLocal(token.local);
+        setPassedLocal(token.passedLocal);
         setDynamicLocal(token.dynamicLocal);
         setCallsExist(token.callsExist);
         setVarsExist(token.varsExist);

@@ -51,17 +51,11 @@ abstract public class Memory {
     abstract public String toString();
 
     // CONCAT
-    abstract public Memory concat(Memory memory);
-    public Memory concat(long value) { return new StringMemory(toString() + value); }
-    public Memory concat(double value) { return new StringMemory(toString() + value); }
-    public Memory concat(boolean value) { return new StringMemory(toString() + boolToString(value)); }
-    public Memory concat(String value) { return new StringMemory(toString() + value); }
-
-    public String concatScalar(Memory memory){  return toString() + memory.toString(); }
-    public String concatScalar(long value) { return toString() + value; }
-    public String concatScalar(double value) { return toString() + value; }
-    public String concatScalar(boolean value) { return toString() + boolToString(value); }
-    public String concatScalar(String value) { return toString() + value; }
+    public String concat(Memory memory){  return toString() + memory.toString(); }
+    public String concat(long value) { return toString() + value; }
+    public String concat(double value) { return toString() + value; }
+    public String concat(boolean value) { return toString() + boolToString(value); }
+    public String concat(String value) { return toString() + value; }
 
     // PLUS
     abstract public Memory plus(Memory memory);
@@ -141,18 +135,18 @@ abstract public class Memory {
     public boolean greaterEq(String value) { return this.greaterEq(StringMemory.toNumeric(value)); }
 
     // ASSIGN
-    public Memory assign(Memory memory){ return this; }
-    public Memory assign(long value){ return this; }
-    public Memory assign(double value) { return this; }
-    public Memory assign(boolean value) { return this; }
-    public Memory assign(String value){ return this; }
+    public void assign(Memory memory){  }
+    public void assign(long value){ }
+    public void assign(double value) { }
+    public void assign(boolean value) { }
+    public void assign(String value){ }
 
     // ASSIGN REF
-    public Memory assignRef(Memory memory){ return this; }
-    public Memory assignRef(long value){ return this; }
-    public Memory assignRef(double value){ return this; }
-    public Memory assignRef(boolean value){ return this; }
-    public Memory assignRef(String value){ return this; }
+    public void assignRef(Memory memory){ }
+    public void assignRef(long value){ }
+    public void assignRef(double value){ }
+    public void assignRef(boolean value){ }
+    public void assignRef(String value){ }
 
     public Memory toImmutable(){
         return this;
@@ -179,15 +173,10 @@ abstract public class Memory {
     public Memory modRight(boolean value){ return new LongMemory((value ? 1 : 0) % toLong()); }
     public Memory modRight(String value){ return StringMemory.toNumeric(value).mod(this); }
 
-    public Memory concatRight(long value) { return new StringMemory(value + toString()); }
-    public Memory concatRight(double value) { return new StringMemory(value + toString()); }
-    public Memory concatRight(boolean value) { return new StringMemory(boolToString(value) + toString()); }
-    public Memory concatRight(String value) { return new StringMemory(value + toString()); }
-
-    public String concatScalarRight(long value) { return value + toString(); }
-    public String concatScalarRight(double value) { return value + toString(); }
-    public String concatScalarRight(boolean value) { return boolToString(value) + toString(); }
-    public String concatScalarRight(String value) { return value + toString(); }
+    public String concatRight(long value) { return value + toString(); }
+    public String concatRight(double value) { return value + toString(); }
+    public String concatRight(boolean value) { return boolToString(value) + toString(); }
+    public String concatRight(String value) { return value + toString(); }
 
     /****************************************************************/
     /** Static *****/
@@ -207,11 +196,17 @@ abstract public class Memory {
     public static Memory modRight(boolean value, Memory memory){ return memory.modRight(value); }
     public static Memory modRight(String value, Memory memory){ return memory.modRight(value); }
 
-    public static Memory concatRight(long value, Memory memory){ return memory.concatRight(value); }
-    public static Memory concatRight(double value, Memory memory){ return memory.concatRight(value); }
-    public static Memory concatRight(boolean value, Memory memory){ return memory.concatRight(value); }
-    public static Memory concatRight(String value, Memory memory){ return memory.concatRight(value); }
+    public static String concatRight(long value, Memory memory){ return memory.concatRight(value); }
+    public static String concatRight(double value, Memory memory){ return memory.concatRight(value); }
+    public static String concatRight(boolean value, Memory memory){ return memory.concatRight(value); }
+    public static String concatRight(String value, Memory memory){ return memory.concatRight(value); }
 
+
+    public static void assignRight(Memory value, Memory memory){ memory.assign(value); }
+    public static void assignRight(long value, Memory memory){ memory.assign(value); }
+    public static void assignRight(double value, Memory memory){ memory.assign(value); }
+    public static void assignRight(boolean value, Memory memory){ memory.assign(value); }
+    public static void assignRight(String value, Memory memory){ memory.assign(value); }
     ////
 
     public static String boolToString(boolean value){

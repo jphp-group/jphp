@@ -75,7 +75,7 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public Memory concat(Memory memory) {
+    public String concat(Memory memory) {
         return value.concat(memory);
     }
 
@@ -110,28 +110,26 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public Memory assign(Memory memory) {
+    public void assign(Memory memory) {
         if(!value.isImmutable())
-            return value.assign(memory);
-
-        return value = memory;
+            value.assign(memory);
+        else
+            value = memory;
     }
 
     @Override
-    public Memory assign(long value) {
+    public void assign(long value) {
         this.value = new LongMemory(value);
-        return this.value;
     }
 
     @Override
-    public Memory assign(String value) {
+    public void assign(String value) {
         this.value = new StringMemory(value);
-        return this.value;
     }
 
     @Override
-    public Memory assignRef(Memory memory) {
-        return value = memory;
+    public void assignRef(Memory memory) {
+        value = memory;
     }
 
     @Override

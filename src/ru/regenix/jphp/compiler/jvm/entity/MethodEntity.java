@@ -158,7 +158,7 @@ public class MethodEntity extends Entity {
                     variable.index
             );
         }
-        mv.visitMaxs(this.stackMaxSize + 1, this.localVariables.size());
+        mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
         mv.visitEnd();
     }
 
@@ -168,6 +168,8 @@ public class MethodEntity extends Entity {
         public final int index;
         public final Label label;
         public Class clazz;
+
+        public boolean isReference;
 
         public LocalVariable(String name, int index, Label label, Class clazz){
             this.name = name;
@@ -182,6 +184,14 @@ public class MethodEntity extends Entity {
 
         void setClazz(Class clazz) {
             this.clazz = clazz;
+        }
+
+        boolean isReference() {
+            return isReference;
+        }
+
+        void setReference(boolean reference) {
+            isReference = reference;
         }
     }
 }
