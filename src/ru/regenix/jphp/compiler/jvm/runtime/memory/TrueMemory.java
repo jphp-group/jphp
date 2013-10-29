@@ -84,6 +84,16 @@ public class TrueMemory extends Memory {
     }
 
     @Override
+    public boolean equal(Memory memory) {
+        return toBoolean();
+    }
+
+    @Override
+    public boolean notEqual(Memory memory) {
+        return !toBoolean();
+    }
+
+    @Override
     public Memory concat(Memory memory) {
         switch (memory.type){
             case STRING: return new StringMemory(toString() + ((StringMemory)memory).value);
@@ -93,15 +103,23 @@ public class TrueMemory extends Memory {
     }
 
     @Override
-    public Memory smaller(Memory memory) {
-        switch (memory.type){
-            case INT: return 1 < ((LongMemory)memory).value ? TRUE : FALSE;
-            case DOUBLE: return 1 < ((DoubleMemory)memory).value ? TRUE : FALSE;
-            case BOOL: return 1 < memory.toLong() ? TRUE : FALSE;
-            case NULL: return FALSE;
-            default:
-                return smaller(memory.toNumeric());
-        }
+    public boolean smaller(Memory memory) {
+        return !memory.toBoolean();
+    }
+
+    @Override
+    public boolean smallerEq(Memory memory) {
+        return memory.toBoolean();
+    }
+
+    @Override
+    public boolean greater(Memory memory) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterEq(Memory memory) {
+        return memory.toBoolean();
     }
 
     @Override

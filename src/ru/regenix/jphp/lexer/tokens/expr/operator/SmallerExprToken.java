@@ -9,7 +9,6 @@ public class SmallerExprToken extends OperatorExprToken {
         super(meta, TokenType.T_J_SMALLER);
     }
 
-
     @Override
     public int getPriority() {
         return 70;

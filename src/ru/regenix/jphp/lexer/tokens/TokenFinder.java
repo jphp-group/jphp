@@ -109,6 +109,11 @@ public class TokenFinder {
         put("__method__", MethodMacroToken.class);
         put("__trait__", TraitMacroToken.class);
         put("__namespace__", NamespaceMacroToken.class);
+
+        put("include", IncludeExprToken.class);
+        put("include_once", IncludeOnceExprToken.class);
+        put("require", RequireExprToken.class);
+        put("require_once", RequireOnceExprToken.class);
     }};
 
     public TokenFinder() {

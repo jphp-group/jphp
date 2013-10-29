@@ -8,6 +8,10 @@ public class FalseMemory extends Memory {
         super(Type.BOOL);
     }
 
+    FalseMemory(Type type){
+        super(type);
+    }
+
     @Override
     public long toLong() {
         return 0;
@@ -82,6 +86,21 @@ public class FalseMemory extends Memory {
     }
 
     @Override
+    public boolean equal(Memory memory) {
+        switch (memory.type){
+            case INT: return (((LongMemory)memory).value == 0);
+            case NULL: return true;
+            default:
+                return !toBoolean();
+        }
+    }
+
+    @Override
+    public boolean notEqual(Memory memory) {
+        return !equal(memory);
+    }
+
+    @Override
     public Memory concat(Memory memory) {
         switch (memory.type){
             case STRING: return memory;
@@ -91,14 +110,50 @@ public class FalseMemory extends Memory {
     }
 
     @Override
-    public Memory smaller(Memory memory) {
+    public boolean smaller(Memory memory) {
         switch (memory.type){
-            case INT: return 0 < ((LongMemory)memory).value ? TRUE : FALSE;
-            case DOUBLE: return 0 < ((DoubleMemory)memory).value ? TRUE : FALSE;
-            case BOOL: return 0 < memory.toLong() ? TRUE : FALSE;
-            case NULL: return FALSE;
+            case INT: return 0 < ((LongMemory)memory).value;
+            case DOUBLE: return 0 < ((DoubleMemory)memory).value;
+            case BOOL: return 0 < memory.toLong();
+            case NULL: return false;
             default:
-                return smaller(memory.toNumeric());
+                return smaller(memory.toBoolean());
+        }
+    }
+
+    @Override
+    public boolean smallerEq(Memory memory) {
+        switch (memory.type){
+            case INT: return 0 <= ((LongMemory)memory).value;
+            case DOUBLE: return 0 <= ((DoubleMemory)memory).value;
+            case BOOL: return 0 <= memory.toLong();
+            case NULL: return true;
+            default:
+                return smallerEq(memory.toBoolean());
+        }
+    }
+
+    @Override
+    public boolean greater(Memory memory) {
+        switch (memory.type){
+            case INT: return 0 > ((LongMemory)memory).value;
+            case DOUBLE: return 0 > ((DoubleMemory)memory).value;
+            case BOOL: return 0 > memory.toLong();
+            case NULL: return false;
+            default:
+                return greater(memory.toBoolean());
+        }
+    }
+
+    @Override
+    public boolean greaterEq(Memory memory) {
+        switch (memory.type){
+            case INT: return 0 >= ((LongMemory)memory).value;
+            case DOUBLE: return 0 >= ((DoubleMemory)memory).value;
+            case BOOL: return 0 >= memory.toLong();
+            case NULL: return true;
+            default:
+                return greater(memory.toBoolean());
         }
     }
 

@@ -9,6 +9,7 @@ import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.operator.LogicOperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.GetVarExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -30,63 +31,83 @@ public class ASMExpression {
         List<Token> result = new ArrayList<Token>();
 
         for(Token token : expr.getTokens()){
-            int prior = getPriority(token);
+            processToken(token, stack, result, recursive);
+        }
 
-            if (token instanceof ValueExprToken){
-                if (recursive){
-                    Token el = getRecursiveToken((ValueExprToken)token);
-                    if (el != null){
-                        result.add(el);
-                        continue;
-                    }
-                }
-                result.add(token);
-            } else if (token instanceof BraceExprToken){
-                BraceExprToken brace = (BraceExprToken)token;
-                if (brace.isSimpleOpened()){
-                    stack.push(brace);
-                } else if (brace.isSimpleClosed()) {
-                    if (stack.empty())
-                        unexpectedToken(brace);
+        if (!stack.empty())
+            processOperator(stack, result, Integer.MAX_VALUE, recursive);
 
-                    boolean done = false;
-                    do {
-                        Token el = stack.pop();
-                        if (el instanceof BraceExprToken && ((BraceExprToken) el).isSimpleOpened()){
-                            done = true;
-                            break;
-                        }
-                        result.add(el);
-                    } while (!stack.isEmpty());
+        this.result = new ExprStmtToken(result);
+    }
 
-                    if (!done)
-                        unexpectedToken(brace);
-                } else
-                    unexpectedToken(brace);
-            } else if (token instanceof OperatorExprToken){
-                if (stack.empty() || getPriority(stack.peek()) > prior){
-                    stack.push(token);
-                    continue;
+    protected void processOperator(Stack<Token> stack, List<Token> result, int prior, boolean recursive){
+        List<Token> list = new ArrayList<Token>();
+        while (!stack.empty()){
+            Token el = stack.peek();
+            int elPrior = getPriority(el);
+            if (elPrior <= prior){
+                stack.pop();
+                if (el instanceof LogicOperatorExprToken){
+                    ExprStmtToken value = ((LogicOperatorExprToken)el).getRightValue();
+                    if (recursive)
+                        value = new ASMExpression(context, value, recursive).getResult();
+
+                    ((LogicOperatorExprToken) el).setRightValue(value);
                 }
 
-                while (!stack.empty()){
-                    Token el = stack.peek();
-                    int elPrior = getPriority(el);
-                    if (elPrior <= prior){
-                        stack.pop();
-                        result.add(el);
-                    } else {
-                        break;
-                    }
-                }
-                stack.push(token);
+                list.add(el);
+            } else {
+                break;
             }
         }
 
-        while (!stack.empty())
-            result.add(stack.pop());
+        result.addAll(list);
+    }
 
-        this.result = new ExprStmtToken(result);
+    protected void processToken(Token token, Stack<Token> stack, List<Token> result, boolean recursive){
+        int prior = getPriority(token);
+
+        if (token instanceof ValueExprToken){
+            if (recursive){
+                Token el = getRecursiveToken((ValueExprToken)token);
+                if (el != null){
+                    result.add(el);
+                    return;
+                }
+            }
+            result.add(token);
+        } else if (token instanceof BraceExprToken){
+            BraceExprToken brace = (BraceExprToken)token;
+            if (brace.isSimpleOpened()){
+                stack.push(brace);
+            } else if (brace.isSimpleClosed()) {
+                if (stack.empty())
+                    unexpectedToken(brace);
+
+                boolean done = false;
+                do {
+                    Token el = stack.pop();
+                    if (el instanceof BraceExprToken && ((BraceExprToken) el).isSimpleOpened()){
+                        done = true;
+                        break;
+                    }
+                    result.add(el);
+                } while (!stack.isEmpty());
+
+                if (!done)
+                    unexpectedToken(brace);
+            } else
+                unexpectedToken(brace);
+        } else if (token instanceof OperatorExprToken){
+
+            if (stack.empty() || getPriority(stack.peek()) > prior){
+                stack.push(token);
+                return;
+            }
+
+            processOperator(stack, result, prior, recursive);
+            stack.push(token);
+        }
     }
 
     public ASMExpression(Context context, ExprStmtToken expr) {

@@ -10,6 +10,7 @@ import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.lexer.tokens.expr.operator.LogicOperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.MulExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
@@ -54,10 +55,15 @@ public class ASMExpressionTest {
         Assert.assertEquals("12/3%", getASMExpression("1 / 2 % 3").getResult().getWord());
         Assert.assertEquals("12/3/", getASMExpression("1 / 2 / 3").getResult().getWord());
         Assert.assertEquals("12-3+", getASMExpression("1 - 2 + 3").getResult().getWord());
-        Assert.assertEquals("123+&&", getASMExpression("1 && 2 + 3").getResult().getWord());
-        Assert.assertEquals("123+||", getASMExpression("1 || 2 + 3").getResult().getWord());
-        Assert.assertEquals("123&&||", getASMExpression("1 || 2 && 3").getResult().getWord());
-        Assert.assertEquals("1!23&&||", getASMExpression("!1 || 2 && 3").getResult().getWord());
+
+        ExprStmtToken expr = getASMExpression("1 && 2 + 3").getResult();
+        Assert.assertEquals("1&&", expr.getWord());
+        Assert.assertTrue(expr.getTokens().get(1) instanceof LogicOperatorExprToken);
+        Assert.assertEquals("23+", ((LogicOperatorExprToken)expr.getTokens().get(1)).getRightValue().getWord());
+
+        Assert.assertEquals("1||", getASMExpression("1 || 2 + 3").getResult().getWord());
+        Assert.assertEquals("1||", getASMExpression("1 || 2 && 3").getResult().getWord());
+        Assert.assertEquals("1!||", getASMExpression("!1 || 2 && 3").getResult().getWord());
     }
 
     @Test

@@ -20,8 +20,15 @@ public class FunctionStmtToken extends StmtToken {
 
     protected List<VariableExprToken> local;
 
+    protected boolean dynamicLocal;
+    protected boolean callsExist;
+    protected boolean varsExist;
+
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
+        this.dynamicLocal = false;
+        this.callsExist = false;
+        this.varsExist = false;
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -86,5 +93,33 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setLocal(List<VariableExprToken> local) {
         this.local = local;
+    }
+
+    public boolean isDynamicLocal() {
+        return dynamicLocal;
+    }
+
+    public void setDynamicLocal(boolean dynamicLocal) {
+        this.dynamicLocal = dynamicLocal;
+    }
+
+    public boolean isCallsExist() {
+        return callsExist;
+    }
+
+    public void setCallsExist(boolean callsExist) {
+        this.callsExist = callsExist;
+    }
+
+    public boolean isVarsExist() {
+        return varsExist;
+    }
+
+    public void setVarsExist(boolean varsExist) {
+        this.varsExist = varsExist;
+    }
+
+    public boolean isMutable(){
+        return varsExist || callsExist;
     }
 }

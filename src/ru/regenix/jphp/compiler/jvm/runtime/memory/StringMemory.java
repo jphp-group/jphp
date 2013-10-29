@@ -33,8 +33,7 @@ public class StringMemory extends Memory {
         return value;
     }
 
-    @Override
-    public Memory toNumeric(){
+    public static Memory toNumeric(String value){
         int len = value.length();
         boolean real = false;
         int i = 0;
@@ -67,6 +66,40 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public Memory toNumeric(){
+        return toNumeric(value);/*
+        int len = value.length();
+        boolean real = false;
+        int i = 0;
+        for(; i < len; i++){
+            char ch = value.charAt(i);
+            if (!('9' >= ch && ch >= '0')){
+                if (ch == '.'){
+                    if (real)
+                        break;
+                    real = true;
+                    continue;
+                }
+                if (i == 0)
+                    return CONST_INT_0;
+                else
+                    break;
+            }
+        }
+        if (real) {
+            if (len == i)
+                return new DoubleMemory(Double.parseDouble(value));
+            else
+                return new DoubleMemory(Double.parseDouble(value.substring(0, i)));
+        } else {
+            if (len == i)
+                return new LongMemory(Long.parseLong(value));
+            else
+                return new LongMemory(Long.parseLong(value.substring(0, i)));
+        }*/
+    }
+
+    @Override
     public Memory plus(Memory memory) {
         return toNumeric().plus(memory);
     }
@@ -92,6 +125,24 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public boolean equal(Memory memory) {
+        switch (memory.type){
+            case NULL: return value.equals("");
+            case DOUBLE:
+            case INT: return toNumeric().equal(memory);
+            case STRING: return value.equals(((StringMemory)memory).value);
+            case OBJECT:
+            case ARRAY: return false;
+            default: return equal(memory.toImmutable());
+        }
+    }
+
+    @Override
+    public boolean notEqual(Memory memory) {
+        return !equal(memory);
+    }
+
+    @Override
     public Memory minus(long value) {
         return toNumeric().minus(value);
     }
@@ -106,12 +157,32 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory smaller(Memory memory) {
+    public boolean smaller(Memory memory) {
         return toNumeric().smaller(memory);
+    }
+
+    @Override
+    public boolean smallerEq(Memory memory) {
+        return toNumeric().smallerEq(memory);
+    }
+
+    @Override
+    public boolean greater(Memory memory) {
+        return toNumeric().greater(memory);
+    }
+
+    @Override
+    public boolean greaterEq(Memory memory) {
+        return toNumeric().greaterEq(memory);
     }
 
     @Override
     public Memory concat(String value) {
         return new StringMemory(value + value);
+    }
+
+    @Override
+    public String concatScalar(String value){
+        return value + value;
     }
 }

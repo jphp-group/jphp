@@ -40,6 +40,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
         result.setName(previous);
         result.setParameters(parameters);
+
+        if (analyzer.getFunction() != null){
+            analyzer.getFunction().setCallsExist(true);
+        }
+
         return result;
     }
 
@@ -61,6 +66,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (name == null)
             unexpectedToken(next);
 
+        if (analyzer.getFunction() != null){
+            analyzer.getFunction().setDynamicLocal(true);
+            analyzer.getFunction().setVarsExist(true);
+        }
+
         GetVarExprToken result = new GetVarExprToken(TokenMeta.of(current, name));
         result.setName(name);
         return result;
@@ -73,6 +83,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (current instanceof VariableExprToken){
             analyzer.getLocalScope().add((VariableExprToken) current);
+            if (analyzer.getFunction() != null)
+                analyzer.getFunction().setVarsExist(true);
         }
 
         if (current instanceof AssignExprToken && next instanceof AmpersandToken){
@@ -107,6 +119,17 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (!(previous instanceof ValueExprToken)){
                 return new UnarMinusExprToken(current.getMeta());
             }
+        }
+
+        if (current instanceof LogicOperatorExprToken){
+            if (next == null)
+                unexpectedToken(current);
+
+            LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
+            ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class)
+                    .getToken(nextToken(iterator), iterator);
+            logic.setRightValue(result);
+            return logic;
         }
 
         return null;

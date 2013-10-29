@@ -24,6 +24,9 @@ public class MethodStmtToken extends FunctionStmtToken {
         setName(token.name);
         setReturnReference(token.returnReference);
         setLocal(token.local);
+        setDynamicLocal(token.dynamicLocal);
+        setCallsExist(token.callsExist);
+        setVarsExist(token.varsExist);
     }
 
     public boolean isAbstract() {

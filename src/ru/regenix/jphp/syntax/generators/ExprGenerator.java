@@ -4,6 +4,8 @@ import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.ImportExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.IncludeExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
@@ -80,6 +82,16 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         unexpectedToken(next);
     }
 
+    protected void processImport(ImportExprToken result, ListIterator<Token> iterator){
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator);
+        result.setValue(value);
+        if (analyzer.getFunction() != null){
+            analyzer.getFunction().setDynamicLocal(true);
+            analyzer.getFunction().setCallsExist(true);
+        }
+    }
+
     protected List<Token> processSimpleExpr(Token current, ListIterator<Token> iterator){
         ExprStmtToken token = analyzer.generator(SimpleExprGenerator.class).getToken(current, iterator);
         return token.getTokens();
@@ -98,6 +110,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                     break;
 
                 unexpectedToken(current);
+            } else if (current instanceof ImportExprToken){
+                processImport((IncludeExprToken)current, iterator);
+                tokens.add(current);
             } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken)current, iterator);
                 tokens.add(current);

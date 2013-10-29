@@ -98,7 +98,33 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: return new LongMemory(value % ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value % ((DoubleMemory)memory).value);
+            case STRING: return mod(memory.toNumeric());
+            case REFERENCE: return mod(memory.toNumeric());
             default: return new LongMemory(value % memory.toLong());
+        }
+    }
+
+    @Override
+    public boolean equal(Memory memory) {
+        switch (memory.type){
+            case INT: return ((LongMemory)memory).value == value;
+            case DOUBLE: return ((DoubleMemory)memory).value == value;
+            case STRING: return equal(memory.toNumeric());
+            case REFERENCE: return equal(memory.toImmutable());
+            default:
+                return value == toLong();
+        }
+    }
+
+    @Override
+    public boolean notEqual(Memory memory) {
+        switch (memory.type){
+            case INT: return ((LongMemory)memory).value != value;
+            case DOUBLE: return ((DoubleMemory)memory).value != value;
+            case STRING: return notEqual(memory.toNumeric());
+            case REFERENCE: return smaller(memory.toImmutable());
+            default:
+                return value != toLong();
         }
     }
 
@@ -111,14 +137,37 @@ public class LongMemory extends Memory {
     }
 
     @Override
-    public Memory smaller(Memory memory) {
+    public boolean smaller(Memory memory) {
         switch (memory.type){
-            case DOUBLE: return value < ((DoubleMemory)memory).value ? TRUE : FALSE;
-            case INT: return value < ((LongMemory)memory).value ? TRUE : FALSE;
-            case NULL: return value < 0 ? TRUE : FALSE;
+            case DOUBLE: return value < ((DoubleMemory)memory).value;
+            case INT: return value < ((LongMemory)memory).value;
+            case STRING: return smaller(memory.toNumeric());
+            case REFERENCE: return smaller(memory.toImmutable());
             default:
-                return smaller(memory.toNumeric());
+                return value < toLong();
         }
+    }
+
+    @Override
+    public boolean smallerEq(Memory memory) {
+        switch (memory.type){
+            case DOUBLE: return value <= ((DoubleMemory)memory).value;
+            case INT: return value <= ((LongMemory)memory).value;
+            case STRING: return smallerEq(memory.toNumeric());
+            case REFERENCE: return smallerEq(memory.toImmutable());
+            default:
+                return value <= toLong();
+        }
+    }
+
+    @Override
+    public boolean greater(Memory memory) {
+        return memory.smaller(this);
+    }
+
+    @Override
+    public boolean greaterEq(Memory memory) {
+        return memory.smallerEq(memory);
     }
 
     @Override

@@ -65,13 +65,38 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public boolean equal(Memory memory) {
+        return value.equal(memory);
+    }
+
+    @Override
+    public boolean notEqual(Memory memory) {
+        return value.notEqual(memory);
+    }
+
+    @Override
     public Memory concat(Memory memory) {
         return value.concat(memory);
     }
 
     @Override
-    public Memory smaller(Memory memory) {
+    public boolean smaller(Memory memory) {
         return value.smaller(memory);
+    }
+
+    @Override
+    public boolean smallerEq(Memory memory) {
+        return value.smallerEq(memory);
+    }
+
+    @Override
+    public boolean greater(Memory memory) {
+        return value.greater(memory);
+    }
+
+    @Override
+    public boolean greaterEq(Memory memory) {
+        return value.greaterEq(memory);
     }
 
     @Override
