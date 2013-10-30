@@ -14,7 +14,8 @@ Resolve all dependencies and run ru.regenix.jphp.Main class.
 
 Yes, we know about another implementation of PHP for JVM: http://quercus.caucho.com/,
 but our project is experemental and maybe something will come from this. However, quercus 
-is opensource under GPL license and compercial (in GPL version it not uses JIT). 
+is opensource under GPL license and compercial (in GPL version it not uses JIT). Our JVM compiler
+under Apache License 2.0 and absolutely free for use.
 
 I already implemented compilers and parsers for PHP, you can see these here: 
 http://code.google.com/p/orionphp/. This was a few years ago and now I decided to
