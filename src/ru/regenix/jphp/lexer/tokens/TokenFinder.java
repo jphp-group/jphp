@@ -20,13 +20,14 @@ public class TokenFinder {
         put("\\", BackslashExprToken.class);
         put("==", EqualExprToken.class);
         put("!=", BooleanNotEqualExprToken.class);
+        put("<>", BooleanNotEqualExprToken.class);
         put("===", IdenticalExprToken.class);
         put("!==", NotIdenticalExprToken.class);
         put(">", GreaterExprToken.class);
         put(">=", GreaterOrEqualExprToken.class);
         put("<", SmallerExprToken.class);
         put("<=", SmallerOrEqualToken.class);
-        put("^", PowExprToken.class);
+        put("^", NotExprToken.class);
 
         put("&&", BooleanAndExprToken.class);
         put("and", BooleanAnd2ExprToken.class);
@@ -35,10 +36,31 @@ public class TokenFinder {
         put("xor", BooleanXorExprToken.class);
         put("!", BooleanNotExprToken.class);
 
+        put("~", NotExprToken.class);
+        put("^", XorExprToken.class);
+        put("|", OrExprToken.class);
+        put("&", AndExprToken.class);
+        put(">>", ShiftRightExprToken.class);
+        put("<<", ShiftLeftExprToken.class);
+
         put("->", DynamicAccessExprToken.class);
         put("::", StaticAccessExprToken.class);
         put("=>", ArrayKeyValueExprToken.class);
         put("[]", ArrayPushExprToken.class);
+
+        put("+=", AssignPlusExprToken.class);
+        put("-=", AssignMinusExprToken.class);
+        put("*=", AssignMulExprToken.class);
+        put("/=", AssignDivExprToken.class);
+        put("%=", AssignModExprToken.class);
+        put(".=", AssignConcatExprToken.class);
+        put("^=", AssignXorExprToken.class);
+        put("&=", AssignAndExprToken.class);
+        put("|=", AssignOrExprToken.class);
+        put("++", IncExprToken.class);
+        put("--", DecExprToken.class);
+        put(">>=", AssignShiftRightExprToken.class);
+        put("<<=", AssignShiftLeftExprToken.class);
 
         put("new", NewExprToken.class);
         put("instanceof", InstanceofExprToken.class);

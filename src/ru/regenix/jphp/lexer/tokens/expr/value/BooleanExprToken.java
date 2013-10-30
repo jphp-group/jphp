@@ -35,6 +35,6 @@ public class BooleanExprToken extends ValueExprToken {
 
     @Override
     public String toString() {
-        return value ? "-1" : "";
+        return value ? "1" : "";
     }
 }

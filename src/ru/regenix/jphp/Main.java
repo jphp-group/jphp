@@ -4,12 +4,10 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.LongMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.File;
@@ -39,7 +37,7 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer(context,
                         "class MyClass { " +
                                 "static function test(){ " +
-                                    " $i = 10000000; $x = ''; while($i = $i - 1){ $x = $i . 'a'; } " +
+                                    " return $i = 10; " +
                                 "} " +
                         "}");
 
@@ -66,7 +64,7 @@ public class Main {
         Memory memory = null;
         long t = System.currentTimeMillis();
         memory = (Memory) method.invoke(null, environment, new Memory[]{});
-        // System.out.println(memory.toString());
+        System.out.println(memory.toString());
         System.out.println(System.currentTimeMillis() - t);
     }
 }

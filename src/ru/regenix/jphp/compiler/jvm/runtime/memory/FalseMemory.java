@@ -33,6 +33,22 @@ public class FalseMemory extends Memory {
     }
 
     @Override
+    public Memory inc(Memory memory) {
+        switch (memory.type){
+            case DOUBLE:
+            case INT: return memory;
+            case REFERENCE: return inc(memory.toImmutable());
+            default:
+                return new LongMemory(memory.toLong());
+        }
+    }
+
+    @Override
+    public Memory negative() {
+        return CONST_INT_0;
+    }
+
+    @Override
     public Memory toNumeric(){
         return Memory.CONST_INT_0;
     }
@@ -42,6 +58,7 @@ public class FalseMemory extends Memory {
         switch (memory.type){
             case INT:
             case DOUBLE: return memory;
+            case REFERENCE: return plus(memory.toImmutable());
             default: return memory.toNumeric();
         }
     }
@@ -51,6 +68,7 @@ public class FalseMemory extends Memory {
         switch (memory.type){
             case INT: return new LongMemory(-((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(-((DoubleMemory)memory).value);
+            case REFERENCE: return minus(memory.toImmutable());
             default: return minus(memory.toNumeric());
         }
     }
@@ -61,6 +79,7 @@ public class FalseMemory extends Memory {
             case INT: return Memory.CONST_INT_0;
             case DOUBLE: return Memory.CONST_DOUBLE_0;
             case STRING: return mul(memory.toNumeric());
+            case REFERENCE: return mul(memory.toImmutable());
             default: return Memory.CONST_INT_0;
         }
     }
@@ -75,6 +94,7 @@ public class FalseMemory extends Memory {
 
                 return CONST_INT_0;
             }
+            case REFERENCE: return div(memory.toImmutable());
             case STRING: return div(memory.toNumeric());
         }
         return CONST_INT_0;
@@ -90,6 +110,7 @@ public class FalseMemory extends Memory {
         switch (memory.type){
             case INT: return (((LongMemory)memory).value == 0);
             case NULL: return true;
+            case REFERENCE: return equal(memory.toImmutable());
             default:
                 return !toBoolean();
         }
@@ -104,6 +125,7 @@ public class FalseMemory extends Memory {
     public String concat(Memory memory) {
         switch (memory.type){
             case STRING: return ((StringMemory)memory).value;
+            case REFERENCE: return concat(memory.toImmutable());
             default:
                 return memory.toString();
         }
@@ -116,6 +138,7 @@ public class FalseMemory extends Memory {
             case DOUBLE: return 0 < ((DoubleMemory)memory).value;
             case BOOL: return 0 < memory.toLong();
             case NULL: return false;
+            case REFERENCE: return smaller(memory.toImmutable());
             default:
                 return smaller(memory.toBoolean());
         }
@@ -128,6 +151,7 @@ public class FalseMemory extends Memory {
             case DOUBLE: return 0 <= ((DoubleMemory)memory).value;
             case BOOL: return 0 <= memory.toLong();
             case NULL: return true;
+            case REFERENCE: return smallerEq(memory.toImmutable());
             default:
                 return smallerEq(memory.toBoolean());
         }
@@ -140,6 +164,7 @@ public class FalseMemory extends Memory {
             case DOUBLE: return 0 > ((DoubleMemory)memory).value;
             case BOOL: return 0 > memory.toLong();
             case NULL: return false;
+            case REFERENCE: return greater(memory.toImmutable());
             default:
                 return greater(memory.toBoolean());
         }
@@ -152,6 +177,7 @@ public class FalseMemory extends Memory {
             case DOUBLE: return 0 >= ((DoubleMemory)memory).value;
             case BOOL: return 0 >= memory.toLong();
             case NULL: return true;
+            case REFERENCE: return greaterEq(memory.toImmutable());
             default:
                 return greater(memory.toBoolean());
         }

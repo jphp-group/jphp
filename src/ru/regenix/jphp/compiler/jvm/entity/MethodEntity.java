@@ -7,7 +7,6 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Environment;
-import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 
@@ -65,7 +64,12 @@ public class MethodEntity extends Entity {
     }
 
     void push(Memory.Type type){
-        push( 1, type );
+        switch (type){
+            case INT:
+            case DOUBLE: push(2, type);
+            default:
+                push(1, type);
+        }
     }
 
     void pop(int size){

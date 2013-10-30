@@ -2,7 +2,11 @@ package ru.regenix.jphp.compiler.jvm.entity;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.lexer.TokenType;
+import ru.regenix.jphp.lexer.tokens.Token;
 
 abstract public class Entity {
 
@@ -29,5 +33,31 @@ abstract public class Entity {
 
     protected Label writeLabel(MethodVisitor mv){
         return writeLabel(mv, -1);
+    }
+
+    /**
+     * @throws ParseException
+     * @param token
+     */
+    protected void unexpectedToken(Token token){
+        Object unexpected = token.getType();
+        if (token.getType() == TokenType.T_J_CUSTOM)
+            unexpected = token.getWord();
+
+        throw new ParseException(
+                Messages.ERR_PARSE_UNEXPECTED_X.fetch(unexpected),
+                token.toTraceInfo(compiler.getContext().getFile())
+        );
+    }
+
+    protected void unexpectedToken(Token token, Object expected){
+        Object unexpected = token.getType();
+        if (token.getType() == TokenType.T_J_CUSTOM)
+            unexpected = token.getWord();
+
+        throw new ParseException(
+                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(unexpected, expected),
+                token.toTraceInfo(compiler.getContext().getFile())
+        );
     }
 }

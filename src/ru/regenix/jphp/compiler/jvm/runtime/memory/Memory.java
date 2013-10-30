@@ -2,7 +2,7 @@ package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
 abstract public class Memory {
     public enum Type {
-        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE;
+        NULL, BOOL, INT, DOUBLE, STRING, REFERENCE;
 
         public Class toClass(){
             if (this == DOUBLE)
@@ -19,8 +19,21 @@ abstract public class Memory {
             return null;
         }
 
+        public static Type valueOf(Class clazz){
+            if (clazz == Long.TYPE)
+                return INT;
+            if (clazz == Double.TYPE)
+                return DOUBLE;
+            if (clazz == String.class)
+                return STRING;
+            if (clazz == Boolean.TYPE)
+                return BOOL;
+
+            return REFERENCE;
+        }
+
         public boolean isConstant(){
-            return this != REFERENCE && this != ARRAY && this != OBJECT;
+            return this != REFERENCE/* && this != ARRAY && this != OBJECT*/;
         }
     }
 
@@ -49,6 +62,20 @@ abstract public class Memory {
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
     abstract public String toString();
+
+    // INC DEC
+    abstract public Memory inc(Memory memory);
+    public Memory inc(long value){ return new LongMemory(toLong() + value); }
+    public Memory inc(double value){ return new DoubleMemory(toDouble() + value); }
+    public Memory inc(String value){ return inc(StringMemory.toNumeric(value)); }
+
+    public Memory dec(Memory memory){ return inc(memory.negative()); }
+    public Memory dec(long value){ return inc(-value); }
+    public Memory dec(double value){ return inc(-value); }
+    public Memory dec(String value) {  return inc(StringMemory.toNumeric(value).negative()); }
+
+    // NEGATIVE
+    abstract public Memory negative();
 
     // CONCAT
     public String concat(Memory memory){  return toString() + memory.toString(); }
@@ -156,6 +183,11 @@ abstract public class Memory {
         return true;
     }
 
+    public void concatAssign(Memory memory){}
+    public void concatAssign(String value){}
+    public void concatAssign(long value){}
+    public void concatAssign(double value){}
+    public void concatAssign(boolean value){}
 
     /********** RIGHT ******************/
     public Memory minusRight(long value){ return new LongMemory(value - toLong()); }
@@ -210,6 +242,6 @@ abstract public class Memory {
     ////
 
     public static String boolToString(boolean value){
-        return value ? "-1" : "";
+        return value ? "1" : "";
     }
 }

@@ -9,6 +9,10 @@ public class ReferenceMemory extends Memory {
         this.value = value == null ? Memory.NULL : value;
     }
 
+    public static Memory valueOf(Memory value){
+        return new ReferenceMemory(value);
+    }
+
     public ReferenceMemory() {
         super(Type.REFERENCE);
         this.value = Memory.NULL;
@@ -37,6 +41,16 @@ public class ReferenceMemory extends Memory {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+    @Override
+    public Memory inc(Memory memory) {
+        return value.inc(memory);
+    }
+
+    @Override
+    public Memory negative() {
+        return value.negative();
     }
 
     @Override
@@ -135,5 +149,37 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory minus(long value) {
         return this.value.minus(value);
+    }
+
+    private StringMemory typeString(){
+        if (value.type != Type.STRING)
+            value = new StringMemory(value.toString());
+
+        return (StringMemory)value;
+    }
+
+    @Override
+    public void concatAssign(Memory memory) {
+        typeString().concat(memory);
+    }
+
+    @Override
+    public void concatAssign(String value) {
+        typeString().concat(value);
+    }
+
+    @Override
+    public void concatAssign(long value) {
+        typeString().concat(value);
+    }
+
+    @Override
+    public void concatAssign(double value) {
+        typeString().concat(value);
+    }
+
+    @Override
+    public void concatAssign(boolean value) {
+        typeString().concat(value);
     }
 }

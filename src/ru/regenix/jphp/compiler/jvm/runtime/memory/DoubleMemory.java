@@ -34,6 +34,27 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
+    public Memory inc(Memory memory) {
+        switch (memory.type){
+            case DOUBLE: return new DoubleMemory(value + ((DoubleMemory)memory).value);
+            case INT: return new DoubleMemory(value + ((LongMemory)memory).value);
+            case STRING: return inc(memory.toNumeric());
+            case REFERENCE: return inc(memory.toImmutable());
+            default:
+                return inc(toLong());
+        }
+    }
+
+    public Memory inc(long value){
+        return new DoubleMemory(this.value + value);
+    }
+
+    @Override
+    public Memory negative() {
+        return new DoubleMemory(- value);
+    }
+
+    @Override
     public Memory toNumeric(){
         return this;
     }
@@ -43,6 +64,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return new DoubleMemory(value + ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value + ((DoubleMemory)memory).value);
+            case REFERENCE: return plus(memory.toImmutable());
             default: return plus(memory.toNumeric());
         }
     }
@@ -52,6 +74,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return new DoubleMemory(value - ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value - ((DoubleMemory)memory).value);
+            case REFERENCE: return minus(memory.toImmutable());
             default: return minus(memory.toNumeric());
         }
     }
@@ -61,6 +84,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return new DoubleMemory(value * ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value * ((DoubleMemory)memory).value);
+            case REFERENCE: return mul(memory.toImmutable());
             default: return mul(memory.toNumeric());
         }
     }
@@ -70,6 +94,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return new DoubleMemory(value / ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value / ((DoubleMemory)memory).value);
+            case REFERENCE: return div(memory.toImmutable());
             default: return div(memory.toNumeric());
         }
     }
@@ -79,6 +104,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return new DoubleMemory(value % ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(value % ((DoubleMemory)memory).value);
+            case REFERENCE: return mod(memory.toImmutable());
             default: return mod(memory.toNumeric());
         }
     }
@@ -88,6 +114,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case INT: return almostEqual(value, ((LongMemory)memory).value);
             case DOUBLE: return almostEqual(value, ((DoubleMemory)memory).value);
+            case REFERENCE: return equal(memory.toImmutable());
             default: return almostEqual(value, memory.toDouble());
         }
     }
@@ -110,6 +137,7 @@ public class DoubleMemory extends Memory {
         switch (memory.type){
             case DOUBLE: return value < ((DoubleMemory)memory).value;
             case INT: return value < ((LongMemory)memory).value;
+            case REFERENCE: return smaller(memory.toImmutable());
             default:
                 return smaller(memory.toDouble());
         }

@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler.jvm.runtime.memory;
 public class StringMemory extends Memory {
 
     String value = "";
+    StringBuilder builder = null;
 
     public StringMemory(String value) {
         super(Type.STRING);
@@ -30,6 +31,10 @@ public class StringMemory extends Memory {
 
     @Override
     public String toString() {
+        if (builder != null){
+            value = builder.toString();
+            builder = null;
+        }
         return value;
     }
 
@@ -39,7 +44,19 @@ public class StringMemory extends Memory {
         int i = 0;
         for(; i < len; i++){
             char ch = value.charAt(i);
+            if (ch > 32)
+                break;
+        }
+
+        int start = i;
+        for(; i < len; i++){
+            char ch = value.charAt(i);
             if (!('9' >= ch && ch >= '0')){
+                if (ch == '-'){
+                    if (i == start)
+                        continue;
+                }
+
                 if (ch == '.'){
                     if (real)
                         break;
@@ -53,21 +70,50 @@ public class StringMemory extends Memory {
             }
         }
         if (real) {
-            if (len == i)
+            if (len == i && start == 0)
                 return new DoubleMemory(Double.parseDouble(value));
             else
-                return new DoubleMemory(Double.parseDouble(value.substring(0, i)));
+                return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
         } else {
-            if (len == i)
+            if (len == i && start == 0)
                 return new LongMemory(Long.parseLong(value));
             else
-                return new LongMemory(Long.parseLong(value.substring(0, i)));
+                return new LongMemory(Long.parseLong(value.substring(start, i)));
         }
     }
 
     @Override
     public Memory toNumeric(){
+        if (builder != null){
+            value = builder.toString();
+            builder = null;
+        }
         return toNumeric(value);
+    }
+
+    @Override
+    public Memory inc(Memory memory) {
+        return toNumeric(this.value).inc(memory);
+    }
+
+    @Override
+    public Memory inc(long value) {
+        return toNumeric(this.value).inc(value);
+    }
+
+    @Override
+    public Memory inc(double value) {
+        return toNumeric(this.value).inc(value);
+    }
+
+    @Override
+    public Memory inc(String value) {
+        return toNumeric(this.value).inc(value);
+    }
+
+    @Override
+    public Memory negative() {
+        return toNumeric(value).negative();
     }
 
     @Override
@@ -91,19 +137,33 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public Memory div(long value) {
+        return toNumeric().div(value);
+    }
+
+    @Override
+    public Memory div(boolean value) {
+        return div(value ? 1 : 0);
+    }
+
+    @Override
     public Memory mod(Memory memory) {
         return toNumeric().mod(memory);
     }
 
     @Override
     public boolean equal(Memory memory) {
+        if (builder != null){
+            value = builder.toString();
+            builder = null;
+        }
         switch (memory.type){
             case NULL: return value.equals("");
             case DOUBLE:
             case INT: return toNumeric().equal(memory);
             case STRING: return value.equals(((StringMemory)memory).value);
-            case OBJECT:
-            case ARRAY: return false;
+            /*case OBJECT:
+            case ARRAY: return false;*/
             default: return equal(memory.toImmutable());
         }
     }
@@ -120,8 +180,13 @@ public class StringMemory extends Memory {
 
     @Override
     public String concat(Memory memory) {
+        if (builder != null){
+            value = builder.toString();
+            builder = null;
+        }
         switch (memory.type){
             case STRING: return value.concat(((StringMemory)memory).value);
+            case REFERENCE: return concat(memory.toImmutable());
             default:
                 return (value + memory.toString());
         }
@@ -149,6 +214,57 @@ public class StringMemory extends Memory {
 
     @Override
     public String concat(String value) {
+        if (builder != null){
+            value = builder.toString();
+            builder = null;
+        }
         return this.value.concat(value);
+    }
+
+    private void resolveBuilder(){
+        if (builder == null){
+            builder = new StringBuilder(this.value);
+            this.value = null;
+        }
+    }
+
+    public void append(Memory memory){
+        resolveBuilder();
+        switch (memory.type){
+            case BOOL:
+                if (memory instanceof FalseMemory)
+                    break;
+                else
+                    builder.append(memory.toString());
+            case NULL: break;
+            case INT: builder.append(((LongMemory)memory).value); break;
+            case DOUBLE: builder.append(((DoubleMemory)memory).value); break;
+            case STRING: builder.append(((StringMemory)memory).value); break;
+            case REFERENCE: append(memory.toImmutable()); break;
+            default:
+                builder.append(memory.toString());
+        }
+    }
+
+    public void append(String value){
+        resolveBuilder();
+        builder.append(value);
+    }
+
+    public void append(long value){
+        resolveBuilder();
+        builder.append(value);
+    }
+
+    public void append(double value){
+        resolveBuilder();
+        builder.append(value);
+    }
+
+    public void append(boolean value){
+        if (value){
+            resolveBuilder();
+            builder.append(boolToString(value));
+        }
     }
 }

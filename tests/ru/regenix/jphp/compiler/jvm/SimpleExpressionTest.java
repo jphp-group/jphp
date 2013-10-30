@@ -8,10 +8,12 @@ import org.junit.runners.MethodSorters;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class JvmCompilerTest {
+public class SimpleExpressionTest extends JvmCompilerCase {
 
     @Test
     public void testSimple(){
-        // todo
+        /*Memory memory = run("1");
+        Assert.assertEquals(1, memory.toLong());
+        */
     }
 }
