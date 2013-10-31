@@ -1,6 +1,5 @@
 package ru.regenix.jphp.compiler.jvm.runtime.invokedynamic;
 
-import ru.regenix.jphp.compiler.jvm.runtime.PHPObject;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Environment;
 
@@ -15,7 +14,7 @@ public class CallableValue {
         this.method = clazz;
     }
 
-    public Memory call(PHPObject self, Environment env, Memory[] args){
+    public Memory call(Object self, Environment env, Memory[] args){
         try {
             Memory memory = (Memory) method.invoke(self, args);
             return memory == null ? Memory.NULL : memory;

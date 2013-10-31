@@ -2,9 +2,6 @@ package ru.regenix.jphp.compiler;
 
 
 import ru.regenix.jphp.compiler.jvm.runtime.invokedynamic.CallableValue;
-import ru.regenix.jphp.compiler.jvm.runtime.PHPObject;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 
@@ -17,8 +14,8 @@ public class CompileScope {
     protected Map<String, ClassStmtToken> classes;
     protected Map<String, MethodStmtToken> methods;
 
-    private static Map<Class<? extends PHPObject>, Map<String, CallableValue>> classMethods =
-            new HashMap<Class<? extends PHPObject>, Map<String, CallableValue>>();
+    private static Map<Class, Map<String, CallableValue>> classMethods =
+            new HashMap<Class, Map<String, CallableValue>>();
 
 
     public CompileScope() {
@@ -45,20 +42,15 @@ public class CompileScope {
         return methods.size() - 1;
     }
 
-    public static void registerClass(Class<? extends PHPObject> clazz){
+    public static void registerClass(Class clazz){
         Map<String, CallableValue> map = new HashMap<String, CallableValue>();
         for (Method method : clazz.getMethods()){
-            try {
-                Method m = clazz.getMethod(method.getName(), PHPObject.class, Environment.class, Memory[].class);
-                map.put(method.getName(), new CallableValue(m));
-            } catch (NoSuchMethodException e) {
-                // ..
-            }
+            map.put(method.getName(), new CallableValue(method));
         }
         classMethods.put(clazz, map);
     }
 
-    public static CallableValue findMethod(Class<? extends PHPObject> clazz, String methodName){
+    public static CallableValue findMethod(Class clazz, String methodName){
         return classMethods.get(clazz).get(methodName);
     }
 }

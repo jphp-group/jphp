@@ -257,21 +257,61 @@ public class StringMemoryTest {
         Assert.assertEquals(10.0, memory.div(Memory.CONST_DOUBLE_1).toDouble(), 0.000001);
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testDivInvalidFalse(){
         StringMemory memory = new StringMemory("10");
-        memory.div(false);
+        Assert.assertEquals(Memory.FALSE, memory.div(false));
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testDivInvalidFalse2(){
         StringMemory memory = new StringMemory("10");
-        memory.div(Memory.FALSE);
+        Assert.assertEquals(Memory.FALSE, memory.div(Memory.FALSE));
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testDivInvalidNull(){
         StringMemory memory = new StringMemory("10");
-        memory.div(Memory.NULL);
+        Assert.assertEquals(Memory.FALSE, memory.div(Memory.NULL));
+    }
+
+    @Test
+    public void testEqual(){
+        StringMemory memory = new StringMemory("foobar");
+        Assert.assertTrue(memory.equal("foobar"));
+        Assert.assertFalse(memory.notEqual("foobar"));
+        Assert.assertTrue(memory.equal(new StringMemory("foobar")));
+        Assert.assertFalse(memory.notEqual(new StringMemory("foobar")));
+
+        Assert.assertTrue(memory.equal(true));
+        Assert.assertFalse(memory.equal(false));
+        Assert.assertFalse(memory.notEqual(true));
+        Assert.assertTrue(memory.notEqual(false));
+
+        Assert.assertFalse(memory.equal(1));
+        Assert.assertTrue(memory.equal(0));
+
+        Assert.assertFalse(memory.equal(1.0));
+        Assert.assertTrue(memory.equal(0.0));
+    }
+
+    @Test
+    public void testSmaller(){
+        // for non numeric
+        StringMemory memory = new StringMemory("invalid_num");
+        Assert.assertFalse(memory.smaller("foobar"));
+        Assert.assertFalse(memory.smallerEq("foobar"));
+        Assert.assertFalse(memory.smaller(new StringMemory("foobar")));
+        Assert.assertFalse(memory.smallerEq(new StringMemory("foobar")));
+    }
+
+    @Test
+    public void testGreater(){
+        // for non numeric
+        StringMemory memory = new StringMemory("invalid_num");
+        Assert.assertTrue(memory.greater("foobar"));
+        Assert.assertTrue(memory.greaterEq("foobar"));
+        Assert.assertTrue(memory.greater(new StringMemory("foobar")));
+        Assert.assertTrue(memory.greaterEq(new StringMemory("foobar")));
     }
 }

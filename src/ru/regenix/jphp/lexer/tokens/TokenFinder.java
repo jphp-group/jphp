@@ -68,6 +68,7 @@ public class TokenFinder {
         put(":", ColonToken.class);
         put("true", BooleanExprToken.class);
         put("false", BooleanExprToken.class);
+        put("null", NullExprToken.class);
         put(";", SemicolonToken.class);
         put("&", AmpersandToken.class);
         put(",", CommaToken.class);

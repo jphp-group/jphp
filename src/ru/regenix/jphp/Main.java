@@ -37,7 +37,7 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer(context,
                         "class MyClass { " +
                                 "static function test(){ " +
-                                    " return $i = 10; " +
+                                    " $x = 'foo'; $x .= 'bar'; return $x; " +
                                 "} " +
                         "}");
 

@@ -107,9 +107,9 @@ abstract public class Memory {
 
     // DIV
     abstract public Memory div(Memory memory);
-    public Memory div(long value){ return new DoubleMemory(toDouble() / value); }
-    public Memory div(double value){ return new DoubleMemory(toDouble() / value); }
-    public Memory div(boolean value){ return new DoubleMemory(toDouble() / (value ? 1 : 0)); }
+    public Memory div(long value){ if(value==0) return FALSE; return new DoubleMemory(toDouble() / value); }
+    public Memory div(double value){ if(value==0.0) return FALSE; return new DoubleMemory(toDouble() / value); }
+    public Memory div(boolean value){ if(!value) return FALSE; return new LongMemory(toLong()); }
     public Memory div(String value){ return div(StringMemory.toNumeric(value)); }
 
     // MOD

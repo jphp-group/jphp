@@ -25,9 +25,9 @@ abstract public class JvmCompilerCase {
         return analyzer.getTree();
     }
 
-    protected Memory run(String code){
+    protected Memory run(String code, boolean returned){
         runIndex += 1;
-        code = "class TestClass { static function test(){ return " + code + "; } }";
+        code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
 
         JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, getSyntaxTree(code));
         compiler.compile();
@@ -46,5 +46,9 @@ abstract public class JvmCompilerCase {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected Memory run(String code){
+        return run(code, true);
     }
 }

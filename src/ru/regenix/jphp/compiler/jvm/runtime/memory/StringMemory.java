@@ -161,7 +161,7 @@ public class StringMemory extends Memory {
             case NULL: return value.equals("");
             case DOUBLE:
             case INT: return toNumeric().equal(memory);
-            case STRING: return value.equals(((StringMemory)memory).value);
+            case STRING: return value.equals(memory.toString());
             /*case OBJECT:
             case ARRAY: return false;*/
             default: return equal(memory.toImmutable());
@@ -185,7 +185,7 @@ public class StringMemory extends Memory {
             builder = null;
         }
         switch (memory.type){
-            case STRING: return value.concat(((StringMemory)memory).value);
+            case STRING: return value.concat(memory.toString());
             case REFERENCE: return concat(memory.toImmutable());
             default:
                 return (value + memory.toString());
@@ -194,22 +194,58 @@ public class StringMemory extends Memory {
 
     @Override
     public boolean smaller(Memory memory) {
+        switch (memory.type){
+            case STRING: return toString().compareTo(memory.toString()) < 0;
+            case REFERENCE: return smaller(memory.toImmutable());
+        }
         return toNumeric().smaller(memory);
     }
 
     @Override
+    public boolean smaller(String value) {
+        return toString().compareTo(value) < 0;
+    }
+
+    @Override
     public boolean smallerEq(Memory memory) {
+        switch (memory.type){
+            case STRING: return toString().compareTo(memory.toString()) <= 0;
+            case REFERENCE: return smaller(memory.toImmutable());
+        }
         return toNumeric().smallerEq(memory);
     }
 
     @Override
+    public boolean smallerEq(String value) {
+        return toString().compareTo(value) <= 0;
+    }
+
+    @Override
     public boolean greater(Memory memory) {
+        switch (memory.type){
+            case STRING: return toString().compareTo(memory.toString()) > 0;
+            case REFERENCE: return smaller(memory.toImmutable());
+        }
         return toNumeric().greater(memory);
     }
 
     @Override
+    public boolean greater(String value) {
+        return toString().compareTo(value) > 0;
+    }
+
+    @Override
     public boolean greaterEq(Memory memory) {
+        switch (memory.type){
+            case STRING: return toString().compareTo(memory.toString()) >= 0;
+            case REFERENCE: return smaller(memory.toImmutable());
+        }
         return toNumeric().greaterEq(memory);
+    }
+
+    @Override
+    public boolean greaterEq(String value) {
+        return toString().compareTo(value) >= 0;
     }
 
     @Override
@@ -239,7 +275,7 @@ public class StringMemory extends Memory {
             case NULL: break;
             case INT: builder.append(((LongMemory)memory).value); break;
             case DOUBLE: builder.append(((DoubleMemory)memory).value); break;
-            case STRING: builder.append(((StringMemory)memory).value); break;
+            case STRING: builder.append(memory.toString()); break;
             case REFERENCE: append(memory.toImmutable()); break;
             default:
                 builder.append(memory.toString());

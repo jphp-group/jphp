@@ -115,7 +115,10 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory toImmutable() {
-        return value;
+        if (value instanceof ReferenceMemory)
+            return value.toImmutable();
+        else
+            return value;
     }
 
     @Override
@@ -125,25 +128,54 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public void assign(Memory memory) {
-        if(!value.isImmutable())
+        if (value.type == Type.REFERENCE)
             value.assign(memory);
         else
-            value = memory;
+            value = memory.toImmutable();
     }
 
     @Override
     public void assign(long value) {
-        this.value = new LongMemory(value);
+        if (this.value.type == Type.REFERENCE)
+            this.value.assign(value);
+        else
+            this.value = new LongMemory(value);
     }
 
     @Override
     public void assign(String value) {
-        this.value = new StringMemory(value);
+        if (this.value.type == Type.REFERENCE)
+            this.value.assign(value);
+        else
+            this.value = new StringMemory(value);
+    }
+
+    @Override
+    public void assign(boolean value) {
+        if (this.value.type == Type.REFERENCE)
+            this.value.assign(value);
+        else
+            this.value = value ? TRUE : FALSE;
+    }
+
+    @Override
+    public void assign(double value) {
+        if (this.value.type == Type.REFERENCE)
+            this.value.assign(value);
+        else
+            this.value = new DoubleMemory(value);
     }
 
     @Override
     public void assignRef(Memory memory) {
-        value = memory;
+        if (memory instanceof ReferenceMemory){
+            ReferenceMemory reference = (ReferenceMemory)memory;
+            if (reference.value instanceof ReferenceMemory)
+                value = reference.value;
+            else
+                value = reference;
+        } else
+            value = memory;
     }
 
     @Override
@@ -152,34 +184,35 @@ public class ReferenceMemory extends Memory {
     }
 
     private StringMemory typeString(){
-        if (value.type != Type.STRING)
-            value = new StringMemory(value.toString());
+        if (toImmutable().type != Type.STRING){
+            assign(new StringMemory(value.toString()));
+        }
 
-        return (StringMemory)value;
+        return (StringMemory)toImmutable();
     }
 
     @Override
     public void concatAssign(Memory memory) {
-        typeString().concat(memory);
+        typeString().concatAssign(memory);
     }
 
     @Override
     public void concatAssign(String value) {
-        typeString().concat(value);
+        typeString().append(value);
     }
 
     @Override
     public void concatAssign(long value) {
-        typeString().concat(value);
+        typeString().append(value);
     }
 
     @Override
     public void concatAssign(double value) {
-        typeString().concat(value);
+        typeString().append(value);
     }
 
     @Override
     public void concatAssign(boolean value) {
-        typeString().concat(value);
+        typeString().append(value);
     }
 }

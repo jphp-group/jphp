@@ -92,8 +92,16 @@ public class DoubleMemory extends Memory {
     @Override
     public Memory div(Memory memory) {
         switch (memory.type){
-            case INT: return new DoubleMemory(value / ((LongMemory)memory).value);
-            case DOUBLE: return new DoubleMemory(value / ((DoubleMemory)memory).value);
+            case INT:
+                if (((LongMemory)memory).value == 0)
+                    return FALSE;
+                return new DoubleMemory(value / ((LongMemory)memory).value);
+
+            case DOUBLE:
+                if (((DoubleMemory)memory).value == 0)
+                    return FALSE;
+
+                return new DoubleMemory(value / ((DoubleMemory)memory).value);
             case REFERENCE: return div(memory.toImmutable());
             default: return div(memory.toNumeric());
         }
@@ -168,6 +176,49 @@ public class DoubleMemory extends Memory {
         return new DoubleMemory(this.value + value);
     }
 
+    @Override
+    public Memory mul(long value) {
+        return new DoubleMemory(this.value * value);
+    }
+
+    @Override
+    public Memory mul(boolean value) {
+        if (value)
+            return this;
+        else
+            return CONST_DOUBLE_0;
+    }
+
+    @Override
+    public Memory plus(boolean value) {
+        if (value)
+            return new DoubleMemory(this.value + 1);
+        else
+            return this;
+    }
+
+    @Override
+    public Memory div(long value) {
+        if (value == 0)
+            return FALSE;
+        return new DoubleMemory(this.value / value);
+    }
+
+    @Override
+    public Memory div(double value) {
+        if (value == 0.0)
+            return FALSE;
+        else
+            return new DoubleMemory(this.value / value);
+    }
+
+    @Override
+    public Memory div(boolean value) {
+        if (!value)
+            return FALSE;
+        else
+            return this;
+    }
 
     public static boolean almostEqual(double o1 , double o2, double eps){
         return Math.abs(o1 - o2) < eps;

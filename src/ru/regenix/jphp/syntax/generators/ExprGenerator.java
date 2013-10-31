@@ -62,7 +62,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (next instanceof SemicolonToken)
             result.setValue(null);
         else {
-            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(next, iterator);
+            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
+                    .getToken(next, iterator);
             result.setValue(value);
         }
     }
@@ -128,6 +129,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof DoStmtToken){
                 processDo((DoStmtToken)current, iterator);
                 tokens.add(current);
+                break;
+            } else if (current instanceof SemicolonToken){
+                tokens.add(current);
+                break;
             } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
                 if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
                     if (endToken != null)

@@ -214,6 +214,8 @@ public class ExpressionEntity extends Entity {
             writePushHex((HexExprValue)value);
         } else if (value instanceof BooleanExprToken){
             writePushBoolean((BooleanExprToken)value);
+        } else if (value instanceof NullExprToken){
+            writePushNull();
         } else if (value instanceof StringExprToken){
             writePushString((StringExprToken)value);
         } else if (value instanceof DoubleExprToken){
@@ -278,7 +280,7 @@ public class ExpressionEntity extends Entity {
         MethodEntity.LocalVariable local = method.getLocalVariable(variable.getName());
         local.setClazz(Memory.class);
 
-        boolean returned = !stack.empty() || returnValue;
+       // boolean returned = !stack.empty() || returnValue;
 
         if (local.isReference()){
             writeVarLoad(local.index);
@@ -291,11 +293,11 @@ public class ExpressionEntity extends Entity {
                 writeSysDynamicCall(Memory.class, "assign", void.class, Memory.class);
             }
 
-            if (returned)
+            if (returnValue)
                 writeVarLoad(local.index);
         } else {
             writePush(R);
-            writeVarStore(local.index, returned);
+            writeVarStore(local.index, returnValue);
         }
     }
 
@@ -358,7 +360,7 @@ public class ExpressionEntity extends Entity {
         writePush(R);
 
         Memory.Type Rt = stackPop();
-        Memory.Type Lt = stackPop();
+        Memory.Type Lt = stackPeek();
         Memory.Type operatorType = Memory.Type.REFERENCE;
 
         String name = null;

@@ -66,7 +66,7 @@ public class MethodEntity extends Entity {
     void push(Memory.Type type){
         switch (type){
             case INT:
-            case DOUBLE: push(2, type);
+            case DOUBLE: push(2, type); break;
             default:
                 push(1, type);
         }
@@ -162,7 +162,7 @@ public class MethodEntity extends Entity {
                     variable.index
             );
         }
-        mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
+        mv.visitMaxs(this.stackMaxSize + 1, this.localVariables.size());
         mv.visitEnd();
     }
 

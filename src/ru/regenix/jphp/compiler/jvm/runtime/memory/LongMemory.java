@@ -103,12 +103,16 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: {
                 long tmp = ((LongMemory)memory).value;
+                if (tmp == 0) return FALSE;
+
                 if (value % tmp == 0)
                     return new LongMemory(value / tmp);
                 else
                     return new DoubleMemory(value / (double)tmp);
             }
-            case DOUBLE: return new DoubleMemory(value / ((DoubleMemory)memory).value);
+            case DOUBLE:
+                if (((DoubleMemory)memory).value == 0) return FALSE;
+                return new DoubleMemory(value / ((DoubleMemory)memory).value);
             case REFERENCE: return div(memory.toImmutable());
             default: return div(memory.toNumeric());
         }
@@ -116,6 +120,9 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory div(long value) {
+        if (value == 0)
+            return FALSE;
+
         if (this.value % value == 0)
             return new LongMemory(this.value / value);
         else
@@ -207,5 +214,12 @@ public class LongMemory extends Memory {
     @Override
     public Memory plus(long value) {
         return new LongMemory(this.value + value);
+    }
+
+    @Override
+    public Memory div(boolean value) {
+        if (!value)
+            return FALSE;
+        return this;
     }
 }
