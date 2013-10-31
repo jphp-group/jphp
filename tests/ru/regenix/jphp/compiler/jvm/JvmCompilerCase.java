@@ -32,7 +32,7 @@ abstract public class JvmCompilerCase {
         JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, getSyntaxTree(code));
         compiler.compile();
 
-        MyClassLoader classLoader = new MyClassLoader();
+        MyClassLoader classLoader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
         try {
             Class clazz = classLoader.loadClass("TestClass", compiler.getClasses().get(0).getCw().toByteArray());
             Method method = clazz.getMethod("test", Environment.class, Memory[].class);
