@@ -66,7 +66,8 @@ public class TrueMemory extends Memory {
             case INT: return new LongMemory(1 - ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(1 - ((DoubleMemory)memory).value);
             case REFERENCE: return minus(memory.toImmutable());
-            default: return memory.toNumeric().minus(CONST_INT_1);
+            case BOOL: return new LongMemory(1 - memory.toLong());
+            default: return CONST_INT_1.minus(memory.toNumeric());
         }
     }
 
@@ -91,20 +92,29 @@ public class TrueMemory extends Memory {
     }
 
     @Override
+    public Memory divRight(boolean value) {
+        if (!value)
+            return CONST_INT_0;
+        else
+            return CONST_INT_1;
+    }
+
+    @Override
+    public Memory divRight(long value) {
+        if (value == 0)
+            return CONST_INT_0;
+        else
+            return new LongMemory(value);
+    }
+
+    @Override
+    public Memory divRight(double value) {
+        return new DoubleMemory(value);
+    }
+
+    @Override
     public Memory mod(Memory memory) {
-        switch (memory.type){
-            case INT:
-                if (((LongMemory)memory).value == 1)
-                    return CONST_INT_1;
-                else
-                    return CONST_INT_0;
-            case DOUBLE:
-                return CONST_DOUBLE_0;
-            case REFERENCE:
-                return mod(memory.toImmutable());
-            default:
-                return CONST_INT_0;
-        }
+        return mod(memory.toLong());
     }
 
     @Override

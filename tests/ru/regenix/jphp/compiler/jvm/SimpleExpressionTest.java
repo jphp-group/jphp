@@ -13,6 +13,12 @@ import ru.regenix.jphp.compiler.jvm.runtime.memory.*;
 public class SimpleExpressionTest extends JvmCompilerCase {
 
     @Test
+    public void testReturn(){
+        Memory memory = run("return;", false);
+        Assert.assertTrue(memory instanceof NullMemory);
+    }
+
+    @Test
     public void testSimple(){
         Memory memory = run("1");
         Assert.assertEquals(1, memory.toLong());

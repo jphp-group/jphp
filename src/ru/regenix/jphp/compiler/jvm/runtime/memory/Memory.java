@@ -114,9 +114,9 @@ abstract public class Memory {
 
     // MOD
     abstract public Memory mod(Memory memory);
-    public Memory mod(long value){ return new LongMemory(toLong() % value); }
-    public Memory mod(double value){ return new DoubleMemory(toDouble() % value); }
-    public Memory mod(boolean value){ return new LongMemory(toLong() % (value ? 1 : 0)); }
+    public Memory mod(long value){ if (value==0) return FALSE; return new LongMemory(toLong() % value); }
+    public Memory mod(double value){ return mod((long)value); }
+    public Memory mod(boolean value){ if (!value) return FALSE; return new LongMemory(toLong() % (value ? 1 : 0)); }
     public Memory mod(String value){ return div(StringMemory.toNumeric(value)); }
 
     // EQUAL
@@ -197,7 +197,7 @@ abstract public class Memory {
 
     public Memory divRight(long value){ return new DoubleMemory(value / toDouble()); }
     public Memory divRight(double value){ return new DoubleMemory(value / toDouble()); }
-    public Memory divRight(boolean value){ return new DoubleMemory((value ? 1 : 0) / toDouble()); }
+    public Memory divRight(boolean value){ if(!value) return CONST_INT_0; return new DoubleMemory((value ? 1 : 0) / toDouble()); }
     public Memory divRight(String value){ return StringMemory.toNumeric(value).div(this); }
 
     public Memory modRight(long value){ return new LongMemory(value % toLong()); }
