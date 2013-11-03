@@ -33,10 +33,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
 
         Token current = iterator.next();
         if (!(current instanceof AssignExprToken))
-            throw new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(current.getType(), TokenType.T_J_EQUAL),
-                current.toTraceInfo(analyzer.getFile())
-            );
+            unexpectedToken(current, TokenType.T_J_EQUAL);
 
         ExprStmtToken value = analyzer.generator(ConstExprGenerator.class).getToken(nextToken(iterator), iterator);
         result.setValue(value);
@@ -54,10 +51,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
                 processBody(result, iterator);
                 return result;
             } else
-                throw new ParseException(
-                        Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(next.getType(), TokenType.T_STRING),
-                        next.toTraceInfo(analyzer.getFile())
-                );
+                unexpectedToken(next, TokenType.T_STRING);
         }
         return null;
     }

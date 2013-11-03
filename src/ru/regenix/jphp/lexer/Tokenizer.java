@@ -25,11 +25,11 @@ public class Tokenizer {
 
     protected Token prevToken;
 
-    public Tokenizer(Context context, String code){
+    public Tokenizer(Context context){
         this.context = context;
         this.currentPosition = -1;
         this.currentLine = 0;
-        this.code = code;
+        this.code = context.getContent();
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
     }
@@ -191,7 +191,9 @@ public class Tokenizer {
         //currentPosition -= 1;
 
         if (string != null)
-            throw new ParseException(Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(), meta.toTraceInfo(context.getFile()));
+            context.triggerError(new ParseException(
+                    Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(), meta.toTraceInfo(context)
+            ));
 
         Class<? extends Token> tokenClazz = tokenFinder.find(meta);
         if (tokenClazz == null)

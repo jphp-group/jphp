@@ -24,10 +24,10 @@ import java.io.File;
 public class ASMExpressionTest {
 
     protected Environment environment = new Environment();
-    protected Context context = new Context(environment, new File("test.php"));
+    protected Context context;
 
     private ASMExpression getASMExpression(String expr){
-        Tokenizer tokenizer = new Tokenizer(context, expr + ";");
+        Tokenizer tokenizer = new Tokenizer(context = environment.createContext(expr + ";"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);

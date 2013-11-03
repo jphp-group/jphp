@@ -12,7 +12,7 @@ public class LongMemory extends Memory {
         }
     }
 
-    protected long value;
+    public long value;
 
     public LongMemory(long value) {
         super(Type.INT);
@@ -221,5 +221,10 @@ public class LongMemory extends Memory {
         if (!value)
             return FALSE;
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (value ^ (value >>> 32));
     }
 }

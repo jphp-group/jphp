@@ -227,4 +227,10 @@ public class DoubleMemory extends Memory {
     public static boolean almostEqual(double o1, double o2){
         return almostEqual(o1, o2, 0.0000000001);
     }
+
+    @Override
+    public int hashCode() {
+        long temp = (long)value;
+        return (int) (temp ^ (temp >>> 32));
+    }
 }

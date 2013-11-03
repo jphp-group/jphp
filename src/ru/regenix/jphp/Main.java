@@ -4,7 +4,10 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.LongMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.StringMemory;
+import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
 import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.Tokenizer;
@@ -18,28 +21,15 @@ import java.lang.reflect.Method;
 public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
-
-
-
         Environment environment = new Environment();
-        Context context = new Context(environment, new File("file.php"));
+        Context context;
 
-        /*Tokenizer tokenizer = new Tokenizer(context,
-                "class MyClass { " +
-                        "static function test(){" +
-                            " $i = 1000000; " +
-                            " while($i) { $x = $i - 1;" +
-                                " $i = $i - 1; " +
-                            " } " +
-                        "} " +
-                "}");*/
-
-        Tokenizer tokenizer = new Tokenizer(context,
+        Tokenizer tokenizer = new Tokenizer(context = new Context(environment,
                         "class MyClass { " +
                                 "static function test(){ " +
                                     " $x = 'foo'; $x .= 'bar'; return $x; " +
                                 "} " +
-                        "}");
+                        "}"));
 
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
         JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, analyzer.getTree());
@@ -60,10 +50,9 @@ public class Main {
             System.out.println(op);
 
         Method method = clazz.getMethod("test", Environment.class, Memory[].class);
-
-        Memory memory = null;
         long t = System.currentTimeMillis();
-        memory = (Memory) method.invoke(null, environment, new Memory[]{});
+
+        Memory memory = (Memory) method.invoke(null, environment, new Memory[]{});
         System.out.println(memory.toString());
         System.out.println(System.currentTimeMillis() - t);
     }

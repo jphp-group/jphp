@@ -34,10 +34,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         if (name instanceof NameToken){
             result.setName((NameToken)name);
         } else
-            throw new ParseException(
-                    Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(name.getType(), TokenType.T_STRING),
-                    name.toTraceInfo(analyzer.getFile())
-            );
+            unexpectedToken(name, TokenType.T_STRING);
     }
 
     protected void processExtends(ClassStmtToken result, ListIterator<Token> iterator){
@@ -76,10 +73,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 while (iterator.hasNext()){
                     Token current = iterator.next();
                     if (current instanceof ExprStmtToken)
-                        throw new ParseException(
-                            Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch("T_EXPR", "T_NOT_EXPR"),
-                            current.toTraceInfo(analyzer.getFile())
-                        );
+                        unexpectedToken(current, "expression");
 
                     if (current instanceof ConstStmtToken){
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
@@ -135,10 +129,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 return;
             }
         }
-        throw new ParseException(
-            Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getType(), "{"),
-            token.toTraceInfo(analyzer.getFile())
-        );
+
+        unexpectedToken(token, "{");
     }
 
     @SuppressWarnings("unchecked")

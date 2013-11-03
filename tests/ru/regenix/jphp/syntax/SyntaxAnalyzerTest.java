@@ -18,11 +18,9 @@ import java.io.File;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
 
-    private Context context = new Context(new Environment(), new File("test.php"));
-
     @Test
     public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(context, "foobar;");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "foobar;"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
@@ -31,7 +29,7 @@ public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
 
     @Test(expected = ParseException.class)
     public void testUnexpectedEnd(){
-        Tokenizer tokenizer = new Tokenizer(context, "foobar");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "foobar"));
         new SyntaxAnalyzer(tokenizer);
     }
 }

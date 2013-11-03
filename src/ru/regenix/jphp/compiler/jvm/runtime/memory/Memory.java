@@ -1,8 +1,10 @@
 package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
+import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
+
 abstract public class Memory {
     public enum Type {
-        NULL, BOOL, INT, DOUBLE, STRING, REFERENCE;
+        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, REFERENCE;
 
         public Class toClass(){
             if (this == DOUBLE)
@@ -13,6 +15,8 @@ abstract public class Memory {
                 return String.class;
             else if (this == BOOL)
                 return Boolean.class;
+            else if (this == ARRAY)
+                return HashTable.class;
             else if (this == REFERENCE)
                 return Memory.class;
 
@@ -28,6 +32,8 @@ abstract public class Memory {
                 return STRING;
             if (clazz == Boolean.TYPE)
                 return BOOL;
+            if (clazz == HashTable.class)
+                return ARRAY;
 
             return REFERENCE;
         }
@@ -62,6 +68,15 @@ abstract public class Memory {
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
     abstract public String toString();
+
+    public Memory valueOfIndex(Memory index){
+        return NULL;
+    }
+
+    public Memory valueOfIndex(long index){ return valueOfIndex(new LongMemory(index)); }
+    public Memory valueOfIndex(double index) { return valueOfIndex(new LongMemory((long)index)); }
+    public Memory valueOfIndex(String index) { return valueOfIndex(new StringMemory(index)); }
+    public Memory valueOfIndex(boolean index) { return valueOfIndex(index ? CONST_INT_0 : CONST_INT_1); }
 
     // INC DEC
     abstract public Memory inc(Memory memory);

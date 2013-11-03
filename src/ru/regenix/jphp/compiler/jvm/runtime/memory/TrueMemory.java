@@ -160,4 +160,9 @@ public class TrueMemory extends Memory {
     public Memory minus(long value) {
         return new LongMemory(1 - value);
     }
+
+    @Override
+    public int hashCode(){
+        return 1;
+    }
 }

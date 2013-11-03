@@ -1,10 +1,7 @@
 package ru.regenix.jphp.env;
 
-import java.io.File;
-
 public class TraceInfo {
-
-    private File file;
+    private Context context;
 
     private int startLine;
     private int endLine;
@@ -12,16 +9,20 @@ public class TraceInfo {
     private int startPosition;
     private int endPosition;
 
-    public TraceInfo(File file, int startLine, int endLine, int startPosition, int endPosition) {
-        this.file = file;
+    public TraceInfo(Context context, int startLine, int endLine, int startPosition, int endPosition) {
+        this.context = context;
         this.startLine = startLine;
         this.endLine = endLine;
         this.startPosition = startPosition;
         this.endPosition = endPosition;
     }
 
-    public File getFile() {
-        return file;
+    public TraceInfo(Context context){
+        this(context, 0, 0, 0, 0);
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     public int getStartLine() {

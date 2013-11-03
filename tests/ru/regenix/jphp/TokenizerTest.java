@@ -27,35 +27,35 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TokenizerTest {
 
-    private Context context = new Context(new Environment(), new File("test.php"));
+    private Environment environment = new Environment();
 
     @Test
     public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(null, "");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, ""));
 
         assertNull(tokenizer.nextToken());
         assertEquals("", tokenizer.getCode());
 
-        tokenizer = new Tokenizer(null, " ");
+        tokenizer = new Tokenizer(new Context(environment, " "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(null, "  ");
+        tokenizer = new Tokenizer(new Context(environment, "  "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(null, "\t");
+        tokenizer = new Tokenizer(new Context(environment, "\t"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(null, "\n");
+        tokenizer = new Tokenizer(new Context(environment, "\n"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(null, "\r");
+        tokenizer = new Tokenizer(new Context(environment, "\r"));
         assertNull(tokenizer.nextToken());
     }
 
     @Test
     public void testScalarTokens(){
         Token token;
-        Tokenizer tokenizer = new Tokenizer(null, "10 3.3 'foo' '' `bar` \"xyz\" 0xCC true false");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "10 3.3 'foo' '' `bar` \"xyz\" 0xCC true false"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -104,7 +104,7 @@ public class TokenizerTest {
     @Test
     public void testStringSlashes(){
         Token token;
-        Tokenizer tokenizer = new Tokenizer(null, " 'foo\\'bar' \"foo\\\"bar\" `foo\\`bar`");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, " 'foo\\'bar' \"foo\\\"bar\" `foo\\`bar`"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -121,7 +121,7 @@ public class TokenizerTest {
 
     @Test
     public void testComplexOperators(){
-        Tokenizer tokenizer = new Tokenizer(null, "== >= <= === !== != && ||");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "== >= <= === !== != && ||"));
 
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
         assertTrue(tokenizer.nextToken() instanceof GreaterOrEqualExprToken);
@@ -135,7 +135,7 @@ public class TokenizerTest {
 
     @Test
     public void testSimpleOperators(){
-        Tokenizer tokenizer = new Tokenizer(null, "= + - / * % . and or new && || ! xor");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "= + - / * % . and or new && || ! xor"));
 
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
@@ -157,7 +157,7 @@ public class TokenizerTest {
     @Test
     public void testParseError(){
         Throwable ex = null;
-        Tokenizer tokenizer = new Tokenizer(new Context(null, null), "  'foobar \n ");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "  'foobar \n "));
 
         try {
             tokenizer.nextToken();
@@ -168,7 +168,7 @@ public class TokenizerTest {
         assertTrue(ex instanceof ParseException);
         TraceInfo traceInfo = ((ParseException) ex).getTraceInfo();
         assertNotNull(traceInfo);
-        assertNull(traceInfo.getFile());
+        assertNull(traceInfo.getContext().getFile());
         assertEquals(0, traceInfo.getStartLine());
         assertEquals(1, traceInfo.getEndLine());
         assertEquals(2, traceInfo.getStartPosition());
@@ -177,7 +177,7 @@ public class TokenizerTest {
 
     @Test
     public void testComplex(){
-        Tokenizer tokenizer = new Tokenizer(context, "0==10==='30';");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "0==10==='30';"));
 
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
@@ -186,7 +186,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof StringExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(context, "F =; 20;");
+        tokenizer = new Tokenizer(environment.createContext("F =; 20;"));
 
         Token token;
         assertTrue((token = tokenizer.nextToken()) instanceof NameToken);
@@ -196,7 +196,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(context, "123foobar");
+        tokenizer = new Tokenizer(environment.createContext("123foobar"));
         token = tokenizer.nextToken();
         assertFalse(token instanceof IntegerExprToken);
         assertFalse(token instanceof NameToken);
@@ -208,7 +208,7 @@ public class TokenizerTest {
 
     @Test
     public void testBraces(){
-        Tokenizer tokenizer = new Tokenizer(context, " :: ->foobar('a', 1, 3.0);");
+        Tokenizer tokenizer = new Tokenizer(environment.createContext(" :: ->foobar('a', 1, 3.0);"));
 
         assertTrue(tokenizer.nextToken() instanceof StaticAccessExprToken);
         assertTrue(tokenizer.nextToken() instanceof DynamicAccessExprToken);
@@ -225,7 +225,7 @@ public class TokenizerTest {
 
     @Test
     public void testVarVar(){
-        Tokenizer tokenizer = new Tokenizer(context, "$$foo $ $bar $$$foobar");
+        Tokenizer tokenizer = new Tokenizer(environment.createContext("$$foo $ $bar $$$foobar"));
 
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
@@ -235,7 +235,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
 
-        tokenizer = new Tokenizer(context, "${'foobar'}");
+        tokenizer = new Tokenizer(environment.createContext("${'foo;6bar'}"));
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
         assertTrue(tokenizer.nextToken() instanceof StringExprToken);
@@ -245,7 +245,7 @@ public class TokenizerTest {
     @Test
     public void testMacro(){
         Tokenizer tokenizer = new Tokenizer(
-                context, "__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__"
+                environment.createContext("__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__")
         );
 
         assertTrue(tokenizer.nextToken() instanceof LineMacroToken);
@@ -260,12 +260,11 @@ public class TokenizerTest {
 
     @Test
     public void testStmt(){
-        Tokenizer tokenizer = new Tokenizer(
-                context,
+        Tokenizer tokenizer = new Tokenizer(environment.createContext(
                 "class function private public protected static final try catch for if foreach switch while " +
                 "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
                 "abstract use namespace finally extends implements global"
-        );
+        ));
 
         assertTrue(tokenizer.nextToken() instanceof ClassStmtToken);
         assertTrue(tokenizer.nextToken() instanceof FunctionStmtToken);

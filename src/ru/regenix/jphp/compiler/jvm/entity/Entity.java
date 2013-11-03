@@ -44,10 +44,10 @@ abstract public class Entity {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        throw new ParseException(
+        compiler.getContext().triggerError(new ParseException(
                 Messages.ERR_PARSE_UNEXPECTED_X.fetch(unexpected),
-                token.toTraceInfo(compiler.getContext().getFile())
-        );
+                token.toTraceInfo(compiler.getContext())
+        ));
     }
 
     protected void unexpectedToken(Token token, Object expected){
@@ -55,9 +55,9 @@ abstract public class Entity {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        throw new ParseException(
+        compiler.getContext().triggerError(new ParseException(
                 Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(unexpected, expected),
-                token.toTraceInfo(compiler.getContext().getFile())
-        );
+                token.toTraceInfo(compiler.getContext())
+        ));
     }
 }

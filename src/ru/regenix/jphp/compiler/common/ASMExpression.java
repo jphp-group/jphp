@@ -149,9 +149,9 @@ public class ASMExpression {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        throw new ParseException(
+        context.triggerError(new ParseException(
                 Messages.ERR_PARSE_UNEXPECTED_X.fetch(unexpected),
-                token.toTraceInfo(context.getFile())
-        );
+                token.toTraceInfo(context)
+        ));
     }
 }

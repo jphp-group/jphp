@@ -15,21 +15,24 @@ import java.util.List;
 
 abstract public class JvmCompilerCase {
     protected Environment environment = new Environment();
-    protected Context context = new Context(environment, new File("test.php"));
-
     protected int runIndex = 0;
 
-    protected List<Token> getSyntaxTree(String code){
-        Tokenizer tokenizer = new Tokenizer(context, code);
+    protected List<Token> getSyntaxTree(Context context){
+        Tokenizer tokenizer = new Tokenizer(context);
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
         return analyzer.getTree();
+    }
+
+    protected List<Token> getSyntaxTree(String code){
+        return getSyntaxTree(new Context(environment, code));
     }
 
     protected Memory run(String code, boolean returned){
         runIndex += 1;
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
+        Context context = new Context(environment, code);
 
-        JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, getSyntaxTree(code));
+        JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, getSyntaxTree(context));
         compiler.compile();
 
         MyClassLoader classLoader = new MyClassLoader(Thread.currentThread().getContextClassLoader());

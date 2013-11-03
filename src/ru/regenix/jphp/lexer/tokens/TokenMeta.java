@@ -1,5 +1,6 @@
 package ru.regenix.jphp.lexer.tokens;
 
+import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.TraceInfo;
 
 import java.io.File;
@@ -79,7 +80,7 @@ public class TokenMeta {
         return endLine;
     }
 
-    public TraceInfo toTraceInfo(File file){
-        return new TraceInfo(file, startLine, endLine, startPosition, endPosition);
+    public TraceInfo toTraceInfo(Context context){
+        return new TraceInfo(context, startLine, endLine, startPosition, endPosition);
     }
 }

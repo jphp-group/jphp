@@ -215,4 +215,9 @@ public class ReferenceMemory extends Memory {
     public void concatAssign(boolean value) {
         typeString().append(value);
     }
+
+    @Override
+    public int hashCode(){
+        return value.hashCode();
+    }
 }

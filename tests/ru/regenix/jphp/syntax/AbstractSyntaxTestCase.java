@@ -11,10 +11,9 @@ import java.util.List;
 abstract class AbstractSyntaxTestCase {
 
     protected Environment environment = new Environment();
-    protected Context context = new Context(environment, new File("test.php"));
 
     protected List<Token> getSyntaxTree(String code){
-        Tokenizer tokenizer = new Tokenizer(context, code);
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, code));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         return analyzer.getTree();

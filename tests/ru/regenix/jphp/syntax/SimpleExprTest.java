@@ -26,11 +26,11 @@ import java.util.List;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SimpleExprTest extends AbstractSyntaxTestCase {
 
-    private Context context = new Context(new Environment(), new File("test.php"));
+    private Environment environment = new Environment();
 
     @Test
     public void testSimpleCall(){
-        Tokenizer tokenizer = new Tokenizer(context, "myCall(1 * 2, func(3, 2), 4);");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "myCall(1 * 2, func(3, 2), 4);"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         List<Token> tokens = analyzer.getTree();

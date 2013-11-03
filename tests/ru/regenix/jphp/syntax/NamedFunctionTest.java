@@ -23,11 +23,11 @@ import java.util.ListIterator;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NamedFunctionTest extends AbstractSyntaxTestCase {
 
-    private Context context = new Context(new Environment(), new File("test.php"));
+    private Environment environment = new Environment();
 
     @Test
     public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(context, "function myFunc($x, &$y, $z = 33){  } $x = 10;");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc($x, &$y, $z = 33){  } $x = 10;"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         ListIterator<Token> iterator = analyzer.getTree().listIterator();
@@ -58,7 +58,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
 
     @Test
     public void testNoArguments(){
-        Tokenizer tokenizer = new Tokenizer(context, "function myFunc(){}");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc(){}"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
@@ -69,7 +69,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
 
     @Test
     public void testInterfacable(){
-        Tokenizer tokenizer = new Tokenizer(context, "function myFunc();");
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc();"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);

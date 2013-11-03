@@ -10,6 +10,10 @@ public class StringMemory extends Memory {
         this.value = value;
     }
 
+    public StringMemory(char ch){
+        this(String.valueOf(ch));
+    }
+
     public static Memory valueOf(String value){
         return new StringMemory(value);
     }
@@ -303,5 +307,30 @@ public class StringMemory extends Memory {
             resolveBuilder();
             builder.append(boolToString(value));
         }
+    }
+
+    @Override
+    public Memory valueOfIndex(Memory index) {
+        return new StringMemory(toString().charAt((int)index.toLong()));
+    }
+
+    @Override
+    public Memory valueOfIndex(long index) {
+        return new StringMemory(toString().charAt((int)index));
+    }
+
+    @Override
+    public Memory valueOfIndex(double index) {
+        return new StringMemory(toString().charAt((int)index));
+    }
+
+    @Override
+    public Memory valueOfIndex(boolean index) {
+        return new StringMemory(toString().charAt(index ? 0 : 1));
+    }
+
+    @Override
+    public Memory valueOfIndex(String index) {
+        return new StringMemory(toString().charAt((int)toNumeric(index).toLong()));
     }
 }
