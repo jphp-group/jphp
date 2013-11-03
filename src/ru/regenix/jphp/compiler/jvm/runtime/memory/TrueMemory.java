@@ -53,7 +53,7 @@ public class TrueMemory extends Memory {
     @Override
     public Memory plus(Memory memory) {
         switch (memory.type){
-            case INT: return new LongMemory(1 + ((LongMemory)memory).value);
+            case INT: return LongMemory.valueOf(1 + ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(1 + ((DoubleMemory)memory).value);
             case REFERENCE: return plus(memory.toImmutable());
             default: return memory.toNumeric().plus(CONST_INT_1);
@@ -63,10 +63,10 @@ public class TrueMemory extends Memory {
     @Override
     public Memory minus(Memory memory) {
         switch (memory.type){
-            case INT: return new LongMemory(1 - ((LongMemory)memory).value);
+            case INT: return LongMemory.valueOf(1 - ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(1 - ((DoubleMemory)memory).value);
             case REFERENCE: return minus(memory.toImmutable());
-            case BOOL: return new LongMemory(1 - memory.toLong());
+            case BOOL: return LongMemory.valueOf(1 - memory.toLong());
             default: return CONST_INT_1.minus(memory.toNumeric());
         }
     }

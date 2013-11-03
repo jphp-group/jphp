@@ -3,7 +3,6 @@ package ru.regenix.jphp.compiler.jvm.runtime.type;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.ArrayItemMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.LongMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.StringMemory;
 
 import java.util.*;
 
@@ -61,11 +60,11 @@ public class HashTable {
     public Memory add(Memory value){
         Memory key;
         if (list != null){
-            keys.add(key = new LongMemory(keys.size()));
+            keys.add(key = LongMemory.valueOf(keys.size()));
             list.add(value);
         } else {
             lastLongIndex++;
-            put(key = new LongMemory(lastLongIndex), value);
+            put(key = LongMemory.valueOf(lastLongIndex), value);
         }
         return new ArrayItemMemory(this, key, value);
     }

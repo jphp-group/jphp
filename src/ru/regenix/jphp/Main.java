@@ -51,7 +51,6 @@ public class Main {
 
         Method method = clazz.getMethod("test", Environment.class, Memory[].class);
         long t = System.currentTimeMillis();
-
         Memory memory = (Memory) method.invoke(null, environment, new Memory[]{});
         System.out.println(memory.toString());
         System.out.println(System.currentTimeMillis() - t);

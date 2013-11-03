@@ -80,9 +80,9 @@ public class StringMemory extends Memory {
                 return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
         } else {
             if (len == i && start == 0)
-                return new LongMemory(Long.parseLong(value));
+                return LongMemory.valueOf(Long.parseLong(value));
             else
-                return new LongMemory(Long.parseLong(value.substring(start, i)));
+                return LongMemory.valueOf(Long.parseLong(value.substring(start, i)));
         }
     }
 
