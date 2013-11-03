@@ -2,7 +2,7 @@ package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
 public class FalseMemory extends Memory {
 
-    public static FalseMemory INSTANCE = new FalseMemory();
+    public final static FalseMemory INSTANCE = new FalseMemory();
 
     protected FalseMemory() {
         super(Type.BOOL);

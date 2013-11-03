@@ -116,9 +116,9 @@ public class MethodEntity extends Entity {
         if (mv == null){
             int access = 0;
             switch (method.getModifier()){
-                case PRIVATE: access += Opcodes.ACC_PRIVATE;
-                case PROTECTED: access += Opcodes.ACC_PROTECTED;
-                case PUBLIC: access += Opcodes.ACC_PUBLIC;
+                case PRIVATE: access += Opcodes.ACC_PRIVATE; break;
+                case PROTECTED: access += Opcodes.ACC_PROTECTED; break;
+                case PUBLIC: access += Opcodes.ACC_PUBLIC; break;
             }
 
             if (method.isStatic()) access += Opcodes.ACC_STATIC;

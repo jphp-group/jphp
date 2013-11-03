@@ -272,6 +272,7 @@ public class StringMemory extends Memory {
                     break;
                 else
                     builder.append(memory.toString());
+                break;
             case NULL: break;
             case INT: builder.append(((LongMemory)memory).value); break;
             case DOUBLE: builder.append(((DoubleMemory)memory).value); break;

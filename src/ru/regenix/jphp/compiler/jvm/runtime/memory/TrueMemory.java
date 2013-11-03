@@ -2,7 +2,7 @@ package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
 public class TrueMemory extends Memory {
 
-    public static TrueMemory INSTANCE = new TrueMemory();
+    public final static TrueMemory INSTANCE = new TrueMemory();
 
     protected TrueMemory() {
         super(Type.BOOL);
