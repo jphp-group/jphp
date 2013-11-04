@@ -4,19 +4,19 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.LongMemory;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.StringMemory;
-import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
+import ru.regenix.jphp.compiler.jvm.runtime.type.FastIntMap;
 import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Main {
 
@@ -27,7 +27,7 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer(context = new Context(environment,
                         "class MyClass { " +
                                 "static function test(){ " +
-                                    " $x = 'foo'; $x .= 'bar'; return $x; " +
+                                    " $i = -1; while($i += 1 < 1000000){ $arr[$i] = 20; } " +
                                 "} " +
                         "}"));
 
@@ -51,8 +51,26 @@ public class Main {
 
         Method method = clazz.getMethod("test", Environment.class, Memory[].class);
         long t = System.currentTimeMillis();
+        FastIntMap<Integer> map = new FastIntMap<Integer>();
+        Map<String, Integer> slowMap = new LinkedHashMap<String, Integer>();
+        Memory table = new ArrayMemory();
+
+        /*for(int i = 0; i < 1000; i++){
+            table.valueOfIndex(i + "x").assign(i);
+            //map.put(i, i);
+            //slowMap.put(i + "x", i);
+        }
+
+        for(int j = 0; j < 10000;j++){
+            for(int i = 0; i < 1000; i++){
+                table.valueOfIndex(i + "x");
+                //map.get(i);
+                //slowMap.get(i + "x");
+            }
+        }*/
+
         Memory memory = (Memory) method.invoke(null, environment, new Memory[]{});
-        System.out.println(memory.toString());
+        //System.out.println(memory.toString());
         System.out.println(System.currentTimeMillis() - t);
     }
 }

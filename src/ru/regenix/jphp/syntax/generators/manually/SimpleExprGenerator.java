@@ -5,7 +5,7 @@ import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.*;
-import ru.regenix.jphp.lexer.tokens.expr.value.ArrayGetExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.operator.ArrayGetExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -143,7 +143,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             iterator.previous();
 
         ExprStmtToken param;
-        ArrayGetExprToken result = (ArrayGetExprToken)current;
+        ArrayGetExprToken result = new ArrayGetExprToken(current.getMeta());
 
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
         do {
@@ -154,6 +154,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 parameters.add(param);
 
         } while (param != null);
+        nextToken(iterator); // skip ]
 
         result.setParameters(parameters);
         return result;
@@ -187,7 +188,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         CallExprToken.class,
                         ArrayGetExprToken.class)){
                     // array
-                    tokens.set(tokens.size() - 1, current = processArrayToken(previous, current, iterator));
+                    tokens.add(current = processArrayToken(previous, current, iterator));
                 }
             } else if (current instanceof CommaToken){
                 if (commaSeparator){

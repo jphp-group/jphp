@@ -51,6 +51,10 @@ public class ExpressionEntity extends Entity {
         return method.peek();
     }
 
+    protected boolean stackEmpty(){
+        return method.getStackSize() == 0;
+    }
+
     protected void writePushMemory(Memory memory){
         Memory.Type type = Memory.Type.REFERENCE;
 
@@ -227,6 +231,9 @@ public class ExpressionEntity extends Entity {
 
     protected void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses){
         Type[] args = new Type[paramClasses.length];
+        if (INVOKE_TYPE == Opcodes.INVOKEVIRTUAL)
+            stackPop(); // this
+
         for(int i = 0; i < args.length; i++){
             args[i] = Type.getType(paramClasses[i]);
             stackPop();
@@ -297,6 +304,9 @@ public class ExpressionEntity extends Entity {
                 writeVarLoad(local.index);
         } else {
             writePush(R);
+            if (R == null)
+                stack.push(null);
+
             writeVarStore(local.index, returnValue);
         }
     }
@@ -334,6 +344,38 @@ public class ExpressionEntity extends Entity {
         }
     }
 
+    protected void writeArrayGet(ArrayGetExprToken operator, boolean returnValue){
+        ValueExprToken L = stack.pop();
+        writePush(L);
+        writePushBoxing();
+
+        MethodEntity.LocalVariable local = null;
+        if (L instanceof VariableExprToken){
+            local = method.getLocalVariable(((VariableExprToken)L).getName());
+        }
+
+        int i = 0;
+        for(ExprStmtToken param : operator.getParameters()){
+            writeExpression(param, true, false);
+            writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, stackPeek().toClass());
+
+            if (i == 0){
+                if (local != null && !local.isReference()){
+                    Label start = new Label();
+                    writeSysDynamicCall(Memory.class, "isArray", Boolean.TYPE);
+                    
+                    mv.visitJumpInsn(Opcodes.IFNE, start); // if memory is Array
+                    //if (operator.getParameters().size() > 1 || returnValue){
+                    writePushDup();
+                    //}
+                    writeSysStaticCall(Memory.class, "toArrayValue", Memory.class, Memory.class);
+                    writeVarStore(local.index, false);
+                }
+            }
+            i++;
+        }
+    }
+
     protected void writeOperator(OperatorExprToken operator, boolean returnValue){
         ValueExprToken R = stack.pop();
         ValueExprToken L = stack.pop();
@@ -361,6 +403,8 @@ public class ExpressionEntity extends Entity {
 
         Memory.Type Rt = stackPop();
         Memory.Type Lt = stackPeek();
+        stackPush(Rt);
+
         Memory.Type operatorType = Memory.Type.REFERENCE;
 
         String name = null;
@@ -415,11 +459,21 @@ public class ExpressionEntity extends Entity {
                     || "mul".equals(name)
                     || "equal".equals(name)
                     || "notEqual".equals(name)){
-                writeSysDynamicCall(Memory.class, name, operatorType.toClass(), Lt.toClass(), Memory.class);
+                writeSysDynamicCall(
+                        Memory.class, name, operatorType == null ? void.class : operatorType.toClass(),
+                        Lt.toClass(), Memory.class
+                );
             } else
-                writeSysStaticCall(Memory.class, name + "Right", operatorType.toClass(), Lt.toClass(), Memory.class);
+                writeSysStaticCall(
+                        Memory.class,
+                        name + "Right", operatorType == null ? void.class : operatorType.toClass(),
+                        Lt.toClass(), Memory.class
+                );
         } else {
-            writeSysDynamicCall(Memory.class, name, operatorType.toClass(), Rt.toClass());
+            writeSysDynamicCall(
+                    Memory.class, name, operatorType == null ? void.class : operatorType.toClass(), Rt.toClass()
+            );
+
             if (operator instanceof AssignOperatorExprToken){
                 if (returnValue)
                     writePushDup(operatorType);
@@ -444,6 +498,7 @@ public class ExpressionEntity extends Entity {
         writePopBoolean();
 
         mv.visitJumpInsn(Opcodes.IFEQ, end);
+        stackPop();
         if (token.getBody() != null){
             for(ExprStmtToken line : token.getBody().getInstructions()){
                 writeExpression(line, false);
@@ -461,12 +516,18 @@ public class ExpressionEntity extends Entity {
         else
             writeExpression(token.getValue(), true);
 
-        writePushBoxing();
+        if (stackEmpty())
+            writePushNull();
+        else
+            writePushBoxing();
+
         mv.visitInsn(Opcodes.ARETURN);
     }
 
-    protected void writeExpression(ExprStmtToken expression, boolean returnValue){
-        method.popAll();
+    protected void writeExpression(ExprStmtToken expression, boolean returnValue, boolean popAll){
+        if (popAll){
+            method.popAll();
+        }
 
         if (expression.getTokens().size() == 1){
             Token token = expression.getTokens().get(0);
@@ -479,6 +540,8 @@ public class ExpressionEntity extends Entity {
         for(Token token : expression.getTokens()){
             if (token instanceof ValueExprToken){
                 stack.push((ValueExprToken)token);
+            } else if (token instanceof ArrayGetExprToken){
+                writeArrayGet((ArrayGetExprToken)token, returnValue);
             } else if (token instanceof OperatorExprToken){
                 writeOperator((OperatorExprToken)token, returnValue);
             } else if (token instanceof ReturnStmtToken){
@@ -488,10 +551,24 @@ public class ExpressionEntity extends Entity {
             }
         }
 
-        if (returnValue && stack.peek() != null){
+        if (returnValue && !stack.empty() && stack.peek() != null){
             writePush(stack.pop());
-            stack.push(null);
         }
+
+        if (!returnValue)
+            writePopAll();
+    }
+
+    protected void writePopAll(){
+        for(int i = 0; i < method.getStackSize(); i++){
+            mv.visitInsn(Opcodes.POP);
+        }
+        method.popAll();
+        stack.clear();
+    }
+
+    protected void writeExpression(ExprStmtToken expression, boolean returnValue){
+        writeExpression(expression, returnValue, true);
     }
 
     @Override

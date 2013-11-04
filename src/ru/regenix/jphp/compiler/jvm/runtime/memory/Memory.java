@@ -14,7 +14,7 @@ abstract public class Memory {
             else if (this == STRING)
                 return String.class;
             else if (this == BOOL)
-                return Boolean.class;
+                return Boolean.TYPE;
             else if (this == ARRAY)
                 return HashTable.class;
             else if (this == REFERENCE)
@@ -69,14 +69,12 @@ abstract public class Memory {
     abstract public Memory toNumeric();
     abstract public String toString();
 
-    public Memory valueOfIndex(Memory index){
-        return NULL;
-    }
-
-    public Memory valueOfIndex(long index){ return valueOfIndex(new LongMemory(index)); }
-    public Memory valueOfIndex(double index) { return valueOfIndex(new LongMemory((long)index)); }
-    public Memory valueOfIndex(String index) { return valueOfIndex(new StringMemory(index)); }
-    public Memory valueOfIndex(boolean index) { return valueOfIndex(index ? CONST_INT_0 : CONST_INT_1); }
+    // <value>[index]
+    public Memory valueOfIndex(Memory index) { return new ArrayItemMemory(HashTable.toKey(index)); }
+    public Memory valueOfIndex(long index) { return new ArrayItemMemory(index); }
+    public Memory valueOfIndex(double index) { return new ArrayItemMemory((long)index); }
+    public Memory valueOfIndex(String index) { return new ArrayItemMemory(index); }
+    public Memory valueOfIndex(boolean index) { return new ArrayItemMemory(index ? 0L : 1L); }
 
     // INC DEC
     abstract public Memory inc(Memory memory);
@@ -177,11 +175,11 @@ abstract public class Memory {
     public boolean greaterEq(String value) { return this.greaterEq(StringMemory.toNumeric(value)); }
 
     // ASSIGN
-    public void assign(Memory memory){  }
-    public void assign(long value){ }
-    public void assign(double value) { }
-    public void assign(boolean value) { }
-    public void assign(String value){ }
+    public Memory assign(Memory memory){ return memory; }
+    public Memory assign(long value){ return LongMemory.valueOf(value); }
+    public Memory assign(double value) { return new DoubleMemory(value); }
+    public Memory assign(boolean value) { return value ? TRUE : FALSE; }
+    public Memory assign(String value){ return new StringMemory(value); }
 
     // ASSIGN REF
     public void assignRef(Memory memory){ }
@@ -189,6 +187,8 @@ abstract public class Memory {
     public void assignRef(double value){ }
     public void assignRef(boolean value){ }
     public void assignRef(String value){ }
+
+    public void unset(){  }
 
     public Memory toImmutable(){
         return this;
@@ -258,5 +258,13 @@ abstract public class Memory {
 
     public static String boolToString(boolean value){
         return value ? "1" : "";
+    }
+
+    public static Memory toArrayValue(Memory value){
+        if (value instanceof ArrayItemMemory){
+            return new ArrayMemory(((ArrayItemMemory)value).table);
+        } else {
+            return value;
+        }
     }
 }

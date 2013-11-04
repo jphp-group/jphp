@@ -1,5 +1,7 @@
 package ru.regenix.jphp.compiler.jvm.runtime.memory;
 
+import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
+
 public class ReferenceMemory extends Memory {
 
     public Memory value;
@@ -127,43 +129,43 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public void assign(Memory memory) {
+    public Memory assign(Memory memory) {
         if (value.type == Type.REFERENCE)
-            value.assign(memory);
+            return value.assign(memory);
         else
-            value = memory.toImmutable();
+            return value = memory.toImmutable();
     }
 
     @Override
-    public void assign(long value) {
+    public Memory assign(long value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
+            return this.value.assign(value);
         else
-            this.value = new LongMemory(value);
+            return this.value = LongMemory.valueOf(value);
     }
 
     @Override
-    public void assign(String value) {
+    public Memory assign(String value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
+            return this.value.assign(value);
         else
-            this.value = new StringMemory(value);
+            return this.value = new StringMemory(value);
     }
 
     @Override
-    public void assign(boolean value) {
+    public Memory assign(boolean value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
+            return this.value.assign(value);
         else
-            this.value = value ? TRUE : FALSE;
+            return this.value = value ? TRUE : FALSE;
     }
 
     @Override
-    public void assign(double value) {
+    public Memory assign(double value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
+            return this.value.assign(value);
         else
-            this.value = new DoubleMemory(value);
+            return this.value = new DoubleMemory(value);
     }
 
     @Override
@@ -219,5 +221,65 @@ public class ReferenceMemory extends Memory {
     @Override
     public int hashCode(){
         return value.hashCode();
+    }
+
+    @Override
+    public void unset() {
+        this.value = NULL;
+    }
+
+    @Override
+    public Memory valueOfIndex(Memory index) {
+        switch (value.type){
+            case ARRAY:
+            case STRING:
+            case REFERENCE: return value.valueOfIndex(index);
+            default:
+                return new ArrayItemMemory(HashTable.toKey(index), this);
+        }
+    }
+
+    @Override
+    public Memory valueOfIndex(long index) {
+        switch (value.type){
+            case ARRAY:
+            case STRING:
+            case REFERENCE: return value.valueOfIndex(index);
+            default:
+                return new ArrayItemMemory(index, this);
+        }
+    }
+
+    @Override
+    public Memory valueOfIndex(double index) {
+        switch (value.type){
+            case ARRAY:
+            case STRING:
+            case REFERENCE: return value.valueOfIndex(index);
+            default:
+                return new ArrayItemMemory((long)index, this);
+        }
+    }
+
+    @Override
+    public Memory valueOfIndex(String index) {
+        switch (value.type){
+            case ARRAY:
+            case STRING:
+            case REFERENCE: return value.valueOfIndex(index);
+            default:
+                return new ArrayItemMemory(index, this);
+        }
+    }
+
+    @Override
+    public Memory valueOfIndex(boolean index) {
+        switch (value.type){
+            case ARRAY:
+            case STRING:
+            case REFERENCE: return value.valueOfIndex(index);
+            default:
+                return new ArrayItemMemory(index ? 0L : 1L, this);
+        }
     }
 }

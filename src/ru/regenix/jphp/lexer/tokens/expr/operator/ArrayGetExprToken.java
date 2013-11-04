@@ -1,13 +1,13 @@
-package ru.regenix.jphp.lexer.tokens.expr.value;
+package ru.regenix.jphp.lexer.tokens.expr.operator;
 
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 import java.util.List;
 
-public class ArrayGetExprToken extends ValueExprToken {
+public class ArrayGetExprToken extends OperatorExprToken {
     private List<ExprStmtToken> parameters;
 
     public ArrayGetExprToken(TokenMeta meta) {
@@ -20,5 +20,10 @@ public class ArrayGetExprToken extends ValueExprToken {
 
     public void setParameters(List<ExprStmtToken> parameters) {
         this.parameters = parameters;
+    }
+
+    @Override
+    public int getPriority() {
+        return 20;
     }
 }

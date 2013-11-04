@@ -11,6 +11,11 @@ public class ArrayMemory extends Memory {
         value = new HashTable();
     }
 
+    public ArrayMemory(HashTable table){
+        super(Type.ARRAY);
+        value = table;
+    }
+
     @Override
     public long toLong() {
         return value.size() == 0 ? 0 : 1;
@@ -139,5 +144,35 @@ public class ArrayMemory extends Memory {
     @Override
     public int hashCode() {
         return value.size() == 0 ? 0 : 1;
+    }
+
+    @Override
+    public void unset() {
+        value = null;
+    }
+
+    @Override
+    public Memory valueOfIndex(Memory index) {
+        return value.get(index);
+    }
+
+    @Override
+    public Memory valueOfIndex(long index) {
+        return value.getByScalar(index);
+    }
+
+    @Override
+    public Memory valueOfIndex(double index) {
+        return value.getByScalar((long)index);
+    }
+
+    @Override
+    public Memory valueOfIndex(boolean index) {
+        return value.getByScalar(index ? 0L : 1L);
+    }
+
+    @Override
+    public Memory valueOfIndex(String index) {
+        return value.getByScalar(index);
     }
 }

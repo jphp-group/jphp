@@ -4,66 +4,115 @@ import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
 
 public class ArrayItemMemory extends ReferenceMemory {
 
-    protected HashTable table;
-    protected Memory key;
+    HashTable table;
+    Object key;
+    ReferenceMemory reference;
 
-    public ArrayItemMemory(HashTable table, Memory key, Memory value){
+    public ArrayItemMemory(HashTable table, Object key, Memory value){
         super(value);
         this.table = table;
         this.key   = key;
     }
 
-    public ArrayItemMemory(HashTable table, Memory key) {
+    public ArrayItemMemory(HashTable table, Object key) {
         super();
         this.table = table;
         this.key = key;
     }
 
+    public ArrayItemMemory(Object key, ReferenceMemory reference){
+        super();
+        this.table = new HashTable();
+        this.key = key;
+        this.reference = reference;
+    }
+
+    public ArrayItemMemory(Object key) {
+        this(key, null);
+    }
+
     @Override
-    public void assign(Memory memory) {
+    public Memory assign(Memory memory) {
         if (value.type == Type.REFERENCE)
-            value.assign(memory);
-        else
-            table.put(key, memory.toImmutable());
+            return value.assign(memory);
+        else {
+            Memory mem = memory.toImmutable();
+            table.put(key, mem);
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+
+            return mem;
+        }
     }
 
     @Override
-    public void assign(long value) {
+    public Memory assign(long value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
-        else
-            this.table.put(key, new LongMemory(value));
+            return this.value.assign(value);
+        else {
+            Memory mem = LongMemory.valueOf(value);
+            this.table.put(key, mem);
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+
+            return mem;
+        }
     }
 
     @Override
-    public void assign(String value) {
+    public Memory assign(String value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
-        else
-            table.put(key, new StringMemory(value));
+            return this.value.assign(value);
+        else {
+            Memory mem = new StringMemory(value);
+            table.put(key, mem);
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+
+            return mem;
+        }
     }
 
     @Override
-    public void assign(boolean value) {
+    public Memory assign(boolean value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
-        else
+            return this.value.assign(value);
+        else {
             table.put(key, value ? TRUE : FALSE);
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+
+            return value ? TRUE : FALSE;
+        }
     }
 
     @Override
-    public void assign(double value) {
+    public Memory assign(double value) {
         if (this.value.type == Type.REFERENCE)
-            this.value.assign(value);
-        else
-            table.put(key, new DoubleMemory(value));
+            return this.value.assign(value);
+        else {
+            DoubleMemory mem = new DoubleMemory(value);
+            table.put(key, mem);
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+
+            return mem;
+        }
     }
 
     @Override
     public void assignRef(Memory memory) {
         if (memory.isImmutable())
             table.put(key, memory);
-        else
+        else {
             table.put(key, new ReferenceMemory(memory));
+            if (reference != null)
+                reference.assignRef(new ArrayMemory(table));
+        }
+    }
+
+    @Override
+    public void unset() {
+        table.remove(key);
     }
 }
