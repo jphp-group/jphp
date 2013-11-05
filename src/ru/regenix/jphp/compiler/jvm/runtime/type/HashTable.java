@@ -1,15 +1,21 @@
 package ru.regenix.jphp.compiler.jvm.runtime.type;
 
 import ru.regenix.jphp.compiler.jvm.runtime.memory.ArrayItemMemory;
+import ru.regenix.jphp.compiler.jvm.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.LongMemory;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class HashTable implements Iterable<Memory> {
 
     protected long lastLongIndex = -1;
     protected int size = 0;
+
+    protected int copies = 0;
 
     protected List<Object> keys;
     protected List<Memory> list;
@@ -19,64 +25,70 @@ public class HashTable implements Iterable<Memory> {
 
     public HashTable() {
         list = new ArrayList<Memory>();
-        keys = new ArrayList<Object>();
+        keys = null;
+    }
+
+    public boolean isCopied() {
+        return copies > 1;
+    }
+
+    public void addCopy() {
+        copies++;
     }
 
     public static Object toKey(Memory key){
         switch (key.type){
             case STRING: {
                 try {
-                    return Long.parseLong(key.toString());
+                    return LongMemory.valueOf(Long.parseLong(key.toString()));
                 } catch (NumberFormatException e){
                     return key.toString();
                 }
             }
-            case INT: return ((LongMemory)key).value;
-            case NULL: return 0L;
+            case INT: return key;
+            case NULL: return Memory.CONST_INT_0;
             case REFERENCE: return toKey(key.toImmutable());
             default:
-                return key.toLong();
+                return LongMemory.valueOf(key.toLong());
         }
     }
 
-    public Memory get(Memory key){
-        return getByScalar(toKey(key));
+    public ArrayItemMemory get(ArrayMemory ref, Memory key){
+        return getByScalar(ref, toKey(key));
     }
 
-    public Memory getByScalar(Object key){
+    public ArrayItemMemory getByScalar(ArrayMemory ref, Object key){
         if (list != null){
-            if (key instanceof Long){
-                try {
-                    return new ArrayItemMemory(this, key, list.get(((Long)key).intValue()));
-                } catch (IndexOutOfBoundsException e){
-                    return new ArrayItemMemory(this, key);
-                }
+            if (key instanceof Memory){
+                int index = (int)((Memory) key).toLong();
+                if (index < list.size()){
+                    return new ArrayItemMemory(ref, key, list.get(index));
+                } else
+                    return new ArrayItemMemory(ref, key);
             } else
-                return new ArrayItemMemory(this, key);
+                return new ArrayItemMemory(ref, key);
         } else {
             Memory memory = map.get(key);
             if (memory == null){
-                return new ArrayItemMemory(this, key);
+                return new ArrayItemMemory(ref, key);
             } else
-                return new ArrayItemMemory(this, key, memory);
+                return new ArrayItemMemory(ref, key, memory);
         }
     }
 
-    public Memory add(Memory value){
-        Object key;
+    public void add(Memory value){
         if (list != null){
-            keys.add(key = keys.size());
             list.add(value);
         } else {
             lastLongIndex++;
-            put(key = lastLongIndex, value);
+            put(LongMemory.valueOf(lastLongIndex), value);
         }
         size++;
-        return new ArrayItemMemory(this, key, value);
     }
 
     private void convertToMap(){
         map = new FastIntMap<Memory>();
+        keys = new ArrayList<Object>();
         int i = 0;
         for(Memory memory : list){
             Object key = keys.get(i);
@@ -86,9 +98,9 @@ public class HashTable implements Iterable<Memory> {
         list = null;
     }
 
-    public Memory put(Object key, Memory value) {
-        if (key instanceof Long){
-            int index = ((Long)key).intValue();
+    public void put(Object key, Memory value) {
+        if (key instanceof LongMemory){
+            int index = (int)((LongMemory)key).value;
 
             if (index > lastLongIndex)
                 lastLongIndex = index;
@@ -99,11 +111,11 @@ public class HashTable implements Iterable<Memory> {
                     if (index < size){
                         list.set(index, value);
                         this.size++;
-                        return new ArrayItemMemory(this, key, value);
+                        return;
                     } else if (index == size){
                         list.add(value);
                         this.size++;
-                        return new ArrayItemMemory(this, key, value);
+                        return;
                     } else {
                         convertToMap();
                     }
@@ -114,9 +126,11 @@ public class HashTable implements Iterable<Memory> {
                 convertToMap();
         }
 
-        map.put(key, keys.size(), value);
-        keys.add(key);
-        return new ArrayItemMemory(this, key, value);
+        Memory last = map.put(key, size, value);
+        if (last == null){
+            keys.add(key);
+            size++;
+        }
     }
 
     public Memory remove(Object key){
@@ -162,7 +176,11 @@ public class HashTable implements Iterable<Memory> {
         size = 0;
     }
 
-    public int compare(HashTable other) throws UncomparableArrayException {
+    public int compare(ArrayMemory ref, ArrayMemory otherRef) throws UncomparableArrayException {
+        return compare(ref, otherRef, otherRef.value);
+    }
+
+    public int compare(ArrayMemory ref, ArrayMemory otherRef, HashTable other) throws UncomparableArrayException {
         int size1 = size(),
             size2 = other.size();
 
@@ -171,11 +189,11 @@ public class HashTable implements Iterable<Memory> {
         else if (size1 > size2)
             return 1;
 
-        HashIterator iterator = this.iterator();
+        HashIterator iterator = this.iterator(ref);
         while (iterator.hasNext()){
             Memory value1 = iterator.next();
             Object key    = iterator.getCurrentKey();
-            Memory value2 = other.getByScalar(key);
+            Memory value2 = other.getByScalar(otherRef, key);
 
             if (value2 == null)
                 throw new UncomparableArrayException();
@@ -188,24 +206,44 @@ public class HashTable implements Iterable<Memory> {
         return 0;
     }
 
+    public HashIterator iterator(ArrayMemory ref) {
+        return new HashIterator(ref);
+    }
+
     @Override
-    public HashIterator iterator() {
-        return new HashIterator();
+    public Iterator<Memory> iterator() {
+        return iterator(null);
+    }
+
+    public static HashTable copyOf(HashTable value) {
+        HashTable result = new HashTable();
+        if (value.list != null){
+            result.list.addAll(value.list);
+        } else {
+            result.list = null;
+            result.map = value.map.duplicate();
+            result.keys = new ArrayList<Object>(value.keys);
+        }
+        result.size = value.size;
+        result.lastLongIndex = value.lastLongIndex;
+        return result;
     }
 
     public class HashIterator implements Iterator<Memory> {
         private Memory current;
         private Object currentKey;
+        private ArrayMemory ref;
 
         private ListIterator<Object> keyIterator;
 
-        HashIterator(){
+        HashIterator(ArrayMemory ref){
             List<Object> keys = new ArrayList<Object>();
             for(Object key : HashTable.this.keys){
                 if (key != null)
                     keys.add(key);
             }
             keyIterator = keys.listIterator();
+            this.ref = ref;
         }
 
         @Override
@@ -219,7 +257,7 @@ public class HashTable implements Iterable<Memory> {
                 return null;
 
             currentKey = keyIterator.next();
-            return current = HashTable.this.getByScalar(currentKey);
+            return current = HashTable.this.getByScalar(ref, currentKey);
         }
 
         public Object getCurrentKey() {

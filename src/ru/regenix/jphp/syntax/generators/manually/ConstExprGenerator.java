@@ -1,7 +1,7 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
 import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.ArrayExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.ArrayExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.CommaToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.ArrayKeyValueExprToken;

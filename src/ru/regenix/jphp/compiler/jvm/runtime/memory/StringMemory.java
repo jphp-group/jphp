@@ -166,8 +166,8 @@ public class StringMemory extends Memory {
             case DOUBLE:
             case INT: return toNumeric().equal(memory);
             case STRING: return value.equals(memory.toString());
-            /*case OBJECT:
-            case ARRAY: return false;*/
+            //case OBJECT:
+            case ARRAY: return false;
             default: return equal(memory.toImmutable());
         }
     }

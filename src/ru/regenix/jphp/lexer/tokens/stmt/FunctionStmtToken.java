@@ -2,11 +2,10 @@ package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +22,7 @@ public class FunctionStmtToken extends StmtToken {
 
     protected Set<VariableExprToken> local;
     protected Set<VariableExprToken> passedLocal;
+    protected Set<VariableExprToken> arrayAccessLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -34,6 +34,7 @@ public class FunctionStmtToken extends StmtToken {
         this.callsExist = false;
         this.varsExist = false;
         this.passedLocal = new HashSet<VariableExprToken>();
+        this.arrayAccessLocal = new HashSet<VariableExprToken>();
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -124,6 +125,10 @@ public class FunctionStmtToken extends StmtToken {
         this.callsExist = callsExist;
     }
 
+    public boolean isReference(VariableExprToken variable){
+        return dynamicLocal || arrayAccessLocal.contains(variable) || passedLocal.contains(variable);
+    }
+
     public boolean isVarsExist() {
         return varsExist;
     }
@@ -134,5 +139,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public boolean isMutable(){
         return varsExist || callsExist;
+    }
+
+    public Set<VariableExprToken> getArrayAccessLocal() {
+        return arrayAccessLocal;
+    }
+
+    public void setArrayAccessLocal(Set<VariableExprToken> arrayAccessLocal) {
+        this.arrayAccessLocal = arrayAccessLocal;
     }
 }

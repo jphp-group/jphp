@@ -1,8 +1,10 @@
 class _TestBytecode {
 
-    private int x;
+    public enum Type { NULL, NOT_NULL}
+
+    private Type x;
 
     public void method(){
-      x = 30;
+        boolean b = (x == Type.NULL);
     }
 }

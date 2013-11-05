@@ -4,17 +4,17 @@ import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
 
 public class ArrayItemMemory extends ReferenceMemory {
 
-    HashTable table;
+    ArrayMemory table;
     Object key;
     ReferenceMemory reference;
 
-    public ArrayItemMemory(HashTable table, Object key, Memory value){
+    public ArrayItemMemory(ArrayMemory table, Object key, Memory value){
         super(value);
         this.table = table;
         this.key   = key;
     }
 
-    public ArrayItemMemory(HashTable table, Object key) {
+    public ArrayItemMemory(ArrayMemory table, Object key) {
         super();
         this.table = table;
         this.key = key;
@@ -22,7 +22,7 @@ public class ArrayItemMemory extends ReferenceMemory {
 
     public ArrayItemMemory(Object key, ReferenceMemory reference){
         super();
-        this.table = new HashTable();
+        this.table = new ArrayMemory();
         this.key = key;
         this.reference = reference;
     }
@@ -31,16 +31,21 @@ public class ArrayItemMemory extends ReferenceMemory {
         this(key, null);
     }
 
+    private void checkCopied(){
+        if (table.value.isCopied()){
+            table.value = HashTable.copyOf(table.value);
+        }
+    }
+
     @Override
     public Memory assign(Memory memory) {
         if (value.type == Type.REFERENCE)
             return value.assign(memory);
         else {
             Memory mem = memory.toImmutable();
-            table.put(key, mem);
+            table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
-
+                reference.assignRef(table);
             return mem;
         }
     }
@@ -50,10 +55,11 @@ public class ArrayItemMemory extends ReferenceMemory {
         if (this.value.type == Type.REFERENCE)
             return this.value.assign(value);
         else {
+            checkCopied();
             Memory mem = LongMemory.valueOf(value);
-            this.table.put(key, mem);
+            table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
+                reference.assignRef(table);
 
             return mem;
         }
@@ -64,10 +70,11 @@ public class ArrayItemMemory extends ReferenceMemory {
         if (this.value.type == Type.REFERENCE)
             return this.value.assign(value);
         else {
+            checkCopied();
             Memory mem = new StringMemory(value);
-            table.put(key, mem);
+            table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
+                reference.assignRef(table);
 
             return mem;
         }
@@ -78,9 +85,10 @@ public class ArrayItemMemory extends ReferenceMemory {
         if (this.value.type == Type.REFERENCE)
             return this.value.assign(value);
         else {
-            table.put(key, value ? TRUE : FALSE);
+            checkCopied();
+            table.value.put(key, value ? TRUE : FALSE);
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
+                reference.assignRef(table);
 
             return value ? TRUE : FALSE;
         }
@@ -91,10 +99,11 @@ public class ArrayItemMemory extends ReferenceMemory {
         if (this.value.type == Type.REFERENCE)
             return this.value.assign(value);
         else {
+            checkCopied();
             DoubleMemory mem = new DoubleMemory(value);
-            table.put(key, mem);
+            table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
+                reference.assignRef(table);
 
             return mem;
         }
@@ -103,16 +112,18 @@ public class ArrayItemMemory extends ReferenceMemory {
     @Override
     public void assignRef(Memory memory) {
         if (memory.isImmutable())
-            table.put(key, memory);
+            table.value.put(key, memory);
         else {
-            table.put(key, new ReferenceMemory(memory));
+            checkCopied();
+            table.value.put(key, new ReferenceMemory(memory));
             if (reference != null)
-                reference.assignRef(new ArrayMemory(table));
+                reference.assignRef(table);
         }
     }
 
     @Override
     public void unset() {
-        table.remove(key);
+        checkCopied();
+        table.value.remove(key);
     }
 }

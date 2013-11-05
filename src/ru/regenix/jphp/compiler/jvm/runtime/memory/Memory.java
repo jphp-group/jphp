@@ -4,7 +4,7 @@ import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
 
 abstract public class Memory {
     public enum Type {
-        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, REFERENCE;
+        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, REFERENCE, INVALID;
 
         public Class toClass(){
             if (this == DOUBLE)
@@ -62,6 +62,10 @@ abstract public class Memory {
 
     public static final Memory CONST_DOUBLE_0 = new DoubleMemory(0.0);
     public static final Memory CONST_DOUBLE_1 = new DoubleMemory(1.0);
+
+    public boolean isNull(){
+        return type == Type.NULL;
+    }
 
     abstract public long toLong();
     abstract public double toDouble();
@@ -262,7 +266,7 @@ abstract public class Memory {
 
     public static Memory toArrayValue(Memory value){
         if (value instanceof ArrayItemMemory){
-            return new ArrayMemory(((ArrayItemMemory)value).table);
+            return ((ArrayItemMemory)value).table;
         } else {
             return value;
         }

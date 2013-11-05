@@ -4,7 +4,7 @@ import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
 
 public class ArrayMemory extends Memory {
 
-    HashTable value;
+    public HashTable value;
 
     public ArrayMemory() {
         super(Type.ARRAY);
@@ -14,6 +14,20 @@ public class ArrayMemory extends Memory {
     public ArrayMemory(HashTable table){
         super(Type.ARRAY);
         value = table;
+    }
+
+    public static Memory valueOf(){
+        return new ArrayMemory();
+    }
+
+    public static Memory valueOf(HashTable table){
+        return new ArrayMemory(table);
+    }
+
+    @Override
+    public Memory toImmutable() {
+        value.addCopy();
+        return new ArrayMemory(value);
     }
 
     @Override
@@ -80,7 +94,7 @@ public class ArrayMemory extends Memory {
     public boolean equal(Memory memory) {
         if (memory.type == Type.ARRAY){
             try {
-                return value.compare(((ArrayMemory)memory).value) == 0;
+                return value.compare(this, (ArrayMemory)memory) == 0;
             } catch (HashTable.UncomparableArrayException e) {
                 return false;
             }
@@ -97,7 +111,7 @@ public class ArrayMemory extends Memory {
     public boolean smaller(Memory memory) {
         if (memory.type == Type.ARRAY){
             try {
-                return value.compare(((ArrayMemory)memory).value) < 0;
+                return value.compare(this, (ArrayMemory)memory) < 0;
             } catch (HashTable.UncomparableArrayException e) {
                 return false;
             }
@@ -109,7 +123,7 @@ public class ArrayMemory extends Memory {
     public boolean smallerEq(Memory memory) {
         if (memory.type == Type.ARRAY){
             try {
-                return value.compare(((ArrayMemory)memory).value) <= 0;
+                return value.compare(this, (ArrayMemory)memory) <= 0;
             } catch (HashTable.UncomparableArrayException e) {
                 return false;
             }
@@ -121,7 +135,7 @@ public class ArrayMemory extends Memory {
     public boolean greater(Memory memory) {
         if (memory.type == Type.ARRAY){
             try {
-                return value.compare(((ArrayMemory)memory).value) > 0;
+                return value.compare(this, (ArrayMemory)memory) > 0;
             } catch (HashTable.UncomparableArrayException e) {
                 return false;
             }
@@ -133,7 +147,7 @@ public class ArrayMemory extends Memory {
     public boolean greaterEq(Memory memory) {
         if (memory.type == Type.ARRAY){
             try {
-                return value.compare(((ArrayMemory)memory).value) >= 0;
+                return value.compare(this, (ArrayMemory)memory) >= 0;
             } catch (HashTable.UncomparableArrayException e) {
                 return false;
             }
@@ -153,26 +167,26 @@ public class ArrayMemory extends Memory {
 
     @Override
     public Memory valueOfIndex(Memory index) {
-        return value.get(index);
+        return value.get(this, index);
     }
 
     @Override
     public Memory valueOfIndex(long index) {
-        return value.getByScalar(index);
+        return value.getByScalar(this, LongMemory.valueOf(index));
     }
 
     @Override
     public Memory valueOfIndex(double index) {
-        return value.getByScalar((long)index);
+        return value.getByScalar(this, LongMemory.valueOf((long)index));
     }
 
     @Override
     public Memory valueOfIndex(boolean index) {
-        return value.getByScalar(index ? 0L : 1L);
+        return value.getByScalar(this, index ? CONST_INT_0 : CONST_INT_1);
     }
 
     @Override
     public Memory valueOfIndex(String index) {
-        return value.getByScalar(index);
+        return value.getByScalar(this, index);
     }
 }

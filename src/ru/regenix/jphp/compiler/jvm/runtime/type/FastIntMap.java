@@ -1,5 +1,6 @@
 package ru.regenix.jphp.compiler.jvm.runtime.type;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -185,9 +186,18 @@ public final class FastIntMap<V> implements Iterable<FastIntMap.Entry<V>> {
         size = 0;
     }
 
-    @Override
     public EntryIterator iterator() {
         return new EntryIterator();
+    }
+
+    public FastIntMap<V> duplicate(){
+        FastIntMap<V> result = new FastIntMap<V>();
+        result.capacity = this.capacity;
+        result.mask = this.mask;
+        result.size = this.size;
+        result.threshold = this.threshold;
+        result.table = Arrays.copyOf(this.table, this.table.length);
+        return result;
     }
 
     public class EntryIterator implements Iterator<Entry<V>> {

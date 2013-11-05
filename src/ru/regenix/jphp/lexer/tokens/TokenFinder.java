@@ -86,6 +86,7 @@ public class TokenFinder {
         put("parent", ParentExprToken.class);
         put("$this", ThisExprToken.class);
 
+        put("array", ArrayExprToken.class);
         put("as", AsStmtToken.class);
         put("if", IfStmtToken.class);
         put("else", ElseStmtToken.class);

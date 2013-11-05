@@ -231,8 +231,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory valueOfIndex(Memory index) {
         switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
             case ARRAY:
-            case STRING:
             case REFERENCE: return value.valueOfIndex(index);
             default:
                 return new ArrayItemMemory(HashTable.toKey(index), this);
@@ -242,8 +242,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory valueOfIndex(long index) {
         switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
             case ARRAY:
-            case STRING:
             case REFERENCE: return value.valueOfIndex(index);
             default:
                 return new ArrayItemMemory(index, this);
@@ -253,8 +253,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory valueOfIndex(double index) {
         switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
             case ARRAY:
-            case STRING:
             case REFERENCE: return value.valueOfIndex(index);
             default:
                 return new ArrayItemMemory((long)index, this);
@@ -264,8 +264,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory valueOfIndex(String index) {
         switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)value.toNumeric().toLong());
             case ARRAY:
-            case STRING:
             case REFERENCE: return value.valueOfIndex(index);
             default:
                 return new ArrayItemMemory(index, this);
@@ -275,8 +275,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory valueOfIndex(boolean index) {
         switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, index ? 1 : 0);
             case ARRAY:
-            case STRING:
             case REFERENCE: return value.valueOfIndex(index);
             default:
                 return new ArrayItemMemory(index ? 0L : 1L, this);

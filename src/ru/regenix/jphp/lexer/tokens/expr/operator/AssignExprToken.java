@@ -1,11 +1,8 @@
 package ru.regenix.jphp.lexer.tokens.expr.operator;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 public class AssignExprToken extends OperatorExprToken {
 
@@ -15,6 +12,6 @@ public class AssignExprToken extends OperatorExprToken {
 
     @Override
     public int getPriority() {
-        return 160;
+        return 150;
     }
 }

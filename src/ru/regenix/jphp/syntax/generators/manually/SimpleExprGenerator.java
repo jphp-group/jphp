@@ -5,7 +5,6 @@ import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.*;
-import ru.regenix.jphp.lexer.tokens.expr.operator.ArrayGetExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -135,7 +134,33 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return null;
     }
 
+    protected Token processNewArray(Token current, ListIterator<Token> iterator){
+        ArrayExprToken result = new ArrayExprToken(current.getMeta());
+        List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+        Token next = nextToken(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next);
+
+        do {
+            ExprStmtToken argument = analyzer.generator(SimpleExprGenerator.class)
+                    .getToken(nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE);
+            if (argument == null)
+                break;
+
+            parameters.add(argument);
+        } while (true);
+        nextToken(iterator); // skip )
+
+        result.setParameters(parameters);
+        return result;
+    }
+
     protected Token processArrayToken(Token previous, Token current, ListIterator<Token> iterator){
+        if (previous instanceof VariableExprToken)
+            if (analyzer.getFunction() != null){
+                analyzer.getFunction().getArrayAccessLocal().add((VariableExprToken)previous);
+            }
+
         Token next = nextToken(iterator);
         if (isClosedBrace(next, BraceExprToken.Kind.ARRAY)){
             return new ArrayPushExprToken(TokenMeta.of(current, next));
@@ -205,6 +230,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof BraceExprToken){
                 unexpectedToken(current);
+            } else if (current instanceof ArrayExprToken){
+                tokens.add(processNewArray(current, iterator));
             } else if (current instanceof ExprToken) {
                 Token token = processSimpleToken(current, previous, next, iterator);
                 if (token != null)
