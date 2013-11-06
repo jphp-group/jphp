@@ -5,8 +5,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 
@@ -138,6 +138,9 @@ public class MethodEntity extends Entity {
         mv.visitCode();
         Label label = writeLabel(mv, method.getMeta().getStartLine());
 
+        if (!method.isStatic())
+            addLocalVariable("this", label, Object.class);
+
         addLocalVariable("~env", label, Environment.class); // Environment env
         addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
 
@@ -153,16 +156,20 @@ public class MethodEntity extends Entity {
         Label endL = new Label();
         mv.visitLabel(endL);
         for(LocalVariable variable : localVariables.values()){
+            String description = Type.getDescriptor(variable.clazz == null ? Object.class : variable.clazz);
+            if (!method.isStatic() && variable.name.equals("this"))
+                description = "L" + clazz.clazz.getFulledName('/') + ";";
+
             mv.visitLocalVariable(
                     variable.name,
-                    Type.getDescriptor(variable.clazz == null ? Object.class : variable.clazz),
+                    description,
                     null,
                     variable.label,
                     endL,
                     variable.index
             );
         }
-        mv.visitMaxs(this.stackMaxSize + 1, this.localVariables.size());
+        mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
         mv.visitEnd();
     }
 

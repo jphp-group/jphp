@@ -1,6 +1,6 @@
 package ru.regenix.jphp.syntax;
 
-import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;

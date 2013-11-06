@@ -2,10 +2,9 @@
 
 class MyClass {
 
-    public static function test() {
-        while(($i+=1) < 1000000){
-            ?>Hello <?  ?> World <? ?>
-            Yes!!!! <?
+    public function test() {
+        while(($i+=1) < 4000000){
+            echo($i);
         }
     }
 }

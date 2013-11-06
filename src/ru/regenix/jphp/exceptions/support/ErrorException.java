@@ -1,7 +1,7 @@
 package ru.regenix.jphp.exceptions.support;
 
-import ru.regenix.jphp.env.Context;
-import ru.regenix.jphp.env.TraceInfo;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 
 import java.util.HashMap;
 import java.util.Map;

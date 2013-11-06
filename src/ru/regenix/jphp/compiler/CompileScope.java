@@ -2,7 +2,7 @@ package ru.regenix.jphp.compiler;
 
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.*;
-import ru.regenix.jphp.compiler.jvm.runtime.invokedynamic.CallableValue;
+import ru.regenix.jphp.runtime.invokedynamic.CallableValue;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 

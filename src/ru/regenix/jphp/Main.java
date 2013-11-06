@@ -4,10 +4,10 @@ import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.compiler.jvm.ext.CoreExtension;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.env.Context;
-import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.ext.CoreExtension;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 public class Main {
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         try {
             Environment environment = new Environment();
             Context context = new Context(environment, new File("main.php"));
@@ -49,9 +49,10 @@ public class Main {
             Method method = clazz.getMethod("test", Environment.class, Memory[].class);
 
             long t = System.currentTimeMillis();
-            method.invoke(null, environment, new Memory[]{});
+            method.invoke(clazz.newInstance(), environment, new Memory[]{});
 
-            environment.flush();
+            environment.flushAll();
+            environment.getDefaultBuffer().getOutputAsString();
 
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");

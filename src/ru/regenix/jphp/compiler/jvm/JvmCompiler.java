@@ -3,7 +3,7 @@ package ru.regenix.jphp.compiler.jvm;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.entity.ClassEntity;
-import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;

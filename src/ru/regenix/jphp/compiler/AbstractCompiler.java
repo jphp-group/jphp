@@ -1,6 +1,6 @@
 package ru.regenix.jphp.compiler;
 
-import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.lexer.tokens.Token;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package ru.regenix.jphp.compiler.jvm;
 
 
-import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.Memory;
 
 final public class Constants {
 

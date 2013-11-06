@@ -1,14 +1,13 @@
 package ru.regenix.jphp.compiler.jvm;
 
 import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
-import ru.regenix.jphp.env.Context;
-import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;

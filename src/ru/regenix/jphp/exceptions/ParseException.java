@@ -1,6 +1,6 @@
 package ru.regenix.jphp.exceptions;
 
-import ru.regenix.jphp.env.TraceInfo;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 
 public class ParseException extends ErrorException {

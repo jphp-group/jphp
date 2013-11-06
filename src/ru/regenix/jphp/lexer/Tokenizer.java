@@ -1,7 +1,7 @@
 package ru.regenix.jphp.lexer;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.tokens.*;
 import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;

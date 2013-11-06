@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.env.Context;
-import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.expr.operator.LogicOperatorExprToken;
@@ -16,8 +16,6 @@ import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-
-import java.io.File;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

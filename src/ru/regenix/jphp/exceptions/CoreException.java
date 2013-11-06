@@ -1,6 +1,6 @@
 package ru.regenix.jphp.exceptions;
 
-import ru.regenix.jphp.env.Context;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 
 public class CoreException extends ErrorException {
