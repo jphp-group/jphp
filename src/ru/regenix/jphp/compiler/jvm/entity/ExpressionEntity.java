@@ -4,6 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.compile.*;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.jvm.Constants;
@@ -11,19 +12,21 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.runtime.OperatorUtils;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.*;
 import ru.regenix.jphp.compiler.jvm.runtime.type.HashTable;
+import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.stmt.*;
+import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.StmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.WhileStmtToken;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.ListIterator;
 import java.util.Stack;
 
 public class ExpressionEntity extends Entity {
@@ -186,7 +189,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePushEnv(){
-        method.push(Memory.Type.REFERENCE);
+        stackPush(Memory.Type.REFERENCE);
         MethodEntity.LocalVariable variable = method.getLocalVariable("~env");
         mv.visitVarInsn(Opcodes.ALOAD, variable.index);
     }
@@ -215,13 +218,44 @@ public class ExpressionEntity extends Entity {
         stackPop();
     }
 
-    protected void writePushCompileFunction(CompileFunction function){
+    protected void writePushStaticCall(Method method){
         writeSysStaticCall(
-                function.method.getDeclaringClass(),
-                function.name,
-                function.method.getReturnType(),
-                function.method.getParameterTypes()
+                method.getDeclaringClass(),
+                method.getName(),
+                method.getReturnType(),
+                method.getParameterTypes()
         );
+    }
+
+    protected void writePushCompileFunction(CallExprToken function, CompileFunction compileFunction){
+        Method method = compileFunction.find( function.getParameters().size() );
+        if (method == null){
+            method = compileFunction.find( function.getParameters().size() + 1 );
+            if(method.getParameterTypes()[0] != Environment.class)
+                method = null;
+        }
+
+        if (method == null){
+            throw new CompileException(
+                    Messages.ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION.fetch(function.getName().getWord()),
+                    function.getName().toTraceInfo(compiler.getContext())
+            );
+        }
+
+        Class[] types = method.getParameterTypes();
+        ListIterator<ExprStmtToken> iterator = function.getParameters().listIterator();
+
+        for(int i = 0; i < types.length; i++){
+            Class<?> argType = types[i];
+            if (argType == Environment.class){
+                writePushEnv();
+            } else {
+                writeExpression(iterator.next(), true, false);
+                if (argType == Memory.class)
+                    writePushBoxing();
+            }
+        }
+        writePushStaticCall(method);
     }
 
     protected void writePushCall(CallExprToken function){
@@ -230,15 +264,7 @@ public class ExpressionEntity extends Entity {
             String realName = ((NameToken) name).getName();
             CompileFunction compileFunction = compiler.getScope().findFunction(realName);
             if (compileFunction != null){
-                Class[] types = compileFunction.method.getParameterTypes();
-                int i = 0;
-                for(ExprStmtToken param : function.getParameters()){
-                    writeExpression(param, true, false);
-                    if (types[i] == Memory.class)
-                        writePushBoxing();
-                    i++;
-                }
-                writePushCompileFunction(compileFunction);
+                writePushCompileFunction(function, compileFunction);
             }
         }
     }
@@ -397,8 +423,7 @@ public class ExpressionEntity extends Entity {
         MethodEntity.LocalVariable local = method.getLocalVariable(variable.getName());
         local.setClazz(Memory.class);
 
-       // boolean returned = !stack.empty() || returnValue;
-
+        // boolean returned = !stack.empty() || returnValue;
         if (local.isReference()){
             writePushVariable(variable);
 
@@ -424,6 +449,25 @@ public class ExpressionEntity extends Entity {
     protected void writeScalarOperator(Memory.Type Lt, Memory.Type Rt, Memory.Type operatorType,
                                        String operatorName){
         writeSysDynamicCall(OperatorUtils.class, operatorName, operatorType.toClass(), Lt.toClass(), Rt.toClass());
+    }
+
+    protected void writePop(Class clazz){
+        if (clazz == String.class)
+            writePopString();
+        else if (clazz == Boolean.TYPE)
+            writePopBoolean();
+    }
+
+    protected void writePopString(){
+        Memory.Type peek = method.peek();
+        if (peek == Memory.Type.STRING)
+            return;
+        switch (peek){
+            case INT: writeSysStaticCall(String.class, "valueOf", String.class, Long.TYPE); break;
+            case DOUBLE: writeSysStaticCall(String.class, "valueOf", String.class, Double.TYPE); break;
+            default:
+                writeSysDynamicCall(Memory.class, "toString", Boolean.TYPE);
+        }
     }
 
     protected void writePopBoolean(){
@@ -611,6 +655,15 @@ public class ExpressionEntity extends Entity {
         }
     }
 
+    protected void writeEchoRaw(EchoRawToken token){
+        if (!token.getMeta().getWord().isEmpty()){
+            writePushEnv();
+            mv.visitLdcInsn(token.getMeta().getWord());
+            stackPush(Memory.Type.STRING);
+            writeSysDynamicCall(Environment.class, "echo", void.class, String.class);
+        }
+    }
+
     protected void writeWhile(WhileStmtToken token){
         writeDefineVariables(token.getLocal());
 
@@ -662,14 +715,16 @@ public class ExpressionEntity extends Entity {
             expression = new ASMExpression(compiler.getContext(), expression, true).getResult();
 
         for(Token token : expression.getTokens()){
-            if (token instanceof ValueExprToken){
-                stackPush((ValueExprToken)token);
+            if (token instanceof EchoRawToken){
+                writeEchoRaw((EchoRawToken)token);
+            } else if (token instanceof ValueExprToken){
+                stackPush((ValueExprToken) token);
             } else if (token instanceof ArrayGetExprToken){
-                writeArrayGet((ArrayGetExprToken)token, returnValue);
+                writeArrayGet((ArrayGetExprToken) token, returnValue);
             } else if (token instanceof OperatorExprToken){
-                writeOperator((OperatorExprToken)token, returnValue);
+                writeOperator((OperatorExprToken) token, returnValue);
             } else if (token instanceof ReturnStmtToken){
-                writeReturn((ReturnStmtToken)token);
+                writeReturn((ReturnStmtToken) token);
             } else if (token instanceof WhileStmtToken){
                 writeWhile((WhileStmtToken)token);
             }
@@ -677,8 +732,9 @@ public class ExpressionEntity extends Entity {
 
         if (returnValue && !stack.empty() && stack.peek() != null){
             writePush(stackPopToken());
-        } else if (!stack.empty() && stackPeekToken() instanceof ArrayExprToken){
-            writePush(stackPopToken());
+        } else if (!stack.empty()){
+            if (stackPeekToken() instanceof CallExprToken)
+                writePush(stackPopToken());
         }
 
         if (!returnValue)

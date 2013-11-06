@@ -1,13 +1,17 @@
 package ru.regenix.jphp.env;
 
+import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
+import ru.regenix.jphp.compiler.jvm.runtime.ob.OutBuffer;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
 
-import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
-
-import java.io.File;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
+
+import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 
 public class Environment {
     private Set<String> includePaths;
@@ -21,9 +25,33 @@ public class Environment {
     private ExceptionHandler previousExceptionHandler;
     private ExceptionHandler exceptionHandler;
 
-    public Environment() {
+    private Stack<OutBuffer> outBuffers;
+    private final OutputStream output;
+    private StringBuilder header;
+    private StringBuilder body;
+
+    private Charset defaultCharset = Charset.forName("UTF-8");
+
+    public Environment(OutputStream output) {
+        this.output = output;
+        this.header = new StringBuilder();
+        this.body = new StringBuilder();
+
         this.includePaths = new HashSet<String>();
+        this.outBuffers = new Stack<OutBuffer>();
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
+    }
+
+    public Environment(){
+        this(new ByteArrayOutputStream());
+    }
+
+    public void setDefaultCharset(Charset defaultCharset) {
+        this.defaultCharset = defaultCharset;
+    }
+
+    public Charset getDefaultCharset() {
+        return defaultCharset;
     }
 
     public Set<String> getIncludePaths() {
@@ -108,5 +136,71 @@ public class Environment {
 
     public Context createContext(File file){
         return new Context(this, file);
+    }
+
+    public void pushOutBuffer(Memory callback, int chunkSize, boolean erase){
+        outBuffers.push(new OutBuffer(this, callback, chunkSize, erase));
+    }
+
+    public OutBuffer popOutBuffer(){
+        return outBuffers.pop();
+    }
+
+    public OutBuffer peekOutBuffer(){
+        return outBuffers.empty() ? null : outBuffers.peek();
+    }
+
+    public void echo(String value){
+        OutBuffer buffer = peekOutBuffer();
+        if (buffer == null)
+            body.append(value);
+        else
+            buffer.write(value);
+    }
+
+    public boolean header(String value){
+        if (header == null)
+            return false;
+
+        header.append(value);
+        return true;
+    }
+
+    public void flush(){
+        OutBuffer buffer = peekOutBuffer();
+        if (buffer != null){
+            echo(buffer.getContent());
+            buffer.flush();
+            popOutBuffer();
+        } else {
+            try {
+                output.write(header.toString().getBytes(defaultCharset));
+                output.write(body.toString().getBytes(defaultCharset));
+
+                body = new StringBuilder();
+                header = null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public OutputStream getOutput() {
+        return output;
+    }
+
+    public String getOutputAsString(Charset charset) {
+        if (output instanceof ByteArrayOutputStream){
+            try {
+                return ((ByteArrayOutputStream) output).toString(charset.name());
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        } else
+            throw new RuntimeException("Cannot fetch output as string");
+    }
+
+    public String getOutputAsString() {
+        return getOutputAsString(defaultCharset);
     }
 }

@@ -7,7 +7,6 @@ import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +29,6 @@ public class JvmCompiler extends AbstractCompiler {
                 ClassEntity entity = new ClassEntity(this, (ClassStmtToken)token);
                 entity.getResult();
                 classes.add(entity);
-            } else if (token instanceof FunctionStmtToken){
-
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);
             }

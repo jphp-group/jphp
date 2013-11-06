@@ -12,7 +12,6 @@ import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 
-import java.io.File;
 import java.util.*;
 
 public class SyntaxAnalyzer {
@@ -37,6 +36,7 @@ public class SyntaxAnalyzer {
         localStack = new Stack<Set<VariableExprToken>>();
         generators = new ArrayList<Generator>(50);
 
+        generators.add(new EchoRawGenerator(this));
         generators.add(new NamespaceGenerator(this));
         generators.add(new UseGenerator(this));
         generators.add(new ClassGenerator(this));

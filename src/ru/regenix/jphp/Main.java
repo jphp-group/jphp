@@ -8,9 +8,11 @@ import ru.regenix.jphp.compiler.jvm.ext.CoreExtension;
 import ru.regenix.jphp.compiler.jvm.runtime.memory.Memory;
 import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.env.Environment;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,59 +20,45 @@ import java.lang.reflect.Method;
 public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
-        Environment environment = new Environment();
-        Context context;
+        try {
+            Environment environment = new Environment();
+            Context context = new Context(environment, new File("main.php"));
+            Tokenizer tokenizer = new Tokenizer(context);
 
-        Tokenizer tokenizer = new Tokenizer(context = new Context(environment,
-                        "class MyClass { " +
-                                "static function test(){ " +
-                                    " while(($i+=1)<10000000){ $x[1] = ceil($i); } " +
-                                "} " +
-                        "}"));
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            CompileScope scope = new CompileScope();
+            scope.registerExtension(new CoreExtension());
 
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
-        CompileScope scope = new CompileScope();
-        scope.registerExtension(new CoreExtension());
+            JvmCompiler compiler = new JvmCompiler(scope, context, analyzer.getTree());
 
-        JvmCompiler compiler = new JvmCompiler(scope, context, analyzer.getTree());
+            MyClassLoader classLoader = new MyClassLoader();
+            compiler.compile();
 
-        MyClassLoader classLoader = new MyClassLoader();
-        compiler.compile();
+            Thread.currentThread().setContextClassLoader(classLoader);
+            Class<?> clazz = classLoader.loadClass("MyClass", compiler.getClasses().get(0).getCw().toByteArray());
 
-        Thread.currentThread().setContextClassLoader(classLoader);
-        Class<?> clazz = classLoader.loadClass("MyClass", compiler.getClasses().get(0).getCw().toByteArray());
+            String[] ops = BytecodePrettyPrinter.getMethod(compiler.getClasses().get(0).getCw(), "test",
+                    Type.getMethodDescriptor(Type.getType(Memory.class), Type.getType(Environment.class),
+                            Type.getType(Memory[].class)
+                    )
+            );
 
-        String[] ops = BytecodePrettyPrinter.getMethod(compiler.getClasses().get(0).getCw(), "test",
-                Type.getMethodDescriptor(Type.getType(Memory.class), Type.getType(Environment.class),
-                        Type.getType(Memory[].class)
-                )
-        );
+            for (String op : ops)
+                System.out.println(op);
 
-        for (String op : ops)
-            System.out.println(op);
+            Method method = clazz.getMethod("test", Environment.class, Memory[].class);
 
-        Method method = clazz.getMethod("test", Environment.class, Memory[].class);
-        long t = System.currentTimeMillis();
-        /*FastIntMap<Integer> map = new FastIntMap<Integer>();
-        Map<String, Integer> slowMap = new LinkedHashMap<String, Integer>();
-        Memory table = new ArrayMemory();
+            long t = System.currentTimeMillis();
+            method.invoke(null, environment, new Memory[]{});
 
-        for(int i = 0; i < 1000000; i++){
-            table.valueOfIndex(i + "x").assign(i);
-            //map.put(i, i);
-            //slowMap.put(i + "x", i);
+            environment.flush();
+
+            System.out.println(System.currentTimeMillis() - t);
+            System.out.println("--------------------");
+        } catch (ErrorException e){
+            System.out.println("[" + e.getType().name() + "] " + e.getMessage());
+            System.out.print("    at line " + e.getTraceInfo().getStartLine());
+            System.out.print(", position " + e.getTraceInfo().getStartPosition());
         }
-
-        for(int j = 0; j < 10000;j++){
-            for(int i = 0; i < 1000; i++){
-                table.valueOfIndex(i + "x");
-                //map.get(i);
-                //slowMap.get(i + "x");
-            }
-        }*/
-
-        Memory memory = (Memory) method.invoke(null, environment, new Memory[]{});
-//        System.out.println(memory.toString());
-        System.out.println(System.currentTimeMillis() - t);
     }
 }

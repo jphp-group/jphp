@@ -2,13 +2,37 @@ package ru.regenix.jphp.compiler.common.compile;
 
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompileFunction {
     public final String name;
-    public final Method method;
+    public final List<Method> methods;
 
-    public CompileFunction(String name, Method method) {
+    public CompileFunction(String name) {
         this.name = name;
-        this.method = method;
+        this.methods = new ArrayList<Method>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompileFunction)) return false;
+
+        CompileFunction that = (CompileFunction) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public Method find(int paramCount) {
+        for(Method method : methods){
+            if (method.getParameterTypes().length == paramCount)
+                return method;
+        }
+        return null;
     }
 }

@@ -18,7 +18,6 @@ import ru.regenix.jphp.lexer.tokens.expr.value.*;
 import ru.regenix.jphp.lexer.tokens.macro.*;
 import ru.regenix.jphp.lexer.tokens.stmt.*;
 
-import java.io.File;
 import java.math.BigInteger;
 
 import static org.junit.Assert.*;
@@ -171,8 +170,8 @@ public class TokenizerTest {
         assertNull(traceInfo.getContext().getFile());
         assertEquals(0, traceInfo.getStartLine());
         assertEquals(1, traceInfo.getEndLine());
-        assertEquals(2, traceInfo.getStartPosition());
-        assertEquals(12, traceInfo.getEndPosition());
+        assertEquals(0, traceInfo.getStartPosition());
+        assertEquals(2, traceInfo.getEndPosition());
     }
 
     @Test

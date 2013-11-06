@@ -15,4 +15,19 @@ public class CompileConstant {
     public CompileConstant(String name, Object value){
         this(name, MemoryUtils.valueOf(value));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompileConstant)) return false;
+
+        CompileConstant that = (CompileConstant) o;
+
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

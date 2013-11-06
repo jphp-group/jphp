@@ -47,6 +47,7 @@ public class Context {
         try {
             while ((line = bufferedReader.readLine()) != null) {
                 result.append(line);
+                result.append("\n");
             }
         } catch (IOException e) {
             environment.triggerError(new CoreException("Cannot read content", this));
@@ -60,6 +61,10 @@ public class Context {
 
     public File getFile() {
         return file;
+    }
+
+    public boolean isFile(){
+        return file != null;
     }
 
     public String getContent() {

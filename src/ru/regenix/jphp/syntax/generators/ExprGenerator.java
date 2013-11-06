@@ -3,6 +3,7 @@ package ru.regenix.jphp.syntax.generators;
 import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.ImportExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.IncludeExprToken;
@@ -111,6 +112,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                     break;
 
                 unexpectedToken(current);
+            } else if (current instanceof EchoRawToken){
+                tokens.add(current);
+                break;
             } else if (current instanceof ImportExprToken){
                 processImport((IncludeExprToken)current, iterator);
                 tokens.add(current);

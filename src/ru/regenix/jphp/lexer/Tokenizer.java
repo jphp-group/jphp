@@ -3,9 +3,8 @@ package ru.regenix.jphp.lexer;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.TokenFinder;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.*;
+import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.StringExprToken;
 
 import java.io.File;
@@ -18,6 +17,8 @@ public class Tokenizer {
     protected TokenFinder tokenFinder;
 
     private int currentPosition;
+    private int startRelativePosition;
+    private int relativePosition;
     private int currentLine;
 
     private final int codeLength;
@@ -25,13 +26,17 @@ public class Tokenizer {
 
     protected Token prevToken;
 
+    protected boolean rawMode;
+
     public Tokenizer(Context context){
         this.context = context;
         this.currentPosition = -1;
         this.currentLine = 0;
+        this.relativePosition = 0;
         this.code = context.getContent();
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
+        this.rawMode = context.isFile();
     }
 
     public String getCode() {
@@ -52,7 +57,7 @@ public class Tokenizer {
         String word = getWord(startPosition, currentPosition);
         if (word == null)
             return null;
-        return new TokenMeta(word, startLine, currentLine, startPosition, currentPosition);
+        return new TokenMeta(word, startLine, currentLine, startRelativePosition, relativePosition);
     }
 
     protected String getWord(int startPosition, int endPosition){
@@ -92,6 +97,12 @@ public class Tokenizer {
 
         String word = getWord(currentPosition, currentPosition + len + 1);
         Class<? extends Token> tokenClass = tokenFinder.find(word);
+        if (len == 2 && tokenClass == null){
+            len -= 1;
+            word = getWord(currentPosition, currentPosition + len + 1);
+            tokenClass = tokenFinder.find(word);
+        }
+
         if (tokenClass != null){
             int startPosition = currentPosition;
             currentPosition += len + 1;
@@ -107,9 +118,11 @@ public class Tokenizer {
         char ch = '\0';
         char prev_ch = '\0';
         int startPosition = currentPosition + 1;
+        startRelativePosition = relativePosition;
         int startLine = currentLine;
 
         StringExprToken.Quote string = null;
+        CommentToken.Kind comment = null;
         boolean prevBackslash = false;
 
         if (codeLength == 0)
@@ -117,6 +130,7 @@ public class Tokenizer {
 
         while (currentPosition < codeLength){
             currentPosition++;
+            relativePosition++;
             if (currentPosition == codeLength)
                 break;
 
@@ -124,11 +138,36 @@ public class Tokenizer {
             if (currentPosition > 0 && init)
                 prev_ch = code.charAt(currentPosition - 1);
 
-            if (GrammarUtils.isNewline(ch))
+            if (GrammarUtils.isNewline(ch)){
                 currentLine++;
+                relativePosition = 0;
+            }
 
             init = true;
-            if (string == null) {
+            if (string == null && comment == null) {
+                if (rawMode){
+                    if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
+                        TokenMeta meta = new TokenMeta(
+                                code.substring(startPosition, currentPosition -1), startLine, currentLine,
+                                startRelativePosition, relativePosition
+                        );
+                        rawMode = false;
+                        return buildToken(EchoRawToken.class, meta);
+                    } else {
+                        continue;
+                    }
+                }
+
+                if (ch == '/' && prev_ch == '/'){
+                    comment = CommentToken.Kind.SIMPLE;
+                    continue;
+                }
+
+                if (ch == '*' && prev_ch == '/'){
+                    comment = CommentToken.Kind.BLOCK;
+                    continue;
+                }
+
                 string = GrammarUtils.isQuote(ch);
                 if (string != null)
                     continue;
@@ -143,6 +182,16 @@ public class Tokenizer {
                         }
                         if (startPosition == currentPosition){
                             Token token = tryNextToken();
+                            if (token instanceof CloseTagToken){
+                                rawMode = true;
+                                startRelativePosition = relativePosition;
+                                startPosition = currentPosition + GrammarUtils.CLOSE_TAG.length() - 1;
+                                continue;
+                            }
+                            if (token instanceof CommentToken){
+                                comment = ((CommentToken)token).getKind();
+                                continue;
+                            }
                             if (token != null)
                                 return token;
                         }
@@ -155,7 +204,27 @@ public class Tokenizer {
                         break;
                     }
                 }
+            } else if (comment != null){
+                boolean closed = false;
+                switch (comment){
+                    case SIMPLE:
+                        closed = (GrammarUtils.isNewline(ch)); break;
+                    case DOCTYPE:
+                    case BLOCK:
+                        closed = (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
+                }
+                if (closed){
+                    String text = code.substring(
+                            startPosition,
+                            comment == CommentToken.Kind.SIMPLE ? currentPosition : currentPosition - 1
+                    );
 
+                    TokenMeta meta = new TokenMeta(
+                            text,
+                            startLine, currentLine, startRelativePosition, relativePosition
+                    );
+                    return buildToken(CommentToken.class, meta);
+                }
             } else {
                 if (GrammarUtils.isBackslash(ch)){
                     prevBackslash = !prevBackslash;
