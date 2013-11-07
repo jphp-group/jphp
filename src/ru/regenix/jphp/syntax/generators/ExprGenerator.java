@@ -1,5 +1,7 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.lexer.tokens.BreakToken;
+import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
 import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
@@ -115,6 +117,13 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof EchoRawToken){
                 tokens.add(current);
                 break;
+            } else if (current instanceof OpenEchoTagToken){
+                OpenEchoTagToken result = (OpenEchoTagToken)current;
+                result.setValue(
+                        analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator)
+                );
+                tokens.add(current);
+                break;
             } else if (current instanceof ImportExprToken){
                 processImport((IncludeExprToken)current, iterator);
                 tokens.add(current);
@@ -132,6 +141,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof DoStmtToken){
                 processDo((DoStmtToken)current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof BreakToken){
                 tokens.add(current);
                 break;
             } else if (current instanceof SemicolonToken){

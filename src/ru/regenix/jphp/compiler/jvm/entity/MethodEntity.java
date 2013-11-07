@@ -9,6 +9,7 @@ import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
+import ru.regenix.jphp.runtime.type.HashTable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,10 +21,10 @@ public class MethodEntity extends Entity {
     public final MethodStmtToken method;
     public final int id;
 
+    private Stack<StackItem> stack = new Stack<StackItem>();
+
     private int stackSize = 0;
     private int stackMaxSize = 0;
-    private Stack<Integer> stackSizes = new Stack<Integer>();
-    private Stack<Memory.Type> stackTypes = new Stack<Memory.Type>();
 
     private Map<String, LocalVariable> localVariables;
 
@@ -50,45 +51,38 @@ public class MethodEntity extends Entity {
         return localVariables;
     }
 
-    void push(int size, Memory.Type type){
-        stackSize += size;
-        if (stackSize > stackMaxSize)
+    void push(StackItem item){
+        stack.push(item);
+        stackSize += item.size;
+        if (stackMaxSize < stackSize)
             stackMaxSize = stackSize;
-
-        stackTypes.push(type);
-        stackSizes.push(size);
     }
 
     int getStackSize(){
         return stackSize;
     }
 
-    void push(Memory.Type type){
-        switch (type){
-            case INT:
-            case DOUBLE: push(2, type); break;
-            default:
-                push(1, type);
-        }
+    void push(StackItem.Type type, boolean immutable){
+        push(new StackItem(type, immutable));
     }
 
-    void pop(int size){
-        stackSize -= size;
+    void push(StackItem.Type type){
+        push(new StackItem(type));
     }
 
-    Memory.Type pop(){
-        pop(stackSizes.pop());
-        return stackTypes.pop();
+    StackItem pop(){
+        StackItem item = stack.pop();
+        stackSize -= item.size;
+        return item;
     }
 
     void popAll(){
         stackSize = 0;
-        stackSizes.clear();
-        stackTypes.clear();
+        stack.clear();
     }
 
-    Memory.Type peek(){
-        return stackTypes.peek();
+    StackItem peek(){
+        return stack.peek();
     }
 
     LocalVariable addLocalVariable(String variable, Label label, Class clazz){
@@ -149,7 +143,7 @@ public class MethodEntity extends Entity {
                 new ExpressionEntity(compiler, this, instruction).getResult();
             }
         }
-        push(Memory.Type.NULL);
+        push(StackItem.Type.NULL);
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitInsn(Opcodes.ARETURN);
 
@@ -173,6 +167,82 @@ public class MethodEntity extends Entity {
         mv.visitEnd();
     }
 
+    static class StackItem {
+
+        public enum Type {
+            NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, REFERENCE;
+
+            public Class toClass(){
+                switch (this){
+                    case DOUBLE: return Double.TYPE;
+                    case FLOAT: return Float.TYPE;
+                    case NULL: return Object.class;
+                    case BOOL: return Boolean.TYPE;
+                    case SHORT: return Short.TYPE;
+                    case INT: return Integer.TYPE;
+                    case LONG: return Long.TYPE;
+                    case STRING: return String.class;
+                    case ARRAY: return HashTable.class;
+                    case REFERENCE: return Memory.class;
+                }
+
+                return null;
+            }
+
+            public int size(){
+                switch (this){
+                    case DOUBLE:
+                    case LONG: return 2;
+                    default: return 1;
+                }
+            }
+
+            public static Type valueOf(Memory.Type type){
+                return valueOf(type.toClass());
+            }
+
+            public static Type valueOf(Class clazz){
+                if (clazz == Byte.TYPE)
+                    return BYTE;
+                if (clazz == Short.TYPE)
+                    return SHORT;
+                if (clazz == Integer.TYPE)
+                    return INT;
+                if (clazz == Long.TYPE)
+                    return LONG;
+                if (clazz == Double.TYPE)
+                    return DOUBLE;
+                if (clazz == Float.TYPE)
+                    return FLOAT;
+                if (clazz == String.class)
+                    return STRING;
+                if (clazz == Boolean.TYPE)
+                    return BOOL;
+                if (clazz == HashTable.class)
+                    return ARRAY;
+
+                return REFERENCE;
+            }
+
+            public boolean isConstant(){
+                return this != REFERENCE/* && this != ARRAY && this != OBJECT*/;
+            }
+        }
+
+        public final Type type;
+        public final int size;
+        public boolean immutable;
+
+        StackItem(Type type, boolean immutable) {
+            this.type = type;
+            this.size = type.size();
+            this.immutable = immutable;
+        }
+
+        StackItem(Type type) {
+            this(type, type.isConstant());
+        }
+    }
 
     static class LocalVariable {
         public final String name;

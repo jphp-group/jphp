@@ -42,6 +42,27 @@ public class LongMemory extends Memory {
             return new LongMemory(value);
     }
 
+    public static Memory valueOf(int value){
+        if (value >= 0 && value < MAX_CACHE)
+            return VALUES[value];
+        else if (value < 0 && value > -MAX_CACHE)
+            return NEG_VALUES[-value];
+        else
+            return new LongMemory(value);
+    }
+
+    public static Memory valueOf(byte value){
+        return valueOf((int)value);
+    }
+
+    public static Memory valueOf(short value){
+        return valueOf((int)value);
+    }
+
+    public static Memory valueOf(boolean value){
+        return value ? TRUE : FALSE;
+    }
+
     @Override
     public long toLong() {
         return value;

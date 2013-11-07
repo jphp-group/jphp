@@ -13,6 +13,10 @@ public class DoubleMemory extends Memory {
         return new DoubleMemory(value);
     }
 
+    public static Memory valueOf(float value){
+        return new DoubleMemory(value);
+    }
+
     @Override
     public long toLong() {
         return (long)value;

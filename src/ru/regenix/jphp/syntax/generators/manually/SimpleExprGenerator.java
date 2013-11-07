@@ -1,6 +1,7 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
 
+import ru.regenix.jphp.lexer.tokens.BreakToken;
 import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
@@ -223,6 +224,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
             } else if (isClosedBrace(current, closedBraceKind)){
                 iterator.previous();
+                break;
+            } else if (current instanceof BreakToken){
                 break;
             } else if (current instanceof SemicolonToken){
                 if (commaSeparator || closedBraceKind != null || tokens.isEmpty())

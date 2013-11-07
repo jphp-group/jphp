@@ -13,7 +13,7 @@ public class TokenFinder {
     private final static HashMap<String, Class<? extends Token>> patterns = new HashMap<String, Class<? extends Token>>(){{
         put("<?", OpenTagToken.class);
         put("<?php", OpenTagToken.class);
-        put("?>", CloseTagToken.class);
+        put("?>", BreakToken.class);
         put("<?=", OpenEchoTagToken.class);
         put("/*", CommentToken.class);
         put("/**", CommentToken.class);

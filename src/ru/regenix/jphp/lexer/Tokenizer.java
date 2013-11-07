@@ -1,6 +1,7 @@
 package ru.regenix.jphp.lexer;
 
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.tokens.*;
@@ -113,6 +114,17 @@ public class Tokenizer {
         return null;
     }
 
+    private void incCurrentPosition(int value){
+        if (value < 0){
+            while (currentPosition > 0 && value < 0){
+                currentPosition--;
+                value++;
+                if (GrammarUtils.isNewline(code.charAt(currentPosition)))
+                    currentLine--;
+            }
+        }
+    }
+
     public Token nextToken(){
         boolean init = false;
         char ch = '\0';
@@ -148,7 +160,7 @@ public class Tokenizer {
                 if (rawMode){
                     if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
                         TokenMeta meta = new TokenMeta(
-                                code.substring(startPosition, currentPosition -1), startLine, currentLine,
+                                code.substring(startPosition, currentPosition - 1), startLine, currentLine,
                                 startRelativePosition, relativePosition
                         );
                         rawMode = false;
@@ -156,6 +168,10 @@ public class Tokenizer {
                     } else {
                         continue;
                     }
+                }
+
+                if (ch == '=' && prevToken instanceof EchoRawToken){
+                    return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
                 }
 
                 if (ch == '/' && prev_ch == '/'){
@@ -178,16 +194,15 @@ public class Tokenizer {
                     } else {
                         if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
                             startPosition = currentPosition + 1;
+                            prevToken = null;
                             continue;
                         }
                         if (startPosition == currentPosition){
                             Token token = tryNextToken();
-                            if (token instanceof CloseTagToken){
+                            if (token instanceof BreakToken){
                                 rawMode = true;
-                                startRelativePosition = relativePosition;
-                                startPosition = currentPosition + GrammarUtils.CLOSE_TAG.length() - 1;
-                                continue;
                             }
+
                             if (token instanceof CommentToken){
                                 comment = ((CommentToken)token).getKind();
                                 continue;
@@ -265,9 +280,13 @@ public class Tokenizer {
             ));
 
         Class<? extends Token> tokenClazz = tokenFinder.find(meta);
-        if (tokenClazz == null)
+        if (tokenClazz == null){
             return prevToken = new Token(meta, TokenType.T_J_CUSTOM);
-        else {
+        } else {
+            if (prevToken instanceof EchoRawToken && tokenClazz == NameToken.class && "php".equals(meta.getWord())){
+                prevToken = null;
+                return nextToken();
+            }
             return buildToken(tokenClazz, meta);
         }
     }

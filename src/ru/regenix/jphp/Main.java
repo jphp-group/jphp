@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         try {
-            Environment environment = new Environment();
+            Environment environment = new Environment(System.out);
             Context context = new Context(environment, new File("main.php"));
             Tokenizer tokenizer = new Tokenizer(context);
 
@@ -52,8 +52,8 @@ public class Main {
             method.invoke(clazz.newInstance(), environment, new Memory[]{});
 
             environment.flushAll();
-            environment.getDefaultBuffer().getOutputAsString();
 
+            System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
         } catch (ErrorException e){

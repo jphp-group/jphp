@@ -8,7 +8,7 @@
     <property name="test.dir" value="tests" />
     <property name="src.dir" value="src" />
     <property name="jar.dir" value="${build.dir}/jar" />
-    <property name="jar.file" value="${ant.project.name}-${version}.jar" />
+    <property name="jar.file" value="${ant.project.name}.jar" />
 
     <path id="classpath.test">
         <pathelement location="${build.dir}/classes" />
@@ -45,13 +45,15 @@
         <jar destfile="${jar.dir}/${jar.file}" basedir="${build.dir}/classes">
             <zipgroupfileset dir="${lib.dir}" includes="*.jar" excludes="*-javadoc.jar, *-sources.jar" />
             <manifest>
-                <attribute name="Main-Class" value="ru.regenix.jphp.Main"/>
+                <attribute name="Main-Class" value="ru.regenix.jphp.cli.CLI"/>
             </manifest>
         </jar>
+        <copyfile src="jphp.sh" dest="${jar.dir}/jphp.sh" />
+        <copyfile src="jphp.bat" dest="${jar.dir}/jphp.bat" />
     </target>
 
     <target name="run" depends="jar">
-        <java jar="${jar.dir}/${jar.file}" fork="true"/>
+        <java jar="${jar.dir}/${jar.file}" />
     </target>
 
     <target name="build-all" depends="clean, jar"/>
