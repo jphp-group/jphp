@@ -49,8 +49,12 @@ public class Environment {
         this(new CompileScope(), output);
     }
 
+    public Environment(CompileScope scope){
+        this(scope, null);
+    }
+
     public Environment(){
-        this(null);
+        this((OutputStream) null);
     }
 
     public CompileScope getScope() {

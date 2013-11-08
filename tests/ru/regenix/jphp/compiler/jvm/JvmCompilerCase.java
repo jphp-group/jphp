@@ -1,15 +1,13 @@
 package ru.regenix.jphp.compiler.jvm;
 
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 abstract public class JvmCompilerCase {
@@ -28,26 +26,15 @@ abstract public class JvmCompilerCase {
 
     protected Memory run(String code, boolean returned){
         runIndex += 1;
+        Environment environment = new Environment();
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
         Context context = new Context(environment, code);
 
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntaxTree(context));
         compiler.compile();
 
-        MyClassLoader classLoader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
-        try {
-            Class clazz = classLoader.loadClass("TestClass", compiler.getClasses().get(0).getClassWriter().toByteArray());
-            Method method = clazz.getMethod("test", Environment.class, Memory[].class);
-            return (Memory) method.invoke(null, environment, new Memory[]{});
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        ClassEntity entity = environment.getScope().loadClass("TestClass");
+        return entity.findMethod("test").invoke(environment);
     }
 
     protected Memory run(String code){
