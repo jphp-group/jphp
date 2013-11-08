@@ -31,12 +31,12 @@ abstract public class JvmCompilerCase {
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
         Context context = new Context(environment, code);
 
-        JvmCompiler compiler = new JvmCompiler(new CompileScope(), context, getSyntaxTree(context));
+        JvmCompiler compiler = new JvmCompiler(environment, context, getSyntaxTree(context));
         compiler.compile();
 
         MyClassLoader classLoader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
         try {
-            Class clazz = classLoader.loadClass("TestClass", compiler.getClasses().get(0).getCw().toByteArray());
+            Class clazz = classLoader.loadClass("TestClass", compiler.getClasses().get(0).getClassWriter().toByteArray());
             Method method = clazz.getMethod("test", Environment.class, Memory[].class);
             return (Memory) method.invoke(null, environment, new Memory[]{});
         } catch (ClassNotFoundException e) {

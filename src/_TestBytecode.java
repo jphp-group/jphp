@@ -4,7 +4,13 @@ class _TestBytecode {
 
     private Type x;
 
-    public void method(){
-        boolean b = (x == Type.NULL);
+    public int method(boolean arg){
+        int x;
+        if (arg){
+            x = 20;
+            return 9999;
+        }
+        x = 30;
+        return 6666;
     }
 }

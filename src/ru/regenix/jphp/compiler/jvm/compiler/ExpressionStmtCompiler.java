@@ -1,56 +1,55 @@
-package ru.regenix.jphp.compiler.jvm.entity;
+package ru.regenix.jphp.compiler.jvm.compiler;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.compiler.common.compile.*;
 import ru.regenix.jphp.compiler.common.ASMExpression;
+import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.compiler.jvm.Constants;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
-import ru.regenix.jphp.runtime.OperatorUtils;
-import ru.regenix.jphp.runtime.memory.*;
-import ru.regenix.jphp.runtime.type.HashTable;
-import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.stmt.*;
-import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;
 import ru.regenix.jphp.lexer.tokens.expr.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
+import ru.regenix.jphp.lexer.tokens.stmt.*;
+import ru.regenix.jphp.runtime.OperatorUtils;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.*;
+import ru.regenix.jphp.runtime.reflection.Entity;
+import ru.regenix.jphp.runtime.type.HashTable;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.ListIterator;
 import java.util.Stack;
 
-public class ExpressionEntity extends Entity {
+public class ExpressionStmtCompiler extends StmtCompiler {
 
-    protected final MethodEntity method;
+    protected final MethodStmtCompiler method;
     protected final ExprStmtToken expression;
 
     private MethodVisitor mv;
     private Stack<ValueExprToken> stack = new Stack<ValueExprToken>();
 
-    public ExpressionEntity(JvmCompiler compiler, MethodEntity method, ExprStmtToken expression) {
-        super(compiler);
+    public ExpressionStmtCompiler(MethodStmtCompiler method, ExprStmtToken expression) {
+        super(method.getCompiler());
         this.method = method;
         this.expression = expression;
     }
 
-    protected void stackPush(MethodEntity.StackItem.Type type){
+    protected void stackPush(MethodStmtCompiler.StackItem.Type type){
         stack.push(null);
         method.push(type);
     }
 
     protected void stackPush(Memory.Type type){
-        stackPush(MethodEntity.StackItem.Type.valueOf(type));
+        stackPush(MethodStmtCompiler.StackItem.Type.valueOf(type));
     }
 
     protected void stackPush(ValueExprToken token){
@@ -69,7 +68,7 @@ public class ExpressionEntity extends Entity {
         stack.push(token);
     }
 
-    protected MethodEntity.StackItem stackPop(){
+    protected MethodStmtCompiler.StackItem stackPop(){
         stack.pop();
         return method.pop();
     }
@@ -79,7 +78,7 @@ public class ExpressionEntity extends Entity {
         return stack.pop();
     }
 
-    protected MethodEntity.StackItem stackPeek(){
+    protected MethodStmtCompiler.StackItem stackPeek(){
         return method.peek();
     }
 
@@ -152,18 +151,18 @@ public class ExpressionEntity extends Entity {
     }
 
     protected boolean writePopBoxing(Class<?> clazz, boolean asImmutable){
-        return writePopBoxing(MethodEntity.StackItem.Type.valueOf(clazz), asImmutable);
+        return writePopBoxing(MethodStmtCompiler.StackItem.Type.valueOf(clazz), asImmutable);
     }
 
     protected boolean writePopBoxing(Class<?> clazz){
         return writePopBoxing(clazz, false);
     }
 
-    protected boolean writePopBoxing(MethodEntity.StackItem.Type type){
+    protected boolean writePopBoxing(MethodStmtCompiler.StackItem.Type type){
         return writePopBoxing(type, false);
     }
 
-    protected boolean writePopBoxing(MethodEntity.StackItem.Type type, boolean asImmutable){
+    protected boolean writePopBoxing(MethodStmtCompiler.StackItem.Type type, boolean asImmutable){
         switch (type){
             case BOOL:
             case SHORT:
@@ -225,11 +224,11 @@ public class ExpressionEntity extends Entity {
 
     protected void writePushEnv(){
         stackPush(Memory.Type.REFERENCE);
-        MethodEntity.LocalVariable variable = method.getLocalVariable("~env");
+        MethodStmtCompiler.LocalVariable variable = method.getLocalVariable("~env");
         mv.visitVarInsn(Opcodes.ALOAD, variable.index);
     }
 
-    protected void writePushDup(MethodEntity.StackItem.Type type){
+    protected void writePushDup(MethodStmtCompiler.StackItem.Type type){
         stackPush(type);
         if (type.size() == 2)
             mv.visitInsn(Opcodes.DUP2);
@@ -297,7 +296,7 @@ public class ExpressionEntity extends Entity {
         Token name = function.getName();
         if (name instanceof NameToken){
             String realName = ((NameToken) name).getName();
-            CompileFunction compileFunction = compiler.getScope().findFunction(realName);
+            CompileFunction compileFunction = compiler.getScope().findCompileFunction(realName);
             if (compileFunction != null){
                 writePushCompileFunction(function, compileFunction);
             }
@@ -310,7 +309,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writeDefineVariable(VariableExprToken value){
-        MethodEntity.LocalVariable variable = method.getLocalVariable(value.getName());
+        MethodStmtCompiler.LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null){
             Label label = writeLabel(mv, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
@@ -332,7 +331,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePushVariable(VariableExprToken value){
-        MethodEntity.LocalVariable variable = method.getLocalVariable(value.getName());
+        MethodStmtCompiler.LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable.clazz == null)
             writePushNull();
         else {
@@ -457,8 +456,8 @@ public class ExpressionEntity extends Entity {
         writeGetStatic(enumInstance.getDeclaringClass(), enumInstance.name(), enumInstance.getDeclaringClass());
     }
 
-    protected void writeVariableAssign(VariableExprToken variable, ValueExprToken R, MethodEntity.StackItem.Type Rt, boolean returnValue){
-        MethodEntity.LocalVariable local = method.getLocalVariable(variable.getName());
+    protected void writeVariableAssign(VariableExprToken variable, ValueExprToken R, MethodStmtCompiler.StackItem.Type Rt, boolean returnValue){
+        MethodStmtCompiler.LocalVariable local = method.getLocalVariable(variable.getName());
         local.setClazz(Memory.class);
 
         // boolean returned = !stack.empty() || returnValue;
@@ -484,8 +483,8 @@ public class ExpressionEntity extends Entity {
         }
     }
 
-    protected void writeScalarOperator(MethodEntity.StackItem.Type Lt, MethodEntity.StackItem.Type Rt,
-                                       MethodEntity.StackItem.Type operatorType, String operatorName){
+    protected void writeScalarOperator(MethodStmtCompiler.StackItem.Type Lt, MethodStmtCompiler.StackItem.Type Rt,
+                                       MethodStmtCompiler.StackItem.Type operatorType, String operatorName){
         writeSysDynamicCall(OperatorUtils.class, operatorName, operatorType.toClass(), Lt.toClass(), Rt.toClass());
     }
 
@@ -512,14 +511,14 @@ public class ExpressionEntity extends Entity {
         writePopLong();
         mv.visitInsn(Opcodes.L2I);
         stackPop();
-        stackPush(MethodEntity.StackItem.Type.INT);
+        stackPush(MethodStmtCompiler.StackItem.Type.INT);
     }
 
     protected void writePopFloat(){
         writePopDouble();
         mv.visitInsn(Opcodes.D2F);
         stackPop();
-        stackPush(MethodEntity.StackItem.Type.FLOAT);
+        stackPush(MethodStmtCompiler.StackItem.Type.FLOAT);
     }
 
     protected void writePopLong(){
@@ -580,7 +579,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePopString(){
-        MethodEntity.StackItem.Type peek = stackPeek().type;
+        MethodStmtCompiler.StackItem.Type peek = stackPeek().type;
         switch (peek){
             case STRING: break;
             default:
@@ -592,7 +591,7 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writePopBoolean(){
-        MethodEntity.StackItem.Type peek = stackPeek().type;
+        MethodStmtCompiler.StackItem.Type peek = stackPeek().type;
         switch (peek){
             case BOOL: break;
             case BYTE:
@@ -609,9 +608,9 @@ public class ExpressionEntity extends Entity {
                 mv.visitInsn(Opcodes.ICONST_0);
                 mv.visitLabel(end);
 
-                if (peek == MethodEntity.StackItem.Type.LONG){
+                if (peek == MethodStmtCompiler.StackItem.Type.LONG){
                     stackPop();
-                    stackPush(MethodEntity.StackItem.Type.BOOL);
+                    stackPush(MethodStmtCompiler.StackItem.Type.BOOL);
                 }
             } break;
             case DOUBLE: {
@@ -631,7 +630,7 @@ public class ExpressionEntity extends Entity {
         writePush(L);
         writePopBoxing();
 
-        MethodEntity.LocalVariable local = null;
+        MethodStmtCompiler.LocalVariable local = null;
         if (L instanceof VariableExprToken){
             local = method.getLocalVariable(((VariableExprToken)L).getName());
         }
@@ -662,10 +661,10 @@ public class ExpressionEntity extends Entity {
     }
 
     protected void writeOperator(OperatorExprToken operator, boolean returnValue){
-        MethodEntity.StackItem.Type Rt = stackPeek().type;
+        MethodStmtCompiler.StackItem.Type Rt = stackPeek().type;
         ValueExprToken R = stackPopToken();
 
-        MethodEntity.StackItem.Type Lt = stackPeek().type;
+        MethodStmtCompiler.StackItem.Type Lt = stackPeek().type;
         ValueExprToken L = stackPopToken();
 
         ValueExprToken tmp = tryApplyOperator(R, L, operator);
@@ -674,7 +673,7 @@ public class ExpressionEntity extends Entity {
             return;
         }
 
-        MethodEntity.LocalVariable variable = null;
+        MethodStmtCompiler.LocalVariable variable = null;
         if (L instanceof VariableExprToken){
             variable = method.getLocalVariable(((VariableExprToken) L).getName());
         }
@@ -698,7 +697,7 @@ public class ExpressionEntity extends Entity {
         //Memory.Type Lt = stackPeek();
         //stackPush(Rt);
 
-        MethodEntity.StackItem.Type operatorType = MethodEntity.StackItem.Type.REFERENCE;
+        MethodStmtCompiler.StackItem.Type operatorType = MethodStmtCompiler.StackItem.Type.REFERENCE;
 
         String name = null;
 
@@ -718,25 +717,25 @@ public class ExpressionEntity extends Entity {
             name = "assignRef";
         } else if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
             name = "concat";
-            operatorType = MethodEntity.StackItem.Type.STRING;
+            operatorType = MethodStmtCompiler.StackItem.Type.STRING;
         } else if (operator instanceof SmallerExprToken){
             name = "smaller";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         } else if (operator instanceof SmallerOrEqualToken){
             name = "smallerEq";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         } else if (operator instanceof GreaterExprToken){
             name = "greater";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         } else if (operator instanceof GreaterOrEqualExprToken){
             name = "greaterEq";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         } else if (operator instanceof EqualExprToken){
             name = "equal";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         } else if (operator instanceof BooleanNotEqualExprToken){
             name = "notEqual";
-            operatorType = MethodEntity.StackItem.Type.BOOL;
+            operatorType = MethodStmtCompiler.StackItem.Type.BOOL;
         }
 
         if (Rt.isConstant() && Lt.isConstant()){
@@ -847,9 +846,10 @@ public class ExpressionEntity extends Entity {
         if (stackEmpty())
             writePushNull();
         else
-            writePopBoxing();
+            writePopBoxing(true);
 
         mv.visitInsn(Opcodes.ARETURN);
+        stackPop();
     }
 
     protected void writeExpression(ExprStmtToken expression, boolean returnValue, boolean popAll){
@@ -899,7 +899,7 @@ public class ExpressionEntity extends Entity {
     protected void writePopAll(){
         while (!stack.empty()){
             ValueExprToken token = stackPeekToken();
-            MethodEntity.StackItem.Type type = stackPop().type;
+            MethodStmtCompiler.StackItem.Type type = stackPop().type;
 
             if (token == null){
                 switch (type.size()){
@@ -923,10 +923,11 @@ public class ExpressionEntity extends Entity {
     }
 
     @Override
-    public void getResult() {
+    public Entity compile() {
         mv = method.mv;
         writeDefineVariables(method.method.getLocal());
         writeExpression(expression, false);
         method.popAll();
+        return null;
     }
 }

@@ -1,25 +1,27 @@
-package ru.regenix.jphp.compiler.jvm.entity;
+package ru.regenix.jphp.compiler.jvm.compiler;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.type.HashTable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class MethodEntity extends Entity {
+public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
-    public final ClassEntity clazz;
+    public final ClassStmtCompiler clazz;
     public final MethodStmtToken method;
-    public final int id;
 
     private Stack<StackItem> stack = new Stack<StackItem>();
 
@@ -30,21 +32,29 @@ public class MethodEntity extends Entity {
 
     protected MethodVisitor mv;
 
-    public MethodEntity(JvmCompiler compiler, ClassEntity clazz, MethodVisitor mv, String methodName) {
-        super(compiler);
+    final Label returnLabel = new Label();
+
+    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodVisitor mv, String methodName) {
+        super(clazz.getCompiler());
         this.clazz = clazz;
         this.mv = mv;
         this.method = null;
-        this.id = compiler.getScope().addMethod(clazz.clazz, methodName);
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
+
+        entity = new MethodEntity(getCompiler().getContext());
+        entity.setClazz(clazz.entity);
+        entity.setName(methodName);
     }
 
-    public MethodEntity(JvmCompiler compiler, ClassEntity clazz, MethodStmtToken method) {
-        super(compiler);
+    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken method) {
+        super(clazz.getCompiler());
         this.clazz = clazz;
         this.method = method;
-        this.id = compiler.getScope().addMethod(method);
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
+
+        entity = new MethodEntity(getCompiler().getContext());
+        entity.setClazz(clazz.entity);
+        entity.setName(method.getName().getName());
     }
 
     public Map<String, LocalVariable> getLocalVariables() {
@@ -102,11 +112,7 @@ public class MethodEntity extends Entity {
         return localVariables.get(variable);
     }
 
-
-    @Override
-    public void getResult() {
-        compiler.getScope().addMethod(method);
-
+    private void writeHeader(){
         if (mv == null){
             int access = 0;
             switch (method.getModifier()){
@@ -137,18 +143,18 @@ public class MethodEntity extends Entity {
 
         addLocalVariable("~env", label, Environment.class); // Environment env
         addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
+        addLocalVariable("~result", label, Memory.class); // Result of function
+    }
 
-        if (method.getBody() != null){
-            for(ExprStmtToken instruction : method.getBody().getInstructions()){
-                new ExpressionEntity(compiler, this, instruction).getResult();
-            }
-        }
-        push(StackItem.Type.NULL);
-        mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitInsn(Opcodes.ARETURN);
+    private void writeFooter(){
+        /*mv.visitLabel(returnLabel);
+        mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+        mv.visitVarInsn(Opcodes.ALOAD, getLocalVariable("~result").index);
+        mv.visitInsn(Opcodes.ARETURN);*/
 
         Label endL = new Label();
         mv.visitLabel(endL);
+
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.clazz == null ? Object.class : variable.clazz);
             if (!method.isStatic() && variable.name.equals("this"))
@@ -163,8 +169,32 @@ public class MethodEntity extends Entity {
                     variable.index
             );
         }
+
         mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
         mv.visitEnd();
+    }
+
+    @Override
+    public MethodEntity compile() {
+        entity.setAbstract(method.isAbstract());
+        entity.setFinal(method.isFinal());
+        entity.setStatic(method.isStatic());
+        entity.setModifier(method.getModifier());
+
+        writeHeader();
+
+        if (method.getBody() != null){
+            for(ExprStmtToken instruction : method.getBody().getInstructions()){
+                compiler.compileExpression(this, instruction);
+            }
+        }
+
+        ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
+        token.setValue(new ExprStmtToken(Token.of("null")));
+        compiler.compileExpression(this, new ExprStmtToken(token));
+
+        writeFooter();
+        return entity;
     }
 
     static class StackItem {

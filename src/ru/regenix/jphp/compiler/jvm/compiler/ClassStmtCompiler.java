@@ -1,7 +1,6 @@
-package ru.regenix.jphp.compiler.jvm.entity;
+package ru.regenix.jphp.compiler.jvm.compiler;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.*;
+import com.sun.xml.internal.ws.org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -10,43 +9,24 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ConstStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class ClassEntity extends Entity {
+public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassWriter cw;
     public final ClassStmtToken clazz;
-    public final int id;
+    private ClassVisitor classWriter;
 
-    public ClassEntity(JvmCompiler compiler, ClassStmtToken clazz) {
+    public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
         super(compiler);
         this.clazz = clazz;
-        this.id = compiler.getScope().addClass(clazz);
-    }
 
-    protected void writeInitStatic(){
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, Constants.STATIC_INIT_METHOD, "()V", null, null);
-        MethodEntity method = new MethodEntity(compiler, this, mv, Constants.STATIC_INIT_METHOD);
-
-        mv.visitCode();
-
-        for(ConstStmtToken constant : clazz.getConstants()){
-            ExpressionEntity expression = new ExpressionEntity(compiler, method, constant.getValue());
-            expression.getResult();
-
-            mv.visitFieldInsn(
-                    PUTSTATIC,
-                    clazz.getFulledName(Constants.NAME_DELIMITER),
-                    constant.getName().getName(),
-                    Constants.MEMORY_CLASS
-            );
-        }
-
-        mv.visitEnd();
+        entity = new ClassEntity(compiler.getContext());
+        entity.setFinal(clazz.isFinal());
+        entity.setAbstract(clazz.isAbstract());
+        entity.setType(ClassEntity.Type.CLASS);
+        entity.setName(clazz.getFulledName());
     }
 
     protected void writeConstructor(){
@@ -69,11 +49,11 @@ public class ClassEntity extends Entity {
     }
 
     protected void writeConstant(ConstStmtToken constant){
-        new ConstantEntity(compiler, this, constant).getResult();
+        new ConstantStmtCompiler(this, constant).compile();
     }
 
     @Override
-    public void getResult() {
+    public ClassEntity compile() {
         cw = new ClassWriter(0);
         cw.visit(
                 V1_6, ACC_SUPER + ACC_PUBLIC, clazz.getFulledName(Constants.NAME_DELIMITER), null,
@@ -88,14 +68,16 @@ public class ClassEntity extends Entity {
         }
 
         for (MethodStmtToken method : clazz.getMethods()){
-            new MethodEntity(compiler, this, method).getResult();
+            entity.addMethod(compiler.compileMethod(this, method));
         }
 
         //writeInitStatic();
         cw.visitEnd();
+        entity.setData(cw.toByteArray());
+        return entity;
     }
 
-    public ClassWriter getCw() {
+    public ClassWriter getClassWriter() {
         return cw;
     }
 }

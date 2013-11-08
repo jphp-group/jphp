@@ -1,4 +1,4 @@
-package ru.regenix.jphp.compiler.jvm.entity;
+package ru.regenix.jphp.compiler.jvm.compiler;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -7,16 +7,18 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.runtime.reflection.Entity;
 
-abstract public class Entity {
+abstract public class StmtCompiler<T extends Entity> {
 
     protected final JvmCompiler compiler;
+    protected T entity;
 
-    public Entity(JvmCompiler compiler){
+    public StmtCompiler(JvmCompiler compiler){
         this.compiler = compiler;
     }
 
-    abstract public void getResult();
+    abstract public T compile();
 
     public JvmCompiler getCompiler() {
         return compiler;

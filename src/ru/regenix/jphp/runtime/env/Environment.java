@@ -1,11 +1,15 @@
 package ru.regenix.jphp.runtime.env;
 
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.ob.OutputBuffer;
+import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.ob.OutputBuffer;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,9 +32,11 @@ public class Environment {
     private OutputBuffer defaultBuffer;
     private Stack<OutputBuffer> outputBuffers;
 
+    private final CompileScope scope;
     private Charset defaultCharset = Charset.forName("UTF-8");
 
-    public Environment(OutputStream output) {
+    public Environment(CompileScope scope, OutputStream output) {
+        this.scope = scope;
         this.defaultBuffer = new OutputBuffer(this);
         this.defaultBuffer.setOutput(output);
 
@@ -39,8 +45,16 @@ public class Environment {
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
     }
 
+    public Environment(OutputStream output){
+        this(new CompileScope(), output);
+    }
+
     public Environment(){
         this(null);
+    }
+
+    public CompileScope getScope() {
+        return scope;
     }
 
     public Charset getDefaultCharset() {
@@ -115,20 +129,16 @@ public class Environment {
         throw exception;
     }
 
-    public Context createContext(String code, Context.Mode mode){
-        return new Context(this, code, mode);
-    }
-
     public Context createContext(String code){
         return new Context(this, code);
     }
 
-    public Context createContext(File file, Context.Mode mode){
-        return new Context(this, file, mode);
-    }
-
     public Context createContext(File file){
         return new Context(this, file);
+    }
+
+    public Context createContext(File file, Charset charset){
+        return new Context(this, file, charset);
     }
 
     public OutputBuffer getDefaultBuffer() {

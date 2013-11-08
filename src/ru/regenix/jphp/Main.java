@@ -1,61 +1,57 @@
 package ru.regenix.jphp;
 
 import org.objectweb.asm.Type;
+import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.ext.CoreExtension;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         try {
-            Environment environment = new Environment(System.out);
-            Context context = new Context(environment, new File("main.php"));
-            Tokenizer tokenizer = new Tokenizer(context);
-
-            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
             CompileScope scope = new CompileScope();
             scope.registerExtension(new CoreExtension());
 
-            JvmCompiler compiler = new JvmCompiler(scope, context, analyzer.getTree());
+            Environment environment = new Environment(scope, System.out);
+            Context context = environment.createContext(new File("main.php"));
 
-            MyClassLoader classLoader = new MyClassLoader();
+            // compile
+            Tokenizer tokenizer = new Tokenizer(context);
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer.getTree());
             compiler.compile();
 
-            Thread.currentThread().setContextClassLoader(classLoader);
-            Class<?> clazz = classLoader.loadClass("MyClass", compiler.getClasses().get(0).getCw().toByteArray());
+            ClassEntity myClass = scope.loadClass("MyClass");
 
-            String[] ops = BytecodePrettyPrinter.getMethod(compiler.getClasses().get(0).getCw(), "test",
+            String[] ops = BytecodePrettyPrinter.getMethod(myClass, "test",
                     Type.getMethodDescriptor(Type.getType(Memory.class), Type.getType(Environment.class),
                             Type.getType(Memory[].class)
                     )
             );
-
             for (String op : ops)
                 System.out.println(op);
 
-            Method method = clazz.getMethod("test", Environment.class, Memory[].class);
-
             long t = System.currentTimeMillis();
-            method.invoke(clazz.newInstance(), environment, new Memory[]{});
-
+            Memory result = myClass.findMethod("test").invoke(environment);
             environment.flushAll();
 
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
+
         } catch (ErrorException e){
             System.out.println("[" + e.getType().name() + "] " + e.getMessage());
             System.out.print("    at line " + e.getTraceInfo().getStartLine());

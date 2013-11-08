@@ -5,39 +5,32 @@ import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 public class Context {
-    public enum Mode { PHP, J_PHP }
 
     protected final Environment environment;
     protected final File file;
-    protected final Mode mode;
     protected String content;
 
-    public Context(Environment environment, File file, Mode mode) {
+    public Context(Environment environment, File file, Charset charset) {
         this.file = file;
         this.environment = environment;
-        this.mode = mode;
         try {
-            readContent(new FileReader(file));
+            readContent(new InputStreamReader(new FileInputStream(file), charset));
         } catch (FileNotFoundException e) {
             environment.triggerError(new CoreException(e.getMessage(), this));
         }
     }
 
     public Context(Environment environment, File file) {
-        this(environment, file, Mode.PHP);
-    }
-
-    public Context(Environment environment, String content, Mode mode){
-        this.file = null;
-        this.environment = environment;
-        this.mode = mode;
-        this.content = content;
+        this(environment, file, environment.getDefaultCharset());
     }
 
     public Context(Environment environment, String content){
-        this(environment, content, Mode.PHP);
+        this.file = null;
+        this.environment = environment;
+        this.content = content;
     }
 
     protected void readContent(Reader reader){
@@ -69,10 +62,6 @@ public class Context {
 
     public String getContent() {
         return content;
-    }
-
-    public Mode getMode() {
-        return mode;
     }
 
     public void triggerError(ErrorException error){

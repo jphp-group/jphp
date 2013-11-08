@@ -1,28 +1,28 @@
 package ru.regenix.jphp.compiler.jvm;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-
 import org.objectweb.asm.*;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 
 public class BytecodePrettyPrinter {
     /**
      * Gets us the bytecode method body of a given method.
-     * @param className The class name to search for.
+     * @param clazz The class name to search for.
      * @param methodName The method name.
-     * @param methodDescriptor The method's descriptor. 
-     *                         Can be null if one wishes to just get the first 
+     * @param methodDescriptor The method's descriptor.
+     *                         Can be null if one wishes to just get the first
      *                         method with the given name.
      * @throws IOException
      */
-    public static String[] getMethod(ClassWriter clazz, String methodName, String methodDescriptor) throws IOException {
-        ClassReader classReader = new ClassReader(clazz.toByteArray());
+    public static String[] getMethod(ClassEntity clazz, String methodName, String methodDescriptor) throws IOException {
+        ClassReader classReader = new ClassReader(clazz.getData());
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, new SourceCodeTextifier(), printWriter);
@@ -34,11 +34,11 @@ public class BytecodePrettyPrinter {
 
     /**
      * Gets us the bytecode method body of a given method.
-     * @param className The class name to search for.
+     * @param cw The class name to search for.
      * @param methodName The method name.
      * @throws IOException
      */
-    public static String[] getMethod(ClassWriter cw, String methodName) throws IOException {
+    public static String[] getMethod(ClassEntity cw, String methodName) throws IOException {
         return getMethod(cw, methodName, null);
     }
 

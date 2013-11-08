@@ -1,10 +1,13 @@
 package ru.regenix.jphp.compiler;
 
 import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.compiler.common.compile.*;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
+import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.invokedynamic.CallableValue;
-import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
+import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,58 +16,69 @@ import java.util.Map;
 
 public class CompileScope {
 
-    protected Map<String, ClassStmtToken> classes;
-    protected Map<String, MethodStmtToken> methods;
+    private final Map<String, ClassEntity> classMap;
+    private final Map<String, FunctionEntity> functionMap;
+    private final Map<String, ConstantEntity> constantMap;
+
     protected Map<String, Extension> extensions;
 
-    protected Map<String, CompileConstant> constants;
-    protected Map<String, CompileFunction> functions;
+    protected Map<String, CompileConstant> compileConstantMap;
+    protected Map<String, CompileFunction> compileFunctionMap;
 
     private static Map<Class, Map<String, CallableValue>> classMethods =
             new HashMap<Class, Map<String, CallableValue>>();
 
+    protected RuntimeClassLoader classLoader;
 
     public CompileScope() {
-        classes = new HashMap<String, ClassStmtToken>();
-        methods = new HashMap<String, MethodStmtToken>();
-        extensions = new LinkedHashMap<String, Extension>();
+        classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
-        constants = new HashMap<String, CompileConstant>();
-        functions = new HashMap<String, CompileFunction>();
+        classMap = new HashMap<String, ClassEntity>();
+        functionMap = new HashMap<String, FunctionEntity>();
+        constantMap = new HashMap<String, ConstantEntity>();
+
+        extensions = new LinkedHashMap<String, Extension>();
+        compileConstantMap = new HashMap<String, CompileConstant>();
+        compileFunctionMap = new HashMap<String, CompileFunction>();
     }
 
     public void registerExtension(Extension extension){
         extension.onRegister(this);
-        constants.putAll(extension.getConstants());
-        functions.putAll(extension.getFunctions());
+        compileConstantMap.putAll(extension.getConstants());
+        compileFunctionMap.putAll(extension.getFunctions());
         extensions.put(extension.getName(), extension);
     }
 
-    public int addClass(ClassStmtToken clazz){
-        String name = clazz.getFulledName().toLowerCase();
-        classes.put(name, clazz);
-        return classes.size() - 1;
+    public void addUserClass(ClassEntity clazz){
+        classMap.put(clazz.getLowerName(), clazz);
     }
 
-    public int addMethod(MethodStmtToken method){
-        String name = (method.getClazz().getFulledName() + "@" + method.getName().getName())
-                .toLowerCase();
-
-        methods.put(name, method);
-        return methods.size() - 1;
+    public void addUserFunction(FunctionEntity function){
+        functionMap.put(function.getLowerName(), function);
     }
 
-    public int addMethod(ClassStmtToken clazz, String name){
-        methods.put(clazz.getFulledName() + "@" + name, null);
-        return methods.size() - 1;
+    public void addUserConstant(ConstantEntity constant){
+        constantMap.put(constant.getLowerName(), constant);
     }
 
-    public CompileConstant findConstant(String name){
-        return constants.get(name);
+    public ClassEntity findUserClass(String name){
+        return classMap.get(name.toLowerCase());
     }
 
-    public CompileFunction findFunction(String name){
-        return functions.get(name.toLowerCase());
+    public FunctionEntity findUserFunction(String name){
+        return functionMap.get(name.toLowerCase());
+    }
+
+    public ConstantEntity findUserConstant(String name){
+        return constantMap.get(name.toLowerCase());
+    }
+
+    public CompileConstant findCompileConstant(String name){
+        return compileConstantMap.get(name);
+    }
+
+    public CompileFunction findCompileFunction(String name){
+        return compileFunctionMap.get(name.toLowerCase());
     }
 
     public static void registerClass(Class clazz){
@@ -77,5 +91,14 @@ public class CompileScope {
 
     public static CallableValue findMethod(Class clazz, String methodName){
         return classMethods.get(clazz).get(methodName);
+    }
+
+    public ClassEntity loadClass(String name){
+        ClassEntity entity = findUserClass(name.toLowerCase());
+        if (entity == null)
+            return null;
+
+        classLoader.loadClass(entity);
+        return entity;
     }
 }

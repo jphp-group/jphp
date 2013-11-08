@@ -2,9 +2,9 @@
 
 class MyClass {
 
-    public function test() {
-        while(($i+=1) < 10000000){
-            $str = substr($i, 2);
+    public static function test() {
+        while(($x+=1) < 10000000){
+
         }
     }
 }

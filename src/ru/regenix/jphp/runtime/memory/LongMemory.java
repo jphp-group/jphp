@@ -3,11 +3,11 @@ package ru.regenix.jphp.runtime.memory;
 public class LongMemory extends Memory {
 
     protected final static int MAX_CACHE_STRING = 10000;
-    protected final static int MAX_CACHE = 16000;
+    protected final static int MAX_NEG_CACHE = Short.MAX_VALUE / 7;
+    protected final static int MAX_POS_CACHE = Short.MAX_VALUE - MAX_NEG_CACHE;
 
     protected final static String[] STRING_VALUES;
-    protected final static LongMemory[] VALUES;
-    protected final static LongMemory[] NEG_VALUES;
+    protected final static LongMemory[] CACHE;
 
     static {
         STRING_VALUES = new String[MAX_CACHE_STRING];
@@ -15,14 +15,9 @@ public class LongMemory extends Memory {
             STRING_VALUES[i] = String.valueOf(i);
         }
 
-        VALUES = new LongMemory[MAX_CACHE];
-        for(int i = 0; i < MAX_CACHE; i++){
-            VALUES[i] = new LongMemory(i);
-        }
-
-        NEG_VALUES = new LongMemory[MAX_CACHE];
-        for(int i = 1; i < MAX_CACHE; i++){
-            NEG_VALUES[i] = new LongMemory(-i);
+        CACHE = new LongMemory[MAX_POS_CACHE + MAX_NEG_CACHE];
+        for(int i = -MAX_NEG_CACHE; i < MAX_POS_CACHE; i++){
+            CACHE[i + MAX_NEG_CACHE] = new LongMemory(i);
         }
     }
 
@@ -34,19 +29,15 @@ public class LongMemory extends Memory {
     }
 
     public static Memory valueOf(long value){
-        if (value >= 0 && value < MAX_CACHE)
-            return VALUES[(int)value];
-        else if (value < 0 && value > -MAX_CACHE)
-            return NEG_VALUES[(int)-value];
+        if (value >= -MAX_NEG_CACHE && value <= MAX_POS_CACHE)
+            return CACHE[(int)value + MAX_NEG_CACHE];
         else
             return new LongMemory(value);
     }
 
     public static Memory valueOf(int value){
-        if (value >= 0 && value < MAX_CACHE)
-            return VALUES[value];
-        else if (value < 0 && value > -MAX_CACHE)
-            return NEG_VALUES[-value];
+        if (value >= -MAX_NEG_CACHE && value <= MAX_POS_CACHE)
+            return CACHE[value + MAX_NEG_CACHE];
         else
             return new LongMemory(value);
     }

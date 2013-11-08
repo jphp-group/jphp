@@ -1,34 +1,59 @@
 package ru.regenix.jphp.compiler.jvm;
 
+import org.objectweb.asm.MethodVisitor;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.jvm.entity.ClassEntity;
-import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.compiler.jvm.compiler.ClassStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.compiler.ExpressionStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.compiler.MethodStmtCompiler;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
+import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class JvmCompiler extends AbstractCompiler {
 
-    private List<ClassEntity> classes = new ArrayList<ClassEntity>();
+    private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
 
-    public JvmCompiler(CompileScope scope, Context context, List<Token> tokens) {
-        super(scope, context, tokens);
-        this.classes = new ArrayList<ClassEntity>();
+    public JvmCompiler(Environment environment, Context context, List<Token> tokens) {
+        super(environment, context, tokens);
+        this.classes = new ArrayList<ClassStmtCompiler>();
     }
 
-    public void compile(){
-        this.classes = new ArrayList<ClassEntity>();
+    public ClassEntity compileClass(ClassStmtToken clazz){
+        ClassStmtCompiler cmp = new ClassStmtCompiler(this, clazz);
+        return cmp.compile();
+    }
+
+    public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method){
+        return new MethodStmtCompiler(clazzCompiler, method).compile();
+    }
+
+    public void compileMethod(ClassStmtCompiler clazzCompiler, MethodVisitor mv, String name){
+        new MethodStmtCompiler(clazzCompiler, mv, name).compile();
+    }
+
+    public void compileExpression(MethodStmtCompiler method, ExprStmtToken expression){
+        new ExpressionStmtCompiler(method, expression).compile();
+    }
+
+    @Override
+    public void compile(boolean autoRegister){
+        this.classes = new ArrayList<ClassStmtCompiler>();
         List<ExprStmtToken> externalCode = new ArrayList<ExprStmtToken>();
 
         for(Token token : tokens){
             if (token instanceof ClassStmtToken){
-                ClassEntity entity = new ClassEntity(this, (ClassStmtToken)token);
-                entity.getResult();
-                classes.add(entity);
+                ClassEntity entity = compileClass((ClassStmtToken)token);
+                if (autoRegister)
+                    scope.addUserClass(entity);
+
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);
             }
@@ -39,7 +64,7 @@ public class JvmCompiler extends AbstractCompiler {
         }
     }
 
-    public List<ClassEntity> getClasses() {
+    public List<ClassStmtCompiler> getClasses() {
         return classes;
     }
 
