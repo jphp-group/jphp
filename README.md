@@ -31,6 +31,8 @@ I already implemented compilers and parsers for PHP, you can see these here:
 http://code.google.com/p/orionphp/. This was a few years ago and now I decided to
 start a new project of implementation for the PHP language. 
 
-### JIT for PHP
+### What about Facebook's HHVM?
 
-Our implementation uses JIT of JVM totally, it is not a translator to Java code. 
+I was suprised that Facebook has not used JVM for HHVM. Java helps me to reduce development costs because
+it already has fast virtual machine with JIT and GC. Java is fast and easy for implementation of a new PHP engine 
+than C++. In additional to this, facebook's HHVM doesn's support Windows and many other platforms like Java VM.
