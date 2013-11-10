@@ -2,9 +2,9 @@ package ru.regenix.jphp.compiler.jvm;
 
 import org.objectweb.asm.MethodVisitor;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.jvm.compiler.ClassStmtCompiler;
-import ru.regenix.jphp.compiler.jvm.compiler.ExpressionStmtCompiler;
-import ru.regenix.jphp.compiler.jvm.compiler.MethodStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.stetament.ClassStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.stetament.ExpressionStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.stetament.MethodStmtCompiler;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;

@@ -1,4 +1,4 @@
-package ru.regenix.jphp.compiler.jvm.compiler;
+package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;

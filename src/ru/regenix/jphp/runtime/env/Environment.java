@@ -37,11 +37,13 @@ public class Environment {
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
-        this.defaultBuffer = new OutputBuffer(this);
+        this.outputBuffers = new Stack<OutputBuffer>();
+
+        this.defaultBuffer = new OutputBuffer(this, null);
+        this.outputBuffers.push(defaultBuffer);
         this.defaultBuffer.setOutput(output);
 
         this.includePaths = new HashSet<String>();
-        this.outputBuffers = new Stack<OutputBuffer>();
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
     }
 
@@ -149,8 +151,10 @@ public class Environment {
         return defaultBuffer;
     }
 
-    public void pushOutputBuffer(Memory callback, int chunkSize, boolean erase){
-        outputBuffers.push(new OutputBuffer(this, callback, chunkSize, erase));
+    public OutputBuffer pushOutputBuffer(Memory callback, int chunkSize, boolean erase){
+        OutputBuffer buffer = new OutputBuffer(this, peekOutputBuffer(), callback, chunkSize, erase);
+        outputBuffers.push(buffer);
+        return buffer;
     }
 
     public OutputBuffer popOutputBuffer(){
@@ -163,18 +167,12 @@ public class Environment {
 
     public void echo(String value){
         OutputBuffer buffer = peekOutputBuffer();
-        if (buffer == null)
-            defaultBuffer.write(value);
-        else
-            buffer.write(value);
+        buffer.write(value);
     }
 
     public void echo(InputStream input) throws IOException {
         OutputBuffer buffer = peekOutputBuffer();
-        if (buffer == null)
-            defaultBuffer.write(input);
-        else
-            buffer.write(input);
+        buffer.write(input);
     }
 
     public void flushAll() throws IOException {

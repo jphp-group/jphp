@@ -3,8 +3,10 @@
 class MyClass {
 
     public static function test() {
-        while(($x+=1) < 10000000){
-
+        $i = 0;
+        $str = 'foobar';
+        while(($i += 1) < 30000000) {
+            $d = (20 + 33) . $str;
         }
     }
 }

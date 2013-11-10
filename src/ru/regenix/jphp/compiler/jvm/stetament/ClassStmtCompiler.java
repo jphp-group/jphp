@@ -1,6 +1,5 @@
-package ru.regenix.jphp.compiler.jvm.compiler;
+package ru.regenix.jphp.compiler.jvm.stetament;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -16,7 +15,6 @@ import static org.objectweb.asm.Opcodes.*;
 public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassWriter cw;
     public final ClassStmtToken clazz;
-    private ClassVisitor classWriter;
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
         super(compiler);
@@ -77,7 +75,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         return entity;
     }
 
-    public ClassWriter getClassWriter() {
+    ClassWriter getClassWriter() {
         return cw;
     }
 }

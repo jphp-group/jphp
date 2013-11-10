@@ -1,9 +1,11 @@
-package ru.regenix.jphp.compiler.jvm.compiler;
+package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import ru.regenix.jphp.compiler.common.misc.LocalVariable;
+import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -12,7 +14,6 @@ import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.type.HashTable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,10 +30,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private int stackMaxSize = 0;
 
     private Map<String, LocalVariable> localVariables;
-
     protected MethodVisitor mv;
-
-    final Label returnLabel = new Label();
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodVisitor mv, String methodName) {
         super(clazz.getCompiler());
@@ -70,14 +68,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     int getStackSize(){
         return stackSize;
-    }
-
-    void push(StackItem.Type type, boolean immutable){
-        push(new StackItem(type, immutable));
-    }
-
-    void push(StackItem.Type type){
-        push(new StackItem(type));
     }
 
     StackItem pop(){
@@ -147,16 +137,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     }
 
     private void writeFooter(){
-        /*mv.visitLabel(returnLabel);
-        mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-        mv.visitVarInsn(Opcodes.ALOAD, getLocalVariable("~result").index);
-        mv.visitInsn(Opcodes.ARETURN);*/
-
         Label endL = new Label();
         mv.visitLabel(endL);
 
         for(LocalVariable variable : localVariables.values()){
-            String description = Type.getDescriptor(variable.clazz == null ? Object.class : variable.clazz);
+            String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
             if (!method.isStatic() && variable.name.equals("this"))
                 description = "L" + clazz.clazz.getFulledName('/') + ";";
 
@@ -197,112 +182,4 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return entity;
     }
 
-    static class StackItem {
-
-        public enum Type {
-            NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, REFERENCE;
-
-            public Class toClass(){
-                switch (this){
-                    case DOUBLE: return Double.TYPE;
-                    case FLOAT: return Float.TYPE;
-                    case NULL: return Object.class;
-                    case BOOL: return Boolean.TYPE;
-                    case SHORT: return Short.TYPE;
-                    case INT: return Integer.TYPE;
-                    case LONG: return Long.TYPE;
-                    case STRING: return String.class;
-                    case ARRAY: return HashTable.class;
-                    case REFERENCE: return Memory.class;
-                }
-
-                return null;
-            }
-
-            public int size(){
-                switch (this){
-                    case DOUBLE:
-                    case LONG: return 2;
-                    default: return 1;
-                }
-            }
-
-            public static Type valueOf(Memory.Type type){
-                return valueOf(type.toClass());
-            }
-
-            public static Type valueOf(Class clazz){
-                if (clazz == Byte.TYPE)
-                    return BYTE;
-                if (clazz == Short.TYPE)
-                    return SHORT;
-                if (clazz == Integer.TYPE)
-                    return INT;
-                if (clazz == Long.TYPE)
-                    return LONG;
-                if (clazz == Double.TYPE)
-                    return DOUBLE;
-                if (clazz == Float.TYPE)
-                    return FLOAT;
-                if (clazz == String.class)
-                    return STRING;
-                if (clazz == Boolean.TYPE)
-                    return BOOL;
-                if (clazz == HashTable.class)
-                    return ARRAY;
-
-                return REFERENCE;
-            }
-
-            public boolean isConstant(){
-                return this != REFERENCE/* && this != ARRAY && this != OBJECT*/;
-            }
-        }
-
-        public final Type type;
-        public final int size;
-        public boolean immutable;
-
-        StackItem(Type type, boolean immutable) {
-            this.type = type;
-            this.size = type.size();
-            this.immutable = immutable;
-        }
-
-        StackItem(Type type) {
-            this(type, type.isConstant());
-        }
-    }
-
-    static class LocalVariable {
-        public final String name;
-        public final int index;
-        public final Label label;
-        public Class clazz;
-
-        public boolean isReference;
-
-        public LocalVariable(String name, int index, Label label, Class clazz){
-            this.name = name;
-            this.index = index;
-            this.label = label;
-            this.clazz = clazz;
-        }
-
-        Class getClazz() {
-            return clazz;
-        }
-
-        void setClazz(Class clazz) {
-            this.clazz = clazz;
-        }
-
-        boolean isReference() {
-            return isReference;
-        }
-
-        void setReference(boolean reference) {
-            isReference = reference;
-        }
-    }
 }

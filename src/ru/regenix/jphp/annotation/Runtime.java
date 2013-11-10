@@ -6,9 +6,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
 
-final public class Runtime {
-
-    private Runtime(){}
+public @interface Runtime {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, PARAMETER})

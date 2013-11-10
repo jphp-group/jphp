@@ -136,6 +136,9 @@ abstract public class Memory {
     public Memory mod(boolean value){ if (!value) return FALSE; return new LongMemory(toLong() % (value ? 1 : 0)); }
     public Memory mod(String value){ return div(StringMemory.toNumeric(value)); }
 
+    // NOT
+    public boolean not(){ return toLong() == 0; }
+
     // EQUAL
     abstract public boolean equal(Memory memory);
     public boolean equal(long value){ return toLong() == value; }

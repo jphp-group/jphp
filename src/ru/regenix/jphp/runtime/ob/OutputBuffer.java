@@ -14,26 +14,28 @@ public class OutputBuffer {
     private boolean erase;
 
     private final Environment environment;
+    private final OutputBuffer parentOutput;
 
-    public OutputBuffer(Environment environment, Memory callback, int chunkSize, boolean erase) {
+    public OutputBuffer(Environment environment, OutputBuffer parent, Memory callback, int chunkSize, boolean erase) {
         this.environment = environment;
         this.builder = new StringBuilder();
 
         this.callback = callback;
         this.chunkSize = chunkSize;
         this.erase = erase;
+        this.parentOutput = parent;
     }
 
-    public OutputBuffer(Environment environment, Memory callback, int chunkSize) {
-        this(environment, callback, chunkSize, true);
+    public OutputBuffer(Environment environment, OutputBuffer parent, Memory callback, int chunkSize) {
+        this(environment, parent, callback, chunkSize, true);
     }
 
-    public OutputBuffer(Environment environment, Memory callback) {
-        this(environment, callback, 4096);
+    public OutputBuffer(Environment environment, OutputBuffer parent, Memory callback) {
+        this(environment, parent, callback, 4096);
     }
 
-    public OutputBuffer(Environment environment) {
-        this(environment, null);
+    public OutputBuffer(Environment environment, OutputBuffer parent) {
+        this(environment, parent, null);
     }
 
     public Memory getCallback() {
@@ -95,12 +97,12 @@ public class OutputBuffer {
     }
 
     public void flush() throws IOException {
-        if (output == null)
-            environment.echo(builder.toString());
-        else {
-            OutputBuffer def = environment.getDefaultBuffer();
-            def.makeBinary();
-            getOutput(def.output);
+        if (parentOutput != null){
+            parentOutput.makeBinary();
+            getOutput(parentOutput.output);
+        } else {
+            if (output != null)
+                getOutput(output);
         }
     }
 
