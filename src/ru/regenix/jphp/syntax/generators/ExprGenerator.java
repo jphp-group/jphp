@@ -52,6 +52,13 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                     nextToken(iterator), iterator, EndifStmtToken.class
                 );
                 result.setElseBody(bodyElse);
+            } else if (next instanceof ElseIfStmtToken){
+                BodyStmtToken bodyElse = analyzer.generator(BodyGenerator.class).getToken(
+                        next, iterator, EndifStmtToken.class
+                );
+                result.setElseBody(bodyElse);
+            } else if (next instanceof EndifStmtToken){
+               // nop
             } else
                 iterator.previous();
         }
@@ -122,6 +129,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         List<Token> tokens = new ArrayList<Token>();
         do {
             if (current instanceof EndStmtToken){
+                if (current instanceof ElseIfStmtToken){
+                    IfStmtToken ifStmt = new IfStmtToken(current.getMeta());
+                    processIf(ifStmt, iterator);
+                    tokens.add(ifStmt);
+                }
+
                 if (endToken == null)
                     unexpectedToken(current);
 
@@ -140,7 +153,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 tokens.add(current);
                 break;
             } else if (current instanceof ImportExprToken){
-                processImport((IncludeExprToken)current, iterator);
+                processImport((IncludeExprToken) current, iterator);
                 tokens.add(current);
             } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken)current, iterator);

@@ -35,8 +35,9 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                         iterator,
                         current instanceof SemicolonToken ? EndStmtToken.class : null
                 );
-                if (expr == null)
+                if (expr == null){
                     break;
+                }
 
                 instructions.add(expr);
             }
@@ -48,13 +49,18 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                 current = nextToken(iterator);
                 ExprStmtToken expr = analyzer.generator(ExprGenerator.class)
                         .getToken(current, iterator, endToken);
-                if (expr == null)
+
+                if (expr == null) {
+                    iterator.previous();
                     break;
+                } else if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken){
+                    break;
+                }
 
                 instructions.add(expr);
             }
         } else {
-            ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
+            ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator, endToken);
             if (expr != null)
                 instructions.add(expr);
         }

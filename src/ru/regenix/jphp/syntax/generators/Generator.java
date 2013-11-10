@@ -65,7 +65,7 @@ abstract public class Generator<T extends Token> {
 
         Class<? extends Token> current = token.getClass();
         for (Class<? extends Token> clazz : classes){
-            if (clazz == current || current.isAssignableFrom(clazz))
+            if (clazz == current || clazz.isAssignableFrom(current))
                 return true;
         }
         return false;
