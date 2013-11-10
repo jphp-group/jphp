@@ -3,6 +3,16 @@ PHP Compiler for JVM
 
 [![Build Status](https://travis-ci.org/dim-s/jvm-php.png?branch=master)](https://travis-ci.org/dim-s/jvm-php)
 
+### Features
+
++ JIT for PHP
++ Compiler for Java VM 1.6+
++ Speed up performance of PHP (2x - 10x faster)
++ Optimizer (constant expressions, inline functions, etc.)
++ Using java libraries and classes in PHP code.
++ Unicode for strings
++ .. coming soon ...
+
 
 ### How build and run?
 
