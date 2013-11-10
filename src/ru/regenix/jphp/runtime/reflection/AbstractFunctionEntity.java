@@ -8,6 +8,7 @@ import java.util.List;
 
 abstract public class AbstractFunctionEntity extends Entity {
 
+    protected boolean isImmutable;
     protected DocumentComment docComment;
     protected final List<ParameterEntity> parameters;
 
@@ -40,5 +41,13 @@ abstract public class AbstractFunctionEntity extends Entity {
         }
 
         return hash;
+    }
+
+    public boolean isImmutable() {
+        return isImmutable;
+    }
+
+    public void setImmutable(boolean immutable) {
+        isImmutable = immutable;
     }
 }

@@ -2,7 +2,7 @@ package ru.regenix.jphp.lexer.tokens.stmt;
 
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
 public class NamespaceUseStmtToken extends StmtToken {

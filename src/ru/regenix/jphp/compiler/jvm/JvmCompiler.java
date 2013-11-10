@@ -69,6 +69,6 @@ public class JvmCompiler extends AbstractCompiler {
     }
 
     public String getSourceFile(){
-        return context.getFile() == null ? null : context.getFile().getPath();
+        return context.getFile() == null ? null : context.getFile().getAbsolutePath();
     }
 }

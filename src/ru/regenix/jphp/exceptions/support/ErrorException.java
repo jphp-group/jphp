@@ -39,6 +39,28 @@ abstract public class ErrorException extends PhpException {
             this.value = value;
         }
 
+        public String getTypeName(){
+            switch (this){
+                case E_DEPRECATED: return "Deprecated";
+                case E_STRICT: return "Strict";
+                case E_NOTICE: return "Notice";
+                case E_ALL: return "Message";
+                case E_COMPILE_ERROR: return "Compile error";
+                case E_COMPILE_WARNING: return "Compile warning";
+                case E_CORE_ERROR: return "Core error";
+                case E_CORE_WARNING: return "Core warning";
+                case E_ERROR: return "Error";
+                case E_PARSE: return "Parse error";
+                case E_RECOVERABLE_ERROR: return "Recoverable error";
+                case E_USER_DEPRECATED: return "User deprecated";
+                case E_USER_ERROR: return "User error";
+                case E_USER_NOTICE: return "User notice";
+                case E_USER_WARNING: return "User warning";
+                case E_WARNING: return "Warning";
+            }
+            return "Unknown";
+        }
+
         public static Type valueOf(int typeNo) {
             return map.get(typeNo);
         }

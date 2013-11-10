@@ -7,6 +7,29 @@ import java.util.Map;
 
 public class MemoryUtils {
 
+    public static Object toValue(Memory value, Class<?> type){
+        if (type == Double.TYPE || type == Double.class)
+            return value.toDouble();
+        if (type == Float.TYPE || type == Float.class)
+            return (float)value.toDouble();
+        if (type == Long.TYPE || type == Long.class)
+            return value.toLong();
+        if (type == Integer.TYPE || type == Integer.class)
+            return (int)value.toLong();
+        if (type == Short.TYPE || type == Short.class)
+            return (short)value.toLong();
+        if (type == Byte.TYPE || type == Byte.class)
+            return (byte)value.toLong();
+        if (type == String.class)
+            return value.toString();
+        if (type == Boolean.TYPE || type == Boolean.class)
+            return value.toBoolean();
+        if (type == Memory.class)
+            return value;
+
+        throw new IllegalArgumentException("Unexpected class type: " + type.getName());
+    }
+
     public static Memory valueOf(Object value){
         if (value instanceof Memory)
             return (Memory)value;

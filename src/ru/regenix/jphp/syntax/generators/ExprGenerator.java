@@ -39,12 +39,27 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
+
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndifStmtToken.class
         );
+        if (iterator.hasNext()){
+            Token next = iterator.next();
+            if (next instanceof ElseStmtToken){
+                BodyStmtToken bodyElse = analyzer.generator(BodyGenerator.class).getToken(
+                    nextToken(iterator), iterator, EndifStmtToken.class
+                );
+                result.setElseBody(bodyElse);
+            } else
+                iterator.previous();
+        }
+
         result.setCondition(condition);
         result.setBody(body);
+
+        result.setLocal(analyzer.removeLocalScope());
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){

@@ -1,5 +1,8 @@
 package ru.regenix.jphp.compiler.common.compile;
 
+import ru.regenix.jphp.annotation.*;
+import ru.regenix.jphp.annotation.Runtime;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -25,7 +28,9 @@ abstract public class FunctionsContainer {
             if (Modifier.isStatic(method.getModifiers())){
                 CompileFunction function = result.get(method.getName());
                 if (function == null)
-                    result.put(method.getName(), function = new CompileFunction(method.getName()));
+                    result.put(method.getName(), function = new CompileFunction(
+                            method.getName(), !method.isAnnotationPresent(Runtime.Mutable.class)
+                    ));
 
                 function.methods.add(method);
             }
@@ -35,7 +40,9 @@ abstract public class FunctionsContainer {
             Method method = item.getValue();
             CompileFunction function = result.get(item.getKey());
             if (function == null){
-                result.put(item.getKey(), function = new CompileFunction(item.getKey()));
+                result.put(item.getKey(),
+                        function = new CompileFunction(item.getKey(), !method.isAnnotationPresent(Runtime.Mutable.class))
+                );
             }
             function.methods.add(method);
         }

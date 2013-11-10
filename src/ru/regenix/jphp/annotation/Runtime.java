@@ -11,4 +11,8 @@ public @interface Runtime {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, PARAMETER})
     public @interface Reference {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({METHOD})
+    public @interface Mutable {}
 }

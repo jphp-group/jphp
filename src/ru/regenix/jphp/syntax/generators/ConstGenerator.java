@@ -1,11 +1,9 @@
 package ru.regenix.jphp.syntax.generators;
 
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.AssignExprToken;

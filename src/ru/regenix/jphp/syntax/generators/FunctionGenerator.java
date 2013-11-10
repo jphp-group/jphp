@@ -5,7 +5,7 @@ import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.expr.AmpersandToken;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.CommaToken;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.AssignExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;

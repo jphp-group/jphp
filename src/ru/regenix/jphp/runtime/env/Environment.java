@@ -1,10 +1,16 @@
 package ru.regenix.jphp.runtime.env;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.exceptions.NoticeException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
+import ru.regenix.jphp.runtime.env.message.NoticeMessage;
+import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.ob.OutputBuffer;
+import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +27,7 @@ public class Environment {
     private Set<String> includePaths;
 
     private int errorFlags;
-    private ErrorException lastError;
+    private SystemMessage lastMessage;
 
     private ErrorHandler previousErrorHandler;
     private ErrorHandler errorHandler;
@@ -45,6 +51,15 @@ public class Environment {
 
         this.includePaths = new HashSet<String>();
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
+
+        this.setErrorHandler(new ErrorHandler() {
+            @Override
+            public boolean onError(SystemMessage error) {
+                Environment.this.echo(error.getDebugMessage());
+                Environment.this.echo("\n");
+                return false;
+            }
+        });
     }
 
     public Environment(OutputStream output){
@@ -87,8 +102,8 @@ public class Environment {
         this.errorFlags = errorFlags;
     }
 
-    public ErrorException getLastError() {
-        return lastError;
+    public SystemMessage getLastMessage() {
+        return lastMessage;
     }
 
     public ExceptionHandler getExceptionHandler() {
@@ -118,14 +133,24 @@ public class Environment {
     }
 
     public void triggerError(ErrorException err){
-        lastError = err;
-        if (errorHandler != null)
-            errorHandler.onError(err);
-
         ErrorException.Type type = err.getType();
         if (ErrorException.Type.check(errorFlags, type)){
             throw err;
         }
+    }
+
+    public void triggerMessage(SystemMessage message){
+        ErrorException.Type type = message.getType();
+        if (isHandleErrors(type)){
+            lastMessage = message;
+            if (errorHandler != null)
+                if (errorHandler.onError(message))
+                    return;
+        }
+    }
+
+    public boolean isHandleErrors(ErrorException.Type type){
+        return ErrorException.Type.check(errorFlags, type);
     }
 
     public void triggerException(UserException exception){
@@ -179,5 +204,20 @@ public class Environment {
         while (peekOutputBuffer() != null){
             popOutputBuffer().flush();
         }
+    }
+
+    /***** UTILS *****/
+    public Memory getConstant(String name, TraceInfo trace){
+        ConstantEntity entity = scope.findUserConstant(name);
+
+        if (entity == null){
+            if (isHandleErrors(E_NOTICE))
+                triggerMessage(new NoticeMessage(trace, Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name));
+
+            return StringMemory.valueOf(name);
+        } else if (entity.caseSensitise && !entity.name.equals(name))
+            return StringMemory.valueOf(name);
+
+        return entity.getValue();
     }
 }

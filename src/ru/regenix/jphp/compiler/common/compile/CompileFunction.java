@@ -8,10 +8,12 @@ import java.util.List;
 public class CompileFunction {
     public final String name;
     public final List<Method> methods;
+    public final boolean isImmutable;
 
-    public CompileFunction(String name) {
+    public CompileFunction(String name, boolean isImmutable) {
         this.name = name;
         this.methods = new ArrayList<Method>();
+        this.isImmutable = isImmutable;
     }
 
     @Override

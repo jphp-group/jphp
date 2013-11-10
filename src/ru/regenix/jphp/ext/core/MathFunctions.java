@@ -50,16 +50,4 @@ public class MathFunctions extends FunctionsContainer {
             return new BigInteger(number, fromBase).toString( toBase);
         }
     }
-
-    public static String substr(String value, int from, int to){
-        return value.substring(from, to);
-    }
-
-    public static String substr(String value, int from){
-        try {
-            return value.substring(from);
-        } catch (StringIndexOutOfBoundsException e){
-            return "";
-        }
-    }
 }

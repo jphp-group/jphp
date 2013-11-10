@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.exceptions.ClassNotLoadedException;
@@ -44,6 +45,9 @@ public class MethodEntity extends AbstractFunctionEntity {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof ErrorException)
+                throw (ErrorException) e.getCause();
+
             throw new RuntimeException(e);
         }
     }

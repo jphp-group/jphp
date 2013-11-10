@@ -51,6 +51,7 @@ public class Main {
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
+            System.out.println(result);
 
         } catch (ErrorException e){
             System.out.println("[" + e.getType().name() + "] " + e.getMessage());

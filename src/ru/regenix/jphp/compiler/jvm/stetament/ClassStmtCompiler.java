@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
@@ -50,6 +51,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         new ConstantStmtCompiler(this, constant).compile();
     }
 
+    protected void writeSystemInfo(){
+        cw.visitField(
+                ACC_PROTECTED + ACC_STATIC, "__FN",
+                Type.getDescriptor(String.class),
+                null,
+                compiler.getSourceFile()
+        );
+    }
+
     @Override
     public ClassEntity compile() {
         cw = new ClassWriter(0);
@@ -58,6 +68,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 Constants.OBJECT_CLASS, null
         );
         cw.visitSource(compiler.getSourceFile(), null);
+        writeSystemInfo();
         writeConstructor();
 
         // constants

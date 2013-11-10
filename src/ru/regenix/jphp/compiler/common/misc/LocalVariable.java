@@ -61,6 +61,9 @@ public class LocalVariable {
     }
 
     public void setValue(Memory value){
+        if (isReference)
+            value = null;
+
         if (values.size() < level){
             values.add(value);
         } else {

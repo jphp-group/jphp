@@ -4,7 +4,7 @@ import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.BackslashExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.expr.NameToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ArrayList;

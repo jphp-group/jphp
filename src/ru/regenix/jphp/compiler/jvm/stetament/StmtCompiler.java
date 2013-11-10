@@ -42,7 +42,7 @@ abstract public class StmtCompiler<T extends Entity> {
      * @param token
      */
     protected void unexpectedToken(Token token){
-        Object unexpected = token.getType();
+        Object unexpected = token.getWord();
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
@@ -53,7 +53,7 @@ abstract public class StmtCompiler<T extends Entity> {
     }
 
     protected void unexpectedToken(Token token, Object expected){
-        Object unexpected = token.getType();
+        Object unexpected = token.getWord();
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
