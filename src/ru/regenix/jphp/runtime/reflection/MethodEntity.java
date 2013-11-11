@@ -47,8 +47,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof ErrorException)
                 throw (ErrorException) e.getCause();
-
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getCause());
         }
     }
 

@@ -29,7 +29,7 @@ public class LongMemory extends Memory {
     }
 
     public static Memory valueOf(long value){
-        if (value >= -MAX_NEG_CACHE && value <= MAX_POS_CACHE)
+        if (value >= -MAX_NEG_CACHE && value < MAX_POS_CACHE)
             return CACHE[(int)value + MAX_NEG_CACHE];
         else
             return new LongMemory(value);
@@ -83,15 +83,13 @@ public class LongMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        switch (memory.type){
-            case INT: return LongMemory.valueOf(value + ((LongMemory) memory).value);
-            case DOUBLE: return new DoubleMemory( value + ((DoubleMemory)memory).value );
-            case STRING: return inc(memory.toNumeric());
-            case REFERENCE: return inc(memory.toImmutable());
-            default:
-                return new LongMemory(value + memory.toLong());
-        }
+    public Memory inc() {
+        return new LongMemory(value + 1);
+    }
+
+    @Override
+    public Memory dec() {
+        return new LongMemory(value - 1);
     }
 
     @Override

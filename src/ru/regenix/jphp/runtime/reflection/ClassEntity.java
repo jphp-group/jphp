@@ -84,7 +84,7 @@ public class ClassEntity extends Entity {
     }
 
     public MethodEntity findMethod(String name){
-        return getAllMethods().get(name.toLowerCase());
+        return getAllMethods().get(name);
     }
 
     public ClassEntity getParent() {

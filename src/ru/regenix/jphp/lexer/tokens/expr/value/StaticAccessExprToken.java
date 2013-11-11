@@ -1,33 +1,49 @@
 package ru.regenix.jphp.lexer.tokens.expr.value;
 
 import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
+import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 
 public class StaticAccessExprToken extends ValueExprToken {
-    private Token clazz;
-    private Token method;
+
+    protected ValueExprToken clazz;
+    protected ValueExprToken field;
+    protected ExprStmtToken fieldExpr;
 
     public StaticAccessExprToken(TokenMeta meta) {
         super(meta, TokenType.T_DOUBLE_COLON);
     }
 
-    public Token getClazz() {
+    public ValueExprToken getClazz() {
         return clazz;
     }
 
-    public void setClazz(Token clazz) {
+    public void setClazz(ValueExprToken clazz) {
         this.clazz = clazz;
     }
 
-    public Token getMethod() {
-        return method;
+    public ValueExprToken getField() {
+        return field;
     }
 
-    public void setMethod(Token method) {
-        this.method = method;
+    public void setField(ValueExprToken field) {
+        this.field = field;
+    }
+
+    public ExprStmtToken getFieldExpr() {
+        return fieldExpr;
+    }
+
+    public void setFieldExpr(ExprStmtToken fieldExpr) {
+        this.fieldExpr = fieldExpr;
+    }
+
+    public boolean isGetStaticField(){
+        return field instanceof VariableExprToken;
+    }
+
+    public boolean isGetMethod(){
+        return field instanceof NameToken;
     }
 }

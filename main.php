@@ -2,13 +2,18 @@
 
 class MyClass {
 
+    public static function func($x, $y = 30, $z = 'abcd'){
+        return $x + 1;
+    }
+
     public static function test() {
 
-        $i = 0;
-        while(($i+=1) < 10000000){
-            $x = 20;
+        while($i++ < 1000000){
+            $x += MyClass::func($i);
+            $x += MyClass::func($i);
+            $x += MyClass::func($i);
+            $x += MyClass::func($i);
+            $x += MyClass::func($i);
         }
-
-        echo($x);
     }
 }

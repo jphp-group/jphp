@@ -42,6 +42,24 @@ public class StringMemory extends Memory {
         return value;
     }
 
+    public static Memory toLong(String value){
+        int len = value.length();
+        int i = 0;
+        int start = i;
+        for(; i < len; i++){
+            char ch = value.charAt(i);
+            if (!('9' >= ch && ch >= '0')){
+                if (ch == '-'){
+                    if (i == start)
+                        continue;
+                }
+                return null;
+            }
+        }
+
+        return LongMemory.valueOf(Long.parseLong(value));
+    }
+
     public static Memory toNumeric(String value){
         int len = value.length();
         boolean real = false;
@@ -96,28 +114,18 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        return toNumeric(this.value).inc(memory);
+    public Memory inc() {
+        return toNumeric().inc();
     }
 
     @Override
-    public Memory inc(long value) {
-        return toNumeric(this.value).inc(value);
-    }
-
-    @Override
-    public Memory inc(double value) {
-        return toNumeric(this.value).inc(value);
-    }
-
-    @Override
-    public Memory inc(String value) {
-        return toNumeric(this.value).inc(value);
+    public Memory dec() {
+        return toNumeric().dec();
     }
 
     @Override
     public Memory negative() {
-        return toNumeric(value).negative();
+        return toNumeric().negative();
     }
 
     @Override

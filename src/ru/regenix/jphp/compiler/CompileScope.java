@@ -62,11 +62,11 @@ public class CompileScope {
     }
 
     public ClassEntity findUserClass(String name){
-        return classMap.get(name.toLowerCase());
+        return classMap.get(name);
     }
 
     public FunctionEntity findUserFunction(String name){
-        return functionMap.get(name.toLowerCase());
+        return functionMap.get(name);
     }
 
     public ConstantEntity findUserConstant(String name){

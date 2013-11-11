@@ -38,19 +38,13 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        switch (memory.type){
-            case DOUBLE: return new DoubleMemory(value + ((DoubleMemory)memory).value);
-            case INT: return new DoubleMemory(value + ((LongMemory)memory).value);
-            case STRING: return inc(memory.toNumeric());
-            case REFERENCE: return inc(memory.toImmutable());
-            default:
-                return inc(toLong());
-        }
+    public Memory inc() {
+        return new DoubleMemory(value + 1);
     }
 
-    public Memory inc(long value){
-        return new DoubleMemory(this.value + value);
+    @Override
+    public Memory dec() {
+        return new DoubleMemory(value - 1);
     }
 
     @Override

@@ -56,8 +56,13 @@ public class ArrayMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        return toNumeric().inc(memory);
+    public Memory inc() {
+        return toNumeric().inc();
+    }
+
+    @Override
+    public Memory dec() {
+        return toNumeric().dec();
     }
 
     @Override

@@ -11,7 +11,7 @@ import ru.regenix.jphp.runtime.type.HashTable;
 public class StackItem {
 
     public enum Type {
-        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, REFERENCE;
+        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, REFERENCE, CLASS;
 
         public Class toClass(){
             switch (this){

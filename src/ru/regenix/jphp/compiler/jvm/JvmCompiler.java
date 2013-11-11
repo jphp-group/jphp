@@ -5,6 +5,7 @@ import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.ClassStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.ExpressionStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.MethodStmtCompiler;
+import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
@@ -13,6 +14,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,10 @@ import java.util.List;
 public class JvmCompiler extends AbstractCompiler {
 
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
+
+    public JvmCompiler(Environment environment, Context context){
+        this(environment, context, new SyntaxAnalyzer(new Tokenizer(context)).getTree());
+    }
 
     public JvmCompiler(Environment environment, Context context, List<Token> tokens) {
         super(environment, context, tokens);

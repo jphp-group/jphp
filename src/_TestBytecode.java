@@ -1,16 +1,12 @@
 class _TestBytecode {
 
-    public enum Type { NULL, NOT_NULL}
+    private static Object[] arr;
 
-    private Type x;
+    static {
+        arr = new Object[]{null, null, null};
+    }
 
-    public int method(boolean arg){
-        int x;
-        if (arg){
-            x = 20;
-            return 9999;
-        }
-        x = 30;
-        return 6666;
+    public static void mock(){
+
     }
 }

@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.exceptions.NoticeException;
+import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
@@ -10,7 +10,10 @@ import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.ob.OutputBuffer;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
+import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +43,8 @@ public class Environment {
 
     private final CompileScope scope;
     private Charset defaultCharset = Charset.forName("UTF-8");
+
+    private final Stack<TraceInfo> stackTrace = new Stack<TraceInfo>();
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
@@ -219,5 +224,39 @@ public class Environment {
             return StringMemory.valueOf(name);
 
         return entity.getValue();
+    }
+
+    public Memory callStaticMethod(TraceInfo trace, String className, String methodName, Memory[] args){
+        ClassEntity entity = scope.findUserClass(className);
+        if (entity != null){
+            MethodEntity method = entity.findMethod(methodName);
+            int i = 0;
+            Memory[] passed = args;
+            if (args.length < method.parameters.length){
+                passed = new Memory[method.parameters.length];
+                if (args.length > 0)
+                    System.arraycopy(args, 0, passed, 0, args.length);
+            }
+
+            for(ParameterEntity param : method.parameters){
+                if (passed[i] == null){
+                    passed[i] = param.getDefaultValue();
+                    if (passed[i] == null)
+                        triggerError(new CompileException("Argument '" + param.getName() + "' is not passed", trace));
+
+                } else if (!param.isReference())
+                    passed[i] = passed[i].toImmutable();
+
+                switch (param.getType()){
+                    case ARRAY: {
+                        if (!passed[i].isArray())
+                            triggerError(new CompileException("Argument " + i + " must be array", trace));
+                    }
+                }
+                i++;
+            }
+            return method.invoke(null, this, passed);
+        }
+        return Memory.CONST_DOUBLE_0;
     }
 }

@@ -46,8 +46,13 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        return value.inc(memory);
+    public Memory inc() {
+        return value.inc();
+    }
+
+    @Override
+    public Memory dec() {
+        return value.dec();
     }
 
     @Override

@@ -97,17 +97,13 @@ public class StringMemoryTest {
 
     @Test
     public void testInc(){
-        StringMemory memory = new StringMemory("2");
-        Assert.assertEquals(4, memory.inc(2).toLong());
-        Assert.assertEquals(Memory.Type.INT, memory.inc(2).type);
+        StringMemory memory = new StringMemory("3");
+        Assert.assertEquals(4, memory.inc().toLong());
+        Assert.assertEquals(Memory.Type.INT, memory.inc().type);
 
         memory = new StringMemory("2.3");
-        Assert.assertEquals(4.3, memory.inc(2).toDouble(), 0.000001);
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.inc(2).type);
-
-        memory = new StringMemory("2");
-        Assert.assertEquals(4.3, memory.inc(2.3).toDouble(), 0.000001);
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.inc(2.3).type);
+        Assert.assertEquals(4.3, memory.inc().toDouble(), 0.000001);
+        Assert.assertEquals(Memory.Type.DOUBLE, memory.inc().type);
     }
 
     @Test

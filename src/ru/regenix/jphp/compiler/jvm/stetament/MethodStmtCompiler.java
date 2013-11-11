@@ -8,12 +8,14 @@ import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
+import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -102,7 +104,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return localVariables.get(variable);
     }
 
-    private void writeHeader(){
+    void writeHeader(){
         if (mv == null){
             int access = 0;
             switch (method.getModifier()){
@@ -124,19 +126,34 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     null, null
             );
         }
-
         mv.visitCode();
-        Label label = writeLabel(mv, method.getMeta().getStartLine());
 
-        if (!method.isStatic())
-            addLocalVariable("this", label, Object.class);
+        if (method != null){
+            Label label = writeLabel(mv, method.getMeta().getStartLine());
 
-        addLocalVariable("~env", label, Environment.class); // Environment env
-        addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
-        addLocalVariable("~result", label, Memory.class); // Result of function
+            if (!method.isStatic())
+                addLocalVariable("this", label, Object.class);
+
+            addLocalVariable("~env", label, Environment.class); // Environment env
+            LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
+
+            int i = 0;
+            for(ArgumentStmtToken argument : method.getArguments()){
+                LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
+
+                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+                expressionCompiler.writeVarLoad(args.index);
+                expressionCompiler.writePushGetFromArray(i, Memory.class);
+                expressionCompiler.writeVarStore(local.index, false, false);
+
+                i++;
+            }
+        } else {
+            Label label = writeLabel(mv, clazz.clazz.getMeta().getStartLine());
+        }
     }
 
-    private void writeFooter(){
+    void writeFooter(){
         Label endL = new Label();
         mv.visitLabel(endL);
 
@@ -161,10 +178,33 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     @Override
     public MethodEntity compile() {
-        entity.setAbstract(method.isAbstract());
-        entity.setFinal(method.isFinal());
-        entity.setStatic(method.isStatic());
-        entity.setModifier(method.getModifier());
+        if (method != null){
+            entity.setAbstract(method.isAbstract());
+            entity.setFinal(method.isFinal());
+            entity.setStatic(method.isStatic());
+            entity.setModifier(method.getModifier());
+
+            ParameterEntity[] parameters = new ParameterEntity[method.getArguments().size()];
+            int i = 0;
+            for(ArgumentStmtToken argument : method.getArguments()){
+                parameters[i] = new ParameterEntity(compiler.getContext());
+                parameters[i].setMethod(entity);
+                parameters[i].setReference(argument.isReference());
+                parameters[i].setClazz(clazz.entity);
+                parameters[i].setName(argument.getName().getName());
+
+                if (argument.getValue() != null){
+                    ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+                    Memory result = expressionCompiler.writeExpression(argument.getValue(), true, true);
+                    if (result == null){
+                        unexpectedToken(argument.getValue().getTokens().get(0));
+                    }
+                    parameters[i].setDefaultValue( result );
+                }
+                i++;
+            }
+            entity.setParameters(parameters);
+        }
 
         writeHeader();
 

@@ -13,4 +13,9 @@ public class DecExprToken extends OperatorExprToken {
     public int getPriority() {
         return 30;
     }
+
+    @Override
+    public boolean isBinary() {
+        return false;
+    }
 }

@@ -29,20 +29,18 @@ public class TrueMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        switch (memory.type){
-            case INT: return inc(1);
-            case DOUBLE: return inc(1.0);
-            case STRING: return inc(memory.toNumeric());
-            case REFERENCE: return inc(memory.toImmutable());
-            default:
-                return inc(memory.toLong());
-        }
+    public Memory inc() {
+        return CONST_INT_2;
+    }
+
+    @Override
+    public Memory dec() {
+        return CONST_INT_0;
     }
 
     @Override
     public Memory negative() {
-        return new LongMemory(-1);
+        return LongMemory.valueOf(-1);
     }
 
     @Override

@@ -73,6 +73,8 @@ abstract public class Memory {
     abstract public Memory toNumeric();
     abstract public String toString();
 
+    public boolean isArray(){ return type == Type.ARRAY; }
+
     // <value>[index]
     public Memory valueOfIndex(Memory index) { return new ArrayItemMemory(HashTable.toKey(index)); }
     public Memory valueOfIndex(long index) { return new ArrayItemMemory(index); }
@@ -81,15 +83,8 @@ abstract public class Memory {
     public Memory valueOfIndex(boolean index) { return new ArrayItemMemory(index ? 0L : 1L); }
 
     // INC DEC
-    abstract public Memory inc(Memory memory);
-    public Memory inc(long value){ return new LongMemory(toLong() + value); }
-    public Memory inc(double value){ return new DoubleMemory(toDouble() + value); }
-    public Memory inc(String value){ return inc(StringMemory.toNumeric(value)); }
-
-    public Memory dec(Memory memory){ return inc(memory.negative()); }
-    public Memory dec(long value){ return inc(-value); }
-    public Memory dec(double value){ return inc(-value); }
-    public Memory dec(String value) {  return inc(StringMemory.toNumeric(value).negative()); }
+    abstract public Memory inc();
+    abstract public Memory dec();
 
     // NEGATIVE
     abstract public Memory negative();

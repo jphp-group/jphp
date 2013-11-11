@@ -35,14 +35,13 @@ public class FalseMemory extends Memory {
     }
 
     @Override
-    public Memory inc(Memory memory) {
-        switch (memory.type){
-            case DOUBLE:
-            case INT: return memory;
-            case REFERENCE: return inc(memory.toImmutable());
-            default:
-                return new LongMemory(memory.toLong());
-        }
+    public Memory inc() {
+        return CONST_INT_1;
+    }
+
+    @Override
+    public Memory dec(){
+        return LongMemory.valueOf(-1);
     }
 
     @Override

@@ -11,7 +11,7 @@ final public class Constants {
     public final static String NAME_DELIMITER_S = String.valueOf(NAME_DELIMITER);
 
     public final static String INIT_METHOD = "<init>";
-    public final static String STATIC_INIT_METHOD = "<cinit>";
+    public final static String STATIC_INIT_METHOD = "<clinit>";
     public final static String OBJECT_CLASS = toClassName(Object.class);
     public final static String MEMORY_CLASS = toClassName(Memory.class);
 

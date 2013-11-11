@@ -6,6 +6,9 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.ext.BCMathExtension;
+import ru.regenix.jphp.ext.CTypeExtension;
+import ru.regenix.jphp.ext.CalendarExtension;
 import ru.regenix.jphp.ext.CoreExtension;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
@@ -24,6 +27,9 @@ public class Main {
         try {
             CompileScope scope = new CompileScope();
             scope.registerExtension(new CoreExtension());
+            scope.registerExtension(new BCMathExtension());
+            scope.registerExtension(new CTypeExtension());
+            scope.registerExtension(new CalendarExtension());
 
             Environment environment = new Environment(scope, System.out);
             Context context = environment.createContext(new File("main.php"));

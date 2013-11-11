@@ -38,7 +38,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         nextToken(iterator);
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
-        result.setName(previous);
+        result.setName((ValueExprToken)previous);
         result.setParameters(parameters);
 
         if (analyzer.getFunction() != null){
@@ -132,6 +132,26 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return logic;
         }
 
+        if (next instanceof StaticAccessExprToken){
+            if (current instanceof NameToken || current instanceof VariableExprToken){
+                StaticAccessExprToken result = (StaticAccessExprToken)next;
+                result.setClazz((ValueExprToken)current);
+                nextToken(iterator);
+
+                next = nextToken(iterator);
+                if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
+                    ExprStmtToken expr = getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.BLOCK);
+                    result.setFieldExpr(expr);
+                } else if (next instanceof NameToken || next instanceof VariableExprToken){
+                    result.setField((ValueExprToken)next);
+                } else
+                    unexpectedToken(next);
+
+                return result;
+            } else
+                unexpectedToken(current);
+        }
+
         return null;
     }
 
@@ -198,7 +218,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         int braceOpened = 0;
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
-                if (previous instanceof NameToken || previous instanceof VariableExprToken){
+                boolean isFunc = false;
+                if (previous instanceof NameToken || previous instanceof VariableExprToken)
+                    isFunc = true;
+                else if (previous instanceof StaticAccessExprToken){
+                    isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
+                }
+
+                if (isFunc){
                     tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
                 } else {
                     braceOpened += 1;

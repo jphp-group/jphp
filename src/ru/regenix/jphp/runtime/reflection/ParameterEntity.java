@@ -5,16 +5,16 @@ import ru.regenix.jphp.runtime.memory.Memory;
 
 public class ParameterEntity extends Entity {
 
-    public enum Type { ARRAY, OBJECT, CALLABLE }
+    public enum Type { ANY, ARRAY, OBJECT, CALLABLE }
 
     protected ClassEntity clazz;
     protected MethodEntity method;
     protected Memory defaultValue;
 
     protected boolean isReference;
-    protected Type type;
+    protected Type type = Type.ANY;
 
-    protected ParameterEntity(Context context) {
+    public ParameterEntity(Context context) {
         super(context);
     }
 

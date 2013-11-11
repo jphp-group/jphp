@@ -48,7 +48,7 @@ final public class CompilerUtils {
         if (operator instanceof BooleanNotExprToken)
             return o1.not() ? Memory.TRUE : Memory.FALSE;
 
-        throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
+        return null;
     }
 
     public static boolean isControlFlow(StmtToken token){
@@ -115,5 +115,69 @@ final public class CompilerUtils {
             return o1.toBoolean() || o2.toBoolean() ? Memory.TRUE : Memory.FALSE;
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
+    }
+
+    public static String getOperatorCode(OperatorExprToken operator){
+        if (operator instanceof IncExprToken){
+            return "inc";
+        } else if (operator instanceof DecExprToken){
+            return "dec";
+        } else if (operator instanceof UnarMinusExprToken){
+            return "negative";
+        } else if (operator instanceof BooleanNotExprToken){
+            return "not";
+        } else if (operator instanceof PlusExprToken || operator instanceof AssignPlusExprToken){
+            return "plus";
+        } else if (operator instanceof MinusExprToken || operator instanceof AssignMinusExprToken){
+            return "minus";
+        } else if (operator instanceof MulExprToken || operator instanceof AssignMulExprToken){
+            return "mul";
+        } else if (operator instanceof DivExprToken || operator instanceof AssignDivExprToken){
+            return "div";
+        } else if (operator instanceof ModExprToken || operator instanceof AssignModExprToken){
+            return "mod";
+        } else if (operator instanceof AssignExprToken){
+            return "assign";
+        } else if (operator instanceof AssignRefExprToken){
+            return  "assignRef";
+        } else if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
+            return  "concat";
+        } else if (operator instanceof SmallerExprToken){
+            return "smaller";
+        } else if (operator instanceof SmallerOrEqualToken){
+            return "smallerEq";
+        } else if (operator instanceof GreaterExprToken){
+            return "greater";
+        } else if (operator instanceof GreaterOrEqualExprToken){
+            return "greaterEq";
+        } else if (operator instanceof EqualExprToken){
+            return "equal";
+        } else if (operator instanceof BooleanNotEqualExprToken){
+            return "notEqual";
+        }
+
+        throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
+    }
+
+    public static Class getOperatorResult(OperatorExprToken operator) {
+        if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
+            return String.class;
+        } else if (operator instanceof BooleanNotExprToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof SmallerExprToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof SmallerOrEqualToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof GreaterExprToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof GreaterOrEqualExprToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof EqualExprToken){
+            return Boolean.TYPE;
+        } else if (operator instanceof BooleanNotEqualExprToken){
+            return Boolean.TYPE;
+        }
+
+        return Memory.class;
     }
 }

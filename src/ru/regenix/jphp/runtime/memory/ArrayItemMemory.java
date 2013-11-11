@@ -37,6 +37,7 @@ public class ArrayItemMemory extends ReferenceMemory {
         }
     }
 
+
     @Override
     public Memory assign(Memory memory) {
         if (value.type == Type.REFERENCE)
@@ -59,7 +60,7 @@ public class ArrayItemMemory extends ReferenceMemory {
             Memory mem = LongMemory.valueOf(value);
             table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(table);
+                reference.assign(table);
 
             return mem;
         }
@@ -74,7 +75,7 @@ public class ArrayItemMemory extends ReferenceMemory {
             Memory mem = new StringMemory(value);
             table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(table);
+                reference.assign(table);
 
             return mem;
         }
@@ -88,7 +89,7 @@ public class ArrayItemMemory extends ReferenceMemory {
             checkCopied();
             table.value.put(key, value ? TRUE : FALSE);
             if (reference != null)
-                reference.assignRef(table);
+                reference.assign(table);
 
             return value ? TRUE : FALSE;
         }
@@ -103,7 +104,7 @@ public class ArrayItemMemory extends ReferenceMemory {
             DoubleMemory mem = new DoubleMemory(value);
             table.value.put(key, mem);
             if (reference != null)
-                reference.assignRef(table);
+                reference.assign(table);
 
             return mem;
         }
@@ -117,7 +118,7 @@ public class ArrayItemMemory extends ReferenceMemory {
             checkCopied();
             table.value.put(key, new ReferenceMemory(memory));
             if (reference != null)
-                reference.assignRef(table);
+                reference.assign(table);
         }
     }
 
