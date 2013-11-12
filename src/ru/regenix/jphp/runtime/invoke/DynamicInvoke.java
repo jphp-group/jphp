@@ -42,6 +42,8 @@ public class DynamicInvoke {
 
         int i = 0;
         Memory[] passed = args;
+        assert method != null;
+        
         if (args.length < method.parameters.length){
             passed = new Memory[method.parameters.length];
             if (args.length > 0){
