@@ -3,30 +3,30 @@ package ru.regenix.jphp.compiler;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.runtime.invokedynamic.CallableValue;
 import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
+import ru.regenix.jphp.runtime.type.FastIntMap;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CompileScope {
 
-    private final Map<String, ClassEntity> classMap;
-    private final Map<String, FunctionEntity> functionMap;
-    private final Map<String, ConstantEntity> constantMap;
+    public final Map<String, ClassEntity> classMap;
+    public final Map<String, MethodEntity> methodMap;
+    public final FastIntMap<MethodEntity> fastMethodMap;
+
+    public final Map<String, FunctionEntity> functionMap;
+    public final Map<String, ConstantEntity> constantMap;
 
     protected Map<String, Extension> extensions;
 
     protected Map<String, CompileConstant> compileConstantMap;
     protected Map<String, CompileFunction> compileFunctionMap;
-
-    private static Map<Class, Map<String, CallableValue>> classMethods =
-            new HashMap<Class, Map<String, CallableValue>>();
 
     protected RuntimeClassLoader classLoader;
 
@@ -34,6 +34,8 @@ public class CompileScope {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
         classMap = new HashMap<String, ClassEntity>();
+        methodMap = new HashMap<String, MethodEntity>();
+        fastMethodMap = new FastIntMap<MethodEntity>();
         functionMap = new HashMap<String, FunctionEntity>();
         constantMap = new HashMap<String, ConstantEntity>();
 
@@ -51,6 +53,11 @@ public class CompileScope {
 
     public void addUserClass(ClassEntity clazz){
         classMap.put(clazz.getLowerName(), clazz);
+        for(MethodEntity method : clazz.getMethods().values()){
+            String key = clazz.getLowerName() + "#" + method.getLowerName();
+            methodMap.put(key, method);
+            fastMethodMap.put(key, 0, method);
+        }
     }
 
     public void addUserFunction(FunctionEntity function){
@@ -79,18 +86,6 @@ public class CompileScope {
 
     public CompileFunction findCompileFunction(String name){
         return compileFunctionMap.get(name.toLowerCase());
-    }
-
-    public static void registerClass(Class clazz){
-        Map<String, CallableValue> map = new HashMap<String, CallableValue>();
-        for (Method method : clazz.getMethods()){
-            map.put(method.getName(), new CallableValue(method));
-        }
-        classMethods.put(clazz, map);
-    }
-
-    public static CallableValue findMethod(Class clazz, String methodName){
-        return classMethods.get(clazz).get(methodName);
     }
 
     public ClassEntity loadClass(String name){

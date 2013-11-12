@@ -34,7 +34,7 @@ abstract public class JvmCompilerCase {
         compiler.compile();
 
         ClassEntity entity = environment.getScope().loadClass("TestClass");
-        return entity.findMethod("test").invoke(environment);
+        return entity.findMethod("test").invokeStaticNoThrow(null, environment);
     }
 
     protected Memory run(String code){

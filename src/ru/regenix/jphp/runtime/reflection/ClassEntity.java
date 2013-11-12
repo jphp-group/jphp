@@ -14,15 +14,15 @@ public class ClassEntity extends Entity {
     protected byte[] data;
     protected Class<?> nativeClazz;
 
-    protected final Map<String, MethodEntity> methods;
+    public final Map<String, MethodEntity> methods;
     protected MethodEntity constructor;
 
     protected final Map<String, ClassEntity> interfaces;
     protected final Map<String, ClassEntity> traits;
 
-    protected final Map<String, ConstantEntity> constants;
-    protected final Map<String, PropertyEntity> properties;
-    protected final Map<String, PropertyEntity> staticProperties;
+    public final Map<String, ConstantEntity> constants;
+    public final Map<String, PropertyEntity> properties;
+    public final Map<String, PropertyEntity> staticProperties;
 
     protected ClassEntity parent;
     protected DocumentComment docComment;
@@ -30,12 +30,6 @@ public class ClassEntity extends Entity {
     protected boolean isAbstract = false;
     protected boolean isFinal = false;
     protected Type type = Type.CLASS;
-
-    /**** CACHE *****/
-    protected Map<String, MethodEntity> allMethods;
-    protected Map<String, ConstantEntity> allConstants;
-    protected Map<String, PropertyEntity> allProperties;
-    protected Map<String, PropertyEntity> allStaticProperties;
 
     public ClassEntity(Context context) {
         super(context);
@@ -84,7 +78,7 @@ public class ClassEntity extends Entity {
     }
 
     public MethodEntity findMethod(String name){
-        return getAllMethods().get(name);
+        return methods.get(name);
     }
 
     public ClassEntity getParent() {
@@ -93,6 +87,14 @@ public class ClassEntity extends Entity {
 
     public void setParent(ClassEntity parent) {
         this.parent = parent;
+        for(MethodEntity method : parent.getMethods().values()){
+            MethodEntity implMethod = findMethod(method.getLowerName());
+            if (implMethod == null){
+                addMethod(method);
+            } else {
+                // TODO check signature impl method
+            }
+        }
     }
 
     public byte[] getData() {
@@ -105,6 +107,15 @@ public class ClassEntity extends Entity {
 
     public void addInterface(ClassEntity _interface) {
         this.interfaces.put(_interface.getLowerName(), _interface);
+        for(MethodEntity method : _interface.getMethods().values()){
+            MethodEntity implMethod = findMethod(method.getLowerName());
+            if (implMethod == null){
+                addMethod(method);
+                // TODO throw no implemented method
+            } else {
+                // TODO check signature
+            }
+        }
     }
 
     public Map<String, ClassEntity> getInterfaces() {
@@ -167,68 +178,6 @@ public class ClassEntity extends Entity {
 
     public void setDocComment(DocumentComment docComment) {
         this.docComment = docComment;
-    }
-
-    public Map<String, MethodEntity> getAllMethods(){
-        if (allMethods != null)
-            return allMethods;
-
-        synchronized(this){
-            Map<String, MethodEntity> result = new LinkedHashMap<String, MethodEntity>(this.methods);
-            for(ClassEntity _interface : interfaces.values()){
-                result.putAll(_interface.getAllMethods());
-            }
-            if (parent != null)
-                result.putAll(parent.getAllMethods());
-            allMethods = result;
-        }
-        return allMethods;
-    }
-
-    public Map<String, ConstantEntity> getAllConstants(){
-        if (allConstants != null)
-            return allConstants;
-
-        synchronized(this){
-            Map<String, ConstantEntity> result = new LinkedHashMap<String, ConstantEntity>(this.constants);
-            if (parent != null)
-                result.putAll(parent.getAllConstants());
-            allConstants = result;
-        }
-        return allConstants;
-    }
-
-    public Map<String, PropertyEntity> getAllProperties(){
-        if (allProperties != null)
-            return allProperties;
-
-        synchronized (this){
-            Map<String, PropertyEntity> result = new LinkedHashMap<String, PropertyEntity>(this.properties);
-            if (parent != null)
-                result.putAll(parent.getAllProperties());
-            allProperties = result;
-        }
-        return allProperties;
-    }
-
-    public Map<String, PropertyEntity> getAllStaticProperties(){
-        if (allStaticProperties != null)
-            return allStaticProperties;
-
-        synchronized (this){
-            Map<String, PropertyEntity> result = new LinkedHashMap<String, PropertyEntity>(this.staticProperties);
-            if (parent != null)
-                result.putAll(parent.getAllStaticProperties());
-            allStaticProperties = result;
-        }
-        return allStaticProperties;
-    }
-
-    public void clearCache(){
-        allMethods = null;
-        allConstants = null;
-        allProperties = null;
-        allStaticProperties = null;
     }
 
     public Class<?> getNativeClazz() {

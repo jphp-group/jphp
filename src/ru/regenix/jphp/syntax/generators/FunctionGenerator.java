@@ -98,6 +98,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             FunctionStmtToken result = (FunctionStmtToken)current;
 
             Token next = nextToken(iterator);
+            if (next instanceof AmpersandToken){
+                result.setReturnReference(true);
+                next = nextToken(iterator);
+            }
+
             if (next instanceof NameToken){
                 if (analyzer.getFunction() != null)
                     unexpectedToken(current);

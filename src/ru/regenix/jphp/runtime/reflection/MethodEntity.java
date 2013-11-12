@@ -6,7 +6,6 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.exceptions.ClassNotLoadedException;
 import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.memory.MemoryUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,22 +25,9 @@ public class MethodEntity extends AbstractFunctionEntity {
         super(context);
     }
 
-    public Memory invoke(Object _this, Environment environment, Memory... arguments){
-        if (nativeMethod == null){
-            if (clazz.nativeClazz == null)
-                throw new ClassNotLoadedException(clazz.getName());
-
-            try {
-                synchronized (this){
-                    nativeMethod = clazz.nativeClazz.getDeclaredMethod(getName(), Environment.class, Memory[].class);
-                }
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
+    public Memory invokeDynamicNoThrow(Object _this, String _static, Environment environment, Memory... arguments){
         try {
-            return (Memory)nativeMethod.invoke(_this, environment, arguments);
+            return invokeDynamic(_this, _static, environment, arguments);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -51,19 +37,52 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invoke(Environment environment, Memory... arguments){
-        return invoke(null, environment, arguments);
-    }
-
-    public Memory invoke(Object _this, Environment environment, Object... objects){
-        for(int i = 0; i < objects.length; i++){
-            objects[i] = MemoryUtils.valueOf(objects[i]);
+    public Memory invokeDynamic(Object _this, String _static, Environment environment, Memory... arguments)
+            throws IllegalAccessException, InvocationTargetException {
+        if (_static == null){
+            _static = _this.getClass().getName().replace('.', '\\').toLowerCase();
         }
-        return invoke(_this, environment, (Memory[])objects);
+        if (nativeMethod == null){
+            if (clazz.nativeClazz == null)
+                throw new ClassNotLoadedException(clazz.getName());
+
+            try {
+                synchronized (this){
+                    nativeMethod = clazz.nativeClazz.getDeclaredMethod(
+                            getName(), Environment.class, String.class, Memory[].class
+                    );
+                    nativeMethod.setAccessible(true);
+                }
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);
+        if (!isReturnReference())
+            return result.toImmutable();
+        else
+            return result;
     }
 
-    public Memory invoke(Environment environment, Object... objects){
-        return invoke(null, environment, objects);
+    public Memory invokeStaticNoThrow(String _static, Environment environment, Memory... arguments){
+        try {
+            return invokeStatic(_static, environment, arguments);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof ErrorException)
+                throw (ErrorException) e.getCause();
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    public Memory invokeStatic(String _static, Environment environment, Memory... arguments)
+            throws IllegalAccessException, InvocationTargetException {
+        if (_static == null)
+            _static = clazz.getLowerName();
+
+        return invokeDynamic(null, _static, environment, arguments);
     }
 
     public MethodEntity getPrototype() {

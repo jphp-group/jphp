@@ -102,7 +102,7 @@ public class StringMemoryTest {
         Assert.assertEquals(Memory.Type.INT, memory.inc().type);
 
         memory = new StringMemory("2.3");
-        Assert.assertEquals(4.3, memory.inc().toDouble(), 0.000001);
+        Assert.assertEquals(3.3, memory.inc().toDouble(), 0.000001);
         Assert.assertEquals(Memory.Type.DOUBLE, memory.inc().type);
     }
 

@@ -8,9 +8,12 @@ final public class Messages {
     public final static Item ERR_PARSE_UNEXPECTED_X_EXPECTED_Y = new Item("Syntax error, unexpected %s, expecting %s");
     public final static Item ERR_PARSE_UNEXPECTED_X = new Item("Syntax error, unexpected '%s'");
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
+    public final static Item ERR_FATAL_CALL_TO_UNDEFINED_METHOD = new Item("Call to undefined method %s()");
     public final static Item ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION = new Item("Pass incorrect number of arguments to function %s()");
 
+    public final static Item ERR_WARNING_MISSING_ARGUMENT = new Item("Missing argument %s for %s()");
     public final static Item ERR_NOTICE_USE_UNDEFINED_CONSTANT = new Item("Use of undefined constant %s - assumed '%s'");
+    public final static Item ERR_NOTICE_RETURN_NOT_REFERENCE = new Item("Only variable references should be returned by reference");
 
     public static class Item {
         private String message;

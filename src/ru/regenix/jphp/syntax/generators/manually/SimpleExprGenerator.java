@@ -133,7 +133,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (next instanceof StaticAccessExprToken){
-            if (current instanceof NameToken || current instanceof VariableExprToken){
+            if (current instanceof NameToken || current instanceof VariableExprToken
+                    || current instanceof SelfExprToken){
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
                 result.setClazz((ValueExprToken)current);
                 nextToken(iterator);
@@ -142,6 +143,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
                     ExprStmtToken expr = getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.BLOCK);
                     result.setFieldExpr(expr);
+                    nextAndExpected(iterator, BraceExprToken.class);
                 } else if (next instanceof NameToken || next instanceof VariableExprToken){
                     result.setField((ValueExprToken)next);
                 } else

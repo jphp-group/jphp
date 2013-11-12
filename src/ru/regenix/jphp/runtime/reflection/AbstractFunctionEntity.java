@@ -7,6 +7,7 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     protected boolean isImmutable;
     protected DocumentComment docComment;
+    protected boolean returnReference;
     public ParameterEntity[] parameters;
 
     protected AbstractFunctionEntity(Context context) {
@@ -40,5 +41,13 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public void setImmutable(boolean immutable) {
         isImmutable = immutable;
+    }
+
+    public boolean isReturnReference() {
+        return returnReference;
+    }
+
+    public void setReturnReference(boolean returnReference) {
+        this.returnReference = returnReference;
     }
 }

@@ -8,15 +8,14 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.common.util.CompilerUtils;
+import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
 import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
@@ -25,6 +24,7 @@ import ru.regenix.jphp.lexer.tokens.stmt.*;
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.invoke.DynamicInvoke;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.reflection.Entity;
 import ru.regenix.jphp.runtime.type.HashTable;
@@ -46,6 +46,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         this.method = method;
         this.expression = expression;
         this.mv = method.mv;
+    }
+
+    protected Memory getMacros(ValueExprToken token){
+        if (token instanceof SelfExprToken){
+            return new StringMemory(method.clazz.clazz.getFulledName());
+        }
+
+        return null;
     }
 
     protected void stackPush(ValueExprToken token, StackItem.Type type){
@@ -260,6 +268,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushMemory(new DoubleMemory(value.getValue()));
     }
 
+    void writePushSelf(boolean toLower){
+        writePushString(toLower ?
+                method.clazz.clazz.getFulledName().toLowerCase()
+                : method.clazz.clazz.getFulledName()
+        );
+    }
+
+    void writePushStatic(){
+        writeVarLoad("~static");
+    }
+
     void writePushEnv(){
         stackPush(Memory.Type.REFERENCE);
         LocalVariable variable = method.getLocalVariable("~env");
@@ -399,40 +418,75 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         StaticAccessExprToken access = (StaticAccessExprToken)function.getName();
 
         writePushEnv();
+        writePushStatic();
         writePushTraceInfo(function.getName());
+        String methodName = null;
 
         ValueExprToken clazz = access.getClazz();
-        if (clazz instanceof NameToken){
-            writePushString(((NameToken) clazz).getName().toLowerCase());
-        } else {
-            writePush(clazz, true);
-            writePopString();
-            writeSysDynamicCall(String.class, "toLowerCase", String.class);
-        }
+        if ((clazz instanceof NameToken || clazz instanceof SelfExprToken)
+                && access.getField() instanceof NameToken){
+            String className;
+            if (clazz instanceof SelfExprToken)
+                className = getMacros(clazz).toString();
+            else
+                className = ((NameToken)clazz).getName();
 
-        if (access.getField() != null){
-            ValueExprToken field = access.getField();
-            if (field instanceof NameToken)
-                writePushString(((NameToken) field).getName().toLowerCase());
-            else {
-                writePush(access.getField(), true);
+            methodName = ((NameToken) access.getField()).getName();
+
+            writePushSmallInt((className.toLowerCase() + "#" + methodName.toLowerCase()).hashCode());
+            writePushString(className);
+            writePushString(methodName);
+
+            writePushParameters(function.getParameters());
+            writeSysStaticCall(
+                    DynamicInvoke.class, "callStatic", Memory.class,
+                    Environment.class, String.class, TraceInfo.class,
+                    Integer.TYPE, // lower sign name
+                    String.class, String.class, // origin names
+                    Memory[].class
+            );
+        } else {
+            if (clazz instanceof NameToken){
+                writePushString(((NameToken) clazz).getName());
+                writePushDup();
+                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+            } else if (clazz instanceof SelfExprToken){
+                writePushSelf(false);
+                writePushSelf(true);
+            } else {
+                writePush(clazz, true);
                 writePopString();
+                writePushDup();
                 writeSysDynamicCall(String.class, "toLowerCase", String.class);
             }
-        } else {
-            writeExpression(access.getFieldExpr(), true, false);
-            writePopString();
-            writeSysDynamicCall(String.class, "toLowerCase", String.class);
+
+            if (access.getField() != null){
+                ValueExprToken field = access.getField();
+                if (field instanceof NameToken){
+                    writePushString(((NameToken) field).getName().toLowerCase());
+                } else {
+                    writePush(access.getField(), true);
+                    writePopString();
+                    writePushDup();
+                    writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                }
+            } else {
+                writeExpression(access.getFieldExpr(), true, false);
+                writePopString();
+                writePushDup();
+                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+            }
+
+            writePushParameters(function.getParameters());
+            writeSysStaticCall(
+                    DynamicInvoke.class, "callStaticDynamic", Memory.class,
+                    Environment.class,
+                    String.class, TraceInfo.class,
+                    String.class, String.class,
+                    String.class, String.class,
+                    Memory[].class
+            );
         }
-
-        writePushParameters(function.getParameters());
-
-        writeSysDynamicCall(
-                Environment.class, "callStaticMethod", Memory.class,
-                TraceInfo.class,
-                String.class, String.class,
-                Memory[].class
-        );
         return null;
     }
 
@@ -649,6 +703,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeVarLoad(int index){
         stackPush(Memory.Type.REFERENCE);
         mv.visitVarInsn(Opcodes.ALOAD, index);
+    }
+
+    void writeVarLoad(String name){
+        LocalVariable local = method.getLocalVariable(name);
+        if (local == null)
+            throw new IllegalArgumentException("Variable '" + name + "' is not registered");
+
+        writeVarLoad(local.index);
     }
 
     void writePutStatic(Class clazz, String name, Class fieldClass){
@@ -1143,6 +1205,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushNull();
         else
             writePopBoxing(true);
+
+        if (method.entity.isReturnReference()){
+            writePushDup();
+            writePushEnv();
+            writePushTraceInfo(token);
+            writeSysStaticCall(
+                    DynamicInvoke.class,
+                    "checkReturnReference",
+                    void.class,
+                    Memory.class, Environment.class, TraceInfo.class
+            );
+        }
 
         mv.visitInsn(Opcodes.ARETURN);
         stackPop();

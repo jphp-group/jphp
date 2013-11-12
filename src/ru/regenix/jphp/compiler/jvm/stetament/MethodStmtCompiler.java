@@ -121,6 +121,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     Type.getMethodDescriptor(
                             Type.getType(Memory.class),
                             Type.getType(Environment.class),
+                            Type.getType(String.class),
                             Type.getType(Memory[].class)
                     ),
                     null, null
@@ -135,6 +136,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 addLocalVariable("this", label, Object.class);
 
             addLocalVariable("~env", label, Environment.class); // Environment env
+            addLocalVariable("~static", label, String.class);
+
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
 
             int i = 0;
@@ -183,6 +186,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setFinal(method.isFinal());
             entity.setStatic(method.isStatic());
             entity.setModifier(method.getModifier());
+            entity.setReturnReference(method.isReturnReference());
 
             ParameterEntity[] parameters = new ParameterEntity[method.getArguments().size()];
             int i = 0;

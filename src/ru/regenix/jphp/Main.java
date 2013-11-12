@@ -43,7 +43,9 @@ public class Main {
             ClassEntity myClass = scope.loadClass("MyClass");
 
             String[] ops = BytecodePrettyPrinter.getMethod(myClass, "test",
-                    Type.getMethodDescriptor(Type.getType(Memory.class), Type.getType(Environment.class),
+                    Type.getMethodDescriptor(Type.getType(Memory.class),
+                            Type.getType(Environment.class),
+                            Type.getType(String.class),
                             Type.getType(Memory[].class)
                     )
             );
@@ -51,7 +53,7 @@ public class Main {
                 System.out.println(op);
 
             long t = System.currentTimeMillis();
-            Memory result = myClass.findMethod("test").invoke(environment);
+            Memory result = myClass.findMethod("test").invokeStaticNoThrow(null, environment);
             environment.flushAll();
 
             System.out.println();
@@ -60,9 +62,12 @@ public class Main {
             System.out.println(result);
 
         } catch (ErrorException e){
+            System.out.println();
             System.out.println("[" + e.getType().name() + "] " + e.getMessage());
-            System.out.print("    at line " + e.getTraceInfo().getStartLine());
-            System.out.print(", position " + e.getTraceInfo().getStartPosition());
+            System.out.print("    at line " + (e.getTraceInfo().getStartLine() + 1));
+            System.out.print(", position " + (e.getTraceInfo().getStartPosition() + 1));
+            System.out.println();
+            System.out.println("    in '" + e.getTraceInfo().getFileName() + "'");
         }
     }
 }
