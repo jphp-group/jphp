@@ -1,6 +1,6 @@
 package ru.regenix.jphp.ext.core;
 
-import ru.regenix.jphp.compiler.common.compile.*;
+import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.Memory;

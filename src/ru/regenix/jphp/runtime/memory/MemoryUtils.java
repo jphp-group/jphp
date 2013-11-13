@@ -1,7 +1,5 @@
 package ru.regenix.jphp.runtime.memory;
 
-import ru.regenix.jphp.runtime.type.HashTable;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -52,26 +50,24 @@ public class MemoryUtils {
         } else if (value == null){
             return Memory.NULL;
         } else if (value.getClass().isArray()){
-            HashTable table = new HashTable();
+            ArrayMemory array = new ArrayMemory();
             for(Object el : (Object[])value){
-                table.add(valueOf(el));
+                array.add(valueOf(el));
             }
-            return new ArrayMemory(table);
+            return array;
         } else if (value instanceof Collection){
-            HashTable table = new HashTable();
+            ArrayMemory array = new ArrayMemory();
             for(Object el : (Collection)value){
-                table.add(valueOf(el));
+                array.add(valueOf(el));
             }
-            return new ArrayMemory(table);
+            return array;
         } else if (value instanceof Map){
-            HashTable table = new HashTable();
+            ArrayMemory table = new ArrayMemory();
             for(Object key : ((Map) value).keySet()){
                 Object el = ((Map)value).get(key);
-                table.put(HashTable.toKey(valueOf(key)), valueOf(el));
+                table.put(ArrayMemory.toKey(valueOf(key)), valueOf(el));
             }
-            return new ArrayMemory(table);
-        } else if (value instanceof HashTable){
-            return new ArrayMemory((HashTable)value);
+            return table;
         } else
             return Memory.NULL;
     }

@@ -1,5 +1,6 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.lexer.tokens.BreakToken;
 import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
 import ru.regenix.jphp.lexer.tokens.SemicolonToken;
@@ -66,6 +67,33 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setCondition(condition);
         result.setBody(body);
 
+        result.setLocal(analyzer.removeLocalScope());
+    }
+
+    protected void processFor(ForStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
+        Token next = nextToken(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next);
+
+        ExprStmtToken init = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
+
+        ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
+
+        ExprStmtToken iteratorExpr = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.SIMPLE);
+
+        nextAndExpected(iterator, BraceExprToken.class);
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+            nextToken(iterator), iterator, EndforStmtToken.class
+        );
+
+        result.setInitExpr(init);
+        result.setCondition(condition);
+        result.setIterationExpr(iteratorExpr);
+        result.setBody(body);
         result.setLocal(analyzer.removeLocalScope());
     }
 
@@ -161,6 +189,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ReturnStmtToken){
                 processReturn((ReturnStmtToken)current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof ForStmtToken){
+                processFor((ForStmtToken)current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof WhileStmtToken){

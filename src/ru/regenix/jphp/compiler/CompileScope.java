@@ -8,7 +8,6 @@ import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.type.FastIntMap;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,7 +17,6 @@ public class CompileScope {
 
     public final Map<String, ClassEntity> classMap;
     public final Map<String, MethodEntity> methodMap;
-    public final FastIntMap<MethodEntity> fastMethodMap;
 
     public final Map<String, FunctionEntity> functionMap;
     public final Map<String, ConstantEntity> constantMap;
@@ -35,7 +33,6 @@ public class CompileScope {
 
         classMap = new HashMap<String, ClassEntity>();
         methodMap = new HashMap<String, MethodEntity>();
-        fastMethodMap = new FastIntMap<MethodEntity>();
         functionMap = new HashMap<String, FunctionEntity>();
         constantMap = new HashMap<String, ConstantEntity>();
 
@@ -54,9 +51,7 @@ public class CompileScope {
     public void addUserClass(ClassEntity clazz){
         classMap.put(clazz.getLowerName(), clazz);
         for(MethodEntity method : clazz.getMethods().values()){
-            String key = clazz.getLowerName() + "#" + method.getLowerName();
-            methodMap.put(key, method);
-            fastMethodMap.put(key, 0, method);
+            methodMap.put(method.getKey(), method);
         }
     }
 

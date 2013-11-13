@@ -1,6 +1,7 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
 
+import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.lexer.tokens.BreakToken;
 import ru.regenix.jphp.lexer.tokens.SemicolonToken;
 import ru.regenix.jphp.lexer.tokens.Token;
@@ -96,8 +97,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
                         || next instanceof HexExprValue)){
 
-            if (!(previous instanceof ValueExprToken ||
-                    isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))){
+            if (!(previous instanceof ValueExprToken || previous instanceof ArrayGetExprToken
+                    || isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))){
                 iterator.next();
                 // if it minus
                 if (current instanceof MinusExprToken){
@@ -191,8 +192,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             iterator.previous();
 
         ExprStmtToken param;
-        ArrayGetExprToken result = new ArrayGetExprToken(current.getMeta());
-
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
         do {
             param = analyzer.generator(SimpleExprGenerator.class)
@@ -204,13 +203,29 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         } while (param != null);
         nextToken(iterator); // skip ]
 
+        ArrayGetExprToken result;
+        result = new ArrayGetExprToken(current.getMeta());
         result.setParameters(parameters);
+
+        if (iterator.hasNext()){
+            next = iterator.next();
+            if (next instanceof AssignOperatorExprToken || next instanceof AssignExprToken){
+                result = new ArrayGetRefExprToken(result);
+            }
+            iterator.previous();
+        }
+
         return result;
+    }
+
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
+                                  boolean commaSeparator, BraceExprToken.Kind closedBraceKind) {
+        return getToken(current, iterator, commaSeparator ? Separator.COMMA : Separator.SEMICOLON, closedBraceKind);
     }
 
     @SuppressWarnings("unchecked")
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
-                                  boolean commaSeparator, BraceExprToken.Kind closedBraceKind) {
+                                  Separator separator, BraceExprToken.Kind closedBraceKind) {
         List<Token> tokens = new ArrayList<Token>();
         Token previous = null;
         Token next = iterator.hasNext() ? iterator.next() : null;
@@ -246,7 +261,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processArrayToken(previous, current, iterator));
                 }
             } else if (current instanceof CommaToken){
-                if (commaSeparator){
+                if (separator == Separator.COMMA){
                     break;
                 } else {
                     unexpectedToken(current);
@@ -256,8 +271,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof BreakToken){
                 break;
-            } else if (current instanceof SemicolonToken){
-                if (commaSeparator || closedBraceKind != null || tokens.isEmpty())
+            } else if (current instanceof SemicolonToken){ // TODO refactor!
+                if (separator == Separator.SEMICOLON)
+                    break;
+
+                if (separator == Separator.COMMA || closedBraceKind != null || tokens.isEmpty())
                     unexpectedToken(current);
                 break;
             } else if (current instanceof BraceExprToken){

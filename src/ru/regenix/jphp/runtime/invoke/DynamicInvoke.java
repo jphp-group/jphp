@@ -22,17 +22,17 @@ public class DynamicInvoke {
             throws InvocationTargetException, IllegalAccessException {
         return callStatic(
                 env, _static, trace,
-                (className + "#" + methodName).hashCode(),
+                className + "#" + methodName,
                 originClassName, originMethodName,
                 args
         );
     }
 
     public static Memory callStatic(Environment env, String _static, TraceInfo trace,
-                                    int hash, String originClassName, String originMethodName,
+                                    String sign, String originClassName, String originMethodName,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
-        MethodEntity method = env.scope.fastMethodMap.get(hash);
+        MethodEntity method = env.scope.methodMap.get(sign);
         if (method == null){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName),
@@ -43,7 +43,7 @@ public class DynamicInvoke {
         int i = 0;
         Memory[] passed = args;
         assert method != null;
-        
+
         if (args.length < method.parameters.length){
             passed = new Memory[method.parameters.length];
             if (args.length > 0){
@@ -74,7 +74,10 @@ public class DynamicInvoke {
             }
             i++;
         }
-        return method.invokeStatic(_static, env, passed);
+        Memory result = method.invokeStatic(_static, env, passed);
+        for(Memory e : args)
+            e.unset();
+        return result;
     }
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace){

@@ -20,6 +20,7 @@ public class MethodEntity extends AbstractFunctionEntity {
     protected boolean isFinal;
     protected boolean isStatic;
     protected Modifier modifier;
+    private String key;
 
     public MethodEntity(Context context) {
         super(context);
@@ -85,6 +86,12 @@ public class MethodEntity extends AbstractFunctionEntity {
         return invokeDynamic(null, _static, environment, arguments);
     }
 
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+        key = clazz.getLowerName() + "#" + lowerName;
+    }
+
     public MethodEntity getPrototype() {
         return prototype;
     }
@@ -140,5 +147,28 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public boolean isDeprecated(){
         return false; // TODO
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MethodEntity)) return false;
+        if (!super.equals(o)) return false;
+
+        MethodEntity that = (MethodEntity) o;
+        return hashCode() == that.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode(clazz.lowerName, lowerName);
+    }
+
+    public static int hashCode(String classLowerName, String methodLowerName){
+        return classLowerName.hashCode() + methodLowerName.hashCode();
+    }
+
+    public String getKey() {
+        return key;
     }
 }

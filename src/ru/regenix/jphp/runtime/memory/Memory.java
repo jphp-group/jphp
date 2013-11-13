@@ -1,7 +1,5 @@
 package ru.regenix.jphp.runtime.memory;
 
-import ru.regenix.jphp.runtime.type.HashTable;
-
 abstract public class Memory {
     public enum Type {
         NULL, BOOL, INT, DOUBLE, STRING, ARRAY, REFERENCE, INVALID;
@@ -16,7 +14,7 @@ abstract public class Memory {
             else if (this == BOOL)
                 return Boolean.TYPE;
             else if (this == ARRAY)
-                return HashTable.class;
+                return ArrayMemory.class;
             else if (this == REFERENCE)
                 return Memory.class;
 
@@ -32,7 +30,7 @@ abstract public class Memory {
                 return STRING;
             if (clazz == Boolean.TYPE)
                 return BOOL;
-            if (clazz == HashTable.class)
+            if (clazz == ArrayMemory.class)
                 return ARRAY;
 
             return REFERENCE;
@@ -76,11 +74,17 @@ abstract public class Memory {
     public boolean isArray(){ return type == Type.ARRAY; }
 
     // <value>[index]
-    public Memory valueOfIndex(Memory index) { return new ArrayItemMemory(HashTable.toKey(index)); }
-    public Memory valueOfIndex(long index) { return new ArrayItemMemory(index); }
-    public Memory valueOfIndex(double index) { return new ArrayItemMemory((long)index); }
-    public Memory valueOfIndex(String index) { return new ArrayItemMemory(index); }
-    public Memory valueOfIndex(boolean index) { return new ArrayItemMemory(index ? 0L : 1L); }
+    public Memory valueOfIndex(Memory index) { return NULL; }
+    public Memory valueOfIndex(long index) { return NULL; }
+    public Memory valueOfIndex(double index) { return NULL; }
+    public Memory valueOfIndex(String index) { return NULL; }
+    public Memory valueOfIndex(boolean index) { return NULL; }
+
+    public Memory refOfIndex(Memory index) { return NULL; }
+    public Memory refOfIndex(long index) { return NULL; }
+    public Memory refOfIndex(double index) { return NULL; }
+    public Memory refOfIndex(String index) { return NULL; }
+    public Memory refOfIndex(boolean index) { return NULL; }
 
     // INC DEC
     abstract public Memory inc();
@@ -260,13 +264,5 @@ abstract public class Memory {
 
     public static String boolToString(boolean value){
         return value ? "1" : "";
-    }
-
-    public static Memory toArrayValue(Memory value){
-        if (value instanceof ArrayItemMemory){
-            return ((ArrayItemMemory)value).table;
-        } else {
-            return value;
-        }
     }
 }

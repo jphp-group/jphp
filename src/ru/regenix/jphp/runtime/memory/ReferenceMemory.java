@@ -1,7 +1,5 @@
 package ru.regenix.jphp.runtime.memory;
 
-import ru.regenix.jphp.runtime.type.HashTable;
-
 public class ReferenceMemory extends Memory {
 
     public Memory value;
@@ -18,6 +16,10 @@ public class ReferenceMemory extends Memory {
     public ReferenceMemory() {
         super(Type.REFERENCE);
         this.value = Memory.NULL;
+    }
+
+    public ReferenceMemory duplicate(){
+        return new ReferenceMemory(value);
     }
 
     @Override
@@ -122,10 +124,11 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory toImmutable() {
-        if (value instanceof ReferenceMemory)
-            return value.toImmutable();
-        else
-            return value;
+        switch (value.type){
+            case REFERENCE:
+            case ARRAY: return value.toImmutable();
+            default: return value;
+        }
     }
 
     @Override
@@ -135,42 +138,52 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory assign(Memory memory) {
-        if (value.type == Type.REFERENCE)
-            return value.assign(memory);
-        else
-            return value = memory.toImmutable();
+        switch (value.type){
+            case REFERENCE: return value.assign(memory);
+            case ARRAY: value.unset(); // do not need break!!
+            default:
+                return value = memory;
+        }
     }
 
     @Override
-    public Memory assign(long value) {
-        if (this.value.type == Type.REFERENCE)
-            return this.value.assign(value);
-        else
-            return this.value = LongMemory.valueOf(value);
+    public Memory assign(long memory) {
+        switch (value.type){
+            case REFERENCE: return value.assign(memory);
+            case ARRAY: value.unset(); // do not need break!!
+            default:
+                return value = LongMemory.valueOf(memory);
+        }
     }
 
     @Override
-    public Memory assign(String value) {
-        if (this.value.type == Type.REFERENCE)
-            return this.value.assign(value);
-        else
-            return this.value = new StringMemory(value);
+    public Memory assign(String memory) {
+        switch (value.type){
+            case REFERENCE: return value.assign(memory);
+            case ARRAY: value.unset(); // do not need break!!
+            default:
+                return value = new StringMemory(memory);
+        }
     }
 
     @Override
-    public Memory assign(boolean value) {
-        if (this.value.type == Type.REFERENCE)
-            return this.value.assign(value);
-        else
-            return this.value = value ? TRUE : FALSE;
+    public Memory assign(boolean memory) {
+        switch (value.type){
+            case REFERENCE: return value.assign(memory);
+            case ARRAY: value.unset(); // do not need break!!
+            default:
+                return value = memory ? TRUE : FALSE;
+        }
     }
 
     @Override
-    public Memory assign(double value) {
-        if (this.value.type == Type.REFERENCE)
-            return this.value.assign(value);
-        else
-            return this.value = new DoubleMemory(value);
+    public Memory assign(double memory) {
+        switch (value.type){
+            case REFERENCE: return value.assign(memory);
+            case ARRAY: value.unset(); // do not need break!!
+            default:
+                return value = new DoubleMemory(memory);
+        }
     }
 
     @Override
@@ -233,58 +246,79 @@ public class ReferenceMemory extends Memory {
         this.value = NULL;
     }
 
+    public void needArray(){
+        if (value.type == Type.NULL){
+            value = new ArrayMemory();
+        }
+    }
+
     @Override
     public Memory valueOfIndex(Memory index) {
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
-            case ARRAY:
-            case REFERENCE: return value.valueOfIndex(index);
-            default:
-                return new ArrayItemMemory(HashTable.toKey(index), this);
-        }
+        return value.valueOfIndex(index);
     }
 
     @Override
     public Memory valueOfIndex(long index) {
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
-            case ARRAY:
-            case REFERENCE: return value.valueOfIndex(index);
-            default:
-                return new ArrayItemMemory(index, this);
-        }
+        return value.valueOfIndex(index);
     }
 
     @Override
     public Memory valueOfIndex(double index) {
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
-            case ARRAY:
-            case REFERENCE: return value.valueOfIndex(index);
-            default:
-                return new ArrayItemMemory((long)index, this);
-        }
+        return value.valueOfIndex(index);
     }
 
     @Override
     public Memory valueOfIndex(String index) {
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)value.toNumeric().toLong());
-            case ARRAY:
-            case REFERENCE: return value.valueOfIndex(index);
-            default:
-                return new ArrayItemMemory(index, this);
-        }
+        return value.valueOfIndex(index);
     }
 
     @Override
     public Memory valueOfIndex(boolean index) {
+        return value.valueOfIndex(index);
+    }
+
+    @Override
+    public Memory refOfIndex(Memory index) {
+        needArray();
+        switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
+            default: return value.refOfIndex(index);
+        }
+    }
+
+    @Override
+    public Memory refOfIndex(long index) {
+        needArray();
+        switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
+            default: return value.refOfIndex(index);
+        }
+    }
+
+    @Override
+    public Memory refOfIndex(double index) {
+        needArray();
+        switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
+            default: return value.refOfIndex(index);
+        }
+    }
+
+    @Override
+    public Memory refOfIndex(String index) {
+        needArray();
+        switch (value.type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)value.toNumeric().toLong());
+            default: return value.refOfIndex(index);
+        }
+    }
+
+    @Override
+    public Memory refOfIndex(boolean index) {
+        needArray();
         switch (value.type){
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, index ? 1 : 0);
-            case ARRAY:
-            case REFERENCE: return value.valueOfIndex(index);
-            default:
-                return new ArrayItemMemory(index ? 0L : 1L, this);
+            default: return value.refOfIndex(index);
         }
     }
 }

@@ -101,6 +101,11 @@ public class ASMExpression {
         } else if (token instanceof OperatorExprToken){
 
             if (stack.empty() || getPriority(stack.peek()) > prior){
+                if (prior == 1){
+                    processOperator(stack, result, prior, recursive);
+                    result.add(token);
+                    return;
+                }
                 stack.push(token);
                 return;
             }

@@ -1,8 +1,8 @@
 package ru.regenix.jphp.compiler.common.misc;
 
 import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.type.HashTable;
 
 /**
 * User: Dim-S (dz@dim-s.net)
@@ -23,7 +23,7 @@ public class StackItem {
                 case INT: return Integer.TYPE;
                 case LONG: return Long.TYPE;
                 case STRING: return String.class;
-                case ARRAY: return HashTable.class;
+                case ARRAY: return ArrayMemory.class;
                 case REFERENCE: return Memory.class;
             }
 
@@ -59,7 +59,7 @@ public class StackItem {
                 return STRING;
             if (clazz == Boolean.TYPE)
                 return BOOL;
-            if (clazz == HashTable.class)
+            if (clazz == ArrayMemory.class)
                 return ARRAY;
 
             return REFERENCE;
