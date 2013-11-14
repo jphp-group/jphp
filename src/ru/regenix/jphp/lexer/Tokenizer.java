@@ -33,7 +33,7 @@ public class Tokenizer {
         this.context = context;
         this.currentPosition = -1;
         this.currentLine = 0;
-        this.relativePosition = 0;
+        this.relativePosition = -1;
         this.code = context.getContent();
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
@@ -153,6 +153,7 @@ public class Tokenizer {
             if (GrammarUtils.isNewline(ch)){
                 currentLine++;
                 relativePosition = 0;
+                startRelativePosition = 0;
             }
 
             init = true;
@@ -164,6 +165,8 @@ public class Tokenizer {
                                 startRelativePosition, relativePosition
                         );
                         rawMode = false;
+                        startLine = currentLine;
+                        startRelativePosition = relativePosition;
                         return buildToken(EchoRawToken.class, meta);
                     } else {
                         continue;
@@ -194,6 +197,8 @@ public class Tokenizer {
                     } else {
                         if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
                             startPosition = currentPosition + 1;
+                            startLine = currentLine;
+                            startRelativePosition = relativePosition;
                             prevToken = null;
                             continue;
                         }
@@ -266,8 +271,10 @@ public class Tokenizer {
         }
 
         TokenMeta meta = buildMeta(startPosition, startLine);
-        if (currentPosition != startPosition && GrammarUtils.isDelimiter(ch))
+        if (currentPosition != startPosition && GrammarUtils.isDelimiter(ch)){
             currentPosition -= 1;
+            relativePosition -= 1;
+        }
 
         if (meta == null)
             return null;

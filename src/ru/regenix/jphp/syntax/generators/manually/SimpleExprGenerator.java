@@ -2,10 +2,7 @@ package ru.regenix.jphp.syntax.generators.manually;
 
 
 import ru.regenix.jphp.common.Separator;
-import ru.regenix.jphp.lexer.tokens.BreakToken;
-import ru.regenix.jphp.lexer.tokens.SemicolonToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
+import ru.regenix.jphp.lexer.tokens.*;
 import ru.regenix.jphp.lexer.tokens.expr.*;
 import ru.regenix.jphp.lexer.tokens.expr.operator.*;
 import ru.regenix.jphp.lexer.tokens.expr.value.*;
@@ -271,6 +268,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof BreakToken){
                 break;
+            } else if (current instanceof ColonToken){
+                if (separator == Separator.COLON)
+                    break;
+                unexpectedToken(current);
             } else if (current instanceof SemicolonToken){ // TODO refactor!
                 if (separator == Separator.SEMICOLON)
                     break;

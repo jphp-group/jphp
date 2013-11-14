@@ -12,6 +12,7 @@ import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.common.util.CompilerUtils;
 import ru.regenix.jphp.compiler.jvm.Constants;
+import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
 import ru.regenix.jphp.lexer.tokens.Token;
@@ -1121,6 +1122,32 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writeJump(JumpStmtToken token){
+        int level = token.getLevel();
+        JumpItem jump = method.getJump(level);
+
+        if (jump == null){
+            throw new CompileException(
+                    level == 1
+                        ? Messages.ERR_COMPILE_CANNOT_JUMP.fetch()
+                        : Messages.ERR_COMPILE_CANNOT_JUMP_TO_LEVEL.fetch(level),
+                    token.toTraceInfo(getCompiler().getContext())
+            );
+        }
+
+        if (level > 1){
+            int size = method.getJumpStackSize(level);
+            for(int i = 0; i < size; i++);
+                mv.visitInsn(Opcodes.POP);
+        }
+
+        if (token instanceof ContinueStmtToken){
+            mv.visitJumpInsn(Opcodes.GOTO, jump.continueLabel);
+        } else if (token instanceof BreakStmtToken){
+            mv.visitJumpInsn(Opcodes.GOTO, jump.breakLabel);
+        }
+    }
+
     void writeIf(IfStmtToken token){
         writeDefineVariables(token.getLocal());
 
@@ -1153,24 +1180,80 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeUndefineVariables(token.getLocal());
     }
 
-    void writeFor(ForStmtToken token){
-        writeExpression(token.getInitExpr(), false, false);
+    void writeSwitch(SwitchStmtToken token){
         writeDefineVariables(token.getLocal());
 
+        Label end = new Label();
+
+        Label[][] jumps = new Label[token.getCases().size() + 1][2];
+        int i = 0;
+        for(CaseStmtToken one : token.getCases()){
+            jumps[i] = new Label[]{ new Label(), new Label() }; // checkLabel, bodyLabel
+            if (i == jumps.length - 1)
+                jumps[i] = new Label[]{ end, end };
+
+            i++;
+        }
+        jumps[jumps.length - 1] = new Label[]{end, end};
+
+        i = 0;
+        method.pushJump(end, end, 1);
+        writeExpression(token.getValue(), true, false);
+        writePopBoxing();
+        for(CaseStmtToken one : token.getCases()){
+            mv.visitLabel(jumps[i][0]); // conditional
+            if (!(one instanceof DefaultStmtToken)){
+                writePushDup();
+                writeExpression(one.getConditional(), true, false);
+
+                writeSysDynamicCall(Memory.class, "equal", Boolean.TYPE, stackPeek().type.toClass());
+                mv.visitJumpInsn(Opcodes.IFEQ, jumps[i+1][0]); // jump to next check
+                stackPop();
+            }
+
+            mv.visitLabel(jumps[i][1]); // body
+            writeBody(one.getBody());
+            if (i != jumps.length - 1) // we do not need a jump for the last body
+                mv.visitJumpInsn(Opcodes.GOTO, jumps[i + 1][1]); // jump to next body
+
+            i++;
+        }
+        method.popJump();
+        mv.visitLabel(end);
+        writePopAll(1);
+
+        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+        writeUndefineVariables(token.getLocal());
+    }
+
+    void writeFor(ForStmtToken token){
+        writeDefineVariables(token.getInitLocal());
+        writeExpression(token.getInitExpr(), false, false);
+        writeUndefineVariables(token.getInitLocal());
+
+        writeDefineVariables(token.getLocal());
+        for(VariableExprToken variable : token.getIterationLocal()){
+            // TODO optimize this for Dynamic Values of variables
+            LocalVariable local = method.getLocalVariable(variable.getName());
+            local.setValue(null);
+        }
+
         Label start = writeLabel(mv, token.getMeta().getStartLine());
+        Label iter = new Label();
         Label end = new Label();
 
         writeExpression(token.getCondition(), true, false);
-        StackItem peek = stackPeek();
-        writeExpression(token.getIterationExpr(), false, false);
-        stackPush(peek);
         writePopBoolean();
 
         mv.visitJumpInsn(Opcodes.IFEQ, end);
         stackPop();
 
+        method.pushJump(end, iter);
         writeBody(token.getBody());
+        method.popJump();
 
+        mv.visitLabel(iter);
+        writeExpression(token.getIterationExpr(), false, false);
         mv.visitJumpInsn(Opcodes.GOTO, start);
         mv.visitLabel(end);
         mv.visitLineNumber(token.getMeta().getEndLine(), end);
@@ -1183,13 +1266,30 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Label start = writeLabel(mv, token.getMeta().getStartLine());
         Label end = new Label();
 
-        writeExpression(token.getCondition(), true, false);
-        writePopBoolean();
+        writeConditional(token.getCondition(), end);
 
-        mv.visitJumpInsn(Opcodes.IFEQ, end);
-        stackPop();
-
+        method.pushJump(end, start);
         writeBody(token.getBody());
+        method.popJump();
+
+        mv.visitJumpInsn(Opcodes.GOTO, start);
+        mv.visitLabel(end);
+        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+
+        writeUndefineVariables(token.getLocal());
+    }
+
+    void writeDo(DoStmtToken token){
+        writeDefineVariables(token.getLocal());
+
+        Label start = writeLabel(mv, token.getMeta().getStartLine());
+        Label end = new Label();
+
+        method.pushJump(end, start);
+        writeBody(token.getBody());
+        method.popJump();
+
+        writeConditional(token.getCondition(), end);
 
         mv.visitJumpInsn(Opcodes.GOTO, start);
         mv.visitLabel(end);
@@ -1225,7 +1325,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
+    void writeConditional(ExprStmtToken condition, Label successLabel){
+        writeExpression(condition, true, false);
+        writePopBoolean();
+        mv.visitJumpInsn(Opcodes.IFEQ, successLabel);
+        stackPop();
+    }
+
     Memory writeExpression(ExprStmtToken expression, boolean returnValue, boolean returnMemory){
+        int initStackSize = method.getStackSize();
+
         if (expression.getTokens().size() == 1){
             Token token = expression.getTokens().get(0);
             if (!(token instanceof StmtToken)){
@@ -1249,10 +1358,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeReturn((ReturnStmtToken) token);
             } else if (token instanceof IfStmtToken){
                 writeIf((IfStmtToken)token);
+            } else if (token instanceof SwitchStmtToken){
+                writeSwitch((SwitchStmtToken)token);
             } else if (token instanceof WhileStmtToken){
                 writeWhile((WhileStmtToken)token);
+            } else if (token instanceof DoStmtToken){
+                writeDo((DoStmtToken)token);
             } else if (token instanceof ForStmtToken){
                 writeFor((ForStmtToken)token);
+            } else if (token instanceof JumpStmtToken){
+                writeJump((JumpStmtToken)token);
             }
         }
 
@@ -1266,14 +1381,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePush(stackPopToken(), returnValue);
         }
 
-        if (!returnValue)
-            writePopAll();
+        if (!returnValue){
+            writePopAll(method.getStackSize() - initStackSize);
+        }
 
         return null;
     }
 
-    void writePopAll(){
-        while (method.getStackSize() > 0){
+    void writePopAll(int count){
+        int i = 0;
+        while (method.getStackSize() > 0 && i < count){
+            i++;
             ValueExprToken token = stackPeekToken();
             StackItem.Type type = stackPop().type;
 
@@ -1285,12 +1403,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         throw new IllegalArgumentException("Invalid of size StackItem: " + type.size());
                 }
             }
+
         }
-        for(int i = 0; i < method.getStackSize(); i++){
-            if (method.pop().getToken() == null)
-                mv.visitInsn(Opcodes.POP);
-        }
-        method.popAll();
     }
 
     @Override

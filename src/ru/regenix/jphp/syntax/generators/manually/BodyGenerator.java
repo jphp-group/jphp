@@ -6,7 +6,6 @@ import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.BodyStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.EndStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
@@ -22,9 +21,14 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
         super(analyzer);
     }
 
-    @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator,
-                                  Class<? extends EndStmtToken> endToken) {
+                                  Class<? extends Token>... endTokens) {
+        return getToken(current, iterator, false, endTokens);
+    }
+
+    @SuppressWarnings("unchecked")
+    public BodyStmtToken getToken(Token current, ListIterator<Token> iterator, boolean absolute,
+                                  Class<? extends Token>... endTokens) {
         List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
         if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)
                 || current instanceof SemicolonToken){
@@ -33,7 +37,7 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                 ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(
                         current,
                         iterator,
-                        current instanceof SemicolonToken ? EndStmtToken.class : null
+                        BraceExprToken.class
                 );
                 if (expr == null){
                     break;
@@ -41,14 +45,17 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
 
                 instructions.add(expr);
             }
-        } else if (current instanceof ColonToken){
-            if (endToken == null)
+        } else if (current instanceof ColonToken || (absolute && endTokens != null)){
+            if (endTokens == null)
                 unexpectedToken(current);
+
+            if (!(current instanceof ColonToken))
+                iterator.previous();
 
             while (iterator.hasNext()){
                 current = nextToken(iterator);
                 ExprStmtToken expr = analyzer.generator(ExprGenerator.class)
-                        .getToken(current, iterator, endToken);
+                        .getToken(current, iterator, endTokens);
 
                 if (expr == null) {
                     iterator.previous();
@@ -60,7 +67,7 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                 instructions.add(expr);
             }
         } else {
-            ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator, endToken);
+            ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
             if (expr != null)
                 instructions.add(expr);
         }

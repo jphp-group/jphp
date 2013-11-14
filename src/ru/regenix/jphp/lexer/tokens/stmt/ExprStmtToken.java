@@ -30,4 +30,12 @@ public class ExprStmtToken extends StmtToken {
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
     }
+
+    public boolean isSingle(){
+        return tokens.size() == 1;
+    }
+
+    public Token getSingle(){
+        return tokens.get(0);
+    }
 }

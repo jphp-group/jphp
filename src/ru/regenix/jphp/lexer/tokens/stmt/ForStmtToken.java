@@ -8,6 +8,8 @@ import java.util.Set;
 
 public class ForStmtToken extends StmtToken {
     private Set<VariableExprToken> local;
+    private Set<VariableExprToken> initLocal;
+    private Set<VariableExprToken> iterationLocal;
     private ExprStmtToken initExpr;
     private ExprStmtToken condition;
     private ExprStmtToken iterationExpr;
@@ -56,5 +58,21 @@ public class ForStmtToken extends StmtToken {
 
     public void setBody(BodyStmtToken body) {
         this.body = body;
+    }
+
+    public Set<VariableExprToken> getInitLocal() {
+        return initLocal;
+    }
+
+    public void setInitLocal(Set<VariableExprToken> initLocal) {
+        this.initLocal = initLocal;
+    }
+
+    public Set<VariableExprToken> getIterationLocal() {
+        return iterationLocal;
+    }
+
+    public void setIterationLocal(Set<VariableExprToken> iterationLocal) {
+        this.iterationLocal = iterationLocal;
     }
 }

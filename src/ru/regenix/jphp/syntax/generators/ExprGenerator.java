@@ -1,11 +1,12 @@
 package ru.regenix.jphp.syntax.generators;
 
+import com.google.common.collect.Sets;
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Separator;
-import ru.regenix.jphp.lexer.tokens.BreakToken;
-import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
-import ru.regenix.jphp.lexer.tokens.SemicolonToken;
-import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.lexer.tokens.*;
 import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
 import ru.regenix.jphp.lexer.tokens.stmt.EchoRawToken;
 import ru.regenix.jphp.lexer.tokens.expr.ExprToken;
 import ru.regenix.jphp.lexer.tokens.expr.value.ImportExprToken;
@@ -37,6 +38,53 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(next, BraceExprToken.Kind.toClose(kind));
 
         return result;
+    }
+
+    protected void processCase(CaseStmtToken result, ListIterator<Token> iterator){
+        if (!(result instanceof DefaultStmtToken)){
+            Token next = nextToken(iterator);
+            ExprStmtToken conditional = analyzer.generator(SimpleExprGenerator.class).getToken(
+                    next, iterator, Separator.COLON, null
+            );
+            if (conditional == null)
+                unexpectedToken(next);
+            result.setConditional(conditional);
+        }
+
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+            nextToken(iterator), iterator, true,
+            EndswitchStmtToken.class, CaseStmtToken.class, DefaultStmtToken.class, BraceExprToken.class
+        );
+        result.setBody(body);
+    }
+
+    protected void processSwitch(SwitchStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
+        result.setValue(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
+        if (result.getValue() == null)
+            unexpectedToken(iterator.previous());
+
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+                nextToken(iterator), iterator, EndswitchStmtToken.class
+        );
+        List<CaseStmtToken> cases = new ArrayList<CaseStmtToken>();
+        for(ExprStmtToken instruction : body.getInstructions()){
+            if (instruction.isSingle()){
+                Token token = instruction.getSingle();
+                if (token instanceof CaseStmtToken){
+                    cases.add((CaseStmtToken)token);
+                    if (token instanceof DefaultStmtToken){
+                        if (result.getDefaultCase() != null)
+                            unexpectedToken(token);
+                        result.setDefaultCase((DefaultStmtToken)token);
+                    }
+                } else
+                    unexpectedToken(token);
+            } else
+                unexpectedToken(instruction.getSingle());
+        }
+        result.setCases(cases);
+        result.setLocal(analyzer.removeLocalScope());
     }
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
@@ -79,11 +127,16 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken init = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
 
+        result.setInitLocal(analyzer.getLocalScope());
+        analyzer.addLocalScope();
+
         ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
 
         ExprStmtToken iteratorExpr = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.SIMPLE);
+
+        result.setIterationLocal(Sets.newHashSet(analyzer.getLocalScope()));
 
         nextAndExpected(iterator, BraceExprToken.class);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
@@ -122,6 +175,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setBody(body);
 
@@ -130,10 +184,30 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.setCondition(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
 
             next = nextToken(iterator);
+            result.setLocal(analyzer.removeLocalScope());
             if (next instanceof SemicolonToken)
                 return;
         }
         unexpectedToken(next);
+    }
+
+    protected void processJump(JumpStmtToken result, ListIterator<Token> iterator){
+        Token next = nextToken(iterator);
+        long level = 1;
+        if (next instanceof IntegerExprToken){
+            level = ((IntegerExprToken) next).getValue();
+            if (level < 1)
+                throw new FatalException(
+                        Messages.ERR_FATAL_OPERATOR_ACCEPTS_ONLY_POSITIVE.fetch(result.getWord()),
+                        result.toTraceInfo(analyzer.getContext())
+                );
+
+            next = nextToken(iterator);
+        }
+
+        result.setLevel((int)level);
+        if (!(next instanceof SemicolonToken))
+            unexpectedToken(next);
     }
 
     protected void processImport(ImportExprToken result, ListIterator<Token> iterator){
@@ -153,23 +227,24 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
     @SuppressWarnings("unchecked")
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
-                                  Class<? extends EndStmtToken> endToken) {
+                                  Class<? extends Token>... endTokens) {
         List<Token> tokens = new ArrayList<Token>();
         do {
-            if (current instanceof EndStmtToken){
+            if (current instanceof EndStmtToken || isTokenClass(current, endTokens)){
                 if (current instanceof ElseIfStmtToken){
                     IfStmtToken ifStmt = new IfStmtToken(current.getMeta());
                     processIf(ifStmt, iterator);
                     tokens.add(ifStmt);
                 }
 
-                if (endToken == null)
+                if (!isTokenClass(current, endTokens))
                     unexpectedToken(current);
 
-                if (isTokenClass(current, endToken))
-                    break;
+                if (current instanceof BraceExprToken && !isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                    unexpectedToken(current);
+                }
 
-                unexpectedToken(current);
+                break;
             } else if (current instanceof EchoRawToken){
                 tokens.add(current);
                 break;
@@ -184,23 +259,35 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 processImport((IncludeExprToken) current, iterator);
                 tokens.add(current);
             } else if (current instanceof IfStmtToken){
-                processIf((IfStmtToken)current, iterator);
+                processIf((IfStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof ReturnStmtToken){
-                processReturn((ReturnStmtToken)current, iterator);
+                processReturn((ReturnStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof ForStmtToken){
-                processFor((ForStmtToken)current, iterator);
+                processFor((ForStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof WhileStmtToken){
-                processWhile((WhileStmtToken)current, iterator);
+                processWhile((WhileStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof DoStmtToken){
-                processDo((DoStmtToken)current, iterator);
+                processDo((DoStmtToken) current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof CaseStmtToken){
+                processCase((CaseStmtToken) current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof SwitchStmtToken){
+                processSwitch((SwitchStmtToken) current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof JumpStmtToken){
+                processJump((JumpStmtToken)current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof BreakToken){
@@ -211,7 +298,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
                 if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
-                    if (endToken != null)
+                    if (endTokens != null && !isTokenClass(current, endTokens))
                         unexpectedToken(current);
 
                     break;

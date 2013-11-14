@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
+import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;
@@ -17,9 +18,7 @@ import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
@@ -27,6 +26,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     public final MethodStmtToken method;
 
     private Stack<StackItem> stack = new Stack<StackItem>();
+    private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
 
     private int stackSize = 0;
     private int stackMaxSize = 0;
@@ -59,6 +59,36 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public Map<String, LocalVariable> getLocalVariables() {
         return localVariables;
+    }
+
+    void pushJump(Label breakLabel, Label continueLabel, int stackSize){
+        jumpStack.add(new JumpItem(breakLabel, continueLabel, stackSize));
+    }
+
+    void pushJump(Label breakLabel, Label continueLabel){
+        pushJump(breakLabel, continueLabel, 0);
+    }
+
+    JumpItem getJump(int level){
+        if (jumpStack.size() - level < 0)
+            return null;
+        if (jumpStack.size() - level >= jumpStack.size())
+            return null;
+
+        return jumpStack.get(jumpStack.size() - level);
+    }
+
+    int getJumpStackSize(int level){
+        int size = 0;
+        for(int i = jumpStack.size(); i >= 0 && jumpStack.size() - i < level; i--){
+            JumpItem item = getJump(i);
+            size += item.stackSize;
+        }
+        return size;
+    }
+
+    void popJump(){
+        jumpStack.remove(jumpStack.size() - 1);
     }
 
     void push(StackItem item){

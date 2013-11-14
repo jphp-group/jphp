@@ -114,6 +114,8 @@ public class TokenFinder {
         put("endwhile", EndwhileStmtToken.class);
         put("endswitch", EndswitchStmtToken.class);
         put("enddeclare", EnddeclareStmtToken.class);
+        put("break", BreakStmtToken.class);
+        put("continue", ContinueStmtToken.class);
 
         put("class", ClassStmtToken.class);
         put("function", FunctionStmtToken.class);
