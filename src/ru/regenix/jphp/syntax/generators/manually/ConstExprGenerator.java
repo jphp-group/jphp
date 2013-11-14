@@ -49,6 +49,9 @@ public class ConstExprGenerator extends Generator<ExprStmtToken> {
                 current, iterator, commaSeparator, closedBraceKind
         );
 
+        if (expr == null)
+            unexpectedToken(current);
+
         for (Token token : expr.getTokens()){
             if (isOpenedBrace(token, BraceExprToken.Kind.SIMPLE) ||
                     isClosedBrace(token, BraceExprToken.Kind.SIMPLE))
