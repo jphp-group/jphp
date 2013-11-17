@@ -1,15 +1,15 @@
-package ru.regenix.jphp.ext;
+package ru.regenix.jphp.runtime.ext;
 
 import ru.regenix.jphp.compiler.common.Extension;
 
-public class BCMathExtension extends Extension {
+public class CalendarExtension extends Extension {
     @Override
     public String getName() {
-        return "bcmath";
+        return "calendar";
     }
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return "~";
     }
 }

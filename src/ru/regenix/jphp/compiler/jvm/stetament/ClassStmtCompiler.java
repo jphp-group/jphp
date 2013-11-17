@@ -23,6 +23,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassWriter cw;
     public final ClassStmtToken clazz;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
+    private boolean external = false;
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
         super(compiler);
@@ -33,6 +34,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(clazz.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(clazz.getFulledName());
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
     }
 
     int addTraceInfo(int line, int position){
@@ -116,6 +125,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         methodCompiler.writeFooter();
     }
 
+
     @Override
     public ClassEntity compile() {
         cw = new ClassWriter(0);
@@ -127,12 +137,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         writeConstructor();
 
         // constants
+        if (clazz.getConstants() != null)
         for(ConstStmtToken constant : clazz.getConstants()){
             writeConstant(constant);
         }
 
+        if (clazz.getMethods() != null)
         for (MethodStmtToken method : clazz.getMethods()){
-            entity.addMethod(compiler.compileMethod(this, method));
+            entity.addMethod(compiler.compileMethod(this, method, external));
         }
 
         writeSystemInfo();

@@ -6,15 +6,17 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.ext.BCMathExtension;
-import ru.regenix.jphp.ext.CTypeExtension;
-import ru.regenix.jphp.ext.CalendarExtension;
-import ru.regenix.jphp.ext.CoreExtension;
+import ru.regenix.jphp.runtime.ext.BCMathExtension;
+import ru.regenix.jphp.runtime.ext.CTypeExtension;
+import ru.regenix.jphp.runtime.ext.CalendarExtension;
+import ru.regenix.jphp.runtime.ext.CoreExtension;
 import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.File;
@@ -32,28 +34,31 @@ public class Main {
             scope.registerExtension(new CalendarExtension());
 
             Environment environment = new Environment(scope, System.out);
-            Context context = environment.createContext(new File("main.php"));
+            Context context = environment.createContext(new File("scripts/main.php"));
 
             // compile
             Tokenizer tokenizer = new Tokenizer(context);
             SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
-            AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer.getTree());
-            compiler.compile();
+            AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
 
-            ClassEntity myClass = scope.loadClass("MyClass");
+            ModuleEntity module = compiler.compile();
+            scope.loadModule(module);
 
-            String[] ops = BytecodePrettyPrinter.getMethod(myClass, "test",
+            String[] ops = BytecodePrettyPrinter.getMethod(module.getData(), "__include",
                     Type.getMethodDescriptor(Type.getType(Memory.class),
                             Type.getType(Environment.class),
                             Type.getType(String.class),
-                            Type.getType(Memory[].class)
+                            Type.getType(Memory[].class),
+                            Type.getType(ArrayMemory.class)
                     )
             );
             for (String op : ops)
                 System.out.println(op);
 
             long t = System.currentTimeMillis();
-            Memory result = myClass.findMethod("test").invokeStaticNoThrow(null, environment);
+
+            Memory result = module.includeNoThrow(environment);
+
             environment.flushAll();
 
             System.out.println();

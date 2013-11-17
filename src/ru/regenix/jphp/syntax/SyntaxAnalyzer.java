@@ -54,7 +54,6 @@ public class SyntaxAnalyzer {
 
         addLocalScope();
         process();
-        removeLocalScope();
     }
 
     protected void process(){

@@ -47,7 +47,7 @@ abstract public class Entity {
         this.shortName = tmp[tmp.length - 1];
 
         if (tmp.length > 1)
-            this.namespaceName = StringUtils.join(tmp, '\\', 0, tmp.length - 2);
+            this.namespaceName = StringUtils.join(tmp, '\\', 0, tmp.length - 1);
     }
 
     public boolean isNamespace(){

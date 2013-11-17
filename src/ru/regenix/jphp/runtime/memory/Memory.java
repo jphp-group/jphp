@@ -118,21 +118,21 @@ abstract public class Memory {
     abstract public Memory mul(Memory memory);
     public Memory mul(long value){ return new LongMemory(toLong() * value); }
     public Memory mul(double value){ return new DoubleMemory(toDouble() * value); }
-    public Memory mul(boolean value){ return new LongMemory(toLong() * (value ? 1 : 0)); }
+    public Memory mul(boolean value){ return LongMemory.valueOf(toLong() * (value ? 1 : 0));}
     public Memory mul(String value){ return mul(StringMemory.toNumeric(value)); }
 
     // DIV
     abstract public Memory div(Memory memory);
     public Memory div(long value){ if(value==0) return FALSE; return new DoubleMemory(toDouble() / value); }
     public Memory div(double value){ if(value==0.0) return FALSE; return new DoubleMemory(toDouble() / value); }
-    public Memory div(boolean value){ if(!value) return FALSE; return new LongMemory(toLong()); }
+    public Memory div(boolean value){ if(!value) return FALSE; return LongMemory.valueOf(toLong()); }
     public Memory div(String value){ return div(StringMemory.toNumeric(value)); }
 
     // MOD
     abstract public Memory mod(Memory memory);
-    public Memory mod(long value){ if (value==0) return FALSE; return new LongMemory(toLong() % value); }
+    public Memory mod(long value){ if (value==0) return FALSE; return LongMemory.valueOf(toLong() % value); }
     public Memory mod(double value){ return mod((long)value); }
-    public Memory mod(boolean value){ if (!value) return FALSE; return new LongMemory(toLong() % (value ? 1 : 0)); }
+    public Memory mod(boolean value){ if (!value) return FALSE; return LongMemory.valueOf(toLong() % 1); }
     public Memory mod(String value){ return div(StringMemory.toNumeric(value)); }
 
     // NOT
@@ -141,9 +141,9 @@ abstract public class Memory {
     // EQUAL
     abstract public boolean equal(Memory memory);
     public boolean equal(long value){ return toLong() == value; }
-    public boolean equal(double value) { return toDouble() == value; }
+    public boolean equal(double value) { return DoubleMemory.almostEqual(toDouble(), value); }
     public boolean equal(boolean value) { return toBoolean() == value; }
-    public boolean equal(String value) { return toString().equals(value); }
+    public boolean equal(String value) { return equal(StringMemory.toNumeric(value)); }
 
     // NOT EQUAL
     abstract public boolean notEqual(Memory memory);

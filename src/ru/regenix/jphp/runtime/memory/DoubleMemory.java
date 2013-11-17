@@ -126,8 +126,23 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
+    public boolean equal(double value) {
+        return almostEqual(this.value, value);
+    }
+
+    @Override
+    public boolean equal(long value) {
+        return almostEqual(this.value, value);
+    }
+
+    @Override
     public boolean notEqual(Memory memory) {
         return !equal(memory);
+    }
+
+    @Override
+    public boolean not() {
+        return almostEqual(this.value, 0.0);
     }
 
     @Override

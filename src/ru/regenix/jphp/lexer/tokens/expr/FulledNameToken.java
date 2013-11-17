@@ -1,5 +1,6 @@
 package ru.regenix.jphp.lexer.tokens.expr;
 
+import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.lexer.tokens.Token;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
@@ -13,6 +14,14 @@ public class FulledNameToken extends NameToken {
 
     public FulledNameToken(TokenMeta meta) {
         super(meta);
+    }
+
+    public FulledNameToken(TokenMeta meta, char sep){
+        super(meta);
+        this.names = new ArrayList<NameToken>();
+        for(String name : StringUtils.split(meta.getWord(), sep)){
+            this.names.add(new NameToken(TokenMeta.of( name, this )));
+        }
     }
 
     public FulledNameToken(TokenMeta meta, List<? extends Token> names) {

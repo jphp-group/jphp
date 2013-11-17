@@ -127,7 +127,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken init = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
 
-        result.setInitLocal(analyzer.getLocalScope());
+        result.setInitLocal(analyzer.removeLocalScope());
         analyzer.addLocalScope();
 
         ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
@@ -210,14 +210,34 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(next);
     }
 
-    protected void processImport(ImportExprToken result, ListIterator<Token> iterator){
+    protected void processImport(RequireStmtToken result, ListIterator<Token> iterator){
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(nextToken(iterator), iterator);
+                .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
         result.setValue(value);
         if (analyzer.getFunction() != null){
             analyzer.getFunction().setDynamicLocal(true);
             analyzer.getFunction().setCallsExist(true);
         }
+    }
+
+    public void processEcho(EchoStmtToken result, ListIterator<Token> iterator){
+        List<ExprStmtToken> arguments = new ArrayList<ExprStmtToken>();
+        ExprStmtToken argument;
+        do {
+            argument = analyzer.generator(SimpleExprGenerator.class).getToken(
+                    nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null
+            );
+
+            if (argument != null)
+                arguments.add(argument);
+
+            if (iterator.previous() instanceof SemicolonToken){
+                iterator.next();
+                break;
+            }
+            iterator.next();
+        } while (argument != null);
+        result.setArguments(arguments);
     }
 
     protected List<Token> processSimpleExpr(Token current, ListIterator<Token> iterator){
@@ -255,9 +275,14 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 );
                 tokens.add(current);
                 break;
-            } else if (current instanceof ImportExprToken){
-                processImport((IncludeExprToken) current, iterator);
+            } else if (current instanceof RequireStmtToken){
+                processImport((RequireStmtToken) current, iterator);
                 tokens.add(current);
+                break;
+            } else if (current instanceof EchoStmtToken){
+                processEcho((EchoStmtToken) current, iterator);
+                tokens.add(current);
+                break;
             } else if (current instanceof IfStmtToken){
                 processIf((IfStmtToken) current, iterator);
                 tokens.add(current);
@@ -314,10 +339,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             }
 
-            if (iterator.hasNext())
+           /* if (iterator.hasNext())
                 current = nextToken(iterator);
             else
-                current = null;
+                current = null; */
         } while (current != null);
 
         if (tokens.isEmpty())

@@ -8,6 +8,42 @@ public class TrueMemory extends Memory {
         super(Type.BOOL);
     }
 
+    public static Memory valueOf(boolean value){
+        return value ? TRUE : FALSE;
+    }
+
+    public static Memory valueOf(int value){
+        return value != 0 ? TRUE : FALSE;
+    }
+
+    public static Memory valueOf(long value){
+        return value != 0 ? TRUE : FALSE;
+    }
+
+    public static Memory valueOf(short value){
+        return value != 0 ? TRUE : FALSE;
+    }
+
+    public static Memory valueOf(byte value){
+        return value != 0 ? TRUE : FALSE;
+    }
+
+    public static Memory valueOf(double value){
+        return value == 0.0 ? FALSE : TRUE;
+    }
+
+    public static Memory valueOf(float value){
+        return value == 0.0f ? FALSE : TRUE;
+    }
+
+    public static Memory valueOf(String value){
+        return value == null || value.isEmpty() || "0".equals(value) ? FALSE : TRUE;
+    }
+
+    public static Memory valueOf(Memory memory){
+        return memory.toBoolean() ? TRUE : FALSE;
+    }
+
     @Override
     public long toLong() {
         return 1;

@@ -5,6 +5,7 @@ import ru.regenix.jphp.runtime.env.Context;
 public class FunctionEntity extends AbstractFunctionEntity {
 
     private byte[] data;
+    protected ModuleEntity module;
 
     protected FunctionEntity(Context context) {
         super(context);
@@ -20,5 +21,13 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     public boolean isDeprecated(){
         return false; // TODO
+    }
+
+    public ModuleEntity getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleEntity module) {
+        this.module = module;
     }
 }

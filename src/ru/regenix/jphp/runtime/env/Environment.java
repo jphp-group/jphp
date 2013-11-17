@@ -2,23 +2,29 @@ package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
+import ru.regenix.jphp.lexer.Tokenizer;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
+import ru.regenix.jphp.runtime.env.message.WarningMessage;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.ob.OutputBuffer;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 
@@ -40,7 +46,8 @@ public class Environment {
     public final CompileScope scope;
     private Charset defaultCharset = Charset.forName("UTF-8");
 
-    private final Stack<TraceInfo> stackTrace = new Stack<TraceInfo>();
+    private final ArrayMemory globals;
+    private final Map<String, ModuleEntity> included;
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
@@ -53,6 +60,8 @@ public class Environment {
         this.includePaths = new HashSet<String>();
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
 
+        this.globals = new ArrayMemory();
+        this.included = new LinkedHashMap<String, ModuleEntity>();
         this.setErrorHandler(new ErrorHandler() {
             @Override
             public boolean onError(SystemMessage error) {
@@ -77,6 +86,10 @@ public class Environment {
 
     public CompileScope getScope() {
         return scope;
+    }
+
+    public ArrayMemory getGlobals() {
+        return globals;
     }
 
     public Charset getDefaultCharset() {
@@ -205,6 +218,21 @@ public class Environment {
         }
     }
 
+    public ModuleEntity importModule(File file) throws IOException {
+        Context context = new Context(this, file);
+        ModuleEntity module = scope.findUserModule(context.getModuleName());
+        if (module != null)
+            return module;
+
+        Tokenizer tokenizer = new Tokenizer(context);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        JvmCompiler compiler = new JvmCompiler(this, context, analyzer);
+
+        module = compiler.compile(true);
+        scope.loadModule(module);
+        return module;
+    }
+
     /***** UTILS *****/
     public Memory getConstant(String name, TraceInfo trace){
         ConstantEntity entity = scope.findUserConstant(name);
@@ -218,5 +246,41 @@ public class Environment {
             return StringMemory.valueOf(name);
 
         return entity.getValue();
+    }
+
+    public Memory include(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException, IOException {
+        File file = new File(fileName);
+        if (!file.exists()){
+            triggerMessage(new WarningMessage(trace, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName));
+            return Memory.FALSE;
+        } else {
+            ModuleEntity module = importModule(file);
+            included.put(module.getName(), module);
+            return module.include(this, calledClass, locals);
+        }
+    }
+
+    public Memory includeOnce(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException, IOException {
+        Context context = new Context(this, new File(fileName));
+        if (included.containsKey(context.getModuleName()))
+            return Memory.TRUE;
+        return include(fileName, calledClass, locals, trace);
+    }
+
+    public void require(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException, IOException {
+        File file = new File(fileName);
+        if (!file.exists()){
+            triggerError(new CompileException(
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName),
+                    trace
+            ));
+        } else {
+            ModuleEntity module = importModule(file);
+            included.put(fileName, module);
+            module.include(this, calledClass, locals);
+        }
     }
 }

@@ -46,6 +46,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected ImportExprToken processImport(Token current, Token next, ListIterator<Token> iterator,
+                                              BraceExprToken.Kind closedBrace){
+        ImportExprToken result = (ImportExprToken)current;
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        );
+        if (closedBrace == null)
+            iterator.previous();
+        result.setValue(value);
+        return result;
+    }
+
     protected GetVarExprToken processVarVar(Token current, Token next, ListIterator<Token> iterator){
         ExprStmtToken name = null;
         if (next instanceof VariableExprToken){ // $$var
@@ -74,7 +86,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
-    protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator){
+    protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
+                                       BraceExprToken.Kind closedBraceKind){
+        if (current instanceof ImportExprToken)
+            return processImport(current, next, iterator, closedBraceKind);
+
         if (current instanceof DollarExprToken){
             return processVarVar(current, next, iterator);
         }
@@ -125,7 +141,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
             ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator);
+                    .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind);
+            if (closedBraceKind == null)
+                iterator.previous();
+
             logic.setRightValue(result);
             return logic;
         }
@@ -258,7 +277,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processArrayToken(previous, current, iterator));
                 }
             } else if (current instanceof CommaToken){
-                if (separator == Separator.COMMA){
+                if (separator == Separator.COMMA || separator == Separator.COMMA_OR_SEMICOLON){
                     break;
                 } else {
                     unexpectedToken(current);
@@ -269,11 +288,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof BreakToken){
                 break;
             } else if (current instanceof ColonToken){
-                if (separator == Separator.COLON)
+                if (separator == Separator.COLON || separator == Separator.COMMA_OR_SEMICOLON)
                     break;
                 unexpectedToken(current);
             } else if (current instanceof SemicolonToken){ // TODO refactor!
-                if (separator == Separator.SEMICOLON)
+                if (separator == Separator.SEMICOLON || separator == Separator.COMMA_OR_SEMICOLON)
                     break;
 
                 if (separator == Separator.COMMA || closedBraceKind != null || tokens.isEmpty())
@@ -284,7 +303,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof ArrayExprToken){
                 tokens.add(processNewArray(current, iterator));
             } else if (current instanceof ExprToken) {
-                Token token = processSimpleToken(current, previous, next, iterator);
+                Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind);
                 if (token != null)
                     current = token;
 

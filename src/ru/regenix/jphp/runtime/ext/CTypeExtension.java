@@ -1,15 +1,15 @@
-package ru.regenix.jphp.ext;
+package ru.regenix.jphp.runtime.ext;
 
 import ru.regenix.jphp.compiler.common.Extension;
 
-public class CalendarExtension extends Extension {
+public class CTypeExtension extends Extension {
     @Override
     public String getName() {
-        return "calendar";
+        return "ctype";
     }
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return "~";
     }
 }

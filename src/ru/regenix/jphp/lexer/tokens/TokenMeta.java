@@ -59,6 +59,13 @@ public class TokenMeta {
         );
     }
 
+    public static TokenMeta of(String word){
+        return new TokenMeta(
+                word,
+                0, 0, 0, 0
+        );
+    }
+
     public String getWord() {
         return word;
     }

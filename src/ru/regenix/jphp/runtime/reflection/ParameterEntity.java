@@ -1,18 +1,17 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.memory.Memory;
 
 public class ParameterEntity extends Entity {
-
-    public enum Type { ANY, ARRAY, OBJECT, CALLABLE }
 
     protected ClassEntity clazz;
     protected MethodEntity method;
     protected Memory defaultValue;
 
     protected boolean isReference;
-    protected Type type = Type.ANY;
+    protected HintType type = HintType.ANY;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -30,7 +29,7 @@ public class ParameterEntity extends Entity {
         return clazz;
     }
 
-    public void setClazz(ClassEntity clazz) {
+    private void setClazz(ClassEntity clazz) {
         this.clazz = clazz;
     }
 
@@ -40,6 +39,7 @@ public class ParameterEntity extends Entity {
 
     public void setMethod(MethodEntity method) {
         this.method = method;
+        this.clazz = method == null ? null : method.clazz;
     }
 
     public boolean isReference() {
@@ -50,24 +50,24 @@ public class ParameterEntity extends Entity {
         isReference = reference;
     }
 
-    public Type getType() {
+    public HintType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(HintType type) {
         this.type = type;
     }
 
     public boolean isArray(){
-        return type == Type.ARRAY;
+        return type == HintType.ARRAY;
     }
 
     public boolean isObject(){
-        return type == Type.OBJECT;
+        return type == HintType.OBJECT;
     }
 
     public boolean isCallable(){
-        return type == Type.CALLABLE;
+        return type == HintType.CALLABLE;
     }
 
     public boolean isOptional(){

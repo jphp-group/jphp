@@ -26,8 +26,8 @@ abstract public class SystemMessage {
     public String getDebugMessage(){
         return getType().getTypeName() + ": " + getMessage()
                 + " in '" + trace.getFileName() + "'"
-                + " on line " + trace.getStartLine()
-                + " at pos " + trace.getStartPosition();
+                + " on line " + (trace.getStartLine() + 1)
+                + " at pos " + (trace.getStartPosition() + 1);
     }
 
     abstract public ErrorException.Type getType();

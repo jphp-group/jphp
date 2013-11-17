@@ -5,7 +5,9 @@ import ru.regenix.jphp.runtime.memory.Memory;
 
 public class ConstantEntity extends Entity {
 
+    protected ModuleEntity module;
     protected ClassEntity clazz;
+
     protected DocumentComment docComment;
     protected Memory value;
     public final String name;
@@ -42,6 +44,15 @@ public class ConstantEntity extends Entity {
 
     public void setClazz(ClassEntity clazz) {
         this.clazz = clazz;
+        this.module = clazz == null ? null : clazz.getModule();
+    }
+
+    public ModuleEntity getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleEntity module) {
+        this.module = module;
     }
 
     public Memory getValue() {
@@ -52,5 +63,9 @@ public class ConstantEntity extends Entity {
         synchronized (this){
             this.value = value;
         }
+    }
+
+    public boolean isCaseSensitise() {
+        return caseSensitise;
     }
 }

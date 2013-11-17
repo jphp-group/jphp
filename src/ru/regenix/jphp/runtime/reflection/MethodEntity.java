@@ -1,10 +1,12 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.exceptions.ClassNotLoadedException;
 import ru.regenix.jphp.runtime.memory.Memory;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +14,7 @@ import java.lang.reflect.Method;
 
 public class MethodEntity extends AbstractFunctionEntity {
     protected ClassEntity clazz;
+    protected Extension extension;
     protected MethodEntity prototype;
 
     protected Method nativeMethod;
@@ -24,6 +27,57 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public MethodEntity(Context context) {
         super(context);
+    }
+
+    public MethodEntity(Extension extension, Method method){
+        this(null);
+        this.extension = extension;
+
+        Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
+        if (signature == null)
+            throw new IllegalArgumentException("Method is not annotated with @Reflection.Signature");
+
+        Class<?>[] types = method.getParameterTypes();
+        if (types.length != 3 || types[0] != Environment.class || types[1] != String.class || types[2] != Memory[].class){
+            throw new IllegalArgumentException(
+                    "Invalid method signature: " + StringUtils.join(method.getTypeParameters(), ", ")
+            );
+        }
+
+        int modifiers = method.getModifiers();
+        isFinal = java.lang.reflect.Modifier.isFinal(modifiers);
+        isStatic = java.lang.reflect.Modifier.isStatic(modifiers);
+        isAbstract = java.lang.reflect.Modifier.isAbstract(modifiers);
+
+        modifier = Modifier.PUBLIC;
+        if (java.lang.reflect.Modifier.isProtected(modifiers))
+            modifier = Modifier.PROTECTED;
+        else if (java.lang.reflect.Modifier.isPrivate(modifiers))
+            modifier = Modifier.PRIVATE;
+
+        int i = 1;
+        for(Reflection.Arg arg : signature.value()){
+            ParameterEntity param = new ParameterEntity(context);
+            param.setMethod(this);
+            param.setType(arg.type());
+            param.setReference(arg.reference());
+            param.setName(arg.value().isEmpty() ? "arg_" + i : arg.value());
+            i++;
+        }
+
+        nativeMethod = method;
+    }
+
+    public Extension getExtension() {
+        return extension;
+    }
+
+    public Method getNativeMethod() {
+        return nativeMethod;
+    }
+
+    public void setNativeMethod(Method nativeMethod) {
+        this.nativeMethod = nativeMethod;
     }
 
     public Memory invokeDynamicNoThrow(Object _this, String _static, Environment environment, Memory... arguments){
@@ -42,21 +96,6 @@ public class MethodEntity extends AbstractFunctionEntity {
             throws IllegalAccessException, InvocationTargetException {
         if (_static == null){
             _static = _this.getClass().getName().replace('.', '\\').toLowerCase();
-        }
-        if (nativeMethod == null){
-            if (clazz.nativeClazz == null)
-                throw new ClassNotLoadedException(clazz.getName());
-
-            try {
-                synchronized (this){
-                    nativeMethod = clazz.nativeClazz.getDeclaredMethod(
-                            getName(), Environment.class, String.class, Memory[].class
-                    );
-                    nativeMethod.setAccessible(true);
-                }
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);

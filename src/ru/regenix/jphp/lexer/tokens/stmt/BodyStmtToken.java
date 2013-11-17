@@ -1,5 +1,6 @@
 package ru.regenix.jphp.lexer.tokens.stmt;
 
+import com.google.common.collect.Lists;
 import ru.regenix.jphp.lexer.TokenType;
 import ru.regenix.jphp.lexer.tokens.TokenMeta;
 
@@ -23,6 +24,13 @@ public class BodyStmtToken extends StmtToken {
 
     public static BodyStmtToken of(ExprStmtToken... instructions){
         BodyStmtToken body = new BodyStmtToken(TokenMeta.of(instructions));
+        body.setInstructions(Lists.newArrayList(instructions));
+        return body;
+    }
+
+    public static BodyStmtToken of(List<ExprStmtToken> instructions) {
+        BodyStmtToken body = new BodyStmtToken(TokenMeta.of(instructions));
+        body.setInstructions(instructions);
         return body;
     }
 }

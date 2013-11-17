@@ -28,6 +28,12 @@ public class ArrayMemory extends Memory {
         return new ArrayMemory();
     }
 
+    public static ArrayMemory valueOfRef(ArrayMemory value){
+        ArrayMemory result = new ArrayMemory();
+        result.putAllRef(value);
+        return result;
+    }
+
     public ArrayMemory duplicate(){
         ArrayMemory result = new ArrayMemory();
         result.lastLongIndex = lastLongIndex;
@@ -133,6 +139,25 @@ public class ArrayMemory extends Memory {
             put(LongMemory.valueOf(lastLongIndex), value);
         }
         size++;
+    }
+
+    public void putAllRef(ArrayMemory array){
+        if (array.list != null){
+            int i = 0;
+            for(ReferenceMemory memory : array.list){
+                if (memory != null)
+                    put(LongMemory.valueOf(i), memory);
+                i++;
+            }
+        } else {
+            if (list != null)
+                convertToMap();
+
+            if (array.lastLongIndex > lastLongIndex)
+                lastLongIndex = array.lastLongIndex;
+
+            map.putAll(array.map);
+        }
     }
 
     public ReferenceMemory put(Object key, Memory value) {

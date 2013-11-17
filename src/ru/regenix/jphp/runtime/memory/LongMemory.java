@@ -182,6 +182,16 @@ public class LongMemory extends Memory {
     }
 
     @Override
+    public boolean equal(long value) {
+        return this.value == value;
+    }
+
+    @Override
+    public boolean equal(double value) {
+        return this.value == value;
+    }
+
+    @Override
     public boolean notEqual(Memory memory) {
         switch (memory.type){
             case INT: return ((LongMemory)memory).value != value;

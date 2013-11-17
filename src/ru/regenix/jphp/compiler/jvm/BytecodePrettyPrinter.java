@@ -22,7 +22,11 @@ public class BytecodePrettyPrinter {
      * @throws IOException
      */
     public static String[] getMethod(ClassEntity clazz, String methodName, String methodDescriptor) throws IOException {
-        ClassReader classReader = new ClassReader(clazz.getData());
+        return getMethod(clazz.getData(), methodName, methodDescriptor);
+    }
+
+    public static String[] getMethod(byte[] opcode, String methodName, String methodDescriptor) throws IOException {
+        ClassReader classReader = new ClassReader(opcode);
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, new SourceCodeTextifier(), printWriter);

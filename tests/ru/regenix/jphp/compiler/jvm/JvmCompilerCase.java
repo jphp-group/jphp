@@ -20,6 +20,11 @@ abstract public class JvmCompilerCase {
         return analyzer.getTree();
     }
 
+    protected SyntaxAnalyzer getSyntax(Context context){
+        Tokenizer tokenizer = new Tokenizer(context);
+        return new SyntaxAnalyzer(tokenizer);
+    }
+
     protected List<Token> getSyntaxTree(String code){
         return getSyntaxTree(new Context(environment, code));
     }
@@ -30,10 +35,10 @@ abstract public class JvmCompilerCase {
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
         Context context = new Context(environment, code);
 
-        JvmCompiler compiler = new JvmCompiler(environment, context, getSyntaxTree(context));
+        JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         compiler.compile();
 
-        ClassEntity entity = environment.getScope().loadClass("TestClass");
+        ClassEntity entity = environment.getScope().loadModule(context.getModuleNameNoThrow()).findClass("TestClass");
         return entity.findMethod("test").invokeStaticNoThrow(null, environment);
     }
 

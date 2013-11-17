@@ -1,7 +1,10 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.compiler.common.Extension;
+import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,7 +15,9 @@ public class ClassEntity extends Entity {
 
     /** byte code */
     protected byte[] data;
+    protected Extension extension;
     protected Class<?> nativeClazz;
+    protected ModuleEntity module;
 
     public final Map<String, MethodEntity> methods;
     protected MethodEntity constructor;
@@ -39,6 +44,30 @@ public class ClassEntity extends Entity {
         this.properties = new LinkedHashMap<String, PropertyEntity>();
         this.staticProperties = new LinkedHashMap<String, PropertyEntity>();
         this.constants = new LinkedHashMap<String, ConstantEntity>();
+    }
+
+    public ClassEntity(Extension extension, Class<?> nativeClazz){
+        this(null);
+        this.extension = extension;
+        if (nativeClazz.isInterface())
+            type = Type.INTERFACE;
+
+        if (nativeClazz.isAnnotationPresent(Reflection.Name.class)){
+            Reflection.Name name = nativeClazz.getAnnotation(Reflection.Name.class);
+            setName(name.value());
+        } else {
+            setName(nativeClazz.getName().replaceAll("\\.", "\\"));
+        }
+
+        for (Method method : nativeClazz.getDeclaredMethods()){
+            if (method.isAnnotationPresent(Reflection.Signature.class)){
+                addMethod(new MethodEntity(extension, method));
+            }
+        }
+    }
+
+    public Extension getExtension() {
+        return extension;
     }
 
     public boolean isDeprecated(){
@@ -186,5 +215,13 @@ public class ClassEntity extends Entity {
 
     public void setNativeClazz(Class<?> nativeClazz) {
         this.nativeClazz = nativeClazz;
+    }
+
+    public ModuleEntity getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleEntity module) {
+        this.module = module;
     }
 }

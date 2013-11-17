@@ -14,6 +14,7 @@ import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.MethodStmtToken;
 import ru.regenix.jphp.lexer.tokens.stmt.ReturnStmtToken;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
@@ -33,6 +34,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     private Map<String, LocalVariable> localVariables;
     protected MethodVisitor mv;
+
+    private boolean external = false;
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodVisitor mv, String methodName) {
         super(clazz.getCompiler());
@@ -55,6 +58,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
         entity.setName(method.getName().getName());
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
     }
 
     public Map<String, LocalVariable> getLocalVariables() {
@@ -147,15 +158,28 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             if (method.isAbstract()) access += Opcodes.ACC_ABSTRACT;
             if (method.isFinal()) access += Opcodes.ACC_FINAL;
 
-            mv = clazz.cw.visitMethod(access, method.getName().getName(),
-                    Type.getMethodDescriptor(
-                            Type.getType(Memory.class),
-                            Type.getType(Environment.class),
-                            Type.getType(String.class),
-                            Type.getType(Memory[].class)
-                    ),
-                    null, null
-            );
+            if (external){
+                mv = clazz.cw.visitMethod(access, method.getName().getName(),
+                        Type.getMethodDescriptor(
+                                Type.getType(Memory.class),
+                                Type.getType(Environment.class),
+                                Type.getType(String.class),
+                                Type.getType(Memory[].class),
+                                Type.getType(ArrayMemory.class)
+                        ),
+                        null, null
+                );
+            } else {
+                mv = clazz.cw.visitMethod(access, method.getName().getName(),
+                        Type.getMethodDescriptor(
+                                Type.getType(Memory.class),
+                                Type.getType(Environment.class),
+                                Type.getType(String.class),
+                                Type.getType(Memory[].class)
+                        ),
+                        null, null
+                );
+            }
         }
         mv.visitCode();
 
@@ -167,8 +191,24 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             addLocalVariable("~env", label, Environment.class); // Environment env
             addLocalVariable("~static", label, String.class);
-
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
+
+            if (method.isDynamicLocal()){
+                if (external)
+                    addLocalVariable("~passedLocal", label, ArrayMemory.class);
+
+                LocalVariable local = addLocalVariable("~local", label, ArrayMemory.class);
+                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+
+                if (external){
+                    expressionCompiler.writeVarLoad("~passedLocal");
+                    expressionCompiler.writeSysStaticCall(ArrayMemory.class, "valueOfRef", ArrayMemory.class, ArrayMemory.class);
+                    expressionCompiler.writeVarStore(local.index, false, true);
+                } else {
+                    expressionCompiler.writePushNewObject(ArrayMemory.class);
+                    expressionCompiler.writeVarStore(local.index, false, true);
+                }
+            }
 
             int i = 0;
             for(ArgumentStmtToken argument : method.getArguments()){
@@ -212,6 +252,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     @Override
     public MethodEntity compile() {
         if (method != null){
+            if (external)
+                method.setDynamicLocal(true);
+
             entity.setAbstract(method.isAbstract());
             entity.setFinal(method.isFinal());
             entity.setStatic(method.isStatic());
@@ -224,7 +267,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i] = new ParameterEntity(compiler.getContext());
                 parameters[i].setMethod(entity);
                 parameters[i].setReference(argument.isReference());
-                parameters[i].setClazz(clazz.entity);
                 parameters[i].setName(argument.getName().getName());
 
                 if (argument.getValue() != null){
@@ -242,7 +284,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         writeHeader();
 
-        if (method.getBody() != null){
+        if (method != null && method.getBody() != null){
             for(ExprStmtToken instruction : method.getBody().getInstructions()){
                 compiler.compileExpression(this, instruction);
             }

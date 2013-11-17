@@ -118,7 +118,10 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                         methods.add(method);
                         modifiers.clear();
-                    }
+                    } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                        break;
+                    } else
+                        unexpectedToken(current);
                 }
 
                 result.setConstants(constants);
