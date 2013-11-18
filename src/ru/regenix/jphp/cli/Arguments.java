@@ -10,7 +10,7 @@ final public class Arguments {
     public List<String> parameters = Lists.newArrayList();
 
     @Parameter(names = "-a", description = "Run interactively")
-    public boolean runInteractively = false;
+    public boolean runInteractively;
 
     @Parameter(names = "-c", description = "<path>|<file>   Look for php.ini file in this directory")
     public String phpIniPath;
@@ -22,7 +22,7 @@ final public class Arguments {
     public List<String> phpIniDirectives = Lists.newArrayList();
 
     @Parameter(names = "-e", description = "Generate extended information for debugger/profiler")
-    public boolean extendedInformation = false;
+    public boolean extendedInformation;
 
     @Parameter(names = "-f", description = "<file>  Parse and execute <file>")
     public String file;
@@ -31,7 +31,7 @@ final public class Arguments {
     public String inputFile;
 
     @Parameter(names = "-l", description = "PHP information")
-    public boolean phpInformation = false;
+    public boolean phpInformation;
 
     @Parameter(names = "-r", description = "<code>  Run PHP <code> without using script tags <?..?>")
     public String code;
@@ -41,6 +41,9 @@ final public class Arguments {
 
     @Parameter(names = "-v", description = "Version number")
     public boolean showVersion;
+
+    @Parameter(names = "-h", description = "Show help")
+    public boolean showHelp;
 
 
     @Parameter(names = "--rf", description = "<name>      Show information about function <name>")

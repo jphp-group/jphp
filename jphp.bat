@@ -1,2 +1,2 @@
 @echo off
-java -cp "./lib;JVM-PHP.jar" ru.regenix.jphp.cli.CLI
+java -cp "./lib;JVM-PHP.jar" ru.regenix.jphp.cli.CLI %*

@@ -18,14 +18,22 @@ public class CLI {
     private final CompileScope compileScope = new CompileScope();
     private final Arguments arguments;
     private final PrintStream output;
+    private final JCommander commander;
 
-    public CLI(Arguments arguments, PrintStream output){
+    public CLI(JCommander commander, Arguments arguments, PrintStream output){
+        this.commander = commander;
         this.output = output;
         this.arguments = arguments;
     }
 
     public void echo(String str){
         output.write(str.getBytes(), 0, str.length());
+    }
+
+    protected void showHelp(){
+        StringBuilder builder = new StringBuilder();
+        commander.usage(builder);
+        echo(builder.toString());
     }
 
     protected void showVersion(){
@@ -52,6 +60,9 @@ public class CLI {
 
     public void process(){
         try {
+            if (arguments.showHelp)
+                showHelp();
+
             if (arguments.showVersion){
                 showVersion();
                 return;
@@ -61,6 +72,8 @@ public class CLI {
                 executeFile(arguments.file);
                 return;
             }
+
+            showHelp();
         } catch (ErrorException e){
             output.printf("[%s] %s", e.getType().getTypeName(), e.getMessage());
         }
@@ -68,8 +81,8 @@ public class CLI {
 
     public static void main(String[] args){
         Arguments arguments = new Arguments();
-        new JCommander(arguments, args);
-        CLI cli = new CLI(arguments, System.out);
+        JCommander commander = new JCommander(arguments, args);
+        CLI cli = new CLI(commander, arguments, System.out);
         cli.process();
     }
 }
