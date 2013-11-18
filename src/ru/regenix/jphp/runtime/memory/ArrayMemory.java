@@ -197,23 +197,50 @@ public class ArrayMemory extends Memory {
         return mem;
     }
 
-
-    public Memory remove(Object key){
+    public Memory removeByScalar(Object key){
         if (list != null){
-            if (key instanceof Long){
-                int index = ((Long)key).intValue();
-                if (index < 0 || index >= list.size())
-                    return null;
-
-                Memory result = list.get(index);
-                list.set(index, null);
-                size--;
-                return result;
-            } else {
-                return null;
+            int index = -1;
+            if (key instanceof Long)
+                index = ((Long) key).intValue();
+            else if (key instanceof Integer)
+                index = ((Integer) key);
+            else if (key instanceof String){
+                Memory tmp = StringMemory.toLong((String)key);
+                if (tmp != null)
+                    index = (int) tmp.toLong();
             }
+
+            if (index < 0 || index >= list.size())
+                return null;
+
+            Memory result = list.get(index);
+            list.set(index, null);
+            size--;
+            return result;
         } else {
+            if (key instanceof Long)
+                key = LongMemory.valueOf((Long)key);
+
             Memory memory = map.remove(key);
+            if (memory != null)
+                size--;
+
+            return memory;
+        }
+    }
+
+    public Memory remove(Memory key){
+        if (list != null){
+            int index = (int) key.toLong();
+            if (index < 0 || index >= list.size())
+                return null;
+
+            Memory result = list.get(index);
+            list.set(index, null);
+            size--;
+            return result;
+        } else {
+            Memory memory = map.remove(toKey(key));
             if (memory != null)
                 size--;
 
@@ -227,17 +254,11 @@ public class ArrayMemory extends Memory {
 
     public void clear(){
         if (list != null){
-            for(ReferenceMemory memory : list){
-                memory.unset();
-            }
-            list.clear();
+            list = new ArrayList<ReferenceMemory>();
         }
 
         if (map != null){
-            for(ReferenceMemory memory : map.values()){
-                memory.unset();
-            }
-            map.clear();
+            map = new LinkedHashMap<Object, ReferenceMemory>();
         }
 
         size = 0;
@@ -422,12 +443,22 @@ public class ArrayMemory extends Memory {
         if (original != null){
             original.copies--;
             original = null;
-        } else {
+        } else
             copies--;
+
+        if (list != null){
+            for(ReferenceMemory memory : list)
+                if (memory.type == type)
+                    memory.unset();
         }
 
-        if (copies < 1)
-            clear();
+        if (map != null){
+            for(ReferenceMemory memory : map.values())
+                if (memory.type == type)
+                    memory.unset();
+        }
+
+        clear();
     }
 
     @Override
@@ -444,7 +475,7 @@ public class ArrayMemory extends Memory {
 
     @Override
     public Memory valueOfIndex(double index) {
-        Memory e = getByScalar((long)index);
+        Memory e = getByScalar(LongMemory.valueOf((long)index));
         return e == null ? NULL : e;
     }
 
@@ -474,7 +505,7 @@ public class ArrayMemory extends Memory {
 
     @Override
     public Memory refOfIndex(double index) {
-        return refOfIndex((long) index);
+        return refOfIndex(LongMemory.valueOf((long) index));
     }
 
     @Override
@@ -538,7 +569,7 @@ public class ArrayMemory extends Memory {
 
         @Override
         public void remove() {
-            ArrayMemory.this.remove(currentKey);
+            ArrayMemory.this.removeByScalar(currentKey);
         }
     }
 
