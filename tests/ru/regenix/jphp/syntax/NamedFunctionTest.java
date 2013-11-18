@@ -9,11 +9,11 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.stmt.ArgumentStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
+import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
 
 import java.util.List;
 import java.util.ListIterator;

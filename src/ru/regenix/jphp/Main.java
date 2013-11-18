@@ -10,12 +10,11 @@ import ru.regenix.jphp.runtime.ext.BCMathExtension;
 import ru.regenix.jphp.runtime.ext.CTypeExtension;
 import ru.regenix.jphp.runtime.ext.CalendarExtension;
 import ru.regenix.jphp.runtime.ext.CoreExtension;
-import ru.regenix.jphp.lexer.Tokenizer;
+import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 

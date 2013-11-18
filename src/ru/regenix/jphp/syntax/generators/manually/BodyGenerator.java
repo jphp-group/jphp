@@ -1,12 +1,12 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
-import ru.regenix.jphp.lexer.tokens.ColonToken;
-import ru.regenix.jphp.lexer.tokens.SemicolonToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
-import ru.regenix.jphp.lexer.tokens.stmt.BodyStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
+import ru.regenix.jphp.tokenizer.token.ColonToken;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;

@@ -1,12 +1,12 @@
 package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.value.VariableExprToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ClassStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.FunctionStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
+import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.NamespaceStmtToken;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;

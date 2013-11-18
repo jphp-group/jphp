@@ -8,6 +8,7 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -43,7 +44,10 @@ public class CLI {
         Context context = environment.createContext(file);
 
         AbstractCompiler compiler = new JvmCompiler(environment, context);
-        compiler.compile();
+        ModuleEntity module = compiler.compile();
+        compileScope.loadModule(module);
+
+        module.includeNoThrow(environment);
     }
 
     public void process(){

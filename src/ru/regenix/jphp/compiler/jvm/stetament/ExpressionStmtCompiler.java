@@ -14,14 +14,14 @@ import ru.regenix.jphp.compiler.common.util.CompilerUtils;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.lexer.tokens.OpenEchoTagToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.*;
-import ru.regenix.jphp.lexer.tokens.expr.value.*;
-import ru.regenix.jphp.lexer.tokens.stmt.*;
+import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -1307,7 +1307,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushDup();
                 writeExpression(one.getConditional(), true, false);
                 writeSysDynamicCall(Memory.class, "equal", Boolean.TYPE, stackPeek().type.toClass());
-                mv.visitJumpInsn(Opcodes.IFEQ, jumps[i+1][0]);
+                mv.visitJumpInsn(Opcodes.IFEQ, jumps[i + 1][0]);
             }
 
             writePopAll(1);
@@ -1450,9 +1450,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (token instanceof EchoRawToken){   // <? ... ?>
                 writeEchoRaw((EchoRawToken)token);
             } else if (token instanceof EchoStmtToken){ // echo ...
-                writeEcho((EchoStmtToken)token);
+                writeEcho((EchoStmtToken) token);
             } else  if (token instanceof OpenEchoTagToken){ // <?= ... ?>
-                writeOpenEchoTag((OpenEchoTagToken)token);
+                writeOpenEchoTag((OpenEchoTagToken) token);
             } else if (token instanceof ValueExprToken){  // mixed, calls, numbers, strings, vars, etc.
                 stackPush((ValueExprToken) token);
             } else if (token instanceof ArrayGetExprToken){  // ..[x][y][z]
@@ -1462,15 +1462,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (token instanceof ReturnStmtToken){ // return ...
                 writeReturn((ReturnStmtToken) token);
             } else if (token instanceof IfStmtToken){ // if [else]
-                writeIf((IfStmtToken)token);
+                writeIf((IfStmtToken) token);
             } else if (token instanceof SwitchStmtToken){  // switch ...
-                writeSwitch((SwitchStmtToken)token);
+                writeSwitch((SwitchStmtToken) token);
             } else if (token instanceof WhileStmtToken){  // while { .. }
-                writeWhile((WhileStmtToken)token);
+                writeWhile((WhileStmtToken) token);
             } else if (token instanceof DoStmtToken){ // do { ... } while( ... );
-                writeDo((DoStmtToken)token);
+                writeDo((DoStmtToken) token);
             } else if (token instanceof ForStmtToken){ // for(...;...;...){ ... }
-                writeFor((ForStmtToken)token);
+                writeFor((ForStmtToken) token);
             } else if (token instanceof JumpStmtToken){  // break, continue
                 writeJump((JumpStmtToken)token);
             }

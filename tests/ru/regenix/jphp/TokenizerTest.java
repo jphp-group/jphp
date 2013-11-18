@@ -9,14 +9,14 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.SemicolonToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.*;
-import ru.regenix.jphp.lexer.tokens.expr.operator.*;
-import ru.regenix.jphp.lexer.tokens.expr.value.*;
-import ru.regenix.jphp.lexer.tokens.macro.*;
-import ru.regenix.jphp.lexer.tokens.stmt.*;
+import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.*;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.macro.*;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.math.BigInteger;
 

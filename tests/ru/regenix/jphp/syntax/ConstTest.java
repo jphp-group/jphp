@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ConstStmtToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 
 import java.util.List;
 

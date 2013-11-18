@@ -1,7 +1,7 @@
 package ru.regenix.jphp.compiler;
 
 import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.lexer.tokens.Token;
+import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;

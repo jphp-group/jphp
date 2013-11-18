@@ -9,12 +9,12 @@ import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.Tokenizer;
-import ru.regenix.jphp.lexer.tokens.expr.operator.LogicOperatorExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.MulExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.value.CallExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.value.IntegerExprToken;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
+import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.MulExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 @RunWith(JUnit4.class)

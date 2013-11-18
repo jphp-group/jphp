@@ -2,11 +2,11 @@ package ru.regenix.jphp.syntax.generators.manually;
 
 
 import ru.regenix.jphp.common.Separator;
-import ru.regenix.jphp.lexer.tokens.*;
-import ru.regenix.jphp.lexer.tokens.expr.*;
-import ru.regenix.jphp.lexer.tokens.expr.operator.*;
-import ru.regenix.jphp.lexer.tokens.expr.value.*;
-import ru.regenix.jphp.lexer.tokens.stmt.ExprStmtToken;
+import ru.regenix.jphp.tokenizer.token.*;
+import ru.regenix.jphp.tokenizer.token.expr.*;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;

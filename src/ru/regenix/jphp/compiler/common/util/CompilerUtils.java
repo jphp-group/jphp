@@ -1,10 +1,10 @@
 package ru.regenix.jphp.compiler.common.util;
 
-import ru.regenix.jphp.lexer.tokens.expr.OperatorExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.ValueExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.operator.*;
-import ru.regenix.jphp.lexer.tokens.expr.value.*;
-import ru.regenix.jphp.lexer.tokens.stmt.*;
+import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.Memory;

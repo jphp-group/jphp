@@ -1,12 +1,12 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.lexer.tokens.SemicolonToken;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
-import ru.regenix.jphp.lexer.tokens.stmt.AsStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.NamespaceUseStmtToken;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
+import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.NamespaceStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.NamespaceUseStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ListIterator;

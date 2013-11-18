@@ -1,9 +1,9 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.stmt.BodyStmtToken;
-import ru.regenix.jphp.lexer.tokens.stmt.NamespaceStmtToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.NamespaceStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 

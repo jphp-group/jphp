@@ -1,10 +1,10 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.TokenMeta;
-import ru.regenix.jphp.lexer.tokens.expr.BackslashExprToken;
-import ru.regenix.jphp.lexer.tokens.expr.FulledNameToken;
-import ru.regenix.jphp.lexer.tokens.expr.value.NameToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.BackslashExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ArrayList;

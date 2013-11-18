@@ -2,9 +2,9 @@ package ru.regenix.jphp.syntax.generators;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.lexer.TokenType;
-import ru.regenix.jphp.lexer.tokens.Token;
-import ru.regenix.jphp.lexer.tokens.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.TokenType;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ListIterator;
