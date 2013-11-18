@@ -203,6 +203,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 if (external){
                     expressionCompiler.writeVarLoad("~passedLocal");
                     expressionCompiler.writeSysStaticCall(ArrayMemory.class, "valueOfRef", ArrayMemory.class, ArrayMemory.class);
+                    expressionCompiler.setStackPeekAsImmutable();
                     expressionCompiler.writeVarStore(local.index, false, true);
                 } else {
                     expressionCompiler.writePushNewObject(ArrayMemory.class);

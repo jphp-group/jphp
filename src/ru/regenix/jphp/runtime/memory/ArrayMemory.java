@@ -29,9 +29,10 @@ public class ArrayMemory extends Memory {
     }
 
     public static ArrayMemory valueOfRef(ArrayMemory value){
-        ArrayMemory result = new ArrayMemory();
-        result.putAllRef(value);
-        return result;
+        if (value == null)
+            return new ArrayMemory();
+        else
+            return value;
     }
 
     public ArrayMemory duplicate(){

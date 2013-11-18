@@ -352,6 +352,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Memory[] arguments = new Memory[types.length];
         int j = 0;
         boolean immutable = compileFunction.isImmutable && method.getReturnType() != void.class;
+
         for(int i = 0; i < types.length; i++){
             Class<?> argType = types[i];
             if (argType == Environment.class){
@@ -809,14 +810,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeVariableAssign(VariableExprToken variable, StackItem R, boolean returnValue){
         LocalVariable local = method.getLocalVariable(variable.getName());
 
-        Memory value = R == null ? null : R.getMemory();
+        Memory value = R.getMemory();
         if (local.isReference()){
-            writePushVariable(variable);
-            if (R == null){
+            if (!R.isKnown()){
+                stackPush(R);
+                writePopBoxing();
                 writePopImmutable();
+                writePushVariable(variable);
                 writeSysStaticCall(Memory.class, "assignRight", void.class, stackPeek().type.toClass(), Memory.class);
             } else {
-                writePush(R);
+                writePushVariable(variable);
+                Memory tmp = tryWritePush(R);
+                if (tmp != null){
+                    value = tmp;
+                    writePushMemory(value);
+                }
+                writePopBoxing();
                 writePopImmutable();
                 writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
             }
@@ -828,14 +837,53 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushMemory(result);
                 value = result;
             }
+            writePopBoxing();
             writeVarStore(local.index, returnValue, true);
         }
 
         local.setValue(value);
     }
 
-    void writeScalarOperator(StackItem.Type Lt, StackItem.Type Rt, Class operatorResult, String operatorName){
-        writeSysDynamicCall(OperatorUtils.class, operatorName, operatorResult, Lt.toClass(), Rt.toClass());
+    void writeScalarOperator(StackItem.Type Lt, StackItem.Type Rt, OperatorExprToken operator,
+                             Class operatorResult, String operatorName){
+        if (operator instanceof PlusExprToken || operator instanceof MinusExprToken
+            || operator instanceof MulExprToken){
+
+            if (Lt == StackItem.Type.STRING || Rt == StackItem.Type.STRING)
+                writeSysStaticCall(OperatorUtils.class, operatorName, operatorResult, Lt.toClass(), Rt.toClass());
+            else {
+                boolean doubleResult = Lt == StackItem.Type.DOUBLE || Rt == StackItem.Type.DOUBLE;
+                StackItem o1 = stackPop();
+                StackItem o2 = stackPop();
+
+                stackPush(o2);
+                if (doubleResult)
+                    writePopDouble();
+                else
+                    writePopLong();
+
+                stackPush(o1);
+                if (doubleResult)
+                    writePopDouble();
+                else
+                    writePopLong();
+
+                if (operator instanceof PlusExprToken){
+                    mv.visitInsn(doubleResult ? Opcodes.DADD : Opcodes.LADD);
+                } else if (operator instanceof MinusExprToken){
+                    mv.visitInsn(doubleResult ? Opcodes.DSUB : Opcodes.LSUB);
+                } else if (operator instanceof MulExprToken){
+                    mv.visitInsn(doubleResult ? Opcodes.DMUL : Opcodes.LMUL);
+                } else
+                    throw new IllegalArgumentException("Unknown operator type: " + operator.getWord());
+
+                stackPop();
+                stackPop();
+                stackPush(doubleResult ? Memory.Type.DOUBLE : Memory.Type.INT);
+                return;
+            }
+        } else
+            writeSysStaticCall(OperatorUtils.class, operatorName, operatorResult, Lt.toClass(), Rt.toClass());
     }
 
     void writePop(Class clazz){
@@ -1131,8 +1179,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Memory value2 = null;
 
         if (value1 != null) {
+            Lt = StackItem.Type.valueOf(value1.type);
             value2 = tryWritePush(o1); // RIGHT
         } else {
+            Lt = stackPeek().type;
             if ((variable == null || variable.isReference()) && operator instanceof AssignOperatorExprToken)
                 writePushDup();
             writePush(o1);
@@ -1144,6 +1194,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeOperator(operator, returnValue);
             return;
         }
+        Rt = stackPeek().type;
 
         String name = CompilerUtils.getOperatorCode(operator);
         Class operatorResult = CompilerUtils.getOperatorResult(operator);
@@ -1152,7 +1203,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (operator instanceof AssignOperatorExprToken)
                 unexpectedToken(operator);
 
-            writeScalarOperator(Lt, Rt, operatorResult, name);
+            writeScalarOperator(Lt, Rt, operator, operatorResult, name);
             setStackPeekAsImmutable();
         } else if ((L != null && L.isConstant()) || Lt.isConstant()){
             if (operator instanceof AssignOperatorExprToken)
@@ -1164,13 +1215,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     || "notEqual".equals(name)){
                 writeSysDynamicCall(
                         Memory.class, name, operatorResult,
-                        Lt.toClass(), Memory.class
+                        Lt.toClass()
                 );
             } else
                 writeSysStaticCall(
                         Memory.class,
                         name + "Right", operatorResult,
-                        Lt.toClass(), Memory.class
+                        Lt.toClass()
                 );
 
             setStackPeekAsImmutable();

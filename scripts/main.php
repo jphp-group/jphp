@@ -1,9 +1,14 @@
-<?
+<?php
 
-$t = 20;
-for($t = 0; $t < 10; $t++)
-for($i = 0; $i < 1000; $i++){
-    $x = include_once("my.php");
+class MyClass {
+
+    public static function test(){
+        for($i = 0; $i < 10000000; $i++){
+            $x = ceil($i) + 2;
+        }
+
+        echo $x;
+    }
 }
 
-echo $x;
+MyClass::test();

@@ -6,10 +6,7 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.runtime.ext.BCMathExtension;
-import ru.regenix.jphp.runtime.ext.CTypeExtension;
-import ru.regenix.jphp.runtime.ext.CalendarExtension;
-import ru.regenix.jphp.runtime.ext.CoreExtension;
+import ru.regenix.jphp.runtime.ext.*;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -31,6 +28,7 @@ public class Main {
             scope.registerExtension(new BCMathExtension());
             scope.registerExtension(new CTypeExtension());
             scope.registerExtension(new CalendarExtension());
+            scope.registerExtension(new DateExtension());
 
             Environment environment = new Environment(scope, System.out);
             Context context = environment.createContext(new File("scripts/main.php"));
@@ -41,7 +39,6 @@ public class Main {
             AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
 
             ModuleEntity module = compiler.compile();
-            scope.loadModule(module);
 
             String[] ops = BytecodePrettyPrinter.getMethod(module.getData(), "__include",
                     Type.getMethodDescriptor(Type.getType(Memory.class),
@@ -56,6 +53,7 @@ public class Main {
 
             long t = System.currentTimeMillis();
 
+            scope.loadModule(module);
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();

@@ -39,8 +39,6 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
 
     @Override
     public ConstStmtToken getToken(Token current, ListIterator<Token> iterator) {
-        checkUnexpectedEnd(iterator);
-
         if (current instanceof ConstStmtToken){
             ConstStmtToken result = (ConstStmtToken)current;
             Token next = iterator.next();

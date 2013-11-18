@@ -66,7 +66,7 @@ public class StackItem {
         }
 
         public boolean isConstant(){
-            return this != REFERENCE/* && this != ARRAY && this != OBJECT*/;
+            return this != REFERENCE && this != ARRAY /*&& this != OBJECT*/;
         }
     }
 

@@ -181,18 +181,18 @@ abstract public class Memory {
     public boolean greaterEq(String value) { return this.greaterEq(StringMemory.toNumeric(value)); }
 
     // ASSIGN
-    public Memory assign(Memory memory){ return memory; }
-    public Memory assign(long value){ return LongMemory.valueOf(value); }
-    public Memory assign(double value) { return new DoubleMemory(value); }
-    public Memory assign(boolean value) { return value ? TRUE : FALSE; }
-    public Memory assign(String value){ return new StringMemory(value); }
+    public Memory assign(Memory memory){ throw new RuntimeException("Invalid assign"); }
+    public Memory assign(long value){ throw new RuntimeException("Invalid assign"); }
+    public Memory assign(double value) { throw new RuntimeException("Invalid assign"); }
+    public Memory assign(boolean value) { throw new RuntimeException("Invalid assign"); }
+    public Memory assign(String value){ throw new RuntimeException("Invalid assign"); }
 
     // ASSIGN REF
-    public void assignRef(Memory memory){ }
-    public void assignRef(long value){ }
-    public void assignRef(double value){ }
-    public void assignRef(boolean value){ }
-    public void assignRef(String value){ }
+    public void assignRef(Memory memory){ throw new RuntimeException("Invalid assign"); }
+    public void assignRef(long value){ throw new RuntimeException("Invalid assign"); }
+    public void assignRef(double value){ throw new RuntimeException("Invalid assign"); }
+    public void assignRef(boolean value){ throw new RuntimeException("Invalid assign"); }
+    public void assignRef(String value){ throw new RuntimeException("Invalid assign"); }
 
     public void unset(){  }
 

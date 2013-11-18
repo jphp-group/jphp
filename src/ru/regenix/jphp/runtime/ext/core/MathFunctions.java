@@ -20,6 +20,13 @@ public class MathFunctions extends FunctionsContainer {
             put("atan2", getNative(Math.class, "atan2", Double.TYPE, Double.TYPE));
             put("atan", getNative(Math.class, "atan", Double.TYPE));
             put("ceil", getNative(Math.class, "ceil", Double.TYPE));
+            put("cos", getNative(Math.class, "cos", Double.TYPE));
+            put("cosh", getNative(Math.class, "cosh", Double.TYPE));
+            put("rad2deg", getNative(Math.class, "toDegrees", Double.TYPE));
+            put("deg2rad", getNative(Math.class, "toRadians", Double.TYPE));
+            put("exp", getNative(Math.class, "exp", Double.TYPE));
+            put("expm1", getNative(Math.class, "expm1", Double.TYPE));
+            put("floor", getNative(Math.class, "floor", Double.TYPE));
         }};
     }
 
@@ -49,5 +56,25 @@ public class MathFunctions extends FunctionsContainer {
         } catch (NumberFormatException e){
             return new BigInteger(number, fromBase).toString( toBase);
         }
+    }
+
+    public static long bindec(String binary){
+        return Long.parseLong(binary, 2);
+    }
+
+    public static String decbin(long value){
+        return Long.toString(value, 2);
+    }
+
+    public static String dechex(long value){
+        return Long.toString(value, 16);
+    }
+
+    public static String decoct(long value){
+        return Long.toString(value, 8);
+    }
+
+    public static double fmod(double x, double y){
+        return x % y;
     }
 }

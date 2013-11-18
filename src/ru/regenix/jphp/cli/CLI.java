@@ -8,6 +8,10 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.ext.BCMathExtension;
+import ru.regenix.jphp.runtime.ext.CTypeExtension;
+import ru.regenix.jphp.runtime.ext.CoreExtension;
+import ru.regenix.jphp.runtime.ext.DateExtension;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 
 import java.io.File;
@@ -19,6 +23,13 @@ public class CLI {
     private final Arguments arguments;
     private final PrintStream output;
     private final JCommander commander;
+
+    {
+        compileScope.registerExtension(new CoreExtension());
+        compileScope.registerExtension(new BCMathExtension());
+        compileScope.registerExtension(new CTypeExtension());
+        compileScope.registerExtension(new DateExtension());
+    }
 
     public CLI(JCommander commander, Arguments arguments, PrintStream output){
         this.commander = commander;
@@ -59,23 +70,23 @@ public class CLI {
     }
 
     public void process(){
+        long t = System.currentTimeMillis();
         try {
             if (arguments.showHelp)
                 showHelp();
-
-            if (arguments.showVersion){
+            else if (arguments.showVersion){
                 showVersion();
-                return;
-            }
-
-            if (arguments.file != null){
+            } else if (arguments.file != null){
                 executeFile(arguments.file);
-                return;
-            }
-
-            showHelp();
+            } else
+                showHelp();
         } catch (ErrorException e){
             output.printf("[%s] %s", e.getType().getTypeName(), e.getMessage());
+        }
+        if (arguments.showStat){
+            output.println();
+            output.println("---");
+            output.printf("Time: %s ms", System.currentTimeMillis() - t);
         }
     }
 

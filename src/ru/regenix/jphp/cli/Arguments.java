@@ -45,6 +45,9 @@ final public class Arguments {
     @Parameter(names = "-h", description = "Show help")
     public boolean showHelp;
 
+    @Parameter(names = "-stat", description = "Show stat about execution")
+    public boolean showStat;
+
 
     @Parameter(names = "--rf", description = "<name>      Show information about function <name>")
     public String showFunction;
