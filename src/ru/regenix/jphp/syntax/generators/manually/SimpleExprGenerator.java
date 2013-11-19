@@ -67,6 +67,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             current = nextToken(iterator);
             next    = nextToken(iterator);
             name    = new ExprStmtToken(processVarVar(current, next, iterator));
+            iterator.previous();
         } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){ // ${var}
             name = analyzer.generator(ExprGenerator.class).getInBraces(
                     BraceExprToken.Kind.BLOCK, iterator
@@ -319,6 +320,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     iterator.previous();
             } else
                 current = null;
+
+            if (current == null)
+                nextToken(iterator);
+
         } while (current != null);
 
         if (tokens.isEmpty())

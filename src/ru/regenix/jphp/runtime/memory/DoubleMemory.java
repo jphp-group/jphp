@@ -147,10 +147,7 @@ public class DoubleMemory extends Memory {
 
     @Override
     public String concat(Memory memory) {
-        switch (memory.type){
-            case STRING: return toString() + ((StringMemory)memory).value;
-            default: return toString() + memory.toString();
-        }
+        return toString().concat(memory.toString());
     }
 
     @Override

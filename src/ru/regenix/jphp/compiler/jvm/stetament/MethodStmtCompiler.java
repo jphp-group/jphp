@@ -113,6 +113,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return stackSize;
     }
 
+    int getStackCount(){
+        return stack.size();
+    }
+
     StackItem pop(){
         StackItem item = stack.pop();
         stackSize -= item.size;

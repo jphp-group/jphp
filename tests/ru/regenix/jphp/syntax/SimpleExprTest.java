@@ -8,15 +8,10 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.MinusExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.GetVarExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.List;
@@ -73,7 +68,7 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
         Assert.assertTrue(tokens.get(2) instanceof CallExprToken);
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testInvalidSemicolon(){
         getSyntaxTree(";;");
     }

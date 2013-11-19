@@ -1,5 +1,7 @@
 package ru.regenix.jphp.compiler.common.util;
 
+import org.objectweb.asm.Opcodes;
+import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
@@ -115,6 +117,56 @@ final public class CompilerUtils {
             return o1.toBoolean() || o2.toBoolean() ? Memory.TRUE : Memory.FALSE;
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
+    }
+
+    public static int getOperatorOpcode(OperatorExprToken operator, StackItem.Type type){
+        if (operator instanceof PlusExprToken){
+            switch (type){
+                case DOUBLE: return Opcodes.DADD;
+                case FLOAT: return Opcodes.FADD;
+                case LONG: return Opcodes.LADD;
+                case BYTE:
+                case SHORT:
+                case INT: return Opcodes.IADD;
+            }
+        }
+
+        if (operator instanceof MinusExprToken){
+            switch (type){
+                case DOUBLE: return Opcodes.DSUB;
+                case FLOAT: return Opcodes.FSUB;
+                case LONG: return Opcodes.LSUB;
+                case BYTE:
+                case SHORT:
+                case INT: return Opcodes.ISUB;
+            }
+        }
+
+        if (operator instanceof MulExprToken){
+            switch (type){
+                case DOUBLE: return Opcodes.DMUL;
+                case FLOAT: return Opcodes.FMUL;
+                case LONG: return Opcodes.LMUL;
+                case BYTE:
+                case SHORT:
+                case INT: return Opcodes.IMUL;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown operator " + operator.getWord() + " for type " + type.name());
+    }
+
+    public static boolean isSideOperator(OperatorExprToken operator){
+        if (operator instanceof PlusExprToken)
+            return false;
+        if (operator instanceof MulExprToken)
+            return false;
+        if (operator instanceof EqualExprToken || operator instanceof BooleanNotEqualExprToken)
+            return false;
+        if (operator instanceof BooleanNotExprToken)
+            return false;
+
+        return true;
     }
 
     public static String getOperatorCode(OperatorExprToken operator){

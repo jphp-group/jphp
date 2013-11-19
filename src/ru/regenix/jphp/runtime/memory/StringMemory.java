@@ -262,11 +262,7 @@ public class StringMemory extends Memory {
 
     @Override
     public String concat(String value) {
-        if (builder != null){
-            value = builder.toString();
-            builder = null;
-        }
-        return this.value.concat(value);
+        return toString().concat(value);
     }
 
     private void resolveBuilder(){

@@ -68,6 +68,26 @@ public class StackItem {
         public boolean isConstant(){
             return this != REFERENCE && this != ARRAY /*&& this != OBJECT*/;
         }
+
+        public boolean isLikeDouble(){
+            return this == DOUBLE || this == FLOAT;
+        }
+
+        public boolean isLikeFloat(){
+            return this == FLOAT;
+        }
+
+        public boolean isLikeLong(){
+            return this == LONG || this == INT || this == SHORT || this == BYTE;
+        }
+
+        public boolean isLikeInt(){
+            return this == INT || this == SHORT || this == BYTE;
+        }
+
+        public boolean isLikeNumber(){
+            return isLikeDouble() || isLikeLong();
+        }
     }
 
     public final Type type;

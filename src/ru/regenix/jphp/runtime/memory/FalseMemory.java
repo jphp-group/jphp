@@ -125,7 +125,6 @@ public class FalseMemory extends Memory {
     @Override
     public String concat(Memory memory) {
         switch (memory.type){
-            case STRING: return ((StringMemory)memory).value;
             case REFERENCE: return concat(memory.toImmutable());
             default:
                 return memory.toString();

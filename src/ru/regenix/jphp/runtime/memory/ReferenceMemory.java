@@ -68,6 +68,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public Memory plus(long value) {
+        return this.value.plus(value);
+    }
+
+    @Override
     public Memory minus(Memory memory) {
         return value.minus(memory);
     }

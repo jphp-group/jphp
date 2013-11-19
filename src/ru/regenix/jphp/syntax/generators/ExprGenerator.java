@@ -239,7 +239,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected List<Token> processSimpleExpr(Token current, ListIterator<Token> iterator){
-        ExprStmtToken token = analyzer.generator(SimpleExprGenerator.class).getToken(current, iterator);
+        ExprStmtToken token = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(current, iterator, Separator.SEMICOLON, null);
         return token.getTokens();
     }
 

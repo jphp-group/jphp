@@ -205,10 +205,7 @@ public class LongMemory extends Memory {
 
     @Override
     public String concat(Memory memory) {
-        switch (memory.type){
-            case STRING: return String.valueOf(value) + ((StringMemory)memory).value;
-            default: return toString() + memory.toString();
-        }
+        return toString().concat(memory.toString());
     }
 
     @Override
