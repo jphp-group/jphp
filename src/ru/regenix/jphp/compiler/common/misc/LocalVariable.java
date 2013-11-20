@@ -1,20 +1,17 @@
 package ru.regenix.jphp.compiler.common.misc;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.LabelNode;
 import ru.regenix.jphp.runtime.memory.Memory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-/**
-* User: Dim-S (dz@dim-s.net)
-* Date: 10.11.13
-*/
 public class LocalVariable {
     public final String name;
     public final int index;
-    public final Label label;
+    public final LabelNode label;
     private Class clazz;
 
     private boolean isImmutable;
@@ -22,7 +19,7 @@ public class LocalVariable {
     private int level;
     private List<Memory> values;
 
-    public LocalVariable(String name, int index, Label label, Class clazz){
+    public LocalVariable(String name, int index, LabelNode label, Class clazz){
         this.name = name;
         this.index = index;
         this.label = label;

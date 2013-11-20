@@ -4,8 +4,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
+import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
@@ -21,6 +24,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassWriter cw;
+    public final ClassNode node;
     public final ClassStmtToken clazz;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
     private boolean external = false;
@@ -30,6 +34,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
         super(compiler);
         this.clazz = clazz;
+        this.node = new ClassNodeImpl();
 
         entity = new ClassEntity(compiler.getContext());
         entity.setFinal(clazz.isFinal());
@@ -72,23 +77,31 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         return traceList.size() - 1;
     }
 
+    @SuppressWarnings("unchecked")
     protected void writeConstructor(){
-        MethodVisitor mv;
+        MethodNode constructor = new MethodNodeImpl();
+        constructor.name = Constants.INIT_METHOD;
+        constructor.access = ACC_PUBLIC;
+        constructor.desc = Type.getMethodDescriptor(Type.getType(void.class));
+        constructor.exceptions = new ArrayList();
 
-        mv = cw.visitMethod(ACC_PUBLIC, Constants.INIT_METHOD, "()V", null, null);
-        mv.visitCode();
-        Label l0 = writeLabel(mv, clazz.getMeta().getStartLine());
+        LabelNode l0 = writeLabel(constructor, clazz.getMeta().getStartLine());
+        constructor.instructions.add(new VarInsnNode(ALOAD, 0));
+        constructor.instructions.add(new MethodInsnNode(
+                INVOKESPECIAL, node.superName, Constants.INIT_METHOD, Type.getMethodDescriptor(Type.getType(void.class))
+        ));
+        constructor.instructions.add(new InsnNode(RETURN));
+        constructor.localVariables = new ArrayList();
 
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, Constants.OBJECT_CLASS, Constants.INIT_METHOD, "()V");
-        mv.visitInsn(RETURN);
+        constructor.localVariables.add(new LocalVariableNode(
+           "this",
+           "L_" + clazz.getFulledName(Constants.NAME_DELIMITER) + ";",
+            null, l0, l0, 0
+        ));
+        constructor.maxStack = 1;
+        constructor.maxLocals = 1;
 
-        mv.visitLocalVariable(
-                "this",
-                "L_" + clazz.getFulledName(Constants.NAME_DELIMITER) + ";", null, l0, l0, 0
-        );
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
+        node.methods.add(constructor);
     }
 
     protected void writeConstant(ConstStmtToken constant){
@@ -96,35 +109,33 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     protected void writeSystemInfo(){
-        cw.visitField(
+        node.fields.add(new FieldNode(
                 ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "__FN",
                 Type.getDescriptor(String.class),
                 null,
                 compiler.getSourceFile()
-        );
+        ));
 
-        cw.visitField(
+        node.fields.add(new FieldNode(
                 ACC_PROTECTED + ACC_STATIC, "__TRACE",
                 Type.getDescriptor(TraceInfo[].class),
                 null,
                 null
-        );
+        ));
     }
 
     protected void writeInitStatic(){
-        MethodVisitor mv = cw.visitMethod(
-                ACC_STATIC, Constants.STATIC_INIT_METHOD,
-                Type.getMethodDescriptor(Type.getType(void.class)),
-                null, null
-        );
+        MethodNode node = new MethodNodeImpl();
+        node.access = ACC_STATIC;
+        node.name = Constants.STATIC_INIT_METHOD;
+        node.desc = Type.getMethodDescriptor(Type.getType(void.class));
 
-
-        MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, mv, Constants.STATIC_INIT_METHOD);
+        MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, node);
         ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
         methodCompiler.writeHeader();
 
         expressionCompiler.writePushSmallInt(traceList.size());
-        mv.visitTypeInsn(ANEWARRAY, Type.getInternalName(TraceInfo.class));
+        node.instructions.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(TraceInfo.class)));
         expressionCompiler.stackPush(Memory.Type.REFERENCE);
 
         int i = 0;
@@ -132,25 +143,27 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             expressionCompiler.writePushDup();
             expressionCompiler.writePushSmallInt(i);
             expressionCompiler.writePushCreateTraceInfo(traceInfo.getStartLine(), traceInfo.getStartPosition());
-            mv.visitInsn(AASTORE);
+
+            node.instructions.add(new InsnNode(AASTORE));
             expressionCompiler.stackPop();
             expressionCompiler.stackPop();
             i++;
         }
         expressionCompiler.writePutStatic("__TRACE", TraceInfo[].class);
 
-        mv.visitInsn(RETURN);
+        node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();
+
+        this.node.methods.add(node);
     }
 
     @Override
     public ClassEntity compile() {
-        cw = new ClassWriter(0);
-        cw.visit(
-                V1_6, ACC_SUPER + ACC_PUBLIC, clazz.getFulledName(Constants.NAME_DELIMITER), null,
-                Constants.OBJECT_CLASS, null
-        );
-        cw.visitSource(compiler.getSourceFile(), null);
+        node.access = ACC_SUPER + ACC_PUBLIC;
+        node.name = clazz.getFulledName(Constants.NAME_DELIMITER);
+        node.superName = Constants.OBJECT_CLASS;
+        node.sourceFile = compiler.getSourceFile();
+
         writeConstructor();
 
         // constants
@@ -166,7 +179,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         writeSystemInfo();
         writeInitStatic();
-        cw.visitEnd();
+
+        cw = new ClassWriter(0);
+        node.accept(cw);
         entity.setData(cw.toByteArray());
         return entity;
     }

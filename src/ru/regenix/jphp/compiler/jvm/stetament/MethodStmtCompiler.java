@@ -4,9 +4,11 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
+import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
@@ -25,6 +27,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public final ClassStmtCompiler clazz;
     public final MethodStmtToken method;
+    public final MethodNode node;
 
     private Stack<StackItem> stack = new Stack<StackItem>();
     private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
@@ -33,34 +36,57 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private int stackMaxSize = 0;
 
     private Map<String, LocalVariable> localVariables;
-    protected MethodVisitor mv;
     protected String realName;
 
     private boolean external = false;
 
-    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodVisitor mv, String methodName) {
+    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodNode node){
         super(clazz.getCompiler());
         this.clazz = clazz;
-        this.mv = mv;
         this.method = null;
+        this.node   = node;
+
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
-        this.realName = methodName;
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
-        entity.setName(methodName);
+        entity.setName(node.name);
+        realName = entity.getName();
+
+        makeNode();
     }
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken method) {
         super(clazz.getCompiler());
         this.clazz = clazz;
         this.method = method;
+        this.node  = new MethodNodeImpl();
+
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
         entity.setName(method.getName().getName());
         realName = entity.getName();
+
+        makeNode();
+    }
+
+    private void makeNode(){
+        if (node.localVariables == null)
+            node.localVariables = new ArrayList();
+
+        if (node.instructions == null)
+            node.instructions = new InsnList();
+
+        if (node.attrs == null)
+            node.attrs = new ArrayList();
+
+        if (node.exceptions == null)
+            node.exceptions = new ArrayList();
+
+        if (node.tryCatchBlocks == null)
+            node.tryCatchBlocks = new ArrayList();
     }
 
     public String getRealName() {
@@ -83,11 +109,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return localVariables;
     }
 
-    void pushJump(Label breakLabel, Label continueLabel, int stackSize){
+    void pushJump(LabelNode breakLabel, LabelNode continueLabel, int stackSize){
         jumpStack.add(new JumpItem(breakLabel, continueLabel, stackSize));
     }
 
-    void pushJump(Label breakLabel, Label continueLabel){
+    void pushJump(LabelNode breakLabel, LabelNode continueLabel){
         pushJump(breakLabel, continueLabel, 0);
     }
 
@@ -143,7 +169,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return stack.peek();
     }
 
-    LocalVariable addLocalVariable(String variable, Label label, Class clazz){
+    LocalVariable addLocalVariable(String variable, LabelNode label, Class clazz){
         LocalVariable result;
         localVariables.put(
                 variable,
@@ -152,7 +178,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return result;
     }
 
-    LocalVariable addLocalVariable(String variable, Label label){
+    LocalVariable addLocalVariable(String variable, LabelNode label){
         return addLocalVariable(variable, label, Memory.class);
     }
 
@@ -161,8 +187,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     }
 
     void writeHeader(){
-        if (mv == null){
-            int access = 0;
+        int access = 0;
+        if (method != null){
             switch (method.getModifier()){
                 case PRIVATE: access += Opcodes.ACC_PRIVATE; break;
                 case PROTECTED: access += Opcodes.ACC_PROTECTED; break;
@@ -173,33 +199,28 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             if (method.isAbstract()) access += Opcodes.ACC_ABSTRACT;
             if (method.isFinal()) access += Opcodes.ACC_FINAL;
 
+            node.access = access;
+            node.name = method.getName().getName();
+            node.desc = Type.getMethodDescriptor(
+                    Type.getType(Memory.class),
+                    Type.getType(Environment.class),
+                    Type.getType(String.class),
+                    Type.getType(Memory[].class)
+            );
+
             if (external){
-                mv = clazz.cw.visitMethod(access, method.getName().getName(),
-                        Type.getMethodDescriptor(
+                node.desc = Type.getMethodDescriptor(
                                 Type.getType(Memory.class),
                                 Type.getType(Environment.class),
                                 Type.getType(String.class),
                                 Type.getType(Memory[].class),
                                 Type.getType(ArrayMemory.class)
-                        ),
-                        null, null
-                );
-            } else {
-                mv = clazz.cw.visitMethod(access, method.getName().getName(),
-                        Type.getMethodDescriptor(
-                                Type.getType(Memory.class),
-                                Type.getType(Environment.class),
-                                Type.getType(String.class),
-                                Type.getType(Memory[].class)
-                        ),
-                        null, null
-                );
+                        );
             }
         }
-        mv.visitCode();
 
         if (method != null){
-            Label label = writeLabel(mv, method.getMeta().getStartLine());
+            LabelNode label = writeLabel(node, method.getMeta().getStartLine());
 
             if (!method.isStatic())
                 addLocalVariable("this", label, Object.class);
@@ -238,31 +259,30 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 i++;
             }
         } else {
-            Label label = writeLabel(mv, clazz.clazz.getMeta().getStartLine());
+            LabelNode label = writeLabel(node, clazz.clazz.getMeta().getStartLine());
         }
     }
 
     void writeFooter(){
-        Label endL = new Label();
-        mv.visitLabel(endL);
+        LabelNode endL = new LabelNode();
+        node.instructions.add(endL);
 
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
-            if (!method.isStatic() && variable.name.equals("this"))
+            if (variable.name.equals("this"))
                 description = "L" + clazz.clazz.getFulledName('/') + ";";
 
-            mv.visitLocalVariable(
+            node.localVariables.add(new LocalVariableNode(
                     variable.name,
                     description,
                     null,
                     variable.label,
                     endL,
                     variable.index
-            );
+            ));
         }
-
-        mv.visitMaxs(this.stackMaxSize, this.localVariables.size());
-        mv.visitEnd();
+        node.maxStack = this.stackMaxSize;
+        node.maxLocals = this.localVariables.size();
     }
 
     @Override

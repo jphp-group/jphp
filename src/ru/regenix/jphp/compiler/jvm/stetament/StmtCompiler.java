@@ -2,6 +2,9 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.MethodNode;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.ParseException;
@@ -24,16 +27,16 @@ abstract public class StmtCompiler<T extends Entity> {
         return compiler;
     }
 
-    protected Label writeLabel(MethodVisitor mv, int lineNumber){
-        Label label = new Label();
-        mv.visitLabel(label);
+    protected LabelNode writeLabel(MethodNode mv, int lineNumber){
+        LabelNode node = new LabelNode(new Label());
+        mv.instructions.add(node);
         if (lineNumber != -1)
-            mv.visitLineNumber(lineNumber, label);
+            mv.instructions.add(new LineNumberNode(lineNumber, node));
 
-        return label;
+        return node;
     }
 
-    protected Label writeLabel(MethodVisitor mv){
+    protected LabelNode writeLabel(MethodNode mv){
         return writeLabel(mv, -1);
     }
 

@@ -66,18 +66,16 @@ public class JvmCompiler extends AbstractCompiler {
         return cmp.compile();
     }
 
+    @SuppressWarnings("unchecked")
     public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method, boolean external) {
         MethodStmtCompiler compiler = new MethodStmtCompiler(clazzCompiler, method);
         compiler.setExternal(external);
+        clazzCompiler.node.methods.add(compiler.node);
         return compiler.compile();
     }
 
     public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method){
         return compileMethod(clazzCompiler, method, false);
-    }
-
-    public void compileMethod(ClassStmtCompiler clazzCompiler, MethodVisitor mv, String name) {
-        new MethodStmtCompiler(clazzCompiler, mv, name).compile();
     }
 
     public void compileExpression(MethodStmtCompiler method, ExprStmtToken expression) {

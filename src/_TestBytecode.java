@@ -1,12 +1,11 @@
 class _TestBytecode {
 
-    private static Object[] arr;
-
-    static {
-        arr = new Object[]{null, null, null};
-    }
-
     public static void mock(){
-
+        int x = 333;
+        try {
+            x = 20;
+        } finally {
+            x = 3333;
+        }
     }
 }

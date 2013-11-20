@@ -2,9 +2,9 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import static org.objectweb.asm.Opcodes.*;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
@@ -42,13 +42,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     protected final MethodStmtCompiler method;
     protected final ExprStmtToken expression;
 
-    private MethodVisitor mv;
+    private MethodNode node;
+    private InsnList code;
 
     public ExpressionStmtCompiler(MethodStmtCompiler method, ExprStmtToken expression) {
         super(method.getCompiler());
         this.method = method;
         this.expression = expression;
-        this.mv = method.mv;
+        this.node = method.node;
+        this.code = method.node.instructions;
     }
 
     protected Memory getMacros(ValueExprToken token){
@@ -123,42 +125,33 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Memory.Type type = Memory.Type.REFERENCE;
 
         if (memory instanceof NullMemory){
-            mv.visitFieldInsn(
-                    Opcodes.GETSTATIC,
-                    Type.getInternalName(Memory.class),
-                    "NULL",
-                    Type.getDescriptor(Memory.class)
-            );
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "NULL", Type.getDescriptor(Memory.class)
+            ));
         } else if (memory instanceof FalseMemory){
-            mv.visitFieldInsn(
-                    Opcodes.GETSTATIC,
-                    Type.getInternalName(Memory.class),
-                    "FALSE",
-                    Type.getDescriptor(Memory.class)
-            );
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "FALSE", Type.getDescriptor(Memory.class)
+            ));
         } else if (memory instanceof TrueMemory){
-            mv.visitFieldInsn(
-                    Opcodes.GETSTATIC,
-                    Type.getInternalName(Memory.class),
-                    "TRUE",
-                    Type.getDescriptor(Memory.class)
-            );
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "TRUE", Type.getDescriptor(Memory.class)
+            ));
         } else if (memory instanceof ReferenceMemory){
-            mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(ReferenceMemory.class));
-            mv.visitInsn(Opcodes.DUP);
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V");
+            code.add(new TypeInsnNode(NEW, Type.getInternalName(ReferenceMemory.class)));
+            code.add(new InsnNode(DUP));
+            code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V"));
         } else {
             switch (memory.type){
                 case INT: {
-                    mv.visitLdcInsn(memory.toLong());
+                    code.add(new LdcInsnNode(memory.toLong()));
                     type = Memory.Type.INT;
                 } break;
                 case DOUBLE: {
-                    mv.visitLdcInsn(memory.toDouble());
+                    code.add(new LdcInsnNode(memory.toDouble()));
                     type = Memory.Type.DOUBLE;
                 } break;
                 case STRING: {
-                    mv.visitLdcInsn(memory.toString());
+                    code.add(new LdcInsnNode(memory.toString()));
                     type = Memory.Type.STRING;
                 } break;
             }
@@ -231,14 +224,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushSmallInt(int value){
         switch (value){
-            case 0: mv.visitInsn(Opcodes.ICONST_0); break;
-            case 1: mv.visitInsn(Opcodes.ICONST_1); break;
-            case 2: mv.visitInsn(Opcodes.ICONST_2); break;
-            case 3: mv.visitInsn(Opcodes.ICONST_3); break;
-            case 4: mv.visitInsn(Opcodes.ICONST_4); break;
-            case 5: mv.visitInsn(Opcodes.ICONST_5); break;
+            case -1: code.add(new InsnNode(ICONST_M1)); break;
+            case 0: code.add(new InsnNode(ICONST_0)); break;
+            case 1: code.add(new InsnNode(ICONST_1)); break;
+            case 2: code.add(new InsnNode(ICONST_2)); break;
+            case 3: code.add(new InsnNode(ICONST_3)); break;
+            case 4: code.add(new InsnNode(ICONST_4)); break;
+            case 5: code.add(new InsnNode(ICONST_5)); break;
             default:
-                mv.visitLdcInsn(value);
+                code.add(new LdcInsnNode(value));
         }
 
         stackPush(Memory.Type.INT);
@@ -279,17 +273,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushConstDouble(double value){
-        mv.visitLdcInsn(value);
+        code.add(new LdcInsnNode(value));
         stackPush(null, StackItem.Type.DOUBLE);
     }
 
     void writePushConstFloat(float value){
-        mv.visitLdcInsn(value);
+        code.add(new LdcInsnNode(value));
         stackPush(null, StackItem.Type.FLOAT);
     }
 
     void writePushConstLong(long value){
-        mv.visitLdcInsn(value);
+        code.add(new LdcInsnNode(value));
         stackPush(null, StackItem.Type.LONG);
     }
 
@@ -333,15 +327,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushEnv(){
         stackPush(Memory.Type.REFERENCE);
         LocalVariable variable = method.getLocalVariable("~env");
-        mv.visitVarInsn(Opcodes.ALOAD, variable.index);
+
+        code.add(new VarInsnNode(ALOAD, variable.index));
     }
 
     void writePushDup(StackItem.Type type){
         stackPush(null, type);
         if (type.size() == 2)
-            mv.visitInsn(Opcodes.DUP2);
+            code.add(new InsnNode(DUP2));
         else
-            mv.visitInsn(Opcodes.DUP);
+            code.add(new InsnNode(DUP));
     }
 
     void writePushDup(){
@@ -349,9 +344,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPush(item);
 
         if (item.type.size() == 2)
-            mv.visitInsn(Opcodes.DUP2);
+            code.add(new InsnNode(DUP2));
         else
-            mv.visitInsn(Opcodes.DUP);
+            code.add(new InsnNode(DUP));
     }
 
     void writePushNull(){
@@ -359,10 +354,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushNewObject(Class clazz){
-        mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(clazz));
+        code.add(new TypeInsnNode(NEW, Type.getInternalName(clazz)));
         stackPush(Memory.Type.REFERENCE);
         writePushDup();
-        writeSysCall(clazz, Opcodes.INVOKESPECIAL, Constants.INIT_METHOD, void.class);
+        writeSysCall(clazz, INVOKESPECIAL, Constants.INIT_METHOD, void.class);
         stackPop();
     }
 
@@ -462,7 +457,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushParameters(Collection<ExprStmtToken> parameters){
         writePushSmallInt(parameters.size());
-        mv.visitTypeInsn(Opcodes.ANEWARRAY, Type.getInternalName(Memory.class));
+        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
         stackPop();
         stackPush(Memory.Type.REFERENCE);
 
@@ -472,7 +467,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushSmallInt(i);
             writeExpression(param, true, false);
             writePopBoxing();
-            mv.visitInsn(Opcodes.AASTORE);
+
+            code.add(new InsnNode(AASTORE));
             stackPop();
             stackPop();
             stackPop();
@@ -632,7 +628,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     protected void writeDefineVariable(VariableExprToken value){
         LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null){
-            Label label = writeLabel(mv, value.getMeta().getStartLine());
+            LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
             if (method.method.isReference(value)){
@@ -645,7 +641,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushLocal();
                 writePushString(value.getName());
                 writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, String.class);
-                mv.visitVarInsn(Opcodes.ASTORE, variable.index);
+                code.add(new VarInsnNode(ASTORE, variable.index));
                 stackPop();
 
                 variable.pushLevel();
@@ -657,7 +653,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     writePushNull();
                 }
-                mv.visitVarInsn(Opcodes.ASTORE, variable.index);
+                code.add(new VarInsnNode(ASTORE, variable.index));
                 stackPop();
                 variable.pushLevel();
             }
@@ -700,7 +696,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushGetFromArray(int index, Class clazz){
         writePushSmallInt(index);
-        mv.visitInsn(Opcodes.AALOAD);
+        code.add(new InsnNode(AALOAD));
         stackPop();
         stackPop();
         stackPush(null, StackItem.Type.valueOf(clazz));
@@ -885,7 +881,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         Type[] args = new Type[paramClasses.length];
-        if (INVOKE_TYPE == Opcodes.INVOKEVIRTUAL || INVOKE_TYPE == Opcodes.INVOKEINTERFACE)
+        if (INVOKE_TYPE == INVOKEVIRTUAL || INVOKE_TYPE == INVOKEINTERFACE)
             stackPop(); // this
 
         for(int i = 0; i < args.length; i++){
@@ -893,11 +889,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
         }
 
-        mv.visitMethodInsn(INVOKE_TYPE,
-                Type.getInternalName(clazz),
-                method,
-                Type.getMethodDescriptor(Type.getType(returnClazz), args)
-        );
+        code.add(new MethodInsnNode(
+                INVOKE_TYPE, Type.getInternalName(clazz), method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
+        ));
 
         if (returnClazz != void.class){
             stackPush(Memory.Type.valueOf(returnClazz));
@@ -907,14 +901,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
             throws NoSuchMethodException {
         writeSysCall(
-                clazz, clazz.isInterface() ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL,
+                clazz, clazz.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
                 method, returnClazz, paramClasses
         );
     }
 
     void writeSysStaticCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
             throws NoSuchMethodException {
-        writeSysCall(clazz, Opcodes.INVOKESTATIC, method, returnClazz, paramClasses);
+        writeSysCall(clazz, INVOKESTATIC, method, returnClazz, paramClasses);
     }
 
     void writePopImmutable(){
@@ -934,7 +928,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushDup();
         }
 
-        mv.visitVarInsn(Opcodes.ASTORE, index);
+        code.add(new VarInsnNode(ASTORE, index));
         stackPop();
     }
 
@@ -944,7 +938,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writeVarLoad(int index){
         stackPush(Memory.Type.REFERENCE);
-        mv.visitVarInsn(Opcodes.ALOAD, index);
+        code.add(new VarInsnNode(ALOAD, index));
     }
 
     void writeVarLoad(String name){
@@ -956,33 +950,33 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePutStatic(Class clazz, String name, Class fieldClass){
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass));
+        code.add(new FieldInsnNode(PUTSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass)));
         stackPop();
     }
 
     void writePutStatic(String name, Class fieldClass){
-        mv.visitFieldInsn(
-                Opcodes.PUTSTATIC,
+        code.add(new FieldInsnNode(
+                PUTSTATIC,
                 method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
                 name,
                 Type.getDescriptor(fieldClass)
-        );
+        ));
         stackPop();
     }
 
     void writeGetStatic(Class clazz, String name, Class fieldClass){
-        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass));
+        code.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass)));
         stackPush(null, StackItem.Type.valueOf(fieldClass));
         setStackPeekAsImmutable();
     }
 
     void writeGetStatic(String name, Class fieldClass){
-        mv.visitFieldInsn(
-                Opcodes.GETSTATIC,
+        code.add(new FieldInsnNode(
+                GETSTATIC,
                 method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
                 name,
                 Type.getDescriptor(fieldClass)
-        );
+        ));
         stackPush(null, StackItem.Type.valueOf(fieldClass));
         setStackPeekAsImmutable();
     }
@@ -1057,7 +1051,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePush(L, cast);
                 writePush(R, cast);
 
-                mv.visitInsn(CompilerUtils.getOperatorOpcode(operator, cast));
+                code.add(new InsnNode(CompilerUtils.getOperatorOpcode(operator, cast)));
 
                 stackPop();
                 stackPop();
@@ -1102,14 +1096,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePopInteger(){
         writePopLong();
-        mv.visitInsn(Opcodes.L2I);
+        code.add(new InsnNode(L2I));
         stackPop();
         stackPush(null, StackItem.Type.INT);
     }
 
     void writePopFloat(){
         writePopDouble();
-        mv.visitInsn(Opcodes.D2F);
+        code.add(new InsnNode(D2F));
         stackPop();
         stackPush(null, StackItem.Type.FLOAT);
     }
@@ -1118,7 +1112,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         switch (stackPeek().type){
             case LONG: break;
             case FLOAT: {
-                mv.visitInsn(Opcodes.L2F);
+                code.add(new InsnNode(L2F));
                 stackPop();
                 stackPush(Memory.Type.INT);
             } break;
@@ -1126,12 +1120,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case SHORT:
             case BOOL:
             case INT: {
-                mv.visitInsn(Opcodes.L2I);
+                code.add(new InsnNode(L2I));
                 stackPop();
                 stackPush(Memory.Type.INT);
             } break;
             case DOUBLE: {
-                mv.visitInsn(Opcodes.D2L);
+                code.add(new InsnNode(D2L));
                 stackPop();
                 stackPush(Memory.Type.INT);
             } break;
@@ -1152,12 +1146,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case SHORT:
             case BOOL:
             case INT: {
-                mv.visitInsn(Opcodes.I2D);
+                code.add(new InsnNode(I2D));
                 stackPop();
                 stackPush(Memory.Type.DOUBLE);
             } break;
             case LONG: {
-                mv.visitInsn(Opcodes.L2D);
+                code.add(new InsnNode(L2D));
                 stackPop();
                 stackPush(Memory.Type.DOUBLE);
             } break;
@@ -1191,15 +1185,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case INT:
             case SHORT:
             case LONG: {
-                Label fail = new Label();
-                Label end = new Label();
+                LabelNode fail = new LabelNode();
+                LabelNode end = new LabelNode();
 
-                mv.visitJumpInsn(Opcodes.IFEQ, fail);
-                mv.visitInsn(Opcodes.ICONST_1);
-                mv.visitJumpInsn(Opcodes.GOTO, end);
-                mv.visitLabel(fail);
-                mv.visitInsn(Opcodes.ICONST_0);
-                mv.visitLabel(end);
+                code.add(new JumpInsnNode(IFEQ, fail));
+                code.add(new InsnNode(ICONST_1));
+                code.add(new JumpInsnNode(GOTO, end));
+                code.add(fail);
+                code.add(new InsnNode(ICONST_0));
+                code.add(end);
 
                 if (peek == StackItem.Type.LONG){
                     stackPop();
@@ -1301,18 +1295,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePush(o);
         writePopBoolean();
 
-        Label end = new Label();
-        Label next = new Label();
+        LabelNode end = new LabelNode();
+        LabelNode next = new LabelNode();
 
         if (operator instanceof BooleanOrExprToken || operator instanceof BooleanOr2ExprToken){
-            mv.visitJumpInsn(Opcodes.IFEQ, next);
+            code.add(new JumpInsnNode(IFEQ, next));
             stackPop();
             if (returnValue){
                 writePushBoolean(true);
                 stackPop();
             }
         } else if (operator instanceof BooleanAndExprToken || operator instanceof BooleanAnd2ExprToken){
-            mv.visitJumpInsn(Opcodes.IFNE, next);
+            code.add(new JumpInsnNode(IFNE, next));
             stackPop();
             if (returnValue){
                 writePushBoolean(false);
@@ -1320,14 +1314,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         }
 
-        mv.visitJumpInsn(Opcodes.GOTO, end);
+        code.add(new JumpInsnNode(GOTO, end));
 
-        mv.visitLabel(next);
+        code.add(next);
         writeExpression(operator.getRightValue(), returnValue, false);
         if (returnValue)
             writePopBoxing();
 
-        mv.visitLabel(end);
+        code.add(end);
     }
 
     void writeOperator(OperatorExprToken operator, boolean returnValue){
@@ -1426,7 +1420,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeSysDynamicCall(Memory.class, "assign", Memory.class, Rt.toClass());
                 } else {
                     writePopBoxing(operatorResult);
-                    mv.visitVarInsn(Opcodes.ASTORE, variable.index);
+                    code.add(new VarInsnNode(ASTORE, variable.index));
                     variable.setValue(!stackPeek().isConstant() ? null : stackPeek().getMemory());
                     stackPop();
                 }
@@ -1480,17 +1474,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         if (token instanceof ContinueStmtToken){
-            mv.visitJumpInsn(Opcodes.GOTO, jump.continueLabel);
+            code.add(new JumpInsnNode(GOTO, jump.continueLabel));
         } else if (token instanceof BreakStmtToken){
-            mv.visitJumpInsn(Opcodes.GOTO, jump.breakLabel);
+            code.add(new JumpInsnNode(GOTO, jump.breakLabel));
         }
     }
 
     void writeIf(IfStmtToken token){
         writeDefineVariables(token.getLocal());
 
-        Label end = new Label();
-        Label elseL = new Label();
+        LabelNode end = new LabelNode();
+        LabelNode elseL = new LabelNode();
         Memory memory = writeExpression(token.getCondition(), true, true);
 
         if (memory != null){
@@ -1501,18 +1495,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         } else {
             writePopBoolean();
-            mv.visitJumpInsn(Opcodes.IFEQ, token.getElseBody() != null ? elseL : end);
+            code.add(new JumpInsnNode(IFEQ, token.getElseBody() != null ? elseL : end));
             stackPop();
 
             writeBody(token.getBody());
             if (token.getElseBody() != null){
-                mv.visitJumpInsn(Opcodes.GOTO, end);
-                mv.visitLabel(elseL);
+                code.add(new JumpInsnNode(GOTO, end));
+                code.add(elseL);
                 writeBody(token.getElseBody());
             }
 
-            mv.visitLabel(end);
-            mv.visitLineNumber(token.getMeta().getEndLine(), end);
+            code.add(end);
+            code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
         }
         writeUndefineVariables(token.getLocal());
     }
@@ -1520,18 +1514,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeSwitch(SwitchStmtToken token){
         writeDefineVariables(token.getLocal());
 
-        Label end = new Label();
+        LabelNode end = new LabelNode();
 
-        Label[][] jumps = new Label[token.getCases().size() + 1][2];
+        LabelNode[][] jumps = new LabelNode[token.getCases().size() + 1][2];
         int i = 0;
         for(CaseStmtToken one : token.getCases()){
-            jumps[i] = new Label[]{ new Label(), new Label() }; // checkLabel, bodyLabel
+            jumps[i] = new LabelNode[]{ new LabelNode(), new LabelNode() }; // checkLabel, bodyLabel
             if (i == jumps.length - 1)
-                jumps[i] = new Label[]{ end, end };
+                jumps[i] = new LabelNode[]{ end, end };
 
             i++;
         }
-        jumps[jumps.length - 1] = new Label[]{end, end};
+        jumps[jumps.length - 1] = new LabelNode[]{end, end};
 
         method.pushJump(end, end);
         writeExpression(token.getValue(), true, false);
@@ -1539,31 +1533,31 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         i = 0;
         for(CaseStmtToken one : token.getCases()){
-            mv.visitLabel(jumps[i][0]); // conditional
+            code.add(jumps[i][0]); // conditional
 
             if (one.getConditional() != null){
                 writePushDup();
                 writeExpression(one.getConditional(), true, false);
                 writeSysDynamicCall(Memory.class, "equal", Boolean.TYPE, stackPeek().type.toClass());
-                mv.visitJumpInsn(Opcodes.IFEQ, jumps[i + 1][0]);
+                code.add(new JumpInsnNode(IFEQ, jumps[i + 1][0]));
             }
 
             writePopAll(1);
-            mv.visitJumpInsn(Opcodes.GOTO, jumps[i][1]); // if is done...
+            code.add(new JumpInsnNode(GOTO, jumps[i][1])); // if is done...
             i++;
         }
 
         i = 0;
         for(CaseStmtToken one : token.getCases()){
-            mv.visitLabel(jumps[i][1]);
+            code.add(jumps[i][1]);
             writeBody(one.getBody());
             i++;
         }
 
         method.popJump();
-        mv.visitLabel(end);
+        code.add(end);
 
-        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+        code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
         writeUndefineVariables(token.getLocal());
     }
 
@@ -1579,33 +1573,33 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             local.setValue(null);
         }
 
-        Label start = writeLabel(mv, token.getMeta().getStartLine());
-        Label iter = new Label();
-        Label end = new Label();
+        LabelNode start = writeLabel(node, token.getMeta().getStartLine());
+        LabelNode iter = new LabelNode();
+        LabelNode end = new LabelNode();
 
         writeExpression(token.getCondition(), true, false);
         writePopBoolean();
 
-        mv.visitJumpInsn(Opcodes.IFEQ, end);
+        code.add(new JumpInsnNode(IFEQ, end));
         stackPop();
 
         method.pushJump(end, iter);
         writeBody(token.getBody());
         method.popJump();
 
-        mv.visitLabel(iter);
+        code.add(iter);
         writeExpression(token.getIterationExpr(), false, false);
-        mv.visitJumpInsn(Opcodes.GOTO, start);
-        mv.visitLabel(end);
-        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+        code.add(new JumpInsnNode(GOTO, start));
+        code.add(end);
+        code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
         writeUndefineVariables(token.getLocal());
     }
 
     void writeWhile(WhileStmtToken token){
         writeDefineVariables(token.getLocal());
 
-        Label start = writeLabel(mv, token.getMeta().getStartLine());
-        Label end = new Label();
+        LabelNode start = writeLabel(node, token.getMeta().getStartLine());
+        LabelNode end = new LabelNode();
 
         writeConditional(token.getCondition(), end);
 
@@ -1613,9 +1607,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeBody(token.getBody());
         method.popJump();
 
-        mv.visitJumpInsn(Opcodes.GOTO, start);
-        mv.visitLabel(end);
-        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+        code.add(new JumpInsnNode(GOTO, start));
+        code.add(end);
+        code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
 
         writeUndefineVariables(token.getLocal());
     }
@@ -1623,8 +1617,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeDo(DoStmtToken token){
         writeDefineVariables(token.getLocal());
 
-        Label start = writeLabel(mv, token.getMeta().getStartLine());
-        Label end = new Label();
+        LabelNode start = writeLabel(node, token.getMeta().getStartLine());
+        LabelNode end = new LabelNode();
 
         method.pushJump(end, start);
         writeBody(token.getBody());
@@ -1632,9 +1626,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         writeConditional(token.getCondition(), end);
 
-        mv.visitJumpInsn(Opcodes.GOTO, start);
-        mv.visitLabel(end);
-        mv.visitLineNumber(token.getMeta().getEndLine(), end);
+        code.add(new JumpInsnNode(GOTO, start));
+        code.add(end);
+        code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
 
         writeUndefineVariables(token.getLocal());
     }
@@ -1662,14 +1656,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             );
         }
 
-        mv.visitInsn(Opcodes.ARETURN);
+        code.add(new InsnNode(ARETURN));
         stackPop();
     }
 
-    void writeConditional(ExprStmtToken condition, Label successLabel){
+    void writeConditional(ExprStmtToken condition, LabelNode successLabel){
         writeExpression(condition, true, false);
         writePopBoolean();
-        mv.visitJumpInsn(Opcodes.IFEQ, successLabel);
+        code.add(new JumpInsnNode(IFEQ, successLabel));
         stackPop();
     }
 
@@ -1754,8 +1748,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             if (token == null){
                 switch (type.size()){
-                    case 2: mv.visitInsn(Opcodes.POP2); break;
-                    case 1: mv.visitInsn(Opcodes.POP); break;
+                    case 2: code.add(new InsnNode(POP2)); break;
+                    case 1: code.add(new InsnNode(POP)); break;
                     default:
                         throw new IllegalArgumentException("Invalid of size StackItem: " + type.size());
                 }
