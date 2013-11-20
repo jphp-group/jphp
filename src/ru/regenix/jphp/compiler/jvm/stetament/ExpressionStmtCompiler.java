@@ -1634,6 +1634,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writeReturn(ReturnStmtToken token){
+        code.add(new FrameNode(F_SAME, 0, null, 0, null));
+
         if (token.getValue() == null)
             writePushNull();
         else
