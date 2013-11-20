@@ -2,7 +2,7 @@ package ru.regenix.jphp.syntax.generators;
 
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.NamespaceStmtToken;

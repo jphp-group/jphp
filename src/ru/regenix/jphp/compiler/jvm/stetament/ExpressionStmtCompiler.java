@@ -1,5 +1,6 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -14,21 +15,23 @@ import ru.regenix.jphp.compiler.common.util.CompilerUtils;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
-import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.*;
-import ru.regenix.jphp.tokenizer.token.expr.value.*;
-import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.DynamicInvoke;
 import ru.regenix.jphp.runtime.memory.*;
-import ru.regenix.jphp.runtime.reflection.Entity;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
+import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -571,6 +574,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             CompileFunction compileFunction = compiler.getScope().findCompileFunction(realName);
             if (compileFunction != null){
                 return writePushCompileFunction(function, compileFunction, returnValue, writeOpcode, statistic);
+            } else {
+                writePushEnv();
+                writePushTraceInfo(function);
+                writePushString(realName.toLowerCase());
+                writePushString(realName);
+                writePushParameters(function.getParameters());
+                writeSysStaticCall(
+                        DynamicInvoke.class, "call", Memory.class,
+                        Environment.class, TraceInfo.class, String.class, String.class, Memory[].class
+                );
+                if (!returnValue)
+                    writePopAll(1);
             }
         } else if (name instanceof StaticAccessExprToken){
             return writePushStaticMethod(function, returnValue, writeOpcode, statistic);
@@ -704,6 +719,35 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeSysStaticCall(TraceInfo.class, "valueOf", TraceInfo.class, String.class, Long.TYPE, Long.TYPE);
     }
 
+    Memory tryWritePushMacro(MacroToken macro, boolean writeOpcode){
+        if (macro instanceof LineMacroToken){
+            return LongMemory.valueOf(macro.getMeta().getStartLine() + 1);
+        } else if (macro instanceof FileMacroToken){
+            return new StringMemory(compiler.getSourceFile());
+        } else if (macro instanceof DirMacroToken){
+            return new StringMemory(new File(compiler.getSourceFile()).getParent());
+        } else if (macro instanceof FunctionMacroToken){
+            return new StringMemory(
+                    method.clazz.getFunctionName().isEmpty()
+                            ? method.clazz.isSystem() ? "" : method.getRealName()
+                            : method.clazz.getFunctionName()
+            );
+        } else if (macro instanceof MethodMacroToken){
+            return new StringMemory(method.clazz.isSystem()
+                    ? ""
+                    : method.clazz.entity.getName() + "::" + method.getRealName()
+            );
+        } else if (macro instanceof ClassMacroToken){
+            return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+        } else if (macro instanceof NamespaceMacroToken){
+            return new StringMemory(
+                    compiler.getNamespace() == null || compiler.getNamespace().getName() == null
+                            ? ""
+                            : compiler.getNamespace().getName().getName());
+        } else
+            throw new IllegalArgumentException("Unsupported macro value: " + macro.getWord());
+    }
+
     void writePushName(NameToken token){
         CompileConstant constant = compiler.getScope().findCompileConstant(token.getName());
         if (constant != null){
@@ -722,7 +766,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return tryWritePush(item.getToken(), true, writeOpcode);
         else if (item.getMemory() != null){
             return item.getMemory();
-        } else if (!writeOpcode)
+        } else
             stackPush(null, item.type);
         return null;
     }
@@ -771,6 +815,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return StackItem.Type.DOUBLE;
         else if (value instanceof StringExprToken)
             return StackItem.Type.STRING;
+        else if (value instanceof LineMacroToken)
+            return StackItem.Type.LONG;
+        else if (value instanceof MacroToken)
+            return StackItem.Type.STRING;
         else if (value instanceof CallExprToken) {
             PushCallStatistic statistic = new PushCallStatistic();
             writePushCall((CallExprToken)value, true, false, statistic);
@@ -805,6 +853,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (value instanceof CallExprToken)
             return writePushCall((CallExprToken)value, returnValue, writeOpcode, null);
+        else if (value instanceof MacroToken){
+            return tryWritePushMacro((MacroToken) value, writeOpcode);
+        }
 
         return null;
     }
@@ -815,7 +866,24 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushMemory(memory);
     }
 
-    void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses){
+    @SuppressWarnings("unchecked")
+    boolean methodExists(Class clazz, String method, Class... paramClasses){
+        try {
+            clazz.getDeclaredMethod(method, paramClasses);
+            return true;
+        } catch (java.lang.NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
+        try {
+            clazz.getDeclaredMethod(method, paramClasses);
+        } catch (java.lang.NoSuchMethodException e) {
+            throw new NoSuchMethodException(clazz, method, paramClasses);
+        }
+
         Type[] args = new Type[paramClasses.length];
         if (INVOKE_TYPE == Opcodes.INVOKEVIRTUAL || INVOKE_TYPE == Opcodes.INVOKEINTERFACE)
             stackPop(); // this
@@ -836,11 +904,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses){
-        writeSysCall(clazz, clazz.isInterface() ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL, method, returnClazz, paramClasses);
+    void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
+            throws NoSuchMethodException {
+        writeSysCall(
+                clazz, clazz.isInterface() ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL,
+                method, returnClazz, paramClasses
+        );
     }
 
-    void writeSysStaticCall(Class clazz, String method, Class returnClazz, Class... paramClasses){
+    void writeSysStaticCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
+            throws NoSuchMethodException {
         writeSysCall(clazz, Opcodes.INVOKESTATIC, method, returnClazz, paramClasses);
     }
 
@@ -959,10 +1032,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                              StackItem R, StackItem.Type Rt,
                              OperatorExprToken operator,
                              Class operatorResult, String operatorName){
-        boolean isRight = !R.isKnown();
+        boolean isInvert = !R.isKnown();
 
         if (operator instanceof ConcatExprToken){
-            if (isRight){
+            if (isInvert){
                 writePopString();
                 writePush(L, StackItem.Type.STRING);
                 writeSysStaticCall(OperatorUtils.class, "concatRight", String.class, String.class, String.class);
@@ -974,7 +1047,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return;
         } else if (operator instanceof PlusExprToken || operator instanceof MinusExprToken
             || operator instanceof MulExprToken){
-            if (operator instanceof MinusExprToken && isRight){
+            if (operator instanceof MinusExprToken && isInvert){
                 // nothing
             } else if (Lt.isLikeNumber() && Rt.isLikeNumber()){
                 StackItem.Type cast = StackItem.Type.LONG;
@@ -993,7 +1066,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         }
 
-        if (isRight){
+        if (isInvert){
             writePopBoxing();
             writePush(L);
             if (CompilerUtils.isSideOperator(operator))
@@ -1210,6 +1283,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeVarStore(variable.index, returnValue);
             }
         } else {
+            writePush(o);
+
             writeSysDynamicCall(Memory.class, name, operatorResult);
             if (!returnValue){
                 writePopAll(1);
@@ -1315,21 +1390,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writeScalarOperator(o2, Lt, o1, Rt, operator, operatorResult, name);
         } else {
-            boolean isRight = !o1.isKnown();
+            boolean isInvert = !o1.isKnown();
 
-            if (Lt.isConstant() && !isRight){
+            if (Lt.isConstant() && !isInvert){
                 writePush(o2);
-                if (o2.type == StackItem.Type.STRING){
-                    writeSysStaticCall(StringMemory.class, "toNumeric", Memory.class, String.class);
-                    writePush(o1);
-                    writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
-                } else {
+                if (methodExists(OperatorUtils.class, name, Lt.toClass(), Rt.toClass())){
                     writePush(o1);
                     writeSysStaticCall(OperatorUtils.class, name, operatorResult, Lt.toClass(), Rt.toClass());
+                } else {
+                    writePopBoxing();
+                    writePush(o1);
+                    writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
                 }
             } else {
-                if (isRight){
+                if (isInvert){
                     writePopBoxing();
+                    writePush(o2);
                     if (CompilerUtils.isSideOperator(operator))
                         name += "Right";
                 } else {
@@ -1338,7 +1414,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                     writePush(o1);
                 }
-                writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
+                writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
             }
             setStackPeekAsImmutable();
 
@@ -1694,5 +1770,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeExpression(expression, false, false);
         method.popAll();
         return null;
+    }
+
+    public static class NoSuchMethodException extends RuntimeException {
+        public NoSuchMethodException(Class clazz, String method, Class... parameters){
+            super("No such method " + clazz.getName() + "." + method + "(" + StringUtils.join(parameters, ", ") + ")");
+        }
     }
 }

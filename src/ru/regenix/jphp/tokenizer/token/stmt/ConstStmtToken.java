@@ -2,7 +2,7 @@ package ru.regenix.jphp.tokenizer.token.stmt;
 
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 
 public class ConstStmtToken extends StmtToken {
     private ClassStmtToken clazz;

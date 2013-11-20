@@ -3,7 +3,7 @@ package ru.regenix.jphp.syntax.generators.manually;
 import ru.regenix.jphp.tokenizer.token.ColonToken;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;

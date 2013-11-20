@@ -5,11 +5,11 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 public class RuntimeClassLoader extends ClassLoader {
 
@@ -28,6 +28,19 @@ public class RuntimeClassLoader extends ClassLoader {
             method.getNativeMethod().setAccessible(true);
         }
 
+        return result;
+    }
+
+    protected Class<?> loadFunction(FunctionEntity function) throws NoSuchMethodException {
+        byte[] data = function.getData();
+        String className = function.getModule().getFulledFunctionClassName(function.getName(), Constants.NAME_DELIMITER);
+
+        Class<?> result = defineClass(className, data, 0, data.length);
+        function.setNativeClazz(result);
+        Method method = result.getDeclaredMethod(
+                "__invoke", Environment.class, String.class, Memory[].class
+        );
+        function.setNativeMethod(method);
         return result;
     }
 
@@ -50,6 +63,10 @@ public class RuntimeClassLoader extends ClassLoader {
             try {
                 for(ClassEntity clazz : module.getClasses())
                     loadClass(clazz);
+
+                for(FunctionEntity function : module.getFunctions())
+                    loadFunction(function);
+
             } catch (NoSuchMethodException e){
                 throw new RuntimeException(e);
             }

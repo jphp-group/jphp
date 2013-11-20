@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.reflection;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 public class PropertyEntity extends Entity {
     protected ClassEntity clazz;

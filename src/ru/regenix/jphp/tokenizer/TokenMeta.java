@@ -1,7 +1,8 @@
-package ru.regenix.jphp.tokenizer.token;
+package ru.regenix.jphp.tokenizer;
 
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.tokenizer.token.Token;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,10 +53,10 @@ public class TokenMeta {
     public static TokenMeta of(String word, Token token){
         return new TokenMeta(
                 word,
-                token.meta.startLine,
-                token.meta.endLine,
-                token.meta.startPosition,
-                token.meta.endPosition
+                token.getMeta().startLine,
+                token.getMeta().endLine,
+                token.getMeta().startPosition,
+                token.getMeta().endPosition
         );
     }
 

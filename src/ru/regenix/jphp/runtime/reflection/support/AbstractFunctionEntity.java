@@ -1,7 +1,9 @@
-package ru.regenix.jphp.runtime.reflection;
+package ru.regenix.jphp.runtime.reflection.support;
 
 
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.reflection.DocumentComment;
+import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
 abstract public class AbstractFunctionEntity extends Entity {
 

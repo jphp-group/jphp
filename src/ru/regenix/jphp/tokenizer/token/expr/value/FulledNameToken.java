@@ -1,9 +1,8 @@
-package ru.regenix.jphp.tokenizer.token.expr;
+package ru.regenix.jphp.tokenizer.token.expr.value;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +10,22 @@ import java.util.ListIterator;
 
 public class FulledNameToken extends NameToken {
     private List<NameToken> names;
+    private boolean absolutely;
 
     public FulledNameToken(TokenMeta meta) {
-        super(meta);
+        this(meta, '\\');
     }
 
     public FulledNameToken(TokenMeta meta, char sep){
         super(meta);
         this.names = new ArrayList<NameToken>();
-        for(String name : StringUtils.split(meta.getWord(), sep)){
+        String word = meta.getWord();
+
+        this.absolutely = word.startsWith(String.valueOf(sep));
+        if (absolutely)
+            word = word.substring(1);
+
+        for(String name : StringUtils.split(word, sep)){
             this.names.add(new NameToken(TokenMeta.of( name, this )));
         }
     }
@@ -36,6 +42,14 @@ public class FulledNameToken extends NameToken {
         return names;
     }
 
+    public NameToken getLastName(){
+        return names.get(names.size() - 1);
+    }
+
+    public boolean isAbsolutely() {
+        return absolutely;
+    }
+
     public String toName(char delimiter){
         StringBuilder builder = new StringBuilder();
         ListIterator<NameToken> iterator = names.listIterator();
@@ -50,6 +64,11 @@ public class FulledNameToken extends NameToken {
 
     public String toName(){
         return toName('\\');
+    }
+
+    @Override
+    public String getName() {
+        return toName();
     }
 
     public boolean isSingle(){

@@ -5,6 +5,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,8 +52,16 @@ public class ModuleEntity extends Entity {
         return "php\\lang\\module";
     }
 
+    public String getFunctionNamespace(){
+        return "php\\lang\\function";
+    }
+
     public String getFulledClassName(char sep){
         return (getModuleNamespace() + sep + getModuleClassName()).replace('\\', sep);
+    }
+
+    public String getFulledFunctionClassName(String name, char sep){
+        return (getFunctionNamespace() + sep + name).replace('\\', sep);
     }
 
     public Method getNativeMethod() {

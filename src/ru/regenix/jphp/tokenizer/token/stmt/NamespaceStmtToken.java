@@ -1,8 +1,9 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
 import ru.regenix.jphp.tokenizer.TokenType;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ public class NamespaceStmtToken extends StmtToken {
 
     private FulledNameToken name;
     private final List<NamespaceUseStmtToken> uses;
-    private BodyStmtToken body;
+    private List<Token> tree;
 
     public NamespaceStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_NAMESPACE);
@@ -31,12 +32,12 @@ public class NamespaceStmtToken extends StmtToken {
         return this;
     }
 
-    public BodyStmtToken getBody() {
-        return body;
+    public List<Token> getTree() {
+        return tree;
     }
 
-    public void setBody(BodyStmtToken body) {
-        this.body = body;
+    public void setTree(List<Token> tree) {
+        this.tree = tree;
     }
 
     private static NamespaceStmtToken defaultNamespace =

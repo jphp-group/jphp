@@ -113,6 +113,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 if (!brace.isSimpleOpened())
                     unexpectedToken(brace, "(");
 
+                result.setNamespace(analyzer.getNamespace());
                 result.setName((NameToken)next);
                 processArguments(result, iterator);
                 processBody(result, iterator);

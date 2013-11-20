@@ -2,7 +2,11 @@ package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
@@ -11,6 +15,7 @@ import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
+import ru.regenix.jphp.tokenizer.token.stmt.NamespaceUseStmtToken;
 
 import java.util.*;
 
@@ -62,15 +67,37 @@ public class SyntaxAnalyzer {
 
         Token token;
         while ((token = tokenizer.nextToken()) != null){
+            if (token instanceof CommentToken){
+                if (((CommentToken) token).getKind() != CommentToken.Kind.DOCTYPE)
+                    continue;
+            }
             tokens.add(token);
         }
 
         ListIterator<Token> iterator = tokens.listIterator();
+        tree = process(iterator);
+    }
+
+    public List<Token> process(ListIterator<Token> iterator){
+        List<Token> result = new ArrayList<Token>();
         while (iterator.hasNext()){
-            Token current = iterator.next();
-            Token gen = generateToken(current, iterator);
-            tree.add(gen == null ? current : gen);
+            Token gen = processNext(iterator);
+            if (gen instanceof NamespaceStmtToken){
+                List<Token> tree = ((NamespaceStmtToken) gen).getTree();
+                ((NamespaceStmtToken) gen).setTree(null);
+
+                result.add(gen);
+                result.addAll(tree);
+            } else
+                result.add(gen);
         }
+        return result;
+    }
+
+    public Token processNext(ListIterator<Token> iterator){
+        Token current = iterator.next();
+        Token gen = generateToken(current, iterator);
+        return (gen == null ? current : gen);
     }
 
     public Set<VariableExprToken> addLocalScope(){
@@ -141,5 +168,45 @@ public class SyntaxAnalyzer {
 
     public void setFunction(FunctionStmtToken function) {
         this.function = function;
+    }
+
+    public ValueExprToken getRealName(ValueExprToken value){
+        if (value == null)
+            return null;
+
+        if (value instanceof NameToken)
+            return getRealName((NameToken)value);
+        else
+            return value;
+    }
+
+    public FulledNameToken getRealName(NameToken what) {
+        if (what instanceof FulledNameToken && ((FulledNameToken) what).isAbsolutely())
+            return (FulledNameToken) what;
+
+        String name = what.getName();
+
+        // check name in uses
+        for(NamespaceUseStmtToken use : namespace.getUses()){
+            if (use.getAs() == null){
+                if (name.equalsIgnoreCase(use.getName().getLastName().getName()))
+                    return use.getName();
+            } else {
+                if (name.equalsIgnoreCase(use.getAs().getName())){
+                    return use.getName();
+                }
+            }
+        }
+
+        List<NameToken> names = namespace.getName() == null
+                ? new ArrayList<NameToken>()
+                : new ArrayList<NameToken>(namespace.getName().getNames());
+
+        if (what instanceof FulledNameToken)
+            names.addAll(((FulledNameToken) what).getNames());
+        else
+            names.add(what);
+
+        return new FulledNameToken(what.getMeta(), names);
     }
 }

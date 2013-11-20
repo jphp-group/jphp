@@ -1,9 +1,10 @@
-package ru.regenix.jphp.tokenizer.token;
+package ru.regenix.jphp.tokenizer;
 
+import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
-import ru.regenix.jphp.tokenizer.token.macro.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.HashMap;
@@ -175,8 +176,12 @@ public class TokenFinder {
         if (word.matches("^0x[0-9a-f]+$"))
             return HexExprValue.class;
 
-        if (word.matches("^[a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]*$"))
-            return NameToken.class;
+        if (word.matches("^\\\\?[a-z_\\x7f-\\xff][\\\\a-z0-9_\\x7f-\\xff]*$")){
+            if (word.indexOf('\\') > -1)
+                return FulledNameToken.class;
+            else
+                return NameToken.class;
+        }
 
         if (word.matches("^[\\$][a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]*$"))
             return VariableExprToken.class;

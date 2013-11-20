@@ -1,7 +1,10 @@
-<?php
+<?
+namespace foo\bar;
 
-for($i = 0; $i < 10000000; $i++){
-    $x = 333333333333 + $i;
+class MyClass {
+    static function testMmm(){
+        echo __FUNCTION__;
+    }
 }
 
-echo $x;
+MyClass::testmmm();

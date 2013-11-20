@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.reflection;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

@@ -244,12 +244,12 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory minus(long value) {
-        return new LongMemory(this.value - value);
+        return LongMemory.valueOf(this.value - value);
     }
 
     @Override
     public Memory plus(long value) {
-        return new LongMemory(this.value + value);
+        return LongMemory.valueOf(this.value + value);
     }
 
     @Override

@@ -2,7 +2,7 @@ package ru.regenix.jphp.tokenizer.token.stmt;
 
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 
 import java.util.Arrays;
 import java.util.List;

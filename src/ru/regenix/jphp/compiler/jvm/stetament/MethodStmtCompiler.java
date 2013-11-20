@@ -8,7 +8,7 @@ import ru.regenix.jphp.compiler.common.misc.LocalVariable;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
@@ -34,6 +34,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     private Map<String, LocalVariable> localVariables;
     protected MethodVisitor mv;
+    protected String realName;
 
     private boolean external = false;
 
@@ -43,6 +44,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.mv = mv;
         this.method = null;
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
+        this.realName = methodName;
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
@@ -58,6 +60,15 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
         entity.setName(method.getName().getName());
+        realName = entity.getName();
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
     }
 
     public boolean isExternal() {

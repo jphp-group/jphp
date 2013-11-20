@@ -4,8 +4,6 @@ public class FalseMemory extends Memory {
 
     public final static FalseMemory INSTANCE = new FalseMemory();
 
-    boolean value;
-
     protected FalseMemory() {
         super(Type.BOOL);
     }

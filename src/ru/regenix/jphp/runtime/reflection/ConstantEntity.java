@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 public class ConstantEntity extends Entity {
 

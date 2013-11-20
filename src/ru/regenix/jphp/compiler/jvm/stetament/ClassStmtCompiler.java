@@ -24,6 +24,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public final ClassStmtToken clazz;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
     private boolean external = false;
+    private boolean isSystem = false;
+    private String functionName = "";
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
         super(compiler);
@@ -34,6 +36,22 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(clazz.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(clazz.getFulledName());
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public boolean isSystem() {
+        return isSystem;
+    }
+
+    public void setSystem(boolean system) {
+        isSystem = system;
     }
 
     public boolean isExternal() {
@@ -124,7 +142,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         mv.visitInsn(RETURN);
         methodCompiler.writeFooter();
     }
-
 
     @Override
     public ClassEntity compile() {

@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
 
 @RunWith(JUnit4.class)

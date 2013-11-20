@@ -7,7 +7,7 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.runtime.reflection.Entity;
+import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 abstract public class StmtCompiler<T extends Entity> {
 

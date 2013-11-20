@@ -1,7 +1,7 @@
-package ru.regenix.jphp.tokenizer.token.macro;
+package ru.regenix.jphp.tokenizer.token.expr.value.macro;
 
 import ru.regenix.jphp.tokenizer.TokenType;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 
 public class DirMacroToken extends MacroToken {
     public DirMacroToken(TokenMeta meta) {

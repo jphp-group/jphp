@@ -2,6 +2,7 @@ package ru.regenix.jphp.syntax.generators.manually;
 
 
 import ru.regenix.jphp.common.Separator;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
@@ -36,7 +37,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         nextToken(iterator);
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
-        result.setName((ValueExprToken)previous);
+        result.setName(analyzer.getRealName((ValueExprToken)previous));
         result.setParameters(parameters);
 
         if (analyzer.getFunction() != null){
@@ -88,7 +89,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
-                                       BraceExprToken.Kind closedBraceKind){
+                                       BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind);
 
@@ -141,9 +142,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
 
             LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
-            ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind);
-            if (closedBraceKind == null)
+            ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getToken(
+                            nextToken(iterator), iterator, Separator.SEMICOLON,
+                            braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind
+                    );
+
+            if (closedBraceKind == null && braceOpened < 1)
                 iterator.previous();
 
             logic.setRightValue(result);
@@ -154,7 +158,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (current instanceof NameToken || current instanceof VariableExprToken
                     || current instanceof SelfExprToken){
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
-                result.setClazz((ValueExprToken)current);
+                ValueExprToken clazz = (ValueExprToken)current;
+                if (clazz instanceof NameToken){
+                    clazz = analyzer.getRealName((NameToken)clazz);
+                }
+
+                result.setClazz(clazz);
                 nextToken(iterator);
 
                 next = nextToken(iterator);
@@ -304,7 +313,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof ArrayExprToken){
                 tokens.add(processNewArray(current, iterator));
             } else if (current instanceof ExprToken) {
-                Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind);
+                Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind, braceOpened);
                 if (token != null)
                     current = token;
 

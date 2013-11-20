@@ -8,6 +8,7 @@ import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.support.AbstractFunctionEntity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -99,6 +100,9 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);
+        for(Memory e : arguments)
+            e.unset();
+
         if (!isReturnReference())
             return result.toImmutable();
         else
@@ -200,7 +204,7 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     @Override
     public int hashCode() {
-        return hashCode(clazz.lowerName, lowerName);
+        return hashCode(clazz.getLowerName(), lowerName);
     }
 
     public static int hashCode(String classLowerName, String methodLowerName){

@@ -10,12 +10,13 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.tokenizer.Tokenizer;
+import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
-import ru.regenix.jphp.tokenizer.token.macro.*;
+import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.math.BigInteger;
@@ -301,5 +302,45 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof ExtendsStmtToken);
         assertTrue(tokenizer.nextToken() instanceof ImplementsStmtToken);
         assertTrue(tokenizer.nextToken() instanceof GlobalStmtToken);
+    }
+
+    @Test
+    public void testSplitNot(){
+        Tokenizer tokenizer = new Tokenizer(
+                environment.createContext("!true")
+        );
+        assertTrue(tokenizer.nextToken() instanceof BooleanNotExprToken);
+        assertTrue(tokenizer.nextToken() instanceof BooleanExprToken);
+    }
+
+    @Test
+    public void testComments(){
+        Tokenizer tokenizer = new Tokenizer(
+                environment.createContext("/** FOO BAR \n\r100500 */")
+        );
+        Token token = tokenizer.nextToken();
+        assertTrue(token instanceof CommentToken);
+        assertEquals(CommentToken.Kind.DOCTYPE, ((CommentToken) token).getKind());
+        assertEquals("FOO BAR\n100500", ((CommentToken) token).getComment());
+
+        // simple
+        tokenizer = new Tokenizer(
+                environment.createContext("// foobar \n $x")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof CommentToken);
+        assertEquals(CommentToken.Kind.SIMPLE, ((CommentToken) token).getKind());
+        assertEquals(" foobar ", ((CommentToken) token).getComment());
+
+        assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
+        assertNull(tokenizer.nextToken());
+
+        // block
+        tokenizer = new Tokenizer(
+                environment.createContext("/* foobar \n */")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof CommentToken);
+        assertEquals(CommentToken.Kind.BLOCK, ((CommentToken) token).getKind());
     }
 }

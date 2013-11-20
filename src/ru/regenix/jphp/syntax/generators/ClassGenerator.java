@@ -4,6 +4,7 @@ import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
@@ -36,12 +37,11 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
     }
 
     protected void processExtends(ClassStmtToken result, ListIterator<Token> iterator){
-        checkUnexpectedEnd(iterator);
-
-        Token token = iterator.next();
+        Token token = nextToken(iterator);
         if (token instanceof ExtendsStmtToken){
-            Token extend = analyzer.generateToken(token, iterator);
-            result.setExtend((ExtendsStmtToken)extend);
+            ExtendsStmtToken extend = (ExtendsStmtToken)token;
+            FulledNameToken what = analyzer.generator(NameGenerator.class).getToken(nextToken(iterator), iterator);
+            extend.setName(analyzer.getRealName(what));
         } else
             iterator.previous();
     }
@@ -142,7 +142,6 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 ClassStmtToken result = (ClassStmtToken)next;
                 result.setAbstract(current instanceof AbstractStmtToken);
                 result.setFinal(current instanceof FinalStmtToken);
-                result.setNamespace(analyzer.getNamespace());
 
                 return result;
             } else {
@@ -165,6 +164,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 unexpectedToken(current);
 
             analyzer.setClazz(result);
+            result.setNamespace(analyzer.getNamespace());
+
             processName(result, iterator);
             processExtends(result, iterator);
             processImplements(result, iterator);

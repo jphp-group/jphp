@@ -1,8 +1,8 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
 import ru.regenix.jphp.tokenizer.TokenType;
-import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 
 public class CatchStmtToken extends StmtToken {

@@ -5,11 +5,13 @@ import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.ClassStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.ExpressionStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.stetament.FunctionStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.MethodStmtCompiler;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.expr.FulledNameToken;
+import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.runtime.env.Context;
@@ -27,6 +29,7 @@ import java.util.List;
 public class JvmCompiler extends AbstractCompiler {
 
     protected final ModuleEntity module;
+    protected NamespaceStmtToken namespace;
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
 
     public JvmCompiler(Environment environment, Context context) {
@@ -40,6 +43,14 @@ public class JvmCompiler extends AbstractCompiler {
         this.module.setId( scope.nextModuleIndex() );
     }
 
+    public NamespaceStmtToken getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(NamespaceStmtToken namespace) {
+        this.namespace = namespace;
+    }
+
     public ClassEntity compileClass(ClassStmtToken clazz, boolean external) {
         ClassStmtCompiler cmp = new ClassStmtCompiler(this, clazz);
         cmp.setExternal(external);
@@ -48,6 +59,11 @@ public class JvmCompiler extends AbstractCompiler {
 
     public ClassEntity compileClass(ClassStmtToken clazz){
         return compileClass(clazz, false);
+    }
+
+    public FunctionEntity compileFunction(FunctionStmtToken function){
+        FunctionStmtCompiler cmp = new FunctionStmtCompiler(this, function);
+        return cmp.compile();
     }
 
     public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method, boolean external) {
@@ -68,21 +84,32 @@ public class JvmCompiler extends AbstractCompiler {
         new ExpressionStmtCompiler(method, expression).compile();
     }
 
-    @Override
-    public ModuleEntity compile(boolean autoRegister) {
-        this.classes = new ArrayList<ClassStmtCompiler>();
+    public List<ExprStmtToken> process(List<Token> tokens, NamespaceStmtToken namespace){
         List<ExprStmtToken> externalCode = new ArrayList<ExprStmtToken>();
 
         for(Token token : tokens){
-            if (token instanceof ClassStmtToken){
+            if (token instanceof NamespaceStmtToken){
+              setNamespace((NamespaceStmtToken)token);
+            } if (token instanceof ClassStmtToken){
                 ClassEntity entity = compileClass((ClassStmtToken)token);
                 module.addClass(entity);
-
+            } else if (token instanceof FunctionStmtToken){
+                FunctionEntity entity = compileFunction((FunctionStmtToken)token);
+                module.addFunction(entity);
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);
             } else
                 externalCode.add(new ExprStmtToken(token));
         }
+
+        return externalCode;
+    }
+
+    @Override
+    public ModuleEntity compile(boolean autoRegister) {
+        this.classes = new ArrayList<ClassStmtCompiler>();
+
+        List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());
 
         NamespaceStmtToken namespace = new NamespaceStmtToken( TokenMeta.of(module.getModuleNamespace()) );
         namespace.setName(new FulledNameToken( TokenMeta.of( module.getModuleNamespace() ), '\\' ));
@@ -105,13 +132,20 @@ public class JvmCompiler extends AbstractCompiler {
 
         token.setMethods(Arrays.asList(methodToken));
 
-        ClassEntity entity = compileClass(token, true);
-        module.setData(entity.getData());
+        ClassStmtCompiler classStmtCompiler = new ClassStmtCompiler(this, token);
+        classStmtCompiler.setExternal(true);
+        classStmtCompiler.setSystem(true);
+
+        module.setData(classStmtCompiler.compile().getData());
         // ..
 
         if (autoRegister)
             scope.addUserModule(module);
 
+        return module;
+    }
+
+    public ModuleEntity getModule() {
         return module;
     }
 

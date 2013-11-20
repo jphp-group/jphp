@@ -1,4 +1,4 @@
-package ru.regenix.jphp.runtime.reflection;
+package ru.regenix.jphp.runtime.reflection.support;
 
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.runtime.env.Context;

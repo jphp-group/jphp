@@ -72,6 +72,8 @@ abstract public class Memory {
     abstract public String toString();
 
     public boolean isArray(){ return type == Type.ARRAY; }
+    public boolean isString() { return type == Type.STRING; }
+    public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
 
     // <value>[index]
     public Memory valueOfIndex(Memory index) { return NULL; }
@@ -218,7 +220,7 @@ abstract public class Memory {
 
     public Memory divRight(long value){ return new DoubleMemory(value / toDouble()); }
     public Memory divRight(double value){ return new DoubleMemory(value / toDouble()); }
-    public Memory divRight(boolean value){ if(!value) return CONST_INT_0; return new DoubleMemory((value ? 1 : 0) / toDouble()); }
+    public Memory divRight(boolean value){ if(!value) return CONST_INT_0; else return TRUE.div(this); }
     public Memory divRight(String value){ return StringMemory.toNumeric(value).div(this); }
 
     public Memory modRight(long value){ return new LongMemory(value % toLong()); }
@@ -233,28 +235,6 @@ abstract public class Memory {
 
     /****************************************************************/
     /** Static *****/
-
-    public static Memory minusRight(long value, Memory memory){ return memory.minusRight(value); }
-    public static Memory minusRight(double value, Memory memory){ return memory.minusRight(value); }
-    public static Memory minusRight(boolean value, Memory memory){ return memory.minusRight(value); }
-    public static Memory minusRight(String value, Memory memory){ return memory.minusRight(value); }
-
-    public static Memory divRight(long value, Memory memory){ return memory.divRight(value); }
-    public static Memory divRight(double value, Memory memory){ return memory.divRight(value); }
-    public static Memory divRight(boolean value, Memory memory){ return memory.divRight(value); }
-    public static Memory divRight(String value, Memory memory){ return memory.divRight(value); }
-
-    public static Memory modRight(long value, Memory memory){ return memory.modRight(value); }
-    public static Memory modRight(double value, Memory memory){ return memory.modRight(value); }
-    public static Memory modRight(boolean value, Memory memory){ return memory.modRight(value); }
-    public static Memory modRight(String value, Memory memory){ return memory.modRight(value); }
-
-    public static String concatRight(long value, Memory memory){ return memory.concatRight(value); }
-    public static String concatRight(double value, Memory memory){ return memory.concatRight(value); }
-    public static String concatRight(boolean value, Memory memory){ return memory.concatRight(value); }
-    public static String concatRight(String value, Memory memory){ return memory.concatRight(value); }
-
-
     public static void assignRight(Memory value, Memory memory){ memory.assign(value); }
     public static void assignRight(long value, Memory memory){ memory.assign(value); }
     public static void assignRight(double value, Memory memory){ memory.assign(value); }
