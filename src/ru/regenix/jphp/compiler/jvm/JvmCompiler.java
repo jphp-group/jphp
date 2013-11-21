@@ -1,6 +1,5 @@
 package ru.regenix.jphp.compiler.jvm;
 
-import org.objectweb.asm.MethodVisitor;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.ClassStmtCompiler;

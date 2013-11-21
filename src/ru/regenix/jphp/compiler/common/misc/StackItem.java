@@ -1,17 +1,14 @@
 package ru.regenix.jphp.compiler.common.misc;
 
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 
-/**
-* User: Dim-S (dz@dim-s.net)
-* Date: 10.11.13
-*/
 public class StackItem {
 
     public enum Type {
-        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, REFERENCE, CLASS;
+        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, CLASS;
 
         public Class toClass(){
             switch (this){
@@ -24,6 +21,7 @@ public class StackItem {
                 case LONG: return Long.TYPE;
                 case STRING: return String.class;
                 case ARRAY: return ArrayMemory.class;
+                case OBJECT: return ObjectMemory.class;
                 case REFERENCE: return Memory.class;
             }
 
@@ -61,12 +59,14 @@ public class StackItem {
                 return BOOL;
             if (clazz == ArrayMemory.class)
                 return ARRAY;
+            if (clazz == ObjectMemory.class)
+                return OBJECT;
 
             return REFERENCE;
         }
 
         public boolean isConstant(){
-            return this != REFERENCE && this != ARRAY /*&& this != OBJECT*/;
+            return this != REFERENCE && this != ARRAY && this != OBJECT;
         }
 
         public boolean isLikeDouble(){

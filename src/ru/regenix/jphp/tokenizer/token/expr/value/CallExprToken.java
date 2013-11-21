@@ -3,13 +3,14 @@ package ru.regenix.jphp.tokenizer.token.expr.value;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.List;
 
 public class CallExprToken extends ValueExprToken {
-    private ValueExprToken name;
+    private ExprToken name;
     private List<ExprStmtToken> parameters;
 
     public CallExprToken(TokenMeta meta) {
@@ -24,7 +25,7 @@ public class CallExprToken extends ValueExprToken {
         this.parameters = parameters;
     }
 
-    public void setName(ValueExprToken name) {
+    public void setName(ExprToken name) {
         this.name = name;
     }
 

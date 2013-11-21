@@ -37,7 +37,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         nextToken(iterator);
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
-        result.setName(analyzer.getRealName((ValueExprToken)previous));
+        if (previous instanceof ValueExprToken)
+            result.setName(analyzer.getRealName((ValueExprToken)previous));
+        else
+            result.setName((ExprToken)previous);
+
         result.setParameters(parameters);
 
         if (analyzer.getFunction() != null){
@@ -48,14 +52,47 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected ImportExprToken processImport(Token current, Token next, ListIterator<Token> iterator,
-                                              BraceExprToken.Kind closedBrace){
+                                              BraceExprToken.Kind closedBrace, int braceOpened){
         ImportExprToken result = (ImportExprToken)current;
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
                 nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
         );
-        if (closedBrace == null)
+        if (closedBrace == null || braceOpened < 1)
             iterator.previous();
         result.setValue(value);
+        return result;
+    }
+
+    protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, ListIterator<Token> iterator,
+            BraceExprToken.Kind closedBraceKind, int braceOpened){
+        DynamicAccessExprToken result = (DynamicAccessExprToken)current;
+        if (next instanceof NameToken){
+            result.setField((ValueExprToken)next);
+            iterator.next();
+        } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
+            ExprStmtToken name = analyzer.generator(ExprGenerator.class).getInBraces(
+                    BraceExprToken.Kind.BLOCK, iterator
+            );
+            result.setFieldExpr(name);
+        }
+
+        if (iterator.hasNext()){
+            next = iterator.next();
+            if (next instanceof AssignOperatorExprToken || next instanceof AssignExprToken){
+                DynamicAccessAssignExprToken dResult = new DynamicAccessAssignExprToken(result);
+                dResult.setAssignOperator(next);
+
+                ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                        nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
+                );
+                if (closedBraceKind == null || braceOpened < 1)
+                    iterator.previous();
+                dResult.setValue(value);
+                return dResult;
+            }
+            iterator.previous();
+        }
+
         return result;
     }
 
@@ -88,10 +125,49 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected Token processNew(Token current, ListIterator<Token> iterator){
+        NewExprToken result = (NewExprToken)current;
+        Token next = nextToken(iterator);
+        if (next instanceof NameToken){
+            FulledNameToken nameToken = analyzer.getRealName((NameToken)next);
+            result.setName(nameToken);
+        } else if (next instanceof VariableExprToken){
+            result.setName((VariableExprToken)next);
+        } else
+            unexpectedToken(next);
+
+        next = nextToken(iterator);
+        if (isOpenedBrace(next, BraceExprToken.Kind.SIMPLE)){
+            ExprStmtToken param;
+            List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+            do {
+                param = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE);
+
+                if (param != null)
+                    parameters.add(param);
+            } while (param != null);
+            nextToken(iterator);
+            result.setParameters(parameters);
+        } else {
+            result.setParameters(new ArrayList<ExprStmtToken>());
+            iterator.previous();
+        }
+
+        if (analyzer.getFunction() != null){
+            analyzer.getFunction().setCallsExist(true);
+        }
+
+        return result;
+    }
+
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (current instanceof ImportExprToken)
-            return processImport(current, next, iterator, closedBraceKind);
+            return processImport(current, next, iterator, closedBraceKind, braceOpened);
+
+        if (current instanceof NewExprToken)
+            return processNew(current, iterator);
 
         if (current instanceof DollarExprToken){
             return processVarVar(current, next, iterator);
@@ -112,7 +188,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
                         || next instanceof HexExprValue)){
 
-            if (!(previous instanceof ValueExprToken || previous instanceof ArrayGetExprToken
+            if (!(previous instanceof ValueExprToken
+                    || previous instanceof ArrayGetExprToken || previous instanceof DynamicAccessExprToken
                     || isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))){
                 iterator.next();
                 // if it minus
@@ -152,6 +229,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             logic.setRightValue(result);
             return logic;
+        }
+
+        if (current instanceof DynamicAccessExprToken){
+            return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
         }
 
         if (next instanceof StaticAccessExprToken){
@@ -266,6 +347,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     isFunc = true;
                 else if (previous instanceof StaticAccessExprToken){
                     isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
+                } else if (previous instanceof DynamicAccessExprToken){
+                    isFunc = true;
                 }
 
                 if (isFunc){

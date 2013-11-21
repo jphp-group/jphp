@@ -1,12 +1,10 @@
-package ru.regenix.jphp.compiler.common.misc;
+package ru.regenix.jphp.compiler.jvm.misc;
 
-import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 import ru.regenix.jphp.runtime.memory.Memory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class LocalVariable {
     public final String name;
@@ -18,6 +16,7 @@ public class LocalVariable {
     private boolean isReference;
     private int level;
     private List<Memory> values;
+    private List<StackFrame> frames;
 
     public LocalVariable(String name, int index, LabelNode label, Class clazz){
         this.name = name;
@@ -27,6 +26,15 @@ public class LocalVariable {
         this.level = 0;
         this.isImmutable = true;
         this.values = new ArrayList<Memory>();
+        this.frames = new ArrayList<StackFrame>();
+    }
+
+    public void addStackFrame(StackFrame frame){
+        this.frames.add(frame);
+    }
+
+    public List<StackFrame> getStackFrames() {
+        return frames;
     }
 
     public Class getClazz() {

@@ -3,8 +3,16 @@ package ru.regenix.jphp.runtime.reflection;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.ReferenceMemory;
+import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -18,9 +26,18 @@ public class ClassEntity extends Entity {
     protected byte[] data;
     protected Extension extension;
     protected Class<?> nativeClazz;
+    protected Constructor nativeConstructor;
     protected ModuleEntity module;
 
     public final Map<String, MethodEntity> methods;
+    public MethodEntity methodConstruct;
+
+    public MethodEntity methodMagicSet;
+    public MethodEntity methodMagicGet;
+    public MethodEntity methodMagicUnset;
+    public MethodEntity methodMagicCall;
+    public MethodEntity methodMagicCallStatic;
+
     protected MethodEntity constructor;
 
     protected final Map<String, ClassEntity> interfaces;
@@ -62,9 +79,26 @@ public class ClassEntity extends Entity {
 
         for (Method method : nativeClazz.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
-                addMethod(new MethodEntity(extension, method));
+                MethodEntity entity = new MethodEntity(extension, method);
+                entity.setClazz(this);
+
+                Reflection.Name name = method.getAnnotation(Reflection.Name.class);
+                entity.setName(name == null ? method.getName() : name.value());
+
+                addMethod(entity);
             }
         }
+        this.setNativeClazz(nativeClazz);
+        makeMagicMethods();
+    }
+
+    protected void makeMagicMethods(){
+        methodConstruct  = methods.get("__construct");
+        methodMagicSet   = methods.get("__set");
+        methodMagicGet   = methods.get("__get");
+        methodMagicUnset = methods.get("__unset");
+        methodMagicCall  = methods.get("__call");
+        methodMagicCallStatic = methods.get("__callStatic");
     }
 
     public Extension getExtension() {
@@ -104,7 +138,8 @@ public class ClassEntity extends Entity {
     }
 
     public void addMethod(MethodEntity method){
-        this.methods.put(method.getLowerName(), method);
+        String name = method.getLowerName();
+        this.methods.put(name, method);
     }
 
     public MethodEntity findMethod(String name){
@@ -125,6 +160,7 @@ public class ClassEntity extends Entity {
                 // TODO check signature impl method
             }
         }
+        makeMagicMethods();
     }
 
     public byte[] getData() {
@@ -216,6 +252,14 @@ public class ClassEntity extends Entity {
 
     public void setNativeClazz(Class<?> nativeClazz) {
         this.nativeClazz = nativeClazz;
+        if (!nativeClazz.isInterface()){
+            try {
+                this.nativeConstructor = nativeClazz.getConstructor(ClassEntity.class);
+                this.nativeConstructor.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public ModuleEntity getModule() {
@@ -224,5 +268,50 @@ public class ClassEntity extends Entity {
 
     public void setModule(ModuleEntity module) {
         this.module = module;
+    }
+
+    public PHPObject newObject(Environment env, TraceInfo trace, Memory[] args)
+            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        PHPObject object = (PHPObject) nativeConstructor.newInstance(this);
+        if (methodConstruct != null){
+            methodConstruct.invokeDynamic(object, getLowerName(), env, args);
+        }
+        return object;
+    }
+
+    public Memory setProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
+        if (value == null) {
+            if (methodMagicSet != null)
+                methodMagicSet.invokeDynamic(
+                        object, getLowerName(), env,
+                        new StringMemory(property),
+                        memory
+                );
+            else
+                object.__dynamicProperties__.refOfIndex(property).assign(memory);
+        }
+        return memory;
+    }
+
+    public Memory getProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property)
+            throws InvocationTargetException, IllegalAccessException {
+        ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
+        if (value != null)
+            return value;
+
+        if (methodMagicGet != null)
+            return methodMagicGet.invokeDynamic(
+                    object, getLowerName(), env, new StringMemory(property)
+            );
+
+        /*env.triggerError(new FatalException(
+                Messages.ERR_FATAL_CANNOT_GET_OBJECT_PROPERTY_OF_CLASS.fetch(property, getName()),
+                trace
+        ));*/
+        return Memory.NULL;
     }
 }

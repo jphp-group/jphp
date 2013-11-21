@@ -3,8 +3,14 @@ package ru.regenix.jphp.tokenizer.token.expr.operator;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 public class DynamicAccessExprToken extends OperatorExprToken {
+
+    protected ValueExprToken field;
+    protected ExprStmtToken fieldExpr;
+
     public DynamicAccessExprToken(TokenMeta meta) {
         super(meta, TokenType.T_OBJECT_OPERATOR);
     }
@@ -17,5 +23,21 @@ public class DynamicAccessExprToken extends OperatorExprToken {
     @Override
     public int getPriority() {
         return 5;
+    }
+
+    public ValueExprToken getField() {
+        return field;
+    }
+
+    public void setField(ValueExprToken field) {
+        this.field = field;
+    }
+
+    public ExprStmtToken getFieldExpr() {
+        return fieldExpr;
+    }
+
+    public void setFieldExpr(ExprStmtToken fieldExpr) {
+        this.fieldExpr = fieldExpr;
     }
 }

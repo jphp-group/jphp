@@ -6,6 +6,7 @@ import ru.regenix.jphp.runtime.ext.core.MathConstants;
 import ru.regenix.jphp.runtime.ext.core.MathFunctions;
 import ru.regenix.jphp.runtime.ext.core.OutputFunctions;
 import ru.regenix.jphp.runtime.ext.core.classes.ArrayAccess;
+import ru.regenix.jphp.runtime.ext.core.classes.StdClass;
 
 public class CoreExtension extends Extension {
     @Override
@@ -24,6 +25,7 @@ public class CoreExtension extends Extension {
         registerFunctions(new MathFunctions());
         registerFunctions(new OutputFunctions());
 
+        registerNativeClass(StdClass.class);
         registerNativeClass(ArrayAccess.class);
     }
 }
