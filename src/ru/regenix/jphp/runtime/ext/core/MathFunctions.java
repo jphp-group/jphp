@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.ext.core;
 
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
@@ -9,6 +10,7 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MathFunctions extends FunctionsContainer {
 
@@ -45,6 +47,12 @@ public class MathFunctions extends FunctionsContainer {
             put("exp", getNative(Math.class, "exp", Double.TYPE));
             put("expm1", getNative(Math.class, "expm1", Double.TYPE));
             put("floor", getNative(Math.class, "floor", Double.TYPE));
+            put("hypot", getNative(Math.class, "hypot", Double.TYPE, Double.TYPE));
+            put("is_infinite", getNative(Double.class, "isInfinite", Double.TYPE));
+            put("is_nan", getNative(Double.class, "isNaN", Double.TYPE));
+            put("log10", getNative(Math.class, "log10", Double.TYPE));
+            put("log1p", getNative(Math.class, "log1p", Double.TYPE));
+            put("log", getNative(Math.class, "log", Double.TYPE));
         }};
     }
 
@@ -109,7 +117,11 @@ public class MathFunctions extends FunctionsContainer {
     }
 
     public static long bindec(String binary){
-        return Long.parseLong(binary, 2);
+        try {
+            return Long.parseLong(binary, 2);
+        } catch (NumberFormatException e){
+            return 0;
+        }
     }
 
     public static String decbin(long value){
@@ -126,5 +138,62 @@ public class MathFunctions extends FunctionsContainer {
 
     public static double fmod(double x, double y){
         return x % y;
+    }
+
+    public static long getmaxrand(){
+        return Long.MAX_VALUE;
+    }
+
+    public static long hexdec(String hex){
+        try {
+            return Long.parseLong(hex, 16);
+        } catch (NumberFormatException e){
+            return 0;
+        }
+    }
+
+    public static boolean is_finite(double value){
+        return !Double.isInfinite(value);
+    }
+
+    public static double lcg_value(){
+        return Math.random();
+    }
+
+    public static Memory max(Memory value, Memory... args){
+        if (value.isArray() && args == null){
+            Memory max = null;
+            for (Memory one : (ArrayMemory)value){
+                if (max == null || one.greater(max))
+                    max = one;
+            }
+            return max == null ? Memory.NULL : max.toImmutable();
+        } else {
+            Memory max = value;
+            if (args != null)
+                for(Memory one : args){
+                    if (one.greater(max))
+                        max = one;
+                }
+            return max.toImmutable();
+        }
+    }
+
+    public static Memory min(Memory value, Memory... args){
+        if (value.isArray() && args == null){
+            Memory min = null;
+            for (Memory one : (ArrayMemory)args[0]){
+                if (min == null || one.smaller(min))
+                    min = one;
+            }
+            return min == null ? Memory.NULL : min.toImmutable();
+        } else {
+            Memory min = value;
+            for(Memory one : args){
+                if (one.smaller(min))
+                    min = one;
+            }
+            return min.toImmutable();
+        }
     }
 }

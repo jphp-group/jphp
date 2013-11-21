@@ -423,7 +423,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Method method = compileFunction.find( function.getParameters().size() );
         if (method == null){
             method = compileFunction.find( function.getParameters().size() + 1 );
-            if(method.getParameterTypes()[0] != Environment.class)
+            if(method != null && method.getParameterTypes()[0] != Environment.class)
                 method = null;
         }
 
@@ -453,23 +453,75 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushEnv();
                 immutable = false;
             } else {
-                arguments[j] = writeExpression(
-                        iterator.next(), true, immutable && (j == 0 || arguments[j-1] != null), writeOpcode
-                );
-                if (arguments[j] == null){
-                    if (!writeOpcode)
-                        return null;
-                    for(int k = 0; k < j - 1; k++){
-                        if (arguments[k] != null){
-                            writePushMemory(arguments[k]);
-                            writePop(types[k]);
-                            arguments[k] = null;
+                if (argType == Memory[].class){
+                    Memory[] args = new Memory[function.getParameters().size() - j];
+                    boolean arrCreated = false;
+                    for(int t = 0; t < function.getParameters().size() - j; t++){
+                        ExprStmtToken next = iterator.next();
+                        if (immutable)
+                            args[t] = writeExpression(next, true, true, false);
+
+                        if (args[t] == null){
+                            if (!writeOpcode)
+                                return null;
+
+                            if (!arrCreated) {
+                                if (immutable){
+                                    for(int n = 0; n < j; n++){
+                                        writePushMemory(arguments[n]);
+                                        writePop(types[n]);
+                                        arguments[t] = null;
+                                    }
+                                }
+
+                                // create new array
+                                writePushSmallInt(args.length);
+                                code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
+                                stackPop();
+                                stackPush(Memory.Type.REFERENCE);
+                                arrCreated = true;
+                            }
+                            writePushDup();
+                            writePushSmallInt(t);
+                            writeExpression(
+                                    next, true, false, writeOpcode
+                            );
+                            writePopBoxing(true);
+                            code.add(new InsnNode(AASTORE));
+                            stackPop(); stackPop(); stackPop();
+
+                            immutable = false;
                         }
                     }
-                    immutable = false;
-                    writePop(argType);
+
+                    if (!immutable && !arrCreated){
+                        code.add(new InsnNode(ACONST_NULL));
+                        stackPush(Memory.Type.REFERENCE);
+                    }
+
+                    arguments[j] = MemoryUtils.valueOf(args);
+                } else {
+                    arguments[j] = writeExpression(
+                            iterator.next(), true, immutable && (j == 0 || arguments[j-1] != null), writeOpcode
+                    );
+                    if (arguments[j] == null){
+                        if (!writeOpcode)
+                            return null;
+                        for(int k = 0; k < j - 1; k++){
+                            if (arguments[k] != null){
+                                writePushMemory(arguments[k]);
+                                if (types[k] == Memory.class)
+                                    writePopBoxing(true);
+                                else
+                                    writePop(types[k]);
+                                arguments[k] = null;
+                            }
+                        }
+                        immutable = false;
+                        writePop(argType);
+                    }
+                    j++;
                 }
-                j++;
             }
         }
 
@@ -917,6 +969,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return StackItem.Type.LONG;
         else if (value instanceof MacroToken)
             return StackItem.Type.STRING;
+        else if (value instanceof ArrayExprToken)
+            return StackItem.Type.ARRAY;
         else if (value instanceof CallExprToken) {
             PushCallStatistic statistic = new PushCallStatistic();
             writePushCall((CallExprToken)value, true, false, statistic);
@@ -951,6 +1005,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNew((NewExprToken)value, returnValue);
             }
 
+        if (value instanceof ArrayExprToken)
+            return null;
         if (value instanceof CallExprToken)
             return writePushCall((CallExprToken)value, returnValue, writeOpcode, null);
         else if (value instanceof MacroToken){
@@ -978,10 +1034,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
-        try {
-            clazz.getDeclaredMethod(method, paramClasses);
-        } catch (java.lang.NoSuchMethodException e) {
-            throw new NoSuchMethodException(clazz, method, paramClasses);
+        if (INVOKE_TYPE != INVOKESPECIAL){
+            try {
+                clazz.getDeclaredMethod(method, paramClasses);
+            } catch (java.lang.NoSuchMethodException e) {
+                throw new NoSuchMethodException(clazz, method, paramClasses);
+            }
         }
 
         Type[] args = new Type[paramClasses.length];

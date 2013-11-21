@@ -35,6 +35,12 @@ public class CompileFunction {
             if (method.getParameterTypes().length == paramCount)
                 return method;
         }
+
+        for(Method method : methods){
+            if (paramCount >= method.getParameterTypes().length - 1)
+                if (method.isVarArgs())
+                    return method;
+        }
         return null;
     }
 }

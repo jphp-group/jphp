@@ -1,8 +1,10 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.lang.NullSkipIterator;
+
 import java.util.*;
 
-public class ArrayMemory extends Memory {
+public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     protected long lastLongIndex;
     protected int size;
@@ -542,6 +544,15 @@ public class ArrayMemory extends Memory {
         Memory number = StringMemory.toLong(index);
         return number == null ? getByScalarOrCreate(index) : getByScalar(number);
     }
+
+    @Override
+    public Iterator<ReferenceMemory> iterator() {
+        if (list != null) {
+            return new NullSkipIterator<ReferenceMemory>( list );
+        } else
+            return map.values().iterator();
+    }
+
 
     public class HashIterator implements Iterator<ReferenceMemory> {
         private ReferenceMemory current;

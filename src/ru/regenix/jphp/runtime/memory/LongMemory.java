@@ -263,4 +263,14 @@ public class LongMemory extends Memory {
     public int hashCode() {
         return (int) (value ^ (value >>> 32));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof LongMemory)) return false;
+
+        LongMemory that = (LongMemory) o;
+        if (value != that.value) return false;
+        return true;
+    }
 }

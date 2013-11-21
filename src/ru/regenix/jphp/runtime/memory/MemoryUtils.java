@@ -1,6 +1,8 @@
 package ru.regenix.jphp.runtime.memory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class MemoryUtils {
@@ -24,6 +26,17 @@ public class MemoryUtils {
             return value.toBoolean();
         if (type == Memory.class)
             return value;
+        if (type == Memory[].class){
+            if (value.isArray()){
+                List<Memory> result = new ArrayList<Memory>();
+                for(Memory one : (ArrayMemory)value){
+                    result.add(one.toImmutable());
+                }
+                return result.toArray(new Memory[]{});
+            } else {
+                return new ArrayMemory();
+            }
+        }
 
         throw new IllegalArgumentException("Unexpected class type: " + type.getName());
     }
