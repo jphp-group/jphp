@@ -1,21 +1,20 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
+import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,13 +81,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         MethodNode constructor = new MethodNodeImpl();
         constructor.name = Constants.INIT_METHOD;
         constructor.access = ACC_PUBLIC;
-        constructor.desc = Type.getMethodDescriptor(Type.getType(void.class));
+        constructor.desc = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(ClassEntity.class));
         constructor.exceptions = new ArrayList();
 
         LabelNode l0 = writeLabel(constructor, clazz.getMeta().getStartLine());
-        constructor.instructions.add(new VarInsnNode(ALOAD, 0));
+        constructor.instructions.add(new VarInsnNode(ALOAD, 0)); // this
+        constructor.instructions.add(new VarInsnNode(ALOAD, 1)); // __class__
         constructor.instructions.add(new MethodInsnNode(
-                INVOKESPECIAL, node.superName, Constants.INIT_METHOD, Type.getMethodDescriptor(Type.getType(void.class))
+                INVOKESPECIAL,
+                node.superName,
+                Constants.INIT_METHOD,
+                constructor.desc
         ));
         constructor.instructions.add(new InsnNode(RETURN));
         constructor.localVariables = new ArrayList();
@@ -161,7 +164,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public ClassEntity compile() {
         node.access = ACC_SUPER + ACC_PUBLIC;
         node.name = clazz.getFulledName(Constants.NAME_DELIMITER);
-        node.superName = Constants.OBJECT_CLASS;
+        node.superName = Type.getInternalName(PHPObject.class);
         node.sourceFile = compiler.getSourceFile();
 
         writeConstructor();
@@ -180,7 +183,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         writeSystemInfo();
         writeInitStatic();
 
-        cw = new ClassWriter(0);
+        cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
         node.accept(cw);
         entity.setData(cw.toByteArray());
         return entity;

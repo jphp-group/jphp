@@ -157,9 +157,9 @@ final public class CompilerUtils {
     }
 
     public static boolean isSideOperator(OperatorExprToken operator){
-        if (operator instanceof PlusExprToken)
+        if (operator instanceof PlusExprToken || operator instanceof AssignPlusExprToken)
             return false;
-        if (operator instanceof MulExprToken)
+        if (operator instanceof MulExprToken || operator instanceof AssignMulExprToken)
             return false;
         if (operator instanceof EqualExprToken || operator instanceof BooleanNotEqualExprToken)
             return false;

@@ -1,25 +1,25 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
-import ru.regenix.jphp.compiler.common.misc.LocalVariable;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodNode;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
+import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
-import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ReturnStmtToken;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
+import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ReturnStmtToken;
 
 import java.util.*;
 
@@ -52,8 +52,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         entity.setClazz(clazz.entity);
         entity.setName(node.name);
         realName = entity.getName();
-
-        makeNode();
     }
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken method) {
@@ -68,25 +66,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         entity.setClazz(clazz.entity);
         entity.setName(method.getName().getName());
         realName = entity.getName();
-
-        makeNode();
-    }
-
-    private void makeNode(){
-        if (node.localVariables == null)
-            node.localVariables = new ArrayList();
-
-        if (node.instructions == null)
-            node.instructions = new InsnList();
-
-        if (node.attrs == null)
-            node.attrs = new ArrayList();
-
-        if (node.exceptions == null)
-            node.exceptions = new ArrayList();
-
-        if (node.tryCatchBlocks == null)
-            node.tryCatchBlocks = new ArrayList();
     }
 
     public String getRealName() {
@@ -240,10 +219,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     expressionCompiler.writeVarLoad("~passedLocal");
                     expressionCompiler.writeSysStaticCall(ArrayMemory.class, "valueOfRef", ArrayMemory.class, ArrayMemory.class);
                     expressionCompiler.setStackPeekAsImmutable();
-                    expressionCompiler.writeVarStore(local.index, false, true);
+                    expressionCompiler.writeVarStore(local, false, true);
                 } else {
                     expressionCompiler.writePushNewObject(ArrayMemory.class);
-                    expressionCompiler.writeVarStore(local.index, false, true);
+                    expressionCompiler.writeVarStore(local, false, true);
                 }
             }
 
@@ -252,9 +231,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
 
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
-                expressionCompiler.writeVarLoad(args.index);
+                expressionCompiler.writeVarLoad(args);
                 expressionCompiler.writePushGetFromArray(i, Memory.class);
-                expressionCompiler.writeVarStore(local.index, false, false);
+                expressionCompiler.writeVarStore(local, false, false);
 
                 i++;
             }
@@ -263,6 +242,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void writeFooter(){
         LabelNode endL = new LabelNode();
         node.instructions.add(endL);
@@ -281,8 +261,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     variable.index
             ));
         }
-        node.maxStack = this.stackMaxSize;
-        node.maxLocals = this.localVariables.size();
+        //node.maxStack = this.stackMaxSize;  !!! we don't need this, see: ClassWriter.COMPUTE_FRAMES
+        //node.maxLocals = this.localVariables.size();
     }
 
     @Override

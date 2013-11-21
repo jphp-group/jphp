@@ -12,6 +12,25 @@ import java.util.Map;
 
 public class MathFunctions extends FunctionsContainer {
 
+    private final static double[] COS_CACHE = new double[Short.MAX_VALUE * 5];
+    private final static double[] SIN_CACHE = new double[Short.MAX_VALUE * 5];
+
+    private final static int MAX_COS_NEG = COS_CACHE.length / 7;
+    private final static int MAX_SIN_NEG = SIN_CACHE.length / 7;
+
+    private final static int MAX_COS = COS_CACHE.length - MAX_COS_NEG;
+    private final static int MAX_SIN = SIN_CACHE.length - MAX_SIN_NEG;
+
+    static {
+        for(int i = -MAX_COS_NEG; i < MAX_COS; i++){
+            COS_CACHE[i + MAX_COS_NEG] = Math.cos(i);
+        }
+
+        for(int i = -MAX_SIN_NEG; i < MAX_SIN; i++){
+            SIN_CACHE[i + MAX_SIN_NEG] = Math.cos(i);
+        }
+    }
+
     @Override
     protected Map<String, Method> getNativeFunctions() {
         return new HashMap<String, Method>(){{
@@ -20,7 +39,6 @@ public class MathFunctions extends FunctionsContainer {
             put("atan2", getNative(Math.class, "atan2", Double.TYPE, Double.TYPE));
             put("atan", getNative(Math.class, "atan", Double.TYPE));
             put("ceil", getNative(Math.class, "ceil", Double.TYPE));
-            put("cos", getNative(Math.class, "cos", Double.TYPE));
             put("cosh", getNative(Math.class, "cosh", Double.TYPE));
             put("rad2deg", getNative(Math.class, "toDegrees", Double.TYPE));
             put("deg2rad", getNative(Math.class, "toRadians", Double.TYPE));
@@ -28,6 +46,38 @@ public class MathFunctions extends FunctionsContainer {
             put("expm1", getNative(Math.class, "expm1", Double.TYPE));
             put("floor", getNative(Math.class, "floor", Double.TYPE));
         }};
+    }
+
+    private static double _cos(long value){
+        if (value >= -MAX_COS_NEG && value < MAX_COS)
+            return COS_CACHE[(int)value + MAX_COS_NEG];
+        else
+            return Math.cos(value);
+    }
+
+    private static double _sin(long value){
+        if (value >= -MAX_SIN_NEG && value < MAX_SIN)
+            return SIN_CACHE[(int)value + MAX_SIN_NEG];
+        else
+            return Math.sin(value);
+    }
+
+    public static double cos(Memory memory){
+        switch (memory.type){
+            case DOUBLE: return Math.cos(memory.toDouble());
+            case STRING: return cos(memory.toNumeric());
+            default:
+                return _cos(memory.toLong());
+        }
+    }
+
+    public static double sin(Memory memory){
+        switch (memory.type){
+            case DOUBLE: return Math.sin(memory.toDouble());
+            case STRING: return sin(memory.toNumeric());
+            default:
+                return _sin(memory.toLong());
+        }
     }
 
     public static Memory abs(Memory value) {

@@ -6,17 +6,19 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
-import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.output.OutputBuffer;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -282,5 +284,18 @@ public class Environment {
             included.put(fileName, module);
             module.include(this, calledClass, locals);
         }
+    }
+
+    public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        ClassEntity entity = scope.classMap.get(lowerName);
+        if (entity == null){
+            triggerError(new CompileException(
+                    Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originName),
+                    trace
+            ));
+        }
+        assert entity != null;
+        return new ObjectMemory( entity.newObject(this, trace, args) );
     }
 }

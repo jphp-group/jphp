@@ -16,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public class DynamicInvoke {
 
-    private static Memory[] makeArguments(Environment env, Memory[] args,
+    public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
                                        TraceInfo trace){

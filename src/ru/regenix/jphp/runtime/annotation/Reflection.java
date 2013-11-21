@@ -27,7 +27,14 @@ public @interface Reflection {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Arg {
         String value() default "";
+        Optional optional() default @Optional(exists = false);
         HintType type() default HintType.ANY;
         boolean reference() default false;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Optional {
+        String value() default "";
+        boolean exists() default true;
     }
 }

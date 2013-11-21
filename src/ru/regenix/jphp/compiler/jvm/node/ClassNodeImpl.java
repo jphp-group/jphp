@@ -7,6 +7,6 @@ public class ClassNodeImpl extends ClassNode {
 
     public ClassNodeImpl() {
         super();
-        version = Opcodes.V1_6;
+        version = Opcodes.V1_6; // todo: available to switch this value
     }
 }

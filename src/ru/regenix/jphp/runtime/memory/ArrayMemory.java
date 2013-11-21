@@ -142,6 +142,27 @@ public class ArrayMemory extends Memory {
         size++;
     }
 
+    public void putAll(ArrayMemory array){
+        if (array.list != null){
+            int i = 0;
+            for(ReferenceMemory memory : array.list){
+                if (memory != null)
+                    put(LongMemory.valueOf(i), memory.toImmutable());
+                i++;
+            }
+        } else {
+            if (list != null)
+                convertToMap();
+
+            if (array.lastLongIndex > lastLongIndex)
+                lastLongIndex = array.lastLongIndex;
+
+            for(Map.Entry<Object, ReferenceMemory> entry : array.map.entrySet()){
+                put(entry.getKey(), entry.getValue().toImmutable());
+            }
+        }
+    }
+
     public void putAllRef(ArrayMemory array){
         if (array.list != null){
             int i = 0;
