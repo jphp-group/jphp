@@ -1,19 +1,17 @@
 package ru.regenix.jphp;
 
-import org.objectweb.asm.Type;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.jvm.BytecodePrettyPrinter;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.runtime.ext.*;
-import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.ext.*;
 import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.opcode.ModuleOpcodePrinter;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +38,9 @@ public class Main {
 
             ModuleEntity module = compiler.compile();
 
-            String[] ops = BytecodePrettyPrinter.getMethod(module.getData(), "__include",
+            ModuleOpcodePrinter printer = new ModuleOpcodePrinter(module);
+            System.out.println(printer.toString());
+            /*String[] ops = BytecodePrettyPrinter.getMethod(module.getData(), "__include",
                     Type.getMethodDescriptor(Type.getType(Memory.class),
                             Type.getType(Environment.class),
                             Type.getType(String.class),
@@ -49,7 +49,7 @@ public class Main {
                     )
             );
             for (String op : ops)
-                System.out.println(op);
+                System.out.println(op);*/
 
             long t = System.currentTimeMillis();
 
