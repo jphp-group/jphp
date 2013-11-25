@@ -8,14 +8,11 @@ import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.NamespaceStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
-import ru.regenix.jphp.tokenizer.token.stmt.NamespaceUseStmtToken;
 
 import java.util.*;
 
@@ -33,8 +30,16 @@ public class SyntaxAnalyzer {
 
     private Stack<Set<VariableExprToken>> localStack;
 
+    private Map<String, ClassStmtToken> classes;
+    private Map<String, FunctionStmtToken> functions;
+    private Map<String, ConstStmtToken> constants;
+
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
+
+        classes = new LinkedHashMap<String, ClassStmtToken>();
+        functions = new LinkedHashMap<String, FunctionStmtToken>();
+        constants = new LinkedHashMap<String, ConstStmtToken>();
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
@@ -61,6 +66,42 @@ public class SyntaxAnalyzer {
         process();
     }
 
+    public void registerClass(ClassStmtToken clazz){
+        classes.put(clazz.getFulledName().toLowerCase(), clazz);
+    }
+
+    public void registerFunction(FunctionStmtToken function){
+        functions.put(function.getFulledName(), function);
+    }
+
+    public void registerConstant(ConstStmtToken constant){
+        constants.put(constant.getFulledName(), constant); // TODO: add namespace for constants
+    }
+
+    public Collection<ClassStmtToken> getClasses() {
+        return classes.values();
+    }
+
+    public Collection<FunctionStmtToken> getFunctions() {
+        return functions.values();
+    }
+
+    public Collection<ConstStmtToken> getConstants(){
+        return constants.values();
+    }
+
+    public ClassStmtToken findClass(String name){
+        return classes.get(name.toLowerCase());
+    }
+
+    public FunctionStmtToken findFunction(String name){
+        return functions.get(name.toLowerCase());
+    }
+
+    public ConstStmtToken findConstant(String name){
+        return constants.get(name);
+    }
+
     protected void process(){
         tokenizer.reset();
         tree.clear();
@@ -78,6 +119,15 @@ public class SyntaxAnalyzer {
         tree = process(iterator);
     }
 
+    protected void registerToken(Token token){
+        if (token instanceof ClassStmtToken)
+            registerClass((ClassStmtToken)token);
+        else if (token instanceof FunctionStmtToken)
+            registerFunction((FunctionStmtToken)token);
+        else if (token instanceof ConstStmtToken)
+            registerConstant((ConstStmtToken)token);
+    }
+
     public List<Token> process(ListIterator<Token> iterator){
         List<Token> result = new ArrayList<Token>();
         while (iterator.hasNext()){
@@ -87,9 +137,16 @@ public class SyntaxAnalyzer {
                 ((NamespaceStmtToken) gen).setTree(null);
 
                 result.add(gen);
+                registerToken(gen);
+
                 result.addAll(tree);
-            } else
+                for(Token el : tree){
+                    registerToken(el);
+                }
+            } else {
                 result.add(gen);
+                registerToken(gen);
+            }
         }
         return result;
     }

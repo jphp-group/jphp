@@ -1,8 +1,13 @@
 <?
 namespace foo\bar;
 
-for($i = 0; $i < 10000000; $i++){
-    $x = \max(array(1, $i, 4, 5, 6));
+/**
+ * @const
+ * @param $x
+ * @return mixed
+ */
+function myfunc($x){
+    return $x + 1;
 }
 
-echo $x;
+$x = myfunc(20);

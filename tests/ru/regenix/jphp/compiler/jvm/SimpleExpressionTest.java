@@ -187,6 +187,9 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = runDynamic("$x || (!$y && !null && 100500)");
         Assert.assertEquals(true, memory.toBoolean());
+
+        memory = runDynamic("$z = $x || 22; return $z", false);
+        Assert.assertEquals(22, memory.toLong());
     }
 
     @Test

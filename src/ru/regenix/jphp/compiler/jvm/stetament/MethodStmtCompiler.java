@@ -5,10 +5,12 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
+import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.Memory;
@@ -64,7 +66,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
-        entity.setName(method.getName().getName());
+        if (method != null)
+            entity.setName(method.getName().getName());
+
         realName = entity.getName();
     }
 
@@ -284,6 +288,16 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setMethod(entity);
                 parameters[i].setReference(argument.isReference());
                 parameters[i].setName(argument.getName().getName());
+
+                ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(compiler);
+                Memory defaultValue = expressionStmtCompiler.writeExpression(argument.getValue(), true, true, false);
+                if (defaultValue == null){
+                    throw new CompileException(
+                            Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(argument.getName()),
+                            argument.toTraceInfo(compiler.getContext())
+                    );
+                }
+                parameters[i].setDefaultValue(defaultValue);
 
                 if (argument.getValue() != null){
                     ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);

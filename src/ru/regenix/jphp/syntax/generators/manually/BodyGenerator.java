@@ -32,8 +32,7 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
         List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
         if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)
                 || current instanceof SemicolonToken){
-            while (iterator.hasNext()){
-                current = nextToken(iterator);
+            while ((current = nextToken(iterator)) != null){
                 ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(
                         current,
                         iterator,

@@ -34,12 +34,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         super(compiler);
         this.clazz = clazz;
         this.node = new ClassNodeImpl();
-
-        entity = new ClassEntity(compiler.getContext());
-        entity.setFinal(clazz.isFinal());
-        entity.setAbstract(clazz.isAbstract());
-        entity.setType(ClassEntity.Type.CLASS);
-        entity.setName(clazz.getFulledName());
     }
 
     public String getFunctionName() {
@@ -162,6 +156,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     @Override
     public ClassEntity compile() {
+        entity = new ClassEntity(compiler.getContext());
+        entity.setFinal(clazz.isFinal());
+        entity.setAbstract(clazz.isAbstract());
+        entity.setType(ClassEntity.Type.CLASS);
+        entity.setName(clazz.getFulledName());
+
         node.access = ACC_SUPER + ACC_PUBLIC;
         node.name = clazz.getFulledName(Constants.NAME_DELIMITER);
         node.superName = Type.getInternalName(PHPObject.class);
@@ -172,7 +172,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         // constants
         if (clazz.getConstants() != null)
         for(ConstStmtToken constant : clazz.getConstants()){
-            writeConstant(constant);
+//            writeConstant(constant);
         }
 
         if (clazz.getMethods() != null)

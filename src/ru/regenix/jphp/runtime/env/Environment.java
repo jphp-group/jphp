@@ -33,7 +33,13 @@ import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 public class Environment {
     private Set<String> includePaths;
 
-    private int errorFlags;
+    private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
+        @Override
+        protected Integer initialValue() {
+            return E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
+        }
+    };
+
     private SystemMessage lastMessage;
 
     private ErrorHandler previousErrorHandler;
@@ -110,12 +116,12 @@ public class Environment {
         this.includePaths = includePaths;
     }
 
-    public int getErrorFlags() {
-        return errorFlags;
+    public Integer getErrorFlags() {
+        return errorFlags.get();
     }
 
     public void setErrorFlags(int errorFlags) {
-        this.errorFlags = errorFlags;
+        this.errorFlags.set(errorFlags);
     }
 
     public SystemMessage getLastMessage() {
@@ -164,7 +170,7 @@ public class Environment {
     }
 
     public boolean isHandleErrors(ErrorException.Type type){
-        return ErrorException.Type.check(errorFlags, type);
+        return ErrorException.Type.check(errorFlags.get(), type);
     }
 
     public void triggerException(UserException exception){
@@ -297,5 +303,16 @@ public class Environment {
         }
         assert entity != null;
         return new ObjectMemory( entity.newObject(this, trace, args) );
+    }
+
+    private int beginSilent(){
+        int result = errorFlags.get();
+        setErrorFlags(0);
+        return result;
+    }
+
+    private Memory endSilent(int mode, Memory result){
+        setErrorFlags(mode);
+        return result;
     }
 }

@@ -50,6 +50,9 @@ final public class CompilerUtils {
         if (operator instanceof BooleanNotExprToken)
             return o1.not() ? Memory.TRUE : Memory.FALSE;
 
+        if (operator instanceof SilentToken) // skip
+            return o1;
+
         return null;
     }
 
@@ -206,7 +209,8 @@ final public class CompilerUtils {
             return "equal";
         } else if (operator instanceof BooleanNotEqualExprToken){
             return "notEqual";
-        }
+        } else if (operator instanceof SilentToken)
+            return null;
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
     }

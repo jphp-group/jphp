@@ -1,20 +1,20 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
+import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.AmpersandToken;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
-import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         next = nextToken(iterator);
         if (next instanceof AssignExprToken){
-            value = analyzer.generator(ConstExprGenerator.class).getToken(
+            value = analyzer.generator(SimpleExprGenerator.class).getToken(
                     nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE
             );
         } else {

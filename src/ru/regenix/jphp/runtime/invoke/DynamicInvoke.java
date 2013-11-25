@@ -21,14 +21,15 @@ public class DynamicInvoke {
                                        String originClassName, String originMethodName,
                                        TraceInfo trace){
         Memory[] passed = args;
-        if (args.length < parameters.length){
+        if ((args == null && parameters.length > 0) || (args != null && args.length < parameters.length)){
             passed = new Memory[parameters.length];
-            if (args.length > 0){
+            if (args != null && args.length > 0){
                 System.arraycopy(args, 0, passed, 0, args.length);
             }
         }
 
         int i = 0;
+        assert passed != null;
         for(ParameterEntity param : parameters){
             if (passed[i] == null){
                 passed[i] = param.getDefaultValue();

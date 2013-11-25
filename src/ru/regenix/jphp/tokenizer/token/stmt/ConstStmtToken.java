@@ -6,6 +6,8 @@ import ru.regenix.jphp.tokenizer.TokenMeta;
 
 public class ConstStmtToken extends StmtToken {
     private ClassStmtToken clazz;
+    private NamespaceStmtToken namespace;
+
     private NameToken name;
     private ExprStmtToken value;
 
@@ -35,5 +37,27 @@ public class ConstStmtToken extends StmtToken {
 
     public void setClazz(ClassStmtToken clazz) {
         this.clazz = clazz;
+        this.namespace = null;
+    }
+
+    public NamespaceStmtToken getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(NamespaceStmtToken namespace) {
+        if (clazz != null)
+            throw new IllegalArgumentException("Cannot set namespace for a class constant");
+        this.namespace = namespace;
+    }
+
+
+    public String getFulledName(char delimiter){
+        return namespace == null || namespace.getName() == null
+                ? name.getName()
+                : namespace.getName().toName(delimiter) + delimiter + name.getName();
+    }
+
+    public String getFulledName(){
+        return getFulledName('\\');
     }
 }

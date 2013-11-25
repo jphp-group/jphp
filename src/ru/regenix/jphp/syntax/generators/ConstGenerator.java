@@ -1,16 +1,17 @@
 package ru.regenix.jphp.syntax.generators;
 
 
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
 
 import java.util.ListIterator;
 
@@ -27,13 +28,14 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
 
     @SuppressWarnings("unchecked")
     protected void processBody(ConstStmtToken result, ListIterator<Token> iterator){
-        checkUnexpectedEnd(iterator);
-
-        Token current = iterator.next();
+        Token current = nextToken(iterator);
         if (!(current instanceof AssignExprToken))
             unexpectedToken(current, TokenType.T_J_EQUAL);
 
-        ExprStmtToken value = analyzer.generator(ConstExprGenerator.class).getToken(nextToken(iterator), iterator);
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator);
+        if (value == null)
+            unexpectedToken(nextToken(iterator));
+
         result.setValue(value);
     }
 
@@ -43,6 +45,12 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
             ConstStmtToken result = (ConstStmtToken)current;
             Token next = iterator.next();
             if (next instanceof NameToken){
+                if (next instanceof FulledNameToken)
+                    unexpectedToken(next, TokenType.T_STRING);
+
+                if (analyzer.getClazz() == null)
+                    result.setNamespace(analyzer.getNamespace());
+
                 result.setName((NameToken)next);
                 processBody(result, iterator);
                 return result;

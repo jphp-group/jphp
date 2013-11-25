@@ -68,8 +68,6 @@ public class CompileScope {
     }
 
     public void addUserModule(ModuleEntity module){
-        moduleMap.put(module.getName(), module);
-
         for(ClassEntity clazz : module.getClasses()){
             addUserClass(clazz);
         }
@@ -77,6 +75,12 @@ public class CompileScope {
         for(FunctionEntity function : module.getFunctions()){
             addUserFunction(function);
         }
+
+        for(ConstantEntity constant : module.getConstants()){
+            addUserConstant(constant);
+        }
+
+        moduleMap.put(module.getName(), module);
     }
 
     public void addUserFunction(FunctionEntity function){

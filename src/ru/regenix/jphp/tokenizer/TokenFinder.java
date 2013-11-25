@@ -52,6 +52,8 @@ public class TokenFinder {
         put(">>", ShiftRightExprToken.class);
         put("<<", ShiftLeftExprToken.class);
 
+        put("@", SilentToken.class);
+
         put("->", DynamicAccessExprToken.class);
         put("::", StaticAccessExprToken.class);
         put("=>", ArrayKeyValueExprToken.class);

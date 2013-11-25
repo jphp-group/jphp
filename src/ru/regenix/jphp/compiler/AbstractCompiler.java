@@ -32,6 +32,10 @@ abstract public class AbstractCompiler {
         return scope;
     }
 
+    public SyntaxAnalyzer getAnalyzer() {
+        return analyzer;
+    }
+
     abstract public ModuleEntity compile(boolean autoRegister);
 
     public ModuleEntity compile(){

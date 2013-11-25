@@ -147,7 +147,8 @@ public class ModuleEntity extends Entity {
     }
 
     public void addConstant(ConstantEntity constant){
-        constants.put(constant.getLowerName(), constant);
+        if (!constants.containsKey(constant.getName()))
+            constants.put(constant.getName(), constant);
     }
 
     public void addClass(ClassEntity clazz){
