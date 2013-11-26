@@ -351,7 +351,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator) {
-        return getToken(current, iterator, null);
+        return getToken(current, iterator, (Class[])null);
     }
 }

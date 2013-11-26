@@ -57,6 +57,10 @@ public class CompileScope {
             addUserClass(clazz);
         }
 
+        for(CompileFunction function : extension.getFunctions().values()){
+            functionMap.put(function.name.toLowerCase(), new CompileFunctionEntity(function));
+        }
+
         extensions.put(extension.getName(), extension);
     }
 

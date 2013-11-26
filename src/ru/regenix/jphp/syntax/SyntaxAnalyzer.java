@@ -1,6 +1,9 @@
 package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.syntax.generators.*;
+import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
+import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.Token;
@@ -9,10 +12,6 @@ import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
-import ru.regenix.jphp.syntax.generators.*;
-import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
-import ru.regenix.jphp.syntax.generators.manually.ConstExprGenerator;
-import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 
 import java.util.*;
 
@@ -55,7 +54,6 @@ public class SyntaxAnalyzer {
 
         // non-automatic
         generators.add(new SimpleExprGenerator(this));
-        generators.add(new ConstExprGenerator(this));
         generators.add(new BodyGenerator(this));
 
         generators.add(new ExprGenerator(this));
@@ -75,7 +73,7 @@ public class SyntaxAnalyzer {
     }
 
     public void registerConstant(ConstStmtToken constant){
-        constants.put(constant.getFulledName(), constant); // TODO: add namespace for constants
+        constants.put(constant.getFulledName(), constant);
     }
 
     public Collection<ClassStmtToken> getClasses() {

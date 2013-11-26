@@ -290,14 +290,16 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setName(argument.getName().getName());
 
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(compiler);
-                Memory defaultValue = expressionStmtCompiler.writeExpression(argument.getValue(), true, true, false);
-                if (defaultValue == null){
-                    throw new CompileException(
-                            Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(argument.getName()),
-                            argument.toTraceInfo(compiler.getContext())
-                    );
+                if (argument.getValue() != null){
+                    Memory defaultValue = expressionStmtCompiler.writeExpression(argument.getValue(), true, true, false);
+                    if (defaultValue == null){
+                        throw new CompileException(
+                                Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(argument.getName()),
+                                argument.toTraceInfo(compiler.getContext())
+                        );
+                    }
+                    parameters[i].setDefaultValue(defaultValue);
                 }
-                parameters[i].setDefaultValue(defaultValue);
 
                 if (argument.getValue() != null){
                     ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);

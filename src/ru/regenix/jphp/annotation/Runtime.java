@@ -14,5 +14,5 @@ public @interface Runtime {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD})
-    public @interface Mutable {}
+    public @interface Immutable {}
 }

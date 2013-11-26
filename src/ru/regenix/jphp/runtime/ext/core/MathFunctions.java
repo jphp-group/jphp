@@ -1,18 +1,24 @@
 package ru.regenix.jphp.runtime.ext.core;
 
+import org.apache.commons.math3.random.MersenneTwister;
+import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.DoubleMemory;
-import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.*;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 public class MathFunctions extends FunctionsContainer {
+
+    private final static MathConstants constants = new MathConstants();
+    private static MersenneTwister MERSENNE_TWISTER = new MersenneTwister();
+    private static Random RANDOM = new Random();
 
     private final static double[] COS_CACHE = new double[Short.MAX_VALUE * 5];
     private final static double[] SIN_CACHE = new double[Short.MAX_VALUE * 5];
@@ -42,6 +48,9 @@ public class MathFunctions extends FunctionsContainer {
             put("atan", getNative(Math.class, "atan", Double.TYPE));
             put("ceil", getNative(Math.class, "ceil", Double.TYPE));
             put("cosh", getNative(Math.class, "cosh", Double.TYPE));
+            put("sinh", getNative(Math.class, "sinh", Double.TYPE));
+            put("tanh", getNative(Math.class, "tanh", Double.TYPE));
+            put("tan", getNative(Math.class, "tan", Double.TYPE));
             put("rad2deg", getNative(Math.class, "toDegrees", Double.TYPE));
             put("deg2rad", getNative(Math.class, "toRadians", Double.TYPE));
             put("exp", getNative(Math.class, "exp", Double.TYPE));
@@ -53,6 +62,7 @@ public class MathFunctions extends FunctionsContainer {
             put("log10", getNative(Math.class, "log10", Double.TYPE));
             put("log1p", getNative(Math.class, "log1p", Double.TYPE));
             put("log", getNative(Math.class, "log", Double.TYPE));
+            put("sqrt", getNative(Math.class, "sqrt", Double.TYPE));
         }};
     }
 
@@ -70,6 +80,7 @@ public class MathFunctions extends FunctionsContainer {
             return Math.sin(value);
     }
 
+    @Runtime.Immutable
     public static double cos(Memory memory){
         switch (memory.type){
             case DOUBLE: return Math.cos(memory.toDouble());
@@ -79,6 +90,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static double sin(Memory memory){
         switch (memory.type){
             case DOUBLE: return Math.sin(memory.toDouble());
@@ -88,6 +100,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static Memory abs(Memory value) {
         switch (value.type){
             case DOUBLE: return new DoubleMemory(Math.abs(value.toDouble()));
@@ -96,18 +109,22 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static double asinh(double x) {
         return Math.log(x + Math.sqrt(x*x + 1.0));
     }
 
+    @Runtime.Immutable
     public static double acosh(double x) {
         return Math.log(x + Math.sqrt(x*x - 1.0));
     }
 
+    @Runtime.Immutable
     public static double atanh(double x) {
         return 0.5 * Math.log( (x + 1.0) / (x - 1.0) );
     }
 
+    @Runtime.Immutable
     public static String base_convert(String number, int fromBase, int toBase){
         try {
             return Long.toString(Long.valueOf(number, fromBase), toBase);
@@ -116,6 +133,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static long bindec(String binary){
         try {
             return Long.parseLong(binary, 2);
@@ -124,26 +142,32 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static String decbin(long value){
         return Long.toString(value, 2);
     }
 
+    @Runtime.Immutable
     public static String dechex(long value){
         return Long.toString(value, 16);
     }
 
+    @Runtime.Immutable
     public static String decoct(long value){
         return Long.toString(value, 8);
     }
 
+    @Runtime.Immutable
     public static double fmod(double x, double y){
         return x % y;
     }
 
+    @Runtime.Immutable
     public static long getmaxrand(){
         return Long.MAX_VALUE;
     }
 
+    @Runtime.Immutable
     public static long hexdec(String hex){
         try {
             return Long.parseLong(hex, 16);
@@ -152,6 +176,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static boolean is_finite(double value){
         return !Double.isInfinite(value);
     }
@@ -160,6 +185,7 @@ public class MathFunctions extends FunctionsContainer {
         return Math.random();
     }
 
+    @Runtime.Immutable
     public static Memory max(Memory value, Memory... args){
         if (value.isArray() && args == null){
             Memory max = null;
@@ -179,6 +205,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
+    @Runtime.Immutable
     public static Memory min(Memory value, Memory... args){
         if (value.isArray() && args == null){
             Memory min = null;
@@ -195,5 +222,104 @@ public class MathFunctions extends FunctionsContainer {
             }
             return min.toImmutable();
         }
+    }
+
+    @Runtime.Immutable
+    public static long mt_getrandmax(){
+        return Long.MAX_VALUE;
+    }
+
+
+    public static long mt_rand(){
+        return MERSENNE_TWISTER.nextLong();
+    }
+
+    public static Memory mt_rand(long min, long max){
+        if (max < min) return Memory.FALSE;
+        return LongMemory.valueOf(MERSENNE_TWISTER.nextLong((max - min) + 1) + min);
+    }
+
+    public static void mt_srand(){
+        MERSENNE_TWISTER = new MersenneTwister();
+    }
+
+    public static void mt_srand(long seed){
+        MERSENNE_TWISTER = new MersenneTwister(seed);
+    }
+
+    public static long rand(){
+        return RANDOM.nextLong();
+    }
+
+    public static Memory rand(long min, long max){
+        if (max < min)
+            return Memory.FALSE;
+        return LongMemory.valueOf(MERSENNE_TWISTER.nextLong((max - min) + 1) + min);
+    }
+
+    public static void srand(){
+        RANDOM = new Random();
+    }
+
+    public static void srand(long seed){
+        RANDOM = new Random(seed);
+    }
+
+    @Runtime.Immutable
+    public static Memory octdec(String octalString){
+        try {
+            return LongMemory.valueOf(Long.parseLong(octalString, 8));
+        } catch (NumberFormatException e){
+            return Memory.FALSE;
+        }
+    }
+
+    @Runtime.Immutable
+    public static double pi(){
+        return constants.M_PI;
+    }
+
+    @Runtime.Immutable
+    public static Memory pow(Memory base, Memory exp){
+        long lExp;
+        if (base.type == Memory.Type.INT
+                && exp.type == Memory.Type.INT && (lExp = exp.toLong()) >= 0){
+            return LongMemory.valueOf( (long)Math.pow(base.toDouble(), lExp) );
+        } else {
+            return new DoubleMemory(Math.pow(base.toDouble(), exp.toDouble()));
+        }
+    }
+
+    @Runtime.Immutable
+    public static double round(double value){
+        return Math.round(value);
+    }
+
+    @Runtime.Immutable
+    public static double round(double value, int precession){
+        return BigDecimal.valueOf(value)
+                .round(new MathContext(precession, RoundingMode.UP))
+                .doubleValue();
+    }
+
+    @Runtime.Immutable
+    public static double round(double value, int precession, int mode){
+        MathContext context;
+        switch (mode){
+            case 2: context = new MathContext(precession, RoundingMode.DOWN); break;
+            case 3: context = new MathContext(precession, RoundingMode.HALF_EVEN); break;
+            case 4:
+                if ((long)value % 2 == 0)
+                    context = new MathContext(precession, RoundingMode.UP);
+                else
+                    context = new MathContext(precession, RoundingMode.DOWN);
+                break;
+            default:
+                context = new MathContext(precession, RoundingMode.UP);
+        }
+
+        return BigDecimal.valueOf(value)
+                .round(context)
+                .doubleValue();
     }
 }
