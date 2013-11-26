@@ -744,8 +744,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return writePushStaticMethod(function, returnValue, writeOpcode, statistic);
         } else if (name instanceof DynamicAccessExprToken){
             return writePushDynamicMethod(function, returnValue, writeOpcode, statistic);
-        }
+        } else {
+            writePushEnv();
+            writePushStatic();
+            writePushTraceInfo(function);
 
+            writePush((ValueExprToken)function.getName(), true);
+            writePopBoxing();
+
+            writePushParameters(function.getParameters());
+            writeSysStaticCall(
+                    DynamicInvoke.class, "callAny", Memory.class,
+                    Environment.class, String.class, TraceInfo.class, Memory.class, Memory[].class
+            );
+            if (!returnValue)
+                writePopAll(1);
+        }
         return null;
     }
 
@@ -938,8 +952,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushMemory(constant.value);
         } else {
             ConstantEntity constantEntity = compiler.findConstant(token.getName());
-            if (constantEntity == null)
-                constantEntity = compiler.getScope().findUserConstant(token.getName());
+            /*if (constantEntity == null)   // TODO: maybe it's not needed! we should search a namespaced constant in local context
+                constantEntity = compiler.getScope().findUserConstant(token.getName()); */
 
             if (constantEntity != null){
                 if (returnMemory)

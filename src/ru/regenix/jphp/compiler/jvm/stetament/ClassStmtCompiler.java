@@ -185,6 +185,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
         node.accept(cw);
+
+        entity.doneDeclare();
         entity.setData(cw.toByteArray());
         return entity;
     }

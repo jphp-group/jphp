@@ -26,10 +26,18 @@ final public class ObjectHelper {
             ));
         }
         PHPObject phpObject = ((ObjectMemory)object).value;
-        MethodEntity method = phpObject.__class__.methods.get(methodLowerName);
+        MethodEntity method;
+        if (methodName == null)
+            method = phpObject.__class__.methodMagicInvoke;
+        else
+            method = phpObject.__class__.methods.get(methodLowerName);
+
         String className = phpObject.__class__.getName();
 
         if (method == null){
+            if (methodName == null)
+                methodName = "__invoke";
+
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::" + methodName
@@ -42,7 +50,14 @@ final public class ObjectHelper {
         Memory[] passed = DynamicInvoke.makeArguments(
                 env, args, method.parameters, className, methodName, trace
         );
-        return method.invokeDynamic(phpObject, className, env, passed);
+        Memory result;
+        env.pushCall(trace, object, args, methodName, className);
+        try {
+            result = method.invokeDynamic(phpObject, className, env, passed);
+        } finally {
+            env.popCall();
+        }
+        return result;
     }
 
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)

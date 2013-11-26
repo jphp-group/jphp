@@ -57,6 +57,14 @@ public class Environment {
     private final ArrayMemory globals;
     private final Map<String, ModuleEntity> included;
 
+    private final static int CALL_STACK_INIT_SIZE = 255;
+
+    private int callStackTop = 0;
+    private int maxCallStackTop = -1;
+    private CallStackItem[] callStack    = new CallStackItem[CALL_STACK_INIT_SIZE];
+    /*private Memory[] callThisStack   = new Memory[CALL_STACK_INIT_SIZE];
+    private Memory[][] callArgsStack = new Memory[CALL_STACK_INIT_SIZE][0];*/
+
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
         this.outputBuffers = new Stack<OutputBuffer>();
@@ -78,6 +86,37 @@ public class Environment {
                 return false;
             }
         });
+    }
+
+    public void pushCall(TraceInfo trace, Memory self, Memory[] args, String function, String clazz){
+        if (callStackTop >= callStack.length){
+            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
+            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
+            callStack = newCallStack;
+        }
+
+        if (callStackTop <= maxCallStackTop)
+            callStack[callStackTop++].setParameters(trace, self, args, function, clazz);
+        else
+            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz);
+
+        maxCallStackTop = callStackTop;
+    }
+
+    public void popCall(){
+        callStack[--callStackTop].clear(); // clear for GC
+    }
+
+    public CallStackItem peekCall(int depth){
+        if (callStackTop - depth > 0) {
+            return callStack[callStackTop - depth - 1];
+        } else {
+            return null;
+        }
+    }
+
+    public int getCallStackTop(){
+        return callStackTop;
     }
 
     public Environment(OutputStream output){
@@ -246,8 +285,10 @@ public class Environment {
         ConstantEntity entity = scope.findUserConstant(name);
 
         if (entity == null){
-            if (isHandleErrors(E_NOTICE))
-                triggerMessage(new NoticeMessage(trace, Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name));
+
+            if (isHandleErrors(E_NOTICE)) {
+                triggerMessage(new NoticeMessage(new CallStackItem(trace), Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name));
+            }
 
             return StringMemory.valueOf(name);
         } else if (entity.caseSensitise && !entity.name.equals(name))
@@ -260,7 +301,7 @@ public class Environment {
             throws InvocationTargetException, IllegalAccessException, IOException {
         File file = new File(fileName);
         if (!file.exists()){
-            triggerMessage(new WarningMessage(trace, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName));
+            triggerMessage(new WarningMessage(this, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName));
             return Memory.FALSE;
         } else {
             ModuleEntity module = importModule(file);

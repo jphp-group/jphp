@@ -55,7 +55,7 @@ public class CTypeFunctions extends FunctionsContainer {
         return ctype_apply(value, new Checker() {
             @Override
             boolean check(char ch) {
-                return Character.isAlphabetic(ch) || Character.isDigit(ch);
+                return Character.isLetter(ch) || Character.isDigit(ch);
             }
         });
     }
@@ -65,7 +65,7 @@ public class CTypeFunctions extends FunctionsContainer {
         return ctype_apply(value, new Checker() {
             @Override
             boolean check(char ch) {
-                return Character.isAlphabetic(ch);
+                return Character.isLetter(ch);
             }
         });
     }
@@ -127,7 +127,7 @@ public class CTypeFunctions extends FunctionsContainer {
             @Override
             boolean check(char ch) {
                 return !Character.isDigit(ch)
-                        && !Character.isAlphabetic(ch)
+                        && !Character.isLetter(ch)
                         && !Character.isSpaceChar(ch)
                         && isPrintableChar(ch);
             }

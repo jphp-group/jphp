@@ -37,6 +37,7 @@ public class ClassEntity extends Entity {
     public MethodEntity methodMagicUnset;
     public MethodEntity methodMagicCall;
     public MethodEntity methodMagicCallStatic;
+    public MethodEntity methodMagicInvoke;
 
     protected MethodEntity constructor;
 
@@ -89,16 +90,21 @@ public class ClassEntity extends Entity {
             }
         }
         this.setNativeClazz(nativeClazz);
-        makeMagicMethods();
+        doneDeclare();
     }
 
-    protected void makeMagicMethods(){
+    public void doneDeclare(){
         methodConstruct  = methods.get("__construct");
+        if (methodConstruct == null)
+            methodConstruct = methods.get(getLowerName());
+
         methodMagicSet   = methods.get("__set");
         methodMagicGet   = methods.get("__get");
         methodMagicUnset = methods.get("__unset");
         methodMagicCall  = methods.get("__call");
         methodMagicCallStatic = methods.get("__callStatic");
+
+        methodMagicInvoke = methods.get("__invoke");
     }
 
     public Extension getExtension() {
@@ -160,7 +166,7 @@ public class ClassEntity extends Entity {
                 // TODO check signature impl method
             }
         }
-        makeMagicMethods();
+        doneDeclare();
     }
 
     public byte[] getData() {
