@@ -1,6 +1,6 @@
 package ru.regenix.jphp.runtime.output;
 
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.env.Environment;
 
 import java.io.*;

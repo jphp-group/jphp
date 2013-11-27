@@ -2,8 +2,8 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.memory.MemoryUtils;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,15 +24,18 @@ public class CompileFunctionEntity extends FunctionEntity {
         Object[] passed = new Object[ types.length ];
 
         int i = 0;
+        int j = 0;
         for(Class<?> clazz : types) {
             if (clazz == Environment.class)
                 passed[i] = env;
             else if (i == types.length - 1 && types[i] == Memory[].class) {
                 Memory[] arg = new Memory[types.length - i];
-                System.arraycopy(arguments, i, arg, 0, arg.length);
+                System.arraycopy(arguments, j, arg, 0, arg.length);
                 passed[i] = arg;
+                break;
             } else {
-                passed[i] = MemoryUtils.toValue(arguments[i], clazz);
+                passed[i] = MemoryUtils.toValue(arguments[j], clazz);
+                j++;
             }
             i++;
         }

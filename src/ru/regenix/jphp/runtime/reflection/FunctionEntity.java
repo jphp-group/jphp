@@ -3,7 +3,7 @@ package ru.regenix.jphp.runtime.reflection;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.AbstractFunctionEntity;
 
 import java.lang.reflect.InvocationTargetException;

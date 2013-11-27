@@ -1,6 +1,8 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 
 public class ObjectMemory extends Memory {
 
@@ -112,5 +114,10 @@ public class ObjectMemory extends Memory {
     @Override
     public boolean greaterEq(Memory memory) {
         return false;
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return MemoryStringUtils.getBinaryBytes(this);
     }
 }

@@ -33,7 +33,7 @@ abstract public class FunctionsContainer {
                             method.getName(), method.isAnnotationPresent(Runtime.Immutable.class)
                     ));
 
-                function.methods.add(method);
+                function.addMethod(method);
             }
         }
 
@@ -48,7 +48,7 @@ abstract public class FunctionsContainer {
                         )
                 );
             }
-            function.methods.add(method);
+            function.addMethod(method);
         }
 
         return result.values();

@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+
 public class TrueMemory extends Memory {
 
     public final static TrueMemory INSTANCE = new TrueMemory();
@@ -194,5 +196,10 @@ public class TrueMemory extends Memory {
     @Override
     public int hashCode(){
         return 1;
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return new byte[]{ 1 };
     }
 }

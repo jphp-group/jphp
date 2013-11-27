@@ -10,7 +10,7 @@ import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.output.OutputBuffer;
@@ -52,6 +52,8 @@ public class Environment {
     private Stack<OutputBuffer> outputBuffers;
 
     public final CompileScope scope;
+    public final Map<String, Memory> configuration = new HashMap<String, Memory>();
+
     private Charset defaultCharset = Charset.forName("UTF-8");
 
     private final ArrayMemory globals;
@@ -131,6 +133,10 @@ public class Environment {
         this((OutputStream) null);
     }
 
+    public Map<String, ModuleEntity> getIncluded() {
+        return included;
+    }
+
     public CompileScope getScope() {
         return scope;
     }
@@ -153,6 +159,55 @@ public class Environment {
 
     public void setIncludePaths(Set<String> includePaths) {
         this.includePaths = includePaths;
+    }
+
+    public Memory getConfigValue(String name, Memory defaultValue){
+        Memory result = null;
+        if (scope.configuration == null || (result = configuration.get(name)) != null){
+            if (result == null) result = configuration.get(name);
+            if (result == null)
+                return defaultValue;
+
+            return result;
+        }
+
+        result = scope.configuration.get(name);
+        return result == null ? defaultValue : result;
+    }
+
+    public Memory getConfigValue(String name){
+        return getConfigValue(name, null);
+    }
+
+    public ArrayMemory getConfigValues(String prefix, boolean includingGlobal){
+        if (prefix != null)
+            prefix = prefix + ".";
+
+        ArrayMemory result = new ArrayMemory();
+        if (scope.configuration != null){
+            for(Map.Entry<String, Memory> entry : scope.configuration.entrySet()){
+                String key = entry.getKey();
+                if (prefix != null && !key.startsWith(prefix)) continue;
+
+                result.put(key, entry.getValue().toImmutable());
+            }
+        }
+
+        for(Map.Entry<String, Memory> entry : configuration.entrySet()){
+            String key = entry.getKey();
+
+            if (prefix != null && !key.startsWith(prefix)) continue;
+            result.put(key, entry.getValue().toImmutable());
+        }
+        return result;
+    }
+
+    public Memory setConfigValue(String name, Memory value){
+        return configuration.put(name, value);
+    }
+
+    public void restoreConfigValue(String name){
+        configuration.remove(name);
     }
 
     public Integer getErrorFlags() {

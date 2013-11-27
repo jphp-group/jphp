@@ -8,7 +8,7 @@ import ru.regenix.jphp.compiler.jvm.stetament.ExpressionStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.FunctionStmtCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.MethodStmtCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;

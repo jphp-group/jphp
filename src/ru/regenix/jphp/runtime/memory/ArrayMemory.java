@@ -1,6 +1,9 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.lang.NullSkipIterator;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
+import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
 import java.util.*;
 
@@ -20,10 +23,26 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         lastLongIndex = -1;
     }
 
-    private ArrayMemory(List<ReferenceMemory> list){
-        super(Type.ARRAY);
-        this.list = list;
-        lastLongIndex = -1;
+    public ArrayMemory(Collection collection){
+        this();
+        for(Object el : collection){
+            add(MemoryUtils.valueOf(el));
+        }
+    }
+
+    public ArrayMemory(Object... array){
+        this();
+        for(Object el : array){
+            add(MemoryUtils.valueOf(el));
+        }
+    }
+
+    public ArrayMemory(Map map){
+        this();
+        for(Object key : map.keySet()){
+            Object el = map.get(key);
+            put(ArrayMemory.toKey(MemoryUtils.valueOf(key)), MemoryUtils.valueOf(el));
+        }
     }
 
     public static Memory valueOf(){
@@ -317,7 +336,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public Memory toImmutable() {
-        ArrayMemory mem = new ArrayMemory(list);
+        ArrayMemory mem = new ArrayMemory();
+        mem.list = list;
         mem.original = this;
         mem.size = size;
         mem.list = list;
@@ -604,6 +624,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         public void remove() {
             ArrayMemory.this.removeByScalar(currentKey);
         }
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return MemoryStringUtils.getBinaryBytes(this);
     }
 
     public static class UncomparableArrayException extends Exception {}

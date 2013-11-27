@@ -1,9 +1,13 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
+
 public class StringMemory extends Memory {
 
     String value = "";
     StringBuilder builder = null;
+    byte[] binary;
 
     public StringMemory(String value) {
         super(Type.STRING);
@@ -269,6 +273,7 @@ public class StringMemory extends Memory {
         if (builder == null){
             builder = new StringBuilder(this.value);
             this.value = null;
+            this.binary = null;
         }
     }
 
@@ -336,5 +341,12 @@ public class StringMemory extends Memory {
     @Override
     public Memory valueOfIndex(String index) {
         return new StringMemory(toString().charAt((int)toNumeric(index).toLong()));
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        if (binary == null)
+            binary = MemoryStringUtils.getBinaryBytes(toString());
+        return binary;
     }
 }

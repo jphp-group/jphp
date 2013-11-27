@@ -7,7 +7,7 @@ import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.ext.*;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.opcode.ModuleOpcodePrinter;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;

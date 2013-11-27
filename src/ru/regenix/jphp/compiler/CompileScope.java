@@ -4,11 +4,10 @@ import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CompileScope {
@@ -28,6 +27,8 @@ public class CompileScope {
     protected Map<String, CompileFunction> compileFunctionMap;
 
     protected RuntimeClassLoader classLoader;
+
+    public Map<String, Memory> configuration;
 
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
@@ -62,6 +63,14 @@ public class CompileScope {
         }
 
         extensions.put(extension.getName(), extension);
+    }
+
+    public Extension getExtension(String name){
+        return extensions.get(name);
+    }
+
+    public Set<String> getExtensions(){
+        return extensions.keySet();
     }
 
     public void addUserClass(ClassEntity clazz){
@@ -109,6 +118,10 @@ public class CompileScope {
 
     public ConstantEntity findUserConstant(String name){
         return constantMap.get(name.toLowerCase());
+    }
+
+    public Collection<ConstantEntity> getConstants(){
+        return constantMap.values();
     }
 
     public CompileConstant findCompileConstant(String name){

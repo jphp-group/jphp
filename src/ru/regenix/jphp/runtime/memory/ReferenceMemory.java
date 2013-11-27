@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+
 public class ReferenceMemory extends Memory {
 
     public Memory value;
@@ -239,6 +241,11 @@ public class ReferenceMemory extends Memory {
     @Override
     public void concatAssign(boolean value) {
         typeString().append(value);
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return value.getBinaryBytes();
     }
 
     @Override

@@ -6,7 +6,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;

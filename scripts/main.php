@@ -1,13 +1,5 @@
 <?
-class Callback {
 
-    public function __invoke($x){
-
-    }
-}
-
-$func = new Callback();
-
-for($i = 0; $i < 10000000; $i++){
-    $func($i);
+for($i = 0; $i < 1000000; $i++){
+    $hash = md5($i . "x");
 }

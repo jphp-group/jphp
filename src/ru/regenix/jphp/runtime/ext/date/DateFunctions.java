@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime.ext.date;
 
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 
 public class DateFunctions extends FunctionsContainer {

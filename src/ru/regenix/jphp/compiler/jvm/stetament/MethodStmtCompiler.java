@@ -13,7 +13,7 @@ import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 import ru.regenix.jphp.tokenizer.TokenMeta;

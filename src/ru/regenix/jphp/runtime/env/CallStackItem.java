@@ -1,6 +1,6 @@
 package ru.regenix.jphp.runtime.env;
 
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 
 /**
  * User: Dim-S (dz@dim-s.net)

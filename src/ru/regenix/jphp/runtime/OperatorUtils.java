@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime;
 
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class OperatorUtils {
 

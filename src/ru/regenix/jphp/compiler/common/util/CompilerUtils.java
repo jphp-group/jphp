@@ -9,7 +9,7 @@ import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 
 final public class CompilerUtils {

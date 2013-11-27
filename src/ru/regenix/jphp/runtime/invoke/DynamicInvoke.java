@@ -7,10 +7,8 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
-import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.Memory;
-import ru.regenix.jphp.runtime.memory.ObjectMemory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
@@ -134,7 +132,9 @@ public class DynamicInvoke {
         }
         assert function != null;
 
-        Memory[] passed = makeArguments(env, args, function.parameters, originName, null, trace);
+        Memory[] passed = function.parameters == null
+                ? args
+                : makeArguments(env, args, function.parameters, originName, null, trace);
 
         Memory result;
         env.pushCall(trace, null, args, originName, null);

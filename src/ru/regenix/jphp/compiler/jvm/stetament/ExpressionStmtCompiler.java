@@ -21,6 +21,8 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.DynamicInvoke;
 import ru.regenix.jphp.runtime.invoke.ObjectHelper;
 import ru.regenix.jphp.runtime.memory.*;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 import ru.regenix.jphp.tokenizer.TokenMeta;

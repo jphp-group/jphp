@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime.ext.ctype;
 
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 
 /**
  * ctype extension

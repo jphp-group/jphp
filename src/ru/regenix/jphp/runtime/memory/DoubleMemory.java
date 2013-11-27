@@ -1,5 +1,8 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
+
 public class DoubleMemory extends Memory {
 
     double value;
@@ -242,5 +245,10 @@ public class DoubleMemory extends Memory {
     public int hashCode() {
         long temp = (long)value;
         return (int) (temp ^ (temp >>> 32));
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return MemoryStringUtils.getBinaryBytes(this);
     }
 }

@@ -4,6 +4,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.*;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;

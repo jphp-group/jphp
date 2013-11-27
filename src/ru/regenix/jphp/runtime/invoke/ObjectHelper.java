@@ -5,7 +5,7 @@ import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
-import ru.regenix.jphp.runtime.memory.Memory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 

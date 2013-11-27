@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+
 public class FalseMemory extends Memory {
 
     public final static FalseMemory INSTANCE = new FalseMemory();
@@ -189,5 +191,10 @@ public class FalseMemory extends Memory {
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return new byte[]{};
     }
 }

@@ -1,4 +1,6 @@
-package ru.regenix.jphp.runtime.memory;
+package ru.regenix.jphp.runtime.memory.support;
+
+import ru.regenix.jphp.runtime.memory.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,13 +49,13 @@ public class MemoryUtils {
         if (value instanceof String)
             return new StringMemory((String)value);
         if (value instanceof Byte)
-            return new LongMemory((Byte)value);
+            return LongMemory.valueOf((Byte)value);
         if (value instanceof Short)
-            return new LongMemory((Short)value);
+            return LongMemory.valueOf((Short)value);
         if (value instanceof Integer)
-            return new LongMemory((Integer)value);
+            return LongMemory.valueOf((Integer)value);
         if (value instanceof Long)
-            return new LongMemory((Long)value);
+            return LongMemory.valueOf((Long)value);
         if (value instanceof Float)
             return new DoubleMemory((Float)value);
         if (value instanceof Double)
@@ -62,25 +64,12 @@ public class MemoryUtils {
             return (Boolean) value ? Memory.TRUE : Memory.FALSE;
         } else if (value == null){
             return Memory.NULL;
-        } else if (value.getClass().isArray()){
-            ArrayMemory array = new ArrayMemory();
-            for(Object el : (Object[])value){
-                array.add(valueOf(el));
-            }
-            return array;
         } else if (value instanceof Collection){
-            ArrayMemory array = new ArrayMemory();
-            for(Object el : (Collection)value){
-                array.add(valueOf(el));
-            }
-            return array;
+            return new ArrayMemory((Collection)value);
         } else if (value instanceof Map){
-            ArrayMemory table = new ArrayMemory();
-            for(Object key : ((Map) value).keySet()){
-                Object el = ((Map)value).get(key);
-                table.put(ArrayMemory.toKey(valueOf(key)), valueOf(el));
-            }
-            return table;
+            return new ArrayMemory((Map) value);
+        } else if (value.getClass().isArray()){
+                return new ArrayMemory((Object[])value);
         } else
             return Memory.NULL;
     }

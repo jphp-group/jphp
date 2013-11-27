@@ -1,5 +1,8 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
+
 public class LongMemory extends Memory {
 
     protected final static int MAX_CACHE_STRING = 10000;
@@ -272,5 +275,10 @@ public class LongMemory extends Memory {
         LongMemory that = (LongMemory) o;
         if (value != that.value) return false;
         return true;
+    }
+
+    @Override
+    public byte[] getBinaryBytes() {
+        return MemoryStringUtils.getBinaryBytes(this);
     }
 }

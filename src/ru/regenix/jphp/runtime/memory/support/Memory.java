@@ -1,4 +1,6 @@
-package ru.regenix.jphp.runtime.memory;
+package ru.regenix.jphp.runtime.memory.support;
+
+import ru.regenix.jphp.runtime.memory.*;
 
 abstract public class Memory {
     public enum Type {
@@ -71,6 +73,8 @@ abstract public class Memory {
     }
 
     abstract public long toLong();
+    public int toInteger(){ return (int)toLong(); }
+
     abstract public double toDouble();
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
@@ -251,4 +255,6 @@ abstract public class Memory {
     public static String boolToString(boolean value){
         return value ? "1" : "";
     }
+
+    abstract public byte[] getBinaryBytes();
 }
