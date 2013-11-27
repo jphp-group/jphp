@@ -18,8 +18,8 @@ import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.invoke.DynamicInvoke;
-import ru.regenix.jphp.runtime.invoke.ObjectHelper;
+import ru.regenix.jphp.runtime.invoke.InvokeHelper;
+import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -462,6 +462,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int j = 0;
         boolean immutable = compileFunction.isImmutable && method.getReturnType() != void.class;
 
+        boolean init = false;
         for(int i = 0; i < types.length; i++){
             Class<?> argType = types[i];
             if (argType == Environment.class){
@@ -519,24 +520,46 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                     arguments[j] = MemoryUtils.valueOf(args);
                 } else {
-                    arguments[j] = writeExpression(
-                            iterator.next(), true, immutable && (j == 0 || arguments[j-1] != null), writeOpcode
-                    );
-                    if (arguments[j] == null){
-                        if (!writeOpcode)
-                            return null;
-                        for(int k = 0; k < j - 1; k++){
+                    ExprStmtToken next = iterator.next();
+                    if (!immutable && !init){
+                        init = true;
+                        for(int k = 0; k < j; k++){
                             if (arguments[k] != null){
                                 writePushMemory(arguments[k]);
                                 if (types[k] == Memory.class)
                                     writePopBoxing(true);
-                                else
+                                else {
                                     writePop(types[k]);
+                                }
                                 arguments[k] = null;
                             }
                         }
-                        immutable = false;
+                    }
+
+                    if (immutable)
+                        arguments[j] = writeExpression(next, true, true, false);
+
+                    if (arguments[j] == null){
+                        if (!writeOpcode)
+                            return null;
+
+                        if (!init) {
+                            for(int n = 0; n < j; n++){
+                                writePushMemory(arguments[n]);
+                                writePop(types[n]);
+                                arguments[n] = null;
+                            }
+
+                            init = true;
+                        }
+
+                        writeExpression(next, true, false, writeOpcode);
+
                         writePop(argType);
+                        if (argType == Memory.class)
+                            writePopImmutable();
+
+                        immutable = false;
                     }
                     j++;
                 }
@@ -613,7 +636,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushParameters(function.getParameters());
 
         writeSysStaticCall(
-                ObjectHelper.class, "invokeMethod",
+                ObjectInvokeHelper.class, "invokeMethod",
                 Memory.class,
                 Memory.class, String.class, String.class, Environment.class, TraceInfo.class, Memory[].class
         );
@@ -654,7 +677,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
             writeSysStaticCall(
-                    DynamicInvoke.class, "callStatic", Memory.class,
+                    InvokeHelper.class, "callStatic", Memory.class,
                     Environment.class, String.class, TraceInfo.class,
                     String.class, // lower sign name
                     String.class, String.class, // origin names
@@ -694,7 +717,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
             writeSysStaticCall(
-                    DynamicInvoke.class, "callStaticDynamic", Memory.class,
+                    InvokeHelper.class, "callStaticDynamic", Memory.class,
                     Environment.class,
                     String.class, TraceInfo.class,
                     String.class, String.class,
@@ -736,7 +759,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushString(realName);
                 writePushParameters(function.getParameters());
                 writeSysStaticCall(
-                        DynamicInvoke.class, "call", Memory.class,
+                        InvokeHelper.class, "call", Memory.class,
                         Environment.class, TraceInfo.class, String.class, String.class, Memory[].class
                 );
                 if (!returnValue)
@@ -756,7 +779,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
             writeSysStaticCall(
-                    DynamicInvoke.class, "callAny", Memory.class,
+                    InvokeHelper.class, "callAny", Memory.class,
                     Environment.class, String.class, TraceInfo.class, Memory.class, Memory[].class
             );
             if (!returnValue)
@@ -1494,12 +1517,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeDynamicAccessPrepare(dynamic, false);
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
-            writeSysStaticCall(ObjectHelper.class,
+            writeSysStaticCall(ObjectInvokeHelper.class,
                     "setProperty", Memory.class,
                     Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
             );
         } else {
-            writeSysStaticCall(ObjectHelper.class,
+            writeSysStaticCall(ObjectInvokeHelper.class,
                     "getProperty", Memory.class,
                     Memory.class, String.class, Environment.class, TraceInfo.class
             );
@@ -1957,7 +1980,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushEnv();
             writePushTraceInfo(token);
             writeSysStaticCall(
-                    DynamicInvoke.class,
+                    InvokeHelper.class,
                     "checkReturnReference",
                     void.class,
                     Memory.class, Environment.class, TraceInfo.class
@@ -2008,6 +2031,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeOpenEchoTag((OpenEchoTagToken) token);
                 } else if (token instanceof ArrayGetExprToken){  // ..[x][y][z]
                     writeArrayGet((ArrayGetExprToken) token, returnValue);
+                    operatorCount--;
+                    continue;
                 } if (token instanceof ReturnStmtToken){ // return ...
                     writeReturn((ReturnStmtToken) token);
                 } else if (token instanceof IfStmtToken){ // if [else]
@@ -2035,10 +2060,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     stackPush((ValueExprToken) token);
             } else if (token instanceof OperatorExprToken){ // + - * / % && || or ! and == > < etc.
                 operatorCount--;
-                if (operatorCount == 0)
-                    writeOperator((OperatorExprToken) token, returnValue);
-                else
-                    writeOperator((OperatorExprToken) token, true);
+                if (operatorCount >= 0) {
+                    if (operatorCount == 0)
+                        writeOperator((OperatorExprToken) token, returnValue);
+                    else
+                        writeOperator((OperatorExprToken) token, true);
+                }
             } else
                 break;
         }

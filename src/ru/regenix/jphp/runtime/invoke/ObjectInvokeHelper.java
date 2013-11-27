@@ -11,9 +11,9 @@ import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
 import java.lang.reflect.InvocationTargetException;
 
-final public class ObjectHelper {
+final public class ObjectInvokeHelper {
 
-    private ObjectHelper(){ }
+    private ObjectInvokeHelper(){ }
 
     public static Memory invokeMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
@@ -47,15 +47,51 @@ final public class ObjectHelper {
         }
 
         assert method != null;
-        Memory[] passed = DynamicInvoke.makeArguments(
+        Memory[] passed = InvokeHelper.makeArguments(
                 env, args, method.parameters, className, methodName, trace
         );
         Memory result;
-        env.pushCall(trace, object, args, methodName, className);
+        if (trace != null)
+            env.pushCall(trace, phpObject, args, methodName, className);
         try {
             result = method.invokeDynamic(phpObject, className, env, passed);
         } finally {
-            env.popCall();
+            if (trace != null)
+                env.popCall();
+        }
+        return result;
+    }
+
+    public static Memory invokeMethod(PHPObject phpObject, MethodEntity method,
+                                      Environment env, TraceInfo trace, Memory[] args)
+            throws InvocationTargetException, IllegalAccessException {
+        if (method == null)
+            method = phpObject.__class__.methodMagicInvoke;
+
+        String className = phpObject.__class__.getName();
+
+        if (method == null){
+            env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
+                            className + "::__invoke"
+                    ),
+                    trace
+            ));
+        }
+
+        assert method != null;
+        Memory[] passed = InvokeHelper.makeArguments(
+                env, args, method.parameters, className, method.getName(), trace
+        );
+        Memory result;
+        if (trace != null)
+            env.pushCall(trace, phpObject, args, method.getName(), className);
+
+        try {
+            result = method.invokeDynamic(phpObject, className, env, passed);
+        } finally {
+            if (trace != null)
+                env.popCall();
         }
         return result;
     }

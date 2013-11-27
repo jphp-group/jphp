@@ -7,7 +7,6 @@ public class StringMemory extends Memory {
 
     String value = "";
     StringBuilder builder = null;
-    byte[] binary;
 
     public StringMemory(String value) {
         super(Type.STRING);
@@ -273,7 +272,6 @@ public class StringMemory extends Memory {
         if (builder == null){
             builder = new StringBuilder(this.value);
             this.value = null;
-            this.binary = null;
         }
     }
 
@@ -345,8 +343,6 @@ public class StringMemory extends Memory {
 
     @Override
     public byte[] getBinaryBytes() {
-        if (binary == null)
-            binary = MemoryStringUtils.getBinaryBytes(toString());
-        return binary;
+        return toString().getBytes();
     }
 }

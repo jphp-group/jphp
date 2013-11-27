@@ -26,4 +26,9 @@ public class ArrayGetExprToken extends OperatorExprToken {
     public int getPriority() {
         return 1;
     }
+
+    @Override
+    public boolean isBinary() {
+        return true;
+    }
 }

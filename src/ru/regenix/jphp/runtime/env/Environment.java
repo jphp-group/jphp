@@ -9,6 +9,7 @@ import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
+import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
@@ -90,7 +91,7 @@ public class Environment {
         });
     }
 
-    public void pushCall(TraceInfo trace, Memory self, Memory[] args, String function, String clazz){
+    public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
             System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);

@@ -33,8 +33,19 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ArrayMemory(Object... array){
         this();
         for(Object el : array){
-            add(MemoryUtils.valueOf(el));
+            list.add(new ReferenceMemory(MemoryUtils.valueOf(el)));
         }
+        size = array.length;
+        lastLongIndex = size - 1;
+    }
+
+    public ArrayMemory(String[] array){
+        this();
+        for(String el : array) {
+            list.add(new ReferenceMemory(new StringMemory(el)));
+        }
+        size = array.length;
+        lastLongIndex = size - 1;
     }
 
     public ArrayMemory(Map map){

@@ -15,7 +15,9 @@ import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class DynamicInvoke {
+final public class InvokeHelper {
+
+    private InvokeHelper() { }
 
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
@@ -68,7 +70,7 @@ public class DynamicInvoke {
             throws InvocationTargetException, IllegalAccessException {
         method = method.toImmutable();
         if (method.isObject()){
-            return ObjectHelper.invokeMethod(method, null, null, env, trace, args);
+            return ObjectInvokeHelper.invokeMethod(method, null, null, env, trace, args);
         } else if (method.isArray()){
             Memory one = null, two = null;
             for(Memory el : (ArrayMemory)method){
@@ -91,10 +93,10 @@ public class DynamicInvoke {
             assert two != null;
             String methodName = two.toString();
             if (one.isObject())
-                return ObjectHelper.invokeMethod(one, methodName, methodName.toLowerCase(), env, trace, args);
+                return ObjectInvokeHelper.invokeMethod(one, methodName, methodName.toLowerCase(), env, trace, args);
             else {
                 String className = one.toString();
-                return DynamicInvoke.callStaticDynamic(
+                return InvokeHelper.callStaticDynamic(
                         env,
                         calledClass,
                         trace,
@@ -109,16 +111,35 @@ public class DynamicInvoke {
             if ((p = methodName.indexOf("::")) > -1) {
                 String className = methodName.substring(0, p);
                 methodName = methodName.substring(p + 2, methodName.length());
-                return DynamicInvoke.callStaticDynamic(
-                    env, calledClass, trace,
-                    className, className.toLowerCase(),
-                    methodName, methodName.toLowerCase(),
-                    args
+                return InvokeHelper.callStaticDynamic(
+                        env, calledClass, trace,
+                        className, className.toLowerCase(),
+                        methodName, methodName.toLowerCase(),
+                        args
                 );
             } else {
-                return DynamicInvoke.call(env, trace, methodName.toLowerCase(), methodName, args);
+                return InvokeHelper.call(env, trace, methodName.toLowerCase(), methodName, args);
             }
         }
+    }
+
+    public static Memory call(Environment env, TraceInfo trace, FunctionEntity function, Memory[] args)
+            throws InvocationTargetException, IllegalAccessException {
+        Memory[] passed = function.parameters == null
+                ? args
+                : makeArguments(env, args, function.parameters, function.getName(), null, trace);
+
+        Memory result;
+        if (trace != null)
+            env.pushCall(trace, null, args, function.getName(), null);
+
+        try {
+            result = function.invoke(env, passed);
+        } finally {
+            if (trace != null)
+                env.popCall();
+        }
+        return result;
     }
 
     public static Memory call(Environment env, TraceInfo trace, String sign, String originName,
@@ -131,19 +152,7 @@ public class DynamicInvoke {
             ));
         }
         assert function != null;
-
-        Memory[] passed = function.parameters == null
-                ? args
-                : makeArguments(env, args, function.parameters, originName, null, trace);
-
-        Memory result;
-        env.pushCall(trace, null, args, originName, null);
-        try {
-            result = function.invoke(env, passed);
-        } finally {
-            env.popCall();
-        }
-        return result;
+        return call(env, trace, function, args);
     }
 
     public static Memory callStaticDynamic(Environment env, String _static, TraceInfo trace,
@@ -178,12 +187,40 @@ public class DynamicInvoke {
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
 
         Memory result;
-        env.pushCall(trace, null, args, originMethodName, originClassName);
+
+        if (trace != null)
+            env.pushCall(trace, null, args, originMethodName, originClassName);
+
         try {
             result = method.invokeStatic(_static, env, passed);
         } finally {
-            env.popCall();
+            if (trace != null)
+                env.popCall();
         }
+
+        return result;
+    }
+
+    public static Memory callStatic(Environment env, String _static, TraceInfo trace,
+                                    MethodEntity method,
+                                    Memory[] args)
+            throws InvocationTargetException, IllegalAccessException {
+        String originClassName = method.getClazz().getName();
+        String originMethodName = method.getName();
+
+        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+        Memory result;
+
+        if (trace != null)
+            env.pushCall(trace, null, args, originMethodName, originClassName);
+
+        try {
+            result = method.invokeStatic(_static, env, passed);
+        } finally {
+            if (trace != null)
+                env.popCall();
+        }
+
         return result;
     }
 

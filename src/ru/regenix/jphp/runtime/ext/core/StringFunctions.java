@@ -6,7 +6,7 @@ import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
-import ru.regenix.jphp.util.DigestFileUtils;
+import ru.regenix.jphp.util.DigestUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -92,7 +92,7 @@ public class StringFunctions extends FunctionsContainer {
     @Runtime.Immutable
     public static String implode(Memory glue, Memory pieces){
         ArrayMemory array;
-        String delimiter = "";
+        String delimiter;
         if (glue.isArray()) {
             array = (ArrayMemory)glue;
             delimiter = pieces.toString();
@@ -129,16 +129,14 @@ public class StringFunctions extends FunctionsContainer {
         return implode(Memory.NULL, pieces);
     }
 
-    @Runtime.Immutable
     public static Memory explode(String delimiter, String string, int limit){
         if (limit == 0)
             limit = 1;
 
         String[] result = StringUtils.split(string, delimiter, limit);
-        return MemoryUtils.valueOf(result);
+        return new ArrayMemory(result);
     }
 
-    @Runtime.Immutable
     public static Memory explode(String delimiter, String string){
         return explode(delimiter, string, Integer.MAX_VALUE);
     }
@@ -160,7 +158,23 @@ public class StringFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static String ucwords(String value){
-        return StringUtils.capitalize(value);
+        char[] buffer = value.toCharArray();
+
+        boolean prevSpace = false;
+        for (int i = 0; i < buffer.length; i++) {
+            char ch = buffer[i];
+            if (Character.isSpaceChar(ch)){
+                prevSpace = true;
+                continue;
+            }
+            if (prevSpace){
+                buffer[i] = Character.toUpperCase(ch);
+                prevSpace = false;
+            } else {
+                buffer[i] = Character.toLowerCase(ch);
+            }
+        }
+        return new String(buffer);
     }
 
     private static final ThreadLocal<MessageDigest> md5Digest = new ThreadLocal<MessageDigest>(){
@@ -187,25 +201,17 @@ public class StringFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static String md5(Memory value)  {
-        try {
-            MessageDigest md = md5Digest.get();
-            md.reset();
-            md.update(value.getBinaryBytes());
-            return DigestFileUtils.convertToHashHex(md.digest());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        MessageDigest md = md5Digest.get();
+        md.reset();
+        md.update(value.getBinaryBytes());
+        return DigestUtils.bytesToHex(md.digest());
     }
 
     @Runtime.Immutable
     public static String sha1(Memory value)  {
-        try {
-            MessageDigest md = sha1Digest.get();
-            md.reset();
-            md.update(value.getBinaryBytes());
-            return DigestFileUtils.convertToHashHex(md.digest());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        MessageDigest md = sha1Digest.get();
+        md.reset();
+        md.update(value.getBinaryBytes());
+        return DigestUtils.bytesToHex(md.digest());
     }
 }
