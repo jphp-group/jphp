@@ -50,6 +50,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public char toChar() {
+        return value.toChar();
+    }
+
+    @Override
     public Memory inc() {
         return value.inc();
     }

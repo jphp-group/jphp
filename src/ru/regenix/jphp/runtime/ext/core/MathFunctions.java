@@ -18,8 +18,8 @@ import java.util.Random;
 public class MathFunctions extends FunctionsContainer {
 
     private final static MathConstants constants = new MathConstants();
-    private static MersenneTwister MERSENNE_TWISTER = new MersenneTwister();
-    private static Random RANDOM = new Random();
+    public static MersenneTwister MERSENNE_TWISTER = new MersenneTwister();
+    public static Random RANDOM = new Random();
 
     private final static double[] COS_CACHE = new double[Short.MAX_VALUE * 5];
     private final static double[] SIN_CACHE = new double[Short.MAX_VALUE * 5];
@@ -165,7 +165,7 @@ public class MathFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static long getmaxrand(){
-        return Long.MAX_VALUE;
+        return Integer.MAX_VALUE;
     }
 
     @Runtime.Immutable
@@ -255,7 +255,7 @@ public class MathFunctions extends FunctionsContainer {
     public static Memory rand(long min, long max){
         if (max < min)
             return Memory.FALSE;
-        return LongMemory.valueOf(MERSENNE_TWISTER.nextLong((max - min) + 1) + min);
+        return LongMemory.valueOf(RANDOM.nextInt((int)(max - min) + 1) + min);
     }
 
     public static void srand(){

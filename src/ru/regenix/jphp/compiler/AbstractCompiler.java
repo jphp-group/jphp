@@ -41,4 +41,8 @@ abstract public class AbstractCompiler {
     public ModuleEntity compile(){
         return compile(true);
     }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
 }

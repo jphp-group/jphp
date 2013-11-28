@@ -29,7 +29,7 @@ final public class Messages {
 
     public static class Item {
         private String message;
-        protected Item(String message){
+        public Item(String message){
             this.message = message;
         }
         public String fetch(Object... args){

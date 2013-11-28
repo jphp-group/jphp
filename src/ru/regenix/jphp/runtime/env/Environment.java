@@ -305,6 +305,21 @@ public class Environment {
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
+    public void warning(String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
+    }
+
+    public void warning(TraceInfo trace, String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
+    }
+
+    public void notice(String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
+    }
+
     public void echo(String value){
         OutputBuffer buffer = peekOutputBuffer();
         buffer.write(value);

@@ -458,24 +458,35 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Class[] types = method.getParameterTypes();
         ListIterator<ExprStmtToken> iterator = function.getParameters().listIterator();
 
-        Memory[] arguments = new Memory[types.length];
-        int j = 0;
+        Object[] arguments = new Object[types.length];
+        //int j = 0;
         boolean immutable = compileFunction.isImmutable && method.getReturnType() != void.class;
 
         boolean init = false;
         for(int i = 0; i < types.length; i++){
             Class<?> argType = types[i];
             if (argType == Environment.class){
-                if (!writeOpcode)
-                    return null;
+                if (immutable){
+                    arguments[i] = compiler.getEnvironment();
+                } else {
+                    if (!writeOpcode)
+                        return null;
+                    writePushEnv();
+                }
+            } else if (argType == TraceInfo.class){
+                if (immutable){
+                    arguments[i] = function.toTraceInfo(compiler.getContext());
+                } else {
+                    if (!writeOpcode)
+                        return null;
 
-                writePushEnv();
-                immutable = false;
+                    writePushTraceInfo(function);
+                }
             } else {
                 if (argType == Memory[].class){
-                    Memory[] args = new Memory[function.getParameters().size() - j];
+                    Memory[] args = new Memory[function.getParameters().size() - i /*j*/];
                     boolean arrCreated = false;
-                    for(int t = 0; t < function.getParameters().size() - j; t++){
+                    for(int t = 0; t < function.getParameters().size() - i/*j*/; t++){
                         ExprStmtToken next = iterator.next();
                         if (immutable)
                             args[t] = writeExpression(next, true, true, false);
@@ -486,10 +497,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                             if (!arrCreated) {
                                 if (immutable){
-                                    for(int n = 0; n < j; n++){
-                                        writePushMemory(arguments[n]);
-                                        writePop(types[n]);
-                                        arguments[t] = null;
+                                    for(int n = 0; n < i /*j*/; n++) {
+                                        if (arguments[n] instanceof TraceInfo){
+                                            writePushTraceInfo(function);
+                                        } else if (arguments[n] instanceof Environment){
+                                            writePushEnv();
+                                        } else {
+                                            writePushMemory((Memory)arguments[n]);
+                                            writePop(types[n]);
+                                            arguments[t] = null;
+                                        }
                                     }
                                 }
 
@@ -518,35 +535,47 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         stackPush(Memory.Type.REFERENCE);
                     }
 
-                    arguments[j] = MemoryUtils.valueOf(args);
+                    arguments[i/*j*/] = MemoryUtils.valueOf(args);
                 } else {
                     ExprStmtToken next = iterator.next();
                     if (!immutable && !init){
                         init = true;
-                        for(int k = 0; k < j; k++){
+                        for(int k = 0; k < i/*j*/; k++){
                             if (arguments[k] != null){
-                                writePushMemory(arguments[k]);
-                                if (types[k] == Memory.class)
-                                    writePopBoxing(true);
-                                else {
-                                    writePop(types[k]);
+                                if (arguments[k] instanceof TraceInfo){
+                                    writePushTraceInfo(function);
+                                } else if (arguments[k] instanceof Environment){
+                                    writePushEnv();
+                                } else {
+                                    writePushMemory((Memory)arguments[k]);
+                                    if (types[k] == Memory.class)
+                                        writePopBoxing(true);
+                                    else {
+                                        writePop(types[k]);
+                                    }
+                                    arguments[k] = null;
                                 }
-                                arguments[k] = null;
                             }
                         }
                     }
 
                     if (immutable)
-                        arguments[j] = writeExpression(next, true, true, false);
+                        arguments[i/*j*/] = writeExpression(next, true, true, false);
 
-                    if (arguments[j] == null){
+                    if (arguments[i/*j*/] == null){
                         if (!writeOpcode)
                             return null;
 
                         if (!init) {
-                            for(int n = 0; n < j; n++){
-                                writePushMemory(arguments[n]);
-                                writePop(types[n]);
+                            for(int n = 0; n < i/*j*/; n++){
+                                if (arguments[n] instanceof TraceInfo) {
+                                    writePushTraceInfo(function);
+                                } else if (arguments[n] instanceof Environment) {
+                                    writePushEnv();
+                                } else {
+                                    writePushMemory((Memory)arguments[n]);
+                                    writePop(types[n]);
+                                }
                                 arguments[n] = null;
                             }
 
@@ -561,7 +590,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                         immutable = false;
                     }
-                    j++;
+                   // j++;
                 }
             }
         }
@@ -572,7 +601,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             Object[] typedArguments = new Object[arguments.length];
             for(int i = 0; i < arguments.length; i++){
-                typedArguments[i] = MemoryUtils.toValue(arguments[i], types[i]);
+                if (arguments[i] instanceof Memory)
+                    typedArguments[i] = MemoryUtils.toValue((Memory)arguments[i], types[i]);
+                else
+                    typedArguments[i] = arguments[i];
             }
             try {
                 Object value = method.invoke(null, typedArguments);
@@ -1327,6 +1359,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePop(Class clazz){
         if (clazz == String.class)
             writePopString();
+        else if (clazz == Character.TYPE)
+            writePopChar();
         else if (clazz == Boolean.TYPE)
             writePopBoolean();
         else if (clazz == Memory.class)
@@ -1424,6 +1458,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 else
                     writeSysDynamicCall(Memory.class, "toString", String.class);
         }
+    }
+
+    void writePopChar(){
+        writePopBoxing();
+        writeSysDynamicCall(Memory.class, "toChar", Character.TYPE);
     }
 
     void writePopBoolean(){
@@ -1548,7 +1587,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writeUnaryOperator(OperatorExprToken operator, boolean returnValue){
+    Memory writeUnaryOperator(OperatorExprToken operator, boolean returnValue, boolean writeOpcode){
         if (stackEmpty())
             unexpectedToken(operator);
 
@@ -1559,9 +1598,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             Memory result = CompilerUtils.calcUnary(o.getMemory(), operator);
             if (result != null){
                 stackPush(result);
-                return;
+                return result;
             }
         }
+        if (!writeOpcode)
+            return null;
 
         String name = CompilerUtils.getOperatorCode(operator);
         Class operatorResult = CompilerUtils.getOperatorResult(operator);
@@ -1607,11 +1648,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePopAll(1);
                 }
         }
+
+        return null;
     }
 
-    void writeLogicOperator(LogicOperatorExprToken operator, boolean returnValue){
+    Memory writeLogicOperator(LogicOperatorExprToken operator, boolean returnValue, boolean writeOpcode){
         if (stackEmpty())
             unexpectedToken(operator);
+
+        if (!writeOpcode)
+            return null;
 
         StackItem o = stackPop();
 
@@ -1645,22 +1691,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePopBoxing();
 
         code.add(end);
+        return null;
     }
 
-    void writeOperator(OperatorExprToken operator, boolean returnValue){
+    Memory writeOperator(OperatorExprToken operator, boolean returnValue, boolean writeOpcode){
         if (operator instanceof DynamicAccessExprToken){
-            writeDynamicAccess((DynamicAccessExprToken)operator, returnValue);
-            return;
+            if (writeOpcode)
+                writeDynamicAccess((DynamicAccessExprToken)operator, returnValue);
+            return null;
         }
 
         if (!operator.isBinary()){
-            writeUnaryOperator(operator, returnValue);
-            return;
+            return writeUnaryOperator(operator, returnValue, writeOpcode);
         }
 
         if (operator instanceof LogicOperatorExprToken){
-            writeLogicOperator((LogicOperatorExprToken)operator, returnValue);
-            return;
+            return writeLogicOperator((LogicOperatorExprToken)operator, returnValue, writeOpcode);
         }
 
         if (stackEmpty())
@@ -1676,8 +1722,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (!(operator instanceof AssignExprToken || operator instanceof AssignOperatorExprToken))
         if (o1.getMemory() != null && o2.getMemory() != null){
-            stackPush(CompilerUtils.calcBinary(o2.getMemory(), o1.getMemory(), operator));
-            return;
+            Memory result;
+            stackPush(result = CompilerUtils.calcBinary(o2.getMemory(), o1.getMemory(), operator));
+            return result;
         }
 
         LocalVariable variable = null;
@@ -1687,8 +1734,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (operator instanceof AssignExprToken){
             if (L instanceof VariableExprToken){
+                if (!writeOpcode)
+                    return null;
                 writeVariableAssign((VariableExprToken)L, o1, returnValue);
-                return;
+                return null;
             }
         }
 
@@ -1697,9 +1746,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (value1 != null && value2 != null){
             stackPush(value1);
             stackPush(value2);
-            writeOperator(operator, returnValue);
-            return;
+            return writeOperator(operator, returnValue, writeOpcode);
         }
+        if (!writeOpcode)
+            return null;
 
         StackItem.Type Lt = tryGetType(o2);
         StackItem.Type Rt = tryGetType(o1);
@@ -1755,6 +1805,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
             }
         }
+        return null;
     }
 
     void writeEchoRaw(EchoRawToken token){
@@ -2061,10 +2112,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (token instanceof OperatorExprToken){ // + - * / % && || or ! and == > < etc.
                 operatorCount--;
                 if (operatorCount >= 0) {
-                    if (operatorCount == 0)
-                        writeOperator((OperatorExprToken) token, returnValue);
-                    else
-                        writeOperator((OperatorExprToken) token, true);
+                    Memory result;
+                    if (operatorCount == 0) {
+                        result = writeOperator((OperatorExprToken) token, returnValue, writeOpcode);
+                    } else
+                        result = writeOperator((OperatorExprToken) token, true, writeOpcode);
+
+                    if (!writeOpcode && result == null)
+                        break;
                 }
             } else
                 break;

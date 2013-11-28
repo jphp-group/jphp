@@ -68,6 +68,8 @@ abstract public class Memory {
     public static final Memory CONST_DOUBLE_0 = new DoubleMemory(0.0);
     public static final Memory CONST_DOUBLE_1 = new DoubleMemory(1.0);
 
+    public static final Memory CONST_EMPTY_STRING = new StringMemory("");
+
     public boolean isNull(){
         return type == Type.NULL;
     }
@@ -79,6 +81,19 @@ abstract public class Memory {
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
     abstract public String toString();
+
+    public char toChar(){
+        switch (type){
+            case STRING:
+                String tmp = toString();
+                if (tmp.isEmpty())
+                    return '\0';
+                else
+                    return tmp.charAt(0);
+            default:
+                return (char)toLong();
+        }
+    }
 
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isArray(){ return type == Type.ARRAY; }

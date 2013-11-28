@@ -58,7 +58,7 @@ public class CompileFunction {
         }
 
         if (methods[count] != null)
-            throw new IllegalArgumentException("Method with " + count + " args already exists");
+            throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
         methods[count] = method;
     }

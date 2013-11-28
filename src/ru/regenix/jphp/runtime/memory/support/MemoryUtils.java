@@ -22,6 +22,8 @@ public class MemoryUtils {
             return (short)value.toLong();
         if (type == Byte.TYPE || type == Byte.class)
             return (byte)value.toLong();
+        if (type == Character.TYPE || type == Character.class)
+            return value.toChar();
         if (type == String.class)
             return value.toString();
         if (type == Boolean.TYPE || type == Boolean.class)
