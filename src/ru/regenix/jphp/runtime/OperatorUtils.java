@@ -63,4 +63,16 @@ public class OperatorUtils {
     public static Memory mod(boolean o1, Memory value) {
         return o1 ? Memory.TRUE.mod(value) : Memory.FALSE.mod(value);
     }
+
+    public static char toChar(String o){
+        return o.isEmpty() ? '\0' : o.charAt(0);
+    }
+
+    public static char toChar(long o){ return (char)o; }
+    public static char toChar(int o){ return (char)o; }
+    public static char toChar(short o){ return (char)o; }
+    public static char toChar(byte o){ return (char)o; }
+    public static char toChar(double o){ return (char)o; }
+    public static char toChar(float o){ return (char)o; }
+    public static char toChar(boolean o){ return (char)(o ? 0 : 1); }
 }

@@ -1402,6 +1402,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case BYTE:
             case SHORT:
             case BOOL:
+            case CHAR:
             case INT: {
                 code.add(new InsnNode(L2I));
                 stackPop();
@@ -1428,6 +1429,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case BYTE:
             case SHORT:
             case BOOL:
+            case CHAR:
             case INT: {
                 code.add(new InsnNode(I2D));
                 stackPop();
@@ -1461,8 +1463,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePopChar(){
-        writePopBoxing();
-        writeSysDynamicCall(Memory.class, "toChar", Character.TYPE);
+        StackItem.Type peek = stackPeek().type;
+        if (peek == StackItem.Type.CHAR)
+            return;
+
+        if (peek.isConstant()){
+            writeSysStaticCall(OperatorUtils.class, "toChar", Character.TYPE, peek.toClass());
+        } else {
+            writePopBoxing();
+            writeSysDynamicCall(Memory.class, "toChar", Character.TYPE);
+        }
     }
 
     void writePopBoolean(){
@@ -1472,6 +1482,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case BYTE:
             case INT:
             case SHORT:
+            case CHAR:
             case LONG: {
                 LabelNode fail = new LabelNode();
                 LabelNode end = new LabelNode();

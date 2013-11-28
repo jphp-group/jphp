@@ -694,7 +694,7 @@ public class StringFunctions extends FunctionsContainer {
     @Runtime.Immutable
     public static Memory strchr(String haystack, char needle, boolean beforeNeedle) {
         int i = haystack.indexOf(needle);
-        if (i > 0) {
+        if (i >= 0) {
             return new StringMemory(beforeNeedle ? haystack.substring(0, i) : haystack.substring(i));
         } else
             return Memory.FALSE;

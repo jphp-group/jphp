@@ -8,7 +8,7 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 public class StackItem {
 
     public enum Type {
-        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, CLASS;
+        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, CHAR, ARRAY, OBJECT, REFERENCE, CLASS;
 
         public Class toClass(){
             switch (this){
@@ -17,6 +17,7 @@ public class StackItem {
                 case NULL: return Object.class;
                 case BOOL: return Boolean.TYPE;
                 case SHORT: return Short.TYPE;
+                case CHAR: return Character.TYPE;
                 case INT: return Integer.TYPE;
                 case LONG: return Long.TYPE;
                 case STRING: return String.class;
@@ -57,6 +58,8 @@ public class StackItem {
                 return STRING;
             if (clazz == Boolean.TYPE)
                 return BOOL;
+            if (clazz == Character.TYPE)
+                return CHAR;
             if (clazz == ArrayMemory.class)
                 return ARRAY;
             if (clazz == ObjectMemory.class)
@@ -78,11 +81,11 @@ public class StackItem {
         }
 
         public boolean isLikeLong(){
-            return this == LONG || this == INT || this == SHORT || this == BYTE;
+            return this == LONG || this == INT || this == SHORT || this == BYTE || this == CHAR;
         }
 
         public boolean isLikeInt(){
-            return this == INT || this == SHORT || this == BYTE;
+            return this == INT || this == SHORT || this == BYTE || this == CHAR;
         }
 
         public boolean isLikeNumber(){
