@@ -50,6 +50,8 @@
         </jar>
         <copyfile src="jphp.sh" dest="${jar.dir}/jphp.sh" />
         <copyfile src="jphp.bat" dest="${jar.dir}/jphp.bat" />
+        <copyfile src="run-phpt.sh" dest="${jar.dir}/run-phpt.sh" />
+        <copyfile src="run-phpt.bat" dest="${jar.dir}/run-phpt.bat" />
     </target>
 
     <target name="run" depends="jar">

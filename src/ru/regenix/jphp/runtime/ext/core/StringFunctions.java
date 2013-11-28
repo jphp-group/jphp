@@ -5,7 +5,6 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.util.DigestUtils;
 
 import java.security.MessageDigest;
@@ -160,7 +159,7 @@ public class StringFunctions extends FunctionsContainer {
     public static String ucwords(String value){
         char[] buffer = value.toCharArray();
 
-        boolean prevSpace = false;
+        boolean prevSpace = true; // first char to Upper
         for (int i = 0; i < buffer.length; i++) {
             char ch = buffer[i];
             if (Character.isSpaceChar(ch)){
@@ -170,8 +169,6 @@ public class StringFunctions extends FunctionsContainer {
             if (prevSpace){
                 buffer[i] = Character.toUpperCase(ch);
                 prevSpace = false;
-            } else {
-                buffer[i] = Character.toLowerCase(ch);
             }
         }
         return new String(buffer);
