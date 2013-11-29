@@ -174,7 +174,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         size++;
     }
 
-    public void merge(ArrayMemory array){
+    public void merge(ArrayMemory array, boolean recursive){
         checkCopied();
         if (list != null && array.list != null){
             for(ReferenceMemory reference : array.list)
@@ -196,7 +196,18 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     if (key instanceof LongMemory){
                         add(entry.getValue().toImmutable());
                     } else {
-                        put(key, entry.getValue().toImmutable());
+                        Memory value = entry.getValue().toImmutable();
+                        if (recursive && value.isArray()){
+                            Memory current = getByScalar(key).toImmutable();
+                            if (current.isArray()) {
+                                ArrayMemory result = (ArrayMemory)current.toImmutable();
+                                result.merge((ArrayMemory)current, recursive);
+                                put(key, result);
+                            } else
+                                put(key, value);
+                        } else {
+                            put(key, value);
+                        }
                     }
                 }
             }

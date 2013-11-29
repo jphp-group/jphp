@@ -10,9 +10,9 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.Reference;
 
 public class ArrayFunctions extends FunctionsContainer {
 
-    public static Memory array_merge(Environment env, TraceInfo trace, Memory array, Memory[] arrays){
+    private static Memory _array_merge(Environment env, TraceInfo trace, boolean recursive, Memory array, Memory[] arrays){
         if (!array.isArray()){
-            env.warning("Argument %s is not an array", 1);
+            env.warning(trace, "Argument %s is not an array", 1);
             return Memory.NULL;
         }
 
@@ -24,14 +24,22 @@ public class ArrayFunctions extends FunctionsContainer {
         int i = 2;
         for(Memory el : arrays){
             if (!el.isArray()){
-                env.warning("Argument %s is not an array", i);
-                return Memory.NULL;
+                env.warning(trace, "Argument %s is not an array", i);
+                continue;
             }
-            result.merge((ArrayMemory)el);
+            result.merge((ArrayMemory)el, recursive);
             i++;
         }
 
         return result.toConstant();
+    }
+
+    public static Memory array_merge(Environment env, TraceInfo trace, Memory array, Memory[] arrays){
+        return _array_merge(env, trace, false, array, arrays);
+    }
+
+    public static Memory array_merge_recursive(Environment env, TraceInfo trace, Memory array, Memory[] arrays){
+        return _array_merge(env, trace, true, array, arrays);
     }
 
     public static boolean shuffle(Environment env, TraceInfo trace, @Reference Memory value){
