@@ -55,6 +55,36 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public boolean isNull() {
+        return value.isNull();
+    }
+
+    @Override
+    public boolean isObject() {
+        return value.isObject();
+    }
+
+    @Override
+    public boolean isArray() {
+        return value.isArray();
+    }
+
+    @Override
+    public boolean isString() {
+        return value.isString();
+    }
+
+    @Override
+    public boolean isNumber() {
+        return value.isNumber();
+    }
+
+    @Override
+    public boolean isReference() {
+        return true;
+    }
+
+    @Override
     public Memory inc() {
         return value.inc();
     }
@@ -140,6 +170,14 @@ public class ReferenceMemory extends Memory {
             case REFERENCE:
             case ARRAY: return value.toImmutable();
             default: return value;
+        }
+    }
+
+    public <T extends Memory> T toValue(Class<T> clazz){
+        switch (value.type){
+            case REFERENCE: return value.toValue(clazz);
+            default:
+                return (T) value;
         }
     }
 

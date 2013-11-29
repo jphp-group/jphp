@@ -24,6 +24,7 @@ public class CoreExtension extends Extension {
         registerConstants(new MathConstants());
         registerFunctions(new MathFunctions());
         registerFunctions(new StringFunctions());
+        registerFunctions(new ArrayFunctions());
         registerFunctions(new OutputFunctions());
 
         registerNativeClass(StdClass.class);

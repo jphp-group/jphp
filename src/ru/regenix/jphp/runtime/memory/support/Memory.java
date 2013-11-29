@@ -99,6 +99,7 @@ abstract public class Memory {
     public boolean isArray(){ return type == Type.ARRAY; }
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
+    public boolean isReference() { return false; }
 
     // <value>[index]
     public Memory valueOfIndex(Memory index) { return NULL; }
@@ -225,6 +226,11 @@ abstract public class Memory {
 
     public Memory toImmutable(){
         return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Memory> T toValue(Class<T> clazz){
+        return (T) this;
     }
 
     public boolean isImmutable(){

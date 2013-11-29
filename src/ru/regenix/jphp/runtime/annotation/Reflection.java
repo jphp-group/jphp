@@ -6,8 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.*;
 
 public @interface Reflection {
 
@@ -37,4 +36,8 @@ public @interface Reflection {
         String value() default "";
         boolean exists() default true;
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({PARAMETER})
+    public @interface Reference {}
 }

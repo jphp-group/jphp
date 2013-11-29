@@ -16,6 +16,7 @@ import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.misc.StackFrame;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.OperatorUtils;
+import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
@@ -36,6 +37,7 @@ import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -456,15 +458,26 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             statistic.returnType = StackItem.Type.valueOf(method.getReturnType());
 
         Class[] types = method.getParameterTypes();
+        Annotation[][] annotations = method.getParameterAnnotations();
+
         ListIterator<ExprStmtToken> iterator = function.getParameters().listIterator();
 
         Object[] arguments = new Object[types.length];
-        //int j = 0;
+        int j = 0;
         boolean immutable = compileFunction.isImmutable && method.getReturnType() != void.class;
 
         boolean init = false;
         for(int i = 0; i < types.length; i++){
             Class<?> argType = types[i];
+            boolean isRef = false;
+            for(Annotation annotation : annotations[i]){
+                if (annotation instanceof Reflection.Reference)
+                    isRef = true;
+            }
+
+            if (isRef)
+                immutable = false;
+
             if (argType == Environment.class){
                 if (immutable){
                     arguments[i] = compiler.getEnvironment();
@@ -484,9 +497,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
             } else {
                 if (argType == Memory[].class){
-                    Memory[] args = new Memory[function.getParameters().size() - i /*j*/];
+                    Memory[] args = new Memory[function.getParameters().size() - j];
                     boolean arrCreated = false;
-                    for(int t = 0; t < function.getParameters().size() - i/*j*/; t++){
+                    for(int t = 0; t < function.getParameters().size() - j; t++){
                         ExprStmtToken next = iterator.next();
                         if (immutable)
                             args[t] = writeExpression(next, true, true, false);
@@ -504,7 +517,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                             writePushEnv();
                                         } else {
                                             writePushMemory((Memory)arguments[n]);
-                                            writePop(types[n]);
+                                            writePop(types[n], false);
                                             arguments[t] = null;
                                         }
                                     }
@@ -522,7 +535,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                             writeExpression(
                                     next, true, false, writeOpcode
                             );
-                            writePopBoxing(true);
+
+                            if (!isRef)
+                                writePopBoxing(true);
+
                             code.add(new InsnNode(AASTORE));
                             stackPop(); stackPop(); stackPop();
 
@@ -548,11 +564,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     writePushEnv();
                                 } else {
                                     writePushMemory((Memory)arguments[k]);
-                                    if (types[k] == Memory.class)
-                                        writePopBoxing(true);
-                                    else {
-                                        writePop(types[k]);
-                                    }
+                                    writePop(types[k], !isRef);
                                     arguments[k] = null;
                                 }
                             }
@@ -574,7 +586,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     writePushEnv();
                                 } else {
                                     writePushMemory((Memory)arguments[n]);
-                                    writePop(types[n]);
+                                    writePop(types[n], false);
                                 }
                                 arguments[n] = null;
                             }
@@ -583,14 +595,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         }
 
                         writeExpression(next, true, false, writeOpcode);
-
-                        writePop(argType);
-                        if (argType == Memory.class)
-                            writePopImmutable();
-
+                        writePop(argType, !isRef);
                         immutable = false;
                     }
-                   // j++;
+                    j++;
                 }
             }
         }
@@ -1074,7 +1082,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
             writePushMemory(memory);
         }
-        writePop(castType.toClass());
+        writePop(castType.toClass(), true);
     }
 
     StackItem.Type tryGetType(ValueExprToken value){
@@ -1356,16 +1364,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writePop(Class clazz){
+    void writePop(Class clazz, boolean boxing){
         if (clazz == String.class)
             writePopString();
         else if (clazz == Character.TYPE)
             writePopChar();
         else if (clazz == Boolean.TYPE)
             writePopBoolean();
-        else if (clazz == Memory.class)
-            writePopBoxing(true);
-        else if (clazz == Double.TYPE)
+        else if (clazz == Memory.class){
+            if (boxing)
+                writePopBoxing(true);
+        } else if (clazz == Double.TYPE)
             writePopDouble();
         else if (clazz == Float.TYPE)
             writePopFloat();

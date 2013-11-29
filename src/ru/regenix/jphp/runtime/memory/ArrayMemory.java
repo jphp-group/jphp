@@ -174,6 +174,35 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         size++;
     }
 
+    public void merge(ArrayMemory array){
+        checkCopied();
+        if (list != null && array.list != null){
+            for(ReferenceMemory reference : array.list)
+                list.add(new ReferenceMemory(reference.toImmutable()));
+
+            size = list.size();
+            lastLongIndex = size - 1;
+        } else {
+            if (list != null)
+                convertToMap();
+
+            if (array.list != null){
+                for(ReferenceMemory reference : array.list){
+                    add(reference.toImmutable());
+                }
+            } else {
+                for(Map.Entry<Object, ReferenceMemory> entry : array.map.entrySet()){
+                    Object key = entry.getKey();
+                    if (key instanceof LongMemory){
+                        add(entry.getValue().toImmutable());
+                    } else {
+                        put(key, entry.getValue().toImmutable());
+                    }
+                }
+            }
+        }
+    }
+
     public void putAll(ArrayMemory array){
         if (array.list != null){
             int i = 0;
@@ -306,6 +335,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return size;
     }
 
+    public void shuffle(Random rnd){
+        checkCopied();
+        if (list != null){
+            Collections.shuffle(list, rnd);
+        } else {
+            Set<Object> keys = map.keySet();
+
+            List<ReferenceMemory> values = new ArrayList<ReferenceMemory>(map.values());
+            Collections.shuffle(values, rnd);
+
+            int i = 0;
+            for(Object key : keys){
+                map.put(key, values.get(i));
+                i++;
+            }
+        }
+    }
+
     public void clear(){
         if (list != null){
             list = new ArrayList<ReferenceMemory>();
@@ -347,15 +394,28 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public Memory toImmutable() {
-        ArrayMemory mem = new ArrayMemory();
-        mem.list = list;
-        mem.original = this;
-        mem.size = size;
-        mem.list = list;
-        mem.map  = map;
-        mem.lastLongIndex = lastLongIndex;
-        copies++;
-        return mem;
+        if (copies >= 0){
+            ArrayMemory mem = new ArrayMemory();
+            mem.list = list;
+            mem.original = this;
+            mem.size = size;
+            mem.list = list;
+            mem.map  = map;
+            mem.lastLongIndex = lastLongIndex;
+            copies++;
+            return mem;
+        } else {
+            copies++;
+            return this;
+        }
+    }
+
+    public ArrayMemory toConstant(){
+        if (copies == 0)
+            copies--;
+        else
+            throw new RuntimeException("Cannot convert array to a constant value with copies != 0");
+        return this;
     }
 
     @Override
@@ -490,7 +550,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public int hashCode() {
-        return size() == 0 ? 0 : 1;
+        return toString().hashCode();
     }
 
     @Override
