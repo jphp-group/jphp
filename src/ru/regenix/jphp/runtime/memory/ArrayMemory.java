@@ -200,7 +200,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                         if (recursive && value.isArray()){
                             Memory current = getByScalar(key).toImmutable();
                             if (current.isArray()) {
-                                ArrayMemory result = (ArrayMemory)current.toImmutable();
+                                ArrayMemory result = (ArrayMemory)current; // already array immutable above
                                 result.merge((ArrayMemory)current, recursive);
                                 put(key, result);
                             } else
