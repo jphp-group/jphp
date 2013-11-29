@@ -8,10 +8,14 @@ import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
+import ru.regenix.jphp.runtime.memory.output.PrintR;
+import ru.regenix.jphp.runtime.memory.output.Printer;
+import ru.regenix.jphp.runtime.memory.output.VarDump;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -143,5 +147,39 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static String sys_get_temp_dir(){
         return System.getProperty("java.io.tmpdir");
+    }
+
+    public static Memory print_r(Environment env, @Runtime.Reference Memory value, boolean returned){
+        StringWriter writer = new StringWriter();
+        Printer printer = new PrintR(writer);
+        printer.print(value);
+
+        if (returned){
+            return new StringMemory(writer.toString());
+        } else {
+            env.echo(writer.toString());
+            return Memory.TRUE;
+        }
+    }
+
+    public static Memory print_r(Environment env, @Runtime.Reference Memory value){
+        return print_r(env, value, false);
+    }
+
+    public static Memory var_dump(Environment env, @Runtime.Reference Memory value, @Runtime.Reference Memory[] values){
+        StringWriter writer = new StringWriter();
+        VarDump printer = new VarDump(writer);
+
+        printer.print(value);
+        if (values != null)
+            for(Memory el : values)
+                printer.print(el);
+
+        env.echo(writer.toString());
+        return Memory.TRUE;
+    }
+
+    public static Memory var_dump(Environment env, @Runtime.Reference Memory value){
+        return var_dump(env, value, null);
     }
 }

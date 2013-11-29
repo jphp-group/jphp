@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.exceptions.RecursiveException;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.NullSkipIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
@@ -174,8 +176,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         size++;
     }
 
-    public void merge(ArrayMemory array, boolean recursive){
+    /**
+     * Recursion is not detected...!!!
+     * @param array
+     * @param recursive
+     */
+    public void merge(ArrayMemory array, boolean recursive, Set<Integer> done){
         checkCopied();
+        if (recursive && done == null)
+            done = new HashSet<Integer>();
+
         if (list != null && array.list != null){
             for(ReferenceMemory reference : array.list)
                 list.add(new ReferenceMemory(reference.toImmutable()));
@@ -196,17 +206,27 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     if (key instanceof LongMemory){
                         add(entry.getValue().toImmutable());
                     } else {
-                        Memory value = entry.getValue().toImmutable();
-                        if (recursive && value.isArray()){
+                        Memory value = entry.getValue();
+                        if (recursive && value.isArray()) {
+                            if (done.contains(value.getPointer()))
+                                throw new RecursiveException();
+
                             Memory current = getByScalar(key).toImmutable();
                             if (current.isArray()) {
-                                ArrayMemory result = (ArrayMemory)current; // already array immutable above
-                                result.merge((ArrayMemory)current, recursive);
+                                value = value.toImmutable();
+
+                                int pointer = value.getPointer();
+                                done.add(pointer); // for check recursive
+
+                                ArrayMemory result = (ArrayMemory)value; // already array immutable above
+                                result.merge((ArrayMemory)current, recursive, done);
                                 put(key, result);
+
+                                done.remove(pointer);
                             } else
-                                put(key, value);
+                                put(key, value.toImmutable());
                         } else {
-                            put(key, value);
+                            put(key, value.toImmutable());
                         }
                     }
                 }
@@ -601,7 +621,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public Memory valueOfIndex(double index) {
-        Memory e = getByScalar(LongMemory.valueOf((long)index));
+        Memory e = getByScalar(LongMemory.valueOf((long) index));
         return e == null ? NULL : e;
     }
 
@@ -653,6 +673,40 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return new NullSkipIterator<ReferenceMemory>( list );
         } else
             return map.values().iterator();
+    }
+
+    public ForeachIterator foreachIterator(){
+        return new ForeachIterator(){
+            protected int cursor = 0;
+            protected Iterator<Object> keys;
+
+            @Override
+            protected boolean init() {
+                if (list == null)
+                    keys = map.keySet().iterator();
+
+                return true;
+            }
+
+            @Override
+            protected boolean nextValue() {
+                if (ArrayMemory.this.list != null){
+                    if (cursor >= size)
+                        return false;
+
+                    currentKey = (long)cursor;
+                    cursor++;
+                    return true;
+                } else {
+                    if (keys.hasNext()){
+                        currentKey = keys.next();
+                        currentValue = map.get(currentKey);
+                        return true;
+                    } else
+                        return false;
+                }
+            }
+        };
     }
 
 

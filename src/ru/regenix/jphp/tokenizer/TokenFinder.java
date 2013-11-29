@@ -57,7 +57,6 @@ public class TokenFinder {
         put("->", DynamicAccessExprToken.class);
         put("::", StaticAccessExprToken.class);
         put("=>", ArrayKeyValueExprToken.class);
-        put("[]", ArrayPushExprToken.class);
 
         put("+=", AssignPlusExprToken.class);
         put("-=", AssignMinusExprToken.class);

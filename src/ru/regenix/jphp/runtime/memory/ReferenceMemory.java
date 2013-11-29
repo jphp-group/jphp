@@ -25,6 +25,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public int getPointer(boolean absolute) {
+        return absolute ? value.getPointer() : getPointer();
+    }
+
+    @Override
     public long toLong() {
         return value.toLong();
     }
@@ -375,5 +380,10 @@ public class ReferenceMemory extends Memory {
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, index ? 1 : 0);
             default: return value.refOfIndex(index);
         }
+    }
+
+    @Override
+    public boolean isShortcut(){
+        return value.isReference();
     }
 }

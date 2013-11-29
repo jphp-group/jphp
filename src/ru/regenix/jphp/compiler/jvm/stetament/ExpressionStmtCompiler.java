@@ -1797,7 +1797,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 if (isInvert){
                     stackPush(o1);
-                    writePopBoxing();
+                    writePopBoxing(true);
                     writePush(o2);
                     if (CompilerUtils.isSideOperator(operator))
                         name += "Right";
@@ -1806,6 +1806,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePopBoxing();
 
                     writePush(o1);
+                    writePopImmutable();
                 }
                 writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
             }

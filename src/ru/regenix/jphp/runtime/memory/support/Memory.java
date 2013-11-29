@@ -74,6 +74,10 @@ abstract public class Memory {
         return type == Type.NULL;
     }
 
+    public boolean isShortcut(){
+        return false;
+    }
+
     abstract public long toLong();
     public int toInteger(){ return (int)toLong(); }
 
@@ -93,6 +97,14 @@ abstract public class Memory {
             default:
                 return (char)toLong();
         }
+    }
+
+    public int getPointer(boolean absolute){
+        return super.hashCode();
+    }
+
+    public int getPointer(){
+        return super.hashCode();
     }
 
     public boolean isObject() { return type == Type.OBJECT; }
