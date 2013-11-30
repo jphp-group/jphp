@@ -23,6 +23,7 @@ public class FunctionStmtToken extends StmtToken {
     protected Set<VariableExprToken> local;
     protected Set<VariableExprToken> passedLocal;
     protected Set<VariableExprToken> arrayAccessLocal;
+    protected Set<VariableExprToken> refLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -35,6 +36,7 @@ public class FunctionStmtToken extends StmtToken {
         this.varsExist = false;
         this.passedLocal = new HashSet<VariableExprToken>();
         this.arrayAccessLocal = new HashSet<VariableExprToken>();
+        this.refLocal = new HashSet<VariableExprToken>();
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -59,6 +61,14 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
+    }
+
+    public Set<VariableExprToken> getRefLocal() {
+        return refLocal;
+    }
+
+    public void setRefLocal(Set<VariableExprToken> refLocal) {
+        this.refLocal = refLocal;
     }
 
     public boolean isReturnReference() {
@@ -126,7 +136,8 @@ public class FunctionStmtToken extends StmtToken {
     }
 
     public boolean isReference(VariableExprToken variable){
-        return dynamicLocal || arrayAccessLocal.contains(variable) || passedLocal.contains(variable);
+        return dynamicLocal || arrayAccessLocal.contains(variable) || passedLocal.contains(variable)
+                || refLocal.contains(variable);
     }
 
     public boolean isVarsExist() {

@@ -5,7 +5,7 @@ import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.expr.AmpersandToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
@@ -36,7 +36,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         if (next instanceof CommaToken || isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
             return null;
 
-        if (next instanceof AmpersandToken){
+        if (next instanceof AmpersandRefToken){
             isReference = true;
             next = nextToken(iterator);
         }
@@ -98,7 +98,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             FunctionStmtToken result = (FunctionStmtToken)current;
 
             Token next = nextToken(iterator);
-            if (next instanceof AmpersandToken){
+            if (next instanceof AmpersandRefToken){
                 result.setReturnReference(true);
                 next = nextToken(iterator);
             }

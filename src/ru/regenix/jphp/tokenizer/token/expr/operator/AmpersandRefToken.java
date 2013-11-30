@@ -2,18 +2,21 @@ package ru.regenix.jphp.tokenizer.token.expr.operator;
 
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 
-/**
- * ^
- */
-public class XorExprToken extends OperatorExprToken {
-    public XorExprToken(TokenMeta meta) {
+public class AmpersandRefToken extends OperatorExprToken {
+    public AmpersandRefToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
     }
 
     @Override
     public int getPriority() {
-        return 100;
+        return 10;
+    }
+
+    @Override
+    public boolean isBinary() {
+        return false;
     }
 }

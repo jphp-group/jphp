@@ -22,6 +22,16 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
+    public int getPointer(boolean absolute) {
+        return value.getPointer();
+    }
+
+    @Override
+    public int getPointer() {
+        return value.getPointer();
+    }
+
+    @Override
     public long toLong() {
         return 0;
     }

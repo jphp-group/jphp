@@ -11,4 +11,8 @@ abstract public class PHPObject {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory();
     }
+
+    final public int getPointer(){
+        return super.hashCode();
+    }
 }

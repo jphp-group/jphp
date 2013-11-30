@@ -242,18 +242,6 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public void assignRef(Memory memory) {
-        if (memory instanceof ReferenceMemory){
-            ReferenceMemory reference = (ReferenceMemory)memory;
-            if (reference.value instanceof ReferenceMemory)
-                value = reference.value;
-            else
-                value = reference;
-        } else
-            value = memory;
-    }
-
-    @Override
     public Memory minus(long value) {
         return this.value.minus(value);
     }

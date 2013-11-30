@@ -62,14 +62,14 @@ public class ReferenceMemoryTest {
         Memory memory = new ReferenceMemory();
         ReferenceMemory ref = new ReferenceMemory(Memory.TRUE);
 
-        memory.assignRef(ref);
+        memory.assign(ref);
         Assert.assertEquals(Memory.TRUE, memory.toImmutable());
 
         memory.assign(false);
         Assert.assertEquals(Memory.FALSE, ref.toImmutable());
 
         Memory memory2 = new ReferenceMemory();
-        memory2.assignRef(memory);
+        memory2.assign(memory);
         Assert.assertEquals(Memory.FALSE, memory.toImmutable());
 
         memory2.assign(12);
@@ -92,7 +92,7 @@ public class ReferenceMemoryTest {
         Assert.assertNotNull(((StringMemory) memory.toImmutable()).value);
 
         Memory memory2 = new ReferenceMemory();
-        memory2.assignRef(memory);
+        memory2.assign(memory);
         memory2.concatAssign("bar");
         Assert.assertNotNull(((StringMemory) memory.toImmutable()).builder);
         Assert.assertEquals("foobarfoobar", memory2.toString());

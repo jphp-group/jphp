@@ -8,4 +8,14 @@ public class NotExprToken extends OperatorExprToken {
     public NotExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
     }
+
+    @Override
+    public boolean isBinary() {
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 30;
+    }
 }

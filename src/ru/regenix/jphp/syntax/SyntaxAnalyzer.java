@@ -13,6 +13,8 @@ import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class SyntaxAnalyzer {
@@ -175,7 +177,22 @@ public class SyntaxAnalyzer {
         if (generator == null)
             throw new AssertionError("Generator '"+clazz.getName()+"' not found");
 
-        return (T) generator;
+        if (generator.isSingleton())
+            return (T) generator;
+
+        Constructor<T> constructor = null;
+        try {
+            constructor = clazz.getConstructor(SyntaxAnalyzer.class);
+            return constructor.newInstance(this);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Token generateToken(Token current, ListIterator<Token> iterator){

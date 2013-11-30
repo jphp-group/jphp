@@ -18,8 +18,15 @@ import java.util.ListIterator;
 
 public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
+    private boolean isRef = false;
+
     public SimpleExprGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return false;
     }
 
     protected CallExprToken processCall(Token previous, Token current, ListIterator<Token> iterator){
@@ -67,7 +74,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             BraceExprToken.Kind closedBraceKind, int braceOpened){
         DynamicAccessExprToken result = (DynamicAccessExprToken)current;
         if (next instanceof NameToken){
-            result.setField((ValueExprToken)next);
+            result.setField((ValueExprToken) next);
             iterator.next();
         } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
             ExprStmtToken name = analyzer.generator(ExprGenerator.class).getInBraces(
@@ -78,7 +85,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (iterator.hasNext()){
             next = iterator.next();
-            if (next instanceof AssignOperatorExprToken || next instanceof AssignExprToken){
+            if (next instanceof AssignableOperatorToken){
                 DynamicAccessAssignExprToken dResult = new DynamicAccessAssignExprToken(result);
                 dResult.setAssignOperator(next);
 
@@ -163,6 +170,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
+        if (current instanceof DynamicAccessExprToken){
+            return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
+        }
+
+        if (current instanceof OperatorExprToken)
+            isRef = false;
+
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind, braceOpened);
 
@@ -179,9 +193,39 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 analyzer.getFunction().setVarsExist(true);
         }
 
-        if (current instanceof AssignExprToken && next instanceof AmpersandToken){
-            iterator.next();
-            return new AssignRefExprToken(TokenMeta.of(current, next));
+        // &
+        if (current instanceof AmpersandRefToken){
+            isRef = true;
+            if (previous instanceof AssignExprToken || previous == null) {
+                iterator.previous();
+                Token token = iterator.previous(); // =
+                if (iterator.hasPrevious()) {
+                    token = iterator.previous();
+                    if (token instanceof VariableExprToken && analyzer.getFunction() != null)
+                        analyzer.getFunction().getRefLocal().add((VariableExprToken)token);
+
+                    iterator.next();
+                }
+                iterator.next();
+                iterator.next();
+            } else {
+                return new AndExprToken(current.getMeta());
+                //unexpectedToken(current);
+            }
+
+            return current;
+        }
+        // &$var, &$obj->prop['x'], &class::$prop, &$arr['x'], &call()->x;
+        if (previous instanceof AmpersandRefToken){
+            if (!(current instanceof VariableExprToken) && !(current instanceof DynamicAccessExprToken)
+                    && !(current instanceof ArrayGetExprToken) && !(current instanceof StaticAccessExprToken)
+                    && !(current instanceof CallExprToken)){
+                unexpectedToken(current);
+            }
+
+            if (current instanceof VariableExprToken)
+                if (analyzer.getFunction() != null)
+                    analyzer.getFunction().getRefLocal().add((VariableExprToken)current);
         }
 
         if ((current instanceof MinusExprToken || current instanceof PlusExprToken)
@@ -229,10 +273,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             logic.setRightValue(result);
             return logic;
-        }
-
-        if (current instanceof DynamicAccessExprToken){
-            return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
         }
 
         if (next instanceof StaticAccessExprToken){
@@ -287,14 +327,19 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processArrayToken(Token previous, Token current, ListIterator<Token> iterator){
-        if (previous instanceof VariableExprToken)
+        if (previous instanceof VariableExprToken) {
             if (analyzer.getFunction() != null){
                 analyzer.getFunction().getArrayAccessLocal().add((VariableExprToken)previous);
             }
+        }
 
         Token next = nextToken(iterator);
         if (isClosedBrace(next, BraceExprToken.Kind.ARRAY)){
-            return new ArrayPushExprToken(TokenMeta.of(current, next));
+            if (nextToken(iterator) instanceof AssignableOperatorToken) {
+                iterator.previous();
+                return new ArrayPushExprToken(TokenMeta.of(current, next));
+            } else
+                unexpectedToken(next);
         } else
             iterator.previous();
 
@@ -314,9 +359,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         result = new ArrayGetExprToken(current.getMeta());
         result.setParameters(parameters);
 
-        if (iterator.hasNext()){
+        if (isRef){
+            result = new ArrayGetRefExprToken(result);
+        } else if (iterator.hasNext()){
             next = iterator.next();
-            if (next instanceof AssignOperatorExprToken || next instanceof AssignExprToken){
+            if (next instanceof AssignableOperatorToken){
                 result = new ArrayGetRefExprToken(result);
             }
             iterator.previous();
@@ -333,6 +380,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     @SuppressWarnings("unchecked")
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
                                   Separator separator, BraceExprToken.Kind closedBraceKind) {
+        isRef = false;
+
         List<Token> tokens = new ArrayList<Token>();
         Token previous = null;
         Token next = iterator.hasNext() ? iterator.next() : null;
@@ -365,7 +414,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         NameToken.class,
                         VariableExprToken.class,
                         CallExprToken.class,
-                        ArrayGetExprToken.class)){
+                        ArrayGetExprToken.class, DynamicAccessExprToken.class)){
                     // array
                     tokens.add(current = processArrayToken(previous, current, iterator));
                 }

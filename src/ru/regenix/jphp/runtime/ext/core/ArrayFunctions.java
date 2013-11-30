@@ -39,7 +39,7 @@ public class ArrayFunctions extends FunctionsContainer {
             result.merge((ArrayMemory) el, recursive, used);
 
             if (used != null)
-                used.add(el.getPointer(true));
+                used.remove(el.getPointer(true));
 
             i++;
         }

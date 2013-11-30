@@ -58,6 +58,7 @@ public class LocalVariable {
             values.remove(values.size() - 1);
 
         level -= 1;
+        setValue(null); // fix for break value
         return level + 1;
     }
 

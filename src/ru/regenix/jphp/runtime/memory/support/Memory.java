@@ -41,10 +41,6 @@ abstract public class Memory {
 
             return REFERENCE;
         }
-
-        public boolean isConstant(){
-            return this != REFERENCE/* && this != ARRAY && this != OBJECT*/;
-        }
     }
 
     public final Type type;
@@ -112,7 +108,6 @@ abstract public class Memory {
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
     public boolean isReference() { return false; }
-
     // <value>[index]
     public Memory valueOfIndex(Memory index) { return NULL; }
     public Memory valueOfIndex(long index) { return NULL; }
@@ -220,19 +215,51 @@ abstract public class Memory {
     public boolean greaterEq(boolean value) { return toDouble() >= (value ? 1 : 0); }
     public boolean greaterEq(String value) { return this.greaterEq(StringMemory.toNumeric(value)); }
 
+
+    // BIT &
+    public Memory bitAnd(Memory memory) { return LongMemory.valueOf( toLong() & memory.toLong() ); }
+    public Memory bitAnd(long memory) { return LongMemory.valueOf( toLong() & memory ); }
+    public Memory bitAnd(double memory) { return LongMemory.valueOf( toLong() & (long)memory ); }
+    public Memory bitAnd(boolean memory) { return LongMemory.valueOf( toLong() & (memory ? 1 : 0) ); }
+    public Memory bitAnd(String memory) { return LongMemory.valueOf( toLong() & StringMemory.toNumeric(memory).toLong() ); }
+
+    // BIT |
+    public Memory bitOr(Memory memory) { return LongMemory.valueOf( toLong() | memory.toLong() ); }
+    public Memory bitOr(long memory) { return LongMemory.valueOf( toLong() | memory ); }
+    public Memory bitOr(double memory) { return LongMemory.valueOf( toLong() | (long)memory ); }
+    public Memory bitOr(boolean memory) { return LongMemory.valueOf( toLong() | (memory ? 1 : 0) ); }
+    public Memory bitOr(String memory) { return LongMemory.valueOf( toLong() | StringMemory.toNumeric(memory).toLong() ); }
+
+    // BIT XOR ^
+    public Memory bitXor(Memory memory) { return LongMemory.valueOf( toLong() ^ memory.toLong() ); }
+    public Memory bitXor(long memory) { return LongMemory.valueOf( toLong() ^ memory ); }
+    public Memory bitXor(double memory) { return LongMemory.valueOf( toLong() ^ (long)memory ); }
+    public Memory bitXor(boolean memory) { return LongMemory.valueOf( toLong() ^ (memory ? 1 : 0) ); }
+    public Memory bitXor(String memory) { return LongMemory.valueOf( toLong() ^ StringMemory.toNumeric(memory).toLong() ); }
+
+    // BIT not ~
+    public Memory bitNot(){ return LongMemory.valueOf(~toLong()); }
+
+    // SHR >>
+    public Memory bitShr(Memory memory) { return LongMemory.valueOf( toLong() >> memory.toLong() ); }
+    public Memory bitShr(long memory) { return LongMemory.valueOf( toLong() >> memory ); }
+    public Memory bitShr(double memory) { return LongMemory.valueOf( toLong() >> (long)memory ); }
+    public Memory bitShr(boolean memory) { return LongMemory.valueOf( toLong() >> (memory ? 1 : 0) ); }
+    public Memory bitShr(String memory) { return LongMemory.valueOf( toLong() >> StringMemory.toNumeric(memory).toLong() ); }
+
+    // SHL <<
+    public Memory bitShl(Memory memory) { return LongMemory.valueOf( toLong() << memory.toLong() ); }
+    public Memory bitShl(long memory) { return LongMemory.valueOf( toLong() << memory ); }
+    public Memory bitShl(double memory) { return LongMemory.valueOf( toLong() << (long)memory ); }
+    public Memory bitShl(boolean memory) { return LongMemory.valueOf( toLong() << (memory ? 1 : 0) ); }
+    public Memory bitShl(String memory) { return LongMemory.valueOf( toLong() << StringMemory.toNumeric(memory).toLong() ); }
+
     // ASSIGN
     public Memory assign(Memory memory){ throw new RuntimeException("Invalid assign"); }
     public Memory assign(long value){ throw new RuntimeException("Invalid assign"); }
     public Memory assign(double value) { throw new RuntimeException("Invalid assign"); }
     public Memory assign(boolean value) { throw new RuntimeException("Invalid assign"); }
     public Memory assign(String value){ throw new RuntimeException("Invalid assign"); }
-
-    // ASSIGN REF
-    public void assignRef(Memory memory){ throw new RuntimeException("Invalid assign"); }
-    public void assignRef(long value){ throw new RuntimeException("Invalid assign"); }
-    public void assignRef(double value){ throw new RuntimeException("Invalid assign"); }
-    public void assignRef(boolean value){ throw new RuntimeException("Invalid assign"); }
-    public void assignRef(String value){ throw new RuntimeException("Invalid assign"); }
 
     public void unset(){  }
 
@@ -275,6 +302,16 @@ abstract public class Memory {
     public String concatRight(double value) { return value + toString(); }
     public String concatRight(boolean value) { return boolToString(value) + toString(); }
     public String concatRight(String value) { return value + toString(); }
+
+    public Memory bitShrRight(long value){ return new LongMemory(value >> toLong()); }
+    public Memory bitShrRight(double value){ return new LongMemory((long)value >> toLong()); }
+    public Memory bitShrRight(boolean value){ return new LongMemory((value ? 1 : 0) >> toLong()); }
+    public Memory bitShrRight(String value){ return StringMemory.toNumeric(value).bitShr(this); }
+
+    public Memory bitShlRight(long value){ return new LongMemory(value << toLong()); }
+    public Memory bitShlRight(double value){ return new LongMemory((long)value << toLong()); }
+    public Memory bitShlRight(boolean value){ return new LongMemory((value ? 1 : 0) << toLong()); }
+    public Memory bitShlRight(String value){ return StringMemory.toNumeric(value).bitShl(this); }
 
     /****************************************************************/
     /** Static *****/

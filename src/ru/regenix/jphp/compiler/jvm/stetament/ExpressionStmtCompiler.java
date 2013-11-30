@@ -1647,6 +1647,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setValue(null); // TODO for constant values
                 writeVarStore(variable, returnValue);
             }
+        } else if (operator instanceof AmpersandRefToken){
+            writePush(o);
+            setStackPeekAsImmutable();
         } else if (operator instanceof SilentToken) {
             if (!o.isKnown())
                 unexpectedToken(operator);
@@ -1743,7 +1746,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!(operator instanceof AssignExprToken || operator instanceof AssignOperatorExprToken))
         if (o1.getMemory() != null && o2.getMemory() != null){
             Memory result;
-            stackPush(result = CompilerUtils.calcBinary(o2.getMemory(), o1.getMemory(), operator));
+            stackPush(result = CompilerUtils.calcBinary(o2.getMemory(), o1.getMemory(), operator, false));
             return result;
         }
 

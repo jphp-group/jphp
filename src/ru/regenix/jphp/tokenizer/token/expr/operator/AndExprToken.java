@@ -8,4 +8,9 @@ public class AndExprToken extends OperatorExprToken {
     public AndExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
     }
+
+    @Override
+    public int getPriority() {
+        return 90;
+    }
 }

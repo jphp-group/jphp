@@ -53,6 +53,13 @@ final public class CompilerUtils {
         if (operator instanceof SilentToken) // skip
             return o1;
 
+        if (operator instanceof AmpersandRefToken)
+            return null;
+
+        if (operator instanceof NotExprToken){
+            return o1.bitNot();
+        }
+
         return null;
     }
 
@@ -73,9 +80,15 @@ final public class CompilerUtils {
         return false;
     }
 
-    public static Memory calcBinary(Memory o1, Memory o2, OperatorExprToken operator){
+    public static Memory calcBinary(Memory o1, Memory o2, OperatorExprToken operator, boolean right){
         if (!operator.isBinary())
             throw new IllegalArgumentException("Operator is not binary");
+
+        if (right) {
+            Memory o = o1;
+            o1 = o2;
+            o2 = o;
+        }
 
         if (operator instanceof PlusExprToken)
             return o1.plus(o2);
@@ -118,6 +131,21 @@ final public class CompilerUtils {
 
         if (operator instanceof BooleanOrExprToken || operator instanceof BooleanOr2ExprToken)
             return o1.toBoolean() || o2.toBoolean() ? Memory.TRUE : Memory.FALSE;
+
+        if (operator instanceof AndExprToken)
+            return o1.bitAnd(o2);
+
+        if (operator instanceof OrExprToken)
+            return o1.bitOr(o2);
+
+        if (operator instanceof XorExprToken)
+            return o1.bitXor(o2);
+
+        if (operator instanceof ShiftLeftExprToken)
+            return o1.bitShr(o2);
+
+        if (operator instanceof ShiftRightExprToken)
+            return o1.bitShl(o2);
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
     }
@@ -168,6 +196,9 @@ final public class CompilerUtils {
             return false;
         if (operator instanceof BooleanNotExprToken)
             return false;
+        if (operator instanceof AndExprToken || operator instanceof OrExprToken || operator instanceof NotExprToken
+                || operator instanceof XorExprToken)
+            return false;
 
         return true;
     }
@@ -193,10 +224,8 @@ final public class CompilerUtils {
             return "mod";
         } else if (operator instanceof AssignExprToken){
             return "assign";
-        } else if (operator instanceof AssignRefExprToken){
-            return  "assignRef";
         } else if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
-            return  "concat";
+            return "concat";
         } else if (operator instanceof SmallerExprToken){
             return "smaller";
         } else if (operator instanceof SmallerOrEqualToken){
@@ -209,8 +238,23 @@ final public class CompilerUtils {
             return "equal";
         } else if (operator instanceof BooleanNotEqualExprToken){
             return "notEqual";
-        } else if (operator instanceof SilentToken)
+        } else if (operator instanceof SilentToken) {
             return null;
+        } else if (operator instanceof AmpersandRefToken){
+            return null;
+        } else if (operator instanceof AndExprToken || operator instanceof AssignAndExprToken){
+            return "bitAnd";
+        } else if (operator instanceof OrExprToken || operator instanceof AssignOrExprToken){
+            return "bitOr";
+        } else if (operator instanceof XorExprToken || operator instanceof AssignXorExprToken){
+            return "bitXor";
+        } else if (operator instanceof NotExprToken){
+            return "bitNot";
+        } else if (operator instanceof ShiftRightExprToken || operator instanceof AssignShiftRightExprToken){
+            return "bitShr";
+        } else if (operator instanceof ShiftLeftExprToken || operator instanceof AssignShiftLeftExprToken){
+            return "bitShl";
+        }
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
     }

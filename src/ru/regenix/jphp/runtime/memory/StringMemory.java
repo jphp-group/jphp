@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 
@@ -266,6 +267,86 @@ public class StringMemory extends Memory {
     @Override
     public String concat(String value) {
         return toString().concat(value);
+    }
+
+    @Override
+    public Memory bitAnd(Memory memory) {
+        if(memory.isString())
+            return OperatorUtils.binaryAnd(this, memory);
+        else
+            return super.bitAnd(memory);
+    }
+
+    @Override
+    public Memory bitAnd(String memory) {
+        return OperatorUtils.binaryAnd(this, new StringMemory(memory));
+    }
+
+    @Override
+    public Memory bitOr(Memory memory) {
+        if(memory.isString())
+            return OperatorUtils.binaryOr(this, memory);
+        else
+            return super.bitOr(memory);
+    }
+
+    @Override
+    public Memory bitOr(String memory) {
+        return OperatorUtils.binaryOr(this, new StringMemory(memory));
+    }
+
+    @Override
+    public Memory bitXor(Memory memory) {
+        if(memory.isString())
+            return OperatorUtils.binaryXor(this, memory);
+        else
+            return super.bitXor(memory);
+    }
+
+    @Override
+    public Memory bitXor(String memory) {
+        return OperatorUtils.binaryXor(this, new StringMemory(memory));
+    }
+
+    @Override
+    public Memory bitNot() {
+        return OperatorUtils.binaryNot(this);
+    }
+
+    @Override
+    public Memory bitShr(Memory memory) {
+        if(memory.isString())
+            return OperatorUtils.binaryShr(this, memory);
+        else
+            return super.bitShr(memory);
+    }
+
+    @Override
+    public Memory bitShr(String memory) {
+        return OperatorUtils.binaryShr(this, new StringMemory(memory));
+    }
+
+    @Override
+    public Memory bitShl(Memory memory) {
+        if(memory.isString())
+            return OperatorUtils.binaryShl(this, memory);
+        else
+            return super.bitShl(memory);
+    }
+
+    @Override
+    public Memory bitShl(String memory) {
+        return OperatorUtils.binaryShl(this, new StringMemory(memory));
+    }
+
+    @Override
+    public Memory bitShrRight(String value) {
+        return OperatorUtils.binaryShr(new StringMemory(value), this);
+    }
+
+    @Override
+    public Memory bitShlRight(String value) {
+        return OperatorUtils.binaryShl(new StringMemory(value), this);
     }
 
     private void resolveBuilder(){

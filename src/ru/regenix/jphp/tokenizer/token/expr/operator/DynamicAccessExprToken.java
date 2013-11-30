@@ -15,16 +15,6 @@ public class DynamicAccessExprToken extends OperatorExprToken {
         super(meta, TokenType.T_OBJECT_OPERATOR);
     }
 
-    @Override
-    public boolean isBinary() {
-        return false;
-    }
-
-    @Override
-    public int getPriority() {
-        return 5;
-    }
-
     public ValueExprToken getField() {
         return field;
     }
@@ -39,5 +29,15 @@ public class DynamicAccessExprToken extends OperatorExprToken {
 
     public void setFieldExpr(ExprStmtToken fieldExpr) {
         this.fieldExpr = fieldExpr;
+    }
+
+    @Override
+    public boolean isBinary() {
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 }

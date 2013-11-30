@@ -21,6 +21,10 @@ abstract public class Generator<T extends Token> {
         return true;
     }
 
+    public boolean isSingleton(){
+        return true;
+    }
+
     /**
      * @throws ParseException
      * @param token

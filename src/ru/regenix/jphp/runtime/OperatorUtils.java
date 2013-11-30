@@ -1,8 +1,11 @@
 package ru.regenix.jphp.runtime;
 
+import ru.regenix.jphp.runtime.memory.BinaryMemory;
 import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+
+import java.util.Arrays;
 
 public class OperatorUtils {
 
@@ -75,4 +78,85 @@ public class OperatorUtils {
     public static char toChar(double o){ return (char)o; }
     public static char toChar(float o){ return (char)o; }
     public static char toChar(boolean o){ return (char)(o ? 0 : 1); }
+
+
+    public static Memory binaryXor(Memory o1, Memory o2){
+        byte[] bytes1 = o1.getBinaryBytes();
+        byte[] bytes2 = o2.getBinaryBytes();
+
+        byte[] result = bytes1.length <= bytes2.length
+                ? Arrays.copyOf(bytes1, bytes1.length)
+                : Arrays.copyOf(bytes2, bytes2.length);
+
+        for(int i = 0; i < result.length; i++){
+            result[i] = (byte)(bytes1[i] ^ bytes2[i]);
+        }
+        return new BinaryMemory(result);
+    }
+
+    public static Memory binaryAnd(Memory o1, Memory o2){
+        byte[] bytes1 = o1.getBinaryBytes();
+        byte[] bytes2 = o2.getBinaryBytes();
+
+        byte[] result = bytes1.length <= bytes2.length
+                ? Arrays.copyOf(bytes1, bytes1.length)
+                : Arrays.copyOf(bytes2, bytes2.length);
+
+        for(int i = 0; i < result.length; i++){
+            result[i] = (byte)(bytes1[i] & bytes2[i]);
+        }
+        return new BinaryMemory(result);
+    }
+
+    public static Memory binaryOr(Memory o1, Memory o2){
+        byte[] bytes1 = o1.getBinaryBytes();
+        byte[] bytes2 = o2.getBinaryBytes();
+
+        byte[] result = bytes1.length <= bytes2.length
+                ? Arrays.copyOf(bytes1, bytes1.length)
+                : Arrays.copyOf(bytes2, bytes2.length);
+
+        for(int i = 0; i < result.length; i++){
+            result[i] = (byte)(bytes1[i] | bytes2[i]);
+        }
+        return new BinaryMemory(result);
+    }
+
+    public static Memory binaryShr(Memory o1, Memory o2){
+        byte[] bytes1 = o1.getBinaryBytes();
+        byte[] bytes2 = o2.getBinaryBytes();
+
+        byte[] result = bytes1.length <= bytes2.length
+                ? Arrays.copyOf(bytes1, bytes1.length)
+                : Arrays.copyOf(bytes2, bytes2.length);
+
+        for(int i = 0; i < result.length; i++){
+            result[i] = (byte)(bytes1[i] >> bytes2[i]);
+        }
+        return new BinaryMemory(result);
+    }
+
+    public static Memory binaryShl(Memory o1, Memory o2){
+        byte[] bytes1 = o1.getBinaryBytes();
+        byte[] bytes2 = o2.getBinaryBytes();
+
+        byte[] result = bytes1.length <= bytes2.length
+                ? Arrays.copyOf(bytes1, bytes1.length)
+                : Arrays.copyOf(bytes2, bytes2.length);
+
+        for(int i = 0; i < result.length; i++){
+            result[i] = (byte)(bytes1[i] << bytes2[i]);
+        }
+        return new BinaryMemory(result);
+    }
+
+    public static Memory binaryNot(Memory o1){
+        byte[] bytes = o1.getBinaryBytes();
+        bytes = Arrays.copyOf(bytes, bytes.length);
+
+        for(int i = 0; i < bytes.length; i++){
+            bytes[i] = (byte)~bytes[i];
+        }
+        return new BinaryMemory(bytes);
+    }
 }

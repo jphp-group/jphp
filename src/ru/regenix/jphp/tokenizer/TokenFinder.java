@@ -36,7 +36,6 @@ public class TokenFinder {
         put(">=", GreaterOrEqualExprToken.class);
         put("<", SmallerExprToken.class);
         put("<=", SmallerOrEqualToken.class);
-        put("^", NotExprToken.class);
 
         put("&&", BooleanAndExprToken.class);
         put("and", BooleanAnd2ExprToken.class);
@@ -80,7 +79,7 @@ public class TokenFinder {
         put("false", BooleanExprToken.class);
         put("null", NullExprToken.class);
         put(";", SemicolonToken.class);
-        put("&", AmpersandToken.class);
+        put("&", AmpersandRefToken.class);
         put(",", CommaToken.class);
         put("$", DollarExprToken.class);
 
