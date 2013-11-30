@@ -1,3 +1,5 @@
 <?
 
-var_dump("hallo" ^ "hello");
+{
+    echo true?'true':false?'t':'f';
+}

@@ -1,6 +1,7 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.apache.commons.lang3.StringUtils;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.common.Messages;
@@ -177,8 +178,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return method.peek();
     }
 
+    protected void setStackPeekAsImmutable(boolean value){
+        method.peek().immutable = value;
+    }
+
     protected void setStackPeekAsImmutable(){
-        method.peek().immutable = true;
+        setStackPeekAsImmutable(true);
     }
 
     protected ValueExprToken stackPeekToken(){
@@ -1616,11 +1621,27 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (o.getMemory() != null){
             Memory result = CompilerUtils.calcUnary(o.getMemory(), operator);
+
+            if (operator instanceof ValueIfElseToken){
+                ValueIfElseToken valueIfElseToken = (ValueIfElseToken)operator;
+                ExprStmtToken ret = valueIfElseToken.getValue();
+                if (o.getMemory().toBoolean()){
+                    if (ret == null)
+                        result = o.getMemory();
+                    else
+                        result = writeExpression(ret, true, true, false);
+                } else {
+                    result = writeExpression(valueIfElseToken.getAlternative(), true, true, false);
+                }
+            }
+
             if (result != null){
                 stackPush(result);
+                setStackPeekAsImmutable();
                 return result;
             }
         }
+
         if (!writeOpcode)
             return null;
 
@@ -1663,6 +1684,52 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePopBoxing();
 
             writeSysDynamicCall(Environment.class, "endSilent", Memory.class, Integer.TYPE, Memory.class);
+        } else if (operator instanceof ValueIfElseToken){
+            writePush(o);
+            ValueIfElseToken valueIfElseToken = (ValueIfElseToken)operator;
+
+            LabelNode end = new LabelNode();
+            LabelNode elseL = new LabelNode();
+
+            if (valueIfElseToken.getValue() == null){
+                StackItem.Type dup = stackPeek().type;
+
+                writePushDup();
+                writePopBoolean();
+                code.add(new JumpInsnNode(Opcodes.IFEQ, elseL));
+                stackPop();
+
+                writePopBoxing();
+                stackPop();
+
+                code.add(new JumpInsnNode(Opcodes.GOTO, end));
+                code.add(elseL);
+                makePop(dup); // remove duplicate of condition value , IMPORTANT!!!
+
+                writeExpression(valueIfElseToken.getAlternative(), true, false);
+                writePopBoxing();
+
+                code.add(end);
+            } else {
+                writePopBoolean();
+
+                code.add(new JumpInsnNode(Opcodes.IFEQ, elseL));
+                stackPop();
+                writeExpression(valueIfElseToken.getValue(), true, false);
+
+                writePopBoxing();
+                stackPop();
+
+                code.add(new JumpInsnNode(Opcodes.GOTO, end)); // goto end
+
+                // else
+                code.add(elseL);
+                writeExpression(valueIfElseToken.getAlternative(), true, false);
+                writePopBoxing();
+                code.add(end);
+            }
+
+            setStackPeekAsImmutable(false);
         } else {
                 writePush(o);
 
@@ -2110,6 +2177,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     continue;
                 } if (token instanceof ReturnStmtToken){ // return ...
                     writeReturn((ReturnStmtToken) token);
+                } else if (token instanceof BodyStmtToken){ // { .. }
+                    writeBody((BodyStmtToken)token);
                 } else if (token instanceof IfStmtToken){ // if [else]
                     writeIf((IfStmtToken) token);
                 } else if (token instanceof SwitchStmtToken){  // switch ...
@@ -2175,6 +2244,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
         return result;
+    }
+
+    void makePop(StackItem.Type type){
+        switch (type.size()){
+            case 2: code.add(new InsnNode(POP2)); break;
+            case 1: code.add(new InsnNode(POP)); break;
+            default:
+                throw new IllegalArgumentException("Invalid of size StackItem: " + type.size());
+        }
     }
 
     void writePopAll(int count){

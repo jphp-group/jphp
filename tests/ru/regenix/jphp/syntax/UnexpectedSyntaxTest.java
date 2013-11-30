@@ -1,0 +1,90 @@
+package ru.regenix.jphp.syntax;
+
+import static org.junit.Assert.*;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.exceptions.ParseException;
+
+@RunWith(JUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
+
+    @Test(expected = ParseException.class)
+    public void test1(){
+        getSyntaxTree("$d =");
+    }
+
+    @Test
+    public void test2(){
+        getSyntaxTree("$d =;"); // it's checks on operators in compiler
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBraces1(){
+        getSyntaxTree("(3 + 4");
+    }
+
+
+    @Test(expected = ParseException.class)
+    public void testBraces2(){
+        getSyntaxTree("(3 + 4))");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBraces3(){
+        getSyntaxTree("[3 + 4");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBraces4(){
+        getSyntaxTree("[3 + 4]];");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBraces5(){
+        getSyntaxTree("$x[30][[30]];");
+    }
+
+    @Test
+    public void testAmpersandRef1(){
+        getSyntaxTree("$x = &$var;");
+    }
+
+    @Test
+    public void testAmpersandRef2(){
+        getSyntaxTree("$x = &call();");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testAmpersandRefEmpty(){
+        getSyntaxTree("$x = &;");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testBlock(){
+        getSyntaxTree("{ $x = 22; ");
+    }
+
+    @Test
+    public void testBlock2(){
+        getSyntaxTree("{ $x = 20; }");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testIf(){
+        getSyntaxTree("if(){ }");
+    }
+
+    @Test(expected = ParseException.class)
+    public void testIf2(){
+        getSyntaxTree("if(true) ");
+    }
+
+    @Test
+    public void testIf3(){
+        getSyntaxTree("if(true);");
+    }
+}

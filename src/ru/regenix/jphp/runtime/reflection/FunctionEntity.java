@@ -59,8 +59,10 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     public Memory invoke(Environment env, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
         Memory result = (Memory)nativeMethod.invoke(null, env, "", arguments);
+        if (arguments != null)
         for(Memory e : arguments)
             e.unset();
+
         if (!isReturnReference())
             return result.toImmutable();
         else

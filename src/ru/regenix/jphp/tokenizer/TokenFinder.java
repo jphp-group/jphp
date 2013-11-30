@@ -44,6 +44,8 @@ public class TokenFinder {
         put("xor", BooleanXorExprToken.class);
         put("!", BooleanNotExprToken.class);
 
+        put("?", ValueIfElseToken.class);
+
         put("~", NotExprToken.class);
         put("^", XorExprToken.class);
         put("|", OrExprToken.class);

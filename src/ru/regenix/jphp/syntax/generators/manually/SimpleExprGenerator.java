@@ -132,6 +132,32 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected Token processValueIfElse(ValueIfElseToken current, Token next, ListIterator<Token> iterator,
+                                       BraceExprToken.Kind closedBrace, int braceOpened){
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                nextToken(iterator), iterator, Separator.COLON, closedBrace
+        );
+        /*if (closedBrace == null || braceOpened < 1)
+            iterator.previous();*/
+        current.setValue(value);
+
+        if (!((next = iterator.previous()) instanceof ColonToken))
+            unexpectedToken(next, ":");
+
+        iterator.next();
+        ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getToken(
+                    nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        );
+        if (closedBrace == null || braceOpened < 1)
+           iterator.previous();
+
+        if (alternative == null)
+            unexpectedToken(iterator.next());
+
+        current.setAlternative(alternative);
+        return current;
+    }
+
     protected Token processNew(Token current, ListIterator<Token> iterator){
         NewExprToken result = (NewExprToken)current;
         Token next = nextToken(iterator);
@@ -193,6 +219,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 analyzer.getFunction().setVarsExist(true);
         }
 
+        if (current instanceof ValueIfElseToken){
+            return processValueIfElse((ValueIfElseToken)current, next, iterator, closedBraceKind, braceOpened);
+        }
+
         // &
         if (current instanceof AmpersandRefToken){
             isRef = true;
@@ -208,21 +238,20 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
                 iterator.next();
                 iterator.next();
+                if (!(next instanceof ValueExprToken))
+                    unexpectedToken(token);
+
             } else {
-                return new AndExprToken(current.getMeta());
-                //unexpectedToken(current);
+                if (next instanceof ValueExprToken)
+                    return new AndExprToken(current.getMeta());
+                else
+                    unexpectedToken(current);
             }
 
             return current;
         }
         // &$var, &$obj->prop['x'], &class::$prop, &$arr['x'], &call()->x;
         if (previous instanceof AmpersandRefToken){
-            if (!(current instanceof VariableExprToken) && !(current instanceof DynamicAccessExprToken)
-                    && !(current instanceof ArrayGetExprToken) && !(current instanceof StaticAccessExprToken)
-                    && !(current instanceof CallExprToken)){
-                unexpectedToken(current);
-            }
-
             if (current instanceof VariableExprToken)
                 if (analyzer.getFunction() != null)
                     analyzer.getFunction().getRefLocal().add((VariableExprToken)current);

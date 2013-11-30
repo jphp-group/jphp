@@ -25,6 +25,9 @@ abstract public class Generator<T extends Token> {
         return true;
     }
 
+    protected void unexpectedToken(ListIterator<Token> iterator){
+        unexpectedToken(iterator.previous());
+    }
     /**
      * @throws ParseException
      * @param token

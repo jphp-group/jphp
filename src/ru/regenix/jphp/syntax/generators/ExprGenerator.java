@@ -60,7 +60,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         analyzer.addLocalScope();
         result.setValue(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
         if (result.getValue() == null)
-            unexpectedToken(iterator.previous());
+            unexpectedToken(iterator);
 
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndswitchStmtToken.class
@@ -89,6 +89,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         analyzer.addLocalScope();
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
+        if (condition == null)
+            unexpectedToken(iterator);
+
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndifStmtToken.class
         );
@@ -152,6 +155,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         analyzer.addLocalScope();
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
+        if (condition == null)
+            unexpectedToken(iterator);
+
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndwhileStmtToken.class
         );
@@ -180,6 +186,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         Token next = nextToken(iterator);
         if (next instanceof WhileStmtToken){
             result.setCondition(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
+            if (result.getCondition() == null)
+                unexpectedToken(iterator);
 
             next = nextToken(iterator);
             result.setLocal(analyzer.removeLocalScope());
@@ -212,6 +220,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
         result.setValue(value);
+        if (value == null)
+            unexpectedToken(iterator);
+
         if (analyzer.getFunction() != null){
             analyzer.getFunction().setDynamicLocal(true);
             analyzer.getFunction().setCallsExist(true);
@@ -273,6 +284,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                         analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator)
                 );
                 tokens.add(current);
+                break;
+            } else if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
+                BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+                        current, iterator, EndforStmtToken.class
+                );
+                tokens.add(body);
                 break;
             } else if (current instanceof RequireStmtToken){
                 processImport((RequireStmtToken) current, iterator);

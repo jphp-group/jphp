@@ -242,6 +242,8 @@ final public class CompilerUtils {
             return null;
         } else if (operator instanceof AmpersandRefToken){
             return null;
+        } else if (operator instanceof ValueIfElseToken){
+            return null;
         } else if (operator instanceof AndExprToken || operator instanceof AssignAndExprToken){
             return "bitAnd";
         } else if (operator instanceof OrExprToken || operator instanceof AssignOrExprToken){

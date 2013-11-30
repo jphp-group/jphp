@@ -72,7 +72,7 @@ public class LocalVariable {
 
         if (values.size() < level){
             values.add(value);
-        } else {
+        } else if (values.size() > 0) {
             values.set(values.size() - 1, value);
         }
     }
