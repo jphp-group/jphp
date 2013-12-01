@@ -3,10 +3,12 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -107,14 +109,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     protected void writeSystemInfo(){
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "__FN",
+                ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "$FN",
                 Type.getDescriptor(String.class),
                 null,
                 compiler.getSourceFile()
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "__TRACE",
+                ACC_PROTECTED + ACC_STATIC, "$TRACE",
                 Type.getDescriptor(TraceInfo[].class),
                 null,
                 null
@@ -146,7 +148,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             expressionCompiler.stackPop();
             i++;
         }
-        expressionCompiler.writePutStatic("__TRACE", TraceInfo[].class);
+        expressionCompiler.writePutStatic("$TRACE", TraceInfo[].class);
 
         node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();
@@ -161,6 +163,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(clazz.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(clazz.getFulledName());
+
+        if (compiler.getModule().findClass(entity.getLowerName()) != null
+              || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){
+            throw new FatalException(
+                    Messages.ERR_FATAL_CANNOT_REDECLARE_CLASS.fetch(entity.getName()),
+                    clazz.getName().toTraceInfo(compiler.getContext())
+            );
+        }
 
         node.access = ACC_SUPER + ACC_PUBLIC;
         node.name = clazz.getFulledName(Constants.NAME_DELIMITER);

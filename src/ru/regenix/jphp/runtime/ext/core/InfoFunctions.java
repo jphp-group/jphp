@@ -13,7 +13,9 @@ import ru.regenix.jphp.runtime.memory.output.Printer;
 import ru.regenix.jphp.runtime.memory.output.VarDump;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 
 import java.io.StringWriter;
 import java.util.HashSet;
@@ -86,6 +88,49 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory get_defined_constants(Environment env){
         return get_defined_constants(env, false);
+    }
+
+    public static Memory get_declared_classes(Environment env){
+        ArrayMemory array = new ArrayMemory();
+        for(ClassEntity classEntity : env.scope.classMap.values()){
+            if (classEntity.isInternal() && classEntity.getType() == ClassEntity.Type.CLASS)
+                array.add(new StringMemory(classEntity.getName()));
+        }
+
+        for(ClassEntity classEntity : env.getLoadedClasses().values())
+            if (classEntity.getType() == ClassEntity.Type.CLASS)
+                array.add(new StringMemory(classEntity.getName()));
+
+        return array.toConstant();
+    }
+
+    public static Memory get_declared_interfaces(Environment env){
+        ArrayMemory array = new ArrayMemory();
+        for(ClassEntity classEntity : env.scope.classMap.values()){
+            if (classEntity.isInternal() && classEntity.getType() == ClassEntity.Type.INTERFACE)
+                array.add(new StringMemory(classEntity.getName()));
+        }
+
+        for(ClassEntity classEntity : env.getLoadedClasses().values())
+            if (classEntity.getType() == ClassEntity.Type.INTERFACE)
+                array.add(new StringMemory(classEntity.getName()));
+
+        return array.toConstant();
+    }
+
+    public static Memory get_defined_functions(Environment env){
+        ArrayMemory array = new ArrayMemory();
+        ArrayMemory item = (ArrayMemory)array.refOfIndex("internal").assign(new ArrayMemory());
+        for(FunctionEntity entity : env.scope.functionMap.values()){
+            if (entity.isInternal())
+                item.add(new StringMemory(entity.getName()));
+        }
+
+        item = (ArrayMemory)array.refOfIndex("user").assign(new ArrayMemory());
+        for(FunctionEntity entity : env.getLoadedFunctions().values())
+            item.add(new StringMemory(entity.getName()));
+
+        return array.toConstant();
     }
 
     public static boolean extension_loaded(Environment env, String name){

@@ -17,6 +17,7 @@ import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.output.OutputBuffer;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
@@ -41,6 +42,13 @@ public class Environment {
         }
     };
 
+    private ThreadLocal<Stack<Integer>> silentFlags = new ThreadLocal<Stack<Integer>>(){
+        @Override
+        public Stack<Integer> initialValue(){
+            return new Stack<Integer>();
+        }
+    };
+
     private SystemMessage lastMessage;
 
     private ErrorHandler previousErrorHandler;
@@ -58,15 +66,20 @@ public class Environment {
     private Charset defaultCharset = Charset.forName("UTF-8");
 
     private final ArrayMemory globals;
+    private final ArrayMemory statics;
     private final Map<String, ModuleEntity> included;
 
+    //
+    private final Map<String, ClassEntity> classUsedMap = new LinkedHashMap<String, ClassEntity>();
+    private final Map<String, FunctionEntity> functionUsedMap = new LinkedHashMap<String, FunctionEntity>();
+    private final Map<String, ConstantEntity> constantUsedMap = new LinkedHashMap<String, ConstantEntity>();
+
+    // call stack
     private final static int CALL_STACK_INIT_SIZE = 255;
 
     private int callStackTop = 0;
     private int maxCallStackTop = -1;
     private CallStackItem[] callStack    = new CallStackItem[CALL_STACK_INIT_SIZE];
-    /*private Memory[] callThisStack   = new Memory[CALL_STACK_INIT_SIZE];
-    private Memory[][] callArgsStack = new Memory[CALL_STACK_INIT_SIZE][0];*/
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
@@ -80,6 +93,7 @@ public class Environment {
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
 
         this.globals = new ArrayMemory();
+        this.statics = new ArrayMemory();
         this.included = new LinkedHashMap<String, ModuleEntity>();
         this.setErrorHandler(new ErrorHandler() {
             @Override
@@ -162,6 +176,26 @@ public class Environment {
         this.includePaths = includePaths;
     }
 
+    public Map<String, ClassEntity> getLoadedClasses() {
+        return classUsedMap;
+    }
+
+    public Map<String, FunctionEntity> getLoadedFunctions() {
+        return functionUsedMap;
+    }
+
+    public boolean isLoadedClass(String lowerName){
+        return classUsedMap.containsKey(lowerName);
+    }
+
+    public boolean isLoadedFunction(String lowerName){
+        return functionUsedMap.containsKey(lowerName);
+    }
+
+    public boolean isLoadedConstant(String lowerName){
+        return constantUsedMap.containsKey(lowerName);
+    }
+
     public Memory getConfigValue(String name, Memory defaultValue){
         Memory result = null;
         if (scope.configuration == null || (result = configuration.get(name)) != null){
@@ -185,6 +219,7 @@ public class Environment {
             prefix = prefix + ".";
 
         ArrayMemory result = new ArrayMemory();
+        if (includingGlobal)
         if (scope.configuration != null){
             for(Map.Entry<String, Memory> entry : scope.configuration.entrySet()){
                 String key = entry.getKey();
@@ -275,6 +310,21 @@ public class Environment {
         throw exception;
     }
 
+    public void warning(String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
+    }
+
+    public void warning(TraceInfo trace, String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
+    }
+
+    public void notice(String message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
+    }
+
     public Context createContext(String code){
         return new Context(this, code);
     }
@@ -305,21 +355,6 @@ public class Environment {
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
-    public void warning(String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
-    }
-
-    public void warning(TraceInfo trace, String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
-    }
-
-    public void notice(String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
-    }
-
     public void echo(String value){
         OutputBuffer buffer = peekOutputBuffer();
         buffer.write(value);
@@ -339,15 +374,27 @@ public class Environment {
     public ModuleEntity importModule(File file) throws IOException {
         Context context = new Context(this, file);
         ModuleEntity module = scope.findUserModule(context.getModuleName());
-        if (module != null)
-            return module;
+        if (module == null){
+            Tokenizer tokenizer = new Tokenizer(context);
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            JvmCompiler compiler = new JvmCompiler(this, context, analyzer);
 
-        Tokenizer tokenizer = new Tokenizer(context);
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
-        JvmCompiler compiler = new JvmCompiler(this, context, analyzer);
+            module = compiler.compile(true);
+            scope.loadModule(module);
+        }
 
-        module = compiler.compile(true);
-        scope.loadModule(module);
+        for(ClassEntity entity : module.getClasses()) {
+            classUsedMap.put(entity.getLowerName(), entity);
+        }
+
+        for(FunctionEntity entity : module.getFunctions()) {
+            functionUsedMap.put(entity.getLowerName(), entity);
+        }
+
+        for(ConstantEntity entity : module.getConstants()) {
+            constantUsedMap.put(entity.getLowerName(), entity);
+        }
+
         return module;
     }
 
@@ -417,14 +464,22 @@ public class Environment {
         return new ObjectMemory( entity.newObject(this, trace, args) );
     }
 
-    private int beginSilent(){
-        int result = errorFlags.get();
+    public void __pushSilent(){
+        silentFlags.get().push(errorFlags.get());
         setErrorFlags(0);
-        return result;
     }
 
-    private Memory endSilent(int mode, Memory result){
-        setErrorFlags(mode);
-        return result;
+    public void __popSilent(){
+        Integer flags = silentFlags.get().pop();
+        setErrorFlags(flags);
+    }
+
+    public void __clearSilent(){
+        Stack<Integer> silents = silentFlags.get();
+        Integer flags = 0;
+        while (!silents.empty())
+            flags = silents.pop();
+
+        setErrorFlags(flags);
     }
 }

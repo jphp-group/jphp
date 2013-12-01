@@ -973,12 +973,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushTraceInfo(int line, int position){
         int index = method.clazz.addTraceInfo(line, position);
-        writeGetStatic("__TRACE", TraceInfo[].class);
+        writeGetStatic("$TRACE", TraceInfo[].class);
         writePushGetFromArray(index, TraceInfo.class);
     }
 
     void writePushCreateTraceInfo(int line, int position){
-        writeGetStatic("__FN", String.class);
+        writeGetStatic("$FN", String.class);
         writePushMemory(LongMemory.valueOf(line));
         writePushMemory(LongMemory.valueOf(position));
         writeSysStaticCall(TraceInfo.class, "valueOf", TraceInfo.class, String.class, Long.TYPE, Long.TYPE);
@@ -1677,14 +1677,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 unexpectedToken(operator);
 
             writePushEnv();
-            writePushDup();
-
-            writeSysDynamicCall(Environment.class, "beginSilent", Integer.TYPE);
+            writeSysDynamicCall(Environment.class, "__pushSilent", void.class);
 
             writePush(o);
-            writePopBoxing();
 
-            writeSysDynamicCall(Environment.class, "endSilent", Memory.class, Integer.TYPE, Memory.class);
+            writePushEnv();
+            writeSysDynamicCall(Environment.class, "__popSilent", void.class);
+
         } else if (operator instanceof ValueIfElseToken){
             writePush(o);
             ValueIfElseToken valueIfElseToken = (ValueIfElseToken)operator;

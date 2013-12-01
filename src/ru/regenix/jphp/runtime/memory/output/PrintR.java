@@ -61,19 +61,13 @@ public class PrintR extends Printer {
             level += PRINT_INDENT;
 
             used.add(value.getPointer());
-            ForeachIterator iterator = value.foreachIterator();
+            ForeachIterator iterator = value.foreachIterator(false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
                 Memory key = iterator.getCurrentMemoryKey();
 
                 printer.write('[');
-                if (key.isString()){
-                    printer.write('"');
-                    printer.write(key.toString());
-                    printer.write('"');
-                } else {
-                    printer.write(key.toString());
-                }
+                printer.write(key.toString());
 
                 printer.write("] => ");
                 print(iterator.getCurrentValue(), level + 1, used);
@@ -105,7 +99,7 @@ public class PrintR extends Printer {
 
             used.add(value.getPointer());
 
-            ForeachIterator iterator = object.__dynamicProperties__.foreachIterator();
+            ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
 

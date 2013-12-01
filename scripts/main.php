@@ -1,5 +1,3 @@
 <?
 
-{
-    echo true?'true':false?'t':'f';
-}
+print_r(get_declared_classes());

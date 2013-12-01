@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 
 public class FunctionEntity extends AbstractFunctionEntity {
 
+    protected boolean isInternal = false;
+
     private byte[] data;
     protected ModuleEntity module;
 
@@ -19,6 +21,10 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     public FunctionEntity(Context context) {
         super(context);
+    }
+
+    public boolean isInternal() {
+        return isInternal;
     }
 
     public Class<?> getNativeClazz() {

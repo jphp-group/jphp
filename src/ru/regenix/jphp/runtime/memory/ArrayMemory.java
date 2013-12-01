@@ -675,8 +675,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return map.values().iterator();
     }
 
-    public ForeachIterator foreachIterator(){
-        return new ForeachIterator(){
+    public ForeachIterator foreachIterator(boolean getReferences){
+        return new ForeachIterator(getReferences){
             protected int cursor = 0;
             protected Iterator<Object> keys;
 
@@ -695,12 +695,19 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                         return false;
 
                     currentKey = (long)cursor;
+                    currentValue = list.get(cursor);
+                    if (!getReferences)
+                        currentValue = ((ReferenceMemory)currentValue).value;
+
                     cursor++;
                     return true;
                 } else {
                     if (keys.hasNext()){
                         currentKey = keys.next();
                         currentValue = map.get(currentKey);
+                        if (!getReferences)
+                            currentValue = ((ReferenceMemory)currentValue).value;
+
                         return true;
                     } else
                         return false;

@@ -1,8 +1,10 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
@@ -33,6 +35,14 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         FunctionEntity entity = new FunctionEntity(compiler.getContext());
         entity.setModule(module);
         entity.setName(function.getFulledName());
+
+        if (compiler.getModule().findFunction(entity.getLowerName()) != null
+                || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){
+            throw new FatalException(
+                    Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()),
+                    function.getName().toTraceInfo(compiler.getContext())
+            );
+        }
 
         NamespaceStmtToken namespace = new NamespaceStmtToken( TokenMeta.of(module.getFunctionNamespace()) );
         namespace.setName(new FulledNameToken( TokenMeta.of( module.getFunctionNamespace() ), '\\' ));

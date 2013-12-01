@@ -16,6 +16,12 @@ public class CompileFunctionEntity extends FunctionEntity {
     public CompileFunctionEntity(CompileFunction compileFunction) {
         super(null);
         this.compileFunction = compileFunction;
+        this.setName(compileFunction.name);
+    }
+
+    @Override
+    public boolean isInternal() {
+        return true;
     }
 
     @Override

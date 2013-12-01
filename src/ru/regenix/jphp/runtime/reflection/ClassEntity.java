@@ -22,6 +22,8 @@ public class ClassEntity extends Entity {
     // types
     public enum Type { CLASS, INTERFACE, TRAIT }
 
+    protected boolean isInternal;
+
     /** byte code */
     protected byte[] data;
     protected Extension extension;
@@ -63,6 +65,7 @@ public class ClassEntity extends Entity {
         this.properties = new LinkedHashMap<String, PropertyEntity>();
         this.staticProperties = new LinkedHashMap<String, PropertyEntity>();
         this.constants = new LinkedHashMap<String, ConstantEntity>();
+        this.isInternal = false;
     }
 
     public ClassEntity(Extension extension, Class<?> nativeClazz){
@@ -90,7 +93,12 @@ public class ClassEntity extends Entity {
             }
         }
         this.setNativeClazz(nativeClazz);
+        this.isInternal = true;
         doneDeclare();
+    }
+
+    public boolean isInternal() {
+        return isInternal;
     }
 
     public void doneDeclare(){

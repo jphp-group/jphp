@@ -9,9 +9,14 @@ abstract public class ForeachIterator {
     protected Object currentKey;
     protected Memory currentValue;
     protected boolean init = false;
+    protected final boolean getReferences;
 
     abstract protected boolean init();
     abstract protected boolean nextValue();
+
+    public ForeachIterator(boolean getReferences) {
+        this.getReferences = getReferences;
+    }
 
     public boolean next(){
         if (!init){
