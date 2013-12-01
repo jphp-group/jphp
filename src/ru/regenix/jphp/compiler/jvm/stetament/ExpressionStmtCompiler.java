@@ -1313,7 +1313,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarStore(local, returnValue, true);
         }
 
-        local.setValue(value);
+        if (!method.method.getPassedLocal().contains(variable))
+            local.setValue(value);
     }
 
     void writeScalarOperator(StackItem L, StackItem.Type Lt,
