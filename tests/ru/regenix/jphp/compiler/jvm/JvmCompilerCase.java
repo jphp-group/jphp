@@ -1,5 +1,9 @@
 package ru.regenix.jphp.compiler.jvm;
 
+import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.runtime.ext.BCMathExtension;
+import ru.regenix.jphp.runtime.ext.CTypeExtension;
+import ru.regenix.jphp.runtime.ext.CoreExtension;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
@@ -14,6 +18,16 @@ import java.util.List;
 abstract public class JvmCompilerCase {
     protected Environment environment = new Environment();
     protected int runIndex = 0;
+
+    protected CompileScope newScope(){
+        CompileScope compileScope = new CompileScope();
+
+        compileScope.registerExtension(new CoreExtension());
+        compileScope.registerExtension(new BCMathExtension());
+        compileScope.registerExtension(new CTypeExtension());
+
+        return compileScope;
+    }
 
     protected List<Token> getSyntaxTree(Context context){
         Tokenizer tokenizer = new Tokenizer(context);
@@ -32,7 +46,7 @@ abstract public class JvmCompilerCase {
 
     protected Memory run(String code, boolean returned){
         runIndex += 1;
-        Environment environment = new Environment();
+        Environment environment = new Environment(newScope());
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
         Context context = new Context(environment, code);
 
@@ -46,7 +60,7 @@ abstract public class JvmCompilerCase {
 
     protected Memory runDynamic(String code, boolean returned){
         runIndex += 1;
-        Environment environment = new Environment();
+        Environment environment = new Environment(newScope());
         code = (returned ? "return " : "") + code + ";";
         Context context = new Context(environment, code);
 

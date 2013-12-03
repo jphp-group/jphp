@@ -12,8 +12,6 @@ public class NullMemory extends FalseMemory {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        NullMemory that = (NullMemory) o;
         return true;
     }
 }

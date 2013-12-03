@@ -2,6 +2,7 @@ package ru.regenix.jphp.compiler.common.util;
 
 import org.objectweb.asm.Opcodes;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
+import ru.regenix.jphp.runtime.memory.KeyValueMemory;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
@@ -89,6 +90,9 @@ final public class CompilerUtils {
             o1 = o2;
             o2 = o;
         }
+
+        if (operator instanceof KeyValueExprToken)
+            return new KeyValueMemory(o1, o2);
 
         if (operator instanceof PlusExprToken)
             return o1.plus(o2);
@@ -256,6 +260,12 @@ final public class CompilerUtils {
             return "bitShr";
         } else if (operator instanceof ShiftLeftExprToken || operator instanceof AssignShiftLeftExprToken){
             return "bitShl";
+        } else if (operator instanceof ArrayPushExprToken) {
+            return "refOfPush";
+        } else if (operator instanceof KeyValueExprToken){
+            return "newKeyValue";
+        } else if (operator instanceof ArrayGetExprToken){
+            return null;
         }
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
@@ -281,5 +291,12 @@ final public class CompilerUtils {
         }
 
         return Memory.class;
+    }
+
+    public static boolean isOperatorAlwaysReturn(OperatorExprToken operator) {
+        if (operator instanceof KeyValueExprToken)
+            return true;
+
+        return false;
     }
 }

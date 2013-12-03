@@ -4,7 +4,7 @@ import ru.regenix.jphp.runtime.memory.*;
 
 abstract public class Memory {
     public enum Type {
-        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, INVALID;
+        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, KEY_VALUE;
 
         public Class toClass(){
             if (this == DOUBLE)
@@ -21,6 +21,8 @@ abstract public class Memory {
                 return ObjectMemory.class;
             else if (this == REFERENCE)
                 return Memory.class;
+            else if (this == KEY_VALUE)
+                return KeyValueMemory.class;
 
             return null;
         }
@@ -38,6 +40,8 @@ abstract public class Memory {
                 return ARRAY;
             if (clazz == ObjectMemory.class)
                 return OBJECT;
+            if (clazz == KeyValueMemory.class)
+                return KEY_VALUE;
 
             return REFERENCE;
         }
@@ -103,6 +107,12 @@ abstract public class Memory {
         return super.hashCode();
     }
 
+    public Memory newKeyValue(Memory memory){ return new KeyValueMemory(this.toImmutable(), memory); }
+    public Memory newKeyValue(long memory){ return new KeyValueMemory(this.toImmutable(), LongMemory.valueOf(memory)); }
+    public Memory newKeyValue(double memory){ return new KeyValueMemory(this.toImmutable(), new DoubleMemory(memory)); }
+    public Memory newKeyValue(boolean memory){ return new KeyValueMemory(this.toImmutable(), memory ? TRUE : FALSE); }
+    public Memory newKeyValue(String memory){ return new KeyValueMemory(this.toImmutable(), new StringMemory(memory)); }
+
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isArray(){ return type == Type.ARRAY; }
     public boolean isString() { return type == Type.STRING; }
@@ -120,6 +130,7 @@ abstract public class Memory {
     public Memory refOfIndex(double index) { return NULL; }
     public Memory refOfIndex(String index) { return NULL; }
     public Memory refOfIndex(boolean index) { return NULL; }
+    public Memory refOfPush() { return new ReferenceMemory(); }
 
     // INC DEC
     abstract public Memory inc();
@@ -276,26 +287,20 @@ abstract public class Memory {
         return true;
     }
 
-    public void concatAssign(Memory memory){}
-    public void concatAssign(String value){}
-    public void concatAssign(long value){}
-    public void concatAssign(double value){}
-    public void concatAssign(boolean value){}
-
     /********** RIGHT ******************/
-    public Memory minusRight(long value){ return new LongMemory(value - toLong()); }
-    public Memory minusRight(double value){ return new DoubleMemory(value - toDouble()); }
-    public Memory minusRight(boolean value){ return new LongMemory((value ? 1 : 0) - toLong()); }
+    public Memory minusRight(long value){ return LongMemory.valueOf(value).minus(this); }
+    public Memory minusRight(double value){ return new DoubleMemory(value).minus(this); }
+    public Memory minusRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).minus(this); }
     public Memory minusRight(String value){ return StringMemory.toNumeric(value).minus(this); }
 
-    public Memory divRight(long value){ return new DoubleMemory(value / toDouble()); }
-    public Memory divRight(double value){ return new DoubleMemory(value / toDouble()); }
+    public Memory divRight(long value){ return LongMemory.valueOf(value).div(this); }
+    public Memory divRight(double value){ return new DoubleMemory(value).div(this); }
     public Memory divRight(boolean value){ if(!value) return CONST_INT_0; else return TRUE.div(this); }
     public Memory divRight(String value){ return StringMemory.toNumeric(value).div(this); }
 
-    public Memory modRight(long value){ return new LongMemory(value % toLong()); }
-    public Memory modRight(double value){ return new DoubleMemory(value % toDouble()); }
-    public Memory modRight(boolean value){ return new LongMemory((value ? 1 : 0) % toLong()); }
+    public Memory modRight(long value){ return LongMemory.valueOf(value).mod(this); }
+    public Memory modRight(double value){ return new DoubleMemory(value).mod(this); }
+    public Memory modRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).mod(this); }
     public Memory modRight(String value){ return StringMemory.toNumeric(value).mod(this); }
 
     public String concatRight(long value) { return value + toString(); }

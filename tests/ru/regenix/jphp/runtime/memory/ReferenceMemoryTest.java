@@ -76,25 +76,4 @@ public class ReferenceMemoryTest {
         Assert.assertEquals(12, memory.toLong());
         Assert.assertEquals(12, ref.toLong());
     }
-
-    @Test
-    public void testConcatAssign(){
-        Memory memory = new ReferenceMemory(new StringMemory("foo"));
-        memory.concatAssign("bar");
-
-        Assert.assertTrue(memory.toImmutable() instanceof StringMemory);
-        Assert.assertNotNull(((StringMemory) memory.toImmutable()).builder);
-        Assert.assertNull(((StringMemory) memory.toImmutable()).value);
-
-        memory.concatAssign("foo");
-        Assert.assertNull(((StringMemory)memory.toImmutable()).value);
-        Assert.assertEquals("foobarfoo", memory.toString());
-        Assert.assertNotNull(((StringMemory) memory.toImmutable()).value);
-
-        Memory memory2 = new ReferenceMemory();
-        memory2.assign(memory);
-        memory2.concatAssign("bar");
-        Assert.assertNotNull(((StringMemory) memory.toImmutable()).builder);
-        Assert.assertEquals("foobarfoobar", memory2.toString());
-    }
 }

@@ -17,11 +17,11 @@ import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.misc.StackFrame;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.OperatorUtils;
-import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -213,6 +213,35 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new TypeInsnNode(NEW, Type.getInternalName(ReferenceMemory.class)));
             code.add(new InsnNode(DUP));
             code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V"));
+        } else if (memory instanceof ArrayMemory) {
+            writePushNewObject(ArrayMemory.class);
+            ArrayMemory array = (ArrayMemory)memory;
+
+            ForeachIterator foreachIterator = ((ArrayMemory)memory).foreachIterator(false);
+            while (foreachIterator.next()){
+                writePushDup();
+                if (array.isList()) {
+                    writePushMemory(foreachIterator.getCurrentValue());
+                    writePopBoxing();
+                    writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
+                } else {
+                    Memory key = foreachIterator.getCurrentMemoryKey();
+                    writePushMemory(key);
+                    if (!key.isString())
+                        writePopBoxing();
+
+                    writePushMemory(foreachIterator.getCurrentValue());
+                    writePopBoxing();
+
+                    writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
+                }
+
+                writePopAll(1);
+            }
+            stackPop();
+            stackPush(Memory.Type.ARRAY);
+            setStackPeekAsImmutable();
+            return;
         } else {
             switch (memory.type){
                 case INT: {
@@ -476,7 +505,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             Class<?> argType = types[i];
             boolean isRef = false;
             for(Annotation annotation : annotations[i]){
-                if (annotation instanceof Reflection.Reference)
+                if (annotation.annotationType().equals(ru.regenix.jphp.annotation.Runtime.Reference.class))
                     isRef = true;
             }
 
@@ -599,7 +628,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                             init = true;
                         }
 
-                        writeExpression(next, true, false, writeOpcode);
+                        if (isRef)
+                            writeExpression(next, true, false, writeOpcode);
+                        else {
+                            Memory tmp = writeExpression(next, true, true, true);
+                            if (tmp != null)
+                                writePushMemory(tmp);
+                        }
+
                         writePop(argType, !isRef);
                         immutable = false;
                     }
@@ -737,7 +773,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushSelf(false);
                 writePushSelf(true);
             } else {
-                writePush(clazz, true);
+                writePush(clazz, true, false);
                 writePopString();
                 writePushDup();
                 writeSysDynamicCall(String.class, "toLowerCase", String.class);
@@ -748,7 +784,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (field instanceof NameToken){
                     writePushString(((NameToken) field).getName().toLowerCase());
                 } else {
-                    writePush(access.getField(), true);
+                    writePush(access.getField(), true, false);
                     writePopString();
                     writePushDup();
                     writeSysDynamicCall(String.class, "toLowerCase", String.class);
@@ -819,7 +855,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushStatic();
             writePushTraceInfo(function);
 
-            writePush((ValueExprToken)function.getName(), true);
+            writePush((ValueExprToken)function.getName(), true, false);
             writePopBoxing();
 
             writePushParameters(function.getParameters());
@@ -894,7 +930,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     protected void writeDefineVariable(VariableExprToken value){
         LocalVariable variable = method.getLocalVariable(value.getName());
-        if (variable == null){
+        if (variable == null) {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
@@ -926,8 +962,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 stackPop();
                 variable.pushLevel();
             }
-        }
-
+        } else
+            variable.pushLevel();
     }
 
     protected void writeUndefineVariable(VariableExprToken value){
@@ -944,19 +980,64 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writePushArray(ArrayExprToken array){
-        if (array.getParameters().isEmpty()){
-            writeSysStaticCall(ArrayMemory.class, "valueOf", Memory.class);
+    Memory tryWritePushVariable(VariableExprToken value, boolean heavyObjects){
+        LocalVariable variable = method.getLocalVariable(value.getName());
+        if (variable == null || variable.getClazz() == null) {
+            return Memory.NULL;
         } else {
-            writePushNewObject(ArrayMemory.class);
-            for(ExprStmtToken param : array.getParameters()){
-                writePushDup();
-                writeExpression(param, true, false);
-                writePopBoxing();
-                writeSysDynamicCall(ArrayMemory.class, "add", void.class, Memory.class);
+            Memory mem = variable.getValue();
+            if (mem != null) {
+                if (!heavyObjects){
+                    if (mem.isArray() || mem.toString().length() > 100){
+                        return null;
+                    }
+                }
+                return mem;
             }
         }
+        return null;
+    }
+
+    Memory writePushArray(ArrayExprToken array, boolean returnMemory, boolean writeOpcode){
+        if (array.getParameters().isEmpty()){
+            if (writeOpcode)
+                writeSysStaticCall(ArrayMemory.class, "valueOf", Memory.class);
+
+            if (returnMemory)
+                return new ArrayMemory();
+        } else {
+            ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
+
+            if (ret == null)
+                writePushNewObject(ArrayMemory.class);
+            for(ExprStmtToken param : array.getParameters()){
+                if (ret == null)
+                    writePushDup();
+
+                Memory result = writeExpression(param, true, returnMemory, ret == null);
+                if (result != null) {
+                    if (ret != null)
+                        ret.add(result);
+                    continue;
+                } else {
+                    if (!writeOpcode)
+                        return null;
+                    ret = null;
+                }
+
+                if (result == null && returnMemory) {
+                    return writePushArray(array, false, writeOpcode);
+                }
+
+                writePopBoxing();
+                writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
+                writePopAll(1);
+            }
+            if (ret != null)
+                return ret;
+        }
         setStackPeekAsImmutable();
+        return null;
     }
 
     void writePushTraceInfo(Token token){
@@ -1043,9 +1124,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
-    Memory tryWritePush(StackItem item, boolean writeOpcode, boolean toStack){
+    Memory tryWritePushReference(StackItem item, boolean writeOpcode, boolean toStack, boolean heavyObjects){
+        if (item.getToken() instanceof VariableExprToken){
+            writePushVariable((VariableExprToken)item.getToken());
+            return null;
+        }
+
+        return tryWritePush(item, writeOpcode, toStack, heavyObjects);
+    }
+
+    Memory tryWritePush(StackItem item, boolean writeOpcode, boolean toStack, boolean heavyObjects){
         if (item.getToken() != null)
-            return tryWritePush(item.getToken(), true, writeOpcode);
+            return tryWritePush(item.getToken(), true, writeOpcode, heavyObjects);
         else if (item.getMemory() != null){
             return item.getMemory();
         } else if (toStack)
@@ -1063,13 +1153,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     Memory tryWritePush(StackItem item){
-        return tryWritePush(item, true, true);
+        return tryWritePush(item, true, true, true);
     }
 
     void writePush(StackItem item){
-        Memory memory = tryWritePush(item);
-        if (memory != null)
-            writePushMemory(memory);
+        writePush(item, true, false);
+    }
+
+    void writePush(StackItem item, boolean tryGetMemory, boolean heavyObjects){
+        if (tryGetMemory){
+            Memory memory = tryWritePushReference(item, true, true, heavyObjects);
+            if (memory != null)
+                writePushMemory(memory);
+        } else {
+            tryWritePushReference(item, true, true, heavyObjects);
+        }
     }
 
     void writePush(StackItem item, StackItem.Type castType){
@@ -1111,7 +1209,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return StackItem.Type.REFERENCE;
     }
 
-    Memory tryWritePush(ValueExprToken value, boolean returnValue, boolean writeOpcode){
+    Memory tryWritePush(ValueExprToken value, boolean returnValue, boolean writeOpcode, boolean heavyObjects){
         if (writeOpcode)
             if (value instanceof IntegerExprToken){
                 writePushInt((IntegerExprToken)value);
@@ -1125,10 +1223,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushString((StringExprToken)value);
             } else if (value instanceof DoubleExprToken){
                 writePushDouble((DoubleExprToken)value);
-            } else if (value instanceof VariableExprToken){
-                writePushVariable((VariableExprToken) value);
-            } else if (value instanceof ArrayExprToken){
-                writePushArray((ArrayExprToken)value);
             } else if (value instanceof ImportExprToken){
                 writePushImport((ImportExprToken) value, returnValue);
             } else if (value instanceof NewExprToken){
@@ -1137,19 +1231,30 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (value instanceof NameToken){
             return writePushName((NameToken)value, returnValue, writeOpcode);
-        } else if (value instanceof ArrayExprToken) {
-            return null;
+        } if (value instanceof ArrayExprToken){
+            return writePushArray((ArrayExprToken)value, returnValue, writeOpcode);
         } else if (value instanceof CallExprToken) {
             return writePushCall((CallExprToken)value, returnValue, writeOpcode, null);
         } else if (value instanceof MacroToken){
             return tryWritePushMacro((MacroToken) value, writeOpcode);
+        } else if (value instanceof VariableExprToken){
+            if (writeOpcode)
+                writePushVariable((VariableExprToken)value);
+
+            if (returnValue)
+                return tryWritePushVariable((VariableExprToken) value, heavyObjects);
         }
 
         return null;
     }
 
-    void writePush(ValueExprToken value, boolean returnValue){
-        Memory memory = tryWritePush(value, returnValue, true);
+    void writePush(ValueExprToken value, boolean returnValue, boolean heavyObjects){
+        if (value instanceof VariableExprToken){
+            writePushVariable((VariableExprToken)value);
+            return;
+        }
+
+        Memory memory = tryWritePush(value, returnValue, true, heavyObjects);
         if (memory != null)
             writePushMemory(memory);
     }
@@ -1301,8 +1406,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePopImmutable();
                 writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
             }
-            if (returnValue)
-                writeVarLoad(local);
+            if (!returnValue)
+                writePopAll(1);
         } else {
             Memory result = tryWritePush(R);
             if (result != null){
@@ -1315,6 +1420,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (!method.method.getPassedLocal().contains(variable))
             local.setValue(value);
+
+        if (method.method.isDynamicLocal())
+            local.setValue(null);
     }
 
     void writeScalarOperator(StackItem L, StackItem.Type Lt,
@@ -1529,7 +1637,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeStaticAccess(StaticAccessExprToken token){
         ValueExprToken value = token.getClazz();
         writePushEnv();
-        writePush(value, true);
+        writePush(value, true, false);
         writePushTraceInfo(token);
         writeSysDynamicCall(
                 Environment.class, "getClass", Class.class, Environment.class, String.class, TraceInfo.class
@@ -1559,7 +1667,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (addLowerName)
                     writePushString(name.toLowerCase());
             } else {
-                writePush(dynamic.getField(), true);
+                writePush(dynamic.getField(), true, false);
                 writePopString();
                 if (addLowerName){
                     writePushDup();
@@ -1602,7 +1710,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         ValueExprToken L = null;
         if (o.getToken() != null){
             stackPop();
-            writePush(L = o.getToken(), true);
+            writePush(L = o.getToken(), true, false);
             writePopBoxing();
         }
 
@@ -1620,19 +1728,30 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         StackItem o = stackPop();
         ValueExprToken L = o.getToken();
 
-        if (o.getMemory() != null){
-            Memory result = CompilerUtils.calcUnary(o.getMemory(), operator);
+        Memory mem = tryWritePush(o, false, false, true);
+
+        if (mem != null){
+            Memory result = CompilerUtils.calcUnary(mem, operator);
 
             if (operator instanceof ValueIfElseToken){
                 ValueIfElseToken valueIfElseToken = (ValueIfElseToken)operator;
                 ExprStmtToken ret = valueIfElseToken.getValue();
-                if (o.getMemory().toBoolean()){
+                if (mem.toBoolean()){
                     if (ret == null)
-                        result = o.getMemory();
+                        result = mem;
                     else
                         result = writeExpression(ret, true, true, false);
                 } else {
                     result = writeExpression(valueIfElseToken.getAlternative(), true, true, false);
+                }
+            } else if (operator instanceof ArrayGetExprToken && !(operator instanceof ArrayGetRefExprToken)){
+                Memory array = mem;
+                ArrayGetExprToken arrayGet = (ArrayGetExprToken)operator;
+                for(ExprStmtToken expr : arrayGet.getParameters()){
+                    Memory key = writeExpression(expr, true, true, false);
+                    if (key == null)
+                        break;
+                    result = array = array.valueOfIndex(key).toImmutable();
                 }
             }
 
@@ -1652,6 +1771,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         LocalVariable variable = null;
         if (L instanceof VariableExprToken){
             variable = method.getLocalVariable(((VariableExprToken) L).getName());
+            if (operator instanceof ArrayPushExprToken || operator instanceof ArrayGetRefExprToken)
+                variable.setValue(null);
         }
 
         if (operator instanceof IncExprToken || operator instanceof DecExprToken){
@@ -1661,7 +1782,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushDup();
                 writeSysDynamicCall(Memory.class, name, operatorResult);
                 writeSysDynamicCall(Memory.class, "assign", Memory.class, operatorResult);
-                if (!returnValue){
+                if (!returnValue) {
                     writePopAll(1);
                 }
             } else {
@@ -1670,8 +1791,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeVarStore(variable, returnValue);
             }
         } else if (operator instanceof AmpersandRefToken){
-            writePush(o);
+            writePush(o, false, false);
             setStackPeekAsImmutable();
+            Token token = o.getToken();
+            if (token instanceof VariableExprToken){
+                LocalVariable local = method.getLocalVariable(((VariableExprToken) token).getName());
+                local.setValue(null);
+            }
+
         } else if (operator instanceof SilentToken) {
             if (!o.isKnown())
                 unexpectedToken(operator);
@@ -1730,6 +1857,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
             setStackPeekAsImmutable(false);
+        }  else if (operator instanceof ArrayGetExprToken) {
+            stackPush(o);
+            writeArrayGet((ArrayGetExprToken)operator, returnValue);
         } else {
                 writePush(o);
 
@@ -1803,12 +1933,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             unexpectedToken(operator);
 
         StackItem o1 = stackPop();
+        if (o1.isInvalidForOperations())
+            unexpectedToken(operator);
 
         if (stackEmpty())
             unexpectedToken(operator);
 
         StackItem o2 = stackPeek();
         ValueExprToken L = stackPopToken();
+
+        if (o2.isInvalidForOperations())
+            unexpectedToken(operator);
 
         if (!(operator instanceof AssignExprToken || operator instanceof AssignOperatorExprToken))
         if (o1.getMemory() != null && o2.getMemory() != null){
@@ -1831,13 +1966,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         }
 
-        Memory value1 = tryWritePush(o2, false, false); // LEFT
-        Memory value2 = tryWritePush(o1, false, false); // RIGHT
+        Memory value1 = operator instanceof AssignableOperatorToken
+                            ? null
+                            : tryWritePush(o2, false, false, true); // LEFT
+
+        Memory value2 = tryWritePush(o1, false, false, true); // RIGHT
         if (value1 != null && value2 != null){
             stackPush(value1);
             stackPush(value2);
             return writeOperator(operator, returnValue, writeOpcode);
         }
+        if (!returnValue && CompilerUtils.isOperatorAlwaysReturn(operator)){
+            unexpectedToken(operator);
+        }
+
         if (!writeOpcode)
             return null;
 
@@ -1875,6 +2017,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePush(o2);
                     writePopBoxing();
 
+                    if (operator instanceof AssignableOperatorToken &&
+                            (variable == null || variable.isReference()))
+                        writePushDup();
+
                     writePush(o1);
                     writePopImmutable();
                 }
@@ -1887,7 +2033,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePushDup(StackItem.Type.valueOf(operatorResult));
 
                 if (variable == null || variable.isReference()){
-                    writeSysDynamicCall(Memory.class, "assign", Memory.class, Rt.toClass());
+                    writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
                 } else {
                     writePopBoxing(operatorResult);
                     makeVarStore(variable);
@@ -2151,10 +2297,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (expression.getTokens().size() == 1){
             Token token = expression.getTokens().get(0);
             if (!(token instanceof StmtToken)){
-                expression = new ASMExpression(compiler.getContext(), expression, true).getResult();
+                expression = new ASMExpression(compiler.getContext(), expression).getResult();
             }
         } else
-            expression = new ASMExpression(compiler.getContext(), expression, true).getResult();
+            expression = new ASMExpression(compiler.getContext(), expression).getResult();
 
         List<Token> tokens = expression.getTokens();
         int operatorCount = 0;
@@ -2171,11 +2317,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeEcho((EchoStmtToken) token);
                 } else  if (token instanceof OpenEchoTagToken){ // <?= ... ?>
                     writeOpenEchoTag((OpenEchoTagToken) token);
-                } else if (token instanceof ArrayGetExprToken){  // ..[x][y][z]
+                } /*else if (token instanceof ArrayGetExprToken){  // ..[x][y][z]
                     writeArrayGet((ArrayGetExprToken) token, returnValue);
                     operatorCount--;
                     continue;
-                } if (token instanceof ReturnStmtToken){ // return ...
+                }*/ if (token instanceof ReturnStmtToken){ // return ...
                     writeReturn((ReturnStmtToken) token);
                 } else if (token instanceof BodyStmtToken){ // { .. }
                     writeBody((BodyStmtToken)token);
@@ -2197,7 +2343,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (token instanceof ValueExprToken){  // mixed, calls, numbers, strings, vars, etc.
                 if (token instanceof CallExprToken && ((CallExprToken)token).getName() instanceof OperatorExprToken){
                     if (writeOpcode) {
-                        writePush((ValueExprToken) token, true);
+                        writePush((ValueExprToken) token, true, true);
                     } else
                         break;
                 } else
@@ -2224,15 +2370,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Memory result = null;
         if (returnValue && !stackEmpty() && stackPeek().isKnown()){
             if (returnMemory)
-                result = tryWritePush(stackPop(), writeOpcode, returnValue);
+                result = tryWritePush(stackPop(), writeOpcode, returnValue, true);
             else
                 writePush(stackPop());
         } else if (method.getStackCount() > 0){
             if (stackPeekToken() instanceof CallExprToken || stackPeekToken() instanceof ImportExprToken) {
                 if (returnMemory)
-                    result = tryWritePush(stackPopToken(), returnValue, writeOpcode);
+                    result = tryWritePush(stackPopToken(), returnValue, writeOpcode, true);
                 else
-                    writePush(stackPopToken(), returnValue);
+                    writePush(stackPopToken(), returnValue, true);
             }
         }
 
@@ -2259,8 +2405,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int i = 0;
         while (method.getStackCount() > 0 && i < count){
             i++;
-            ValueExprToken token = stackPeekToken();
-            StackItem.Type type = stackPop().type;
+            StackItem o = stackPop();
+            ValueExprToken token = o.getToken();
+            StackItem.Type type = o.type;
 
             if (token == null){
                 switch (type.size()){
@@ -2269,8 +2416,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     default:
                         throw new IllegalArgumentException("Invalid of size StackItem: " + type.size());
                 }
-            }
-
+            } else if (o.isInvalidForOperations())
+                unexpectedToken(token);
         }
     }
 

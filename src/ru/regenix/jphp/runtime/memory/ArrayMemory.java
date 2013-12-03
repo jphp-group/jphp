@@ -2,7 +2,6 @@ package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.NullSkipIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -166,14 +165,22 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
-    public void add(Memory value){
-        lastLongIndex++;
-        if (list != null){
-            list.add(new ReferenceMemory(value));
-        } else {
-            put(LongMemory.valueOf(lastLongIndex), value);
+    public ReferenceMemory add(Memory value){
+        if (value instanceof KeyValueMemory){
+            KeyValueMemory keyValue = (KeyValueMemory)value;
+            return put(toKey(keyValue.key), keyValue.value);
         }
-        size++;
+
+        ReferenceMemory ref;
+        if (list != null){
+            lastLongIndex++;
+            ref = new ReferenceMemory(value);
+            list.add(ref);
+            size++;
+        } else {
+            ref = put(LongMemory.valueOf(++lastLongIndex), value);
+        }
+        return ref;
     }
 
     /**
@@ -327,13 +334,26 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (index < 0 || index >= list.size())
                 return null;
 
-            Memory result = list.get(index);
-            list.set(index, null);
-            size--;
-            return result;
-        } else {
+            if (index == size - 1) {
+                size--;
+                lastLongIndex = size - 1;
+                return list.remove(index);
+            } else {
+                key = (long)index;
+                convertToMap();
+            }
+        }
+
+        {
             if (key instanceof Long)
                 key = LongMemory.valueOf((Long)key);
+            else if (key instanceof Integer)
+                key = LongMemory.valueOf((Integer)key);
+            else if (key instanceof String){
+                Memory tmp = StringMemory.toLong((String)key);
+                if (tmp != null)
+                    key = tmp;
+            }
 
             Memory memory = map.remove(key);
             if (memory != null)
@@ -349,11 +369,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (index < 0 || index >= list.size())
                 return null;
 
-            Memory result = list.get(index);
-            list.set(index, null);
-            size--;
-            return result;
-        } else {
+            if (index == size - 1){
+                size--;
+                lastLongIndex = index - 1;
+                return list.remove(index);
+            }
+
+            key = LongMemory.valueOf(index);
+            convertToMap();
+        }
+
+        {
             Memory memory = map.remove(toKey(key));
             if (memory != null)
                 size--;
@@ -638,6 +664,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     @Override
+    public Memory refOfPush(){
+        checkCopied();
+        return add(NULL);
+    }
+
+    @Override
     public Memory refOfIndex(Memory index) {
         checkCopied();
         return getOrCreate(index);
@@ -670,12 +702,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     @Override
     public Iterator<ReferenceMemory> iterator() {
         if (list != null) {
-            return new NullSkipIterator<ReferenceMemory>( list );
+            return list.iterator();
         } else
             return map.values().iterator();
     }
 
-    public ForeachIterator foreachIterator(boolean getReferences){
+    public ForeachIterator foreachIterator(boolean getReferences) {
         return new ForeachIterator(getReferences){
             protected int cursor = 0;
             protected Iterator<Object> keys;
@@ -772,6 +804,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     @Override
     public byte[] getBinaryBytes() {
         return MemoryStringUtils.getBinaryBytes(this);
+    }
+
+    public boolean isList(){
+        return list != null;
     }
 
     public static class UncomparableArrayException extends Exception {}

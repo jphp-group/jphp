@@ -82,6 +82,11 @@ public class CLI {
                 showHelp();
         } catch (ErrorException e){
             output.printf("[%s] %s", e.getType().getTypeName(), e.getMessage());
+            output.println();
+            output.printf("    at line %s", (e.getTraceInfo().getStartLine() + 1));
+            output.printf(", position %s", (e.getTraceInfo().getStartPosition() + 1));
+            output.println();
+            output.println("    in '" + e.getTraceInfo().getFileName() + "'");
         }
         if (arguments.showStat){
             output.println();

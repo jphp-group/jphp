@@ -29,6 +29,6 @@ public class ArrayGetExprToken extends OperatorExprToken {
 
     @Override
     public boolean isBinary() {
-        return true;
+        return false;
     }
 }

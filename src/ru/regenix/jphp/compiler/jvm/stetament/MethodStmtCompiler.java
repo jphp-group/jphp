@@ -34,6 +34,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private Stack<StackItem> stack = new Stack<StackItem>();
     private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
 
+    private int stackLevel = 0;
     private int stackSize = 0;
     private int stackMaxSize = 0;
 
@@ -122,7 +123,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         jumpStack.remove(jumpStack.size() - 1);
     }
 
-    void push(StackItem item){
+    void push(StackItem item) {
+        if (item.getLevel() == -1)
+            item.setLevel(stackLevel++);
+
         stack.push(item);
         stackSize += item.size;
         if (stackMaxSize < stackSize)
@@ -238,6 +242,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 expressionCompiler.writeVarLoad(args);
                 expressionCompiler.writePushGetFromArray(i, Memory.class);
                 expressionCompiler.writeVarStore(local, false, false);
+                local.pushLevel();
 
                 i++;
             }

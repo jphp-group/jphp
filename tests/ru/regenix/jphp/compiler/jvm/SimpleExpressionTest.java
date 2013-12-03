@@ -208,4 +208,55 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(8, memory.toLong());
         Assert.assertEquals(Memory.Type.INT, memory.type);
     }
+
+    @Test
+    public void testCallNativeFunc(){
+        Memory memory = runDynamic("$i = 1; return cos($i);", false);
+        Assert.assertTrue(memory.toDouble() > 0.54);
+    }
+
+    @Test
+    public void testArrays(){
+        Memory memory = runDynamic("array(1, 2, 3)");
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals(1, memory.valueOfIndex(0).toLong());
+        Assert.assertEquals(2, memory.valueOfIndex(1).toLong());
+        Assert.assertEquals(3, memory.valueOfIndex(2).toLong());
+        Assert.assertEquals(3, ((ArrayMemory)memory).size());
+
+        memory = runDynamic("array('x' => 20, 'y' => 30)");
+        Assert.assertEquals(20, memory.valueOfIndex("x").toLong());
+        Assert.assertEquals(30, memory.valueOfIndex("y").toLong());
+        Assert.assertEquals(2, ((ArrayMemory)memory).size());
+
+        memory = runDynamic("$x['x'] = 30; return $x;", false);
+        Assert.assertEquals(30, memory.valueOfIndex("x").toLong());
+        Assert.assertEquals(1, ((ArrayMemory)memory).size());
+
+        memory = runDynamic("$x[] = 30; return $x;", false);
+        Assert.assertEquals(30, memory.valueOfIndex(0).toLong());
+        Assert.assertEquals(1, ((ArrayMemory)memory).size());
+
+        memory = runDynamic("array(1 => 'foobar', 30, 'x' => true, 100)");
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals("foobar", memory.valueOfIndex(1).toString());
+        Assert.assertEquals(30, memory.valueOfIndex(2).toLong());
+        Assert.assertEquals(100, memory.valueOfIndex(3).toLong());
+        Assert.assertEquals(true, memory.valueOfIndex("x").toBoolean());
+        Assert.assertEquals(4, ((ArrayMemory)memory).size());
+    }
+
+    @Test
+    public void testReferences(){
+        Memory memory = runDynamic("$x = 40; $y =& $x; $y = 10; return $x;", false);
+        Assert.assertEquals(10, memory.toLong());
+
+        memory = runDynamic("$x = array(20, 40); $y =& $x[0]; $y = 40; return $x;", false);
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals(40, memory.valueOfIndex(0).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(1).toLong());
+
+        memory = runDynamic("$y =& $x['z']; $x['z'] = 40; return $y;", false);
+        Assert.assertEquals(40, memory.toLong());
+    }
 }

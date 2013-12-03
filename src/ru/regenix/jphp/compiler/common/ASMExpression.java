@@ -1,8 +1,8 @@
 package ru.regenix.jphp.compiler.common;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
@@ -10,8 +10,6 @@ import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.GetVarExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ public class ASMExpression {
     protected ExprStmtToken result;
     protected ExprStmtToken expr;
 
-    public ASMExpression(Context context, ExprStmtToken expr, boolean recursive){
+    public ASMExpression(Context context, ExprStmtToken expr){
         this.context = context;
         this.expr = expr;
 
@@ -31,16 +29,16 @@ public class ASMExpression {
         List<Token> result = new ArrayList<Token>();
 
         for(Token token : expr.getTokens()){
-            processToken(token, stack, result, recursive);
+            processToken(token, stack, result);
         }
 
         if (!stack.empty())
-            processOperator(stack, result, Integer.MAX_VALUE, recursive);
+            processOperator(stack, result, Integer.MAX_VALUE);
 
         this.result = new ExprStmtToken(result);
     }
 
-    protected void processOperator(Stack<Token> stack, List<Token> result, int prior, boolean recursive){
+    protected void processOperator(Stack<Token> stack, List<Token> result, int prior){
         List<Token> list = new ArrayList<Token>();
         while (!stack.empty()){
             Token el = stack.peek();
@@ -49,8 +47,8 @@ public class ASMExpression {
                 stack.pop();
                 if (el instanceof LogicOperatorExprToken){
                     ExprStmtToken value = ((LogicOperatorExprToken)el).getRightValue();
-                    if (recursive)
-                        value = new ASMExpression(context, value, recursive).getResult();
+                    /*if (recursive)
+                        value = new ASMExpression(context, value).getResult();*/
 
                     ((LogicOperatorExprToken) el).setRightValue(value);
                 }
@@ -64,17 +62,10 @@ public class ASMExpression {
         result.addAll(list);
     }
 
-    protected void processToken(Token token, Stack<Token> stack, List<Token> result, boolean recursive){
+    protected void processToken(Token token, Stack<Token> stack, List<Token> result){
         int prior = getPriority(token);
 
         if (token instanceof ValueExprToken){
-            if (recursive){
-                Token el = getRecursiveToken((ValueExprToken)token);
-                if (el != null){
-                    result.add(el);
-                    return;
-                }
-            }
             result.add(token);
         } else if (token instanceof BraceExprToken){
             BraceExprToken brace = (BraceExprToken)token;
@@ -102,7 +93,7 @@ public class ASMExpression {
 
             if (stack.empty() || getPriority(stack.peek()) > prior){
                 if (prior == 1){
-                    processOperator(stack, result, prior, recursive);
+                    processOperator(stack, result, prior);
                     result.add(token);
                     return;
                 }
@@ -110,33 +101,13 @@ public class ASMExpression {
                 return;
             }
 
-            processOperator(stack, result, prior, recursive);
+            processOperator(stack, result, prior);
             stack.push(token);
         }
     }
 
-    public ASMExpression(Context context, ExprStmtToken expr) {
-        this(context, expr, true);
-    }
-
     public ExprStmtToken getResult(){
         return result;
-    }
-
-    private ValueExprToken getRecursiveToken(ValueExprToken token){
-        if (token instanceof CallExprToken){
-            CallExprToken call = (CallExprToken)token;
-            List<ExprStmtToken> newParameters = new ArrayList<ExprStmtToken>(call.getParameters().size());
-            for(ExprStmtToken param : call.getParameters()){
-                newParameters.add(new ASMExpression(context, param, true).getResult());
-            }
-            call.setParameters(newParameters);
-            return call;
-        } else if (token instanceof GetVarExprToken){
-            GetVarExprToken getVar = (GetVarExprToken)token;
-            getVar.setName(new ASMExpression(context, getVar.getName(), true).getResult());
-        }
-        return null;
     }
 
     private int getPriority(Token token){

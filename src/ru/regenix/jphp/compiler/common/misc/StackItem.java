@@ -1,5 +1,6 @@
 package ru.regenix.jphp.compiler.common.misc;
 
+import ru.regenix.jphp.runtime.memory.KeyValueMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -8,7 +9,7 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 public class StackItem {
 
     public enum Type {
-        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, CHAR, ARRAY, OBJECT, REFERENCE, CLASS;
+        NULL, BOOL, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, CHAR, ARRAY, OBJECT, REFERENCE, CLASS, KEY_VALUE;
 
         public Class toClass(){
             switch (this){
@@ -21,9 +22,10 @@ public class StackItem {
                 case INT: return Integer.TYPE;
                 case LONG: return Long.TYPE;
                 case STRING: return String.class;
-                case ARRAY: return ArrayMemory.class;
+                case ARRAY: return Memory.class; // !!! Memory, don't use ArrayMemory!!!
                 case OBJECT: return ObjectMemory.class;
                 case REFERENCE: return Memory.class;
+                case KEY_VALUE: return KeyValueMemory.class;
             }
 
             return null;
@@ -64,6 +66,8 @@ public class StackItem {
                 return ARRAY;
             if (clazz == ObjectMemory.class)
                 return OBJECT;
+            if (clazz == KeyValueMemory.class)
+                return KEY_VALUE;
 
             return REFERENCE;
         }
@@ -92,6 +96,8 @@ public class StackItem {
             return isLikeDouble() || isLikeLong();
         }
     }
+
+    private int level = -1;
 
     public final Type type;
     public final int size;
@@ -143,5 +149,17 @@ public class StackItem {
 
     public boolean isConstant(){
         return memory != null;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public boolean isInvalidForOperations(){
+        return type == Type.KEY_VALUE;
     }
 }

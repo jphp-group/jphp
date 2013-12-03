@@ -8,4 +8,14 @@ public class ArrayPushExprToken extends OperatorExprToken {
     public ArrayPushExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_ARRAY_PUSH);
     }
+
+    @Override
+    public boolean isBinary() {
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 10;
+    }
 }

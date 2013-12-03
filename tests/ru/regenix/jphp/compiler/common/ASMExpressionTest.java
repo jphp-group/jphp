@@ -57,7 +57,7 @@ public class ASMExpressionTest {
         ExprStmtToken expr = getASMExpression("1 && 2 + 3").getResult();
         Assert.assertEquals("1&&", expr.getWord());
         Assert.assertTrue(expr.getTokens().get(1) instanceof LogicOperatorExprToken);
-        Assert.assertEquals("23+", ((LogicOperatorExprToken)expr.getTokens().get(1)).getRightValue().getWord());
+        Assert.assertEquals("2+3", ((LogicOperatorExprToken)expr.getTokens().get(1)).getRightValue().getWord());
 
         Assert.assertEquals("1||", getASMExpression("1 || 2 + 3").getResult().getWord());
         Assert.assertEquals("1||", getASMExpression("1 || 2 && 3").getResult().getWord());
@@ -79,7 +79,7 @@ public class ASMExpressionTest {
         Assert.assertTrue(expression.getTokens().get(0) instanceof CallExprToken);
         CallExprToken call = (CallExprToken)expression.getTokens().get(0);
         Assert.assertEquals(2, call.getParameters().size());
-        Assert.assertEquals("12+", call.getParameters().get(0).getWord());
+        Assert.assertEquals("1+2", call.getParameters().get(0).getWord());
         Assert.assertEquals("3", call.getParameters().get(1).getWord());
 
         Assert.assertTrue(expression.getTokens().get(1) instanceof IntegerExprToken);
