@@ -6,7 +6,9 @@ import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
@@ -197,6 +199,31 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         unexpectedToken(next);
     }
 
+    protected void processGlobal(GlobalStmtToken result, ListIterator<Token> iterator){
+        List<VariableExprToken> variables = new ArrayList<VariableExprToken>();
+        Token next = nextToken(iterator);
+        Token prev = null;
+        do {
+            if (next instanceof VariableExprToken) {
+                VariableExprToken variable = (VariableExprToken)next;
+                analyzer.getLocalScope().add(variable);
+                variables.add(variable);
+            } else if (next instanceof CommaToken){
+                if (!(prev instanceof VariableExprToken))
+                    unexpectedToken(next);
+            } else if (next instanceof SemicolonToken){
+                if (!(prev instanceof VariableExprToken))
+                    unexpectedToken(next);
+                break;
+            } else
+                unexpectedToken(next);
+
+            prev = next;
+            next = nextToken(iterator);
+        } while (true);
+        result.setVariables(variables);
+    }
+
     protected void processJump(JumpStmtToken result, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
         long level = 1;
@@ -325,6 +352,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof SwitchStmtToken){
                 processSwitch((SwitchStmtToken) current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof GlobalStmtToken){
+                processGlobal((GlobalStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof JumpStmtToken){

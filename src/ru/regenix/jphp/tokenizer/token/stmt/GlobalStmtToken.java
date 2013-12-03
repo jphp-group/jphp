@@ -8,17 +8,17 @@ import java.util.List;
 
 public class GlobalStmtToken extends StmtToken {
 
-    private List<VariableExprToken> variable;
+    private List<VariableExprToken> variables;
 
     public GlobalStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_GLOBAL);
     }
 
-    public List<VariableExprToken> getVariable() {
-        return variable;
+    public List<VariableExprToken> getVariables() {
+        return variables;
     }
 
-    public void setVariable(List<VariableExprToken> variable) {
-        this.variable = variable;
+    public void setVariables(List<VariableExprToken> variables) {
+        this.variables = variables;
     }
 }

@@ -2337,6 +2337,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeFor((ForStmtToken) token);
                 } else if (token instanceof JumpStmtToken){  // break, continue
                     writeJump((JumpStmtToken)token);
+                } else if (token instanceof GlobalStmtToken){
+                    // TODO:
                 }
             }
 
