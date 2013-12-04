@@ -248,7 +248,12 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
     @Test
     public void testReferences(){
-        Memory memory = runDynamic("$x = 40; $y =& $x; $y = 10; return $x;", false);
+        Memory memory;
+
+        memory = run("$x = 40; $y =& $x; $y = 10; return $x;", false);
+        Assert.assertEquals(10, memory.toLong());
+
+        memory = runDynamic("$x = 40; $y =& $x; $y = 10; return $x;", false);
         Assert.assertEquals(10, memory.toLong());
 
         memory = runDynamic("$x = array(20, 40); $y =& $x[0]; $y = 40; return $x;", false);
@@ -256,7 +261,26 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(40, memory.valueOfIndex(0).toLong());
         Assert.assertEquals(40, memory.valueOfIndex(1).toLong());
 
+        memory = run("$x = array(20, 40); $y =& $x[0]; $y = 40; return $x;", false);
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals(40, memory.valueOfIndex(0).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(1).toLong());
+
         memory = runDynamic("$y =& $x['z']; $x['z'] = 40; return $y;", false);
         Assert.assertEquals(40, memory.toLong());
+
+        memory = run("$y =& $x['z']; $x['z'] = 40; return $y;", false);
+        Assert.assertEquals(40, memory.toLong());
+    }
+
+    @Test
+    public void testGlobals(){
+        Memory memory;
+
+        memory = runDynamic("$x = 100500; function test() { global $x; return $x; } return test();", false);
+        Assert.assertEquals(100500, memory.toLong());
+
+        memory = runDynamic("function test() { global $y; $y = 220; } test(); return $y;", false);
+        Assert.assertEquals(220, memory.toLong());
     }
 }

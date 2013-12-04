@@ -1,4 +1,9 @@
 <?
 
-global $x, $y, $z;
-$x = 20;
+function test(){
+    global $y;
+    $y = 5550;
+}
+
+test();
+echo $y;

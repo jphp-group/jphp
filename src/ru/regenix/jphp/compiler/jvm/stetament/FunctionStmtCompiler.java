@@ -21,11 +21,11 @@ import java.util.Arrays;
 
 public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
 
-    protected FunctionStmtToken function;
+    protected FunctionStmtToken statement;
 
-    public FunctionStmtCompiler(JvmCompiler compiler, FunctionStmtToken function) {
+    public FunctionStmtCompiler(JvmCompiler compiler, FunctionStmtToken statement) {
         super(compiler);
-        this.function = function;
+        this.statement = statement;
     }
 
     @Override
@@ -34,25 +34,25 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         ModuleEntity module = compiler.getModule();
         FunctionEntity entity = new FunctionEntity(compiler.getContext());
         entity.setModule(module);
-        entity.setName(function.getFulledName());
+        entity.setName(statement.getFulledName());
 
         if (compiler.getModule().findFunction(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){
             throw new FatalException(
                     Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()),
-                    function.getName().toTraceInfo(compiler.getContext())
+                    statement.getName().toTraceInfo(compiler.getContext())
             );
         }
 
         NamespaceStmtToken namespace = new NamespaceStmtToken( TokenMeta.of(module.getFunctionNamespace()) );
         namespace.setName(new FulledNameToken( TokenMeta.of( module.getFunctionNamespace() ), '\\' ));
 
-        ClassStmtToken token = new ClassStmtToken(function.getMeta());
+        ClassStmtToken token = new ClassStmtToken(statement.getMeta());
         token.setFinal(true);
         token.setNamespace(namespace);
-        token.setName(new NameToken(TokenMeta.of(function.getFulledName(Constants.NAME_DELIMITER))));
+        token.setName(new NameToken(TokenMeta.of(statement.getFulledName(Constants.NAME_DELIMITER))));
 
-        MethodStmtToken methodToken = new MethodStmtToken( function );
+        MethodStmtToken methodToken = new MethodStmtToken(statement);
         methodToken.setClazz(token);
         methodToken.setFinal(true);
         methodToken.setStatic(true);

@@ -226,13 +226,19 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         // &
         if (current instanceof AmpersandRefToken){
             isRef = true;
+            if (next instanceof VariableExprToken)
+                if (analyzer.getFunction() != null)
+                    analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
+
             if (previous instanceof AssignExprToken || previous == null) {
                 iterator.previous();
                 Token token = iterator.previous(); // =
                 if (iterator.hasPrevious()) {
                     token = iterator.previous();
-                    if (token instanceof VariableExprToken && analyzer.getFunction() != null)
+                    if (token instanceof VariableExprToken && analyzer.getFunction() != null){
                         analyzer.getFunction().getRefLocal().add((VariableExprToken)token);
+                       // analyzer.getFunction().getUnstableLocal().add((VariableExprToken)token); TODO: check is needed?
+                    }
 
                     iterator.next();
                 }

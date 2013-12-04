@@ -28,7 +28,7 @@ import java.util.*;
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public final ClassStmtCompiler clazz;
-    public final MethodStmtToken method;
+    public final MethodStmtToken statement;
     public final MethodNode node;
 
     private Stack<StackItem> stack = new Stack<StackItem>();
@@ -46,7 +46,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodNode node){
         super(clazz.getCompiler());
         this.clazz = clazz;
-        this.method = null;
+        this.statement = null;
         this.node   = node;
 
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
@@ -57,18 +57,18 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         realName = entity.getName();
     }
 
-    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken method) {
+    public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken statement) {
         super(clazz.getCompiler());
         this.clazz = clazz;
-        this.method = method;
+        this.statement = statement;
         this.node  = new MethodNodeImpl();
 
         this.localVariables = new LinkedHashMap<String, LocalVariable>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
-        if (method != null)
-            entity.setName(method.getName().getName());
+        if (statement != null)
+            entity.setName(statement.getName().getName());
 
         realName = entity.getName();
     }
@@ -175,19 +175,19 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     void writeHeader(){
         int access = 0;
-        if (method != null){
-            switch (method.getModifier()){
+        if (statement != null){
+            switch (statement.getModifier()){
                 case PRIVATE: access += Opcodes.ACC_PRIVATE; break;
                 case PROTECTED: access += Opcodes.ACC_PROTECTED; break;
                 case PUBLIC: access += Opcodes.ACC_PUBLIC; break;
             }
 
-            if (method.isStatic()) access += Opcodes.ACC_STATIC;
-            if (method.isAbstract()) access += Opcodes.ACC_ABSTRACT;
-            if (method.isFinal()) access += Opcodes.ACC_FINAL;
+            if (statement.isStatic()) access += Opcodes.ACC_STATIC;
+            if (statement.isAbstract()) access += Opcodes.ACC_ABSTRACT;
+            if (statement.isFinal()) access += Opcodes.ACC_FINAL;
 
             node.access = access;
-            node.name = method.getName().getName();
+            node.name = statement.getName().getName();
             node.desc = Type.getMethodDescriptor(
                     Type.getType(Memory.class),
                     Type.getType(Environment.class),
@@ -206,17 +206,17 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             }
         }
 
-        if (method != null){
-            LabelNode label = writeLabel(node, method.getMeta().getStartLine());
+        if (statement != null){
+            LabelNode label = writeLabel(node, statement.getMeta().getStartLine());
 
-            if (!method.isStatic())
+            if (!statement.isStatic())
                 addLocalVariable("this", label, Object.class);
 
             addLocalVariable("~env", label, Environment.class); // Environment env
             addLocalVariable("~static", label, String.class);
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
 
-            if (method.isDynamicLocal()){
+            if (statement.isDynamicLocal()){
                 if (external)
                     addLocalVariable("~passedLocal", label, ArrayMemory.class);
 
@@ -235,7 +235,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             }
 
             int i = 0;
-            for(ArgumentStmtToken argument : method.getArguments()){
+            for(ArgumentStmtToken argument : statement.getArguments()){
                 LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
 
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
@@ -247,7 +247,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 i++;
             }
         } else {
-            LabelNode label = writeLabel(node, clazz.clazz.getMeta().getStartLine());
+            LabelNode label = writeLabel(node, clazz.statement.getMeta().getStartLine());
         }
     }
 
@@ -259,7 +259,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
             if (variable.name.equals("this"))
-                description = "L" + clazz.clazz.getFulledName('/') + ";";
+                description = "L" + clazz.statement.getFulledName('/') + ";";
 
             node.localVariables.add(new LocalVariableNode(
                     variable.name,
@@ -276,19 +276,19 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     @Override
     public MethodEntity compile() {
-        if (method != null){
+        if (statement != null){
             if (external)
-                method.setDynamicLocal(true);
+                statement.setDynamicLocal(true);
 
-            entity.setAbstract(method.isAbstract());
-            entity.setFinal(method.isFinal());
-            entity.setStatic(method.isStatic());
-            entity.setModifier(method.getModifier());
-            entity.setReturnReference(method.isReturnReference());
+            entity.setAbstract(statement.isAbstract());
+            entity.setFinal(statement.isFinal());
+            entity.setStatic(statement.isStatic());
+            entity.setModifier(statement.getModifier());
+            entity.setReturnReference(statement.isReturnReference());
 
-            ParameterEntity[] parameters = new ParameterEntity[method.getArguments().size()];
+            ParameterEntity[] parameters = new ParameterEntity[statement.getArguments().size()];
             int i = 0;
-            for(ArgumentStmtToken argument : method.getArguments()){
+            for(ArgumentStmtToken argument : statement.getArguments()){
                 parameters[i] = new ParameterEntity(compiler.getContext());
                 parameters[i].setMethod(entity);
                 parameters[i].setReference(argument.isReference());
@@ -321,8 +321,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         writeHeader();
 
-        if (method != null && method.getBody() != null){
-            for(ExprStmtToken instruction : method.getBody().getInstructions()){
+        if (statement != null && statement.getBody() != null){
+            for(ExprStmtToken instruction : statement.getBody().getInstructions()){
                 compiler.compileExpression(this, instruction);
             }
         }

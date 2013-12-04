@@ -124,7 +124,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     protected Memory getMacros(ValueExprToken token){
         if (token instanceof SelfExprToken){
-            return new StringMemory(method.clazz.clazz.getFulledName());
+            return new StringMemory(method.clazz.statement.getFulledName());
         }
 
         return null;
@@ -155,7 +155,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (o != null){
             stackPush(o);
         } else {
-            if (token instanceof VariableExprToken){
+            if (token instanceof VariableExprToken
+                    && !method.statement.isUnstableVariable((VariableExprToken)token)){
                 LocalVariable local = method.getLocalVariable(((VariableExprToken) token).getName());
                 if (local != null && local.getValue() != null){
                     stackPush(token, local.getValue());
@@ -413,8 +414,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushSelf(boolean toLower){
         writePushString(toLower ?
-                method.clazz.clazz.getFulledName().toLowerCase()
-                : method.clazz.clazz.getFulledName()
+                method.clazz.statement.getFulledName().toLowerCase()
+                : method.clazz.statement.getFulledName()
         );
     }
 
@@ -934,13 +935,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
-            if (method.method.isReference(value)){
+            if (method.statement.isReference(value)){
                 variable.setReference(true);
             } else {
                 variable.setReference(false);
             }
 
-            if (method.method.isDynamicLocal()){
+            if (method.statement.isDynamicLocal()){
                 writePushLocal();
                 writePushString(value.getName());
                 writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, String.class);
@@ -981,6 +982,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     Memory tryWritePushVariable(VariableExprToken value, boolean heavyObjects){
+        if (method.statement.isUnstableVariable(value))
+            return null;
+
         LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null || variable.getClazz() == null) {
             return Memory.NULL;
@@ -1418,10 +1422,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarStore(local, returnValue, true);
         }
 
-        if (!method.method.getPassedLocal().contains(variable))
+        if (!method.statement.getPassedLocal().contains(variable))
             local.setValue(value);
 
-        if (method.method.isDynamicLocal())
+        if (method.statement.isDynamicLocal())
             local.setValue(null);
     }
 
@@ -2280,6 +2284,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
+    void writeGlobal(GlobalStmtToken global){
+        for(VariableExprToken variable : global.getVariables()){
+            LocalVariable local = method.getLocalVariable(variable.getName());
+            assert local != null;
+
+            writePushEnv();
+            writePushConstString(local.name);
+            writeSysDynamicCall(Environment.class, "getOrCreateGlobal", Memory.class, String.class);
+            writeVarStore(local, false, false);
+        }
+    }
+
     void writeConditional(ExprStmtToken condition, LabelNode successLabel){
         writeExpression(condition, true, false);
         writePopBoolean();
@@ -2338,6 +2354,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else if (token instanceof JumpStmtToken){  // break, continue
                     writeJump((JumpStmtToken)token);
                 } else if (token instanceof GlobalStmtToken){
+                    writeGlobal((GlobalStmtToken) token);
                     // TODO:
                 }
             }
@@ -2425,7 +2442,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     @Override
     public Entity compile() {
-        writeDefineVariables(method.method.getLocal());
+        writeDefineVariables(method.statement.getLocal());
         writeExpression(expression, false, false);
         method.popAll();
         return null;

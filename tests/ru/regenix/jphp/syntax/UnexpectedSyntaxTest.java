@@ -1,6 +1,5 @@
 package ru.regenix.jphp.syntax;
 
-import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,5 +85,10 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
     @Test
     public void testIf3(){
         getSyntaxTree("if(true);");
+    }
+
+    @Test
+    public void testGlobals(){
+        getSyntaxTree("global $x, $y, $z;");
     }
 }

@@ -246,6 +246,10 @@ public class Environment {
         configuration.remove(name);
     }
 
+    public Memory getOrCreateGlobal(String name) {
+        return globals.refOfIndex(name);
+    }
+
     public Integer getErrorFlags() {
         return errorFlags.get();
     }

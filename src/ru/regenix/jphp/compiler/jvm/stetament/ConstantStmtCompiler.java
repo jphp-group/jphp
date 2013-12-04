@@ -8,26 +8,26 @@ import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 
 public class ConstantStmtCompiler extends StmtCompiler<ConstantEntity> {
 
-    protected final ClassStmtCompiler clazz;
-    protected final ConstStmtToken constant;
+    protected final ClassStmtCompiler clazzStatement;
+    protected final ConstStmtToken statement;
     protected FieldVisitor fv;
 
-    public ConstantStmtCompiler(ClassStmtCompiler clazz, ConstStmtToken constant) {
-        super(clazz.getCompiler());
-        this.clazz = clazz;
-        this.constant = constant;
+    public ConstantStmtCompiler(ClassStmtCompiler clazzStatement, ConstStmtToken statement) {
+        super(clazzStatement.getCompiler());
+        this.clazzStatement = clazzStatement;
+        this.statement = statement;
 
         entity = new ConstantEntity(compiler.getContext());
-        entity.setClazz(clazz.entity);
-        entity.setName(constant.getName().getName());
+        entity.setClazz(clazzStatement.entity);
+        entity.setName(statement.getName().getName());
     }
 
     @Override
     public ConstantEntity compile() {
-        if (clazz != null){ // TODO
-            this.fv = clazz.getClassWriter().visitField(
+        if (clazzStatement != null){ // TODO
+            this.fv = clazzStatement.getClassWriter().visitField(
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
-                constant.getName().getName(),
+                statement.getName().getName(),
                 Constants.MEMORY_CLASS,
                 null, null
             );

@@ -26,15 +26,15 @@ import static org.objectweb.asm.Opcodes.*;
 public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassWriter cw;
     public final ClassNode node;
-    public final ClassStmtToken clazz;
+    public final ClassStmtToken statement;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
     private boolean external = false;
     private boolean isSystem = false;
     private String functionName = "";
 
-    public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken clazz) {
+    public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken statement) {
         super(compiler);
-        this.clazz = clazz;
+        this.statement = statement;
         this.node = new ClassNodeImpl();
     }
 
@@ -80,7 +80,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         constructor.desc = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(ClassEntity.class));
         constructor.exceptions = new ArrayList();
 
-        LabelNode l0 = writeLabel(constructor, clazz.getMeta().getStartLine());
+        LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
         constructor.instructions.add(new VarInsnNode(ALOAD, 0)); // this
         constructor.instructions.add(new VarInsnNode(ALOAD, 1)); // __class__
         constructor.instructions.add(new MethodInsnNode(
@@ -94,7 +94,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         constructor.localVariables.add(new LocalVariableNode(
            "this",
-           "L_" + clazz.getFulledName(Constants.NAME_DELIMITER) + ";",
+           "L_" + statement.getFulledName(Constants.NAME_DELIMITER) + ";",
             null, l0, l0, 0
         ));
         constructor.maxStack = 1;
@@ -159,34 +159,34 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     @Override
     public ClassEntity compile() {
         entity = new ClassEntity(compiler.getContext());
-        entity.setFinal(clazz.isFinal());
-        entity.setAbstract(clazz.isAbstract());
+        entity.setFinal(statement.isFinal());
+        entity.setAbstract(statement.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
-        entity.setName(clazz.getFulledName());
+        entity.setName(statement.getFulledName());
 
         if (compiler.getModule().findClass(entity.getLowerName()) != null
               || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){
             throw new FatalException(
                     Messages.ERR_FATAL_CANNOT_REDECLARE_CLASS.fetch(entity.getName()),
-                    clazz.getName().toTraceInfo(compiler.getContext())
+                    statement.getName().toTraceInfo(compiler.getContext())
             );
         }
 
         node.access = ACC_SUPER + ACC_PUBLIC;
-        node.name = clazz.getFulledName(Constants.NAME_DELIMITER);
+        node.name = statement.getFulledName(Constants.NAME_DELIMITER);
         node.superName = Type.getInternalName(PHPObject.class);
         node.sourceFile = compiler.getSourceFile();
 
         writeConstructor();
 
         // constants
-        if (clazz.getConstants() != null)
-        for(ConstStmtToken constant : clazz.getConstants()){
+        if (statement.getConstants() != null)
+        for(ConstStmtToken constant : statement.getConstants()){
 //            writeConstant(constant);
         }
 
-        if (clazz.getMethods() != null)
-        for (MethodStmtToken method : clazz.getMethods()){
+        if (statement.getMethods() != null)
+        for (MethodStmtToken method : statement.getMethods()){
             entity.addMethod(compiler.compileMethod(this, method, external));
         }
 

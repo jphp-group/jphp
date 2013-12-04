@@ -32,7 +32,8 @@ final public class InvokeHelper {
         }
 
         int i = 0;
-        assert passed != null;
+        //assert passed != null;
+        if (passed != null)
         for(ParameterEntity param : parameters){
             if (passed[i] == null){
                 passed[i] = param.getDefaultValue();

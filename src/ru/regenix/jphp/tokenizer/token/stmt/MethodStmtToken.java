@@ -29,6 +29,8 @@ public class MethodStmtToken extends FunctionStmtToken {
         setCallsExist(token.callsExist);
         setVarsExist(token.varsExist);
         setArrayAccessLocal(token.arrayAccessLocal);
+        setRefLocal(token.refLocal);
+        setUnstableLocal(token.unstableLocal);
     }
 
     public boolean isAbstract() {

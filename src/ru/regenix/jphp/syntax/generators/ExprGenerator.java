@@ -207,6 +207,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             if (next instanceof VariableExprToken) {
                 VariableExprToken variable = (VariableExprToken)next;
                 analyzer.getLocalScope().add(variable);
+                if (analyzer.getFunction() != null) {
+                    analyzer.getFunction().getRefLocal().add(variable);
+                    analyzer.getFunction().getUnstableLocal().add(variable);
+                }
+
                 variables.add(variable);
             } else if (next instanceof CommaToken){
                 if (!(prev instanceof VariableExprToken))
