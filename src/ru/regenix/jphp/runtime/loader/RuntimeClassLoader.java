@@ -26,10 +26,10 @@ public class RuntimeClassLoader extends ClassLoader {
             method.getNativeMethod().setAccessible(true);
         }
 
-        for(PropertyEntity property : clazz.getProperties()){
+        /*for(PropertyEntity property : clazz.getProperties()){
             Field field = result.getDeclaredField(property.getName());
             property.setField(field);
-        }
+        } */
 
         return result;
     }

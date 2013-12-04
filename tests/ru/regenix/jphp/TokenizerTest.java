@@ -271,7 +271,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof PrivateStmtToken);
         assertTrue(tokenizer.nextToken() instanceof PublicStmtToken);
         assertTrue(tokenizer.nextToken() instanceof ProtectedStmtToken);
-        assertTrue(tokenizer.nextToken() instanceof StaticStmtToken);
+        assertTrue(tokenizer.nextToken() instanceof StaticExprToken);
         assertTrue(tokenizer.nextToken() instanceof FinalStmtToken);
         assertTrue(tokenizer.nextToken() instanceof TryStmtToken);
         assertTrue(tokenizer.nextToken() instanceof CatchStmtToken);
