@@ -29,31 +29,31 @@ public class VarDump extends Printer {
 
     @Override
     protected void printNull() {
-        printer.write("NULL");
+        printer.write("NULL\n");
     }
 
     @Override
     protected void printFalse() {
-        printer.write("bool(false)");
+        printer.write("bool(false)\n");
     }
 
     @Override
     protected void printTrue() {
-        printer.write("bool(true)");
+        printer.write("bool(true)\n");
     }
 
     @Override
     protected void printLong(LongMemory value) {
         printer.write("int(");
         printer.write(value.toString());
-        printer.write(")");
+        printer.write(")\n");
     }
 
     @Override
     protected void printDouble(DoubleMemory value) {
         printer.write("float(");
         printer.write(value.toString());
-        printer.write(")");
+        printer.write(")\n");
     }
 
     @Override
@@ -61,7 +61,7 @@ public class VarDump extends Printer {
         String string = value.toString();
         printer.write("string("); printer.write(string.length() + ""); printer.write(") \"");
         printer.write(string);
-        printer.write('"');
+        printer.write("\"\n");
     }
 
     @Override

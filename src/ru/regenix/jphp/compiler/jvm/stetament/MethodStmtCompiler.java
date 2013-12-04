@@ -223,7 +223,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             LabelNode label = writeLabel(node, statement.getMeta().getStartLine());
 
             if (!statement.isStatic())
-                addLocalVariable("this", label, Object.class);
+                addLocalVariable("~this", label, Object.class);
 
             addLocalVariable("~env", label, Environment.class); // Environment env
             addLocalVariable("~static", label, String.class);
@@ -271,7 +271,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
-            if (variable.name.equals("this"))
+            if (variable.name.equals("~this"))
                 description = "L" + clazz.statement.getFulledName('/') + ";";
 
             node.localVariables.add(new LocalVariableNode(

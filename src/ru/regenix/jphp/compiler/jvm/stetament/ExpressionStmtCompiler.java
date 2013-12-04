@@ -22,6 +22,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -941,6 +942,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setReference(false);
             }
 
+            if (variable.name.equals("this")){
+                writeVarLoad("~this");
+                writeSysStaticCall(ObjectMemory.class, "valueOf", ObjectMemory.class, PHPObject.class);
+                makeVarStore(variable);
+                stackPop();
+
+                variable.pushLevel();
+                variable.setValue(null);
+                variable.setImmutable(false);
+                variable.setReference(true);
+            } else
             if (method.statement.isDynamicLocal()){
                 writePushLocal();
                 writePushString(value.getName());

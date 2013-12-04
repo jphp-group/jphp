@@ -95,7 +95,7 @@ public class TokenFinder {
         put("static", StaticExprToken.class);
         put("self", SelfExprToken.class);
         put("parent", ParentExprToken.class);
-        put("$this", ThisExprToken.class);
+        //put("$this", ThisExprToken.class);
 
         put("array", ArrayExprToken.class);
         put("as", AsStmtToken.class);
