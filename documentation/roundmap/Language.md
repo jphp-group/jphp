@@ -22,9 +22,9 @@
 
 ### Variables
 + **Local variables - `$var`**
-+ Static variables `static $var`
++ **Static variables** `static $var`
 + **Global scope for variables**
-+ Global statement - `global $var`
++ **Global statement** - `global $var`
 + Super Global variables - `$GLOBALS, $_POST, $_ENV, etc.`
 
 ---
@@ -53,6 +53,7 @@
 + **break, continue**
 + **return**
 + **require, import** - to do improve
++ foreach
 + goto
 + declare
 + try catch
@@ -73,10 +74,10 @@
 
 ### Classes and Objects
 
-+ Properties **(partly)**
++ **Properties** (todo implement static properties, private, protected modifiers)
 + Constants
 + Autoloading
-+ Constructors & Destructors **(partly)**
++ **Constructors** & Destructors
 + Visibility
 + Object inheritance **(partly)**
 + **Scope Resolution Operator (::)**
