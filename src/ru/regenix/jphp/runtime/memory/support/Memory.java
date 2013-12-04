@@ -191,12 +191,26 @@ abstract public class Memory {
     public boolean equal(boolean value) { return toBoolean() == value; }
     public boolean equal(String value) { return equal(StringMemory.toNumeric(value)); }
 
+    // IDENTICAL
+    abstract public boolean identical(Memory memory);
+    public boolean identical(long value) { return type == Type.INT && toLong() == value; }
+    public boolean identical(double value) { return type == Type.DOUBLE && DoubleMemory.almostEqual(toDouble(), value); }
+    public boolean identical(boolean value) { return type == Type.BOOL && value ? toImmutable() == TRUE : toImmutable() == FALSE; }
+    public boolean identical(String value) { return type == Type.STRING && toString().equals(value); }
+
     // NOT EQUAL
     abstract public boolean notEqual(Memory memory);
     public boolean notEqual(long value){ return toLong() != value; }
     public boolean notEqual(double value) { return toDouble() != value; }
     public boolean notEqual(boolean value) { return toBoolean() != value; }
     public boolean notEqual(String value) { return !toString().equals(value); }
+
+    // NOT IDENTICAL
+    public boolean notIdentical(Memory memory) { return !identical(memory); }
+    public boolean notIdentical(long memory) { return !identical(memory); }
+    public boolean notIdentical(double memory) { return !identical(memory); }
+    public boolean notIdentical(boolean memory) { return !identical(memory); }
+    public boolean notIdentical(String memory) { return !identical(memory); }
 
     // SMALLER
     abstract public boolean smaller(Memory memory);

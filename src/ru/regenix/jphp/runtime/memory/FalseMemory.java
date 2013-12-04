@@ -55,6 +55,11 @@ public class FalseMemory extends Memory {
     }
 
     @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.BOOL && memory instanceof FalseMemory;
+    }
+
+    @Override
     public Memory plus(Memory memory) {
         switch (memory.type){
             case INT:
@@ -196,5 +201,25 @@ public class FalseMemory extends Memory {
     @Override
     public byte[] getBinaryBytes() {
         return new byte[]{};
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return !value;
+    }
+
+    @Override
+    public boolean identical(String value) {
+        return false;
     }
 }

@@ -129,6 +129,11 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.INT && ((DoubleMemory)memory).value == value;
+    }
+
+    @Override
     public boolean equal(double value) {
         return almostEqual(this.value, value);
     }

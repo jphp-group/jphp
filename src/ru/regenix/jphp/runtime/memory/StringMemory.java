@@ -2,7 +2,6 @@ package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 
 public class StringMemory extends Memory {
 
@@ -168,6 +167,11 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.STRING && toString().equals(memory.toString());
+    }
+
+    @Override
     public boolean equal(Memory memory) {
         if (builder != null){
             value = builder.toString();
@@ -178,7 +182,7 @@ public class StringMemory extends Memory {
             case DOUBLE:
             case INT: return toNumeric().equal(memory);
             case STRING: return value.equals(memory.toString());
-            //case OBJECT:
+            case OBJECT:
             case ARRAY: return false;
             default: return equal(memory.toImmutable());
         }
@@ -425,5 +429,20 @@ public class StringMemory extends Memory {
     @Override
     public byte[] getBinaryBytes() {
         return toString().getBytes();
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return false;
     }
 }

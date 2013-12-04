@@ -1,11 +1,3 @@
 <?
 
-class Test {
-
-    static function mm(){
-        echo 'UA';
-    }
-}
-
-$t = new Test();
-$t->mm();
+var_dump("true" === "true");

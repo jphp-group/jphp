@@ -747,4 +747,29 @@ public class ReferenceMemory extends Memory {
     public boolean isShortcut(){
         return value.isReference();
     }
+
+    @Override
+    public boolean identical(Memory memory) {
+        return value.identical(memory);
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return this.value.identical(value);
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return this.value.identical(value);
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return this.value.identical(value);
+    }
+
+    @Override
+    public boolean identical(String value) {
+        return this.value.identical(value);
+    }
 }

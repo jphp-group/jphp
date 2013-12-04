@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.memory.support.Memory;
+
 public class NullMemory extends FalseMemory {
 
     public final static NullMemory INSTANCE = new NullMemory();
@@ -13,5 +15,15 @@ public class NullMemory extends FalseMemory {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         return true;
+    }
+
+    @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.NULL;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return false;
     }
 }

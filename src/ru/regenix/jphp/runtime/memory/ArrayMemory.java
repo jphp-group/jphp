@@ -700,7 +700,32 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public Memory refOfIndex(String index) {
         checkCopied();
         Memory number = StringMemory.toLong(index);
-        return number == null ? getByScalarOrCreate(index) : getByScalar(number);
+        return number == null ? getByScalarOrCreate(index) : getByScalarOrCreate(number);
+    }
+
+    @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.ARRAY; // TODO
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(String value) {
+        return false;
     }
 
     @Override

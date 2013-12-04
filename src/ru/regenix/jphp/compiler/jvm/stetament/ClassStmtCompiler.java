@@ -219,10 +219,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.sourceFile = compiler.getSourceFile();
 
         writeConstructor();
-        if (statement.getProperties() != null)
-        for(ClassVarStmtToken property : statement.getProperties()){
-            writeProperty(property);
-        }
 
         // constants
         if (statement.getConstants() != null)

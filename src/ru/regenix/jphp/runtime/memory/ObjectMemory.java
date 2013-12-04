@@ -130,4 +130,29 @@ public class ObjectMemory extends Memory {
     public byte[] getBinaryBytes() {
         return MemoryStringUtils.getBinaryBytes(this);
     }
+
+    @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.OBJECT && getPointer() == memory.getPointer();
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(String value) {
+        return false;
+    }
 }

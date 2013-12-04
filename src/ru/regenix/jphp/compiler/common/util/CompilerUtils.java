@@ -124,6 +124,12 @@ final public class CompilerUtils {
         if (operator instanceof GreaterOrEqualExprToken)
             return o1.greaterEq(o2) ? Memory.TRUE : Memory.FALSE;
 
+        if (operator instanceof IdenticalExprToken)
+            return o1.identical(o2) ? Memory.TRUE : Memory.FALSE;
+
+        if (operator instanceof NotIdenticalExprToken)
+            return o1.notIdentical(o2) ? Memory.TRUE : Memory.FALSE;
+
         if (operator instanceof EqualExprToken)
             return o1.equal(o2) ? Memory.TRUE : Memory.FALSE;
 
@@ -198,6 +204,8 @@ final public class CompilerUtils {
             return false;
         if (operator instanceof EqualExprToken || operator instanceof BooleanNotEqualExprToken)
             return false;
+        if (operator instanceof IdenticalExprToken || operator instanceof NotIdenticalExprToken)
+            return false;
         if (operator instanceof BooleanNotExprToken)
             return false;
         if (operator instanceof AndExprToken || operator instanceof OrExprToken || operator instanceof NotExprToken
@@ -242,6 +250,10 @@ final public class CompilerUtils {
             return "equal";
         } else if (operator instanceof BooleanNotEqualExprToken){
             return "notEqual";
+        } else if (operator instanceof IdenticalExprToken){
+            return "identical";
+        } else if (operator instanceof NotIdenticalExprToken){
+            return "notIdentical";
         } else if (operator instanceof SilentToken) {
             return null;
         } else if (operator instanceof AmpersandRefToken){
@@ -288,7 +300,8 @@ final public class CompilerUtils {
             return Boolean.TYPE;
         } else if (operator instanceof BooleanNotEqualExprToken){
             return Boolean.TYPE;
-        }
+        } else if (operator instanceof IdenticalExprToken || operator instanceof NotIdenticalExprToken)
+            return Boolean.TYPE;
 
         return Memory.class;
     }

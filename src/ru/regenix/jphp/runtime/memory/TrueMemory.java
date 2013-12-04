@@ -202,4 +202,29 @@ public class TrueMemory extends Memory {
     public byte[] getBinaryBytes() {
         return new byte[]{ 1 };
     }
+
+    @Override
+    public boolean identical(Memory memory) {
+        return memory.type == Type.BOOL && memory instanceof TrueMemory;
+    }
+
+    @Override
+    public boolean identical(long value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(double value) {
+        return false;
+    }
+
+    @Override
+    public boolean identical(boolean value) {
+        return value;
+    }
+
+    @Override
+    public boolean identical(String value) {
+        return false;
+    }
 }
