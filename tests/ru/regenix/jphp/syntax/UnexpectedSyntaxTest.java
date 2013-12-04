@@ -91,4 +91,14 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
     public void testGlobals(){
         getSyntaxTree("global $x, $y, $z;");
     }
+
+    @Test(expected = ParseException.class)
+    public void testStaticsInvalid(){
+        getSyntaxTree("static $x, $y;");
+    }
+
+    @Test
+    public void testStatics(){
+        getSyntaxTree("static $x = 100500;");
+    }
 }

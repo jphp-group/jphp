@@ -43,6 +43,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     private boolean external = false;
 
+    private long methodId;
+
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodNode node){
         super(clazz.getCompiler());
         this.clazz = clazz;
@@ -55,6 +57,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         entity.setClazz(clazz.entity);
         entity.setName(node.name);
         realName = entity.getName();
+
+        methodId = compiler.getScope().nextMethodIndex();
     }
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodStmtToken statement) {
@@ -71,6 +75,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setName(statement.getName().getName());
 
         realName = entity.getName();
+        methodId = compiler.getScope().nextMethodIndex();
+    }
+
+    public long getMethodId() {
+        return methodId;
     }
 
     public String getRealName() {

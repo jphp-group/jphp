@@ -4,17 +4,21 @@ import com.google.common.collect.Sets;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.tokenizer.token.*;
-import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
-import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
-import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
-import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
+import ru.regenix.jphp.tokenizer.token.BreakToken;
+import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
+import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
+import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -229,6 +233,37 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setVariables(variables);
     }
 
+    protected StaticStmtToken processStatic(StaticExprToken token, ListIterator<Token> iterator){
+        Token next = nextToken(iterator);
+        if (next instanceof VariableExprToken){
+            VariableExprToken variable = (VariableExprToken)next;
+            analyzer.addLocalScope().add(variable);
+            if (analyzer.getFunction() != null){
+                analyzer.getFunction().getRefLocal().add(variable);
+                analyzer.getFunction().getUnstableLocal().add(variable);
+            }
+
+            StaticStmtToken result = new StaticStmtToken(token.getMeta());
+            result.setVariable((VariableExprToken)next);
+            next = nextToken(iterator);
+            if (next instanceof AssignExprToken){
+                ExprStmtToken initValue = analyzer.generator(SimpleExprGenerator.class).getToken(
+                        nextToken(iterator), iterator, null, null
+                );
+                result.setInitValue(initValue);
+            } else if (next instanceof SemicolonToken){
+                result.setInitValue(null);
+            } else
+                unexpectedToken(next);
+            return result;
+        } else {
+            iterator.previous();
+
+            //unexpectedToken(next); TODO: check it!
+        }
+        return null;
+    }
+
     protected void processJump(JumpStmtToken result, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
         long level = 1;
@@ -374,6 +409,14 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 tokens.add(current);
                 break;
             } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
+                if (current instanceof StaticExprToken){
+                    Token result = processStatic((StaticExprToken) current, iterator);
+                    if (result != null){
+                        tokens.add(result);
+                        break;
+                    }
+                }
+
                 if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
                     if (endTokens != null && !isTokenClass(current, endTokens))
                         unexpectedToken(current);

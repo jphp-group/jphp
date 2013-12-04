@@ -11,9 +11,10 @@ import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
+import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.output.OutputBuffer;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
@@ -66,7 +67,8 @@ public class Environment {
     private Charset defaultCharset = Charset.forName("UTF-8");
 
     private final ArrayMemory globals;
-    private final ArrayMemory statics;
+   // private final ArrayMemory statics;
+    private final Map<String, ReferenceMemory> statics;
     private final Map<String, ModuleEntity> included;
 
     //
@@ -93,7 +95,7 @@ public class Environment {
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
 
         this.globals = new ArrayMemory();
-        this.statics = new ArrayMemory();
+        this.statics = new HashMap<String, ReferenceMemory>();
         this.included = new LinkedHashMap<String, ModuleEntity>();
         this.setErrorHandler(new ErrorHandler() {
             @Override
@@ -248,6 +250,19 @@ public class Environment {
 
     public Memory getOrCreateGlobal(String name) {
         return globals.refOfIndex(name);
+    }
+
+    public Memory getOrCreateStatic(String name, Memory initValue) {
+        ReferenceMemory result = statics.get(name);
+        if (result == null) {
+            result = new ReferenceMemory(initValue);
+            statics.put(name, result);
+        }
+        return result; // globals.getByScalarOrCreate(name, initValue);
+    }
+
+    public Memory getStatic(String name){
+        return statics.get(name);
     }
 
     public Integer getErrorFlags() {

@@ -6,6 +6,7 @@ import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
@@ -20,7 +21,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         PrivateStmtToken.class,
         ProtectedStmtToken.class,
         PublicStmtToken.class,
-        StaticStmtToken.class,
+        StaticExprToken.class,
         FinalStmtToken.class
     };
 
@@ -92,7 +93,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         for (Token modifier : modifiers){
                             if (modifier instanceof AbstractStmtToken)
                                 method.setAbstract(true);
-                            else if (modifier instanceof StaticStmtToken)
+                            else if (modifier instanceof StaticExprToken)
                                 method.setStatic(true);
                             else if (modifier instanceof FinalStmtToken){
                                 method.setFinal(true);

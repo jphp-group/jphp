@@ -9,10 +9,12 @@ import ru.regenix.jphp.runtime.reflection.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CompileScope {
 
-    public final AtomicInteger moduleCount = new AtomicInteger(0);
+    protected final AtomicInteger moduleCount = new AtomicInteger(0);
+    protected final AtomicLong methodCount = new AtomicLong(0);
 
     public final Map<String, ModuleEntity> moduleMap;
     public final Map<String, ClassEntity> classMap;
@@ -47,6 +49,10 @@ public class CompileScope {
 
     public int nextModuleIndex(){
         return moduleCount.incrementAndGet();
+    }
+
+    public long nextMethodIndex(){
+        return methodCount.incrementAndGet();
     }
 
     public void registerExtension(Extension extension){

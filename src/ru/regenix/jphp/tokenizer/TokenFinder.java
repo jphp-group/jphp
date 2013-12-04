@@ -92,7 +92,7 @@ public class TokenFinder {
         put("]", BraceExprToken.class);
         put(")", BraceExprToken.class);
 
-        put("static", StaticStmtToken.class);
+        put("static", StaticExprToken.class);
         put("self", SelfExprToken.class);
         put("parent", ParentExprToken.class);
         put("$this", ThisExprToken.class);

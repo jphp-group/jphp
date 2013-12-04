@@ -2296,6 +2296,36 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writeStatic(StaticStmtToken static_){
+        LocalVariable local = method.getLocalVariable(static_.getVariable().getName());
+        assert local != null;
+
+        LabelNode end = new LabelNode();
+        String name = local.name + "\0" + method.getMethodId();
+
+        writePushEnv();
+        writePushConstString(name);
+        writeSysDynamicCall(Environment.class, "getStatic", Memory.class, String.class);
+        writePushDup();
+
+        code.add(new JumpInsnNode(IFNONNULL, end));
+        stackPop();
+
+            writePopAll(1);
+            writePushEnv();
+            writePushConstString(name);
+            if (static_.getInitValue() != null){
+                writeExpression(static_.getInitValue(), true, false, true);
+            } else {
+                writePushNull();
+            }
+            writePopBoxing(true);
+            writeSysDynamicCall(Environment.class, "getOrCreateStatic", Memory.class, String.class, Memory.class);
+
+        code.add(end);
+        writeVarStore(local, false, false);
+    }
+
     void writeConditional(ExprStmtToken condition, LabelNode successLabel){
         writeExpression(condition, true, false);
         writePopBoolean();
@@ -2355,7 +2385,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeJump((JumpStmtToken)token);
                 } else if (token instanceof GlobalStmtToken){
                     writeGlobal((GlobalStmtToken) token);
-                    // TODO:
+                } else if (token instanceof StaticStmtToken){
+                    writeStatic((StaticStmtToken) token);
                 }
             }
 

@@ -142,12 +142,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return getByScalarOrCreate(toKey(key));
     }
 
-    public ReferenceMemory getByScalarOrCreate(Object sKey){
+    public ReferenceMemory getByScalarOrCreate(Object sKey, Memory initValue){
         ReferenceMemory value = getByScalar(sKey);
         if (value == null)
-            return put(sKey, NULL);
+            return put(sKey, initValue);
 
         return value;
+    }
+
+    public ReferenceMemory getByScalarOrCreate(Object sKey){
+        return getByScalarOrCreate(sKey, NULL);
     }
 
     public ReferenceMemory getByScalar(Object key){
