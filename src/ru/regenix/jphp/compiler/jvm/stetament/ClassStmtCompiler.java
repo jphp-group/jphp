@@ -8,13 +8,16 @@ import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
+import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 
@@ -80,9 +83,38 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         constructor.desc = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(ClassEntity.class));
         constructor.exceptions = new ArrayList();
 
+        MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, constructor);
+        ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+        methodCompiler.writeHeader();
+
         LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
-        constructor.instructions.add(new VarInsnNode(ALOAD, 0)); // this
-        constructor.instructions.add(new VarInsnNode(ALOAD, 1)); // __class__
+        methodCompiler.addLocalVariable("this", l0);
+        methodCompiler.addLocalVariable("~static", l0, String.class);
+
+        // PROPERTIES
+        for(ClassVarStmtToken property : statement.getProperties()){
+            ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+            Memory value = Memory.NULL;
+            if (property.getValue() != null)
+                value = expressionStmtCompiler.writeExpression(property.getValue(), true, true, false);
+
+            PropertyEntity prop = new PropertyEntity(compiler.getContext());
+            prop.setName(property.getVariable().getName());
+            prop.setModifier(property.getModifier());
+            prop.setStatic(property.isStatic());
+            prop.setDefaultValue(value);
+            entity.addProperty(prop);
+
+            if (value == null && property.getValue() != null) {
+                throw new CompileException(
+                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName()),
+                    property.getVariable().toTraceInfo(compiler.getContext())
+                );
+            }
+        }
+
+        expressionCompiler.writeVarLoad("this");
+        expressionCompiler.writeVarLoad("~static");
         constructor.instructions.add(new MethodInsnNode(
                 INVOKESPECIAL,
                 node.superName,
@@ -90,23 +122,29 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 constructor.desc
         ));
         constructor.instructions.add(new InsnNode(RETURN));
-        constructor.localVariables = new ArrayList();
 
-        constructor.localVariables.add(new LocalVariableNode(
-           "this",
-           "L_" + statement.getFulledName(Constants.NAME_DELIMITER) + ";",
-            null, l0, l0, 0
-        ));
-        constructor.maxStack = 1;
-        constructor.maxLocals = 1;
-
+        methodCompiler.writeFooter();
         node.methods.add(constructor);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void writeProperty(ClassVarStmtToken property){
+        if (!property.isStatic()){
+            int flags = ACC_PUBLIC;
+            node.fields.add(new FieldNode(
+                    flags, property.getVariable().getName(),
+                    Type.getDescriptor(Memory.class),
+                    null,
+                    null
+            ));
+        }
     }
 
     protected void writeConstant(ConstStmtToken constant){
         new ConstantStmtCompiler(this, constant).compile();
     }
 
+    @SuppressWarnings("unchecked")
     protected void writeSystemInfo(){
         node.fields.add(new FieldNode(
                 ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "$FN",
@@ -123,6 +161,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
     }
 
+    @SuppressWarnings("unchecked")
     protected void writeInitStatic(){
         MethodNode node = new MethodNodeImpl();
         node.access = ACC_STATIC;
@@ -159,6 +198,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     @Override
     public ClassEntity compile() {
         entity = new ClassEntity(compiler.getContext());
+        entity.setId(compiler.getScope().nextClassIndex());
+
         entity.setFinal(statement.isFinal());
         entity.setAbstract(statement.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
@@ -178,11 +219,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.sourceFile = compiler.getSourceFile();
 
         writeConstructor();
+        if (statement.getProperties() != null)
+        for(ClassVarStmtToken property : statement.getProperties()){
+            writeProperty(property);
+        }
 
         // constants
         if (statement.getConstants() != null)
         for(ConstStmtToken constant : statement.getConstants()){
-//            writeConstant(constant);
+            //  writeConstant(constant);
         }
 
         if (statement.getMethods() != null)

@@ -6,8 +6,6 @@ import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 
 public class ClassVarStmtToken extends StmtToken {
-    private ClassStmtToken clazz;
-
     private boolean isStatic;
     private Modifier modifier;
 
@@ -16,14 +14,6 @@ public class ClassVarStmtToken extends StmtToken {
 
     public ClassVarStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_VAR);
-    }
-
-    public ClassStmtToken getClazz() {
-        return clazz;
-    }
-
-    public void setClazz(ClassStmtToken clazz) {
-        this.clazz = clazz;
     }
 
     public Modifier getModifier() {

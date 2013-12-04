@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CompileScope {
 
     protected final AtomicInteger moduleCount = new AtomicInteger(0);
+    protected final AtomicLong classCount = new AtomicLong(0);
     protected final AtomicLong methodCount = new AtomicLong(0);
 
     public final Map<String, ModuleEntity> moduleMap;
@@ -49,6 +50,10 @@ public class CompileScope {
 
     public int nextModuleIndex(){
         return moduleCount.incrementAndGet();
+    }
+
+    public long nextClassIndex(){
+        return classCount.incrementAndGet();
     }
 
     public long nextMethodIndex(){

@@ -22,6 +22,7 @@ public class ClassEntity extends Entity {
     // types
     public enum Type { CLASS, INTERFACE, TRAIT }
 
+    private long id;
     protected boolean isInternal;
 
     /** byte code */
@@ -95,6 +96,14 @@ public class ClassEntity extends Entity {
         this.setNativeClazz(nativeClazz);
         this.isInternal = true;
         doneDeclare();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public boolean isInternal() {
@@ -227,7 +236,7 @@ public class ClassEntity extends Entity {
         constant.setClazz(this);
     }
 
-    protected void addProperty(PropertyEntity property){
+    public void addProperty(PropertyEntity property){
         if (property.isStatic())
             throw new IllegalArgumentException("Property must be non-static");
 
@@ -287,25 +296,170 @@ public class ClassEntity extends Entity {
     public PHPObject newObject(Environment env, TraceInfo trace, Memory[] args)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
         PHPObject object = (PHPObject) nativeConstructor.newInstance(this);
+
+        for(PropertyEntity property : getProperties()){
+            object.__dynamicProperties__.put(property.getName(), property.getDefaultValue().toImmutable());
+        }
+
         if (methodConstruct != null){
             methodConstruct.invokeDynamic(object, getLowerName(), env, args);
         }
         return object;
     }
 
-    public Memory setProperty(Environment env, TraceInfo trace,
+    public Memory concatProperty(Environment env, TraceInfo trace,
+                               PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return new StringMemory(o1.concat(o2));
+            }
+        });
+    }
+
+    public Memory plusProperty(Environment env, TraceInfo trace,
                               PHPObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.plus(o2);
+            }
+        });
+    }
+
+    public Memory minusProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.minus(o2);
+            }
+        });
+    }
+
+    public Memory mulProperty(Environment env, TraceInfo trace,
+                                PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.mul(o2);
+            }
+        });
+    }
+
+    public Memory divProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.div(o2);
+            }
+        });
+    }
+
+    public Memory modProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.mod(o2);
+            }
+        });
+    }
+
+    public Memory bitAndProperty(Environment env, TraceInfo trace,
+                                 PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.bitAnd(o2);
+            }
+        });
+    }
+
+    public Memory bitOrProperty(Environment env, TraceInfo trace,
+                                 PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.bitOr(o2);
+            }
+        });
+    }
+
+    public Memory bitXorProperty(Environment env, TraceInfo trace,
+                                PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.bitXor(o2);
+            }
+        });
+    }
+
+    public Memory bitShrProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback(){
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.bitShr(o2);
+            }
+        });
+    }
+
+    public Memory bitShlProperty(Environment env, TraceInfo trace,
+                                 PHPObject object, String property, Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
+            @Override
+            public Memory invoke(Memory o1, Memory o2) {
+                return o1.bitShl(o2);
+            }
+        });
+    }
+
+    public Memory setProperty(Environment env, TraceInfo trace,
+                              PHPObject object, String property, Memory memory, SetterCallback callback)
+            throws InvocationTargetException, IllegalAccessException {
+        PropertyEntity entity = properties.get(property);
         ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
+
         if (value == null) {
-            if (methodMagicSet != null)
+            if (methodMagicSet != null) {
+                if (callback != null){
+                    Memory o1 = Memory.NULL;
+                    if (methodMagicGet != null)
+                        o1 = methodMagicGet.invokeDynamic(object, getLowerName(), env, new StringMemory(property));
+
+                    memory = callback.invoke(o1, memory);
+                }
+
                 methodMagicSet.invokeDynamic(
                         object, getLowerName(), env,
                         new StringMemory(property),
                         memory
                 );
-            else
-                object.__dynamicProperties__.refOfIndex(property).assign(memory);
+            } else {
+                if (callback != null)
+                    memory = callback.invoke(Memory.NULL, memory);
+
+                return object.__dynamicProperties__.refOfIndex(property).assign(memory);
+            }
+        } else {
+            if (callback != null)
+                memory = callback.invoke(value, memory);
+
+            return value.assign(memory);
         }
         return memory;
     }
@@ -313,6 +467,8 @@ public class ClassEntity extends Entity {
     public Memory getProperty(Environment env, TraceInfo trace,
                               PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
+        PropertyEntity entity = properties.get(property);
+
         ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
         if (value != null)
             return value;
@@ -327,5 +483,9 @@ public class ClassEntity extends Entity {
                 trace
         ));*/
         return Memory.NULL;
+    }
+
+    private static interface SetterCallback {
+        Memory invoke(Memory o1, Memory o2);
     }
 }

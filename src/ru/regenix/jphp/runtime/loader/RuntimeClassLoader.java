@@ -4,11 +4,9 @@ import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.FunctionEntity;
-import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.reflection.*;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class RuntimeClassLoader extends ClassLoader {
@@ -17,7 +15,7 @@ public class RuntimeClassLoader extends ClassLoader {
         super(parent);
     }
 
-    protected Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException {
+    protected Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
         byte[] data = clazz.getData();
         Class<?> result = defineClass(clazz.getName().replace('\\', Constants.NAME_DELIMITER), data, 0, data.length);
         clazz.setNativeClazz(result);
@@ -26,6 +24,11 @@ public class RuntimeClassLoader extends ClassLoader {
                         result.getDeclaredMethod(method.getName(), Environment.class, String.class, Memory[].class)
                 );
             method.getNativeMethod().setAccessible(true);
+        }
+
+        for(PropertyEntity property : clazz.getProperties()){
+            Field field = result.getDeclaredField(property.getName());
+            property.setField(field);
         }
 
         return result;
@@ -68,6 +71,8 @@ public class RuntimeClassLoader extends ClassLoader {
                     loadFunction(function);
 
             } catch (NoSuchMethodException e){
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 

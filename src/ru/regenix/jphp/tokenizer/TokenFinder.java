@@ -131,6 +131,7 @@ public class TokenFinder {
         put("private", PrivateStmtToken.class);
         put("protected", ProtectedStmtToken.class);
         put("public", PublicStmtToken.class);
+        put("var", VarStmtToken.class);
         put("try", TryStmtToken.class);
         put("catch", CatchStmtToken.class);
         put("finally", FinallyStmtToken.class);

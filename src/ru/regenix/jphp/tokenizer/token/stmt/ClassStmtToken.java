@@ -5,6 +5,7 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClassStmtToken extends StmtToken {
@@ -24,6 +25,9 @@ public class ClassStmtToken extends StmtToken {
 
     public ClassStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_CLASS);
+        properties = new ArrayList<ClassVarStmtToken>();
+        constants = new ArrayList<ConstStmtToken>();
+        methods = new ArrayList<MethodStmtToken>();
     }
 
     public NameToken getName() {

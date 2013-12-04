@@ -1,18 +1,23 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class ClassGenerator extends Generator<ClassStmtToken> {
 
@@ -22,7 +27,10 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         ProtectedStmtToken.class,
         PublicStmtToken.class,
         StaticExprToken.class,
-        FinalStmtToken.class
+        FinalStmtToken.class,
+        AbstractStmtToken.class,
+        VarStmtToken.class,
+        ConstStmtToken.class
     };
 
     public ClassGenerator(SyntaxAnalyzer analyzer) {
@@ -57,6 +65,64 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             iterator.previous();
     }
 
+    protected List<ClassVarStmtToken> processProperty(VariableExprToken current, List<Token> modifiers,
+                                                      ListIterator<Token> iterator){
+        Token next = current;
+        Token prev = null;
+        Set<VariableExprToken> variables = new HashSet<VariableExprToken>();
+        ExprStmtToken initValue = null;
+
+        List<ClassVarStmtToken> result = new ArrayList<ClassVarStmtToken>();
+
+        Modifier modifier = Modifier.PUBLIC;
+        boolean isStatic = false;
+        for(Token token : modifiers){
+            if (token instanceof PrivateStmtToken)
+                modifier = Modifier.PRIVATE;
+            else if (token instanceof ProtectedStmtToken)
+                modifier = Modifier.PROTECTED;
+            else if (token instanceof StaticExprToken)
+                isStatic = true;
+        }
+
+        do {
+            if (next instanceof VariableExprToken){
+                if (!variables.add((VariableExprToken)next))
+                    throw new ParseException(
+                            Messages.ERR_PARSE_IDENTIFIER_X_ALREADY_USED.fetch(next.getWord()),
+                            next.toTraceInfo(analyzer.getContext())
+                    );
+            } else if (next instanceof CommaToken){
+                if (!(prev instanceof VariableExprToken))
+                    unexpectedToken(next);
+            } else if (next instanceof AssignExprToken){
+                if (!(prev instanceof VariableExprToken))
+                    unexpectedToken(next);
+
+                initValue = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator, null, null);
+                break;
+            } else if (next instanceof SemicolonToken){
+                if (!(prev instanceof VariableExprToken))
+                    unexpectedToken(next);
+                break;
+            }
+
+            prev = next;
+            next = nextToken(iterator);
+        } while (true);
+
+        for(VariableExprToken variable : variables){
+            ClassVarStmtToken classVar = new ClassVarStmtToken(variable.getMeta());
+            classVar.setModifier(modifier);
+            classVar.setStatic(isStatic);
+            classVar.setValue(initValue);
+            classVar.setVariable(variable);
+
+            result.add(classVar);
+        }
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     protected void processBody(ClassStmtToken result, ListIterator<Token> iterator){
         analyzer.setClazz(result);
@@ -68,6 +134,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                 List<ConstStmtToken> constants = new ArrayList<ConstStmtToken>();
                 List<MethodStmtToken> methods = new ArrayList<MethodStmtToken>();
+                List<ClassVarStmtToken> properties = new ArrayList<ClassVarStmtToken>();
+
                 List<Token> modifiers = new ArrayList<Token>();
                 while (iterator.hasNext()){
                     Token current = iterator.next();
@@ -85,6 +153,12 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                                 unexpectedToken(current);
                         }
                         modifiers.add(current);
+                    } else if (current instanceof VariableExprToken) {
+                        for(Token modifier : modifiers){
+                            if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class))
+                                unexpectedToken(modifier);
+                        }
+                        properties.addAll(processProperty((VariableExprToken)current, modifiers, iterator));
                     } else if (current instanceof FunctionStmtToken) {
                         FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
                         MethodStmtToken method = new MethodStmtToken(function);
@@ -127,6 +201,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                 result.setConstants(constants);
                 result.setMethods(methods);
+                result.setProperties(properties);
                 analyzer.setClazz(null);
                 return;
             }

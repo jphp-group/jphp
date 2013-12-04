@@ -184,9 +184,14 @@ final public class InvokeHelper {
             ));
         }
         assert method != null;
+        if (!method.isStatic()) {
+            env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName),
+                    trace
+            ));
+        }
 
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
-
         Memory result;
 
         if (trace != null)

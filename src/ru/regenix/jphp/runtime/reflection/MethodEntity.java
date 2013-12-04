@@ -101,6 +101,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);
+        if (arguments != null)
         for(Memory e : arguments)
             e.unset();
 

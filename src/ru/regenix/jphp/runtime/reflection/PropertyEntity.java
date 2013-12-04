@@ -5,6 +5,8 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
+import java.lang.reflect.Field;
+
 public class PropertyEntity extends Entity {
     protected ClassEntity clazz;
     protected Modifier modifier = Modifier.PUBLIC;
@@ -12,9 +14,19 @@ public class PropertyEntity extends Entity {
     protected DocumentComment docComment;
 
     protected boolean isStatic;
+    protected Field field;
 
-    protected PropertyEntity(Context context) {
+    public PropertyEntity(Context context) {
         super(context);
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        field.setAccessible(true);
+        this.field = field;
     }
 
     public DocumentComment getDocComment() {

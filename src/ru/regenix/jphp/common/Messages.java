@@ -7,6 +7,7 @@ final public class Messages {
     public final static Item ERR_PARSE_UNEXPECTED_END_OF_FILE = new Item("Syntax error, unexpected end");
     public final static Item ERR_PARSE_UNEXPECTED_X_EXPECTED_Y = new Item("Syntax error, unexpected '%s', expecting '%s'");
     public final static Item ERR_PARSE_UNEXPECTED_X = new Item("Syntax error, unexpected '%s'");
+    public final static Item ERR_PARSE_IDENTIFIER_X_ALREADY_USED = new Item("Identifier '%s' already used");
 
     public final static Item ERR_COMPILE_CANNOT_JUMP_TO_LEVEL = new Item("Cannot break/continue %s level(s)");
     public final static Item ERR_COMPILE_CANNOT_JUMP = new Item("Cannot break/continue");
@@ -15,6 +16,8 @@ final public class Messages {
 
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_METHOD = new Item("Call to undefined method %s()");
+    public final static Item ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Non-static method %s() should not be called statically");
+    public final static Item ERR_FATAL_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Static method %s() should not be called dynamically");
     public final static Item ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION = new Item("Pass incorrect number of arguments to function %s()");
     public final static Item ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT = new Item("Cannot get '%s' property of non-object");
     public final static Item ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT = new Item("Cannot call '%s' method of non-object");

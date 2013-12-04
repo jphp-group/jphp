@@ -1275,7 +1275,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
-        if (INVOKE_TYPE != INVOKESPECIAL){
+        if (INVOKE_TYPE != INVOKESPECIAL && clazz != null){
             try {
                 clazz.getDeclaredMethod(method, paramClasses);
             } catch (java.lang.NoSuchMethodException e) {
@@ -1291,6 +1291,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             args[i] = Type.getType(paramClasses[i]);
             stackPop();
         }
+
+        String owner = clazz == null ? this.method.clazz.statement.getFulledName('/') : Type.getInternalName(clazz);
 
         code.add(new MethodInsnNode(
                 INVOKE_TYPE, Type.getInternalName(clazz), method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
@@ -1367,6 +1369,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
+    void writePutDynamic(String name, Class fieldClass){
+        code.add(new FieldInsnNode(
+                PUTFIELD,
+                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                name,
+                Type.getDescriptor(fieldClass)
+        ));
+        stackPop();
+    }
+
     void writeGetStatic(Class clazz, String name, Class fieldClass){
         code.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass)));
         stackPush(null, StackItem.Type.valueOf(fieldClass));
@@ -1376,6 +1388,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeGetStatic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 GETSTATIC,
+                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                name,
+                Type.getDescriptor(fieldClass)
+        ));
+        stackPush(null, StackItem.Type.valueOf(fieldClass));
+        setStackPeekAsImmutable();
+    }
+
+    void writeGetDynamic(String name, Class fieldClass){
+        code.add(new FieldInsnNode(
+                GETFIELD,
                 method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
                 name,
                 Type.getDescriptor(fieldClass)
@@ -1661,7 +1684,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
             writeExpression(((DynamicAccessAssignExprToken) dynamic).getValue(), true, false);
-            writePopBoxing();
+            writePopBoxing(true);
         }
 
         if (dynamic.getField() != null){
@@ -1694,8 +1717,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeDynamicAccessPrepare(dynamic, false);
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
+            OperatorExprToken operator = (OperatorExprToken) ((DynamicAccessAssignExprToken) dynamic).getAssignOperator();
             writeSysStaticCall(ObjectInvokeHelper.class,
-                    "setProperty", Memory.class,
+                    CompilerUtils.getOperatorCode(operator) + "Property", Memory.class,
                     Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
             );
         } else {

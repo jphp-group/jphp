@@ -82,6 +82,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return methodId;
     }
 
+    public long getClassId(){
+        return clazz.entity.getId();
+    }
+
     public String getRealName() {
         return realName;
     }
