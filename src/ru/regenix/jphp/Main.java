@@ -40,23 +40,13 @@ public class Main {
 
             ModuleOpcodePrinter printer = new ModuleOpcodePrinter(module);
             System.out.println(printer.toString());
-            /*String[] ops = BytecodePrettyPrinter.getMethod(module.getData(), "__include",
-                    Type.getMethodDescriptor(Type.getType(Memory.class),
-                            Type.getType(Environment.class),
-                            Type.getType(String.class),
-                            Type.getType(Memory[].class),
-                            Type.getType(ArrayMemory.class)
-                    )
-            );
-            for (String op : ops)
-                System.out.println(op);*/
-
             long t = System.currentTimeMillis();
 
             scope.loadModule(module);
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();
+            System.gc();
 
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);

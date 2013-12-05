@@ -34,6 +34,7 @@ public class ClassEntity extends Entity {
 
     public final Map<String, MethodEntity> methods;
     public MethodEntity methodConstruct;
+    public MethodEntity methodDestruct;
 
     public MethodEntity methodMagicSet;
     public MethodEntity methodMagicGet;
@@ -114,6 +115,8 @@ public class ClassEntity extends Entity {
         methodConstruct  = methods.get("__construct");
         if (methodConstruct == null)
             methodConstruct = methods.get(getLowerName());
+
+        methodDestruct = methods.get("__destruct");
 
         methodMagicSet   = methods.get("__set");
         methodMagicGet   = methods.get("__get");
@@ -277,7 +280,7 @@ public class ClassEntity extends Entity {
         this.nativeClazz = nativeClazz;
         if (!nativeClazz.isInterface()){
             try {
-                this.nativeConstructor = nativeClazz.getConstructor(ClassEntity.class);
+                this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class);
                 this.nativeConstructor.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
@@ -295,7 +298,7 @@ public class ClassEntity extends Entity {
 
     public PHPObject newObject(Environment env, TraceInfo trace, Memory[] args)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        PHPObject object = (PHPObject) nativeConstructor.newInstance(this);
+        PHPObject object = (PHPObject) nativeConstructor.newInstance(env, this);
 
         for(PropertyEntity property : getProperties()){
             object.__dynamicProperties__.put(property.getName(), property.getDefaultValue().toImmutable());

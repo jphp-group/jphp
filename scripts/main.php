@@ -1,13 +1,14 @@
 <?
 
-class Foo {
-  public function __get($name) {
-    var_dump($name);
-    if ($name != 'bar')
-      return $this->bar;
-    else
-      return null;
-  }
+function test(){
+    $fruit = array('a' => 'apple', 'b' => 'banana', 'c' => 'cranberry');
+
+    for($i = 0; $i < 1000000; $i++){
+        reset($fruit);
+        while ($item = each($fruit)) {
+
+        }
+    }
 }
-$f = new Foo;
-$f->foo;
+
+test();

@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class ReferenceMemory extends Memory {
@@ -771,5 +772,15 @@ public class ReferenceMemory extends Memory {
     @Override
     public boolean identical(String value) {
         return this.value.identical(value);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator() {
+        return value.getNewIterator();
+    }
+
+    @Override
+    public Type getRealType() {
+        return value.type;
     }
 }

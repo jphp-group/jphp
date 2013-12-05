@@ -2,13 +2,14 @@ package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.Traversable;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
 import java.util.*;
 
-public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
+public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Traversable {
 
     protected long lastLongIndex;
     protected int size;
@@ -17,6 +18,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     protected List<ReferenceMemory> list;
     protected Map<Object, ReferenceMemory> map;
+
+    protected ThreadLocal<ForeachIterator> foreachIterator = new ThreadLocal<ForeachIterator>();
 
     public ArrayMemory() {
         super(Type.ARRAY);
@@ -736,24 +739,86 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return map.values().iterator();
     }
 
-    public ForeachIterator foreachIterator(boolean getReferences) {
-        return new ForeachIterator(getReferences){
+    public ForeachIterator foreachIterator(boolean getReferences, boolean withPrevious) {
+        return new ForeachIterator(getReferences, withPrevious){
             protected int cursor = 0;
             protected Iterator<Object> keys;
 
             @Override
             protected boolean init() {
-                if (list == null)
-                    keys = map.keySet().iterator();
-
+                if (list == null) {
+                    if (withPrevious)
+                        keys = new ArrayList<Object>(map.keySet()).listIterator();
+                    else
+                        keys = map.keySet().iterator();
+                }
                 return true;
             }
 
             @Override
-            protected boolean nextValue() {
+            public boolean end() {
+                if (ArrayMemory.this.size == 0)
+                    return false;
+
                 if (ArrayMemory.this.list != null){
-                    if (cursor >= size)
+                    cursor = ArrayMemory.this.size - 1;
+                    currentKey = (long)cursor;
+                    currentValue = list.get(cursor);
+                    return true;
+                } else {
+                    ArrayList<Object> tmp = new ArrayList<Object>(map.keySet());
+                    keys = tmp.listIterator(tmp.size() - 1);
+                    return true;
+                }
+            }
+
+            @Override
+            protected boolean prevValue() {
+                if (ArrayMemory.this.list != null) {
+                    if (cursor <= 0){
+                        currentKey = null;
+                        currentValue = null;
+                        cursor--;
+                        keys = null;
                         return false;
+                    } else {
+                        cursor--;
+                        currentKey = (long)cursor;
+                        currentValue = list.get(cursor);
+                        if (!getReferences)
+                            currentValue = ((ReferenceMemory)currentValue).value;
+                        return true;
+                    }
+                } else {
+                    ListIterator<Object> keyIterator = (ListIterator) keys;
+                    if (keyIterator.hasPrevious()) {
+                        currentKey = keyIterator.previous();
+                        currentValue = map.get(currentKey);
+                        if (!getReferences)
+                            currentValue = ((ReferenceMemory)currentValue).value;
+
+                        return true;
+                    } else {
+                        currentKey = null;
+                        currentValue = null;
+                        keys = null;
+                        cursor = -1;
+                        return false;
+                    }
+                }
+            }
+
+            @Override
+            protected boolean nextValue() {
+                if (withPrevious && (keys == null && cursor < 0))
+                    return false;
+
+                if (ArrayMemory.this.list != null) {
+                    if (cursor >= size) {
+                        currentKey = null;
+                        currentValue = null;
+                        return false;
+                    }
 
                     currentKey = (long)cursor;
                     currentValue = list.get(cursor);
@@ -770,13 +835,41 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                             currentValue = ((ReferenceMemory)currentValue).value;
 
                         return true;
-                    } else
+                    } else {
+                        currentKey = null;
+                        currentValue = null;
                         return false;
+                    }
                 }
             }
         };
     }
 
+    public ForeachIterator getNewIterator() {
+        return foreachIterator(true, false);
+    }
+
+    public ForeachIterator getCurrentIterator() {
+        if (foreachIterator.get() == null) {
+            ForeachIterator iterator = foreachIterator(true, true);
+            foreachIterator.set(iterator);
+        }
+
+        return foreachIterator.get();
+    }
+
+    public Memory resetCurrentIterator(){
+        foreachIterator.set(null);
+        ForeachIterator iterator = getCurrentIterator();
+        if (size == 0)
+            return FALSE;
+        else {
+            iterator.next();
+            Memory tmp = iterator.getCurrentValue();
+            iterator.prev();
+            return tmp;
+        }
+    }
 
     public class HashIterator implements Iterator<ReferenceMemory> {
         private ReferenceMemory current;

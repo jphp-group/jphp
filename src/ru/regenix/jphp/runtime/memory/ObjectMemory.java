@@ -1,5 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.ext.core.classes.PHPIterator;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
@@ -154,5 +156,52 @@ public class ObjectMemory extends Memory {
     @Override
     public boolean identical(String value) {
         return false;
+    }
+
+    @Override
+    public ForeachIterator getNewIterator() {
+        if (value instanceof PHPIterator){
+            final PHPIterator iterator = (PHPIterator)value;
+            final String className = value.__class__.getName();
+
+            return new ForeachIterator(true, false) {
+                @Override
+                protected boolean init() {
+                    return iterator.rewind(value.__env__, className).toBoolean();
+                }
+
+                @Override
+                protected boolean prevValue() {
+                    return false;
+                }
+
+                @Override
+                protected boolean nextValue() {
+                    return true;
+                }
+
+                @Override
+                public boolean next() {
+                    iterator.next(value.__env__, className);
+                    boolean valid = iterator.valid(value.__env__, className).toBoolean();
+                    if (valid){
+                        currentKey   = iterator.key(value.__env__, className);
+                        currentValue = iterator.current(value.__env__, className);
+                    }
+                    return valid;
+                }
+
+                @Override
+                public Object getCurrentKey() {
+                    return currentKey;
+                }
+
+                @Override
+                public Memory getCurrentMemoryKey() {
+                    return (Memory)currentKey;
+                }
+            };
+        }
+        return null;
     }
 }

@@ -9,6 +9,7 @@ import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
@@ -481,6 +482,14 @@ public class Environment {
         }
         assert entity != null;
         return new ObjectMemory( entity.newObject(this, trace, args) );
+    }
+
+    public ForeachIterator getIterator(TraceInfo trace, Memory memory){
+        ForeachIterator iterator = memory.getNewIterator();
+        if (iterator == null){
+            warning(trace, "Invalid argument supplied for foreach()");
+        }
+        return iterator;
     }
 
     public void __pushSilent(){

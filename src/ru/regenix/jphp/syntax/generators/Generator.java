@@ -49,7 +49,7 @@ abstract public class Generator<T extends Token> {
             unexpected = token.getWord();
 
         analyzer.getContext().triggerError(new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(unexpected, expected),
+                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected),
                 token.toTraceInfo(analyzer.getContext())
         ));
     }

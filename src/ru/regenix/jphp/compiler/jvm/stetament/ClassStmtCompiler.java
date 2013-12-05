@@ -1,6 +1,7 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.common.Messages;
@@ -10,6 +11,7 @@ import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -76,11 +78,61 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     @SuppressWarnings("unchecked")
+    protected void writeDestructor(){
+        if (entity.methodDestruct != null){
+            MethodNode destructor = new MethodNodeImpl();
+            destructor.name = "finalize";
+            destructor.access = ACC_PUBLIC;
+            destructor.desc = Type.getMethodDescriptor(Type.getType(void.class));
+
+            MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, destructor);
+            ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+            methodCompiler.writeHeader();
+
+            LabelNode end = new LabelNode();
+            LabelNode l0 = writeLabel(destructor, statement.getMeta().getStartLine());
+            methodCompiler.addLocalVariable("~this", l0);
+            methodCompiler.addLocalVariable("~env", l0, Environment.class);
+
+            /*expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeGetDynamic("__finalized__", Boolean.TYPE);
+            destructor.instructions.add(new JumpInsnNode(IFEQ, end));*/
+
+            // --- if (!__finalized__) {
+            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writePushEnvFromField();
+            expressionCompiler.writePushConstString(entity.getName());
+            expressionCompiler.writePushConstNull();
+
+            expressionCompiler.writeSysDynamicCall(
+                    null, entity.methodDestruct.getName(), Memory.class, Environment.class, String.class, Memory[].class
+            );
+            expressionCompiler.writePopAll(1);
+            // ---- }
+            //destructor.instructions.add(end);
+
+            expressionCompiler.writeVarLoad("~this");
+            destructor.instructions.add(new MethodInsnNode(
+                    INVOKEVIRTUAL,
+                    node.superName,
+                    destructor.name,
+                    destructor.desc
+            ));
+
+            destructor.instructions.add(new InsnNode(Opcodes.RETURN));
+            methodCompiler.writeFooter();
+            node.methods.add(destructor);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     protected void writeConstructor(){
         MethodNode constructor = new MethodNodeImpl();
         constructor.name = Constants.INIT_METHOD;
         constructor.access = ACC_PUBLIC;
-        constructor.desc = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(ClassEntity.class));
+        constructor.desc = Type.getMethodDescriptor(
+                Type.getType(void.class), Type.getType(Environment.class), Type.getType(ClassEntity.class)
+        );
         constructor.exceptions = new ArrayList();
 
         MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, constructor);
@@ -89,7 +141,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
         methodCompiler.addLocalVariable("this", l0);
-        methodCompiler.addLocalVariable("~static", l0, String.class);
+        methodCompiler.addLocalVariable("~env", l0, Environment.class);
+        methodCompiler.addLocalVariable("~class", l0, String.class);
 
         // PROPERTIES
         for(ClassVarStmtToken property : statement.getProperties()){
@@ -114,7 +167,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
 
         expressionCompiler.writeVarLoad("this");
-        expressionCompiler.writeVarLoad("~static");
+        expressionCompiler.writeVarLoad("~env");
+        expressionCompiler.writeVarLoad("~class");
         constructor.instructions.add(new MethodInsnNode(
                 INVOKESPECIAL,
                 node.superName,
@@ -158,6 +212,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 Type.getDescriptor(TraceInfo[].class),
                 null,
                 null
+        ));
+
+        node.fields.add(new FieldNode(
+                ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
+                Type.getDescriptor(String.class),
+                null,
+                node.name
         ));
     }
 
@@ -218,6 +279,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.superName = Type.getInternalName(PHPObject.class);
         node.sourceFile = compiler.getSourceFile();
 
+        writeSystemInfo();
         writeConstructor();
 
         // constants
@@ -231,13 +293,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             entity.addMethod(compiler.compileMethod(this, method, external));
         }
 
-        writeSystemInfo();
+        entity.doneDeclare();
+        writeDestructor();
+
         writeInitStatic();
 
         cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
         node.accept(cw);
 
-        entity.doneDeclare();
         entity.setData(cw.toByteArray());
         return entity;
     }

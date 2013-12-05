@@ -26,10 +26,11 @@ import ru.regenix.jphp.tokenizer.token.stmt.ReturnStmtToken;
 import java.util.*;
 
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
-
     public final ClassStmtCompiler clazz;
     public final MethodStmtToken statement;
     public final MethodNode node;
+
+    protected int statementIndex = 0;
 
     private Stack<StackItem> stack = new Stack<StackItem>();
     private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
@@ -104,6 +105,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public Map<String, LocalVariable> getLocalVariables() {
         return localVariables;
+    }
+
+    int nextStatementIndex(){
+        return statementIndex++;
     }
 
     void pushJump(LabelNode breakLabel, LabelNode continueLabel, int stackSize){

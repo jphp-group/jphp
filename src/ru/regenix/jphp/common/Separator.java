@@ -6,5 +6,6 @@ public enum Separator {
     SEMICOLON,
     COLON,
     POINT,
-    COMMA_OR_SEMICOLON
+    COMMA_OR_SEMICOLON,
+    AS
 }

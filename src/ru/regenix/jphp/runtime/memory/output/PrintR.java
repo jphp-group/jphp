@@ -61,7 +61,7 @@ public class PrintR extends Printer {
             level += PRINT_INDENT;
 
             used.add(value.getPointer());
-            ForeachIterator iterator = value.foreachIterator(false);
+            ForeachIterator iterator = value.foreachIterator(false, false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
                 Memory key = iterator.getCurrentMemoryKey();
@@ -99,7 +99,7 @@ public class PrintR extends Printer {
 
             used.add(value.getPointer());
 
-            ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false);
+            ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false, false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
 

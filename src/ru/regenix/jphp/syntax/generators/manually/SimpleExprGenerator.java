@@ -7,6 +7,7 @@ import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
@@ -459,6 +460,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 } else {
                     unexpectedToken(current);
                 }
+            } else if (current instanceof AsStmtToken){
+                if (separator == Separator.AS)
+                    break;
+                unexpectedToken(current);
             } else if (isClosedBrace(current, closedBraceKind)){
                 iterator.previous();
                 break;

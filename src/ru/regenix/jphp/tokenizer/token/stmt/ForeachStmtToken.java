@@ -4,23 +4,36 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 
+import java.util.Set;
+
 public class ForeachStmtToken extends StmtToken {
-    private ExprStmtToken list;
+    private Set<VariableExprToken> local;
+    private ExprStmtToken iterator;
+    private BodyStmtToken body;
     private VariableExprToken key;
     private VariableExprToken value;
 
     private boolean valueReference;
+    private boolean keyReference;
 
     public ForeachStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FOREACH);
     }
 
-    public ExprStmtToken getList() {
-        return list;
+    public Set<VariableExprToken> getLocal() {
+        return local;
     }
 
-    public void setList(ExprStmtToken list) {
-        this.list = list;
+    public void setLocal(Set<VariableExprToken> local) {
+        this.local = local;
+    }
+
+    public BodyStmtToken getBody() {
+        return body;
+    }
+
+    public void setBody(BodyStmtToken body) {
+        this.body = body;
     }
 
     public VariableExprToken getKey() {
@@ -45,5 +58,21 @@ public class ForeachStmtToken extends StmtToken {
 
     public void setValueReference(boolean valueReference) {
         this.valueReference = valueReference;
+    }
+
+    public boolean isKeyReference() {
+        return keyReference;
+    }
+
+    public void setKeyReference(boolean keyReference) {
+        this.keyReference = keyReference;
+    }
+
+    public ExprStmtToken getIterator() {
+        return iterator;
+    }
+
+    public void setIterator(ExprStmtToken iterator) {
+        this.iterator = iterator;
     }
 }

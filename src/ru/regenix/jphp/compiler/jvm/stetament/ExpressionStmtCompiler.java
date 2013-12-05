@@ -219,7 +219,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushNewObject(ArrayMemory.class);
             ArrayMemory array = (ArrayMemory)memory;
 
-            ForeachIterator foreachIterator = ((ArrayMemory)memory).foreachIterator(false);
+            ForeachIterator foreachIterator = ((ArrayMemory)memory).foreachIterator(false, false);
             while (foreachIterator.next()){
                 writePushDup();
                 if (array.isList()) {
@@ -429,10 +429,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushEnv(){
-        stackPush(Memory.Type.REFERENCE);
         LocalVariable variable = method.getLocalVariable("~env");
+        if (variable == null) {
+            if (!method.statement.isStatic())
+                writePushEnvFromField();
+            else
+                throw new RuntimeException("Cannot find `~end` variable");
+            return;
+        }
 
+        stackPush(Memory.Type.REFERENCE);
         makeVarLoad(variable);
+    }
+
+    void writePushEnvFromField(){
+        writeVarLoad("~this");
+        writeGetDynamic("__env__", Environment.class);
     }
 
     void writePushDup(StackItem.Type type){
@@ -455,6 +467,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushNull(){
         writePushMemory(Memory.NULL);
+    }
+
+    void writePushConstNull(){
+        stackPush(Memory.Type.REFERENCE);
+        code.add(new InsnNode(ACONST_NULL));
     }
 
     void writePushNewObject(Class clazz){
@@ -553,7 +570,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                             writePushEnv();
                                         } else {
                                             writePushMemory((Memory)arguments[n]);
-                                            writePop(types[n], false);
+                                            writePop(types[n], true, true);
                                             arguments[t] = null;
                                         }
                                     }
@@ -600,7 +617,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     writePushEnv();
                                 } else {
                                     writePushMemory((Memory)arguments[k]);
-                                    writePop(types[k], !isRef);
+                                    writePop(types[k], true, isRef);
                                     arguments[k] = null;
                                 }
                             }
@@ -622,7 +639,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     writePushEnv();
                                 } else {
                                     writePushMemory((Memory)arguments[n]);
-                                    writePop(types[n], false);
+                                    writePop(types[n], true, false);
                                 }
                                 arguments[n] = null;
                             }
@@ -638,7 +655,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                 writePushMemory(tmp);
                         }
 
-                        writePop(argType, !isRef);
+                        writePop(argType, true, !isRef);
                         immutable = false;
                     }
                     j++;
@@ -942,7 +959,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setReference(false);
             }
 
-            if (variable.name.equals("this")){
+            if (variable.name.equals("this") && method.getLocalVariable("~this") != null){
                 writeVarLoad("~this");
                 writeSysStaticCall(ObjectMemory.class, "valueOf", ObjectMemory.class, PHPObject.class);
                 makeVarStore(variable);
@@ -1001,6 +1018,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (variable == null || variable.getClazz() == null) {
             return Memory.NULL;
         } else {
+            if (method.statement.getPassedLocal().contains(value))
+                return null;
+
             Memory mem = variable.getValue();
             if (mem != null) {
                 if (!heavyObjects){
@@ -1201,7 +1221,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
             writePushMemory(memory);
         }
-        writePop(castType.toClass(), true);
+        writePop(castType.toClass(), true, true);
     }
 
     StackItem.Type tryGetType(ValueExprToken value){
@@ -1304,10 +1324,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
         }
 
-        String owner = clazz == null ? this.method.clazz.statement.getFulledName('/') : Type.getInternalName(clazz);
-
+        String owner = clazz == null ? this.method.clazz.node.name : Type.getInternalName(clazz);
         code.add(new MethodInsnNode(
-                INVOKE_TYPE, Type.getInternalName(clazz), method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
+                INVOKE_TYPE, owner, method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
         ));
 
         if (returnClazz != void.class){
@@ -1318,7 +1337,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
             throws NoSuchMethodException {
         writeSysCall(
-                clazz, clazz.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
+                clazz, clazz != null && clazz.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
                 method, returnClazz, paramClasses
         );
     }
@@ -1347,6 +1366,25 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         makeVarStore(variable);
         stackPop();
+    }
+
+    void writeVarAssign(LocalVariable variable, boolean returned, boolean asImmutable){
+        writePopBoxing();
+
+        if (asImmutable)
+            writePopImmutable();
+
+        if (returned){
+            writePushDup();
+        }
+
+        if (variable.isReference()){
+            writeVarLoad(variable);
+            writeSysStaticCall(Memory.class, "assignRight", void.class, Memory.class, Memory.class);
+        } else {
+            makeVarStore(variable);
+            stackPop();
+        }
     }
 
     void writeVarStore(LocalVariable variable, boolean returned){
@@ -1517,7 +1555,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writePop(Class clazz, boolean boxing){
+    void writePop(Class clazz, boolean boxing, boolean asImmutable){
         if (clazz == String.class)
             writePopString();
         else if (clazz == Character.TYPE)
@@ -1526,7 +1564,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePopBoolean();
         else if (clazz == Memory.class){
             if (boxing)
-                writePopBoxing(true);
+                writePopBoxing(asImmutable);
         } else if (clazz == Double.TYPE)
             writePopDouble();
         else if (clazz == Float.TYPE)
@@ -2218,6 +2256,61 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeUndefineVariables(token.getLocal());
     }
 
+    void writeForeach(ForeachStmtToken token){
+        writeDefineVariables(token.getLocal());
+
+        LabelNode start = new LabelNode();
+        LabelNode end = new LabelNode();
+
+        LabelNode l = new LabelNode();
+        code.add(l);
+
+        writePushEnv();
+        writePushTraceInfo(token);
+        writeExpression(token.getIterator(), true, false, true);
+        writePopBoxing();
+        writeSysDynamicCall(Environment.class, "getIterator", ForeachIterator.class, TraceInfo.class, Memory.class);
+
+        LocalVariable foreachVariable = method.addLocalVariable(
+                "~foreach~" + method.nextStatementIndex(), l, ForeachIterator.class
+        );
+
+        writeVarStore(foreachVariable, false, false);
+
+        code.add(start);
+        writeVarLoad(foreachVariable);
+
+        writeSysDynamicCall(ForeachIterator.class, "next", Boolean.TYPE);
+        code.add(new JumpInsnNode(IFEQ, end));
+        stackPop();
+
+        writeVarLoad(foreachVariable);
+        // $key
+        if (token.getKey() != null) {
+            LocalVariable key = method.getLocalVariable(token.getKey().getName());
+
+            writePushDup();
+            writeSysDynamicCall(ForeachIterator.class, "getCurrentMemoryKey", Memory.class);
+            writeVarAssign(key, false, false);
+        }
+
+        // $var
+        LocalVariable variable = method.getLocalVariable(token.getValue().getName());
+        writeSysDynamicCall(ForeachIterator.class, "getCurrentValue", Memory.class);
+        if (!token.isValueReference())
+            writePopImmutable();
+
+        writeVarAssign(variable, false, false);
+
+        // body
+        writeBody(token.getBody());
+
+        code.add(new JumpInsnNode(GOTO, start));
+        code.add(end);
+
+        writeUndefineVariables(token.getLocal());
+    }
+
     void writeFor(ForStmtToken token){
         writeDefineVariables(token.getInitLocal());
         writeExpression(token.getInitExpr(), false, false);
@@ -2417,6 +2510,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeDo((DoStmtToken) token);
                 } else if (token instanceof ForStmtToken){ // for(...;...;...){ ... }
                     writeFor((ForStmtToken) token);
+                } else if (token instanceof ForeachStmtToken){
+                    writeForeach((ForeachStmtToken) token);
                 } else if (token instanceof JumpStmtToken){  // break, continue
                     writeJump((JumpStmtToken)token);
                 } else if (token instanceof GlobalStmtToken){

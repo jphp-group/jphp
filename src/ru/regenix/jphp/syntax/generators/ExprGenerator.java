@@ -14,7 +14,9 @@ import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.KeyValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
@@ -125,11 +127,84 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setLocal(analyzer.removeLocalScope());
     }
 
+    protected void processForeach(ForeachStmtToken result, ListIterator<Token> iterator){
+        analyzer.addLocalScope();
+        Token next = nextToken(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next, "(");
+
+        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.AS, null);
+        if (expr == null)
+            unexpectedToken(iterator.previous());
+
+        result.setIterator(expr);
+
+        next = nextToken(iterator);
+        boolean reference = false;
+        if (next instanceof AmpersandRefToken){
+            reference = true;
+            next = nextToken(iterator);
+        }
+
+        if (next instanceof VariableExprToken) {
+            VariableExprToken value = (VariableExprToken)next;
+            if (nextToken(iterator) instanceof KeyValueExprToken){
+                result.setKey(value);
+                result.setKeyReference(reference);
+
+                next = nextToken(iterator);
+                reference = false;
+                if (next instanceof AmpersandRefToken){
+                    reference = true;
+                    next = nextToken(iterator);
+                }
+
+                if (next instanceof VariableExprToken){
+                    result.setValue((VariableExprToken)next);
+                    result.setValueReference(reference);
+                } else
+                    unexpectedToken(next, "$var");
+
+            } else {
+                result.setValue(value);
+                result.setValueReference(reference);
+                iterator.previous();
+            }
+        } else
+            unexpectedToken(next, "$var");
+
+        next = nextToken(iterator);
+        if (!isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next, ")");
+
+        BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
+                nextToken(iterator), iterator, EndforeachStmtToken.class
+        );
+        result.setBody(body);
+
+        if (analyzer.getFunction() != null) {
+            if (result.getKey() != null){
+                analyzer.getFunction().getRefLocal().add(result.getKey());
+                analyzer.getFunction().getUnstableLocal().add(result.getKey());
+            }
+
+            analyzer.getFunction().getRefLocal().add(result.getValue());
+            analyzer.getFunction().getUnstableLocal().add(result.getValue());
+        }
+
+        if (result.getKey() != null)
+            analyzer.getLocalScope().add(result.getKey());
+        analyzer.getLocalScope().add(result.getValue());
+
+        result.setLocal(analyzer.removeLocalScope());
+    }
+
     protected void processFor(ForStmtToken result, ListIterator<Token> iterator){
         analyzer.addLocalScope();
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
-            unexpectedToken(next);
+            unexpectedToken(next, "(");
 
         ExprStmtToken init = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
@@ -376,6 +451,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ForStmtToken){
                 processFor((ForStmtToken) current, iterator);
+                tokens.add(current);
+                break;
+            } else if (current instanceof ForeachStmtToken){
+                processForeach((ForeachStmtToken) current, iterator);
                 tokens.add(current);
                 break;
             } else if (current instanceof WhileStmtToken){

@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory.support;
 
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
 
 abstract public class Memory {
@@ -45,6 +46,21 @@ abstract public class Memory {
 
             return REFERENCE;
         }
+
+        @Override
+        public String toString(){
+            switch (this){
+                case ARRAY: return "array";
+                case BOOL: return "boolean";
+                case DOUBLE: return "float";
+                case INT: return "integer";
+                case NULL: return "NULL";
+                case OBJECT: return "object";
+                case STRING: return "string";
+                default:
+                    return "unknown";
+            }
+        }
     }
 
     public final Type type;
@@ -85,6 +101,10 @@ abstract public class Memory {
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
     abstract public String toString();
+
+    public Type getRealType(){
+        return type;
+    }
 
     public char toChar(){
         switch (type){
@@ -346,4 +366,6 @@ abstract public class Memory {
     }
 
     abstract public byte[] getBinaryBytes();
+
+    public ForeachIterator getNewIterator(){ return null; }
 }

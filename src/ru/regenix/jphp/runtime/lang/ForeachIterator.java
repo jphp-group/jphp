@@ -10,12 +10,24 @@ abstract public class ForeachIterator {
     protected Memory currentValue;
     protected boolean init = false;
     protected final boolean getReferences;
+    protected final boolean withPrevious;
 
     abstract protected boolean init();
     abstract protected boolean nextValue();
+    abstract protected boolean prevValue();
 
-    public ForeachIterator(boolean getReferences) {
+    public ForeachIterator(boolean getReferences, boolean withPrevious) {
         this.getReferences = getReferences;
+        this.withPrevious = withPrevious;
+    }
+
+    public boolean prev(){
+        if (!init || !withPrevious) {
+            this.currentKey = null;
+            this.currentValue = null;
+            return false;
+        } else
+            return prevValue();
     }
 
     public boolean next(){
@@ -26,6 +38,10 @@ abstract public class ForeachIterator {
         }
 
         return nextValue();
+    }
+
+    public boolean end(){
+        return false;
     }
 
     public Object getCurrentKey() {
