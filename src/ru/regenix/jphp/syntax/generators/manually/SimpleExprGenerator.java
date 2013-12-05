@@ -38,8 +38,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             param = analyzer.generator(SimpleExprGenerator.class)
                     .getToken(nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE);
 
-            if (param != null)
+            if (param != null) {
                 parameters.add(param);
+                if (param.isSingle()){
+                    if (param.getTokens().get(0) instanceof VariableExprToken) {
+                        if (analyzer.getFunction() != null)
+                            analyzer.getFunction().getPassedLocal().add((VariableExprToken)param.getTokens().get(0));
+                    }
+                }
+            }
 
         } while (param != null);
         nextToken(iterator);
