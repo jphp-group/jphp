@@ -1,6 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
-import ru.regenix.jphp.runtime.ext.core.classes.PHPIterator;
+import ru.regenix.jphp.runtime.lang.spl.PHPIterator;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;

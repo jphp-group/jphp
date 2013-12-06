@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.Traversable;
+import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;

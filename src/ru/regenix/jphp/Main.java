@@ -46,7 +46,6 @@ public class Main {
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();
-            System.gc();
 
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);

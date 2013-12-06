@@ -210,7 +210,7 @@ public class MathFunctions extends FunctionsContainer {
     public static Memory min(Memory value, Memory... args){
         if (value.isArray() && args == null){
             Memory min = null;
-            for (Memory one : (ArrayMemory)args[0]){
+            for (Memory one : (ArrayMemory)value){
                 if (min == null || one.smaller(min))
                     min = one;
             }

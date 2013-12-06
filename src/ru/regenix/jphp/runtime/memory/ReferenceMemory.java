@@ -584,6 +584,14 @@ public class ReferenceMemory extends Memory {
         }
     }
 
+    public Memory toValue(){
+        switch (value.type){
+            case REFERENCE: return value.toValue();
+            default:
+                return value;
+        }
+    }
+
     @Override
     public boolean isImmutable() {
         return false;

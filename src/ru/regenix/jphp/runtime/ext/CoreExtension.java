@@ -3,8 +3,8 @@ package ru.regenix.jphp.runtime.ext;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.runtime.ext.core.*;
-import ru.regenix.jphp.runtime.ext.core.classes.ArrayAccess;
-import ru.regenix.jphp.runtime.ext.core.classes.StdClass;
+import ru.regenix.jphp.runtime.lang.spl.ArrayAccess;
+import ru.regenix.jphp.runtime.lang.StdClass;
 
 public class CoreExtension extends Extension {
     @Override
@@ -24,6 +24,7 @@ public class CoreExtension extends Extension {
         registerConstants(new MathConstants());
         registerFunctions(new MathFunctions());
         registerFunctions(new StringFunctions());
+        registerConstants(new ArrayConstants());
         registerFunctions(new ArrayFunctions());
         registerFunctions(new OutputFunctions());
 

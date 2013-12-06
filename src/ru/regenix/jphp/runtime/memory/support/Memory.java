@@ -317,6 +317,10 @@ abstract public class Memory {
         return (T) this;
     }
 
+    public Memory toValue(){
+        return this;
+    }
+
     public boolean isImmutable(){
         return true;
     }

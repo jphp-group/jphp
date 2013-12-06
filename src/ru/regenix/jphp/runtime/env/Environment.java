@@ -115,7 +115,7 @@ public class Environment {
             callStack = newCallStack;
         }
 
-        if (callStackTop <= maxCallStackTop)
+        if (callStackTop < maxCallStackTop)
             callStack[callStackTop++].setParameters(trace, self, args, function, clazz);
         else
             callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz);

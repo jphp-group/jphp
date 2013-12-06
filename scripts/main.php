@@ -1,14 +1,8 @@
 <?
 
-function test(){
-    $fruit = array('a' => 'apple', 'b' => 'banana', 'c' => 'cranberry');
+$array = array(1, 2, 3, 4, 5);
+$x = max($array);
+echo $x;
 
-    for($i = 0; $i < 1000000; $i++){
-        reset($fruit);
-        while ($item = each($fruit)) {
-
-        }
-    }
-}
-
-test();
+$x = 44444;
+print_r($array);

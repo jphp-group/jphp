@@ -74,7 +74,15 @@ public class CompileFunction {
             method = methods[paramCount];
 
         if (method == null && methodVarArgsCount <= paramCount)
-            return methodVarArgs;
+            method = methodVarArgs;
+
+        if (method == null) {
+            for(int i = methods.length - 1; i >= 0; i--){
+                method = methods[i];
+                if (method != null)
+                    return method;
+            }
+        }
 
         return method;
     }

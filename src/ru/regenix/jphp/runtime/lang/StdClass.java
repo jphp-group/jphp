@@ -1,4 +1,4 @@
-package ru.regenix.jphp.runtime.ext.core.classes;
+package ru.regenix.jphp.runtime.lang;
 
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.PHPObject;

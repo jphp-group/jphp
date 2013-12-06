@@ -6,7 +6,10 @@ import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.spl.Countable;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.LongMemory;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 import java.util.HashSet;
@@ -16,11 +19,70 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.Reference;
 
 public class ArrayFunctions extends FunctionsContainer {
 
+    private static int recursive_count(Environment env, TraceInfo trace, ArrayMemory array, Set<Integer> used){
+        ForeachIterator iterator = array.foreachIterator(false, false);
+        int size = array.size();
+        while (iterator.next()){
+            Memory el = iterator.getCurrentValue();
+            if (el.isArray()){
+                if (used == null)
+                    used = new HashSet<Integer>();
+
+                int pointer = el.getPointer();
+
+                if (!used.add(pointer)){
+                    env.warning(trace, "recursion detected");
+                } else {
+                    size += recursive_count(env, trace, array, used);
+                }
+                used.remove(pointer);
+            }
+        }
+        return size;
+    }
+
+    @Runtime.Immutable
+    public static Memory count(Environment env, TraceInfo trace, Memory var, int mode){
+        switch (var.type){
+            case ARRAY:
+                if (mode == 1){
+                    return LongMemory.valueOf(recursive_count(env, trace, var.toValue(ArrayMemory.class), null));
+                } else
+                    return LongMemory.valueOf(var.toValue(ArrayMemory.class).size());
+            case NULL: return Memory.CONST_INT_0;
+            case OBJECT:
+                ObjectMemory objectMemory = var.toValue(ObjectMemory.class);
+                if (objectMemory.value instanceof Countable){
+                    long size = ((Countable) objectMemory.value).count(env, "", var).toLong();
+                    return LongMemory.valueOf(size);
+                } else {
+                    return Memory.CONST_INT_1;
+                }
+            default:
+                return Memory.CONST_INT_1;
+        }
+    }
+
+    @Runtime.Immutable
+    public static Memory count(Environment env, TraceInfo trace, Memory var){
+        return count(env, trace, var, 0);
+    }
+
+    @Runtime.Immutable
+    public static Memory sizeof(Environment env, TraceInfo trace, Memory var){
+        return count(env, trace, var, 0);
+    }
+
+    @Runtime.Immutable
+    public static Memory sizeof(Environment env, TraceInfo trace, Memory var, int mode){
+        return count(env, trace, var, mode);
+    }
+
     public static Memory reset(Environment env, TraceInfo trace, @Runtime.Reference Memory array){
         if (expectingReference(env, trace, array)){
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
-                return memory.resetCurrentIterator();
+                return memory.resetCurrentIterator().toImmutable();
             }
         }
         return Memory.FALSE;
@@ -32,7 +94,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.next())
-                    return iterator.getCurrentValue();
+                    return iterator.getCurrentValue().toImmutable();
                 else
                     return Memory.FALSE;
             }
@@ -46,7 +108,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.prev())
-                    return iterator.getCurrentValue();
+                    return iterator.getCurrentValue().toImmutable();
                 else
                     return Memory.FALSE;
             }
@@ -58,7 +120,7 @@ public class ArrayFunctions extends FunctionsContainer {
         if (expectingReference(env, trace, array)){
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getCurrentValue();
-                return value == null ? Memory.FALSE : value;
+                return value == null ? Memory.FALSE : value.toImmutable();
             }
         }
         return Memory.FALSE;
@@ -73,7 +135,7 @@ public class ArrayFunctions extends FunctionsContainer {
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.end()) {
-                    return iterator.getCurrentValue();
+                    return iterator.getCurrentValue().toImmutable();
                 } else {
                     return Memory.FALSE;
                 }
@@ -153,7 +215,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static boolean shuffle(Environment env, TraceInfo trace, @Reference Memory value){
-        if (value.isReference() && value.isArray()){
+        if (expectingReference(env, trace, value) && expecting(env, trace, 1, value, Memory.Type.ARRAY)){
             ArrayMemory array = value.toValue(ArrayMemory.class);
             array.shuffle(MathFunctions.RANDOM);
             return true;

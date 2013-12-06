@@ -517,6 +517,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (tokens.isEmpty())
             return null;
 
+        if (braceOpened != 0)
+            unexpectedToken(iterator.previous());
+
         return new ExprStmtToken(tokens);
     }
 
