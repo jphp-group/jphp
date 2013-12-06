@@ -26,6 +26,11 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("(3 + 4");
     }
 
+    @Test(expected = ParseException.class)
+    public void testBraces11(){
+        getSyntaxTree("(cos($i) + 4");
+    }
+
 
     @Test(expected = ParseException.class)
     public void testBraces2(){

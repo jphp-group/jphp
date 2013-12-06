@@ -482,6 +482,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return this;
     }
 
+    public Memory[] values(){
+        Memory[] result = new Memory[size];
+        int i = 0;
+        for(ReferenceMemory el : this){
+            result[i++] = el.toValue();
+        }
+        return result;
+    }
+
     @Override
     public long toLong() {
         return size == 0 ? 0 : 1;

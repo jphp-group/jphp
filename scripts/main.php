@@ -1,8 +1,6 @@
 <?
 
-$array = array(1, 2, 3, 4, 5);
-$x = max($array);
-echo $x;
+$p = sscanf("SN/2350001", "SN/%d", $var);
 
-$x = 44444;
-print_r($array);
+var_dump($var);
+var_dump($p);

@@ -35,6 +35,7 @@ import java.util.*;
 import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 
 public class Environment {
+    private Locale locale = Locale.getDefault();
     private Set<String> includePaths;
 
     private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
@@ -149,6 +150,14 @@ public class Environment {
 
     public Environment(){
         this((OutputStream) null);
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public Map<String, ModuleEntity> getIncluded() {
