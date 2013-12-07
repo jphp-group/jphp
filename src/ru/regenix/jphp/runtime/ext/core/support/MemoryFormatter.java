@@ -42,7 +42,9 @@ public final class MemoryFormatter implements Closeable, Flushable {
     private static Charset toCharset(String csn)
             throws UnsupportedEncodingException
     {
-        Objects.requireNonNull(csn, "charsetName");
+        if (csn == null)
+            throw new NullPointerException("charsetName");
+
         try {
             return Charset.forName(csn);
         } catch (IllegalCharsetNameException unused) {
@@ -63,6 +65,9 @@ public final class MemoryFormatter implements Closeable, Flushable {
 
     /* Private constructors */
     private MemoryFormatter(Locale l, Appendable a) {
+        if (a == null)
+            throw new NullPointerException();
+
         this.a = a;
         this.l = l;
         this.zero = getZero(l);
@@ -76,11 +81,11 @@ public final class MemoryFormatter implements Closeable, Flushable {
     }
 
     public MemoryFormatter() {
-        this(Locale.getDefault(Locale.Category.FORMAT), new StringBuilder());
+        this(Locale.getDefault(), new StringBuilder());
     }
 
     public MemoryFormatter(Appendable a) {
-        this(Locale.getDefault(Locale.Category.FORMAT), nonNullAppendable(a));
+        this(Locale.getDefault(), nonNullAppendable(a));
     }
 
     public MemoryFormatter(Locale l) {
@@ -92,14 +97,14 @@ public final class MemoryFormatter implements Closeable, Flushable {
     }
 
     public MemoryFormatter(String fileName) throws FileNotFoundException {
-        this(Locale.getDefault(Locale.Category.FORMAT),
+        this(Locale.getDefault(),
                 new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName))));
     }
 
     public MemoryFormatter(String fileName, String csn)
             throws FileNotFoundException, UnsupportedEncodingException
     {
-        this(fileName, csn, Locale.getDefault(Locale.Category.FORMAT));
+        this(fileName, csn, Locale.getDefault());
     }
 
     public MemoryFormatter(String fileName, String csn, Locale l)
@@ -109,14 +114,14 @@ public final class MemoryFormatter implements Closeable, Flushable {
     }
 
     public MemoryFormatter(File file) throws FileNotFoundException {
-        this(Locale.getDefault(Locale.Category.FORMAT),
+        this(Locale.getDefault(),
                 new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file))));
     }
 
     public MemoryFormatter(File file, String csn)
             throws FileNotFoundException, UnsupportedEncodingException
     {
-        this(file, csn, Locale.getDefault(Locale.Category.FORMAT));
+        this(file, csn, Locale.getDefault());
     }
 
     public MemoryFormatter(File file, String csn, Locale l)
@@ -126,19 +131,18 @@ public final class MemoryFormatter implements Closeable, Flushable {
     }
 
     public MemoryFormatter(PrintStream ps) {
-        this(Locale.getDefault(Locale.Category.FORMAT),
-                (Appendable)Objects.requireNonNull(ps));
+        this(Locale.getDefault(), (Appendable)ps);
     }
 
     public MemoryFormatter(OutputStream os) {
-        this(Locale.getDefault(Locale.Category.FORMAT),
+        this(Locale.getDefault(),
                 new BufferedWriter(new OutputStreamWriter(os)));
     }
 
     public MemoryFormatter(OutputStream os, String csn)
             throws UnsupportedEncodingException
     {
-        this(os, csn, Locale.getDefault(Locale.Category.FORMAT));
+        this(os, csn, Locale.getDefault());
     }
 
     public MemoryFormatter(OutputStream os, String csn, Locale l)
@@ -470,7 +474,7 @@ public final class MemoryFormatter implements Closeable, Flushable {
                     printHashCode(arg.hashCode());
                     break;
                 case Conversion.LINE_SEPARATOR:
-                    a.append(System.lineSeparator());
+                    a.append(System.getProperty("line.separator"));
                     break;
                 case Conversion.PERCENT_SIGN:
                     a.append('%');
