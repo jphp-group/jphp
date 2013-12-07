@@ -783,8 +783,8 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public ForeachIterator getNewIterator() {
-        return value.getNewIterator();
+    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences) {
+        return value.getNewIterator(getReferences, getKeyReferences);
     }
 
     @Override

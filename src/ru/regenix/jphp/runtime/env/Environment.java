@@ -493,8 +493,8 @@ public class Environment {
         return new ObjectMemory( entity.newObject(this, trace, args) );
     }
 
-    public ForeachIterator getIterator(TraceInfo trace, Memory memory){
-        ForeachIterator iterator = memory.getNewIterator();
+    public ForeachIterator getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
+        ForeachIterator iterator = memory.getNewIterator(getReferences, getKeyReferences);
         if (iterator == null){
             warning(trace, "Invalid argument supplied for foreach()");
         }

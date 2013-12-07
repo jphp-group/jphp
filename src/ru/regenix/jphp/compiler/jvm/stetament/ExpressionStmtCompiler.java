@@ -2269,7 +2269,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushTraceInfo(token);
         writeExpression(token.getIterator(), true, false, true);
         writePopBoxing();
-        writeSysDynamicCall(Environment.class, "getIterator", ForeachIterator.class, TraceInfo.class, Memory.class);
+        writePushConstBoolean(token.isValueReference());
+        writePushConstBoolean(token.isKeyReference());
+        writeSysDynamicCall(Environment.class, "getIterator", ForeachIterator.class, TraceInfo.class, Memory.class, Boolean.TYPE, Boolean.TYPE);
 
         LocalVariable foreachVariable = method.addLocalVariable(
                 "~foreach~" + method.nextStatementIndex(), l, ForeachIterator.class
@@ -2291,16 +2293,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushDup();
             writeSysDynamicCall(ForeachIterator.class, "getCurrentMemoryKey", Memory.class);
-            writeVarAssign(key, false, false);
+            if (token.isKeyReference())
+                writeVarStore(key, false, false);
+            else
+                writeVarAssign(key, false, false);
         }
 
         // $var
         LocalVariable variable = method.getLocalVariable(token.getValue().getName());
         writeSysDynamicCall(ForeachIterator.class, "getCurrentValue", Memory.class);
-        if (!token.isValueReference())
-            writePopImmutable();
 
-        writeVarAssign(variable, false, false);
+        if (token.isValueReference())
+            writeVarStore(variable, false, false);
+        else
+            writeVarAssign(variable, false, false);
 
         // body
         writeBody(token.getBody());

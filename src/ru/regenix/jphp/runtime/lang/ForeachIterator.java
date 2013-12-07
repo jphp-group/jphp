@@ -7,21 +7,25 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 
 abstract public class ForeachIterator {
     protected Object currentKey;
+    protected Memory currentKeyMemory;
     protected Memory currentValue;
     protected boolean init = false;
     protected final boolean getReferences;
+    protected final boolean getKeyReferences;
     protected final boolean withPrevious;
 
     abstract protected boolean init();
     abstract protected boolean nextValue();
     abstract protected boolean prevValue();
 
-    public ForeachIterator(boolean getReferences, boolean withPrevious) {
+    public ForeachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious) {
         this.getReferences = getReferences;
         this.withPrevious = withPrevious;
+        this.getKeyReferences = getKeyReferences;
     }
 
     public boolean prev(){
+        currentKeyMemory = null;
         if (!init || !withPrevious) {
             this.currentKey = null;
             this.currentValue = null;
@@ -31,6 +35,7 @@ abstract public class ForeachIterator {
     }
 
     public boolean next(){
+        currentKeyMemory = null;
         if (!init){
             init = true;
             if (!init())
@@ -49,14 +54,17 @@ abstract public class ForeachIterator {
     }
 
     public Memory getCurrentMemoryKey(){
-        if (currentKey instanceof String)
-            return new StringMemory((String)currentKey);
-        if (currentKey instanceof Long)
-            return LongMemory.valueOf((Long)currentKey);
-        if (currentKey instanceof Memory)
-            return (Memory) currentKey;
+        if (currentKeyMemory != null)
+            return currentKeyMemory;
 
-        return Memory.NULL;
+        if (currentKey instanceof String)
+            return currentKeyMemory = new StringMemory((String)currentKey);
+        if (currentKey instanceof Long)
+            return currentKeyMemory = LongMemory.valueOf((Long)currentKey);
+        if (currentKey instanceof Memory)
+            return currentKeyMemory = (Memory) currentKey;
+
+        return currentKeyMemory = Memory.NULL;
     }
 
     public Memory getCurrentValue() {

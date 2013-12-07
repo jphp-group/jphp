@@ -159,12 +159,12 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public ForeachIterator getNewIterator() {
+    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences) {
         if (value instanceof PHPIterator){
             final PHPIterator iterator = (PHPIterator)value;
             final String className = value.__class__.getName();
 
-            return new ForeachIterator(true, false) {
+            return new ForeachIterator(getReferences, getKeyReferences, false) {
                 @Override
                 protected boolean init() {
                     return iterator.rewind(value.__env__, className).toBoolean();
@@ -187,6 +187,8 @@ public class ObjectMemory extends Memory {
                     if (valid){
                         currentKey   = iterator.key(value.__env__, className);
                         currentValue = iterator.current(value.__env__, className);
+                        if (!getReferences)
+                            currentValue = currentValue.toImmutable();
                     }
                     return valid;
                 }

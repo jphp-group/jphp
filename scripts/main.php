@@ -1,6 +1,11 @@
 <?
 
-$p = sscanf("SN/2350001", "SN/%d", $var);
+$a = array(1, 2, 3);
 
-var_dump($var);
-var_dump($p);
+$i = 3;
+foreach($a as &$key => $value){
+    $key = $i;
+    $i++;
+}
+
+print_r($a);

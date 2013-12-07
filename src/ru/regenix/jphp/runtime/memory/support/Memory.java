@@ -371,5 +371,5 @@ abstract public class Memory {
 
     abstract public byte[] getBinaryBytes();
 
-    public ForeachIterator getNewIterator(){ return null; }
+    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences){ return null; }
 }
