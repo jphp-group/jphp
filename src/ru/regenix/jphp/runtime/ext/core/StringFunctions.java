@@ -5,9 +5,7 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.ext.core.support.MemoryFormatter;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.DoubleMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -15,10 +13,7 @@ import ru.regenix.jphp.util.DigestUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Scanner;
-
-import static ru.regenix.jphp.runtime.ext.core.support.MemoryFormatter.Conversion;
+import java.util.*;
 
 /**
  * TODO:
@@ -80,97 +75,6 @@ public class StringFunctions extends FunctionsContainer {
             return ch - '0';
         else
             return -1;
-    }
-
-    public static Memory sscanf(Environment env, TraceInfo trace, String str, String format,
-                                @Runtime.Reference Memory... vars){
-        MemoryFormatter formatter = new MemoryFormatter(env.getLocale());
-        MemoryFormatter.FormatString[] tmp = formatter.parse(format);
-
-        Scanner scanner = new Scanner(str);
-        ArrayMemory result = vars == null ? new ArrayMemory() : null;
-
-        int i = 0;
-        int cnt = 0;
-        for(MemoryFormatter.FormatString fs : tmp){
-            if (fs instanceof MemoryFormatter.FormatSpecifier){
-                Memory value = Memory.NULL;
-                switch (((MemoryFormatter.FormatSpecifier) fs).c){
-                    case Conversion.DECIMAL_INTEGER:
-                    case Conversion.OCTAL_INTEGER:
-                    case Conversion.HEXADECIMAL_INTEGER:
-                        value = LongMemory.valueOf(scanner.nextLong());
-                        break;
-                    case Conversion.SCIENTIFIC:
-                    case Conversion.GENERAL:
-                    case Conversion.DECIMAL_FLOAT:
-                    case Conversion.HEXADECIMAL_FLOAT:
-                        value = new DoubleMemory(scanner.nextDouble());
-                        break;
-                    case Conversion.CHARACTER:
-                    case Conversion.CHARACTER_UPPER:
-                        value = new StringMemory((char)scanner.nextByte());
-                        break;
-                    case Conversion.BOOLEAN:
-                        value = scanner.nextBoolean() ? Memory.TRUE : Memory.FALSE;
-                        break;
-                    case Conversion.STRING:
-                        value = new StringMemory(scanner.next());
-                        break;
-                    default:
-                        assert false;
-                }
-
-                cnt++;
-                if (result == null){
-                    if (i < vars.length)
-                        vars[i].assign(value);
-                } else
-                    result.refOfPush().assign(value);
-                i++;
-            } else
-                scanner.skip(fs.toString());
-        }
-        return result == null ? LongMemory.valueOf(cnt) : result.toConstant();
-    }
-
-    public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args){
-        MemoryFormatter formatter = new MemoryFormatter(env.getLocale());
-        MemoryFormatter.FormatString[] tmp = formatter.parse(format);
-
-        int size = 0;
-        int sizeArgs = args == null ? 0 : args.length;
-        for(MemoryFormatter.FormatString fs : tmp){
-            if (fs instanceof MemoryFormatter.FixedString)
-                continue;
-            size++;
-        }
-
-        if (sizeArgs < size) {
-            env.warning(trace, "Too few arguments");
-            return Memory.NULL;
-        }
-
-        formatter.format(tmp, args);
-        return new StringMemory(formatter.toString());
-    }
-
-    public static Memory vsprintf(Environment env, TraceInfo trace, String format, Memory array){
-        if (array.isArray()){
-            return sprintf(env, trace, format, array.toValue(ArrayMemory.class).values());
-        } else
-            return sprintf(env, trace, format, array);
-    }
-
-    public static int printf(Environment env, TraceInfo trace, String format, Memory... args){
-        Memory str = sprintf(env, trace, format, args);
-        if (str.isNull())
-            return 0;
-        else {
-            String value = str.toString();
-            env.echo(value);
-            return value.length();
-        }
     }
 
     @Runtime.Immutable
