@@ -9,6 +9,7 @@ import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.util.Printf;
 import ru.regenix.jphp.util.DigestUtils;
 
 import java.security.MessageDigest;
@@ -75,6 +76,34 @@ public class StringFunctions extends FunctionsContainer {
             return ch - '0';
         else
             return -1;
+    }
+
+    public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args){
+        Printf printf = new Printf(env.getLocale(), format, args);
+        String result = printf.toString();
+        if (result == null){
+            env.warning(trace, "Too few arguments");
+            return Memory.NULL;
+        } else
+            return new StringMemory(result);
+    }
+
+    public static Memory vsprintf(Environment env, TraceInfo trace, String format, Memory array){
+        if (array.isArray()){
+            return sprintf(env, trace, format, array.toValue(ArrayMemory.class).values());
+        } else
+            return sprintf(env, trace, format, array);
+    }
+
+    public static int printf(Environment env, TraceInfo trace, String format, Memory... args){
+        Memory str = sprintf(env, trace, format, args);
+        if (str.isNull())
+            return 0;
+        else {
+            String value = str.toString();
+            env.echo(value);
+            return value.length();
+        }
     }
 
     @Runtime.Immutable
