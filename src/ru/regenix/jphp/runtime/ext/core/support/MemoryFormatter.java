@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.ext.core.support;
 
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import sun.misc.DoubleConsts;
+import sun.misc.FloatingDecimal;
 import sun.misc.FormattedFloatingDecimal;
 import sun.misc.FpUtils;
 
@@ -958,12 +959,10 @@ public final class MemoryFormatter implements Closeable, Flushable {
                 // precision.
                 int prec = (precision == -1 ? 6 : precision);
 
-                FormattedFloatingDecimal fd
-                        = new FormattedFloatingDecimal(value, prec,
-                        FormattedFloatingDecimal.Form.SCIENTIFIC);
+                //FormattedFloatingDecimal fd = FormattedFloatingDecimal.valueOf(value, prec, FormattedFloatingDecimal.Form.SCIENTIFIC);
 
                 char[] v = new char[MAX_FD_CHARS];
-                int len = fd.getChars(v);
+                int len = 0; // TODO: fix fd.getChars(v);
 
                 char[] mant = addZeros(mantissa(v, len), prec);
 
@@ -995,14 +994,11 @@ public final class MemoryFormatter implements Closeable, Flushable {
                 // precision.
                 int prec = (precision == -1 ? 6 : precision);
 
-                FormattedFloatingDecimal fd
-                        = new FormattedFloatingDecimal(value, prec,
-                        FormattedFloatingDecimal.Form.DECIMAL_FLOAT);
+                //FormattedFloatingDecimal fd = new FormattedFloatingDecimal(value, prec, FormattedFloatingDecimal.Form.DECIMAL_FLOAT);
 
                 // MAX_FD_CHARS + 1 (round?)
-                char[] v = new char[MAX_FD_CHARS + 1
-                        + Math.abs(fd.getExponent())];
-                int len = fd.getChars(v);
+                char[] v = new char[MAX_FD_CHARS + 1 + Math.abs((int)value /*fd.getExponent()*/)];
+                int len = 0; // TODO: fix;  fd.getChars(v);
 
                 char[] mant = addZeros(mantissa(v, len), prec);
 
@@ -1022,20 +1018,19 @@ public final class MemoryFormatter implements Closeable, Flushable {
                 else if (precision == 0)
                     prec = 1;
 
-                FormattedFloatingDecimal fd
+               /* FormattedFloatingDecimal fd
                         = new FormattedFloatingDecimal(value, prec,
-                        FormattedFloatingDecimal.Form.GENERAL);
+                        FormattedFloatingDecimal.Form.GENERAL); */
 
                 // MAX_FD_CHARS + 1 (round?)
-                char[] v = new char[MAX_FD_CHARS + 1
-                        + Math.abs(fd.getExponent())];
-                int len = fd.getChars(v);
+                char[] v = new char[MAX_FD_CHARS + 1 + Math.abs((int)value /*fd.getExponent()*/)];
+                int len = 0; // todo fix fd.getChars(v);
 
                 char[] exp = exponent(v, len);
                 if (exp != null) {
                     prec -= 1;
                 } else {
-                    prec = prec - (value == 0 ? 0 : fd.getExponentRounded()) - 1;
+                    // prec = prec - (value == 0 ? 0 : fd.getExponentRounded()) - 1; TODO: fix
                 }
 
                 char[] mant = addZeros(mantissa(v, len), prec);
