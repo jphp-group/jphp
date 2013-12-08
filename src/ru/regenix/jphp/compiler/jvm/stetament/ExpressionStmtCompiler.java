@@ -16,6 +16,7 @@ import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.misc.StackFrame;
 import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -358,6 +359,29 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushBoolean(BooleanExprToken value){
         writePushBoolean(value.getValue());
+    }
+
+    void writePushStringBuilder(StringBuilderExprToken value){
+        writePushNewObject(StringBuilder.class);
+
+        for(Token el : value.getExpression()){
+            //writePushDup();
+            if (el instanceof ValueExprToken){
+                writePush((ValueExprToken)el, true, false);
+            } else if (el instanceof ExprStmtToken){
+                //unexpectedToken(el);
+                writeExpression((ExprStmtToken)el, true, false, true);
+            } else
+                unexpectedToken(el);
+
+            StackItem.Type peek = stackPeek().type;
+            if (!peek.isConstant()) {
+                writeSysDynamicCall(StringBuilder.class, "append", StringBuilder.class, Object.class);
+            } else
+                writeSysDynamicCall(StringBuilder.class, "append", StringBuilder.class, peek.toClass());
+        }
+
+        writeSysDynamicCall(StringBuilder.class, "toString", String.class);
     }
 
     void writePushString(StringExprToken value){
@@ -1263,6 +1287,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushImport((ImportExprToken) value, returnValue);
             } else if (value instanceof NewExprToken){
                 writePushNew((NewExprToken)value, returnValue);
+            } else if (value instanceof StringBuilderExprToken){
+                writePushStringBuilder((StringBuilderExprToken)value);
             }
 
         if (value instanceof NameToken){
@@ -2293,9 +2319,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushDup();
             writeSysDynamicCall(ForeachIterator.class, "getCurrentMemoryKey", Memory.class);
-            if (token.isKeyReference())
-                writeVarStore(key, false, false);
-            else
+            if (token.isKeyReference()) {
+                throw new FatalException(
+                        "Key element cannot be a reference",
+                        token.getKey().toTraceInfo(compiler.getContext())
+                );
+                // writeVarStore(key, false, false);
+            } else
                 writeVarAssign(key, false, false);
         }
 

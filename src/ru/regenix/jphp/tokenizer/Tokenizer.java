@@ -1,6 +1,7 @@
 package ru.regenix.jphp.tokenizer;
 
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
@@ -38,6 +39,17 @@ public class Tokenizer {
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
         this.rawMode = context.isFile();
+    }
+
+    public Tokenizer(String code, Context context){
+        this.context = context;
+        this.currentPosition = -1;
+        this.currentLine = 0;
+        this.relativePosition = -1;
+        this.code = code;
+        this.codeLength = code.length();
+        this.tokenFinder = new TokenFinder();
+        this.rawMode = false;
     }
 
     public String getCode() {
@@ -125,6 +137,228 @@ public class Tokenizer {
         }
     }
 
+    protected StringExprToken readString(StringExprToken.Quote quote, int startPosition, int startLine){
+        int i;
+        StringExprToken.Quote ch_quote = null;
+        boolean slash = false;
+        StringBuilder sb = new StringBuilder();
+
+        boolean isMagic = quote == StringExprToken.Quote.DOUBLE;
+
+        List<StringExprToken.Segment> segments = new ArrayList<StringExprToken.Segment>();
+
+        for(i = currentPosition + 1; i < codeLength; i++){
+            char ch = code.charAt(i);
+
+            ch_quote = GrammarUtils.isQuote(ch);
+            if (ch_quote == quote && !slash){
+                currentPosition = i;
+                break;
+            }
+
+            if (GrammarUtils.isNewline(ch))
+                currentLine++;
+
+            if (!isMagic){
+                switch (ch){
+                    case '\\':
+                        if (slash)
+                            sb.append(ch);
+                        slash = !slash;
+                        break;
+                    default:
+                        sb.append(ch);
+                        slash = false;
+                }
+            } else {
+                int dynamic = 0;
+                if (ch == '$' && (i + 1 < codeLength && code.charAt(i + 1) == '{') ) {
+                    dynamic = 2;
+                }
+                if (ch == '{')
+                    dynamic = 1;
+
+                if (dynamic > 0) {
+                    if (dynamic == 2 ||  i + 1 < codeLength && code.charAt(i + 1) == '$') {
+                        slash = false;
+                        int opened = dynamic == 2 ? 0 : 1;
+                        int j;
+                        for(j = i + 1; j < codeLength; j++){
+                            switch (code.charAt(j)){
+                                case '{': opened++; break;
+                                case '}': opened--; break;
+                            }
+                            if (GrammarUtils.isNewline(code.charAt(j)))
+                                currentLine++;
+
+                            if (opened == 0)
+                                break;
+                        }
+
+                        if (opened != 0)
+                            throw new ParseException(
+                                    Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
+                                    new TraceInfo(context, startLine, 0, startPosition, 0)
+                            );
+
+                        String sub = code.substring(i, j + 1);
+                        segments.add(new StringExprToken.Segment(
+                                i - currentPosition - 1, j - currentPosition, dynamic == 2
+                        ));
+                        sb.append(sub);
+                        i = j;
+                        continue;
+                    }
+                }
+
+                if (slash){
+                    switch (ch){
+                        case 'r': sb.append('\r'); slash = false; break;
+                        case 'n': sb.append('\n'); slash = false; break;
+                        case 't': sb.append('\t'); slash = false; break;
+                        case 'e': sb.append((char)0x1B); slash = false; break;
+                        case 'v': sb.append((char)0x0B); slash = false; break;
+                        case 'f': sb.append('\f'); slash = false; break;
+                        case '\\':
+                            sb.append(ch);
+                            slash = !slash;
+                            break;
+                        case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':
+                            // \[0-7]{1,3}
+                            int k = i + 1;
+                            for(int j = 1; j < 3; j++){
+                                k = i + j;
+                                if (k < codeLength){
+                                    char digit = code.charAt(k);
+                                    if (digit >= '0' && digit <= '7'){
+                                       // nop
+                                    } else
+                                        break;
+                                } else
+                                    break;
+                            }
+
+                            String s = code.substring(i, k);
+                            if (s.isEmpty()){
+                                sb.append(ch);
+                            } else {
+                                int val = Integer.parseInt(s, 8);
+                                sb.append((char)val);
+                            }
+
+                            i = k - 1;
+                            slash = false;
+                            break;
+                        case 'x':
+                            int t = i + 1;
+                            for(int j = 1; j < 5; j++){
+                                t = i + j;
+                                if (t < codeLength){
+                                    char digit = code.charAt(t);
+                                    if (Character.isDigit(digit) || (digit >= 'A' && digit <= 'F') || (digit >= 'a' && digit <= 'f')){
+                                        // nop;
+                                    } else {
+                                        break;
+                                    }
+                                } else
+                                    break;
+                            }
+
+                            String s16 = code.substring(i + 1, t);
+                            if (s16.isEmpty()){
+                                sb.append(ch);
+                            } else  {
+                                int val16 = Integer.parseInt(s16, 16);
+                                sb.append((char)val16);
+                            }
+                            i = t - 1;
+                            slash = false;
+                            break;
+                        case '$':
+                        case '"':
+                        default:
+                            slash = false;
+                            sb.append(ch); break;
+                    }
+                } else {
+                    switch (ch){
+                        case '\\':
+                            slash = true;
+                        break;
+                        case '$':
+                            int k = i + 1;
+                            boolean done = false;
+                            int opened = 0;
+                            int complex = 0;
+                            if (k < codeLength) {
+                                char first = code.charAt(k);
+                                if (GrammarUtils.isEngLetter(first)){
+                                    k++;
+                                    done = true;
+                                    for(; i < codeLength; k++){
+                                        if (k < codeLength){
+                                            first = code.charAt(k);
+                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first)){
+                                                // nop
+                                            } else if (complex == 0 && first == '[') {
+                                                opened++;
+                                                complex = 1;
+                                            } else if (complex == 1 && opened != 0 && first == ']') {
+                                                opened--;
+                                                if (opened <= 0) {
+                                                    k++;
+                                                    break;
+                                                }
+                                            } else if (complex == 0 && first == '-'){
+                                                if (k + 1 < codeLength && code.charAt(k + 1) == '>'){
+                                                    k++;
+                                                    complex = 2;
+                                                } else
+                                                    break;
+                                            } else
+                                                break;
+                                        } else
+                                            break;
+                                    }
+                                }
+                            }
+
+                            if (done){
+                                if (opened != 0)
+                                    throw new ParseException(
+                                            Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
+                                            new TraceInfo(context, startLine, 0, startPosition, 0)
+                                    );
+
+                                segments.add(new StringExprToken.Segment(i - currentPosition - 1, k - currentPosition - 1, true));
+                                sb.append(code.substring(i, k));
+                            } else
+                                sb.append(ch);
+
+                            i = k - 1;
+                            break;
+                        default:
+                            sb.append(ch);
+                    }
+                }
+            }
+        }
+
+        if (ch_quote != quote || slash){
+            throw new ParseException(
+                    Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
+                    new TraceInfo(context, currentLine, currentLine, currentLine, currentLine)
+            );
+        }
+
+        TokenMeta meta = buildMeta(startPosition + 1, startLine);
+        meta.setWord(sb.toString());
+
+        StringExprToken expr = new StringExprToken(meta, quote);
+        expr.setSegments(segments);
+        return expr;
+    }
+
     public Token nextToken(){
         boolean init = false;
         char ch = '\0';
@@ -177,19 +411,15 @@ public class Tokenizer {
                     return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
                 }
 
-                if (ch == '/' && prev_ch == '/'){
-                    comment = CommentToken.Kind.SIMPLE;
+                comment = CommentToken.Kind.isComment(ch, prev_ch);
+                if (comment != null)
                     continue;
-                }
-
-                if (ch == '*' && prev_ch == '/'){
-                    comment = CommentToken.Kind.BLOCK;
-                    continue;
-                }
 
                 string = GrammarUtils.isQuote(ch);
-                if (string != null)
-                    continue;
+                if (string != null) {
+                    return readString(string, startPosition, startLine);
+                    //continue;
+                }
 
                 if (GrammarUtils.isDelimiter(ch)){
                     if (GrammarUtils.isFloatDot(ch) && (prev_ch == '\0' || GrammarUtils.isNumeric(prev_ch))) {

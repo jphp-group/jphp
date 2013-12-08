@@ -5,7 +5,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 
 abstract public class PhpException extends RuntimeException {
 
-    protected final TraceInfo traceInfo;
+    protected TraceInfo traceInfo;
 
     public PhpException(String message, TraceInfo traceInfo) {
         super(message);
@@ -19,5 +19,9 @@ abstract public class PhpException extends RuntimeException {
 
     public TraceInfo getTraceInfo() {
         return traceInfo;
+    }
+
+    public void setTraceInfo(TraceInfo traceInfo) {
+        this.traceInfo = traceInfo;
     }
 }

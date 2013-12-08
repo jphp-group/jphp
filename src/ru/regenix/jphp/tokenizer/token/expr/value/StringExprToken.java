@@ -3,18 +3,45 @@ package ru.regenix.jphp.tokenizer.token.expr.value;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StringExprToken extends ValueExprToken {
 
     public enum Quote { SINGLE, DOUBLE, SHELL }
 
+    public static class Segment {
+        public final int from;
+        public final int to;
+        public final boolean isVariable;
+
+        public Segment(int from, int to, boolean isVariable) {
+            this.from = from;
+            this.to = to;
+            this.isVariable = isVariable;
+        }
+    }
+
     protected final Quote quote;
     private String value;
+
+    protected List<Segment> segments = new ArrayList<Segment>();
+    protected ExprStmtToken expression;
 
     public StringExprToken(TokenMeta meta, Quote quote) {
         super(meta, TokenType.T_CONSTANT_ENCAPSED_STRING);
         this.quote = quote;
         this.value = meta.getWord();
+    }
+
+    public List<Segment> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(List<Segment> segments) {
+        this.segments = segments;
     }
 
     public Quote getQuote() {
@@ -58,6 +85,13 @@ public class StringExprToken extends ValueExprToken {
         }
     }
 
+    public ExprStmtToken getExpression() {
+        return expression;
+    }
+
+    public void setExpression(ExprStmtToken expression) {
+        this.expression = expression;
+    }
 
     @Override
     public String toString() {

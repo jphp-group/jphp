@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TokenMeta {
-    protected final String word;
+    protected String word;
 
     protected final int startPosition;
     protected final int endPosition;
@@ -65,6 +65,10 @@ public class TokenMeta {
                 word,
                 0, 0, 0, 0
         );
+    }
+
+    public void setWord(String word) {
+        this.word = word;
     }
 
     public String getWord() {

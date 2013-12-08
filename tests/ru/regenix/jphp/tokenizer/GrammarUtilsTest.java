@@ -21,7 +21,6 @@ public class GrammarUtilsTest {
     public void testIsQuote() throws Exception {
         Assert.assertEquals(StringExprToken.Quote.DOUBLE, GrammarUtils.isQuote('"'));
         Assert.assertEquals(StringExprToken.Quote.SINGLE, GrammarUtils.isQuote('\''));
-        Assert.assertEquals(StringExprToken.Quote.SHELL, GrammarUtils.isQuote('`'));
     }
 
     @Test

@@ -9,7 +9,25 @@ import java.io.StringReader;
 
 public class CommentToken extends Token {
 
-    public enum Kind { SIMPLE, BLOCK, DOCTYPE }
+    public enum Kind {
+        SIMPLE, BLOCK, DOCTYPE;
+
+        public static Kind isComment(char ch, char prev_ch){
+            if (ch == '/' && prev_ch == '/'){
+                return CommentToken.Kind.SIMPLE;
+            }
+
+            if (ch == '#') {
+                return CommentToken.Kind.SIMPLE;
+            }
+
+            if (ch == '*' && prev_ch == '/'){
+                return CommentToken.Kind.BLOCK;
+            }
+
+            return null;
+        }
+    }
 
     private Kind kind;
     private String comment;

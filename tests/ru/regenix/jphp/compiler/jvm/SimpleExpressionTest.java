@@ -294,4 +294,12 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         memory = runDynamic("function test() { static $i; $i++; return $i; } test(); return test();", false);
         Assert.assertEquals(2, memory.toLong());
     }
+
+    @Test
+    public void testStringBuilder(){
+        Memory memory;
+
+        memory = runDynamic("$x = 100500; return \"foo $x bar\";", false);
+        Assert.assertEquals("foo 100500 bar", memory.toString());
+    }
 }

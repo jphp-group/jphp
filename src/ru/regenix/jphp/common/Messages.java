@@ -5,6 +5,7 @@ final public class Messages {
     private Messages(){}
 
     public final static Item ERR_PARSE_UNEXPECTED_END_OF_FILE = new Item("Syntax error, unexpected end");
+    public final static Item ERR_PARSE_UNEXPECTED_END_OF_STRING = new Item("Syntax error, unexpected end of string");
     public final static Item ERR_PARSE_UNEXPECTED_X_EXPECTED_Y = new Item("Syntax error, unexpected '%s', expecting '%s'");
     public final static Item ERR_PARSE_UNEXPECTED_X = new Item("Syntax error, unexpected '%s'");
     public final static Item ERR_PARSE_IDENTIFIER_X_ALREADY_USED = new Item("Identifier '%s' already used");

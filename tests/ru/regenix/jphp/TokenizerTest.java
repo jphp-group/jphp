@@ -55,7 +55,7 @@ public class TokenizerTest {
     @Test
     public void testScalarTokens(){
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "10 3.3 'foo' '' `bar` \"xyz\" 0xCC true false"));
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, "10 3.3 'foo' '' \"xyz\" 0xCC true false"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -74,11 +74,6 @@ public class TokenizerTest {
         assertTrue(token instanceof StringExprToken);
         assertEquals(StringExprToken.Quote.SINGLE, ((StringExprToken) token).getQuote());
         assertEquals("", ((StringExprToken) token).getValue());
-
-        token = tokenizer.nextToken();
-        assertTrue(token instanceof StringExprToken);
-        assertEquals(StringExprToken.Quote.SHELL, ((StringExprToken) token).getQuote());
-        assertEquals("bar", ((StringExprToken) token).getValue());
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -104,19 +99,15 @@ public class TokenizerTest {
     @Test
     public void testStringSlashes(){
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, " 'foo\\'bar' \"foo\\\"bar\" `foo\\`bar`"));
+        Tokenizer tokenizer = new Tokenizer(new Context(environment, " 'foo\\'bar' \"foo\\\"bar\""));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
-        assertEquals("foo\\'bar", ((StringExprToken) token).getValue());
+        assertEquals("foo'bar", ((StringExprToken) token).getValue());
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
-        assertEquals("foo\\\"bar", ((StringExprToken) token).getValue());
-
-        token = tokenizer.nextToken();
-        assertTrue(token instanceof StringExprToken);
-        assertEquals("foo\\`bar", ((StringExprToken) token).getValue());
+        assertEquals("foo\"bar", ((StringExprToken) token).getValue());
     }
 
     @Test
@@ -169,10 +160,10 @@ public class TokenizerTest {
         TraceInfo traceInfo = ((ParseException) ex).getTraceInfo();
         assertNotNull(traceInfo);
         assertNull(traceInfo.getContext().getFile());
-        assertEquals(0, traceInfo.getStartLine());
+        assertEquals(1, traceInfo.getStartLine());
         assertEquals(1, traceInfo.getEndLine());
-        assertEquals(0, traceInfo.getStartPosition());
-        assertEquals(2, traceInfo.getEndPosition());
+        assertEquals(1, traceInfo.getStartPosition());
+        assertEquals(1, traceInfo.getEndPosition());
     }
 
     @Test

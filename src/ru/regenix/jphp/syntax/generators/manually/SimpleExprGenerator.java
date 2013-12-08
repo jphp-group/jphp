@@ -2,7 +2,10 @@ package ru.regenix.jphp.syntax.generators.manually;
 
 
 import ru.regenix.jphp.common.Separator;
+import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
@@ -202,6 +205,73 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected Token processString(StringExprToken string){
+        if (string.getSegments().isEmpty()){
+            return string;
+        }
+
+        List<Token> tokens = new ArrayList<Token>();
+        int i = 0;
+        String value = string.getValue();
+        TokenMeta meta = string.getMeta();
+
+        for(StringExprToken.Segment segment : string.getSegments()){
+            String prev = value.substring(i, segment.from);
+            if (!prev.isEmpty()) {
+                StringExprToken item = new StringExprToken(new TokenMeta(
+                        prev, meta.getStartLine() + i, meta.getEndLine(), meta.getStartLine(), meta.getEndLine()
+                ), StringExprToken.Quote.SINGLE);
+
+                tokens.add(item);
+            }
+
+            String dynamic = value.substring(segment.from, segment.to);
+            if (!segment.isVariable)
+                dynamic = dynamic.substring(1, dynamic.length() - 1);
+
+            Tokenizer tokenizer = new Tokenizer(dynamic + ";", analyzer.getContext());
+
+            try {
+                SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokenizer);
+                List<Token> tree = syntaxAnalyzer.getTree();
+                assert tree.size() > 0;
+
+                Token item = tree.get(0);
+                if (!(item instanceof ExprStmtToken))
+                    unexpectedToken(item);
+
+                ExprStmtToken expr = (ExprStmtToken)item;
+                if (expr.isSingle()){
+                    tokens.add(expr.getSingle());
+                } else
+                    tokens.add(expr);
+            } catch (ParseException e){
+                TraceInfo oldTrace = e.getTraceInfo();
+                e.setTraceInfo(new TraceInfo(
+                                analyzer.getContext(),
+                                meta.getStartLine() + oldTrace.getStartLine(),
+                                meta.getEndLine() + oldTrace.getEndLine(),
+                                meta.getStartLine() + oldTrace.getStartLine(),
+                                meta.getEndLine() + oldTrace.getEndLine()
+                ));
+                throw e;
+            }
+
+            i = segment.to;
+        }
+
+        String prev = value.substring(i);
+        if (!prev.isEmpty()){
+            StringExprToken item = new StringExprToken(new TokenMeta(
+                    prev, meta.getStartLine() + i, meta.getEndLine(), meta.getStartLine(), meta.getEndLine()
+            ), StringExprToken.Quote.SINGLE);
+
+            tokens.add(item);
+        }
+
+        return new StringBuilderExprToken(meta, tokens);
+    }
+
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (current instanceof DynamicAccessExprToken){
@@ -345,6 +415,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
         }
 
+        if (current instanceof StringExprToken){
+            return processString((StringExprToken) current);
+        }
+
         return null;
     }
 
@@ -457,7 +531,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         NameToken.class,
                         VariableExprToken.class,
                         CallExprToken.class,
-                        ArrayGetExprToken.class, DynamicAccessExprToken.class)){
+                        ArrayGetExprToken.class,
+                        DynamicAccessExprToken.class,
+                        StringExprToken.class,
+                        StringBuilderExprToken.class)){
                     // array
                     tokens.add(current = processArrayToken(previous, current, iterator));
                 }
