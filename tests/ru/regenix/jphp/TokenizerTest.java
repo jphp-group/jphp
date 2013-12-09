@@ -189,10 +189,11 @@ public class TokenizerTest {
 
         tokenizer = new Tokenizer(environment.createContext("123foobar"));
         token = tokenizer.nextToken();
-        assertFalse(token instanceof IntegerExprToken);
-        assertFalse(token instanceof NameToken);
-        assertTrue(token.getClass() == Token.class);
-        assertEquals("123foobar", token.getWord());
+        assertTrue(token instanceof IntegerExprToken);
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof NameToken);
+        assertEquals("foobar", token.getWord());
 
         assertNull(tokenizer.nextToken());
     }

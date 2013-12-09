@@ -137,6 +137,22 @@ public class Tokenizer {
         }
     }
 
+    protected void checkNewLine(char ch, boolean invert){
+        if (GrammarUtils.isNewline(ch)){
+            if (invert)
+                currentLine--;
+            else
+                currentLine++;
+
+            relativePosition = 0;
+            startRelativePosition = 0;
+        }
+    }
+
+    protected void checkNewLine(char ch){
+        checkNewLine(ch, false);
+    }
+
     protected StringExprToken readString(StringExprToken.Quote quote, int startPosition, int startLine){
         int i;
         StringExprToken.Quote ch_quote = null;
@@ -156,8 +172,7 @@ public class Tokenizer {
                 break;
             }
 
-            if (GrammarUtils.isNewline(ch))
-                currentLine++;
+            checkNewLine(ch);
 
             if (!isMagic){
                 switch (ch){
@@ -359,6 +374,88 @@ public class Tokenizer {
         return expr;
     }
 
+    protected Token readComment(CommentToken.Kind kind, int startPosition, int startLine){
+        int i;
+        for(i = currentPosition + 1; i < codeLength; i++){
+            char ch = code.charAt(i);
+            checkNewLine(ch);
+
+            char prev_ch = i > 0 ? code.charAt(i - 1) : '\0';
+
+            boolean closed = false;
+            switch (kind){
+                case SIMPLE:
+                    closed = (GrammarUtils.isNewline(ch)); break;
+                case DOCTYPE:
+                case BLOCK:
+                    closed = (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
+            }
+
+            closed = closed || i == codeLength - 1;
+            if (closed){
+                String text = code.substring(
+                        startPosition,
+                        kind == CommentToken.Kind.SIMPLE ? i : i - 1
+                );
+
+                TokenMeta meta = new TokenMeta(
+                        text,
+                        startLine, currentLine, startRelativePosition, relativePosition
+                );
+                currentPosition = i;
+                return buildToken(CommentToken.class, meta);
+            }
+        }
+        assert false;
+        return null;
+    }
+
+    protected Token readNumber(int startPosition, int startLine){
+        int i;
+        boolean dot = false;
+        boolean e_char = false;
+
+        i = currentPosition;
+        boolean is_hex = code.charAt(i) == '0'
+                && (i < codeLength && Character.toLowerCase(code.charAt(i + 1)) == 'x');
+
+        if (is_hex)
+            i += 2;
+
+        for(; i < codeLength; i++){
+            char ch = code.charAt(i);
+
+            if (!is_hex && GrammarUtils.isFloatDot(ch)){
+                if (dot)
+                    break;
+                dot = true;
+            } else if (!is_hex && (ch == 'e' || ch == 'E')){
+                if (e_char)
+                    break;
+
+                if (i + 1 >= codeLength){
+                    break;
+                } else if (code.charAt(i + 1) == '-') {
+                    if (i + 2 >= codeLength || !Character.isDigit(code.charAt(i + 2))) {
+                        break;
+                    } else
+                        i++;
+                }
+                e_char = true;
+            } else if (is_hex && ((ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))){
+                // nop
+            } else if (!Character.isDigit(ch))
+                break;
+        }
+
+        currentPosition = i;
+        TokenMeta meta = buildMeta(startPosition, startLine);
+        Class<? extends Token> tokenClazz = tokenFinder.find(meta);
+
+        currentPosition -= 1;
+        return buildToken(tokenClazz, meta);
+    }
+
     public Token nextToken(){
         boolean init = false;
         char ch = '\0';
@@ -369,7 +466,6 @@ public class Tokenizer {
 
         StringExprToken.Quote string = null;
         CommentToken.Kind comment = null;
-        boolean prevBackslash = false;
 
         if (codeLength == 0)
             return null;
@@ -384,120 +480,77 @@ public class Tokenizer {
             if (currentPosition > 0 && init)
                 prev_ch = code.charAt(currentPosition - 1);
 
-            if (GrammarUtils.isNewline(ch)){
-                currentLine++;
-                relativePosition = 0;
-                startRelativePosition = 0;
-            }
+            checkNewLine(ch);
 
             init = true;
-            if (string == null && comment == null) {
-                if (rawMode){
-                    if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
-                        TokenMeta meta = new TokenMeta(
-                                code.substring(startPosition, currentPosition - 1), startLine, currentLine,
-                                startRelativePosition, relativePosition
-                        );
-                        rawMode = false;
-                        startLine = currentLine;
-                        startRelativePosition = relativePosition;
-                        return buildToken(EchoRawToken.class, meta);
-                    } else {
-                        continue;
-                    }
-                }
-
-                if (ch == '=' && prevToken instanceof EchoRawToken){
-                    return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
-                }
-
-                comment = CommentToken.Kind.isComment(ch, prev_ch);
-                if (comment != null)
-                    continue;
-
-                string = GrammarUtils.isQuote(ch);
-                if (string != null) {
-                    return readString(string, startPosition, startLine);
-                    //continue;
-                }
-
-                if (GrammarUtils.isDelimiter(ch)){
-                    if (GrammarUtils.isFloatDot(ch) && (prev_ch == '\0' || GrammarUtils.isNumeric(prev_ch))) {
-                         // double value
-                    } else {
-                        if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
-                            startPosition = currentPosition + 1;
-                            startLine = currentLine;
-                            startRelativePosition = relativePosition;
-                            prevToken = null;
-                            continue;
-                        }
-                        if (startPosition == currentPosition){
-                            Token token = tryNextToken();
-                            if (token instanceof BreakToken){
-                                rawMode = true;
-                            }
-
-                            if (token instanceof CommentToken){
-                                comment = ((CommentToken)token).getKind();
-                                continue;
-                            }
-                            if (token != null)
-                                return token;
-                        }
-
-                        break;
-                    }
-                } else if (GrammarUtils.isVariableChar(ch)){
-                    if (GrammarUtils.isVariableChar(prev_ch)){
-                        currentPosition -= 1;
-                        break;
-                    }
-                }
-            } else if (comment != null){
-                boolean closed = false;
-                switch (comment){
-                    case SIMPLE:
-                        closed = (GrammarUtils.isNewline(ch)); break;
-                    case DOCTYPE:
-                    case BLOCK:
-                        closed = (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
-                }
-                if (closed){
-                    String text = code.substring(
-                            startPosition,
-                            comment == CommentToken.Kind.SIMPLE ? currentPosition : currentPosition - 1
-                    );
-
+            if (rawMode){
+                if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
                     TokenMeta meta = new TokenMeta(
-                            text,
-                            startLine, currentLine, startRelativePosition, relativePosition
+                            code.substring(startPosition, currentPosition - 1), startLine, currentLine,
+                            startRelativePosition, relativePosition
                     );
-                    return buildToken(CommentToken.class, meta);
-                }
-            } else {
-                if (GrammarUtils.isBackslash(ch)){
-                    prevBackslash = !prevBackslash;
+                    rawMode = false;
+                    startLine = currentLine;
+                    startRelativePosition = relativePosition;
+                    return buildToken(EchoRawToken.class, meta);
+                } else {
                     continue;
-                }
-
-                if (!prevBackslash){
-                    if (GrammarUtils.isQuote(ch) == string){
-                        if (GrammarUtils.isQuote(prev_ch) == string){
-                            return new StringExprToken(
-                                    new TokenMeta("", startLine, startLine, startPosition, startPosition),
-                                    string
-                            );
-                        } else
-                        return new StringExprToken(
-                                buildMeta(startPosition + 1, startLine),
-                                string
-                        );
-                    }
                 }
             }
 
-            prevBackslash = false;
+            if (ch == '=' && prevToken instanceof EchoRawToken){
+                return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
+            }
+
+            // numbers: integers, doubles, hex
+            if (Character.isDigit(ch)){
+                return readNumber(startPosition, startLine);
+            }
+
+            // comments
+            comment = CommentToken.Kind.isComment(ch, prev_ch);
+            if (comment != null) {
+                return readComment(comment, startPosition, startLine);
+            }
+
+            // strings, herdoc, etc.
+            string = GrammarUtils.isQuote(ch);
+            if (string != null) {
+                return readString(string, startPosition, startLine);
+            }
+
+            if (GrammarUtils.isDelimiter(ch)){
+                if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
+                    startPosition = currentPosition + 1;
+                    startLine = currentLine;
+                    startRelativePosition = relativePosition;
+                    prevToken = null;
+                    continue;
+                }
+
+                if (startPosition == currentPosition){
+                    Token token = tryNextToken();
+                    if (token instanceof BreakToken){
+                        rawMode = true;
+                    }
+
+                    if (token instanceof CommentToken){
+                        comment = ((CommentToken)token).getKind();
+                        return readComment(comment, startPosition, startLine);
+                        //continue;
+                    }
+
+                    if (token != null)
+                        return token;
+                }
+
+                break;
+            } else if (GrammarUtils.isVariableChar(ch)){
+                if (GrammarUtils.isVariableChar(prev_ch)){
+                    currentPosition -= 1;
+                    break;
+                }
+            }
         }
 
         TokenMeta meta = buildMeta(startPosition, startLine);
@@ -510,12 +563,6 @@ public class Tokenizer {
             return null;
 
         //currentPosition -= 1;
-
-        if (string != null)
-            context.triggerError(new ParseException(
-                    Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(), meta.toTraceInfo(context)
-            ));
-
         Class<? extends Token> tokenClazz = tokenFinder.find(meta);
         if (tokenClazz == null){
             return prevToken = new Token(meta, TokenType.T_J_CUSTOM);

@@ -1,8 +1,8 @@
 <?
-$x = array('foobar');
+$x = 123foobar;
 
-for($i = 0; $i < 10000000; $i++){
-    $str = "ab " . $i . " x ". $i . " abcd";
-}
+$a = 1.234;
+$b = 1.2e3;
+$c = 7e-10;
 
-echo $str;
+echo $a, "\n", $b, "\n", $c;

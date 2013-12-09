@@ -5,7 +5,9 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.BinaryMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -104,6 +106,13 @@ public class StringFunctions extends FunctionsContainer {
             env.echo(value);
             return value.length();
         }
+    }
+
+    public static int vprintf(Environment env, TraceInfo trace, String format, Memory array){
+        if (array.isArray()){
+            return printf(env, trace, format, array.toValue(ArrayMemory.class).values());
+        } else
+            return printf(env, trace, format, array);
     }
 
     @Runtime.Immutable
@@ -413,7 +422,7 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static Memory implode(Environment env, Memory glue, Memory pieces){
+    public static Memory implode(Environment env, TraceInfo trace, Memory glue, Memory pieces){
         ArrayMemory array;
         String delimiter;
         if (glue.isArray()) {
@@ -423,7 +432,7 @@ public class StringFunctions extends FunctionsContainer {
             array = (ArrayMemory)pieces;
             delimiter = glue.toString();
         } else {
-            env.warning("Argument must be an array");
+            env.warning(trace, "Argument must be an array");
             return Memory.NULL;
         }
 
@@ -440,18 +449,18 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static Memory implode(Environment env, Memory pieces){
-        return implode(env, Memory.NULL, pieces);
+    public static Memory implode(Environment env, TraceInfo trace, Memory pieces){
+        return implode(env, trace, Memory.NULL, pieces);
     }
 
     @Runtime.Immutable
-    public static Memory join(Environment env, Memory glue, Memory pieces){
-        return implode(env, glue, pieces);
+    public static Memory join(Environment env, TraceInfo trace, Memory glue, Memory pieces){
+        return implode(env, trace, glue, pieces);
     }
 
     @Runtime.Immutable
-    public static Memory join(Environment env, Memory pieces){
-        return implode(env, Memory.NULL, pieces);
+    public static Memory join(Environment env, TraceInfo trace, Memory pieces){
+        return implode(env, trace, Memory.NULL, pieces);
     }
 
     public static Memory explode(String delimiter, String string, int limit){
@@ -887,6 +896,107 @@ public class StringFunctions extends FunctionsContainer {
         return stripos(env, trace, haystack, needle, 0);
     }
 
+    @Runtime.Immutable
+    public static Memory strlen(Environment env, TraceInfo trace, Memory string){
+        if (string.isArray()){
+            env.warning(trace, "expects parameter 1 to be string, array given");
+            return Memory.NULL;
+        }
+        if (string instanceof BinaryMemory)
+            return LongMemory.valueOf(string.getBinaryBytes().length);
+
+        return LongMemory.valueOf(string.toString().length());
+    }
 
 
+    protected static String _substr_replace(String string, String replacement, int start, int length){
+        int strLength = string.length();
+        if (start > strLength)
+            start = strLength;
+        else if (start < 0)
+            start = strLength + start;
+
+        if (start < 0)
+            start = 0;
+
+        int end;
+        if (length < 0)
+            end = Math.max(strLength + length, start);
+        else
+            end = (strLength < length) ? strLength : (start + length);
+
+        StringBuilder result = new StringBuilder();
+
+        result.append(string.substring(0, start));
+        result.append(replacement);
+        result.append(string.substring(end));
+
+        return result.toString();
+    }
+
+    @Runtime.Immutable
+    public static Memory substr_replace(Environment env, TraceInfo trace,
+                                        Memory string, Memory replacementM, Memory startM, Memory lengthM) {
+        int start = 0;
+        int length = Integer.MAX_VALUE / 2;
+        String replacement = "";
+
+        ForeachIterator replacementIterator = null;
+        if (replacementM.isArray())
+            replacementIterator = replacementM.getNewIterator(false, false);
+        else
+            replacement = replacementM.toString();
+
+        ForeachIterator startIterator = null;
+        if (startM.isArray())
+            startIterator = startM.getNewIterator(false, false);
+        else
+            start = startM.toInteger();
+
+        ForeachIterator lengthIterator = null;
+        if (lengthM.isArray())
+            lengthIterator = lengthM.getNewIterator(false, false);
+        else
+            length = lengthM.toInteger();
+
+        if (string.isArray()){
+            ArrayMemory resultArray = new ArrayMemory();
+            ForeachIterator iterator = string.getNewIterator(false, false);
+
+            while (iterator.next()){
+                String value = iterator.getCurrentValue().toString();
+
+                if (replacementIterator != null && replacementIterator.next())
+                    replacement = replacementIterator.getCurrentValue().toString();
+
+                if (lengthIterator != null && lengthIterator.next())
+                    length = lengthIterator.getCurrentValue().toInteger();
+
+                if (startIterator != null && startIterator.next())
+                    start = startIterator.getCurrentValue().toInteger();
+
+                String result = _substr_replace(value, replacement, start, length);
+                resultArray.add(new StringMemory(result));
+            }
+
+            return resultArray.toConstant();
+        } else {
+            if (replacementIterator != null && replacementIterator.next())
+                replacement = replacementIterator.getCurrentValue().toString();
+
+            if (lengthIterator != null && lengthIterator.next())
+                length = lengthIterator.getCurrentValue().toInteger();
+
+            if (startIterator != null && startIterator.next())
+                start = startIterator.getCurrentValue().toInteger();
+
+            return new StringMemory( _substr_replace(string.toString(), replacement, start, length));
+        }
+    }
+
+    @Runtime.Immutable
+    public static Memory substr_replace(Environment env, TraceInfo trace,
+                                        Memory string, Memory replacementM, Memory startM) {
+        return substr_replace(env, trace, string, replacementM, startM, new LongMemory(Integer.MAX_VALUE / 2));
+    }
 }
