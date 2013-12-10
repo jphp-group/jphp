@@ -971,32 +971,45 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeUndefineVariable(value);
     }
 
+    protected void writeDefineGlobalVar(String name){
+        writePushEnv();
+        writePushConstString(name);
+        writeSysDynamicCall(Environment.class, "getOrCreateGlobal", Memory.class, String.class);
+        makeVarStore(method.getLocalVariable(name));
+        stackPop();
+    }
+
+    protected void writeDefineThis(LocalVariable variable){
+        writeVarLoad("~this");
+        writeSysStaticCall(ObjectMemory.class, "valueOf", ObjectMemory.class, PHPObject.class);
+        makeVarStore(variable);
+        stackPop();
+
+        variable.pushLevel();
+        variable.setValue(null);
+        variable.setImmutable(false);
+        variable.setReference(true);
+    }
+
     protected void writeDefineVariable(VariableExprToken value){
         LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null) {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
-            if (method.statement.isReference(value)){
+            if (method.statement.isReference(value) || compiler.getScope().superGlobals.contains(value.getName())) {
                 variable.setReference(true);
             } else {
                 variable.setReference(false);
             }
 
-            if (variable.name.equals("this") && method.getLocalVariable("~this") != null){
-                writeVarLoad("~this");
-                writeSysStaticCall(ObjectMemory.class, "valueOf", ObjectMemory.class, PHPObject.class);
-                makeVarStore(variable);
-                stackPop();
-
-                variable.pushLevel();
-                variable.setValue(null);
-                variable.setImmutable(false);
-                variable.setReference(true);
-            } else
-            if (method.statement.isDynamicLocal()){
+            if (variable.name.equals("this") && method.getLocalVariable("~this") != null){ // $this
+                writeDefineThis(variable);
+            } else if (compiler.getScope().superGlobals.contains(value.getName())){ // super-globals
+                writeDefineGlobalVar(value.getName());
+            } else if (method.statement.isDynamicLocal()){ // ref-local variables
                 writePushLocal();
-                writePushString(value.getName());
+                writePushConstString(value.getName());
                 writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, String.class);
                 makeVarStore(variable);
                 stackPop();
@@ -1004,7 +1017,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.pushLevel();
                 variable.setValue(null);
                 variable.setReference(true);
-            } else {
+            } else { // simple local variables
                 if (variable.isReference()){
                     writePushNewObject(ReferenceMemory.class);
                 } else {
@@ -1036,6 +1049,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     Memory tryWritePushVariable(VariableExprToken value, boolean heavyObjects){
         if (method.statement.isUnstableVariable(value))
+            return null;
+
+        if (compiler.getScope().superGlobals.contains(value.getName()))
             return null;
 
         LocalVariable variable = method.getLocalVariable(value.getName());

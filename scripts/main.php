@@ -1,5 +1,14 @@
 <?
 
-$x[30][[30]];
+$_POST = array(1, 2, 3, 4);
 
-print_r($var);
+function test($x, $y){
+    if ($x){
+        if ($y){
+            print_r($_POST);
+        }
+    }
+    print_r($_POST);
+}
+
+test(true, true);

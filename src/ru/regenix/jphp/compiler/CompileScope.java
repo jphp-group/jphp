@@ -33,6 +33,8 @@ public class CompileScope {
 
     public Map<String, Memory> configuration;
 
+    public final Set<String> superGlobals;
+
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
@@ -46,6 +48,18 @@ public class CompileScope {
         extensions = new LinkedHashMap<String, Extension>();
         compileConstantMap = new HashMap<String, CompileConstant>();
         compileFunctionMap = new HashMap<String, CompileFunction>();
+
+        superGlobals = new HashSet<String>();
+
+        superGlobals.add("GLOBALS");
+        superGlobals.add("_ENV");
+        superGlobals.add("_SERVER");
+        superGlobals.add("_POST");
+        superGlobals.add("_GET");
+        superGlobals.add("_REQUEST");
+        superGlobals.add("_FILES");
+        superGlobals.add("_SESSION");
+        superGlobals.add("_COOKIE");
     }
 
     public int nextModuleIndex(){
