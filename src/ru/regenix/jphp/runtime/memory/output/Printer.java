@@ -26,12 +26,14 @@ abstract public class Printer {
     abstract protected void printObject(ObjectMemory value, int level, Set<Integer> used);
 
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used){
-        print(reference.toImmutable(), level, used);
+        print(reference.toValue(), level, used);
     }
 
     protected void print(Memory value, int level, Set<Integer> used){
-        if (used == null)
+        if (used == null){
             used = new HashSet<Integer>();
+        }
+
         switch (value.type){
             case NULL: printNull(); break;
             case BOOL:
@@ -43,8 +45,12 @@ abstract public class Printer {
             case INT: printLong((LongMemory)value); break;
             case DOUBLE: printDouble((DoubleMemory) value); break;
             case STRING: printString((StringMemory) value); break;
-            case ARRAY: printArray((ArrayMemory) value, level, used); break;
-            case OBJECT: printObject((ObjectMemory) value, level, used); break;
+            case ARRAY:
+                printArray((ArrayMemory) value, level, used);
+                break;
+            case OBJECT:
+                printObject((ObjectMemory) value, level, used);
+                break;
             case REFERENCE: printReference((ReferenceMemory)value, level, used); break;
             default:
                 throw new IllegalArgumentException("Unsupported type for printing: " + value.type);

@@ -1,14 +1,10 @@
 <?
 
-$_POST = array(1, 2, 3, 4);
+$a = 20;
+$b = 30;
 
-function test($x, $y){
-    if ($x){
-        if ($y){
-            print_r($_POST);
-        }
-    }
-    print_r($_POST);
+function test(){
+    print_r($GLOBALS);
 }
 
-test(true, true);
+test();

@@ -107,6 +107,8 @@ public class Environment {
                 return false;
             }
         });
+
+        this.globals.put("GLOBALS", this.globals);
     }
 
     public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
