@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.ext.core;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import ru.regenix.jphp.exceptions.TodoException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
@@ -14,9 +15,16 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.util.Printf;
 import ru.regenix.jphp.util.DigestUtils;
 
+import javax.crypto.*;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
+import java.util.zip.CRC32;
 
 /**
  * TODO:
@@ -115,6 +123,106 @@ public class StringFunctions extends FunctionsContainer {
             return printf(env, trace, format, array);
     }
 
+    /**
+     * Parses the cslashes bitmap returning an actual bitmap.
+     *
+     * @param charset the bitmap string
+     * @return the actual bitmap
+     */
+    private static boolean[] parseCharsetBitmap(Environment env, TraceInfo trace, String charset) {
+        boolean[] bitmap = new boolean[256];
+
+        int length = charset.length();
+        for (int i = 0; i < length; i++) {
+            char ch = charset.charAt(i);
+
+            // XXX: the bitmap eventual might need to deal with unicode
+            if (ch >= 256)
+                continue;
+
+            bitmap[ch] = true;
+
+            if (length <= i + 3)
+                continue;
+
+            if (charset.charAt(i + 1) != '.' || charset.charAt(i + 2) != '.')
+                continue;
+
+            char last = charset.charAt(i + 3);
+
+            if (last < ch) {
+                env.warning(trace, "character set range is invalid: %s..%s", ch, last);
+                continue;
+            }
+
+            i += 3;
+            for (; ch <= last; ch++) {
+                bitmap[ch] = true;
+            }
+
+            // TODO: handling of '@'?
+        }
+
+        return bitmap;
+    }
+
+    @Runtime.Immutable
+    public static String addcslashes(Environment env, TraceInfo trace, String source, String characters) {
+        boolean[] bitmap = parseCharsetBitmap(env, trace, characters);
+
+        int length = source.length();
+        StringBuilder sb = new StringBuilder(length * 5 / 4);
+
+        for (int i = 0; i < length; i++) {
+            char ch = source.charAt(i);
+
+            if (ch >= 256 || !bitmap[ch]) {
+                sb.append(ch);
+                continue;
+            }
+
+            switch (ch) {
+                case 0x07:
+                    sb.append("\\a");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case 0xb:
+                    sb.append("\\v");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                default:
+                    if (ch < 0x20 || ch >= 0x7f) {
+                        // save as octal
+                        sb.append("\\");
+                        sb.append((char) ('0' + ((ch >> 6) & 7)));
+                        sb.append((char) ('0' + ((ch >> 3) & 7)));
+                        sb.append((char) ('0' + ((ch) & 7)));
+                        break;
+                    }
+                    else {
+                        sb.append("\\");
+                        sb.append(ch);
+                        break;
+                    }
+            }
+        }
+
+        return sb.toString();
+    }
+
     @Runtime.Immutable
     public static String addslashes(String source) {
         StringBuilder sb = new StringBuilder();
@@ -142,6 +250,120 @@ public class StringFunctions extends FunctionsContainer {
             }
         }
         return sb.toString();
+    }
+
+    @Runtime.Immutable
+    public static String bin2hex(String value){
+        StringBuilder sb = new StringBuilder();
+
+        int ch;
+        int length = value.length();
+        for (int i = 0; i < length; i++) {
+            ch = value.charAt(i);
+            int d = (ch >> 4) & 0xf;
+
+            if (d < 10)
+                sb.append((char) (d + '0'));
+            else
+                sb.append((char) (d + 'a' - 10));
+
+            d = (ch) & 0xf;
+
+            if (d < 10)
+                sb.append((char) (d + '0'));
+            else
+                sb.append((char) (d + 'a' - 10));
+        }
+
+        return sb.toString();
+    }
+
+    @Runtime.Immutable
+    public static String hex2bin(String s) {
+        StringBuilder sb = new StringBuilder();
+
+        int len = s.length();
+
+        for (int i = 0; i + 1 < len; i += 2) {
+            int d1 = hexDigit(s.charAt(i));
+            int d2 = hexDigit(s.charAt(i + 1));
+
+            int d = d1 * 16 + d2;
+            sb.append((char) d);
+        }
+
+        return sb.toString();
+    }
+
+    private static int hexDigit(int c) {
+        if ('0' <= c && c <= '9') {
+            return c - '0';
+        } else if ('a' <= c && c <= 'f') {
+            return c - 'a' + 10;
+        } else if ('A' <= c && c <= 'F') {
+            return c - 'A' + 10;
+        } else {
+            return 0;
+        }
+    }
+
+    @Runtime.Immutable
+    public static Memory chunk_split(Environment env, TraceInfo trace, String body, int chunkLen, String end) {
+        if (chunkLen < 1) {
+            env.warning(trace, "chunk_split(): Chunk length should be greater than zero");
+            return Memory.FALSE;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+
+        for (; i + chunkLen <= body.length(); i += chunkLen) {
+            sb.append(body.substring(i, i + chunkLen));
+            sb.append(end);
+        }
+
+        if (i < body.length()) {
+            sb.append(body.substring(i));
+            sb.append(end);
+        }
+
+        return new StringMemory(sb.toString());
+    }
+
+    @Runtime.Immutable
+    public static Memory chunk_split(Environment env, TraceInfo trace, String body, int chunkLen){
+        return chunk_split(env, trace, body, chunkLen, "\r\n");
+    }
+
+    @Runtime.Immutable
+    public static Memory chunk_split(Environment env, TraceInfo trace, String body){
+        return chunk_split(env, trace, body, 76);
+    }
+
+    @Runtime.Immutable
+    public static Memory convert_cyr_string(Environment env, TraceInfo trace, String str, String from, String to){
+        throw new TodoException();
+    }
+
+    @Runtime.Immutable
+    public static int crc32(String value){
+        CRC32 crc = new CRC32();
+        crc.update(value.getBytes());
+        return (int)crc.getValue();
+    }
+
+    public static String crypt(String string, String salt) throws InvalidKeyException, NoSuchAlgorithmException,
+            InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException,
+            BadPaddingException, IllegalBlockSizeException {
+        DESKeySpec ks = new DESKeySpec(new byte[] {'s','e','c','r','e','t','!','!'});
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("DES");
+        SecretKey sk = skf.generateSecret(ks);
+        Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
+        IvParameterSpec ips = new IvParameterSpec(new byte[] {0,0,0,0,0,0,0,0});
+        c.init(Cipher.ENCRYPT_MODE, sk, ips);
+
+        throw new TodoException();
+        //return new String(c.doFinal());
     }
 
     @Runtime.Immutable
@@ -999,4 +1221,6 @@ public class StringFunctions extends FunctionsContainer {
                                         Memory string, Memory replacementM, Memory startM) {
         return substr_replace(env, trace, string, replacementM, startM, new LongMemory(Integer.MAX_VALUE / 2));
     }
+
+
 }

@@ -574,21 +574,23 @@ public class Tokenizer {
                 return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
             }
 
-            // numbers: integers, doubles, hex
-            if (Character.isDigit(ch)){
-                return readNumber(startPosition, startLine);
-            }
+            if (prev_ch == '\0'){
+                // numbers: integers, doubles, hex
+                if (Character.isDigit(ch)){
+                    return readNumber(startPosition, startLine);
+                }
 
-            // comments
-            comment = CommentToken.Kind.isComment(ch, prev_ch);
-            if (comment != null) {
-                return readComment(comment, startPosition, startLine);
-            }
+                // comments
+                comment = CommentToken.Kind.isComment(ch, prev_ch);
+                if (comment != null) {
+                    return readComment(comment, startPosition, startLine);
+                }
 
-            // strings, herdoc, etc.
-            string = GrammarUtils.isQuote(ch);
-            if (string != null) {
-                return readString(string, startPosition, startLine);
+                // strings, herdoc, etc.
+                string = GrammarUtils.isQuote(ch);
+                if (string != null) {
+                    return readString(string, startPosition, startLine);
+                }
             }
 
             if (GrammarUtils.isDelimiter(ch)){
