@@ -365,7 +365,7 @@ public class TokenizerTest {
         assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
         assertEquals(" \n<foobar> ", ((StringExprToken) token).getValue());
 
-        
+
         tokenizer = new Tokenizer(
                 environment.createContext("<<<'DOC'\n \\n<foobar> \nDOC;\n")
         );

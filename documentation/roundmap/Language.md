@@ -53,11 +53,12 @@
 + **break, continue**
 + **return**
 + **require, import** - to do improve
-+ foreach
++ **foreach**
 + goto
 + declare
 + try catch
 + try finally
++ **HEREDOC, NOWDOC for strings**
 
 ---
 
@@ -77,7 +78,7 @@
 + **Properties** (todo implement static properties, private, protected modifiers)
 + Constants
 + Autoloading
-+ **Constructors** & Destructors
++ **Constructors** & **Destructors** (finalize)
 + Visibility
 + Object inheritance **(partly)**
 + **Scope Resolution Operator (::)**
@@ -138,8 +139,8 @@
 ---
 
 ### Predefined Interfaces and Classes
-+ Traversable — The Traversable interface
-+ Iterator — The Iterator interface
++ **Traversable** — The Traversable interface
++ **Iterator** — The Iterator interface (_todo improve and check_)
 + IteratorAggregate — The IteratorAggregate interface
 + ArrayAccess — The ArrayAccess interface
 + Serializable — The Serializable interface
