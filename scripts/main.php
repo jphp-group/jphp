@@ -1,7 +1,5 @@
 <?
 
-$var = 200;
-$str = <<<"DOC"
-    Score: [$var]
-DOC; h
-echo $str;
+$x[30][[30]];
+
+print_r($var);

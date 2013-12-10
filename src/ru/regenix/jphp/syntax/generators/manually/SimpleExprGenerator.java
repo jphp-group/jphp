@@ -425,13 +425,22 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected Token processNewArray(Token current, ListIterator<Token> iterator){
         ArrayExprToken result = new ArrayExprToken(current.getMeta());
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
-        Token next = nextToken(iterator);
-        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
-            unexpectedToken(next);
+
+        Token next;
+        BraceExprToken.Kind braceKind;
+        if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)) {
+            next = current;
+            braceKind = BraceExprToken.Kind.ARRAY;
+        } else {
+            next = nextToken(iterator);
+            if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+                unexpectedToken(next);
+            braceKind = BraceExprToken.Kind.SIMPLE;
+        }
 
         do {
             ExprStmtToken argument = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE);
+                    .getToken(nextToken(iterator), iterator, true, braceKind);
             if (argument == null)
                 break;
 
@@ -537,7 +546,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         StringBuilderExprToken.class)){
                     // array
                     tokens.add(current = processArrayToken(previous, current, iterator));
-                }
+                } else if (previous instanceof OperatorExprToken
+                        || previous == null
+                        || isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE)
+                        || isOpenedBrace(previous, BraceExprToken.Kind.BLOCK)) {
+                    tokens.add(current = processNewArray(current, iterator));
+                } else
+                    unexpectedToken(current);
             } else if (current instanceof CommaToken){
                 if (separator == Separator.COMMA || separator == Separator.COMMA_OR_SEMICOLON){
                     break;

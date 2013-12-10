@@ -47,7 +47,7 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("[3 + 4]];");
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testBraces5(){
         getSyntaxTree("$x[30][[30]];");
     }

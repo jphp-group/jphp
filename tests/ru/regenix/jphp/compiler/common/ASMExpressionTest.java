@@ -91,7 +91,7 @@ public class ASMExpressionTest {
         getASMExpression("1 + 2)");
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testInvalidBraces(){
         getASMExpression("[10]");
     }
