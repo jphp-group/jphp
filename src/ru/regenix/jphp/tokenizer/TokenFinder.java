@@ -19,6 +19,7 @@ public class TokenFinder {
         put("/*", CommentToken.class);
         put("/**", CommentToken.class);
         put("//", CommentToken.class);
+        put("<<<", StringStartDocToken.class);
 
         put("+", PlusExprToken.class);
         put("-", MinusExprToken.class);

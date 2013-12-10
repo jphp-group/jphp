@@ -137,7 +137,7 @@ public class Tokenizer {
         }
     }
 
-    protected void checkNewLine(char ch, boolean invert){
+    protected boolean checkNewLine(char ch, boolean invert){
         if (GrammarUtils.isNewline(ch)){
             if (invert)
                 currentLine--;
@@ -146,41 +146,110 @@ public class Tokenizer {
 
             relativePosition = 0;
             startRelativePosition = 0;
+            return true;
         }
+        return false;
     }
 
-    protected void checkNewLine(char ch){
-        checkNewLine(ch, false);
+    protected boolean checkNewLine(char ch){
+        return checkNewLine(ch, false);
     }
 
     protected StringExprToken readString(StringExprToken.Quote quote, int startPosition, int startLine){
-        int i;
+        int i = currentPosition + 1, pos = relativePosition + 1;
         StringExprToken.Quote ch_quote = null;
         boolean slash = false;
         StringBuilder sb = new StringBuilder();
 
         boolean isMagic = quote == StringExprToken.Quote.DOUBLE;
+        String endString = null;
+
+        if (quote == StringExprToken.Quote.DOC){
+            StringBuilder tmp = new StringBuilder();
+            StringExprToken.Quote docType = null;
+
+            for(; i < codeLength; i++){
+                char ch = code.charAt(i);
+                pos++;
+
+                if (docType == null && GrammarUtils.isQuote(ch) != null) {
+                    docType = GrammarUtils.isQuote(ch);
+                } else if (docType != null && docType == GrammarUtils.isQuote(ch)){
+                    if (i + 1 >= codeLength || !GrammarUtils.isNewline(code.charAt(i + 1))){
+                        throw new ParseException(
+                                Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
+                                new TraceInfo(context, currentLine, currentLine, pos + 1, pos + 1)
+                        );
+                    }
+                    i += 1;
+                    break;
+                    // nop
+                } else if (GrammarUtils.isEngLetter(ch) || (tmp.length() != 0 && Character.isDigit(ch))){
+                    tmp.append(ch);
+                } else if (tmp.length() > 0 && checkNewLine(ch)){
+                    pos = 0;
+                    break;
+                } else {
+                    String error = Messages.ERR_PARSE_UNEXPECTED_X.fetch(ch);
+                    if (GrammarUtils.isNewline(ch))
+                        error = Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch();
+
+                    throw new ParseException(
+                            error,
+                            new TraceInfo(context, currentLine, currentLine, pos, pos)
+                    );
+                }
+            }
+
+            currentPosition = i;
+            i += 1; // skip \n
+
+            isMagic = (docType == null || docType == StringExprToken.Quote.DOUBLE);
+            endString = tmp.toString();
+        }
 
         List<StringExprToken.Segment> segments = new ArrayList<StringExprToken.Segment>();
 
-        for(i = currentPosition + 1; i < codeLength; i++){
+
+        for(; i < codeLength; i++){
             char ch = code.charAt(i);
 
+            pos++;
             ch_quote = GrammarUtils.isQuote(ch);
-            if (ch_quote == quote && !slash){
-                currentPosition = i;
+            if (endString == null && (ch_quote == quote && !slash)){
+                currentPosition  = i;
+                relativePosition = pos;
                 break;
             }
 
-            checkNewLine(ch);
+            if (checkNewLine(ch)) {
+                pos = 0;
+                if (endString != null){
+                    int end = i + 1 + endString.length() + 1;
+                    if (end < codeLength){
+                        String tmp = code.substring(i + 1, end - 1);
+                        if (tmp.equals(endString)
+                                && code.charAt(end - 1) == ';'
+                                && GrammarUtils.isNewline(code.charAt(end))){
+                            currentPosition = i + endString.length();
+                            relativePosition = endString.length();
+                            ch_quote = StringExprToken.Quote.DOC;
+                            break;
+                        }
+                    }
+                }
+            }
 
             if (!isMagic){
-                switch (ch){
+                switch (ch) {
                     case '\\':
-                        if (slash)
+                        if (!slash || endString != null)
                             sb.append(ch);
                         slash = !slash;
                         break;
+                    case '\'':
+                        if (endString == null)
+                            sb.deleteCharAt(sb.length() - 1); // remove slash
                     default:
                         sb.append(ch);
                         slash = false;
@@ -203,8 +272,7 @@ public class Tokenizer {
                                 case '{': opened++; break;
                                 case '}': opened--; break;
                             }
-                            if (GrammarUtils.isNewline(code.charAt(j)))
-                                currentLine++;
+                            checkNewLine(code.charAt(j));
 
                             if (opened == 0)
                                 break;
@@ -213,7 +281,7 @@ public class Tokenizer {
                         if (opened != 0)
                             throw new ParseException(
                                     Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
-                                    new TraceInfo(context, startLine, 0, startPosition, 0)
+                                    new TraceInfo(context, startLine, 0, relativePosition, 0)
                             );
 
                         String sub = code.substring(i, j + 1);
@@ -342,7 +410,7 @@ public class Tokenizer {
                                 if (opened != 0)
                                     throw new ParseException(
                                             Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
-                                            new TraceInfo(context, startLine, 0, startPosition, 0)
+                                            new TraceInfo(context, startLine, 0, pos, 0)
                                     );
 
                                 segments.add(new StringExprToken.Segment(i - currentPosition - 1, k - currentPosition - 1, true));
@@ -362,7 +430,7 @@ public class Tokenizer {
         if (ch_quote != quote || slash){
             throw new ParseException(
                     Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
-                    new TraceInfo(context, currentLine, currentLine, currentLine, currentLine)
+                    new TraceInfo(context, currentLine, currentLine, pos, pos)
             );
         }
 
@@ -375,10 +443,13 @@ public class Tokenizer {
     }
 
     protected Token readComment(CommentToken.Kind kind, int startPosition, int startLine){
-        int i;
+        int i, pos = relativePosition;
         for(i = currentPosition + 1; i < codeLength; i++){
             char ch = code.charAt(i);
-            checkNewLine(ch);
+            pos++;
+
+            if (checkNewLine(ch))
+                pos = 0;
 
             char prev_ch = i > 0 ? code.charAt(i - 1) : '\0';
 
@@ -403,6 +474,7 @@ public class Tokenizer {
                         startLine, currentLine, startRelativePosition, relativePosition
                 );
                 currentPosition = i;
+                relativePosition = pos;
                 return buildToken(CommentToken.class, meta);
             }
         }
@@ -538,6 +610,11 @@ public class Tokenizer {
                         comment = ((CommentToken)token).getKind();
                         return readComment(comment, startPosition, startLine);
                         //continue;
+                    }
+
+                    if (token instanceof StringStartDocToken){
+                        string = StringExprToken.Quote.DOC;
+                        return readString(string, startPosition, startLine);
                     }
 
                     if (token != null)

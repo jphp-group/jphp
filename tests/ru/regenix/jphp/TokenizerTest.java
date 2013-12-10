@@ -327,6 +327,17 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
         assertNull(tokenizer.nextToken());
 
+        tokenizer = new Tokenizer(
+                environment.createContext("# // foobar \n $x")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof CommentToken);
+        assertEquals(CommentToken.Kind.SIMPLE, ((CommentToken) token).getKind());
+        assertEquals("// foobar ", ((CommentToken) token).getComment());
+
+        assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
+        assertNull(tokenizer.nextToken());
+
         // block
         tokenizer = new Tokenizer(
                 environment.createContext("/* foobar \n */")
@@ -334,5 +345,33 @@ public class TokenizerTest {
         token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
         assertEquals(CommentToken.Kind.BLOCK, ((CommentToken) token).getKind());
+    }
+
+    @Test
+    public void testHeredoc(){
+        Tokenizer tokenizer = new Tokenizer(
+                environment.createContext("<<<DOC\n <foobar> \nDOC;\n")
+        );
+        Token token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
+        assertEquals(" <foobar> ", ((StringExprToken) token).getValue());
+
+        tokenizer = new Tokenizer(
+                environment.createContext("<<<\"DOC\"\n \\n<foobar> \nDOC;\n")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
+        assertEquals(" \n<foobar> ", ((StringExprToken) token).getValue());
+
+        
+        tokenizer = new Tokenizer(
+                environment.createContext("<<<'DOC'\n \\n<foobar> \nDOC;\n")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
+        assertEquals(" \\n<foobar> ", ((StringExprToken) token).getValue());
     }
 }

@@ -38,7 +38,9 @@ public class CommentToken extends Token {
             kind = Kind.DOCTYPE;
         } else if (meta.getWord().startsWith("//")){
             kind = Kind.SIMPLE;
-        } else
+        } else if (meta.getWord().startsWith("#"))
+            kind = Kind.SIMPLE;
+        else
             kind = Kind.BLOCK;
 
         this.comment = getComment();
