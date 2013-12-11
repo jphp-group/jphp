@@ -1726,20 +1726,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case SHORT:
             case CHAR:
             case LONG: {
-                LabelNode fail = new LabelNode();
-                LabelNode end = new LabelNode();
-
-                code.add(new JumpInsnNode(IFEQ, fail));
-                code.add(new InsnNode(ICONST_1));
-                code.add(new JumpInsnNode(GOTO, end));
-                code.add(fail);
-                code.add(new InsnNode(ICONST_0));
-                code.add(end);
-
-                if (peek == StackItem.Type.LONG){
-                    stackPop();
-                    stackPush(null, StackItem.Type.BOOL);
-                }
+                writeSysStaticCall(OperatorUtils.class, "toBoolean", Boolean.TYPE, peek.toClass());
             } break;
             case DOUBLE: {
                 writeSysStaticCall(OperatorUtils.class, "toBoolean", Boolean.TYPE, Double.TYPE);

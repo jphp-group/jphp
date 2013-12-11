@@ -17,6 +17,22 @@ public class OperatorUtils {
         return value != 0;
     }
 
+    public static boolean toBoolean(int value){
+        return value != 0;
+    }
+
+    public static boolean toBoolean(short value){
+        return value != 0;
+    }
+
+    public static boolean toBoolean(byte value){
+        return value != 0;
+    }
+
+    public static boolean toBoolean(char ch){
+        return ch != 0;
+    }
+
     public static boolean toBoolean(String value){
         return value != null && !value.equals("0") && !value.isEmpty();
     }
