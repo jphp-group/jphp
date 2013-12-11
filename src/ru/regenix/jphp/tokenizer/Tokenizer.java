@@ -554,7 +554,7 @@ public class Tokenizer {
 
             checkNewLine(ch);
 
-            init = true;
+
             if (rawMode){
                 if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
                     TokenMeta meta = new TokenMeta(
@@ -566,6 +566,7 @@ public class Tokenizer {
                     startRelativePosition = relativePosition;
                     return buildToken(EchoRawToken.class, meta);
                 } else {
+                    init = true;
                     continue;
                 }
             }
@@ -574,7 +575,7 @@ public class Tokenizer {
                 return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
             }
 
-            if (prev_ch == '\0'){
+            if (!init || prevToken == null){
                 // numbers: integers, doubles, hex
                 if (Character.isDigit(ch)){
                     return readNumber(startPosition, startLine);
@@ -592,6 +593,7 @@ public class Tokenizer {
                     return readString(string, startPosition, startLine);
                 }
             }
+            init = true;
 
             if (GrammarUtils.isDelimiter(ch)){
                 if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
