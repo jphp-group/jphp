@@ -101,9 +101,15 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);
-        if (arguments != null)
-        for(Memory e : arguments)
-            e.unset();
+        if (arguments != null){
+            int x = 0;
+            for(ParameterEntity argument : this.parameters){
+                if (!argument.isReference) {
+                    arguments[x].unset();
+                }
+                x++;
+            }
+        }
 
         if (!isReturnReference())
             return result.toImmutable();
