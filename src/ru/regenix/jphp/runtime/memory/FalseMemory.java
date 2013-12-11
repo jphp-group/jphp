@@ -56,7 +56,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.BOOL && memory instanceof FalseMemory;
+        return memory == FALSE;
     }
 
     @Override

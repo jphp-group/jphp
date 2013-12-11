@@ -104,7 +104,7 @@ public class PrintR extends Printer {
                 printer.write(StringUtils.repeat(' ', level));
 
                 Object key = iterator.getCurrentKey();
-                PropertyEntity propertyEntity = classEntity.properties.get(key);
+                PropertyEntity propertyEntity = classEntity.properties.get(key.toString());
                 printer.write('[');
 
                 printer.write(key.toString());

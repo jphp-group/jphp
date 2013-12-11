@@ -127,11 +127,11 @@ abstract public class Memory {
         return super.hashCode();
     }
 
-    public Memory newKeyValue(Memory memory){ return new KeyValueMemory(this.toImmutable(), memory); }
-    public Memory newKeyValue(long memory){ return new KeyValueMemory(this.toImmutable(), LongMemory.valueOf(memory)); }
-    public Memory newKeyValue(double memory){ return new KeyValueMemory(this.toImmutable(), new DoubleMemory(memory)); }
-    public Memory newKeyValue(boolean memory){ return new KeyValueMemory(this.toImmutable(), memory ? TRUE : FALSE); }
-    public Memory newKeyValue(String memory){ return new KeyValueMemory(this.toImmutable(), new StringMemory(memory)); }
+    public Memory newKeyValue(Memory memory){ return new KeyValueMemory(this.toValue(), memory); }
+    public Memory newKeyValue(long memory){ return new KeyValueMemory(this.toValue(), LongMemory.valueOf(memory)); }
+    public Memory newKeyValue(double memory){ return new KeyValueMemory(this.toValue(), new DoubleMemory(memory)); }
+    public Memory newKeyValue(boolean memory){ return new KeyValueMemory(this.toValue(), memory ? TRUE : FALSE); }
+    public Memory newKeyValue(String memory){ return new KeyValueMemory(this.toValue(), new StringMemory(memory)); }
 
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isArray(){ return type == Type.ARRAY; }

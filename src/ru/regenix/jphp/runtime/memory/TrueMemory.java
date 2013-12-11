@@ -205,7 +205,7 @@ public class TrueMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.BOOL && memory instanceof TrueMemory;
+        return memory == TRUE;
     }
 
     @Override

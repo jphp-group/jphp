@@ -123,7 +123,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             }
             case INT: return key;
             case NULL: return Memory.CONST_INT_0;
-            case REFERENCE: return toKey(key.toImmutable());
+            case REFERENCE: return toKey(key.toValue());
             default:
                 return LongMemory.valueOf(key.toLong());
         }
@@ -386,8 +386,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public Memory remove(Memory key){
+        Object _key = toKey(key);
         if (list != null){
-            int index = (int) key.toLong();
+            int index = _key instanceof LongMemory ? (int) key.toLong() : -1;
             if (index < 0 || index >= list.size())
                 return null;
 
@@ -397,12 +398,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 return list.remove(index);
             }
 
-            key = LongMemory.valueOf(index);
+            //key = LongMemory.valueOf(index);
             convertToMap();
         }
 
         {
-            Memory memory = map.remove(toKey(key));
+            Memory memory = map.remove(_key);
             if (memory != null)
                 size--;
 
@@ -900,58 +901,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             Memory tmp = iterator.getCurrentValue();
             iterator.prev();
             return tmp;
-        }
-    }
-
-    public class HashIterator implements Iterator<ReferenceMemory> {
-        private ReferenceMemory current;
-        private Object currentKey;
-
-        private Iterator<Object> keyIterator;
-        private int cursor = 0;
-
-        HashIterator(){
-            if (ArrayMemory.this.list != null){
-                keyIterator = null;
-                cursor = -1;
-            } else {
-                keyIterator = map.keySet().iterator();
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (keyIterator == null){
-                for(int i = cursor; i++ < ArrayMemory.this.list.size(); i++){
-                    if (ArrayMemory.this.list.get(i) != null)
-                        return true;
-                }
-                return false;
-            } else {
-                return keyIterator.hasNext();
-            }
-        }
-
-        @Override
-        public ReferenceMemory next() {
-            if (!hasNext())
-                return null;
-
-            currentKey = keyIterator.next();
-            return current = ArrayMemory.this.getByScalar(currentKey);
-        }
-
-        public Object getCurrentKey() {
-            return currentKey;
-        }
-
-        public Memory getCurrent() {
-            return current;
-        }
-
-        @Override
-        public void remove() {
-            ArrayMemory.this.removeByScalar(currentKey);
         }
     }
 
