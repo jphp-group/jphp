@@ -37,6 +37,10 @@ public class OperatorUtils {
         return value != null && !value.equals("0") && !value.isEmpty();
     }
 
+    public static String concat(String value, Memory memory){
+        return value.concat(memory.toString());
+    }
+
     // PLUS
     public static Memory plus(long o1, Memory value) {
         switch (value.type){

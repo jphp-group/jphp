@@ -11,8 +11,8 @@
     <property name="jar.file" value="${ant.project.name}.jar" />
 
     <path id="classpath.test">
-        <pathelement location="${build.dir}/classes" />
         <pathelement location="${build.dir}/test-classes" />
+        <pathelement location="${build.dir}/classes" />
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
         </fileset>
@@ -66,11 +66,13 @@
         <javac includeantruntime="false" encoding="utf-8" srcdir="${test.dir}" destdir="${build.dir}/test-classes">
             <classpath refid="classpath.test" />
         </javac>
+        <copydir src="${test.dir}/resources" dest="${build.dir}/test-classes/resources" />
     </target>
 
     <target name="test" depends="compileTest">
         <junit errorproperty="junit.failure" failureproperty="junit.failure">
             <classpath refid="classpath.test" />
+
             <formatter type="brief" usefile="false" />
             <batchtest>
                 <fileset dir="${build.dir}/test-classes" includes="**/*Test.class" />

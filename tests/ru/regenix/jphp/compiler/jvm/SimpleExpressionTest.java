@@ -231,11 +231,11 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = runDynamic("$x['x'] = 30; return $x;", false);
         Assert.assertEquals(30, memory.valueOfIndex("x").toLong());
-        Assert.assertEquals(1, ((ArrayMemory)memory).size());
+        Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("$x[] = 30; return $x;", false);
         Assert.assertEquals(30, memory.valueOfIndex(0).toLong());
-        Assert.assertEquals(1, ((ArrayMemory)memory).size());
+        Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("array(1 => 'foobar', 30, 'x' => true, 100)");
         Assert.assertTrue(memory.isArray());
@@ -243,7 +243,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(30, memory.valueOfIndex(2).toLong());
         Assert.assertEquals(100, memory.valueOfIndex(3).toLong());
         Assert.assertEquals(true, memory.valueOfIndex("x").toBoolean());
-        Assert.assertEquals(4, ((ArrayMemory)memory).size());
+        Assert.assertEquals(4, memory.toValue(ArrayMemory.class).size());
 
         // test short syntax
         memory = runDynamic("$arr = [1 => 'foobar', 30, 'x' => true, 100]; return $arr;", false);
@@ -252,11 +252,11 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(30, memory.valueOfIndex(2).toLong());
         Assert.assertEquals(100, memory.valueOfIndex(3).toLong());
         Assert.assertEquals(true, memory.valueOfIndex("x").toBoolean());
-        Assert.assertEquals(4, ((ArrayMemory)memory).size());
+        Assert.assertEquals(4, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("[[100, 200], [500, 600]]");
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals(2, ((ArrayMemory)memory).size());
+        Assert.assertEquals(2, memory.toValue(ArrayMemory.class).size());
 
         Assert.assertTrue(memory.valueOfIndex(0).isArray());
         Assert.assertEquals(2, memory.valueOfIndex(0).toValue(ArrayMemory.class).size());

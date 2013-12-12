@@ -76,6 +76,10 @@ public class StackItem {
             return this != REFERENCE && this != ARRAY && this != OBJECT;
         }
 
+        public boolean isReference(){
+            return this == REFERENCE;
+        }
+
         public boolean isLikeDouble(){
             return this == DOUBLE || this == FLOAT;
         }

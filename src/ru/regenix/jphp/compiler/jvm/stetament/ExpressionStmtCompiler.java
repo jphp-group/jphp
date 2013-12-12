@@ -2118,11 +2118,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
                 }
             } else {
-                if (isInvert){
+                if (isInvert) {
                     stackPush(o1);
-                    writePopBoxing(true);
+                    if (o2.isKnown())
+                        writePopBoxing(true);
+
                     writePush(o2);
-                    if (CompilerUtils.isSideOperator(operator))
+                    if (!o2.isKnown() && !o2.type.isReference()) {
+                        writeSysStaticCall(OperatorUtils.class, name, operatorResult, Lt.toClass(), Rt.toClass());
+                        name = null;
+                    } else if (CompilerUtils.isSideOperator(operator))
                         name += "Right";
                 } else {
                     writePush(o2);
@@ -2135,7 +2140,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePush(o1);
                     writePopImmutable();
                 }
-                writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
+                if (name != null)
+                    writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
             }
             setStackPeekAsImmutable();
 

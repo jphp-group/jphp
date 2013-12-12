@@ -74,6 +74,7 @@ public class StringMemory extends Memory {
         }
 
         int start = i;
+        boolean e_char = false;
         for(; i < len; i++){
             char ch = value.charAt(i);
             if (!('9' >= ch && ch >= '0')){
@@ -81,6 +82,11 @@ public class StringMemory extends Memory {
                     if (i == start)
                         continue;
                 }
+
+                /*if (!e_char && ch == 'e' || ch == 'E'){
+                    e_char = true;
+                    continue;
+                }*/
 
                 if (ch == '.'){
                     if (real)

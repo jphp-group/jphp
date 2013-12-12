@@ -1,10 +1,10 @@
 <?
 
-function &test(&$a) {
-    return $a;
+function test(&$arg = 20){
+
 }
 
-$x['foo'] = 100500;
-$y =& test($x['foo']);
-$y = 333;
-print_r($x);
+$var = 100500;
+test($var);
+
+return $var;
