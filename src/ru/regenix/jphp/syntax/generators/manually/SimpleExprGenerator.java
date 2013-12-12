@@ -443,7 +443,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         do {
             ExprStmtToken argument = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, true, braceKind);
+                    .getToken(nextToken(iterator), iterator, Separator.COMMA, braceKind);
             if (argument == null)
                 break;
 
@@ -476,13 +476,22 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
         do {
             param = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.ARRAY);
+                    .getToken(nextToken(iterator), iterator, Separator.ARRAY, BraceExprToken.Kind.ARRAY);
 
-            if (param != null)
+            if (param != null) {
                 parameters.add(param);
 
+                if (iterator.hasNext()){
+                    Token tmp = nextToken(iterator);
+                    if (isOpenedBrace(tmp, BraceExprToken.Kind.ARRAY))
+                        continue;
+                    iterator.previous();
+                    break;
+                }
+            }
+
         } while (param != null);
-        nextToken(iterator); // skip ]
+        //nextToken(iterator); // skip ]
 
         ArrayGetExprToken result;
         result = new ArrayGetExprToken(current.getMeta());
@@ -494,6 +503,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             next = iterator.next();
             if (next instanceof AssignableOperatorToken){
                 result = new ArrayGetRefExprToken(result);
+
             }
             iterator.previous();
         }
@@ -538,6 +548,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (braceOpened > 0 && isClosedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 braceOpened -= 1;
                 tokens.add(current);
+            } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
+                if (separator == Separator.ARRAY)
+                    break;
+                if (closedBraceKind == BraceExprToken.Kind.ARRAY){
+                    //if (tokens.isEmpty())
+                        iterator.previous();
+                    break;
+                }
+                unexpectedToken(current);
             } else if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)){
                 if (isTokenClass(previous,
                         NameToken.class,

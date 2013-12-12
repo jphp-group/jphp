@@ -1,10 +1,4 @@
 <?
+$var=[[1,2], [3,4], array(4,4),];
 
-function test(&$arg = 20){
-
-}
-
-$var = 100500;
-test($var);
-
-return $var;
+print_r($var);
