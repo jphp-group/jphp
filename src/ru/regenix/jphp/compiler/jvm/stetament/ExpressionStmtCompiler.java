@@ -1507,17 +1507,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeGetStatic(enumInstance.getDeclaringClass(), enumInstance.name(), enumInstance.getDeclaringClass());
     }
 
-    void writeVariableAssign(VariableExprToken variable, StackItem R, boolean returnValue){
+    void writeVariableAssign(VariableExprToken variable, StackItem R, AssignExprToken operator, boolean returnValue){
         LocalVariable local = method.getLocalVariable(variable.getName());
 
         Memory value = R.getMemory();
+
         if (local.isReference()){
+            String name = "assign";
+            if (operator.isAsReference())
+                name = "assignRef";
             if (!R.isKnown()){
                 stackPush(R);
                 writePopBoxing();
                 writePopImmutable();
                 writePushVariable(variable);
-                writeSysStaticCall(Memory.class, "assignRight", void.class, stackPeek().type.toClass(), Memory.class);
+                writeSysStaticCall(Memory.class, name + "Right", void.class, stackPeek().type.toClass(), Memory.class);
             } else {
                 writePushVariable(variable);
                 Memory tmp = tryWritePush(R);
@@ -1527,7 +1531,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
                 writePopBoxing();
                 writePopImmutable();
-                writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, name, Memory.class, stackPeek().type.toClass());
             }
             if (!returnValue)
                 writePopAll(1);
@@ -2072,7 +2076,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (L instanceof VariableExprToken){
                 if (!writeOpcode)
                     return null;
-                writeVariableAssign((VariableExprToken)L, o1, returnValue);
+                writeVariableAssign((VariableExprToken)L, o1, (AssignExprToken)operator, returnValue);
                 return null;
             }
         }

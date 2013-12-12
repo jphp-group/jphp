@@ -235,7 +235,7 @@ final public class CompilerUtils {
         } else if (operator instanceof ModExprToken || operator instanceof AssignModExprToken){
             return "mod";
         } else if (operator instanceof AssignExprToken){
-            return "assign";
+            return ((AssignExprToken) operator).isAsReference() ? "assignRef" : "assign";
         } else if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
             return "concat";
         } else if (operator instanceof SmallerExprToken){

@@ -305,6 +305,7 @@ abstract public class Memory {
     public Memory assign(double value) { throw new RuntimeException("Invalid assign"); }
     public Memory assign(boolean value) { throw new RuntimeException("Invalid assign"); }
     public Memory assign(String value){ throw new RuntimeException("Invalid assign"); }
+    public Memory assignRef(Memory memory){ throw new RuntimeException("Invalid assign"); }
 
     public void unset(){  }
 
@@ -363,6 +364,8 @@ abstract public class Memory {
     public static void assignRight(double value, Memory memory){ memory.assign(value); }
     public static void assignRight(boolean value, Memory memory){ memory.assign(value); }
     public static void assignRight(String value, Memory memory){ memory.assign(value); }
+
+    public static void assignRefRight(Memory value, Memory memory) { memory.assignRef(value); }
     ////
 
     public static String boolToString(boolean value){

@@ -312,6 +312,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
 
             if (previous instanceof AssignExprToken/* || previous == null*/) {
+                ((AssignExprToken) previous).setAsReference(true);
+
                 iterator.previous();
                 Token token = iterator.previous(); // =
                 if (iterator.hasPrevious()) {

@@ -607,6 +607,22 @@ public class ReferenceMemory extends Memory {
         }
     }
 
+    private ReferenceMemory getReference(){
+        if (value.type == Type.REFERENCE){
+            return ((ReferenceMemory)value).getReference();
+        } else
+            return this;
+    }
+
+    @Override
+    public Memory assignRef(Memory reference){
+        if (reference.isReference()){
+            reference = ((ReferenceMemory)reference).getReference();
+        }
+        value = reference;
+        return reference;
+    }
+
     @Override
     public Memory assign(long memory) {
         switch (value.type){
