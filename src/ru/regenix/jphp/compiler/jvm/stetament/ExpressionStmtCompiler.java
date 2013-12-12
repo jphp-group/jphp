@@ -877,6 +877,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (compileFunction != null){
                 return writePushCompileFunction(function, compileFunction, returnValue, writeOpcode, statistic);
             } else {
+                if (!writeOpcode)
+                    return null;
                 writePushEnv();
                 writePushTraceInfo(function);
                 writePushString(realName.toLowerCase());
@@ -894,6 +896,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (name instanceof DynamicAccessExprToken){
             return writePushDynamicMethod(function, returnValue, writeOpcode, statistic);
         } else {
+            if (!writeOpcode)
+                return null;
             writePushEnv();
             writePushStatic();
             writePushTraceInfo(function);
@@ -2433,7 +2437,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (stackEmpty())
             writePushNull();
         else
-            writePopBoxing(true);
+            writePopBoxing(false);
 
         if (method.entity.isReturnReference()){
             writePushDup();

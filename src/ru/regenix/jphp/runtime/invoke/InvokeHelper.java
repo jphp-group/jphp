@@ -5,9 +5,9 @@ import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
@@ -35,19 +35,31 @@ final public class InvokeHelper {
         //assert passed != null;
         if (passed != null)
         for(ParameterEntity param : parameters){
-            if (passed[i] == null){
-                passed[i] = param.getDefaultValue();
-                if (passed[i] == null){
+            Memory arg = passed[i];
+            if (arg == null){
+                Memory def = param.getDefaultValue();
+                if (def != null){
+                    if (!param.isReference())
+                        passed[i] = def.toImmutable();
+                    else
+                        passed[i] = new ReferenceMemory(def.toImmutable());
+                } else {
                     env.triggerMessage(new WarningMessage(
                             env,
                             Messages.ERR_WARNING_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
                             originMethodName == null ? originClassName : originClassName + "::" + originMethodName
                     ));
-                    passed[i] = Memory.NULL;
+                    passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
                 }
-
-            } else if (!param.isReference())
-                passed[i] = passed[i].toImmutable();
+            } else {
+                if (param.isReference()) {
+                    if (!arg.isReference()){
+                        env.warning(trace, "Only variables can be passed by reference");
+                        passed[i] = new ReferenceMemory(arg);
+                    }
+                } else
+                    passed[i] = arg.toImmutable();
+            }
 
             switch (param.getType()){
                 case ARRAY: {
@@ -232,10 +244,7 @@ final public class InvokeHelper {
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace){
         if (memory.isImmutable()){
-            env.triggerMessage(new NoticeMessage(
-                    env,
-                    Messages.ERR_NOTICE_RETURN_NOT_REFERENCE
-            ));
+            env.warning(trace, Messages.ERR_NOTICE_RETURN_NOT_REFERENCE.fetch());
         }
     }
 }
