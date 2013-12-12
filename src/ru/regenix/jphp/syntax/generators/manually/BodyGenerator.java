@@ -29,6 +29,13 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
     @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator, boolean absolute,
                                   Class<? extends Token>... endTokens) {
+        return getToken(current, iterator, absolute, true, endTokens);
+    }
+
+    @SuppressWarnings("unchecked")
+    public BodyStmtToken getToken(Token current, ListIterator<Token> iterator, boolean absolute, boolean returnNull,
+                                  Class<? extends Token>... endTokens) {
+        boolean alternativeSyntax = false;
         List<ExprStmtToken> instructions = new ArrayList<ExprStmtToken>();
         if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)
                 /*|| current instanceof SemicolonToken*/){
@@ -50,6 +57,8 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
 
             if (!(current instanceof ColonToken))
                 iterator.previous();
+            else
+                alternativeSyntax = true;
 
             while (iterator.hasNext()){
                 current = nextToken(iterator);
@@ -69,17 +78,18 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
             ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
             if (expr != null) {
                 if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken) {
-
+                    // nop
                 } else
                     instructions.add(expr);
             }
         }
 
-        if (instructions.isEmpty())
+        if (instructions.isEmpty() && returnNull)
             return null;
 
         BodyStmtToken result = new BodyStmtToken(TokenMeta.of(instructions));
         result.setInstructions(instructions);
+        result.setAlternativeSyntax(alternativeSyntax);
         return result;
     }
 

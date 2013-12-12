@@ -8,6 +8,7 @@ import java.util.List;
 
 public class BodyStmtToken extends StmtToken {
 
+    private boolean alternativeSyntax = false;
     private List<ExprStmtToken> instructions;
 
     public BodyStmtToken(TokenMeta meta) {
@@ -32,5 +33,13 @@ public class BodyStmtToken extends StmtToken {
         BodyStmtToken body = new BodyStmtToken(TokenMeta.of(instructions));
         body.setInstructions(instructions);
         return body;
+    }
+
+    public boolean isAlternativeSyntax() {
+        return alternativeSyntax;
+    }
+
+    public void setAlternativeSyntax(boolean alternativeSyntax) {
+        this.alternativeSyntax = alternativeSyntax;
     }
 }

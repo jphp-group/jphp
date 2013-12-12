@@ -71,7 +71,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(iterator);
 
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
-                nextToken(iterator), iterator, EndswitchStmtToken.class
+                nextToken(iterator), iterator, false, false, EndswitchStmtToken.class
         );
         List<CaseStmtToken> cases = new ArrayList<CaseStmtToken>();
         for(ExprStmtToken instruction : body.getInstructions()){
@@ -89,6 +89,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else
                 unexpectedToken(instruction.getSingle());
         }
+
+        if (body.isAlternativeSyntax())
+            iterator.next();
+
         result.setCases(cases);
         result.setLocal(analyzer.removeLocalScope());
     }
@@ -101,16 +105,22 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(iterator);
 
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
-                nextToken(iterator), iterator, EndifStmtToken.class
+                nextToken(iterator), iterator, EndifStmtToken.class, ElseIfStmtToken.class
         );
         if (iterator.hasNext()){
             Token next = iterator.next();
             if (next instanceof ElseStmtToken){
                 BodyStmtToken bodyElse = analyzer.generator(BodyGenerator.class).getToken(
-                    nextToken(iterator), iterator, EndifStmtToken.class
+                    nextToken(iterator), iterator, false, false, EndifStmtToken.class
                 );
-                result.setElseBody(bodyElse);
+                if (!bodyElse.getInstructions().isEmpty())
+                    result.setElseBody(bodyElse);
+
+                if (bodyElse.isAlternativeSyntax())
+                    iterator.next();
+
             } else if (next instanceof ElseIfStmtToken){
+                next = new IfStmtToken(next.getMeta());
                 BodyStmtToken bodyElse = analyzer.generator(BodyGenerator.class).getToken(
                         next, iterator, EndifStmtToken.class
                 );
@@ -403,11 +413,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         List<Token> tokens = new ArrayList<Token>();
         do {
             if (current instanceof EndStmtToken || isTokenClass(current, endTokens)){
-                if (current instanceof ElseIfStmtToken){
+                /*if (current instanceof ElseIfStmtToken){
                     IfStmtToken ifStmt = new IfStmtToken(current.getMeta());
                     processIf(ifStmt, iterator);
                     tokens.add(ifStmt);
-                }
+                }*/
 
                 if (!isTokenClass(current, endTokens))
                     unexpectedToken(current);
