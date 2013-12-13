@@ -13,6 +13,10 @@ public class CallExprToken extends ValueExprToken {
     private ExprToken name;
     private List<ExprStmtToken> parameters;
 
+    protected CallExprToken(TokenMeta meta, TokenType type) {
+        super(meta, type);
+    }
+
     public CallExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
     }

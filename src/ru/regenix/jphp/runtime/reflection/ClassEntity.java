@@ -467,6 +467,17 @@ public class ClassEntity extends Entity {
         return memory;
     }
 
+    public Memory unsetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+            throws InvocationTargetException, IllegalAccessException {
+        if ( object.__dynamicProperties__.removeByScalar(property) == null ){
+            if (methodMagicUnset != null)
+                methodMagicUnset.invokeDynamic(
+                    object, getLowerName(), env, new StringMemory(property)
+                );
+        }
+        return Memory.NULL;
+    }
+
     public Memory getProperty(Environment env, TraceInfo trace,
                               PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {

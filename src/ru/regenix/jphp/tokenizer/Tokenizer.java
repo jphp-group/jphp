@@ -1,13 +1,12 @@
 package ru.regenix.jphp.tokenizer;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
-import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.token.*;
-import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
+import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -56,9 +55,10 @@ public class Tokenizer {
         return code;
     }
 
-    protected Token buildToken(Class<? extends Token> clazz, TokenMeta meta){
+    @SuppressWarnings("unchecked")
+    protected <T extends Token> T buildToken(Class<T> clazz, TokenMeta meta){
         try {
-            return prevToken = clazz.getConstructor(TokenMeta.class).newInstance(meta);
+            return (T) (prevToken = clazz.getConstructor(TokenMeta.class).newInstance(meta));
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e.getTargetException());
         } catch (Exception e) {
@@ -564,14 +564,23 @@ public class Tokenizer {
                     rawMode = false;
                     startLine = currentLine;
                     startRelativePosition = relativePosition;
-                    return buildToken(EchoRawToken.class, meta);
+                    EchoRawToken token = buildToken(EchoRawToken.class, meta);
+
+                    if (code.substring(currentPosition + 1, currentPosition + 4).equals("php")){
+                        relativePosition += 4;
+                        currentPosition += 3;
+                        token.setShort(false);
+                    } else
+                        token.setShort(true);
+
+                    return token;
                 } else {
                     init = true;
                     continue;
                 }
             }
 
-            if (ch == '=' && prevToken instanceof EchoRawToken){
+            if (ch == '=' && prevToken != null && prevToken instanceof EchoRawToken && ((EchoRawToken) prevToken).isShort()){
                 return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
             }
 
@@ -648,10 +657,6 @@ public class Tokenizer {
         if (tokenClazz == null){
             return prevToken = new Token(meta, TokenType.T_J_CUSTOM);
         } else {
-            if (prevToken instanceof EchoRawToken && tokenClazz == NameToken.class && "php".equals(meta.getWord())){
-                prevToken = null;
-                return nextToken();
-            }
             return buildToken(tokenClazz, meta);
         }
     }

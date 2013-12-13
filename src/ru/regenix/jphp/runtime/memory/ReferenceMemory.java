@@ -769,6 +769,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public void unsetOfIndex(Memory index) {
+        value.unsetOfIndex(index);
+    }
+
+    @Override
     public boolean isShortcut(){
         return value.isReference();
     }

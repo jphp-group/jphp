@@ -696,6 +696,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
+    public void unsetOfIndex(Memory index) {
+        checkCopied();
+        remove(index);
+    }
+
+    @Override
     public Memory refOfPush(){
         checkCopied();
         return add(NULL);

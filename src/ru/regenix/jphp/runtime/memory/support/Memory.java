@@ -151,6 +151,7 @@ abstract public class Memory {
     public Memory refOfIndex(String index) { return NULL; }
     public Memory refOfIndex(boolean index) { return NULL; }
     public Memory refOfPush() { return new ReferenceMemory(); }
+    public void unsetOfIndex(Memory index) { }
 
     // INC DEC
     abstract public Memory inc();
@@ -327,31 +328,37 @@ abstract public class Memory {
     }
 
     /********** RIGHT ******************/
+    public Memory minusRight(Memory value){ return value.minus(this); }
     public Memory minusRight(long value){ return LongMemory.valueOf(value).minus(this); }
     public Memory minusRight(double value){ return new DoubleMemory(value).minus(this); }
     public Memory minusRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).minus(this); }
     public Memory minusRight(String value){ return StringMemory.toNumeric(value).minus(this); }
 
+    public Memory divRight(Memory value){ return value.div(this); }
     public Memory divRight(long value){ return LongMemory.valueOf(value).div(this); }
     public Memory divRight(double value){ return new DoubleMemory(value).div(this); }
     public Memory divRight(boolean value){ if(!value) return CONST_INT_0; else return TRUE.div(this); }
     public Memory divRight(String value){ return StringMemory.toNumeric(value).div(this); }
 
+    public Memory modRight(Memory value){ return value.mod(this); }
     public Memory modRight(long value){ return LongMemory.valueOf(value).mod(this); }
     public Memory modRight(double value){ return new DoubleMemory(value).mod(this); }
     public Memory modRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).mod(this); }
     public Memory modRight(String value){ return StringMemory.toNumeric(value).mod(this); }
 
+    public String concatRight(Memory value) { return value.concat(this); }
     public String concatRight(long value) { return value + toString(); }
     public String concatRight(double value) { return value + toString(); }
     public String concatRight(boolean value) { return boolToString(value) + toString(); }
     public String concatRight(String value) { return value + toString(); }
 
+    public Memory bitShrRight(Memory value){ return value.bitShr(this); }
     public Memory bitShrRight(long value){ return new LongMemory(value >> toLong()); }
     public Memory bitShrRight(double value){ return new LongMemory((long)value >> toLong()); }
     public Memory bitShrRight(boolean value){ return new LongMemory((value ? 1 : 0) >> toLong()); }
     public Memory bitShrRight(String value){ return StringMemory.toNumeric(value).bitShr(this); }
 
+    public Memory bitShlRight(Memory value){ return value.bitShl(this); }
     public Memory bitShlRight(long value){ return new LongMemory(value << toLong()); }
     public Memory bitShlRight(double value){ return new LongMemory((long)value << toLong()); }
     public Memory bitShlRight(boolean value){ return new LongMemory((value ? 1 : 0) << toLong()); }

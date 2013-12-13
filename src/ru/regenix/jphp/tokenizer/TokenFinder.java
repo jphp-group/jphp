@@ -121,6 +121,9 @@ public class TokenFinder {
         put("break", BreakStmtToken.class);
         put("continue", ContinueStmtToken.class);
 
+        put("unset", UnsetExprToken.class);
+        put("isset", IssetExprToken.class);
+
         put("class", ClassStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);

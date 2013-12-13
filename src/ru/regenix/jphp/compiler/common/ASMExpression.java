@@ -20,6 +20,8 @@ public class ASMExpression {
     protected Context context;
     protected ExprStmtToken result;
     protected ExprStmtToken expr;
+    /*protected Token prev;
+    protected Token next;*/
 
     public ASMExpression(Context context, ExprStmtToken expr){
         this.context = context;
@@ -28,8 +30,20 @@ public class ASMExpression {
         Stack<Token> stack  = new Stack<Token>();
         List<Token> result = new ArrayList<Token>();
 
+        int i = 0;
         for(Token token : expr.getTokens()){
+            /*if (i + 1 < expr.getTokens().size())
+                next = expr.getTokens().get(i + 1);
+            else
+                next = null;
+
+            if (i > 0)
+                prev = expr.getTokens().get(i - 1);
+            else
+                prev = null;*/
+
             processToken(token, stack, result);
+            i++;
         }
 
         if (!stack.empty())
@@ -90,8 +104,8 @@ public class ASMExpression {
             } else
                 unexpectedToken(brace);
         } else if (token instanceof OperatorExprToken){
-
-            if (stack.empty() || getPriority(stack.peek()) > prior){
+            OperatorExprToken operator = (OperatorExprToken)token;
+            if (!stack.empty() && getPriority(stack.peek()) > prior){
                 if (prior == 1){
                     processOperator(stack, result, prior);
                     result.add(token);

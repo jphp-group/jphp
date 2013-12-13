@@ -1,11 +1,12 @@
-<?
+<?php
 
-$x = 22;
-
-if ($x == 1){
-    echo '1';
-} elseif ($x == 2){
-    echo '2';
-} elseif ($x == 22){
-    echo '22';
+function test(){
+    static $i = 30;
+    $i += 1;
+    return $i;
 }
+
+test();
+test();
+
+return test();

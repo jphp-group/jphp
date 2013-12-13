@@ -33,6 +33,34 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
+    protected UnsetExprToken processUnset(Token previous, Token current, ListIterator<Token> iterator){
+        CallExprToken call = processCall(current, nextToken(iterator), iterator);
+
+        for(ExprStmtToken param : call.getParameters()){
+            List<Token> tokens = param.getTokens();
+            Token last = tokens.get(tokens.size() - 1);
+            Token newToken = null;
+
+            if (last instanceof VariableExprToken){
+                newToken = last;
+                // nop
+            } else if (last instanceof ArrayGetExprToken){
+                ArrayGetUnsetExprToken el = new ArrayGetUnsetExprToken(last.getMeta());
+                el.setParameters(((ArrayGetExprToken) last).getParameters());
+                newToken = el;
+            } else if (last instanceof DynamicAccessExprToken){
+                newToken = new DynamicAccessUnsetExprToken((DynamicAccessExprToken)last);
+            } else
+                unexpectedToken(last);
+
+            tokens.set(tokens.size() - 1, newToken);
+        }
+
+        UnsetExprToken result = (UnsetExprToken)current;
+        result.setParameters(call.getParameters());
+        return result;
+    }
+
     protected CallExprToken processCall(Token previous, Token current, ListIterator<Token> iterator){
         ExprStmtToken param;
 
@@ -371,7 +399,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof MinusExprToken){
-            if (!(previous instanceof ValueExprToken)){
+            if (!(previous instanceof ValueExprToken
+                    || previous instanceof ArrayGetExprToken
+                    || previous instanceof DynamicAccessExprToken)){
                 return new UnarMinusExprToken(current.getMeta());
             }
         }
@@ -530,6 +560,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             iterator.previous();
 
         int braceOpened = 0;
+        boolean needBreak = false;
         do {
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 boolean isFunc = false;
@@ -544,12 +575,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (isFunc){
                     tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
                 } else {
+                    if (needBreak)
+                        unexpectedToken(current);
+
                     braceOpened += 1;
                     tokens.add(current);
                 }
             } else if (braceOpened > 0 && isClosedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 braceOpened -= 1;
                 tokens.add(current);
+                if (isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))
+                    unexpectedToken(current);
+
             } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
                 if (separator == Separator.ARRAY)
                     break;
@@ -577,6 +614,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processNewArray(current, iterator));
                 } else
                     unexpectedToken(current);
+            } else if (current instanceof UnsetExprToken){
+                if (previous != null)
+                    unexpectedToken(current);
+
+                processUnset(previous, current, iterator);
+                tokens.add(current);
+                needBreak = true;
             } else if (current instanceof CommaToken){
                 if (separator == Separator.COMMA || separator == Separator.COMMA_OR_SEMICOLON){
                     break;
@@ -606,8 +650,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof BraceExprToken){
                 unexpectedToken(current);
             } else if (current instanceof ArrayExprToken){
+                if (needBreak)
+                    unexpectedToken(current);
+
                 tokens.add(processNewArray(current, iterator));
             } else if (current instanceof ExprToken) {
+                if (needBreak)
+                    unexpectedToken(current);
+
                 Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind, braceOpened);
                 if (token != null)
                     current = token;
