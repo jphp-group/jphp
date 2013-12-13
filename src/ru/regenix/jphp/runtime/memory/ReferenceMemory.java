@@ -727,7 +727,16 @@ public class ReferenceMemory extends Memory {
     public Memory refOfIndex(Memory index) {
         needArray();
         switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
+            case STRING:
+                if (index.isString()){
+                    int _index = -1;
+                    Memory tmp = StringMemory.toLong(index.toString());
+                    if (tmp != null)
+                        _index = tmp.toInteger();
+
+                    return CharMemory.valueOf(this, (StringMemory)this.value, _index);
+                } else
+                    return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
             default: return value.refOfIndex(index);
         }
     }
@@ -753,8 +762,13 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory refOfIndex(String index) {
         needArray();
+        int _index = -1;
+        Memory tmp = StringMemory.toLong(index);
+        if (tmp != null)
+            _index = tmp.toInteger();
+
         switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)value.toNumeric().toLong());
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, _index);
             default: return value.refOfIndex(index);
         }
     }

@@ -409,27 +409,68 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory valueOfIndex(Memory index) {
-        return new StringMemory(toString().charAt((int)index.toLong()));
+        int _index = -1;
+
+        switch (index.type){
+            case STRING:
+                Memory tmp = StringMemory.toLong(index.toString());
+                if (tmp != null)
+                    _index = tmp.toInteger();
+                break;
+            case REFERENCE: return valueOfIndex(index.toValue());
+            default:
+                _index = index.toInteger();
+        }
+
+        if (_index < toString().length() && _index >= 0)
+            return new StringMemory(value.charAt(_index));
+        else
+            return CONST_EMPTY_STRING;
     }
 
     @Override
     public Memory valueOfIndex(long index) {
-        return new StringMemory(toString().charAt((int)index));
+        int _index = (int)index;
+        String string = toString();
+        if (_index >= 0 && _index < string.length())
+            return new StringMemory(string.charAt(_index));
+        else
+            return CONST_EMPTY_STRING;
     }
 
     @Override
     public Memory valueOfIndex(double index) {
-        return new StringMemory(toString().charAt((int)index));
+        int _index = (int)index;
+        String string = toString();
+        if (_index >= 0 && _index < string.length())
+            return new StringMemory(string.charAt(_index));
+        else
+            return CONST_EMPTY_STRING;
     }
 
     @Override
     public Memory valueOfIndex(boolean index) {
-        return new StringMemory(toString().charAt(index ? 0 : 1));
+        int _index = index ? 1 : 0;
+        String string = toString();
+        if (_index >= 0 && _index < string.length())
+            return new StringMemory(string.charAt(_index));
+        else
+            return CONST_EMPTY_STRING;
     }
 
     @Override
     public Memory valueOfIndex(String index) {
-        return new StringMemory(toString().charAt((int)toNumeric(index).toLong()));
+        int _index = -1;
+
+        Memory tmp = StringMemory.toLong(index);
+        if (tmp != null)
+            _index = tmp.toInteger();
+
+        String string = toString();
+        if (_index >= 0 && _index < string.length())
+            return new StringMemory(string.charAt(_index));
+        else
+            return CONST_EMPTY_STRING;
     }
 
     @Override

@@ -122,7 +122,7 @@ public class TokenFinder {
         put("continue", ContinueStmtToken.class);
 
         put("unset", UnsetExprToken.class);
-        put("isset", IssetExprToken.class);
+       // put("isset", IssetExprToken.class);
         put("die", DieExprToken.class);
         put("exit", DieExprToken.class);
 

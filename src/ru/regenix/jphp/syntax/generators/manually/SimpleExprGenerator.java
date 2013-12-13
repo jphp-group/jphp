@@ -33,7 +33,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
-
     protected DieExprToken processDie(Token current, Token next, ListIterator<Token> iterator){
         DieExprToken die = (DieExprToken)current;
         if (isOpenedBrace(next, BraceExprToken.Kind.SIMPLE)){
