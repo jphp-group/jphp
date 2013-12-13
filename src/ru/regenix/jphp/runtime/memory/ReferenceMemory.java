@@ -76,6 +76,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public boolean isResource() {
+        return value.isResource();
+    }
+
+    @Override
     public boolean isArray() {
         return value.isArray();
     }

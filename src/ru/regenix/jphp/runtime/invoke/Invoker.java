@@ -27,7 +27,7 @@ abstract public class Invoker {
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toImmutable();
         if (method.isObject()){
-            return DynamicMethodInvoker.valueOf(env, method);
+            return DynamicMethodInvoker.valueOf(env, trace, method);
         } else if (method.isArray()){
             Memory one = null, two = null;
             for(Memory el : (ArrayMemory)method){
@@ -40,6 +40,8 @@ abstract public class Invoker {
             }
 
             if (one == null || two == null) {
+                if (trace == null)
+                    return null;
                 env.triggerError(new FatalException(
                         Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()),
                         trace
@@ -50,9 +52,9 @@ abstract public class Invoker {
             assert two != null;
             String methodName = two.toString();
             if (one.isObject()) {
-                return DynamicMethodInvoker.valueOf(env, one, methodName);
+                return DynamicMethodInvoker.valueOf(env, trace, one, methodName);
             } else {
-                return StaticMethodInvoker.valueOf(env, one.toString(), methodName);
+                return StaticMethodInvoker.valueOf(env, trace, one.toString(), methodName);
             }
         } else {
             String methodName = method.toString();
@@ -60,9 +62,9 @@ abstract public class Invoker {
             if ((p = methodName.indexOf("::")) > -1) {
                 String className = methodName.substring(0, p);
                 methodName = methodName.substring(p + 2, methodName.length());
-                return StaticMethodInvoker.valueOf(env, className, methodName);
+                return StaticMethodInvoker.valueOf(env, trace, className, methodName);
             } else {
-                return FunctionInvoker.valueOf(env, methodName);
+                return FunctionInvoker.valueOf(env, null, methodName);
             }
         }
     }

@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.lang.spl.PHPIterator;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
@@ -31,6 +32,16 @@ public class ObjectMemory extends Memory {
     @Override
     public int getPointer() {
         return value.getPointer();
+    }
+
+    @Override
+    public boolean isObject() {
+        return true;
+    }
+
+    @Override
+    public boolean isResource() {
+        return value instanceof Resource;
     }
 
     @Override

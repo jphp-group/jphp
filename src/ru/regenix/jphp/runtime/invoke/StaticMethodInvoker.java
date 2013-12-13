@@ -24,11 +24,13 @@ public class StaticMethodInvoker extends Invoker {
         return InvokeHelper.callStatic(env, calledClass, null, method, args);
     }
 
-    public static StaticMethodInvoker valueOf(Environment env, String className, String methodName){
+    public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){
         MethodEntity methodEntity = env.scope.methodMap.get(
                 className.toLowerCase() + "#" + methodName.toLowerCase()
         );
         if (methodEntity == null){
+            if (trace == null)
+                return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className +"::"+ methodName),
                     env.peekCall(0).trace
