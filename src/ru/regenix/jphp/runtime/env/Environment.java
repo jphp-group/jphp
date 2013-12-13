@@ -521,4 +521,14 @@ public class Environment {
 
         setErrorFlags(flags);
     }
+
+    public void die(Memory value) {
+        if (value != null){
+            if (!value.isNumber())
+                echo(value.toString());
+
+            throw new DieException(value);
+        } else
+            throw new DieException(Memory.NULL);
+    }
 }

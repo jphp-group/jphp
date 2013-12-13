@@ -9,7 +9,7 @@ import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.List;
 
-public class CallExprToken extends ValueExprToken {
+public class CallExprToken extends ValueExprToken implements CallableExprToken {
     private ExprToken name;
     private List<ExprStmtToken> parameters;
 

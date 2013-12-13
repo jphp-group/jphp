@@ -7,6 +7,7 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.ext.BCMathExtension;
 import ru.regenix.jphp.runtime.ext.CTypeExtension;
@@ -87,6 +88,8 @@ public class CLI {
             output.printf(", position %s", (e.getTraceInfo().getStartPosition() + 1));
             output.println();
             output.println("    in '" + e.getTraceInfo().getFileName() + "'");
+        } catch (DieException e){
+            System.exit(e.getExitCode());
         }
         if (arguments.showStat){
             output.println();

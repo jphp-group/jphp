@@ -123,6 +123,8 @@ public class TokenFinder {
 
         put("unset", UnsetExprToken.class);
         put("isset", IssetExprToken.class);
+        put("die", DieExprToken.class);
+        put("exit", DieExprToken.class);
 
         put("class", ClassStmtToken.class);
         put("function", FunctionStmtToken.class);

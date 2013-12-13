@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -106,6 +107,9 @@ public class ModuleEntity extends Entity {
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof ErrorException)
                 throw (ErrorException) e.getCause();
+            if (e.getCause() instanceof DieException)
+                throw (DieException) e.getCause();
+
             throw new RuntimeException(e.getCause());
         }
     }

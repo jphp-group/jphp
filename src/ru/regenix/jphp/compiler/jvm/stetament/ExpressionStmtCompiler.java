@@ -955,6 +955,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePopAll(1);
     }
 
+    void writePushDie(DieExprToken token, boolean returnValue) {
+        writePushEnv();
+        if (token.getValue() == null)
+            writePushConstNull();
+        else {
+            writeExpression(token.getValue(), true, false, true);
+            writePopBoxing(false);
+        }
+
+        writeSysDynamicCall(Environment.class, "die", void.class, Memory.class);
+        if (returnValue)
+            writePushBoolean(true);
+    }
+
     void writePushUnset(UnsetExprToken token, boolean returnValue){
         for(ExprStmtToken param : token.getParameters()){
             if (param.isSingle() && param.getSingle() instanceof VariableExprToken){
@@ -1348,6 +1362,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushStringBuilder((StringBuilderExprToken)value);
             } else if (value instanceof UnsetExprToken){
                 writePushUnset((UnsetExprToken)value, returnValue);
+                return null;
+            } else if (value instanceof DieExprToken){
+                writePushDie((DieExprToken)value, returnValue);
                 return null;
             }
 
@@ -2666,7 +2683,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             else
                 writePush(stackPop());
         } else if (method.getStackCount() > 0){
-            if (stackPeekToken() instanceof CallExprToken || stackPeekToken() instanceof ImportExprToken) {
+            if (stackPeekToken() instanceof CallableExprToken) {
                 if (returnMemory)
                     result = tryWritePush(stackPopToken(), returnValue, writeOpcode, true);
                 else

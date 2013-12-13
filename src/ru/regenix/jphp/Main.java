@@ -5,6 +5,7 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.ext.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -52,6 +53,8 @@ public class Main {
             System.out.println("--------------------");
             System.out.println(result);
 
+        } catch (DieException e) {
+            System.exit(e.getExitCode());
         } catch (ErrorException e){
             System.out.println();
             System.out.println("[" + e.getType().name() + "] " + e.getMessage());

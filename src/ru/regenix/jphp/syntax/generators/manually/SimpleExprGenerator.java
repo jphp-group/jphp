@@ -33,6 +33,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
+
+    protected DieExprToken processDie(Token current, Token next, ListIterator<Token> iterator){
+        DieExprToken die = (DieExprToken)current;
+        if (isOpenedBrace(next, BraceExprToken.Kind.SIMPLE)){
+            die.setValue(
+                    analyzer.generator(ExprGenerator.class).getInBraces(BraceExprToken.Kind.SIMPLE, iterator)
+            );
+        }
+
+        return die;
+    }
+
     protected UnsetExprToken processUnset(Token previous, Token current, ListIterator<Token> iterator){
         CallExprToken call = processCall(current, nextToken(iterator), iterator);
 
@@ -614,6 +626,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processNewArray(current, iterator));
                 } else
                     unexpectedToken(current);
+            } else if (current instanceof DieExprToken){
+                processDie(current, next, iterator);
+                tokens.add(current);
             } else if (current instanceof UnsetExprToken){
                 if (previous != null)
                     unexpectedToken(current);
