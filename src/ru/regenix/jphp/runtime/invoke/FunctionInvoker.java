@@ -22,9 +22,11 @@ public class FunctionInvoker extends Invoker {
         return InvokeHelper.call(env, null, entity, args);
     }
 
-    public static FunctionInvoker valueOf(Environment env, String name){
+    public static FunctionInvoker valueOf(Environment env, TraceInfo trace, String name){
         FunctionEntity functionEntity = env.scope.functionMap.get(name.toLowerCase());
         if (functionEntity == null){
+            if (trace == null)
+                return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(name),
                     env.peekCall(0).trace

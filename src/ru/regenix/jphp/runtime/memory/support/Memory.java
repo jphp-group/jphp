@@ -134,6 +134,7 @@ abstract public class Memory {
     public Memory newKeyValue(String memory){ return new KeyValueMemory(this.toValue(), new StringMemory(memory)); }
 
     public boolean isObject() { return type == Type.OBJECT; }
+    public boolean isResource() { return false; }
     public boolean isArray(){ return type == Type.ARRAY; }
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }

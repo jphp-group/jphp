@@ -27,9 +27,11 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
 
-    public static DynamicMethodInvoker valueOf(Environment env, PHPObject object, String methodName){
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object, String methodName){
         MethodEntity methodEntity = object.__class__.findMethod(methodName.toLowerCase());
         if (methodEntity == null){
+            if (trace == null)
+                return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::"+ methodName),
                     env.peekCall(0).trace
@@ -39,22 +41,25 @@ public class DynamicMethodInvoker extends Invoker {
         return new DynamicMethodInvoker(env, null, object, methodEntity);
     }
 
-    public static DynamicMethodInvoker valueOf(Environment env, Memory object, String methodName){
-        return valueOf(env, ((ObjectMemory)object).value, methodName);
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, Memory object, String methodName){
+        return valueOf(env, trace, ((ObjectMemory)object).value, methodName);
     }
 
-    public static DynamicMethodInvoker valueOf(Environment env, PHPObject object){
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object){
         MethodEntity methodEntity = object.__class__.methodMagicInvoke;
-        if (methodEntity == null)
+        if (methodEntity == null){
+            if (trace == null)
+                return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::__invoke"),
                     env.peekCall(0).trace
             ));
+        }
 
         return new DynamicMethodInvoker(env, null, object, methodEntity);
     }
 
-    public static DynamicMethodInvoker valueOf(Environment env, Memory object){
-        return valueOf(env, ((ObjectMemory)object).value);
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, Memory object){
+        return valueOf(env, trace, ((ObjectMemory)object).value);
     }
 }
