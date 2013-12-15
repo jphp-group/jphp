@@ -21,8 +21,7 @@ public class LangFunctions extends FunctionsContainer {
             case DOUBLE: return "double";
             case STRING: return "string";
             case OBJECT:
-                ObjectMemory object = memory.toValue(ObjectMemory.class);
-                if (object.value instanceof Resource)
+                if (memory.isResource())
                     return "resource";
 
                 return "object";
