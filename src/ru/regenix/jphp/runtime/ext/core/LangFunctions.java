@@ -12,14 +12,6 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class LangFunctions extends FunctionsContainer {
 
-    public static boolean isset(@Runtime.Reference Memory memory){
-        return !memory.isNull();
-    }
-
-    public static boolean empty(@Runtime.Reference Memory memory){
-        return !memory.toBoolean();
-    }
-
     @Runtime.Immutable
     public static String gettype(Memory memory){
         switch (memory.getRealType()){

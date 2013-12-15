@@ -44,6 +44,50 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return die;
     }
 
+    protected EmptyExprToken processEmpty(Token current, ListIterator<Token> iterator){
+        ExprStmtToken value = analyzer.generator(ExprGenerator.class).getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
+        if (value == null)
+            unexpectedToken(iterator.previous());
+
+        assert value != null;
+        if (!(value.getSingle() instanceof VariableValueExprToken))
+            unexpectedToken(value, "$var");
+
+        Token last = value.getLast();
+        if (last instanceof DynamicAccessExprToken){
+            last = new DynamicAccessEmptyExprToken((DynamicAccessExprToken)last);
+            value.getTokens().set(value.getTokens().size() - 1, last);
+        }
+
+        EmptyExprToken result = (EmptyExprToken)current;
+        result.setValue(value);
+        return result;
+    }
+
+    protected IssetExprToken processIsset(Token previous, Token current, ListIterator<Token> iterator){
+        CallExprToken call = processCall(current, nextToken(iterator), iterator);
+
+        for(ExprStmtToken param : call.getParameters()){
+            List<Token> tokens = param.getTokens();
+            Token last = tokens.get(tokens.size() - 1);
+            Token newToken = null;
+
+            if (!(param.getSingle() instanceof VariableValueExprToken))
+                unexpectedToken(param.getSingle());
+
+            if (last instanceof DynamicAccessExprToken){
+                newToken = new DynamicAccessIssetExprToken((DynamicAccessExprToken)last);
+            }
+
+            if (newToken != null)
+                tokens.set(tokens.size() - 1, newToken);
+        }
+
+        IssetExprToken result = (IssetExprToken)current;
+        result.setParameters(call.getParameters());
+        return result;
+    }
+
     protected UnsetExprToken processUnset(Token previous, Token current, ListIterator<Token> iterator){
         CallExprToken call = processCall(current, nextToken(iterator), iterator);
 
@@ -51,6 +95,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             List<Token> tokens = param.getTokens();
             Token last = tokens.get(tokens.size() - 1);
             Token newToken = null;
+
+            if (!(param.getSingle() instanceof VariableValueExprToken))
+                unexpectedToken(param);
 
             if (last instanceof VariableExprToken){
                 newToken = last;
@@ -627,6 +674,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     unexpectedToken(current);
             } else if (current instanceof DieExprToken){
                 processDie(current, next, iterator);
+                tokens.add(current);
+            } else if (current instanceof EmptyExprToken){
+                processEmpty(current, iterator);
+                tokens.add(current);
+            } else if (current instanceof IssetExprToken){
+                processIsset(previous, current, iterator);
                 tokens.add(current);
             } else if (current instanceof UnsetExprToken){
                 if (previous != null)
