@@ -390,16 +390,17 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         // &
         if (current instanceof AmpersandRefToken){
-            if (previous == null)
-                unexpectedToken(current);
+            /*if (previous == null)
+                unexpectedToken(current);*/
 
             isRef = true;
             if (next instanceof VariableExprToken)
                 if (analyzer.getFunction() != null)
                     analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
 
-            if (previous instanceof AssignExprToken/* || previous == null*/) {
-                ((AssignExprToken) previous).setAsReference(true);
+            if (previous instanceof AssignExprToken || previous == null) {
+                if (previous != null)
+                    ((AssignExprToken) previous).setAsReference(true);
 
                 iterator.previous();
                 Token token = iterator.previous(); // =

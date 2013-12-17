@@ -2244,6 +2244,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writePopBoxing(true);
 
                     writePush(o2);
+
                     if (!o2.isKnown() && !o2.type.isReference()) {
                         writeSysStaticCall(OperatorUtils.class, name, operatorResult, Lt.toClass(), Rt.toClass());
                         name = null;
@@ -2266,7 +2267,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             setStackPeekAsImmutable();
 
             if (operator instanceof AssignOperatorExprToken){
-
                 if (variable == null || variable.isReference()){
                     writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
                     if (!returnValue)

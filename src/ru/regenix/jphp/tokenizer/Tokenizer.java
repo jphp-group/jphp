@@ -507,7 +507,8 @@ public class Tokenizer {
 
                 if (i + 1 >= codeLength){
                     break;
-                } else if (code.charAt(i + 1) == '-') {
+                } else if (code.charAt(i + 1) == '-' || code.charAt(i + 1) == '+' ||
+                        Character.isDigit(code.charAt(i + 2))) {
                     if (i + 2 >= codeLength || !Character.isDigit(code.charAt(i + 2))) {
                         break;
                     } else

@@ -177,7 +177,7 @@ public class TokenFinder {
         if (word.matches("^[0-9]+\\.[0-9]+$")) // 1.234
             return DoubleExprToken.class;
 
-        if (word.matches("^[0-9]+\\.[0-9]e[0-9]$")) // 1.2e3;
+        if (word.matches("^[0-9]+\\.[0-9]+e[\\-|\\+]?[0-9]+$")) // 1.2e3;
             return DoubleExprToken.class;
 
         if (word.matches("^[0-9]+e[\\-|\\+][0-9]+$")) // 7E-10
