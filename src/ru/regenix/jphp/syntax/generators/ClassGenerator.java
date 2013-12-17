@@ -159,6 +159,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                                 unexpectedToken(modifier);
                         }
                         properties.addAll(processProperty((VariableExprToken)current, modifiers, iterator));
+                        modifiers.clear();
                     } else if (current instanceof FunctionStmtToken) {
                         FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
                         MethodStmtToken method = new MethodStmtToken(function);

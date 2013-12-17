@@ -6,7 +6,7 @@ import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
-public class GetVarExprToken extends ValueExprToken {
+public class GetVarExprToken extends ValueExprToken implements VariableValueExprToken {
     private ExprStmtToken name;
 
     public GetVarExprToken(TokenMeta meta) {

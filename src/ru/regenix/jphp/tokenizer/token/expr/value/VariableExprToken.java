@@ -4,7 +4,7 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 
-public class VariableExprToken extends ValueExprToken {
+public class VariableExprToken extends ValueExprToken implements VariableValueExprToken {
 
     private String name;
 

@@ -969,6 +969,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushBoolean(true);
     }
 
+    void writePushIsset(IssetExprToken token, boolean returnValue){
+        writePushParameters(token.getParameters());
+        writeSysStaticCall(OperatorUtils.class, "isset", Boolean.TYPE, Memory[].class);
+
+        if (!returnValue)
+            writePopAll(1);
+    }
+
+    void writePushEmpty(EmptyExprToken token, boolean returnValue){
+        writeExpression(token.getValue(), true, false);
+        writeSysStaticCall(OperatorUtils.class, "empty", Boolean.TYPE, Memory.class);
+
+        if (!returnValue)
+            writePopAll(1);
+    }
+
     void writePushUnset(UnsetExprToken token, boolean returnValue){
         for(ExprStmtToken param : token.getParameters()){
             if (param.isSingle() && param.getSingle() instanceof VariableExprToken){
@@ -1363,6 +1379,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof UnsetExprToken){
                 writePushUnset((UnsetExprToken)value, returnValue);
                 return null;
+            } else if (value instanceof IssetExprToken){
+                writePushIsset((IssetExprToken)value, returnValue);
+                return null;
+            } else if (value instanceof EmptyExprToken){
+                writePushEmpty((EmptyExprToken)value, returnValue);
+                return null;
             } else if (value instanceof DieExprToken){
                 writePushDie((DieExprToken)value, returnValue);
                 return null;
@@ -1477,14 +1499,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (asImmutable)
             writePopImmutable();
 
-        if (returned){
-            writePushDup();
-        }
-
         if (variable.isReference()){
             writeVarLoad(variable);
-            writeSysStaticCall(Memory.class, "assignRight", void.class, Memory.class, Memory.class);
+            writeSysStaticCall(Memory.class, "assignRight", Memory.class, Memory.class, Memory.class);
+            if (!returned)
+                writePopAll(1);
         } else {
+            if (returned){
+                writePushDup();
+            }
+
             makeVarStore(variable);
             stackPop();
         }
@@ -1578,7 +1602,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePopBoxing();
                 writePopImmutable();
                 writePushVariable(variable);
-                writeSysStaticCall(Memory.class, name + "Right", void.class, stackPeek().type.toClass(), Memory.class);
+                writeSysStaticCall(Memory.class, name + "Right", Memory.class, stackPeek().type.toClass(), Memory.class);
             } else {
                 writePushVariable(variable);
                 Memory tmp = tryWritePush(R);
@@ -1873,6 +1897,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             );
             if (returnValue)
                 writePushNull();
+        } else if (dynamic instanceof DynamicAccessEmptyExprToken){
+            writeSysStaticCall(ObjectInvokeHelper.class,
+                    "emptyProperty", Memory.class,
+                    Memory.class, String.class, Environment.class, TraceInfo.class
+            );
+            if (!returnValue)
+                writePopAll(1);
+        } else if (dynamic instanceof DynamicAccessIssetExprToken){
+            writeSysStaticCall(ObjectInvokeHelper.class,
+                    "issetProperty", Memory.class,
+                    Memory.class, String.class, Environment.class, TraceInfo.class
+            );
+            if (!returnValue)
+                writePopAll(1);
         } else {
             writeSysStaticCall(ObjectInvokeHelper.class,
                     "getProperty", Memory.class,
@@ -2228,12 +2266,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             setStackPeekAsImmutable();
 
             if (operator instanceof AssignOperatorExprToken){
-                if (returnValue)
-                    writePushDup(StackItem.Type.valueOf(operatorResult));
 
                 if (variable == null || variable.isReference()){
                     writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
+                    if (!returnValue)
+                        writePopAll(1);
                 } else {
+                    if (returnValue)
+                        writePushDup(StackItem.Type.valueOf(operatorResult));
+
                     writePopBoxing(operatorResult);
                     makeVarStore(variable);
                     variable.setValue(!stackPeek().isConstant() ? null : stackPeek().getMemory());

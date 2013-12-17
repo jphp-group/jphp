@@ -37,10 +37,10 @@ abstract public class Generator<T extends Token> {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        analyzer.getContext().triggerError( new ParseException(
+        throw new ParseException(
                 Messages.ERR_PARSE_UNEXPECTED_X.fetch(token.getWord()),
                 token.toTraceInfo(analyzer.getContext())
-        ) );
+        );
     }
 
     protected void unexpectedToken(Token token, Object expected){
@@ -48,10 +48,10 @@ abstract public class Generator<T extends Token> {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        analyzer.getContext().triggerError(new ParseException(
+        throw new ParseException(
                 Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected),
                 token.toTraceInfo(analyzer.getContext())
-        ));
+        );
     }
 
 

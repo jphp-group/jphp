@@ -9,6 +9,18 @@ import java.util.Arrays;
 
 public class OperatorUtils {
 
+    public static boolean isset(Memory[] values){
+        for (Memory value : values)
+            if (value.getRealType() == Memory.Type.NULL)
+                return false;
+
+        return true;
+    }
+
+    public static boolean empty(Memory value){
+        return value.toBoolean();
+    }
+
     public static boolean toBoolean(double value){
         return value != 0.0;
     }

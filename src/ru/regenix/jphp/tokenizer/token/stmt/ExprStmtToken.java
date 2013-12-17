@@ -38,4 +38,8 @@ public class ExprStmtToken extends StmtToken {
     public Token getSingle(){
         return tokens.get(0);
     }
+
+    public Token getLast(){
+        return tokens.get(tokens.size() - 1);
+    }
 }

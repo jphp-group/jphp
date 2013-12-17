@@ -1,6 +1,7 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
 
+import ru.regenix.jphp.common.Callback;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -44,6 +45,50 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return die;
     }
 
+    protected EmptyExprToken processEmpty(Token current, ListIterator<Token> iterator){
+        ExprStmtToken value = analyzer.generator(ExprGenerator.class).getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
+        if (value == null)
+            unexpectedToken(iterator.previous());
+
+        assert value != null;
+        if (!(value.getSingle() instanceof VariableValueExprToken))
+            unexpectedToken(value, "$var");
+
+        Token last = value.getLast();
+        if (last instanceof DynamicAccessExprToken){
+            last = new DynamicAccessEmptyExprToken((DynamicAccessExprToken)last);
+            value.getTokens().set(value.getTokens().size() - 1, last);
+        }
+
+        EmptyExprToken result = (EmptyExprToken)current;
+        result.setValue(value);
+        return result;
+    }
+
+    protected IssetExprToken processIsset(Token previous, Token current, ListIterator<Token> iterator){
+        CallExprToken call = processCall(current, nextToken(iterator), iterator);
+
+        for(ExprStmtToken param : call.getParameters()){
+            List<Token> tokens = param.getTokens();
+            Token last = tokens.get(tokens.size() - 1);
+            Token newToken = null;
+
+            if (!(param.getSingle() instanceof VariableValueExprToken))
+                unexpectedToken(param.getSingle());
+
+            if (last instanceof DynamicAccessExprToken){
+                newToken = new DynamicAccessIssetExprToken((DynamicAccessExprToken)last);
+            }
+
+            if (newToken != null)
+                tokens.set(tokens.size() - 1, newToken);
+        }
+
+        IssetExprToken result = (IssetExprToken)current;
+        result.setParameters(call.getParameters());
+        return result;
+    }
+
     protected UnsetExprToken processUnset(Token previous, Token current, ListIterator<Token> iterator){
         CallExprToken call = processCall(current, nextToken(iterator), iterator);
 
@@ -51,6 +96,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             List<Token> tokens = param.getTokens();
             Token last = tokens.get(tokens.size() - 1);
             Token newToken = null;
+
+            if (!(param.getSingle() instanceof VariableValueExprToken))
+                unexpectedToken(param);
 
             if (last instanceof VariableExprToken){
                 newToken = last;
@@ -391,7 +439,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             if (!(previous instanceof ValueExprToken
                     || previous instanceof ArrayGetExprToken || previous instanceof DynamicAccessExprToken
-                    || isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))){
+                    || isClosedBrace(previous, BraceExprToken.Kind.SIMPLE))){
                 iterator.next();
                 // if it minus
                 if (current instanceof MinusExprToken){
@@ -421,11 +469,22 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (next == null)
                 unexpectedToken(current);
 
-            LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
+            final LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
             ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getToken(
-                            nextToken(iterator), iterator, Separator.SEMICOLON,
-                            braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind
-                    );
+                    nextToken(iterator), iterator, null,
+                    braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind,
+                    new Callback<Boolean, Token>() {
+                        @Override
+                        public Boolean call(Token param) {
+                            if (param instanceof OperatorExprToken &&
+                                    !(param instanceof LogicOperatorExprToken)){
+                                if (logic.getPriority() < ((OperatorExprToken) param).getPriority())
+                                    return true;
+                            }
+                            return false;
+                        }
+                    }
+            );
 
             if (closedBraceKind == null && braceOpened < 1)
                 iterator.previous();
@@ -556,12 +615,24 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
                                   boolean commaSeparator, BraceExprToken.Kind closedBraceKind) {
-        return getToken(current, iterator, commaSeparator ? Separator.COMMA : Separator.SEMICOLON, closedBraceKind);
+        return getToken(
+                current, iterator, commaSeparator ? Separator.COMMA : Separator.SEMICOLON, closedBraceKind,
+                null
+        );
+    }
+
+    public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
+                                  Separator separator, BraceExprToken.Kind closedBraceKind) {
+        return getToken(
+                current, iterator, separator, closedBraceKind,
+                null
+        );
     }
 
     @SuppressWarnings("unchecked")
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
-                                  Separator separator, BraceExprToken.Kind closedBraceKind) {
+                                  Separator separator, BraceExprToken.Kind closedBraceKind,
+                                  Callback<Boolean, Token> breakCallback) {
         isRef = false;
 
         List<Token> tokens = new ArrayList<Token>();
@@ -573,6 +644,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         int braceOpened = 0;
         boolean needBreak = false;
         do {
+            if (breakCallback != null && current != null && breakCallback.call(current)){
+                break;
+            }
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 boolean isFunc = false;
                 if (previous instanceof NameToken || previous instanceof VariableExprToken)
@@ -627,6 +701,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     unexpectedToken(current);
             } else if (current instanceof DieExprToken){
                 processDie(current, next, iterator);
+                tokens.add(current);
+            } else if (current instanceof EmptyExprToken){
+                processEmpty(current, iterator);
+                tokens.add(current);
+            } else if (current instanceof IssetExprToken){
+                processIsset(previous, current, iterator);
                 tokens.add(current);
             } else if (current instanceof UnsetExprToken){
                 if (previous != null)

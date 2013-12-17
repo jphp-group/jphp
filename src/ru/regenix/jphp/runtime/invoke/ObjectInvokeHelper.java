@@ -105,6 +105,34 @@ final public class ObjectInvokeHelper {
         return result;
     }
 
+    public static Memory emptyProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException {
+        object = object.toImmutable();
+        if (!object.isObject()){
+            env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
+                    trace
+            ));
+        }
+
+        PHPObject phpObject = ((ObjectMemory)object).value;
+        return phpObject.__class__.emptyProperty(env, trace, phpObject, property);
+    }
+
+    public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException {
+        object = object.toImmutable();
+        if (!object.isObject()){
+            env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
+                    trace
+            ));
+        }
+
+        PHPObject phpObject = ((ObjectMemory)object).value;
+        return phpObject.__class__.issetProperty(env, trace, phpObject, property);
+    }
+
     public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         object = object.toImmutable();

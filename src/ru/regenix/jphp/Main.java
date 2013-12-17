@@ -62,6 +62,8 @@ public class Main {
             System.out.print(", position " + (e.getTraceInfo().getStartPosition() + 1));
             System.out.println();
             System.out.println("    in '" + e.getTraceInfo().getFileName() + "'");
+
+            e.printStackTrace();
         }
     }
 }

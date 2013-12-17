@@ -25,4 +25,9 @@ public class AssignExprToken extends OperatorExprToken
     public void setAsReference(boolean asReference) {
         this.asReference = asReference;
     }
+
+    @Override
+    public boolean isRightSide() {
+        return true;
+    }
 }

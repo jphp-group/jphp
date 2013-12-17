@@ -367,13 +367,13 @@ abstract public class Memory {
 
     /****************************************************************/
     /** Static *****/
-    public static void assignRight(Memory value, Memory memory){ memory.assign(value); }
-    public static void assignRight(long value, Memory memory){ memory.assign(value); }
-    public static void assignRight(double value, Memory memory){ memory.assign(value); }
-    public static void assignRight(boolean value, Memory memory){ memory.assign(value); }
-    public static void assignRight(String value, Memory memory){ memory.assign(value); }
+    public static Memory assignRight(Memory value, Memory memory){ return memory.assign(value); }
+    public static Memory assignRight(long value, Memory memory){ return memory.assign(value); }
+    public static Memory assignRight(double value, Memory memory){ return memory.assign(value); }
+    public static Memory assignRight(boolean value, Memory memory){ return memory.assign(value); }
+    public static Memory assignRight(String value, Memory memory){ return memory.assign(value); }
 
-    public static void assignRefRight(Memory value, Memory memory) { memory.assignRef(value); }
+    public static Memory assignRefRight(Memory value, Memory memory) { return memory.assignRef(value); }
     ////
 
     public static String boolToString(boolean value){

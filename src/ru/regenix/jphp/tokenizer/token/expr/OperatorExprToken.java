@@ -12,4 +12,8 @@ abstract public class OperatorExprToken extends ExprToken {
     public boolean isBinary(){
         return true;
     }
+
+    public boolean isRightSide(){
+        return false;
+    }
 }

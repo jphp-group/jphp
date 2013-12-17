@@ -39,6 +39,7 @@ public class ClassEntity extends Entity {
     public MethodEntity methodMagicSet;
     public MethodEntity methodMagicGet;
     public MethodEntity methodMagicUnset;
+    public MethodEntity methodMagicIsset;
     public MethodEntity methodMagicCall;
     public MethodEntity methodMagicCallStatic;
     public MethodEntity methodMagicInvoke;
@@ -121,6 +122,7 @@ public class ClassEntity extends Entity {
         methodMagicSet   = methods.get("__set");
         methodMagicGet   = methods.get("__get");
         methodMagicUnset = methods.get("__unset");
+        methodMagicIsset = methods.get("__isset");
         methodMagicCall  = methods.get("__call");
         methodMagicCallStatic = methods.get("__callStatic");
 
@@ -474,6 +476,34 @@ public class ClassEntity extends Entity {
                 methodMagicUnset.invokeDynamic(
                     object, getLowerName(), env, new StringMemory(property)
                 );
+        }
+        return Memory.NULL;
+    }
+
+    public Memory emptyProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+            throws InvocationTargetException, IllegalAccessException {
+        Memory tmp = object.__dynamicProperties__.getByScalar(property);
+        if ( tmp != null ){
+            return tmp;
+        }
+
+        if (methodMagicIsset != null){
+            return methodMagicIsset.invokeDynamic(object, getLowerName(), env, new StringMemory(property))
+                    .toBoolean() ? Memory.FALSE : Memory.TRUE;
+        }
+        return Memory.FALSE;
+    }
+
+    public Memory issetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+            throws InvocationTargetException, IllegalAccessException {
+        Memory tmp = object.__dynamicProperties__.getByScalar(property);
+        if ( tmp != null ){
+            return tmp.isNull() ? tmp : Memory.TRUE;
+        }
+
+        if (methodMagicIsset != null){
+            return methodMagicIsset.invokeDynamic(object, getLowerName(), env, new StringMemory(property))
+                    .toBoolean() ? Memory.TRUE : Memory.NULL;
         }
         return Memory.NULL;
     }

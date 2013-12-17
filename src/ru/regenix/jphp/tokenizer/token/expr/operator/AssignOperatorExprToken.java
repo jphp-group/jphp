@@ -14,4 +14,9 @@ abstract public class AssignOperatorExprToken extends OperatorExprToken
     public int getPriority() {
         return 150;
     }
+
+    @Override
+    public boolean isRightSide() {
+        return true;
+    }
 }

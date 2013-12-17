@@ -58,6 +58,9 @@ public class ASMExpression {
             Token el = stack.peek();
             int elPrior = getPriority(el);
             if (elPrior <= prior){
+                if (elPrior == prior && ((OperatorExprToken)el).isRightSide())
+                    break;
+
                 stack.pop();
                 if (el instanceof LogicOperatorExprToken){
                     ExprStmtToken value = ((LogicOperatorExprToken)el).getRightValue();

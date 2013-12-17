@@ -12,14 +12,6 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class LangFunctions extends FunctionsContainer {
 
-    public static boolean isset(@Runtime.Reference Memory memory){
-        return !memory.isNull();
-    }
-
-    public static boolean empty(@Runtime.Reference Memory memory){
-        return !memory.toBoolean();
-    }
-
     @Runtime.Immutable
     public static String gettype(Memory memory){
         switch (memory.getRealType()){
@@ -29,8 +21,7 @@ public class LangFunctions extends FunctionsContainer {
             case DOUBLE: return "double";
             case STRING: return "string";
             case OBJECT:
-                ObjectMemory object = memory.toValue(ObjectMemory.class);
-                if (object.value instanceof Resource)
+                if (memory.isResource())
                     return "resource";
 
                 return "object";
@@ -80,7 +71,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static boolean is_object(@Runtime.Reference Memory memory){
-        return memory.isObject() && !memory.isResource();
+        return memory.isObject();
     }
 
     @Runtime.Immutable
