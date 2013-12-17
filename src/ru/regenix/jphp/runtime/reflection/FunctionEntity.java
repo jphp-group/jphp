@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.reflection;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.AbstractFunctionEntity;
 
@@ -63,7 +64,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
         this.module = module;
     }
 
-    public Memory invoke(Environment env, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
+    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
         Memory result = (Memory)nativeMethod.invoke(null, env, "", arguments);
         if (arguments != null){
             int x = 0;
@@ -81,9 +82,9 @@ public class FunctionEntity extends AbstractFunctionEntity {
             return result;
     }
 
-    public Memory invokeNoThrow(Environment env, Memory[] arguments){
+    public Memory invokeNoThrow(Environment env, TraceInfo trace, Memory[] arguments){
         try {
-            return invoke(env, arguments);
+            return invoke(env, trace, arguments);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

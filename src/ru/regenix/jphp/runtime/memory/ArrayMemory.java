@@ -45,6 +45,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         lastLongIndex = size - 1;
     }
 
+    public ArrayMemory(boolean toImmutable, Memory... array){
+        this();
+        for(Memory el : array){
+            list.add(new ReferenceMemory(toImmutable ? el.toImmutable() : el));
+        }
+        size = array.length;
+        lastLongIndex = size - 1;
+    }
+
     public ArrayMemory(String[] array){
         this();
         for(String el : array) {
@@ -498,13 +507,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return this;
     }
 
-    public Memory[] values(){
+    public Memory[] values(boolean asImmutable){
         Memory[] result = new Memory[size];
         int i = 0;
         for(ReferenceMemory el : this){
-            result[i++] = el.toValue();
+            result[i++] = asImmutable ? el.toImmutable() : el.toValue();
         }
         return result;
+    }
+
+    public Memory[] values(){
+        return values(false);
     }
 
     @Override

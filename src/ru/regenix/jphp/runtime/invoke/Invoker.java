@@ -18,7 +18,13 @@ abstract public class Invoker {
         this.trace = trace;
     }
 
+    abstract public void pushCall(TraceInfo trace, Memory[] args);
+
     abstract public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException;
+
+    public void popCall(){
+        env.popCall();;
+    }
 
     public static Invoker valueOf(Environment env, Memory method){
         return valueOf(env, env.peekCall(0).trace, method);
@@ -30,7 +36,7 @@ abstract public class Invoker {
             return DynamicMethodInvoker.valueOf(env, trace, method);
         } else if (method.isArray()){
             Memory one = null, two = null;
-            for(Memory el : (ArrayMemory)method){
+            for(Memory el : method.toValue(ArrayMemory.class).values()){
                 if (one == null)
                     one = el;
                 else if (two == null)
@@ -52,7 +58,7 @@ abstract public class Invoker {
             assert two != null;
             String methodName = two.toString();
             if (one.isObject()) {
-                return DynamicMethodInvoker.valueOf(env, trace, one, methodName);
+                return DynamicMethodInvoker.valueOf(env, trace, one.toValue(), methodName);
             } else {
                 return StaticMethodInvoker.valueOf(env, trace, one.toString(), methodName);
             }

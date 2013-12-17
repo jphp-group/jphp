@@ -1,6 +1,14 @@
 <?php
 
-$z = 30;
-$x = ($y = ($z += 30)) + 30;
+class My {
 
-var_dump($x, $y, $z);
+    public function test(){
+    }
+}
+
+$mm = new My();
+$method = 'ceil';
+
+for($i = 0; $i < 10000000; $i++){
+    ceil($i);
+}

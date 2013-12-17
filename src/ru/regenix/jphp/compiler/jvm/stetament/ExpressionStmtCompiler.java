@@ -531,10 +531,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     Memory writePushCompileFunction(CallExprToken function, CompileFunction compileFunction, boolean returnValue,
                                     boolean writeOpcode, PushCallStatistic statistic){
-        Method method = compileFunction.find( function.getParameters().size() );
+        CompileFunction.Method method = compileFunction.find( function.getParameters().size() );
         if (method == null){
             method = compileFunction.find( function.getParameters().size() + 1 );
-            if(method != null && method.getParameterTypes()[0] != Environment.class)
+            if(method != null && method.parameterTypes[0] != Environment.class)
                 method = null;
         }
 
@@ -546,16 +546,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         if (statistic != null)
-            statistic.returnType = StackItem.Type.valueOf(method.getReturnType());
+            statistic.returnType = StackItem.Type.valueOf(method.resultType);
 
-        Class[] types = method.getParameterTypes();
-        Annotation[][] annotations = method.getParameterAnnotations();
+        Class[] types = method.parameterTypes;
+        Annotation[][] annotations = method.parameterAnnotations;
 
         ListIterator<ExprStmtToken> iterator = function.getParameters().listIterator();
 
         Object[] arguments = new Object[types.length];
         int j = 0;
-        boolean immutable = compileFunction.isImmutable && method.getReturnType() != void.class;
+        boolean immutable = compileFunction.isImmutable && method.resultType != void.class;
 
         boolean init = false;
         for(int i = 0; i < types.length; i++){
@@ -713,7 +713,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     typedArguments[i] = arguments[i];
             }
             try {
-                Object value = method.invoke(null, typedArguments);
+                Object value = method.method.invoke(null, typedArguments);
                 return MemoryUtils.valueOf(value);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
@@ -725,9 +725,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!writeOpcode)
             return null;
 
-        writePushStaticCall(method);
+        writePushStaticCall(method.method);
         if (returnValue){
-            if (method.getReturnType() == void.class)
+            if (method.resultType == void.class)
                 writePushNull();
             setStackPeekAsImmutable();
         }

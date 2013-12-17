@@ -94,7 +94,7 @@ public class VarDump extends Printer {
                 printer.write(StringUtils.repeat(' ', level));
 
                 print(iterator.getCurrentValue(), level + 1, used);
-                printer.write('\n');
+                //printer.write('\n');
             }
 
             level -= PRINT_INDENT;

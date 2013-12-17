@@ -22,6 +22,11 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
     @Override
+    public void pushCall(TraceInfo trace, Memory[] args) {
+        env.pushCall(trace, object, args, method.getName(), object.__class__.getName());
+    }
+
+    @Override
     public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
         return ObjectInvokeHelper.invokeMethod(object, method, env, null, args);
     }
@@ -30,8 +35,15 @@ public class DynamicMethodInvoker extends Invoker {
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object, String methodName){
         MethodEntity methodEntity = object.__class__.findMethod(methodName.toLowerCase());
         if (methodEntity == null){
-            if (trace == null)
+            if (trace == null) {
+                if (object.__class__.methodMagicCall != null) {
+                    return new MagicDynamicMethodInvoker(
+                            env, trace, object, object.__class__.methodMagicCall, methodName
+                    );
+                }
+
                 return null;
+            }
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::"+ methodName),
                     env.peekCall(0).trace

@@ -1,17 +1,16 @@
 package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class CompileFunctionEntity extends FunctionEntity {
     private final CompileFunction compileFunction;
+    private MemoryUtils.Converter<?> converters[][];
 
     public CompileFunctionEntity(CompileFunction compileFunction) {
         super(null);
@@ -25,26 +24,28 @@ public class CompileFunctionEntity extends FunctionEntity {
     }
 
     @Override
-    public Memory invoke(Environment env, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
-        Method method = compileFunction.find(arguments.length);
+    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
+        CompileFunction.Method method = compileFunction.find(arguments.length);
 
-        Class<?>[] types = method.getParameterTypes();
-        Annotation[][] annotations = method.getParameterAnnotations();
-
+        Class<?>[] types = method.parameterTypes;
         Object[] passed = new Object[ types.length ];
 
         int i = 0;
         int j = 0;
         for(Class<?> clazz : types) {
-            boolean isRef = false;
-            for(Annotation annotation : annotations[i]){
-                if (annotation instanceof Reflection.Reference)
-                    isRef = true;
-            }
-
-            if (clazz == Environment.class)
+            boolean isRef = method.references[i];
+            MemoryUtils.Converter<?> converter = method.converters[i];
+            if (clazz == Memory.class) {
+                passed[i] = isRef ? arguments[j] : arguments[j].toImmutable();
+                j++;
+            } else if (converter != null) {
+                passed[i] = converter.run(arguments[i]);
+                j++;
+            } else if (clazz == Environment.class) {
                 passed[i] = env;
-            else if (i == types.length - 1 && types[i] == Memory[].class) {
+            } else if (clazz == TraceInfo.class) {
+                passed[i] = trace;
+            } else if (i == types.length - 1 && types[i] == Memory[].class){
                 Memory[] arg = new Memory[types.length - i];
                 if (!isRef){
                     for(int k = 0; k < arg.length; k++)
@@ -54,21 +55,14 @@ public class CompileFunctionEntity extends FunctionEntity {
                 }
                 passed[i] = arg;
                 break;
-            } else {
-                if (clazz == Memory.class) {
-                    passed[i] = isRef ? arguments[j] : arguments[j].toImmutable();
-                } else {
-                    passed[i] = MemoryUtils.toValue(arguments[j], clazz);
-                }
-                j++;
             }
             i++;
         }
 
-        if (method.getReturnType() == void.class){
-            method.invoke(null, passed);
+        if (method.resultType == void.class){
+            method.method.invoke(null, passed);
             return Memory.NULL;
         } else
-            return MemoryUtils.valueOf(method.invoke(null, passed));
+            return MemoryUtils.valueOf(method.method.invoke(null, passed));
     }
 }

@@ -8,7 +8,9 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
+import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
@@ -147,7 +149,7 @@ final public class InvokeHelper {
             env.pushCall(trace, null, args, function.getName(), null);
 
         try {
-            result = function.invoke(env, passed);
+            result = function.invoke(env, trace, passed);
         } finally {
             if (trace != null)
                 env.popCall();
@@ -186,8 +188,19 @@ final public class InvokeHelper {
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
         MethodEntity method = env.scope.methodMap.get(sign);
+        Memory[] passed = null;
+
         if (method == null){
-            // TODO: class auto loading...
+            ClassEntity __class__ = env.scope.classMap.get(originClassName.toLowerCase());
+            if (__class__ != null && __class__.methodMagicCallStatic != null){
+                method = __class__.methodMagicCallStatic;
+                passed = new Memory[]{
+                        new StringMemory(originMethodName),
+                        new ArrayMemory(true, args)
+                };
+            } else {
+                // TODO: class auto loading...
+            }
         }
         if (method == null){
             env.triggerError(new FatalException(
@@ -203,7 +216,9 @@ final public class InvokeHelper {
             ));
         }
 
-        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+        if (passed == null)
+            passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+
         Memory result;
 
         if (trace != null)

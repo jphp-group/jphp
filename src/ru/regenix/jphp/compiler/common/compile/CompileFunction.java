@@ -1,20 +1,22 @@
 package ru.regenix.jphp.compiler.common.compile;
 
 
+import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 
 public class CompileFunction {
     public final String name;
 
-    private Method[] methods;
+    public Method[] methods;
+
     private Method methodVarArgs;
     private int methodVarArgsCount;
 
     public final boolean isImmutable;
-
 
     public CompileFunction(String name, boolean isImmutable) {
         this.name = name;
@@ -31,11 +33,11 @@ public class CompileFunction {
         return name.equals(that.name);
     }
 
-    public void addMethod(Method method){
+    public void addMethod(java.lang.reflect.Method method){
         if (method.isVarArgs()){
             if (methodVarArgs != null)
                 throw new IllegalArgumentException("Cannot add two var-args methods");
-            methodVarArgs = method;
+            methodVarArgs = new Method(method);
             methodVarArgsCount = method.getParameterTypes().length;
             if (methodVarArgsCount < methods.length && methods[methodVarArgsCount] != null)
                 throw new IllegalArgumentException("Method with " + methodVarArgsCount + " args already exists");
@@ -60,7 +62,7 @@ public class CompileFunction {
         if (methods[count] != null)
             throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
-        methods[count] = method;
+        methods[count] = new Method(method);
     }
 
     @Override
@@ -85,5 +87,33 @@ public class CompileFunction {
         }
 
         return method;
+    }
+
+    public static class Method {
+        public final java.lang.reflect.Method method;
+        public final MemoryUtils.Converter<?>[] converters;
+        public final Annotation[][] parameterAnnotations;
+        public final Class<?>[] parameterTypes;
+        public final Class<?> resultType;
+
+        public final boolean[] references;
+
+        public Method(java.lang.reflect.Method method) {
+            this.method = method;
+            converters = MemoryUtils.getConverters(parameterTypes = method.getParameterTypes());
+            parameterAnnotations = method.getParameterAnnotations();
+            resultType = method.getReturnType();
+
+            references = new boolean[parameterTypes.length];
+            int i = 0;
+
+            for (Class<?> type : parameterTypes){
+                for(Annotation annotation : parameterAnnotations[i]){
+                    if (annotation instanceof Reflection.Reference)
+                        references[i] = true;
+                }
+                i++;
+            }
+        }
     }
 }

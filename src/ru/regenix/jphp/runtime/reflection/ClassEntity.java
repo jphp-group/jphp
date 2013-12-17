@@ -124,7 +124,7 @@ public class ClassEntity extends Entity {
         methodMagicUnset = methods.get("__unset");
         methodMagicIsset = methods.get("__isset");
         methodMagicCall  = methods.get("__call");
-        methodMagicCallStatic = methods.get("__callStatic");
+        methodMagicCallStatic = methods.get("__callstatic");
 
         methodMagicInvoke = methods.get("__invoke");
     }

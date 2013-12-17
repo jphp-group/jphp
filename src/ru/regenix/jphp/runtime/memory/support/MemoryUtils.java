@@ -2,12 +2,126 @@ package ru.regenix.jphp.runtime.memory.support;
 
 import ru.regenix.jphp.runtime.memory.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryUtils {
+
+    protected final static Map<Class<?>, Converter> CONVERTERS = new HashMap<Class<?>, Converter>(){{
+        // double
+        put(Double.class, new Converter<Double>() {
+            @Override
+            public Double run(Memory value) {
+                return value.toDouble();
+            }
+        });
+        put(Double.TYPE, get(Double.class));
+
+        // float
+        put(Float.class, new Converter<Float>() {
+            @Override
+            public Float run(Memory value) {
+                return (float)value.toDouble();
+            }
+        });
+        put(Float.TYPE, get(Float.class));
+
+        // long
+        put(Long.class, new Converter<Long>() {
+            @Override
+            public Long run(Memory value) {
+                return value.toLong();
+            }
+        });
+        put(Long.TYPE, get(Long.class));
+
+        // int
+        put(Integer.class, new Converter<Integer>() {
+            @Override
+            public Integer run(Memory value) {
+                return (int)value.toLong();
+            }
+        });
+        put(Integer.TYPE, get(Integer.class));
+
+        // short
+        put(Short.class, new Converter<Short>() {
+            @Override
+            public Short run(Memory value) {
+                return (short)value.toLong();
+            }
+        });
+        put(Short.TYPE, get(Short.class));
+
+        // byte
+        put(Byte.class, new Converter<Byte>() {
+            @Override
+            public Byte run(Memory value) {
+                return (byte)value.toLong();
+            }
+        });
+        put(Byte.TYPE, get(Byte.class));
+
+        // char
+        put(Character.class, new Converter<Character>() {
+            @Override
+            public Character run(Memory value) {
+                return value.toChar();
+            }
+        });
+        put(Character.TYPE, get(Character.class));
+
+        // bool
+        put(Boolean.class, new Converter<Boolean>() {
+            @Override
+            public Boolean run(Memory value) {
+                return value.toBoolean();
+            }
+        });
+        put(Boolean.TYPE, get(Boolean.class));
+
+        // string
+        put(String.class, new Converter<String>() {
+            @Override
+            public String run(Memory value) {
+                return value.toString();
+            }
+        });
+
+        put(Memory.class, new Converter<Memory>() {
+            @Override
+            public Memory run(Memory value) {
+                return value;
+            }
+        });
+
+        put(Memory[].class, new Converter<Memory[]>() {
+            @Override
+            public Memory[] run(Memory value) {
+                if (value.isArray()){
+                    List<Memory> result = new ArrayList<Memory>();
+                    for(Memory one : (ArrayMemory)value){
+                        result.add(one.toImmutable());
+                    }
+                    return result.toArray(new Memory[]{});
+                } else {
+                    return null;
+                }
+            }
+        });
+    }};
+
+    public static Converter<?> getConverter(Class<?> type){
+        return CONVERTERS.get(type);
+    }
+
+    public static Converter<?>[] getConverters(Class<?>[] types){
+        Converter<?>[] result = new Converter[types.length];
+        for(int i = 0; i < types.length; i++){
+            result[i] = getConverter(types[i]);
+        }
+
+        return result;
+    }
 
     public static Object toValue(Memory value, Class<?> type){
         if (type == Double.TYPE || type == Double.class)
@@ -38,7 +152,7 @@ public class MemoryUtils {
                 }
                 return result.toArray(new Memory[]{});
             } else {
-                return new ArrayMemory();
+                return null;
             }
         }
 
@@ -74,5 +188,9 @@ public class MemoryUtils {
                 return new ArrayMemory((Object[])value);
         } else
             return Memory.NULL;
+    }
+
+    public static interface Converter<T> {
+        T run(Memory value);
     }
 }

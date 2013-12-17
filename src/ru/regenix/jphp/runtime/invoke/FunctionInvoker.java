@@ -11,10 +11,17 @@ import java.lang.reflect.InvocationTargetException;
 
 public class FunctionInvoker extends Invoker {
     private final FunctionEntity entity;
+    protected final Environment env;
 
     public FunctionInvoker(Environment env, TraceInfo trace, FunctionEntity function) {
         super(env, trace);
         entity = function;
+        this.env = env;
+    }
+
+    @Override
+    public void pushCall(TraceInfo trace, Memory[] args) {
+        env.pushCall(trace, null, args, entity.getName(), null);
     }
 
     @Override

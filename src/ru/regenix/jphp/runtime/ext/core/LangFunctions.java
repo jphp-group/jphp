@@ -2,15 +2,22 @@ package ru.regenix.jphp.runtime.ext.core;
 
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.Resource;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class LangFunctions extends FunctionsContainer {
+
+    protected final static LangConstants constants = new LangConstants();
 
     @Runtime.Immutable
     public static String gettype(Memory memory){
@@ -163,4 +170,157 @@ public class LangFunctions extends FunctionsContainer {
     public void debug_zval_dump(Environment env, TraceInfo trace){
         env.warning(trace, "debug_zval_dump(): unsupported");
     }
+
+    public static Memory func_get_args(Environment env, TraceInfo trace){
+        if (env.getCallStackTop() == 0){
+            return Memory.FALSE;
+        }
+
+        return new ArrayMemory(true, env.peekCall(0).args).toConstant();
+    }
+
+    public static Memory func_num_args(Environment env, TraceInfo trace){
+        if (env.getCallStackTop() == 0){
+            return Memory.FALSE;
+        }
+
+        return LongMemory.valueOf(env.peekCall(0).args.length);
+    }
+
+    public static Memory func_get_arg(Environment env, TraceInfo trace, int argNum){
+        if (env.getCallStackTop() == 0){
+            return Memory.FALSE;
+        }
+        if (argNum < 0)
+            return Memory.FALSE;
+
+        Memory[] args = env.peekCall(0).args;
+        if (argNum < args.length)
+            return args[argNum];
+        else
+            return Memory.FALSE;
+    }
+
+    private static Memory _call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)
+            throws InvocationTargetException, IllegalAccessException {
+        Invoker invoker = Invoker.valueOf(env, null, function);
+        if (invoker == null){
+            env.warning(trace, "expects parameter 1 to be a valid callback");
+            return Memory.FALSE;
+        }
+
+        invoker.pushCall(null, args);
+        Memory result = Memory.FALSE;
+
+        try {
+            result = invoker.call(args);
+        } finally {
+            invoker.popCall();
+        }
+        return result;
+    }
+
+    public static Memory call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)
+            throws InvocationTargetException, IllegalAccessException {
+        Memory[] passed;
+        if (args == null){
+            passed = new Memory[]{function};
+        } else {
+            passed = new Memory[args.length + 1];
+            System.arraycopy(args, 0, passed, 1, args.length);
+            passed[0] = function;
+        }
+
+        env.pushCall(trace, null, passed, "call_user_func", null);
+        try {
+            return _call_user_func(env, trace, function, args);
+        } finally {
+            env.popCall();
+        }
+    }
+
+    public static Memory call_user_func_array(Environment env, TraceInfo trace, Memory function, Memory args)
+            throws InvocationTargetException, IllegalAccessException {
+        if (expecting(env, trace, 2, args, Memory.Type.ARRAY)){
+            Memory[] passed = new Memory[]{function, args};
+            env.pushCall(trace, null, passed, "call_user_func_array", null);
+            try {
+                return call_user_func(env, trace, function, ((ArrayMemory) args).values(true));
+            } finally {
+                env.popCall();
+            }
+        }
+        return Memory.FALSE;
+    }
+
+    public static Memory debug_backtrace(Environment env, TraceInfo trace, int options, int limit){
+        boolean provideObject = (options & constants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
+                == constants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
+        boolean ignoreArgs = (options & constants.DEBUG_BACKTRACE_IGNORE_ARGS)
+                == constants.DEBUG_BACKTRACE_IGNORE_ARGS;
+
+        ArrayMemory result = new ArrayMemory();
+        for(int i = 0; i < env.getCallStackTop(); i++){
+            if (limit != 0 && i >= limit)
+                break;
+
+            CallStackItem item = env.peekCall(i);
+            ArrayMemory el = new ArrayMemory();
+
+            if (item.trace != null) {
+                if (item.trace.getFile() != null)
+                    el.refOfIndex("file").assign(item.trace.getFile().getPath());
+
+                el.refOfIndex("line").assign(item.trace.getStartLine());
+                el.refOfIndex("position").assign(item.trace.getStartPosition());
+            }
+
+            el.refOfIndex("function").assign(item.function);
+
+            if (item.clazz != null) {
+                el.refOfIndex("class").assign(item.clazz);
+                el.refOfIndex("type").assign("::");
+            }
+
+            if (item.object != null){
+                if (provideObject){
+                    el.refOfIndex("object").assign(new ObjectMemory(item.object));
+                }
+                el.refOfIndex("type").assign("->");
+            }
+
+            if (!ignoreArgs){
+                el.refOfIndex("args").assign(new ArrayMemory(true, item.args));
+            }
+
+            result.add(el);
+        }
+
+        return result.toConstant();
+    }
+
+    public static Memory debug_backtrace(Environment env, TraceInfo trace, int options){
+        return debug_backtrace(env, trace, options, 0);
+    }
+
+    public static Memory debug_backtrace(Environment env, TraceInfo trace){
+        return debug_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+    }
+
+    /*
+    public static void debug_print_backtrace(Environment env, TraceInfo trace, int options, int limit){
+        StringWriter stringWriter = new StringWriter();
+        PrintR printR = new PrintR(stringWriter);
+        printR.print(debug_backtrace(env, trace, options, limit));
+
+        env.echo(stringWriter.toString());
+    }
+
+    public static void debug_print_backtrace(Environment env, TraceInfo trace, int options){
+        debug_print_backtrace(env, trace, options, 0);
+    }
+
+    public static void debug_print_backtrace(Environment env, TraceInfo trace){
+        debug_print_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+    }*/
 }
