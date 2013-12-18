@@ -883,9 +883,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     return true;
                 } else {
                     if (keys == null) {
-                        keys = map.keySet().iterator();
-                        for(int i = 0; i < cursor; i++)
-                            keys.next();
+                        ArrayList<Object> tmp = new ArrayList<Object>(map.keySet());
+                        keys = tmp.listIterator(cursor - 1);
                     }
 
                     if (keys.hasNext()){

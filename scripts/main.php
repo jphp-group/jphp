@@ -10,7 +10,7 @@ function test_StringManipulation($count = 130000) {
     $string = "the quick brown fox jumps over the lazy dog";
     for ($i=0; $i < $count; $i++) {
         foreach ($stringFunctions as $function) {
-            $r = @call_user_func_array($function, array($string));
+            $r = call_user_func_array($function, array($string));
         }
     }
     return number_format(microtime(true) - $time_start, 3);
