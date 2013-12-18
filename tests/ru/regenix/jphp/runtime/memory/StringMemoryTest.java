@@ -74,7 +74,7 @@ public class StringMemoryTest {
 
     @Test
     public void testAppend(){
-        StringMemory memory = new StringMemory("foo");
+        StringBuilderMemory memory = new StringBuilderMemory("foo");
         memory.append("bar");
         memory.append(123);
         memory.append(true);

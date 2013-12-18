@@ -39,7 +39,7 @@ public class CompileFunctionEntity extends FunctionEntity {
                 passed[i] = isRef ? arguments[j] : arguments[j].toImmutable();
                 j++;
             } else if (converter != null) {
-                passed[i] = converter.run(arguments[i]);
+                passed[i] = converter.run(arguments[j]);
                 j++;
             } else if (clazz == Environment.class) {
                 passed[i] = env;

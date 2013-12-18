@@ -882,6 +882,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     cursor++;
                     return true;
                 } else {
+                    if (keys == null) {
+                        keys = map.keySet().iterator();
+                        for(int i = 0; i < cursor; i++)
+                            keys.next();
+                    }
+
                     if (keys.hasNext()){
                         currentKey = keys.next();
                         setCurrentValue(map.get(currentKey));

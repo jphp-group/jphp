@@ -4,9 +4,7 @@ import ru.regenix.jphp.runtime.OperatorUtils;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class StringMemory extends Memory {
-
     String value = "";
-    StringBuilder builder = null;
 
     public StringMemory(String value) {
         super(Type.STRING);
@@ -18,6 +16,9 @@ public class StringMemory extends Memory {
     }
 
     public static Memory valueOf(String value){
+        if (value.isEmpty())
+            return Memory.CONST_EMPTY_STRING;
+
         return new StringMemory(value);
     }
 
@@ -38,10 +39,6 @@ public class StringMemory extends Memory {
 
     @Override
     public String toString() {
-        if (builder != null){
-            value = builder.toString();
-            builder = null;
-        }
         return value;
     }
 
@@ -115,10 +112,6 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory toNumeric(){
-        if (builder != null){
-            value = builder.toString();
-            builder = null;
-        }
         return toNumeric(value);
     }
 
@@ -179,18 +172,14 @@ public class StringMemory extends Memory {
 
     @Override
     public boolean equal(Memory memory) {
-        if (builder != null){
-            value = builder.toString();
-            builder = null;
-        }
         switch (memory.type){
-            case NULL: return value.equals("");
+            case NULL: return toString().equals("");
             case DOUBLE:
             case INT: return toNumeric().equal(memory);
-            case STRING: return value.equals(memory.toString());
+            case STRING: return toString().equals(memory.toString());
             case OBJECT:
             case ARRAY: return false;
-            default: return equal(memory.toImmutable());
+            default: return equal(memory.toValue());
         }
     }
 
@@ -206,15 +195,11 @@ public class StringMemory extends Memory {
 
     @Override
     public String concat(Memory memory) {
-        if (builder != null){
-            value = builder.toString();
-            builder = null;
-        }
         switch (memory.type){
-            case STRING: return value.concat(memory.toString());
+            case STRING: return toString().concat(memory.toString());
             case REFERENCE: return concat(memory.toImmutable());
             default:
-                return (value + memory.toString());
+                return (toString() + memory.toString());
         }
     }
 
@@ -357,54 +342,6 @@ public class StringMemory extends Memory {
     @Override
     public Memory bitShlRight(String value) {
         return OperatorUtils.binaryShl(new StringMemory(value), this);
-    }
-
-    private void resolveBuilder(){
-        if (builder == null){
-            builder = new StringBuilder(this.value);
-            this.value = null;
-        }
-    }
-
-    public void append(Memory memory){
-        resolveBuilder();
-        switch (memory.type){
-            case BOOL:
-                if (memory instanceof FalseMemory)
-                    break;
-                else
-                    builder.append(memory.toString());
-                break;
-            case NULL: break;
-            case INT: builder.append(((LongMemory)memory).value); break;
-            case DOUBLE: builder.append(((DoubleMemory)memory).value); break;
-            case STRING: builder.append(memory.toString()); break;
-            case REFERENCE: append(memory.toImmutable()); break;
-            default:
-                builder.append(memory.toString());
-        }
-    }
-
-    public void append(String value){
-        resolveBuilder();
-        builder.append(value);
-    }
-
-    public void append(long value){
-        resolveBuilder();
-        builder.append(value);
-    }
-
-    public void append(double value){
-        resolveBuilder();
-        builder.append(value);
-    }
-
-    public void append(boolean value){
-        if (value){
-            resolveBuilder();
-            builder.append(boolToString(value));
-        }
     }
 
     @Override

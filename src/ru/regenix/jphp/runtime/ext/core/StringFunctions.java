@@ -7,10 +7,7 @@ import ru.regenix.jphp.exceptions.TodoException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.BinaryMemory;
-import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.StringMemory;
+import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.util.Printf;
 import ru.regenix.jphp.util.DigestUtils;
@@ -23,6 +20,9 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.zip.CRC32;
 
@@ -33,6 +33,9 @@ import java.util.zip.CRC32;
  *    - chunk_split
  */
 public class StringFunctions extends FunctionsContainer {
+
+    private static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS;
+    private static final StringConstants constants = new StringConstants();
 
     protected static char toUUChar(int d) {
         if (d == 0)
@@ -1219,8 +1222,188 @@ public class StringFunctions extends FunctionsContainer {
     @Runtime.Immutable
     public static Memory substr_replace(Environment env, TraceInfo trace,
                                         Memory string, Memory replacementM, Memory startM) {
-        return substr_replace(env, trace, string, replacementM, startM, new LongMemory(Integer.MAX_VALUE / 2));
+        return substr_replace(env, trace, string, replacementM, startM, LongMemory.valueOf(Integer.MAX_VALUE / 2));
     }
 
 
+    @Runtime.Immutable
+    public static Memory wordwrap(String str, int width, String _break, boolean cut){
+        int length = str.length();
+        StringBuilderMemory sb = new StringBuilderMemory();
+
+        int done = 0;
+        int prevSpacePos = 0;
+        int start = 0;
+        int wordLength = 0;
+        for(int i = 0; i < length + 1; i++){
+            char ch = i == length ? ' ' : str.charAt(i);
+
+            if (Character.isSpaceChar(ch)
+                    || (cut && wordLength + 1 >= width)){
+                if (done >= width || i == length){
+                    if (done <= width) {
+                        sb.append(str.substring(start, i));
+                    } else {
+                        sb.append(str.substring(start, prevSpacePos));
+                        i = prevSpacePos;
+                    }
+                    start = i + 1;
+                    if (i != length)
+                        sb.append(_break);
+
+                    done = 0;
+                    continue;
+                } else
+                    prevSpacePos = i;
+
+                wordLength = 0;
+            }
+
+            done++;
+            wordLength++;
+        }
+
+        return sb;
+    }
+
+    @Runtime.Immutable
+    public static Memory wordwrap(String str, int width, String _break){
+        return wordwrap(str, width, _break, false);
+    }
+
+    @Runtime.Immutable
+    public static Memory wordwrap(String str, int width){
+        return wordwrap(str, width, "\n", false);
+    }
+
+    @Runtime.Immutable
+    public static Memory wordwrap(String str){
+        return wordwrap(str, 75, "\n", false);
+    }
+
+    @Runtime.Immutable
+    public static String number_format(double number, int decimals, char decPoint, char thousandsSep){
+        String pattern;
+        if (decimals > 0) {
+            StringBuilder patternBuilder = new StringBuilder(6 + decimals);
+
+            patternBuilder.append(thousandsSep == 0 ? "###0." : "#,##0.");
+
+            for (int i = 0; i < decimals; i++) {
+                patternBuilder.append('0');
+            }
+
+            pattern = patternBuilder.toString();
+        } else {
+            pattern = thousandsSep == 0 ? "###0" : "#,##0";
+        }
+
+        DecimalFormatSymbols decimalFormatSymbols;
+
+        if (decPoint == '.' && thousandsSep == ',') {
+            decimalFormatSymbols = DEFAULT_DECIMAL_FORMAT_SYMBOLS;
+        } else {
+            decimalFormatSymbols = new DecimalFormatSymbols();
+            decimalFormatSymbols.setDecimalSeparator(decPoint);
+            decimalFormatSymbols.setGroupingSeparator(thousandsSep);
+            decimalFormatSymbols.setZeroDigit('0');
+        }
+
+        DecimalFormat format = new DecimalFormat(pattern, decimalFormatSymbols);
+
+        String result = format.format(number);
+        if (decPoint == 0 && decimals > 0) {
+            // no way to get DecimalFormat to output nothing for the point,
+            // so remove it here
+            int i = result.lastIndexOf(decPoint);
+            return result.substring(0, i) + result.substring(i + 1, result.length());
+        } else {
+            return result;
+        }
+    }
+
+    @Runtime.Immutable
+    public static String number_format(double number, int decimals){
+        return number_format(number, decimals, '.', ',');
+    }
+
+    @Runtime.Immutable
+    public static String number_format(double number){
+        return number_format(number, 0, '.', ',');
+    }
+
+    @Runtime.Immutable
+    public static String str_repeat(String input, int multiplier){
+        if (multiplier <= 0)
+            return "";
+
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < multiplier; i++)
+            sb.append(input);
+
+        return sb.toString();
+    }
+
+    @Runtime.Immutable
+    public static String str_pad(String string, int length, String pad, int type) {
+        int strLen = string.length();
+        int padLen = length - strLen;
+
+        if (padLen <= 0) {
+            return string;
+        }
+
+        if (pad == null || pad.length() == 0) {
+            pad = " ";
+        }
+
+        int leftPad = 0;
+        int rightPad = 0;
+
+        switch (type) {
+            case 0:
+                leftPad = padLen;
+                break;
+            case 1:
+            default:
+                rightPad = padLen;
+                break;
+            case 2:
+                leftPad = padLen / 2;
+                rightPad = padLen - leftPad;
+                break;
+        }
+
+        int padStringLen = pad.length();
+
+        StringBuilder sb = new StringBuilder(string.length() + padLen);
+
+        for (int i = 0; i < leftPad; i++) {
+            sb.append(pad.charAt(i % padStringLen));
+        }
+        sb = sb.append(string);
+        for (int i = 0; i < rightPad; i++) {
+            sb.append(pad.charAt(i % padStringLen));
+        }
+
+        return sb.toString();
+    }
+
+    @Runtime.Immutable
+    public static String str_pad(String string, int length, String pad) {
+        return str_pad(string, length, pad, constants.STR_PAD_RIGHT);
+    }
+
+    @Runtime.Immutable
+    public static String str_pad(String string, int length) {
+        return str_pad(string, length, " ", constants.STR_PAD_RIGHT);
+    }
+
+
+    static {
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols();
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setDecimalSeparator('.');
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setGroupingSeparator(',');
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setZeroDigit('0');
+    }
 }

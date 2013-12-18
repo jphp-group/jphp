@@ -27,7 +27,7 @@ public class ReferenceMemory extends Memory {
     }
 
     public ReferenceMemory duplicate(){
-        return new ReferenceMemory(value);
+        return new ReferenceMemory(value.toImmutable());
     }
 
     @Override
@@ -570,8 +570,6 @@ public class ReferenceMemory extends Memory {
         return this.value.newKeyValue(memory);
     }
 
-
-
     @Override
     public Memory toImmutable() {
         switch (value.type){
@@ -696,6 +694,17 @@ public class ReferenceMemory extends Memory {
         if (type != Type.STRING && type != Type.ARRAY){
             assign(new ArrayMemory());
         }
+    }
+
+    public StringBuilderMemory needStringBuilder(){
+        Memory value = toValue();
+
+        if (value instanceof StringBuilderMemory)
+            return (StringBuilderMemory)value;
+
+        StringBuilderMemory builderMemory = new StringBuilderMemory(value.toString());
+        assign(builderMemory);
+        return builderMemory;
     }
 
     @Override
@@ -834,5 +843,35 @@ public class ReferenceMemory extends Memory {
             return value.getRealType();
 
         return value.type;
+    }
+
+    @Override
+    public Memory assignConcat(Memory memory) {
+        needStringBuilder().append(memory);
+        return this;
+    }
+
+    @Override
+    public Memory assignConcat(long memory) {
+        needStringBuilder().append(memory);
+        return this;
+    }
+
+    @Override
+    public Memory assignConcat(double memory) {
+        needStringBuilder().append(memory);
+        return this;
+    }
+
+    @Override
+    public Memory assignConcat(boolean memory) {
+        needStringBuilder().append(memory);
+        return this;
+    }
+
+    @Override
+    public Memory assignConcat(String memory) {
+        needStringBuilder().append(memory);
+        return this;
     }
 }

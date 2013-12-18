@@ -1957,6 +1957,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         ValueExprToken L = o.getToken();
 
         Memory mem = tryWritePush(o, false, false, true);
+        StackItem.Type type = tryGetType(o);
 
         if (mem != null){
             Memory result = CompilerUtils.calcUnary(mem, operator);
@@ -2091,6 +2092,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeArrayGet((ArrayGetExprToken)operator, returnValue);
         } else {
                 writePush(o);
+                writePopBoxing();
 
                 writeSysDynamicCall(Memory.class, name, operatorResult);
                 if (!returnValue){

@@ -12,6 +12,7 @@ import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -323,4 +324,10 @@ public class LangFunctions extends FunctionsContainer {
     public static void debug_print_backtrace(Environment env, TraceInfo trace){
         debug_print_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
     }*/
+
+    public static boolean function_exists(Environment env, String name){
+        name = name.toLowerCase();
+        FunctionEntity function = env.scope.findUserFunction(name);
+        return function != null && (function.isInternal() || env.isLoadedFunction(name));
+    }
 }
