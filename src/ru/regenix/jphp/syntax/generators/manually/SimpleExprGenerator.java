@@ -24,9 +24,14 @@ import java.util.ListIterator;
 public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     private boolean isRef = false;
+    private boolean canStartByReference = false;
 
     public SimpleExprGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
+    }
+
+    public void setCanStartByReference(boolean canStartByReference) {
+        this.canStartByReference = canStartByReference;
     }
 
     @Override
@@ -398,8 +403,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (analyzer.getFunction() != null)
                     analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
 
-            if (previous instanceof AssignExprToken || previous == null) {
-                if (previous != null)
+            if (previous instanceof AssignExprToken || previous instanceof KeyValueExprToken
+                    || (canStartByReference && previous == null)) {
+                if (previous instanceof AssignExprToken)
                     ((AssignExprToken) previous).setAsReference(true);
 
                 iterator.previous();
@@ -545,8 +551,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         do {
-            ExprStmtToken argument = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, Separator.COMMA, braceKind);
+            SimpleExprGenerator generator = analyzer.generator(SimpleExprGenerator.class);
+            generator.setCanStartByReference(true);
+
+            ExprStmtToken argument = generator.getToken(nextToken(iterator), iterator, Separator.COMMA, braceKind);
             if (argument == null)
                 break;
 

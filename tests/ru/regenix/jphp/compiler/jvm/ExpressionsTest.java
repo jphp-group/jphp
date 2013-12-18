@@ -23,4 +23,16 @@ public class ExpressionsTest extends JvmCompilerCase {
         Memory memory = includeResource("expressions/plus_minus_mul_div.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testComplexAssign(){
+        Memory memory = includeResource("expressions/complex_assign.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testComplex(){
+        Memory memory = includeResource("expressions/complex.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

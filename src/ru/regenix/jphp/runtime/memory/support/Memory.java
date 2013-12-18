@@ -301,13 +301,91 @@ abstract public class Memory {
     public Memory bitShl(boolean memory) { return LongMemory.valueOf( toLong() << (memory ? 1 : 0) ); }
     public Memory bitShl(String memory) { return LongMemory.valueOf( toLong() << StringMemory.toNumeric(memory).toLong() ); }
 
+
     // ASSIGN
-    public Memory assign(Memory memory){ throw new RuntimeException("Invalid assign"); }
-    public Memory assign(long value){ throw new RuntimeException("Invalid assign"); }
-    public Memory assign(double value) { throw new RuntimeException("Invalid assign"); }
-    public Memory assign(boolean value) { throw new RuntimeException("Invalid assign"); }
-    public Memory assign(String value){ throw new RuntimeException("Invalid assign"); }
-    public Memory assignRef(Memory memory){ throw new RuntimeException("Invalid assign"); }
+    public Memory assign(Memory memory){ throw new RuntimeException("Invalid assign `memory` to " + type); }
+    public Memory assign(long value){ throw new RuntimeException("Invalid assign `long` to " + type); }
+    public Memory assign(double value) { throw new RuntimeException("Invalid assign `double` to " + type); }
+    public Memory assign(boolean value) { throw new RuntimeException("Invalid assign `bool` to " + type); }
+    public Memory assign(String value){ throw new RuntimeException("Invalid assign `string` to " + type); }
+    public Memory assignRef(Memory memory){ throw new RuntimeException("Invalid assignRef `memory` to " + type); }
+
+    public Memory assignConcat(Memory memory) { return assign(concat(memory)); }
+    public Memory assignConcat(long memory) { return assign(concat(memory)); }
+    public Memory assignConcat(double memory) { return assign(concat(memory)); }
+    public Memory assignConcat(boolean memory) { return assign(concat(memory)); }
+    public Memory assignConcat(String memory) { return assign(concat(memory)); }
+    public Memory assignConcatRight(Memory memory) { return memory.assign(memory.concat(this)); }
+
+    public Memory assignPlus(Memory memory) { return assign(plus(memory)); }
+    public Memory assignPlus(long memory) { return assign(plus(memory)); }
+    public Memory assignPlus(double memory) { return assign(plus(memory)); }
+    public Memory assignPlus(boolean memory) { return assign(plus(memory)); }
+    public Memory assignPlus(String memory) { return assign(plus(memory)); }
+    public Memory assignPlusRight(Memory memory) { return memory.assign(memory.plus(this)); }
+
+    public Memory assignMinus(Memory memory) { return assign(minus(memory)); }
+    public Memory assignMinus(long memory) { return assign(minus(memory)); }
+    public Memory assignMinus(double memory) { return assign(minus(memory)); }
+    public Memory assignMinus(boolean memory) { return assign(minus(memory)); }
+    public Memory assignMinus(String memory) { return assign(minus(memory)); }
+    public Memory assignMinusRight(Memory memory) { return memory.assign(memory.minus(this)); }
+
+    public Memory assignMul(Memory memory) { return assign(mul(memory)); }
+    public Memory assignMul(long memory) { return assign(mul(memory)); }
+    public Memory assignMul(double memory) { return assign(mul(memory)); }
+    public Memory assignMul(boolean memory) { return assign(mul(memory)); }
+    public Memory assignMul(String memory) { return assign(mul(memory)); }
+    public Memory assignMulRight(Memory memory) { return memory.assign(memory.mul(this)); }
+
+    public Memory assignDiv(Memory memory) { return assign(div(memory)); }
+    public Memory assignDiv(long memory) { return assign(div(memory)); }
+    public Memory assignDiv(double memory) { return assign(div(memory)); }
+    public Memory assignDiv(boolean memory) { return assign(div(memory)); }
+    public Memory assignDiv(String memory) { return assign(div(memory)); }
+    public Memory assignDivRight(Memory memory) { return memory.assign(memory.div(this)); }
+
+    public Memory assignMod(Memory memory) { return assign(mod(memory)); }
+    public Memory assignMod(long memory) { return assign(mod(memory)); }
+    public Memory assignMod(double memory) { return assign(mod(memory)); }
+    public Memory assignMod(boolean memory) { return assign(mod(memory)); }
+    public Memory assignMod(String memory) { return assign(mod(memory)); }
+    public Memory assignModRight(Memory memory) { return memory.assign(memory.mod(this)); }
+
+    public Memory assignBitShr(Memory memory) { return assign(bitShr(memory)); }
+    public Memory assignBitShr(long memory) { return assign(bitShr(memory)); }
+    public Memory assignBitShr(double memory) { return assign(bitShr(memory)); }
+    public Memory assignBitShr(boolean memory) { return assign(bitShr(memory)); }
+    public Memory assignBitShr(String memory) { return assign(bitShr(memory)); }
+    public Memory assignBitShrRight(Memory memory) { return memory.assign(memory.bitShr(this)); }
+
+    public Memory assignBitShl(Memory memory) { return assign(bitShl(memory)); }
+    public Memory assignBitShl(long memory) { return assign(bitShl(memory)); }
+    public Memory assignBitShl(double memory) { return assign(bitShl(memory)); }
+    public Memory assignBitShl(boolean memory) { return assign(bitShl(memory)); }
+    public Memory assignBitShl(String memory) { return assign(bitShl(memory)); }
+    public Memory assignBitShlRight(Memory memory) { return memory.assign(memory.bitShl(this)); }
+
+    public Memory assignBitAnd(Memory memory) { return assign(bitAnd(memory)); }
+    public Memory assignBitAnd(long memory) { return assign(bitAnd(memory)); }
+    public Memory assignBitAnd(double memory) { return assign(bitAnd(memory)); }
+    public Memory assignBitAnd(boolean memory) { return assign(bitAnd(memory)); }
+    public Memory assignBitAnd(String memory) { return assign(bitAnd(memory)); }
+    public Memory assignBitAndRight(Memory memory) { return memory.assign(memory.bitAnd(this)); }
+
+    public Memory assignBitOr(Memory memory) { return assign(bitOr(memory)); }
+    public Memory assignBitOr(long memory) { return assign(bitOr(memory)); }
+    public Memory assignBitOr(double memory) { return assign(bitOr(memory)); }
+    public Memory assignBitOr(boolean memory) { return assign(bitOr(memory)); }
+    public Memory assignBitOr(String memory) { return assign(bitOr(memory)); }
+    public Memory assignBitOrRight(Memory memory) { return memory.assign(memory.bitOr(this)); }
+
+    public Memory assignBitXor(Memory memory) { return assign(bitXor(memory)); }
+    public Memory assignBitXor(long memory) { return assign(bitXor(memory)); }
+    public Memory assignBitXor(double memory) { return assign(bitXor(memory)); }
+    public Memory assignBitXor(boolean memory) { return assign(bitXor(memory)); }
+    public Memory assignBitXor(String memory) { return assign(bitXor(memory)); }
+    public Memory assignBitXorRight(Memory memory) { return memory.assign(memory.bitXor(this)); }
 
     public void unset(){  }
 
@@ -374,6 +452,73 @@ abstract public class Memory {
     public static Memory assignRight(String value, Memory memory){ return memory.assign(value); }
 
     public static Memory assignRefRight(Memory value, Memory memory) { return memory.assignRef(value); }
+
+
+    public static Memory assignConcatRight(Memory value, Memory memory){ return memory.assignConcat(value); }
+    public static Memory assignConcatRight(long value, Memory memory){ return memory.assignConcat(value); }
+    public static Memory assignConcatRight(double value, Memory memory){ return memory.assignConcat(value); }
+    public static Memory assignConcatRight(boolean value, Memory memory){ return memory.assignConcat(value); }
+    public static Memory assignConcatRight(String value, Memory memory){ return memory.assignConcat(value); }
+
+    public static Memory assignPlusRight(Memory value, Memory memory){ return memory.assignPlus(value); }
+    public static Memory assignPlusRight(long value, Memory memory){ return memory.assignPlus(value); }
+    public static Memory assignPlusRight(double value, Memory memory){ return memory.assignPlus(value); }
+    public static Memory assignPlusRight(boolean value, Memory memory){ return memory.assignPlus(value); }
+    public static Memory assignPlusRight(String value, Memory memory){ return memory.assignPlus(value); }
+
+    public static Memory assignMinusRight(Memory value, Memory memory){ return memory.assignMinus(value); }
+    public static Memory assignMinusRight(long value, Memory memory){ return memory.assignMinus(value); }
+    public static Memory assignMinusRight(double value, Memory memory){ return memory.assignMinus(value); }
+    public static Memory assignMinusRight(boolean value, Memory memory){ return memory.assignMinus(value); }
+    public static Memory assignMinusRight(String value, Memory memory){ return memory.assignMinus(value); }
+
+    public static Memory assignMulRight(Memory value, Memory memory){ return memory.assignMul(value); }
+    public static Memory assignMulRight(long value, Memory memory){ return memory.assignMul(value); }
+    public static Memory assignMulRight(double value, Memory memory){ return memory.assignMul(value); }
+    public static Memory assignMulRight(boolean value, Memory memory){ return memory.assignMul(value); }
+    public static Memory assignMulRight(String value, Memory memory){ return memory.assignMul(value); }
+
+    public static Memory assignDivRight(Memory value, Memory memory){ return memory.assignDiv(value); }
+    public static Memory assignDivRight(long value, Memory memory){ return memory.assignDiv(value); }
+    public static Memory assignDivRight(double value, Memory memory){ return memory.assignDiv(value); }
+    public static Memory assignDivRight(boolean value, Memory memory){ return memory.assignDiv(value); }
+    public static Memory assignDivRight(String value, Memory memory){ return memory.assignDiv(value); }
+
+    public static Memory assignModRight(Memory value, Memory memory){ return memory.assignMod(value); }
+    public static Memory assignModRight(long value, Memory memory){ return memory.assignMod(value); }
+    public static Memory assignModRight(double value, Memory memory){ return memory.assignMod(value); }
+    public static Memory assignModRight(boolean value, Memory memory){ return memory.assignMod(value); }
+    public static Memory assignModRight(String value, Memory memory){ return memory.assignMod(value); }
+
+    public static Memory assignBitShrRight(Memory value, Memory memory){ return memory.assignBitShr(value); }
+    public static Memory assignBitShrRight(long value, Memory memory){ return memory.assignBitShr(value); }
+    public static Memory assignBitShrRight(double value, Memory memory){ return memory.assignBitShr(value); }
+    public static Memory assignBitShrRight(boolean value, Memory memory){ return memory.assignBitShr(value); }
+    public static Memory assignBitShrRight(String value, Memory memory){ return memory.assignBitShr(value); }
+
+    public static Memory assignBitShlRight(Memory value, Memory memory){ return memory.assignBitShl(value); }
+    public static Memory assignBitShlRight(long value, Memory memory){ return memory.assignBitShl(value); }
+    public static Memory assignBitShlRight(double value, Memory memory){ return memory.assignBitShl(value); }
+    public static Memory assignBitShlRight(boolean value, Memory memory){ return memory.assignBitShl(value); }
+    public static Memory assignBitShlRight(String value, Memory memory){ return memory.assignBitShl(value); }
+
+    public static Memory assignBitAndRight(Memory value, Memory memory){ return memory.assignBitAnd(value); }
+    public static Memory assignBitAndRight(long value, Memory memory){ return memory.assignBitAnd(value); }
+    public static Memory assignBitAndRight(double value, Memory memory){ return memory.assignBitAnd(value); }
+    public static Memory assignBitAndRight(boolean value, Memory memory){ return memory.assignBitAnd(value); }
+    public static Memory assignBitAndRight(String value, Memory memory){ return memory.assignBitAnd(value); }
+
+    public static Memory assignBitOrRight(Memory value, Memory memory){ return memory.assignBitOr(value); }
+    public static Memory assignBitOrRight(long value, Memory memory){ return memory.assignBitOr(value); }
+    public static Memory assignBitOrRight(double value, Memory memory){ return memory.assignBitOr(value); }
+    public static Memory assignBitOrRight(boolean value, Memory memory){ return memory.assignBitOr(value); }
+    public static Memory assignBitOrRight(String value, Memory memory){ return memory.assignBitOr(value); }
+
+    public static Memory assignBitXorRight(Memory value, Memory memory){ return memory.assignBitXor(value); }
+    public static Memory assignBitXorRight(long value, Memory memory){ return memory.assignBitXor(value); }
+    public static Memory assignBitXorRight(double value, Memory memory){ return memory.assignBitXor(value); }
+    public static Memory assignBitXorRight(boolean value, Memory memory){ return memory.assignBitXor(value); }
+    public static Memory assignBitXorRight(String value, Memory memory){ return memory.assignBitXor(value); }
     ////
 
     public static String boolToString(boolean value){

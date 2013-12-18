@@ -692,8 +692,9 @@ public class ReferenceMemory extends Memory {
     }
 
     public void needArray(){
-        if (value.type == Type.NULL){
-            value = new ArrayMemory();
+        Type type = getRealType();
+        if (type != Type.STRING && type != Type.ARRAY){
+            assign(new ArrayMemory());
         }
     }
 
@@ -829,6 +830,9 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Type getRealType() {
+        if (value.type == Type.REFERENCE)
+            return value.getRealType();
+
         return value.type;
     }
 }

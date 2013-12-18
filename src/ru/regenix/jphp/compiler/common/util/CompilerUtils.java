@@ -198,9 +198,9 @@ final public class CompilerUtils {
     }
 
     public static boolean isSideOperator(OperatorExprToken operator){
-        if (operator instanceof PlusExprToken || operator instanceof AssignPlusExprToken)
+        if (operator instanceof PlusExprToken)
             return false;
-        if (operator instanceof MulExprToken || operator instanceof AssignMulExprToken)
+        if (operator instanceof MulExprToken)
             return false;
         if (operator instanceof EqualExprToken || operator instanceof BooleanNotEqualExprToken)
             return false;
@@ -215,6 +215,33 @@ final public class CompilerUtils {
         return true;
     }
 
+    public static String getAssignOperatorCode(AssignOperatorExprToken operator){
+        if (operator instanceof AssignAndExprToken)
+            return "bitAnd";
+        else if (operator instanceof AssignConcatExprToken)
+            return "concat";
+        else if (operator instanceof AssignDivExprToken)
+            return "div";
+        else if (operator instanceof AssignMinusExprToken)
+            return "minus";
+        else if (operator instanceof AssignModExprToken)
+            return "mod";
+        else if (operator instanceof AssignMulExprToken)
+            return "mul";
+        else if (operator instanceof AssignOrExprToken)
+            return "bitOr";
+        else if (operator instanceof AssignPlusExprToken)
+            return "plus";
+        else if (operator instanceof AssignShiftLeftExprToken)
+            return "bitShl";
+        else if (operator instanceof AssignShiftRightExprToken)
+            return "bitShr";
+        else if (operator instanceof AssignXorExprToken)
+            return "bitXor";
+
+        throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());
+    }
+
     public static String getOperatorCode(OperatorExprToken operator){
         if (operator instanceof IncExprToken){
             return "inc";
@@ -224,20 +251,32 @@ final public class CompilerUtils {
             return "negative";
         } else if (operator instanceof BooleanNotExprToken){
             return "not";
-        } else if (operator instanceof PlusExprToken || operator instanceof AssignPlusExprToken){
+        } else if (operator instanceof PlusExprToken){
             return "plus";
-        } else if (operator instanceof MinusExprToken || operator instanceof AssignMinusExprToken){
+        } else if (operator instanceof AssignPlusExprToken){
+            return "assignPlus";
+        } else if (operator instanceof MinusExprToken){
             return "minus";
-        } else if (operator instanceof MulExprToken || operator instanceof AssignMulExprToken){
+        } else if (operator instanceof AssignMinusExprToken){
+            return "assignMinus";
+        } else if (operator instanceof MulExprToken){
             return "mul";
-        } else if (operator instanceof DivExprToken || operator instanceof AssignDivExprToken){
+        } else if (operator instanceof AssignMulExprToken){
+            return "assignMul";
+        } else if (operator instanceof DivExprToken){
             return "div";
-        } else if (operator instanceof ModExprToken || operator instanceof AssignModExprToken){
+        } else if (operator instanceof AssignDivExprToken){
+            return "assignDiv";
+        } else if (operator instanceof ModExprToken){
             return "mod";
+        } else if (operator instanceof AssignModExprToken){
+            return "assignMod";
         } else if (operator instanceof AssignExprToken){
             return ((AssignExprToken) operator).isAsReference() ? "assignRef" : "assign";
-        } else if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
+        } else if (operator instanceof ConcatExprToken){
             return "concat";
+        } else if (operator instanceof AssignConcatExprToken){
+            return "assignConcat";
         } else if (operator instanceof SmallerExprToken){
             return "smaller";
         } else if (operator instanceof SmallerOrEqualToken){
@@ -260,18 +299,28 @@ final public class CompilerUtils {
             return null;
         } else if (operator instanceof ValueIfElseToken){
             return null;
-        } else if (operator instanceof AndExprToken || operator instanceof AssignAndExprToken){
+        } else if (operator instanceof AndExprToken){
             return "bitAnd";
-        } else if (operator instanceof OrExprToken || operator instanceof AssignOrExprToken){
+        } else if (operator instanceof AssignAndExprToken){
+            return "assignBitAnd";
+        } else if (operator instanceof OrExprToken){
             return "bitOr";
-        } else if (operator instanceof XorExprToken || operator instanceof AssignXorExprToken){
+        } else if (operator instanceof AssignOrExprToken){
+            return "assignBitOr";
+        } else if (operator instanceof XorExprToken){
             return "bitXor";
+        } else if (operator instanceof AssignXorExprToken){
+            return "assignBitXor";
         } else if (operator instanceof NotExprToken){
             return "bitNot";
-        } else if (operator instanceof ShiftRightExprToken || operator instanceof AssignShiftRightExprToken){
+        } else if (operator instanceof ShiftRightExprToken){
             return "bitShr";
-        } else if (operator instanceof ShiftLeftExprToken || operator instanceof AssignShiftLeftExprToken){
+        } else if (operator instanceof AssignShiftRightExprToken){
+            return "assignBitShr";
+        } else if (operator instanceof ShiftLeftExprToken ){
             return "bitShl";
+        } else if (operator instanceof AssignShiftLeftExprToken){
+            return "bitShr";
         } else if (operator instanceof ArrayPushExprToken) {
             return "refOfPush";
         } else if (operator instanceof KeyValueExprToken){
@@ -284,7 +333,7 @@ final public class CompilerUtils {
     }
 
     public static Class getOperatorResult(OperatorExprToken operator) {
-        if (operator instanceof ConcatExprToken || operator instanceof AssignConcatExprToken){
+        if (operator instanceof ConcatExprToken){
             return String.class;
         } else if (operator instanceof BooleanNotExprToken){
             return Boolean.TYPE;

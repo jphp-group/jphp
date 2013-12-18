@@ -216,8 +216,22 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
 
-        ExprStmtToken init = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
+        ExprStmtToken init;
+        List<ExprStmtToken> inits = new ArrayList<ExprStmtToken>();
+        do {
+            init = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null);
+            if (init == null)
+                break;
+
+            inits.add(init);
+
+            if (iterator.previous() instanceof SemicolonToken) {
+                iterator.next();
+                break;
+            }
+            iterator.next();
+        } while (true);
 
         result.setInitLocal(analyzer.removeLocalScope());
         analyzer.addLocalScope();
@@ -225,8 +239,23 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
 
-        ExprStmtToken iteratorExpr = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.SIMPLE);
+        // ITERATIONS
+        List<ExprStmtToken> iterations = new ArrayList<ExprStmtToken>();
+
+        do {
+            ExprStmtToken iteratorExpr = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.COMMA, BraceExprToken.Kind.SIMPLE);
+            if (iteratorExpr == null)
+                break;
+
+            iterations.add(iteratorExpr);
+
+            if (isClosedBrace(iterator.previous(), BraceExprToken.Kind.SIMPLE)) {
+                iterator.next();
+                break;
+            }
+            iterator.next();
+        } while (true);
 
         result.setIterationLocal(Sets.newHashSet(analyzer.getLocalScope()));
 
@@ -235,9 +264,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             nextToken(iterator), iterator, EndforStmtToken.class
         );
 
-        result.setInitExpr(init);
+        result.setInitExpr(inits);
         result.setCondition(condition);
-        result.setIterationExpr(iteratorExpr);
+        result.setIterationExpr(iterations);
         result.setBody(body);
         result.setLocal(analyzer.removeLocalScope());
     }

@@ -8,4 +8,14 @@ public class UnarMinusExprToken extends OperatorExprToken {
     public UnarMinusExprToken(TokenMeta meta) {
         super(meta, TokenType.T_J_UNAR_MINUS);
     }
+
+    @Override
+    public boolean isBinary() {
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 20;
+    }
 }

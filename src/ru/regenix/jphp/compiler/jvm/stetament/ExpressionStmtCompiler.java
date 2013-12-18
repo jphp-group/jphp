@@ -1147,11 +1147,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     Memory writePushArray(ArrayExprToken array, boolean returnMemory, boolean writeOpcode){
         if (array.getParameters().isEmpty()){
-            if (writeOpcode)
-                writeSysStaticCall(ArrayMemory.class, "valueOf", Memory.class);
-
             if (returnMemory)
                 return new ArrayMemory();
+            else if (writeOpcode)
+                writeSysStaticCall(ArrayMemory.class, "valueOf", Memory.class);
         } else {
             ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
 
@@ -1974,14 +1973,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     result = writeExpression(valueIfElseToken.getAlternative(), true, true, false);
                 }
             } else if (operator instanceof ArrayGetExprToken && !(operator instanceof ArrayGetRefExprToken)){
-                Memory array = mem;
+                // TODO: check!!!
+                /*Memory array = mem;
                 ArrayGetExprToken arrayGet = (ArrayGetExprToken)operator;
                 for(ExprStmtToken expr : arrayGet.getParameters()){
                     Memory key = writeExpression(expr, true, true, false);
                     if (key == null)
                         break;
                     result = array = array.valueOfIndex(key).toImmutable();
-                }
+                }*/
             }
 
             if (result != null){
@@ -2209,21 +2209,38 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             unexpectedToken(operator);
         }
 
-        if (!writeOpcode)
+        if (!writeOpcode){
+            stackPush(o2);
+            stackPush(o1);
             return null;
+        }
 
         StackItem.Type Lt = tryGetType(o2);
         StackItem.Type Rt = tryGetType(o1);
 
         String name = CompilerUtils.getOperatorCode(operator);
         Class operatorResult = CompilerUtils.getOperatorResult(operator);
+
+        boolean isInvert = false;
+        boolean sideOperator = CompilerUtils.isSideOperator(operator);
+
+        if (variable != null && !variable.isReference()){
+            if (operator instanceof AssignOperatorExprToken){
+                name = CompilerUtils.getAssignOperatorCode((AssignOperatorExprToken)operator);
+                if (operator instanceof AssignConcatExprToken)
+                    operatorResult = String.class;
+                if (operator instanceof AssignPlusExprToken || operator instanceof AssignMulExprToken)
+                    sideOperator = false;
+            }
+        }
+
         if (Lt.isConstant() && Rt.isConstant()){
             if (operator instanceof AssignOperatorExprToken)
                 unexpectedToken(operator);
 
             writeScalarOperator(o2, Lt, o1, Rt, operator, operatorResult, name);
         } else {
-            boolean isInvert = !o1.isKnown();
+            isInvert = !o1.isKnown();
             if (!o1.isKnown() && !o2.isKnown() && o1.getLevel() > o2.getLevel())
                 isInvert = false;
 
@@ -2241,22 +2258,28 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (isInvert) {
                     stackPush(o1);
                     if (o2.isKnown())
-                        writePopBoxing(true);
+                        writePopBoxing(false);
 
                     writePush(o2);
 
                     if (!o2.isKnown() && !o2.type.isReference()) {
                         writeSysStaticCall(OperatorUtils.class, name, operatorResult, Lt.toClass(), Rt.toClass());
                         name = null;
-                    } else if (CompilerUtils.isSideOperator(operator))
+                    } else if (sideOperator) {
                         name += "Right";
+                    }
+
+                    /*if (cloneValue){
+                        writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
+                        writePush(o2);
+                        name = null;
+                    }*/
                 } else {
                     writePush(o2);
-                    writePopBoxing();
+                    writePopBoxing(false);
 
-                    if (operator instanceof AssignableOperatorToken &&
-                            (variable != null && variable.isReference()))
-                        writePushDup();
+                    /*if (cloneValue)
+                        writePushDup();*/
 
                     writePush(o1);
                     writePopImmutable();
@@ -2268,7 +2291,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             if (operator instanceof AssignOperatorExprToken){
                 if (variable == null || variable.isReference()){
-                    writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
+                    /*if (isInvert)
+                        writeSysStaticCall(Memory.class, "assignRight", Memory.class, Rt.toClass(), Memory.class);
+                    else
+                        writeSysDynamicCall(Memory.class, "assign", Memory.class, stackPeek().type.toClass());
+                    */
                     if (!returnValue)
                         writePopAll(1);
                 } else {
@@ -2472,7 +2499,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (token.isValueReference())
             writeVarStore(variable, false, false);
         else
-            writeVarAssign(variable, false, false);
+            writeVarAssign(variable, false, true);
 
         // body
         writeBody(token.getBody());
@@ -2485,7 +2512,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writeFor(ForStmtToken token){
         writeDefineVariables(token.getInitLocal());
-        writeExpression(token.getInitExpr(), false, false);
+        for(ExprStmtToken expr : token.getInitExpr()){
+            writeExpression(expr, false, false);
+        }
         writeUndefineVariables(token.getInitLocal());
 
         writeDefineVariables(token.getLocal());
@@ -2510,7 +2539,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         method.popJump();
 
         code.add(iter);
-        writeExpression(token.getIterationExpr(), false, false);
+        for(ExprStmtToken expr : token.getIterationExpr()){
+            writeExpression(expr, false, false);
+        }
         code.add(new JumpInsnNode(GOTO, start));
         code.add(end);
         code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
@@ -2767,7 +2798,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     default:
                         throw new IllegalArgumentException("Invalid of size StackItem: " + type.size());
                 }
-            } else if (o.isInvalidForOperations())
+            } else/* if (o.isInvalidForOperations())*/
                 unexpectedToken(token);
         }
     }

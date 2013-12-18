@@ -4,15 +4,16 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 
+import java.util.List;
 import java.util.Set;
 
 public class ForStmtToken extends StmtToken {
     private Set<VariableExprToken> local;
     private Set<VariableExprToken> initLocal;
     private Set<VariableExprToken> iterationLocal;
-    private ExprStmtToken initExpr;
+    private List<ExprStmtToken> initExpr;
     private ExprStmtToken condition;
-    private ExprStmtToken iterationExpr;
+    private List<ExprStmtToken> iterationExpr;
 
     private BodyStmtToken body;
 
@@ -20,11 +21,11 @@ public class ForStmtToken extends StmtToken {
         super(meta, TokenType.T_FOR);
     }
 
-    public ExprStmtToken getInitExpr() {
+    public List<ExprStmtToken> getInitExpr() {
         return initExpr;
     }
 
-    public void setInitExpr(ExprStmtToken initExpr) {
+    public void setInitExpr(List<ExprStmtToken> initExpr) {
         this.initExpr = initExpr;
     }
 
@@ -36,11 +37,11 @@ public class ForStmtToken extends StmtToken {
         this.condition = condition;
     }
 
-    public ExprStmtToken getIterationExpr() {
+    public List<ExprStmtToken> getIterationExpr() {
         return iterationExpr;
     }
 
-    public void setIterationExpr(ExprStmtToken iterationExpr) {
+    public void setIterationExpr(List<ExprStmtToken> iterationExpr) {
         this.iterationExpr = iterationExpr;
     }
 
