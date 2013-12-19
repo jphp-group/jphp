@@ -6,6 +6,7 @@ import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -82,25 +83,25 @@ public class MethodEntity extends AbstractFunctionEntity {
         this.nativeMethod = nativeMethod;
     }
 
-    public Memory invokeDynamicNoThrow(PHPObject _this, String _static, Environment environment, Memory... arguments){
+    public Memory invokeDynamicNoThrow(PHPObject _this, Environment environment, Memory... arguments){
         try {
-            return invokeDynamic(_this, _static, environment, arguments);
+            return invokeDynamic(_this, environment, arguments);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof ErrorException)
+            Throwable cause = getCause(e);
+            if (cause instanceof ErrorException)
                 throw (ErrorException) e.getCause();
-            throw new RuntimeException(e.getCause());
+            if (cause instanceof DieException)
+                throw (DieException)cause;
+
+            throw new RuntimeException(cause);
         }
     }
 
-    public Memory invokeDynamic(PHPObject _this, String _static, Environment environment, Memory... arguments)
+    public Memory invokeDynamic(PHPObject _this, Environment environment, Memory... arguments)
             throws IllegalAccessException, InvocationTargetException {
-        if (_static == null){
-            _static = _this.getClass().getName().replace('.', '\\').toLowerCase();
-        }
-
-        Memory result = (Memory)nativeMethod.invoke(_this, environment, _static, arguments);
+        Memory result = (Memory)nativeMethod.invoke(_this, environment, arguments);
         if (arguments != null){
             int x = 0;
             for(ParameterEntity argument : this.parameters){
@@ -117,9 +118,9 @@ public class MethodEntity extends AbstractFunctionEntity {
             return result;
     }
 
-    public Memory invokeStaticNoThrow(String _static, Environment environment, Memory... arguments){
+    public Memory invokeStaticNoThrow(Environment environment, Memory... arguments){
         try {
-            return invokeStatic(_static, environment, arguments);
+            return invokeStatic(environment, arguments);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -129,12 +130,9 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invokeStatic(String _static, Environment environment, Memory... arguments)
+    public Memory invokeStatic(Environment environment, Memory... arguments)
             throws IllegalAccessException, InvocationTargetException {
-        if (_static == null)
-            _static = clazz.getLowerName();
-
-        return invokeDynamic(null, _static, environment, arguments);
+        return invokeDynamic(null, environment, arguments);
     }
 
     @Override
@@ -221,5 +219,33 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public String getKey() {
         return key;
+    }
+
+    /**
+     * 0 - success
+     * 1 - invalid protected
+     * 2 - invalid private
+     * @param env
+     * @return
+     */
+    public int canAccess(Environment env){
+        switch (modifier){
+            case PUBLIC: return 0;
+            case PRIVATE:
+                ClassEntity cl = env.getContextClass();
+                return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
+            case PROTECTED:
+                ClassEntity clazz = env.getContextClass();
+                if (clazz == null)
+                    return 1;
+
+                long id = this.clazz.getId();
+                do {
+                    if (clazz.getId() == id)
+                        return 0;
+                    clazz = clazz.parent;
+                } while (clazz != null);
+        }
+        return 2;
     }
 }

@@ -1,7 +1,11 @@
 package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.memory.output.PlainPrinter;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+
+import java.io.StringWriter;
 
 public class CallStackItem {
     public TraceInfo trace;
@@ -10,6 +14,7 @@ public class CallStackItem {
 
     public String function;
     public String clazz;
+    public ClassEntity classEntity;
 
     public CallStackItem(TraceInfo trace) {
         this.trace = trace;
@@ -29,10 +34,54 @@ public class CallStackItem {
         this.args = args;
         this.function = function;
         this.clazz = clazz;
+        this.classEntity = null;
     }
 
     public void clear(){
         this.object = null;
         this.args = null;
+    }
+
+    @Override
+    public String toString() {
+        return toString(false);
+    }
+
+    public String toString(boolean withArgs) {
+        StringBuilder sb = new StringBuilder();
+        if (clazz != null){
+            sb.append(clazz);
+            sb.append("::");
+            sb.append(function);
+        } else if (function != null){
+            sb.append(function);
+        } else
+            sb.append("<internal>");
+
+        sb.append("(");
+        if (withArgs) {
+            StringWriter writer = new StringWriter();
+            PlainPrinter printer = new PlainPrinter(writer);
+            int i = 0;
+            if (args != null)
+            for(Memory arg : args){
+                printer.print(arg);
+                if (i != args.length - 1)
+                    writer.append(", ");
+
+                i++;
+            }
+            sb.append(writer.toString());
+        }
+        sb.append(")");
+        if (trace != null) {
+            sb.append(" called at [");
+            sb.append(trace.getFileName());
+            sb.append(":");
+            sb.append(trace.getStartLine() + 1);
+            sb.append("]");
+        }
+
+        return sb.toString();
     }
 }

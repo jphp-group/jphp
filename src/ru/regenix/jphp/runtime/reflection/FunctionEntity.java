@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -11,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FunctionEntity extends AbstractFunctionEntity {
-
     protected boolean isInternal = false;
 
     private byte[] data;
@@ -65,7 +65,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
     }
 
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
-        Memory result = (Memory)nativeMethod.invoke(null, env, "", arguments);
+        Memory result = (Memory)nativeMethod.invoke(null, env, arguments);
         if (arguments != null){
             int x = 0;
             for(ParameterEntity argument : this.parameters){
@@ -88,9 +88,13 @@ public class FunctionEntity extends AbstractFunctionEntity {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof ErrorException)
-                throw (ErrorException) e.getCause();
-            throw new RuntimeException(e.getCause());
+            Throwable cause = getCause(e);
+            if (cause instanceof ErrorException)
+                throw (ErrorException) cause;
+            if (cause instanceof DieException)
+                throw (DieException) cause;
+
+            throw new RuntimeException(cause);
         }
     }
 }

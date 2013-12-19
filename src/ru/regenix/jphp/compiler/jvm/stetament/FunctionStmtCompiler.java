@@ -36,6 +36,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setModule(module);
         entity.setName(statement.getFulledName());
         entity.setReturnReference(statement.isReturnReference());
+        entity.setInternalName("$_php_func_" + compiler.getScope().nextClassIndex());
 
         if (compiler.getModule().findFunction(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){
@@ -45,13 +46,11 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
             );
         }
 
-        NamespaceStmtToken namespace = new NamespaceStmtToken( TokenMeta.of(module.getFunctionNamespace()) );
-        namespace.setName(new FulledNameToken( TokenMeta.of( module.getFunctionNamespace() ), '\\' ));
-
+        NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
         ClassStmtToken token = new ClassStmtToken(statement.getMeta());
         token.setFinal(true);
         token.setNamespace(namespace);
-        token.setName(new NameToken(TokenMeta.of(statement.getFulledName(Constants.NAME_DELIMITER))));
+        token.setName(new NameToken(TokenMeta.of(entity.getInternalName())));
 
         MethodStmtToken methodToken = new MethodStmtToken(statement);
         methodToken.setClazz(token);

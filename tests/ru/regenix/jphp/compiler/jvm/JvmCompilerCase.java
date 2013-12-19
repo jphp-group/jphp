@@ -58,7 +58,7 @@ abstract public class JvmCompilerCase {
         environment.getScope().loadModule(module);
 
         ClassEntity entity = module.findClass("TestClass");
-        return entity.findMethod("test").invokeStaticNoThrow(null, environment);
+        return entity.findMethod("test").invokeStaticNoThrow(environment);
     }
 
     protected Memory runDynamic(String code, boolean returned){

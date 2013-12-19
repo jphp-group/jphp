@@ -18,6 +18,9 @@ final public class Messages {
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_METHOD = new Item("Call to undefined method %s()");
     public final static Item ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Non-static method %s() should not be called statically");
+    public final static Item ERR_FATAL_CALL_TO_PRIVATE_METHOD = new Item("Call to private method %s() from context '%s'");
+    public final static Item ERR_FATAL_CALL_TO_PROTECTED_METHOD = new Item("Call to protected method %s() from context '%s'");
+
     public final static Item ERR_FATAL_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Static method %s() should not be called dynamically");
     public final static Item ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION = new Item("Pass incorrect number of arguments to function %s()");
     public final static Item ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT = new Item("Cannot get '%s' property of non-object");

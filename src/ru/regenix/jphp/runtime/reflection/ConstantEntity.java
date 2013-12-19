@@ -11,7 +11,6 @@ public class ConstantEntity extends Entity {
 
     protected DocumentComment docComment;
     protected Memory value;
-    public final String name;
     public final boolean caseSensitise;
 
     public ConstantEntity(Context context) {
@@ -22,7 +21,7 @@ public class ConstantEntity extends Entity {
 
     public ConstantEntity(String name, Memory value, boolean caseSensitise) {
         super(null);
-        this.name = name;
+        this.setName(name);
         this.value = value;
         this.caseSensitise = caseSensitise;
     }

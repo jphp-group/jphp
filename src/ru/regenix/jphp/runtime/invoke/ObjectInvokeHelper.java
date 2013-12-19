@@ -78,7 +78,8 @@ final public class ObjectInvokeHelper {
         }
 
         try {
-            result = method.invokeDynamic(phpObject, className, env, passed);
+            InvokeHelper.checkAccess(env, trace, method);
+            result = method.invokeDynamic(phpObject, env, passed);
         } finally {
             if (trace != null){
                 env.popCall();
@@ -115,7 +116,8 @@ final public class ObjectInvokeHelper {
             env.pushCall(trace, phpObject, args, method.getName(), className);
 
         try {
-            result = method.invokeDynamic(phpObject, className, env, passed);
+            InvokeHelper.checkAccess(env, trace, method);
+            result = method.invokeDynamic(phpObject, env, passed);
         } finally {
             if (trace != null)
                 env.popCall();

@@ -12,13 +12,49 @@ import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.runtime.util.StackTracer;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class LangFunctions extends FunctionsContainer {
 
     protected final static LangConstants constants = new LangConstants();
+
+    public static boolean defined(Environment env, String name){
+        Memory value = env.findConstant(name);
+        return value != null;
+    }
+
+    public static boolean define(Environment env, TraceInfo trace, String name, Memory value, boolean caseInSentisise){
+        return env.defineConstant(name, value, !caseInSentisise);
+    }
+
+    public static boolean define(Environment env, TraceInfo trace, String name, Memory value){
+        return define(env, trace, name, value, false);
+    }
+
+    public static Memory constant(Environment env, TraceInfo trace, String name){
+        int pos;
+        if ((pos = name.indexOf("::")) > -1){
+            String className = name.substring(0, pos);
+            String constName = name.substring(pos + 2);
+            ClassEntity entity = env.fetchClass(className);
+            if (entity == null)
+                return Memory.NULL;
+
+            ConstantEntity constant = entity.findConstant(constName);
+            return constant == null ? Memory.NULL : constant.getValue();
+        } else {
+            Memory value = env.findConstant(name);
+            if (value == null)
+                return Memory.NULL;
+            else
+                return value;
+        }
+    }
 
     @Runtime.Immutable
     public static String gettype(Memory memory){
@@ -272,8 +308,7 @@ public class LangFunctions extends FunctionsContainer {
                 if (item.trace.getFile() != null)
                     el.refOfIndex("file").assign(item.trace.getFile().getPath());
 
-                el.refOfIndex("line").assign(item.trace.getStartLine());
-                el.refOfIndex("position").assign(item.trace.getStartPosition());
+                el.refOfIndex("line").assign(item.trace.getStartLine() + 1);
             }
 
             el.refOfIndex("function").assign(item.function);
@@ -294,6 +329,9 @@ public class LangFunctions extends FunctionsContainer {
                 el.refOfIndex("args").assign(new ArrayMemory(true, item.args));
             }
 
+            if (item.trace != null)
+                el.refOfIndex("position").assign(item.trace.getStartPosition() + 1);
+
             result.add(el);
         }
 
@@ -308,13 +346,15 @@ public class LangFunctions extends FunctionsContainer {
         return debug_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
     }
 
-    /*
-    public static void debug_print_backtrace(Environment env, TraceInfo trace, int options, int limit){
-        StringWriter stringWriter = new StringWriter();
-        PrintR printR = new PrintR(stringWriter);
-        printR.print(debug_backtrace(env, trace, options, limit));
 
-        env.echo(stringWriter.toString());
+    public static void debug_print_backtrace(Environment env, TraceInfo trace, int options, int limit){
+        boolean provideObject = (options & constants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
+                == constants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
+        boolean ignoreArgs = (options & constants.DEBUG_BACKTRACE_IGNORE_ARGS)
+                == constants.DEBUG_BACKTRACE_IGNORE_ARGS;
+
+        StackTracer stackTracer = new StackTracer(env, limit);
+        env.echo(stackTracer.toString(!ignoreArgs));
     }
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace, int options){
@@ -323,7 +363,7 @@ public class LangFunctions extends FunctionsContainer {
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace){
         debug_print_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
-    }*/
+    }
 
     public static boolean function_exists(Environment env, String name){
         name = name.toLowerCase();

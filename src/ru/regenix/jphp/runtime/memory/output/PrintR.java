@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class PrintR extends Printer {
 
-    private final static int PRINT_INDENT = 4;
+    protected int PRINT_INDENT = 4;
 
     public PrintR(Writer writer) {
         super(writer);
@@ -49,19 +49,38 @@ public class PrintR extends Printer {
         printer.write(value.toString());
     }
 
+    protected void writeArrayHeader(){
+        printer.write("Array\n");
+    }
+
+    protected void writeClose(){
+        printer.write(")\n");
+    }
+
+    protected void writeSeparator(boolean isLast){
+        printer.write('\n');
+    }
+
+    protected void writeOpen(){
+        printer.write("(\n");
+    }
+
     @Override
     protected void printArray(ArrayMemory value, int level, Set<Integer> used) {
-        printer.write("Array\n");
+        writeArrayHeader();
 
         if (used.contains(value.getPointer())){
             printer.write(" *RECURSION*");
         } else {
             printer.write(StringUtils.repeat(' ', level));
-            printer.write("(\n");
+            writeOpen();
+
             level += PRINT_INDENT;
 
             used.add(value.getPointer());
             ForeachIterator iterator = value.foreachIterator(false, false);
+            int i = 0;
+            int size = value.size();
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
                 Memory key = iterator.getCurrentMemoryKey();
@@ -71,15 +90,21 @@ public class PrintR extends Printer {
 
                 printer.write("] => ");
                 print(iterator.getCurrentValue(), level + 1, used);
-                printer.write('\n');
+                writeSeparator(i == size - 1);
+                i++;
             }
 
             level -= PRINT_INDENT;
             printer.write(StringUtils.repeat(' ', level));
-            printer.write(")\n");
+            writeClose();
 
             used.remove(value.getPointer());
         }
+    }
+
+    protected void writeObjectHeader(String name){
+        printer.write(name);
+        printer.write(" Object\n");
     }
 
     @Override
@@ -87,19 +112,20 @@ public class PrintR extends Printer {
         PHPObject object = value.value;
         ClassEntity classEntity = object.__class__;
 
-        printer.write(classEntity.getName());
-        printer.write(" Object\n");
+        writeObjectHeader(classEntity.getName());
 
         if (used.contains(value.getPointer())){
             printer.write(" *RECURSION*");
         } else {
             printer.write(StringUtils.repeat(' ', level));
-            printer.write("(\n");
+            writeOpen();
             level += PRINT_INDENT;
 
             used.add(value.getPointer());
 
             ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false, false);
+            int i = 0;
+            int size = classEntity.properties.size();
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
 
@@ -121,12 +147,13 @@ public class PrintR extends Printer {
 
                 printer.write("] => ");
                 print(iterator.getCurrentValue(), level + 1, used);
-                printer.write('\n');
+                writeSeparator(i == size - 1);
+                i++;
             }
 
             level -= PRINT_INDENT;
             printer.write(StringUtils.repeat(' ', level));
-            printer.write(")\n");
+            writeClose();
 
             used.remove(value.getPointer());
         }

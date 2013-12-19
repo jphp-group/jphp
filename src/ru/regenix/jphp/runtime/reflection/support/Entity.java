@@ -3,6 +3,8 @@ package ru.regenix.jphp.runtime.reflection.support;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.runtime.env.Context;
 
+import java.lang.reflect.InvocationTargetException;
+
 abstract public class Entity {
     protected Context context;
     protected String name;
@@ -11,8 +13,18 @@ abstract public class Entity {
     protected String shortName;
     protected String namespaceName;
 
+    protected String internalName;
+
     public Entity(Context context) {
         this.context = context;
+    }
+
+    public String getInternalName() {
+        return internalName;
+    }
+
+    public void setInternalName(String internalName) {
+        this.internalName = internalName;
     }
 
     public Context getContext() {
@@ -69,5 +81,12 @@ abstract public class Entity {
     @Override
     public int hashCode() {
         return lowerName.hashCode();
+    }
+
+    protected static Throwable getCause(InvocationTargetException e){
+        while (e.getTargetException() instanceof InvocationTargetException){
+            e = (InvocationTargetException)e.getTargetException();
+        }
+        return e.getCause();
     }
 }

@@ -14,6 +14,7 @@ import ru.regenix.jphp.runtime.ext.CTypeExtension;
 import ru.regenix.jphp.runtime.ext.CoreExtension;
 import ru.regenix.jphp.runtime.ext.DateExtension;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.util.JVMStackTracer;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -66,6 +67,7 @@ public class CLI {
         AbstractCompiler compiler = new JvmCompiler(environment, context);
         ModuleEntity module = compiler.compile();
         compileScope.loadModule(module);
+        environment.registerModule(module);
 
         module.includeNoThrow(environment);
     }
@@ -88,6 +90,13 @@ public class CLI {
             output.printf(", position %s", (e.getTraceInfo().getStartPosition() + 1));
             output.println();
             output.println("    in '" + e.getTraceInfo().getFileName() + "'");
+
+            System.out.println();
+            JVMStackTracer tracer = compileScope.getStackTracer(e);
+            for(JVMStackTracer.Item el : tracer){
+                System.out.println("\tat " + (el.isInternal() ? "" : "-> ") + el);
+            }
+
         } catch (DieException e){
             System.exit(e.getExitCode());
         }

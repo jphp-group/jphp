@@ -174,6 +174,10 @@ public class ClassEntity extends Entity {
         return methods.get(name);
     }
 
+    public ConstantEntity findConstant(String name){
+        return constants.get(name);
+    }
+
     public ClassEntity getParent() {
         return parent;
     }
@@ -237,7 +241,7 @@ public class ClassEntity extends Entity {
     }
 
     public void addConstant(ConstantEntity constant){
-        constants.put(constant.getLowerName(), constant);
+        constants.put(constant.getName(), constant);
         constant.setClazz(this);
     }
 
@@ -307,7 +311,7 @@ public class ClassEntity extends Entity {
         }
 
         if (methodConstruct != null){
-            methodConstruct.invokeDynamic(object, getLowerName(), env, args);
+            methodConstruct.invokeDynamic(object, env, args);
         }
         return object;
     }
@@ -444,13 +448,13 @@ public class ClassEntity extends Entity {
                 if (callback != null){
                     Memory o1 = Memory.NULL;
                     if (methodMagicGet != null)
-                        o1 = methodMagicGet.invokeDynamic(object, getLowerName(), env, new StringMemory(property));
+                        o1 = methodMagicGet.invokeDynamic(object, env, new StringMemory(property));
 
                     memory = callback.invoke(o1, memory);
                 }
 
                 methodMagicSet.invokeDynamic(
-                        object, getLowerName(), env,
+                        object, env,
                         new StringMemory(property),
                         memory
                 );
@@ -474,7 +478,7 @@ public class ClassEntity extends Entity {
         if ( object.__dynamicProperties__.removeByScalar(property) == null ){
             if (methodMagicUnset != null)
                 methodMagicUnset.invokeDynamic(
-                    object, getLowerName(), env, new StringMemory(property)
+                    object, env, new StringMemory(property)
                 );
         }
         return Memory.NULL;
@@ -488,7 +492,7 @@ public class ClassEntity extends Entity {
         }
 
         if (methodMagicIsset != null){
-            return methodMagicIsset.invokeDynamic(object, getLowerName(), env, new StringMemory(property))
+            return methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                     .toBoolean() ? Memory.FALSE : Memory.TRUE;
         }
         return Memory.FALSE;
@@ -502,7 +506,7 @@ public class ClassEntity extends Entity {
         }
 
         if (methodMagicIsset != null){
-            return methodMagicIsset.invokeDynamic(object, getLowerName(), env, new StringMemory(property))
+            return methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                     .toBoolean() ? Memory.TRUE : Memory.NULL;
         }
         return Memory.NULL;
@@ -519,7 +523,7 @@ public class ClassEntity extends Entity {
 
         if (methodMagicGet != null)
             return methodMagicGet.invokeDynamic(
-                    object, getLowerName(), env, new StringMemory(property)
+                    object, env, new StringMemory(property)
             );
 
         /*env.triggerError(new FatalException(
@@ -531,5 +535,25 @@ public class ClassEntity extends Entity {
 
     private static interface SetterCallback {
         Memory invoke(Memory o1, Memory o2);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassEntity)) return false;
+        if (!super.equals(o)) return false;
+
+        ClassEntity entity = (ClassEntity) o;
+
+        if (id != entity.id) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        return result;
     }
 }

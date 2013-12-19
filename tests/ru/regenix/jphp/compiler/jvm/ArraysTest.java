@@ -54,4 +54,10 @@ public class ArraysTest extends JvmCompilerCase {
         Memory memory = includeResource("arrays/array_reference.php");
         Assert.assertEquals(100, memory.toLong());
     }
+
+    @Test
+    public void testArrayCopy(){
+        Memory memory = includeResource("arrays/array_copy.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

@@ -143,6 +143,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         unexpectedToken(current, "expression");
 
                     if (current instanceof ConstStmtToken){
+                        if (!modifiers.isEmpty())
+                            unexpectedToken(modifiers.get(0));
+
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
                         constants.add(one);

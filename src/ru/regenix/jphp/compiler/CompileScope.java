@@ -6,6 +6,7 @@ import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
+import ru.regenix.jphp.runtime.util.JVMStackTracer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -168,5 +169,17 @@ public class CompileScope {
 
     public void loadModule(ModuleEntity module){
         classLoader.loadModule(module);
+    }
+
+    public JVMStackTracer getStackTracer(StackTraceElement[] elements){
+        return new JVMStackTracer(classLoader, elements);
+    }
+
+    public JVMStackTracer getStackTracer(Throwable throwable){
+        return getStackTracer(throwable.getStackTrace());
+    }
+
+    public JVMStackTracer getStackTracer(){
+        return getStackTracer(Thread.currentThread().getStackTrace());
     }
 }

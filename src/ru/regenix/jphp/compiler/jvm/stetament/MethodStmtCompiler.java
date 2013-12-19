@@ -209,7 +209,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             node.desc = Type.getMethodDescriptor(
                     Type.getType(Memory.class),
                     Type.getType(Environment.class),
-                    Type.getType(String.class),
                     Type.getType(Memory[].class)
             );
 
@@ -217,7 +216,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 node.desc = Type.getMethodDescriptor(
                                 Type.getType(Memory.class),
                                 Type.getType(Environment.class),
-                                Type.getType(String.class),
                                 Type.getType(Memory[].class),
                                 Type.getType(ArrayMemory.class)
                         );
@@ -231,7 +229,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 addLocalVariable("~this", label, Object.class);
 
             addLocalVariable("~env", label, Environment.class); // Environment env
-            addLocalVariable("~static", label, String.class);
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
 
             if (statement.isDynamicLocal()){

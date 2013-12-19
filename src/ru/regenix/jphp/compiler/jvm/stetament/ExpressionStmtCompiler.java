@@ -27,6 +27,7 @@ import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
@@ -60,6 +61,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     private Stack<StackFrame> frames;
 
     private Stack<Integer> exprStackInit = new Stack<Integer>();
+
+    private int lastLineNumber = -1;
 
     public ExpressionStmtCompiler(MethodStmtCompiler method, ExprStmtToken expression) {
         super(method.getCompiler());
@@ -158,12 +161,33 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         Memory o = CompilerUtils.toMemory(token);
         if (o != null) {
             stackPush(o);
+        } else if (token instanceof StaticAccessExprToken){
+            StaticAccessExprToken access = (StaticAccessExprToken)token;
+            if (access.getField() instanceof NameToken && access.getClazz() instanceof FulledNameToken){
+                String constant = ((NameToken) access.getField()).getName();
+                String clazz    = ((FulledNameToken) access.getClazz()).getName();
+
+                ClassEntity entity = compiler.getModule().findClass(clazz);
+                if (entity == null && clazz.equalsIgnoreCase(method.clazz.entity.getName()))
+                    entity = method.clazz.entity;
+
+                if (entity != null){
+                    ConstantEntity c = entity.findConstant(constant);
+                    if (c != null){
+                        stackPush(c.getValue());
+                        stackPeek().setLevel(-1);
+                        return;
+                    }
+                }
+            }
+            stackPush(token, StackItem.Type.REFERENCE);
         } else {
             if (token instanceof VariableExprToken
                     && !method.statement.isUnstableVariable((VariableExprToken)token)){
                 LocalVariable local = method.getLocalVariable(((VariableExprToken) token).getName());
                 if (local != null && local.getValue() != null){
                     stackPush(token, local.getValue());
+                    stackPeek().setLevel(-1);
                     return;
                 }
             }
@@ -209,6 +233,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         Token token = stackPeek().getToken();
         return (token == null || token instanceof ValueExprToken);
+    }
+
+    void writeLineNumber(Token token) {
+        if (token.getMeta().getStartLine() > lastLineNumber){
+            lastLineNumber = token.getMeta().getStartLine();
+            code.add(new LineNumberNode(lastLineNumber, new LabelNode()));
+        }
     }
 
     void writePushMemory(Memory memory){
@@ -459,7 +490,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushStatic(){
-        writeVarLoad("~static");
+        writePushEnv();
+        writeSysDynamicCall(Environment.class, "getLateStatic", String.class);
     }
 
     void writePushLocal(){
@@ -725,6 +757,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!writeOpcode)
             return null;
 
+        writeLineNumber(function);
         writePushStaticCall(method.method);
         if (returnValue){
             if (method.resultType == void.class)
@@ -770,6 +803,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (access instanceof DynamicAccessAssignExprToken)
             unexpectedToken(access);
 
+        writeLineNumber(function);
         writeDynamicAccessPrepare(access, true);
         writePushParameters(function.getParameters());
 
@@ -792,6 +826,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         StaticAccessExprToken access = (StaticAccessExprToken)function.getName();
         if (!writeOpcode)
             return null;
+
+        writeLineNumber(function);
 
         writePushEnv();
         writePushStatic();
@@ -936,7 +972,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeExpression(include.getValue(), true, false);
         writePopString();
 
-        writePushStatic();
         writePushLocal();
         writePushTraceInfo(include);
 
@@ -949,7 +984,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             unexpectedToken(include);
 
         writeSysDynamicCall(Environment.class, name, Memory.class,
-                String.class, String.class, ArrayMemory.class, TraceInfo.class
+                String.class, ArrayMemory.class, TraceInfo.class
         );
         if (!returnValue)
             writePopAll(1);
@@ -1200,7 +1235,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writePushTraceInfo(int line, int position){
         int index = method.clazz.addTraceInfo(line, position);
-        writeGetStatic("$TRACE", TraceInfo[].class);
+        writeGetStatic("$TRC", TraceInfo[].class);
         writePushGetFromArray(index, TraceInfo.class);
     }
 
@@ -1387,6 +1422,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof DieExprToken){
                 writePushDie((DieExprToken)value, returnValue);
                 return null;
+            } else if (value instanceof StaticExprToken){
+                writePushStatic();
+                return null;
             }
 
         if (value instanceof NameToken){
@@ -1538,7 +1576,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePutStatic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 PUTSTATIC,
-                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                method.clazz.node.name,
                 name,
                 Type.getDescriptor(fieldClass)
         ));
@@ -1548,7 +1586,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePutDynamic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 PUTFIELD,
-                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                method.clazz.node.name,
                 name,
                 Type.getDescriptor(fieldClass)
         ));
@@ -1564,7 +1602,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeGetStatic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 GETSTATIC,
-                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                method.clazz.node.name,
                 name,
                 Type.getDescriptor(fieldClass)
         ));
@@ -1575,7 +1613,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeGetDynamic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 GETFIELD,
-                method.clazz.entity.getName().replace('\\', Constants.NAME_DELIMITER),
+                method.clazz.node.name,
                 name,
                 Type.getDescriptor(fieldClass)
         ));
@@ -2470,6 +2508,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         writeVarStore(foreachVariable, false, false);
 
+        method.pushJump(end, start);
+
         code.add(start);
         writeVarLoad(foreachVariable);
 
@@ -2509,6 +2549,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new JumpInsnNode(GOTO, start));
         code.add(end);
 
+        method.popJump();
         writeUndefineVariables(token.getLocal());
     }
 

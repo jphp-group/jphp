@@ -79,8 +79,8 @@ public class InfoFunctions extends FunctionsContainer {
             item = (ArrayMemory) result.refOfIndex("user").assign(new ArrayMemory());
 
         for(ConstantEntity constant : env.scope.getConstants()){
-            if (!exists.contains(constant.name))
-                item.put(constant.name, constant.getValue());
+            if (!exists.contains(constant.getName()))
+                item.put(constant.getName(), constant.getValue());
         }
 
         return result;

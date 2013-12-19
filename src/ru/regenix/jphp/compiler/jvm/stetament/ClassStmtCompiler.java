@@ -16,6 +16,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
@@ -23,6 +24,7 @@ import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,7 +197,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     protected void writeConstant(ConstStmtToken constant){
-        new ConstantStmtCompiler(this, constant).compile();
+        MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken)null);
+        ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodStmtCompiler, null);
+
+        Memory value = expressionStmtCompiler.writeExpression(constant.getValue(), true, true, false);
+        if (value != null && !value.isArray()) {
+            entity.addConstant(new ConstantEntity(constant.getFulledName(), value, true));
+        } else
+            throw new CompileException(
+                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(constant.getFulledName()),
+                    constant.getValue().toTraceInfo(compiler.getContext())
+            );
     }
 
     @SuppressWarnings("unchecked")
@@ -208,7 +220,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$TRACE",
+                ACC_PROTECTED + ACC_STATIC, "$TRC",
                 Type.getDescriptor(TraceInfo[].class),
                 null,
                 null
@@ -218,7 +230,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
                 Type.getDescriptor(String.class),
                 null,
-                node.name
+                !functionName.isEmpty() ? functionName : entity.getName()
         ));
     }
 
@@ -248,7 +260,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             expressionCompiler.stackPop();
             i++;
         }
-        expressionCompiler.writePutStatic("$TRACE", TraceInfo[].class);
+        expressionCompiler.writePutStatic("$TRC", TraceInfo[].class);
 
         node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();
@@ -266,6 +278,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
 
+        if (!isSystem)
+            entity.setInternalName("$_php_class_" + compiler.getScope().nextClassIndex());
+
         if (compiler.getModule().findClass(entity.getLowerName()) != null
               || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){
             throw new FatalException(
@@ -275,7 +290,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
 
         node.access = ACC_SUPER + ACC_PUBLIC;
-        node.name = statement.getFulledName(Constants.NAME_DELIMITER);
+        node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
         node.superName = Type.getInternalName(PHPObject.class);
         node.sourceFile = compiler.getSourceFile();
 
@@ -285,7 +300,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         // constants
         if (statement.getConstants() != null)
         for(ConstStmtToken constant : statement.getConstants()){
-            //  writeConstant(constant);
+              writeConstant(constant);
         }
 
         if (statement.getMethods() != null)

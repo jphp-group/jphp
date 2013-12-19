@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
@@ -71,6 +72,7 @@ public class Environment {
     private final ArrayMemory globals;
    // private final ArrayMemory statics;
     private final Map<String, ReferenceMemory> statics;
+    private final Map<String, ConstantEntity> constants;
     private final Map<String, ModuleEntity> included;
 
     //
@@ -109,6 +111,7 @@ public class Environment {
         });
 
         this.globals.put("GLOBALS", this.globals);
+        this.constants = new HashMap<String, ConstantEntity>();
     }
 
     public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
@@ -208,6 +211,45 @@ public class Environment {
 
     public boolean isLoadedConstant(String lowerName){
         return constantUsedMap.containsKey(lowerName);
+    }
+
+    public ClassEntity fetchClass(String name){
+        String nameL = name.toLowerCase();
+        ClassEntity entity = scope.findUserClass(nameL);
+        if (entity == null){
+            return null;
+        } else {
+            if (isLoadedClass(nameL))
+                return entity;
+            else {
+                return null;
+            }
+        }
+    }
+
+    public Memory findConstant(String name){
+        String nameL = name.toLowerCase();
+
+        ConstantEntity entity = constants.get(nameL);
+        if (entity != null) {
+            if (!entity.caseSensitise || name.equals(entity.getName()))
+                return entity.getValue();
+        }
+
+        CompileConstant constant = scope.findCompileConstant(name);
+        if (constant != null)
+            return constant.value;
+
+        return null;
+    }
+
+    public boolean defineConstant(String name, Memory value, boolean caseSensitise){
+        Memory constant = findConstant(name);
+        if (constant != null)
+            return false;
+
+        constants.put(name.toLowerCase(), new ConstantEntity(name, value, caseSensitise));
+        return true;
     }
 
     public Memory getConfigValue(String name, Memory defaultValue){
@@ -414,6 +456,11 @@ public class Environment {
             scope.loadModule(module);
         }
 
+        registerModule(module);
+        return module;
+    }
+
+    public void registerModule(ModuleEntity module){
         for(ClassEntity entity : module.getClasses()) {
             classUsedMap.put(entity.getLowerName(), entity);
         }
@@ -425,28 +472,27 @@ public class Environment {
         for(ConstantEntity entity : module.getConstants()) {
             constantUsedMap.put(entity.getLowerName(), entity);
         }
-
-        return module;
     }
 
     /***** UTILS *****/
     public Memory getConstant(String name, TraceInfo trace){
-        ConstantEntity entity = scope.findUserConstant(name);
+        Memory constant = findConstant(name);
 
-        if (entity == null){
-
+        if (constant == null){
             if (isHandleErrors(E_NOTICE)) {
                 triggerMessage(new NoticeMessage(new CallStackItem(trace), Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name));
             }
-
             return StringMemory.valueOf(name);
-        } else if (entity.caseSensitise && !entity.name.equals(name))
-            return StringMemory.valueOf(name);
+        }
 
-        return entity.getValue();
+        return constant;
     }
 
-    public Memory include(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+    public Memory include(String fileName) throws IllegalAccessException, IOException, InvocationTargetException {
+        return include(fileName, globals, null);
+    }
+
+    public Memory include(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
             throws InvocationTargetException, IllegalAccessException, IOException {
         File file = new File(fileName);
         if (!file.exists()){
@@ -455,19 +501,32 @@ public class Environment {
         } else {
             ModuleEntity module = importModule(file);
             included.put(module.getName(), module);
-            return module.include(this, calledClass, locals);
+
+            Memory result;
+            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "include_once" : "include", null);
+            try {
+                result = module.include(this, locals);
+            } finally {
+                popCall();
+            }
+            return result;
         }
     }
 
-    public Memory includeOnce(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+    public Memory includeOnce(String fileName, ArrayMemory locals, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException, IOException {
         Context context = new Context(this, new File(fileName));
         if (included.containsKey(context.getModuleName()))
             return Memory.TRUE;
-        return include(fileName, calledClass, locals, trace);
+        return include(fileName, locals, trace, true);
     }
 
-    public void require(String fileName, String calledClass, ArrayMemory locals, TraceInfo trace)
+    public Memory include(String fileName, ArrayMemory locals, TraceInfo trace)
+            throws InvocationTargetException, IllegalAccessException, IOException {
+        return include(fileName, locals, trace, false);
+    }
+
+    public void require(String fileName, ArrayMemory locals, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException, IOException {
         File file = new File(fileName);
         if (!file.exists()){
@@ -478,7 +537,7 @@ public class Environment {
         } else {
             ModuleEntity module = importModule(file);
             included.put(fileName, module);
-            module.include(this, calledClass, locals);
+            module.include(this, locals);
         }
     }
 
@@ -530,5 +589,30 @@ public class Environment {
             throw new DieException(value);
         } else
             throw new DieException(Memory.NULL);
+    }
+
+    public String getLateStatic(){
+        CallStackItem item = peekCall(0);
+        if (item == null || item.clazz == null)
+            return "";
+        else
+            return item.clazz;
+    }
+
+    public String getContext(){
+        CallStackItem item = peekCall(1);
+        return item == null ? "" : item.clazz == null ? "" : item.clazz;
+    }
+
+    public ClassEntity getContextClass(){
+        CallStackItem item = peekCall(1);
+        if (item == null || item.clazz == null)
+            return null;
+        else {
+            if (item.classEntity != null)
+                return item.classEntity;
+
+            return item.classEntity = fetchClass(item.clazz);
+        }
     }
 }

@@ -30,7 +30,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
     protected void processBody(ConstStmtToken result, ListIterator<Token> iterator){
         Token current = nextToken(iterator);
         if (!(current instanceof AssignExprToken))
-            unexpectedToken(current, TokenType.T_J_EQUAL);
+            unexpectedToken(current, "=");
 
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator);
         if (value == null)

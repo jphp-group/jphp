@@ -502,11 +502,20 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (next instanceof StaticAccessExprToken){
             if (current instanceof NameToken || current instanceof VariableExprToken
-                    || current instanceof SelfExprToken){
+                    || current instanceof SelfExprToken || current instanceof StaticExprToken){
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
                 ValueExprToken clazz = (ValueExprToken)current;
                 if (clazz instanceof NameToken){
                     clazz = analyzer.getRealName((NameToken)clazz);
+                } else if (clazz instanceof SelfExprToken){
+                    if (analyzer.getClazz() == null)
+                        unexpectedToken(clazz);
+
+                    clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>(){{
+                        if (analyzer.getClazz().getNamespace().getName() != null)
+                            addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                        add(analyzer.getClazz().getName());
+                    }});
                 }
 
                 result.setClazz(clazz);

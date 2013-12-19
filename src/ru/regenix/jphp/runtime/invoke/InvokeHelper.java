@@ -21,6 +21,23 @@ final public class InvokeHelper {
 
     private InvokeHelper() { }
 
+    public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method){
+        switch (method.canAccess(env)){
+            case 1: throw new FatalException(
+                    Messages.ERR_FATAL_CALL_TO_PROTECTED_METHOD.fetch(
+                            method.getClazz().getName() + "::" + method.getName(), env.getContext()
+                    ),
+                    trace
+            );
+            case 2: throw new FatalException(
+                    Messages.ERR_FATAL_CALL_TO_PRIVATE_METHOD.fetch(
+                            method.getClazz().getName() + "::" + method.getName(), env.getContext()
+                    ),
+                    trace
+            );
+        }
+    }
+
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
@@ -225,7 +242,8 @@ final public class InvokeHelper {
             env.pushCall(trace, null, args, originMethodName, originClassName);
 
         try {
-            result = method.invokeStatic(_static, env, passed);
+            checkAccess(env, trace, method);
+            result = method.invokeStatic(env, passed);
         } finally {
             if (trace != null)
                 env.popCall();
@@ -234,7 +252,7 @@ final public class InvokeHelper {
         return result;
     }
 
-    public static Memory callStatic(Environment env, String _static, TraceInfo trace,
+    public static Memory callStatic(Environment env, String contex, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
@@ -248,7 +266,8 @@ final public class InvokeHelper {
             env.pushCall(trace, null, args, originMethodName, originClassName);
 
         try {
-            result = method.invokeStatic(_static, env, passed);
+            checkAccess(env, trace, method);
+            result = method.invokeStatic(env, passed);
         } finally {
             if (trace != null)
                 env.popCall();

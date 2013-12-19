@@ -11,6 +11,7 @@ import ru.regenix.jphp.runtime.ext.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.opcode.ModuleOpcodePrinter;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.util.JVMStackTracer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
@@ -21,8 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
+        CompileScope scope = new CompileScope();
         try {
-            CompileScope scope = new CompileScope();
             scope.registerExtension(new CoreExtension());
             scope.registerExtension(new BCMathExtension());
             scope.registerExtension(new CTypeExtension());
@@ -44,6 +45,8 @@ public class Main {
             long t = System.currentTimeMillis();
 
             scope.loadModule(module);
+            environment.registerModule(module);
+
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();
@@ -63,7 +66,13 @@ public class Main {
             System.out.println();
             System.out.println("    in '" + e.getTraceInfo().getFileName() + "'");
 
-            e.printStackTrace();
+            System.out.println();
+            JVMStackTracer tracer = scope.getStackTracer(e);
+            for(JVMStackTracer.Item el : tracer){
+                System.out.println("\tat " + (el.isInternal() ? "" : "-> ") + el);
+            }
+
+            //e.printStackTrace();
         }
     }
 }

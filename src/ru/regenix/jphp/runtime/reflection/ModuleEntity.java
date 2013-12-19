@@ -73,49 +73,33 @@ public class ModuleEntity extends Entity {
         this.nativeMethod = nativeMethod;
     }
 
-    public Memory include(Environment env) throws InvocationTargetException, IllegalAccessException {
-        return include(env, "", env.getGlobals());
-    }
-
     public Memory include(Environment env, ArrayMemory locals)
             throws InvocationTargetException, IllegalAccessException {
-        return include(env, "", locals);
+        return (Memory) nativeMethod.invoke(null, env, argsMock, locals);
     }
 
-    public Memory include(Environment env, String calledClass, ArrayMemory locals)
-            throws InvocationTargetException, IllegalAccessException {
-        return (Memory) nativeMethod.invoke(null, env, calledClass, argsMock, locals);
-    }
-
-    public Memory include(Environment env, String calledClass) throws InvocationTargetException, IllegalAccessException {
-        return (Memory) nativeMethod.invoke(null, env, calledClass, argsMock, env.getGlobals());
-    }
-
-    public Memory includeNoThrow(Environment env){
-        return includeNoThrow(env, "", env.getGlobals());
+    public Memory include(Environment env) throws InvocationTargetException, IllegalAccessException {
+        return (Memory) nativeMethod.invoke(null, env, argsMock, env.getGlobals());
     }
 
     public Memory includeNoThrow(Environment env, ArrayMemory locals){
-        return includeNoThrow(env, "", locals);
-    }
-
-    public Memory includeNoThrow(Environment env, String calledClass, ArrayMemory locals){
         try {
-            return include(env, calledClass, locals);
+            return include(env, locals);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof ErrorException)
-                throw (ErrorException) e.getCause();
-            if (e.getCause() instanceof DieException)
-                throw (DieException) e.getCause();
+            Throwable throwable = getCause(e);
+            if (throwable instanceof ErrorException)
+                throw (ErrorException) throwable;
+            if (throwable instanceof DieException)
+                throw (DieException) throwable;
 
-            throw new RuntimeException(e.getCause());
+            throw new RuntimeException(throwable);
         }
     }
 
-    public Memory includeNoThrow(Environment env, String calledClass){
-        return includeNoThrow(env, calledClass, env.getGlobals());
+    public Memory includeNoThrow(Environment env){
+        return includeNoThrow(env, env.getGlobals());
     }
 
     public boolean isLoaded() {
