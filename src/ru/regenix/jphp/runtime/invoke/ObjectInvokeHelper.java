@@ -26,10 +26,10 @@ final public class ObjectInvokeHelper {
         boolean doublePop = false;
 
         if (object.type != Memory.Type.OBJECT){
-            throw new FatalException(
+            env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName),
                     trace
-            );
+            ));
         }
         PHPObject phpObject = ((ObjectMemory)object).value;
         ClassEntity clazz = phpObject.__class__;
@@ -59,12 +59,12 @@ final public class ObjectInvokeHelper {
             if (methodName == null)
                 methodName = "__invoke";
 
-            throw new FatalException(
+            env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::" + methodName
                     ),
                     trace
-            );
+            ));
         }
 
         if (passed == null) {
@@ -102,12 +102,12 @@ final public class ObjectInvokeHelper {
         String className = phpObject.__class__.getName();
 
         if (method == null){
-            throw new FatalException(
+            env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::__invoke"
                     ),
                     trace
-            );
+            ));
         }
 
         Memory[] passed = InvokeHelper.makeArguments(

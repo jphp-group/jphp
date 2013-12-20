@@ -36,6 +36,14 @@ public class CompileFunction {
         return name.equals(that.name);
     }
 
+    public int getMinArgs() {
+        return minArgs;
+    }
+
+    public int getMaxArgs() {
+        return maxArgs;
+    }
+
     public void addMethod(java.lang.reflect.Method method){
         if (method.isVarArgs()){
             if (methodVarArgs != null)

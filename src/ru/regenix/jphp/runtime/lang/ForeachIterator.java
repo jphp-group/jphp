@@ -13,6 +13,7 @@ abstract public class ForeachIterator {
     protected final boolean getReferences;
     protected final boolean getKeyReferences;
     protected final boolean withPrevious;
+    protected boolean plainReferences = false;
 
     abstract protected boolean init();
     abstract protected boolean nextValue();
@@ -22,6 +23,10 @@ abstract public class ForeachIterator {
         this.getReferences = getReferences;
         this.withPrevious = withPrevious;
         this.getKeyReferences = getKeyReferences;
+    }
+
+    public void setPlainReferences(boolean plainReferences) {
+        this.plainReferences = plainReferences;
     }
 
     public boolean prev(){

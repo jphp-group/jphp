@@ -41,7 +41,7 @@ public class LangFunctions extends FunctionsContainer {
         if ((pos = name.indexOf("::")) > -1){
             String className = name.substring(0, pos);
             String constName = name.substring(pos + 2);
-            ClassEntity entity = env.fetchClass(className);
+            ClassEntity entity = env.fetchClass(className, true);
             if (entity == null)
                 return Memory.NULL;
 
@@ -240,11 +240,11 @@ public class LangFunctions extends FunctionsContainer {
 
     private static Memory _call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)
             throws InvocationTargetException, IllegalAccessException {
-        Invoker invoker = Invoker.valueOf(env, null, function);
+        Invoker invoker = expectingCallback(env, trace, 1, function);
         if (invoker == null){
-            env.warning(trace, "expects parameter 1 to be a valid callback");
             return Memory.FALSE;
         }
+        invoker.setTrace(trace);
 
         invoker.pushCall(null, args);
         Memory result = Memory.FALSE;

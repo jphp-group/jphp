@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -26,6 +27,12 @@ public class CompileFunctionEntity extends FunctionEntity {
     @Override
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
         CompileFunction.Method method = compileFunction.find(arguments.length);
+        if (method == null){
+            env.warning(trace, Messages.ERR_WARNING_EXPECT_LEAST_PARAMS.fetch(
+                    name, compileFunction.getMinArgs(), arguments.length
+            ));
+            return Memory.NULL;
+        }
 
         Class<?>[] types = method.parameterTypes;
         Object[] passed = new Object[ types.length ];

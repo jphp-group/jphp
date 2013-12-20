@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler.common.compile;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 import java.lang.reflect.Method;
@@ -28,6 +29,15 @@ abstract public class FunctionsContainer {
             return false;
         }
         return true;
+    }
+
+    protected static Invoker expectingCallback(Environment env, TraceInfo trace, int index, Memory memory){
+        Invoker invoker = Invoker.valueOf(env, trace, memory);
+        if (invoker == null) {
+            env.warning(trace, "expects parameter " + index + " to be valid callback");
+            return null;
+        }
+        return invoker;
     }
 
     protected Map<String, Method> getNativeFunctions() {

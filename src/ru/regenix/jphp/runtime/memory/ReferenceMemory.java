@@ -31,6 +31,11 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public int getPointer() {
+        return value.getPointer();
+    }
+
+    @Override
     public int getPointer(boolean absolute) {
         return absolute ? value.getPointer() : getPointer();
     }

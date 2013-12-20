@@ -33,6 +33,7 @@ final public class Messages {
 
     public final static Item ERR_FATAL_CLASS_NOT_FOUND = new Item("Class '%s' not found");
     public final static Item ERR_WARNING_MISSING_ARGUMENT = new Item("Missing argument %s for %s()");
+    public final static Item ERR_WARNING_EXPECT_LEAST_PARAMS = new Item("%s() expects at least %s parameters, %s given");
     public final static Item ERR_FATAL_REQUIRE_FAILED = new Item("%s(): Failed opening required '%s'");
     public final static Item ERR_WARNING_INCLUDE_FAILED = new Item("%s(): Failed opening '%s' for inclusion");
     public final static Item ERR_NOTICE_USE_UNDEFINED_CONSTANT = new Item("Use of undefined constant %s - assumed '%s'");

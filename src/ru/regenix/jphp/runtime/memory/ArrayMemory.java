@@ -12,14 +12,13 @@ import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import java.util.*;
 
 public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Traversable {
-
     protected long lastLongIndex;
     protected int size;
     protected int copies;
     protected ArrayMemory original;
 
     protected List<ReferenceMemory> list;
-    protected Map<Object, ReferenceMemory> map;
+    protected LinkedHashMap<Object, ReferenceMemory> map;
 
     protected ThreadLocal<ForeachIterator> foreachIterator = new ThreadLocal<ForeachIterator>();
 
@@ -424,6 +423,110 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return size;
     }
 
+    public void unshift(Memory... values){
+        if (size == 0) {
+            for (Memory value : values)
+                add(value);
+        }  else {
+            if (list != null) {
+                List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
+                for(Memory value : values)
+                    tmp.add(new ReferenceMemory(value));
+
+                list.addAll(0, tmp);
+                size = list.size();
+            } else {
+                ArrayMemory tmp = new ArrayMemory();
+                tmp.convertToMap();
+
+                for(Memory el : values)
+                    tmp.add(el);
+
+                ForeachIterator iterator = getNewIterator(false, false);
+
+                while (iterator.next()){
+                    Object key = iterator.getCurrentKey();
+                    if (key instanceof String)
+                        tmp.put(key, iterator.getCurrentValue());
+                    else
+                        add(iterator.getCurrentValue());
+                }
+
+                lastLongIndex = tmp.lastLongIndex;
+                map = tmp.map;
+                size = tmp.size;
+            }
+        }
+    }
+
+    public Memory shift(){
+        if (size < 1)
+            return null;
+
+        size -= 1;
+        Memory value;
+        if (list != null){
+            value = list.get(0);
+            list.remove(0);
+        } else {
+            // TODO
+            //value = map.firstEntry().getValue();
+           // map.remove(map.firstKey());
+        }
+
+        return value.toValue();
+    }
+
+    public Memory pop(){
+        if (size < 1)
+            return null;
+
+        size -= 1;
+        Memory value;
+        if (list != null){
+            value = list.get(size - 1);
+            list.remove(size - 1);
+        } else {
+            // TODO
+            //value = map.lastEntry().getValue();
+           // map.remove(map.lastKey());
+        }
+        return value.toValue();
+    }
+
+    public Memory peek(){
+        if (size < 1)
+            return null;
+
+        Memory value;
+        if (list != null)
+            value = list.get(size - 1);
+        else {
+            // TODO
+            //value = map.lastEntry().getValue();
+        }
+
+        return value.toValue();
+    }
+
+    public Memory getRandomElementKey(Random rnd){
+        int index = rnd.nextInt(size);
+        if (list != null){
+            return LongMemory.valueOf(index);
+        } else {
+            Iterator<Object> keys = map.keySet().iterator();
+            for(int i = 0; i < index; i++){
+                keys.next();
+            }
+
+            Object key = keys.next();
+            if (key instanceof LongMemory)
+                return (LongMemory)key;
+            else
+                return new StringMemory((String)key);
+        }
+    }
+
     public void shuffle(Random rnd){
         checkCopied();
         if (list != null){
@@ -807,9 +910,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             }
 
             private void setCurrentValue(ReferenceMemory value){
-                if (getReferences)
-                    currentValue = new ArrayValueMemory(getCurrentMemoryKey(), ArrayMemory.this, value);
-                else
+                if (getReferences) {
+                    if (plainReferences)
+                        currentValue = value;
+                    else
+                        currentValue = new ArrayValueMemory(getCurrentMemoryKey(), ArrayMemory.this, value);
+                }  else
                     currentValue = value.toValue();
 
                 if (getKeyReferences) {

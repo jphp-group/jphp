@@ -213,7 +213,18 @@ public class Environment {
         return constantUsedMap.containsKey(lowerName);
     }
 
-    public ClassEntity fetchClass(String name){
+    public ClassEntity fetchClass(String name, boolean magic){
+        if (magic){
+            if ("self".equals(name)){
+                ClassEntity e = getContextClass();
+                if (e == null)
+                    e = getLateStaticClass();
+                return e;
+            }
+            if ("static".equals(name))
+                return getLateStaticClass();
+        }
+
         String nameL = name.toLowerCase();
         ClassEntity entity = scope.findUserClass(nameL);
         if (entity == null){
@@ -599,6 +610,18 @@ public class Environment {
             return item.clazz;
     }
 
+    public ClassEntity getLateStaticClass(){
+        CallStackItem item = peekCall(0);
+        if (item == null || item.clazz == null)
+            return null;
+        else {
+            if (item.classEntity != null)
+                return item.classEntity;
+
+            return item.classEntity = fetchClass(item.clazz, false);
+        }
+    }
+
     public String getContext(){
         CallStackItem item = peekCall(1);
         return item == null ? "" : item.clazz == null ? "" : item.clazz;
@@ -612,7 +635,7 @@ public class Environment {
             if (item.classEntity != null)
                 return item.classEntity;
 
-            return item.classEntity = fetchClass(item.clazz);
+            return item.classEntity = fetchClass(item.clazz, false);
         }
     }
 }

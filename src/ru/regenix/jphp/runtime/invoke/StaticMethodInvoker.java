@@ -27,7 +27,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
-        return InvokeHelper.callStatic(env, null, method, args);
+        return InvokeHelper.callStatic(env, trace, method, args);
     }
 
     public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){
@@ -48,10 +48,10 @@ public class StaticMethodInvoker extends Invoker {
             }
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className +"::"+ methodName),
-                    env.peekCall(0).trace
+                    trace
             ));
         }
 
-        return new StaticMethodInvoker(env, null, "", methodEntity);
+        return new StaticMethodInvoker(env, trace, "", methodEntity);
     }
 }

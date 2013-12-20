@@ -46,11 +46,11 @@ public class DynamicMethodInvoker extends Invoker {
             }
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::"+ methodName),
-                    env.peekCall(0).trace
+                    trace
             ));
         }
 
-        return new DynamicMethodInvoker(env, null, object, methodEntity);
+        return new DynamicMethodInvoker(env, trace, object, methodEntity);
     }
 
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, Memory object, String methodName){
@@ -64,7 +64,7 @@ public class DynamicMethodInvoker extends Invoker {
                 return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::__invoke"),
-                    env.peekCall(0).trace
+                    trace
             ));
         }
 

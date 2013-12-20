@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 
 abstract public class Invoker {
     protected final Environment env;
-    protected final TraceInfo trace;
+    protected TraceInfo trace;
 
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
@@ -23,7 +23,11 @@ abstract public class Invoker {
     abstract public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException;
 
     public void popCall(){
-        env.popCall();;
+        env.popCall();
+    }
+
+    public void setTrace(TraceInfo trace) {
+        this.trace = trace;
     }
 
     public static Invoker valueOf(Environment env, Memory method){
@@ -70,7 +74,7 @@ abstract public class Invoker {
                 methodName = methodName.substring(p + 2, methodName.length());
                 return StaticMethodInvoker.valueOf(env, trace, className, methodName);
             } else {
-                return FunctionInvoker.valueOf(env, null, methodName);
+                return FunctionInvoker.valueOf(env, trace, methodName);
             }
         }
     }

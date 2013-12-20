@@ -26,7 +26,7 @@ public class FunctionInvoker extends Invoker {
 
     @Override
     public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
-        return InvokeHelper.call(env, null, entity, args);
+        return InvokeHelper.call(env, trace, entity, args);
     }
 
     public static FunctionInvoker valueOf(Environment env, TraceInfo trace, String name){
@@ -36,10 +36,10 @@ public class FunctionInvoker extends Invoker {
                 return null;
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(name),
-                    env.peekCall(0).trace
+                    trace
             ));
         }
 
-        return new FunctionInvoker(env, null, functionEntity);
+        return new FunctionInvoker(env, trace, functionEntity);
     }
 }

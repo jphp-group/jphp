@@ -1,7 +1,6 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -83,15 +82,15 @@ final public class InvokeHelper {
             switch (param.getType()){
                 case ARRAY: {
                     if (!passed[i].isArray())
-                        env.triggerError(new CompileException("Argument " + i + " must be array", trace));
+                        env.triggerError(new FatalException("Argument " + i + " must be array", trace));
                 } break;
                 case NUMERIC:
                     if (!passed[i].isNumber())
-                        env.triggerError(new CompileException("Argument " + i + " must be int or double", trace));
+                        env.triggerError(new FatalException("Argument " + i + " must be int or double", trace));
                     break;
                 case STRING:
                     if (!passed[i].isString())
-                        env.triggerError(new CompileException("Argument " + i + " must be string", trace));
+                        env.triggerError(new FatalException("Argument " + i + " must be string", trace));
             }
             i++;
         }
