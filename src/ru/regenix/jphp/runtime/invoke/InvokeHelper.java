@@ -98,7 +98,7 @@ final public class InvokeHelper {
         return passed;
     }
 
-    public static Memory callAny(Environment env, String calledClass, TraceInfo trace, Memory method, Memory[] args)
+    public static Memory callAny(Environment env, TraceInfo trace, Memory method, Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
         method = method.toImmutable();
         if (method.isObject()){
@@ -130,7 +130,6 @@ final public class InvokeHelper {
                 String className = one.toString();
                 return InvokeHelper.callStaticDynamic(
                         env,
-                        calledClass,
                         trace,
                         className, className.toLowerCase(),
                         methodName, methodName.toLowerCase(),
@@ -144,7 +143,7 @@ final public class InvokeHelper {
                 String className = methodName.substring(0, p);
                 methodName = methodName.substring(p + 2, methodName.length());
                 return InvokeHelper.callStaticDynamic(
-                        env, calledClass, trace,
+                        env, trace,
                         className, className.toLowerCase(),
                         methodName, methodName.toLowerCase(),
                         args
@@ -187,20 +186,20 @@ final public class InvokeHelper {
         return call(env, trace, function, args);
     }
 
-    public static Memory callStaticDynamic(Environment env, String _static, TraceInfo trace,
+    public static Memory callStaticDynamic(Environment env, TraceInfo trace,
                                            String originClassName, String className,
                                            String originMethodName, String methodName,
                                            Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
         return callStatic(
-                env, _static, trace,
+                env, trace,
                 className + "#" + methodName,
                 originClassName, originMethodName,
                 args
         );
     }
 
-    public static Memory callStatic(Environment env, String _static, TraceInfo trace,
+    public static Memory callStatic(Environment env, TraceInfo trace,
                                     String sign, String originClassName, String originMethodName,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
@@ -252,7 +251,7 @@ final public class InvokeHelper {
         return result;
     }
 
-    public static Memory callStatic(Environment env, String contex, TraceInfo trace,
+    public static Memory callStatic(Environment env, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {

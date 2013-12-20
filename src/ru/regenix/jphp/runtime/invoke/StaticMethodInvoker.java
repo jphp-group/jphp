@@ -27,7 +27,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
-        return InvokeHelper.callStatic(env, calledClass, null, method, args);
+        return InvokeHelper.callStatic(env, null, method, args);
     }
 
     public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){

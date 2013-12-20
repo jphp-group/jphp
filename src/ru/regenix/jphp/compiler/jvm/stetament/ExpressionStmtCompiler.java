@@ -830,7 +830,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeLineNumber(function);
 
         writePushEnv();
-        writePushStatic();
         writePushTraceInfo(function.getName());
         String methodName = null;
 
@@ -949,7 +948,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (!writeOpcode)
                 return null;
             writePushEnv();
-            writePushStatic();
             writePushTraceInfo(function);
 
             writePush((ValueExprToken)function.getName(), true, false);

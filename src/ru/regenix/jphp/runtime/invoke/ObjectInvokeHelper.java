@@ -9,6 +9,7 @@ import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,23 +21,25 @@ final public class ObjectInvokeHelper {
     public static Memory invokeMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
-        object = object.toImmutable();
+        object = object.toValue();
         Memory[] passed = null;
         boolean doublePop = false;
 
-        if (!object.isObject()){
-            env.triggerError(new FatalException(
+        if (object.type != Memory.Type.OBJECT){
+            throw new FatalException(
                     Messages.ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName),
                     trace
-            ));
+            );
         }
         PHPObject phpObject = ((ObjectMemory)object).value;
+        ClassEntity clazz = phpObject.__class__;
         MethodEntity method;
+
         if (methodName == null)
-            method = phpObject.__class__.methodMagicInvoke;
+            method = clazz.methodMagicInvoke;
         else {
-            method = phpObject.__class__.methods.get(methodLowerName);
-            if (method == null && ((method = phpObject.__class__.methodMagicCall) != null)){
+            method = clazz.methods.get(methodLowerName);
+            if (method == null && ((method = clazz.methodMagicCall) != null)){
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
                 doublePop = true;
             }
@@ -50,26 +53,26 @@ final public class ObjectInvokeHelper {
             }*/
         }
 
-        String className = phpObject.__class__.getName();
+        String className = clazz.getName();
 
         if (method == null){
             if (methodName == null)
                 methodName = "__invoke";
 
-            env.triggerError(new FatalException(
+            throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::" + methodName
                     ),
                     trace
-            ));
+            );
         }
 
-        assert method != null;
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
                     env, args, method.parameters, className, methodName, trace
             );
         }
+
         Memory result;
         if (trace != null) {
             env.pushCall(trace, phpObject, args, methodName, className);
@@ -99,15 +102,14 @@ final public class ObjectInvokeHelper {
         String className = phpObject.__class__.getName();
 
         if (method == null){
-            env.triggerError(new FatalException(
+            throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::__invoke"
                     ),
                     trace
-            ));
+            );
         }
 
-        assert method != null;
         Memory[] passed = InvokeHelper.makeArguments(
                 env, args, method.parameters, className, method.getName(), trace
         );
@@ -127,7 +129,7 @@ final public class ObjectInvokeHelper {
 
     public static Memory emptyProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        object = object.toImmutable();
+        object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
@@ -141,7 +143,7 @@ final public class ObjectInvokeHelper {
 
     public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        object = object.toImmutable();
+        object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
@@ -155,7 +157,7 @@ final public class ObjectInvokeHelper {
 
     public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        object = object.toImmutable();
+        object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
@@ -169,7 +171,7 @@ final public class ObjectInvokeHelper {
 
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        object = object.toImmutable();
+        object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
@@ -182,7 +184,7 @@ final public class ObjectInvokeHelper {
     }
 
     private static PHPObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
-        object = object.toImmutable();
+        object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property),
