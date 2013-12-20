@@ -851,7 +851,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushParameters(function.getParameters());
             writeSysStaticCall(
                     InvokeHelper.class, "callStatic", Memory.class,
-                    Environment.class, String.class, TraceInfo.class,
+                    Environment.class, TraceInfo.class,
                     String.class, // lower sign name
                     String.class, String.class, // origin names
                     Memory[].class
