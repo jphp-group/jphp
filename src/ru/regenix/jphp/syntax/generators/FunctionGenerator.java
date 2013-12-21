@@ -123,7 +123,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 analyzer.setFunction(null);
                 return result;
             } else if (next instanceof BraceExprToken){
-                // Closure
+                // xClosure
                 if (((BraceExprToken) next).isSimpleOpened()){
                     iterator.previous();
                     return null;

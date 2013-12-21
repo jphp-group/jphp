@@ -1,6 +1,5 @@
 package ru.regenix.jphp.syntax.generators;
 
-import com.google.common.collect.Sets;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.FatalException;
@@ -23,6 +22,7 @@ import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -257,7 +257,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             iterator.next();
         } while (true);
 
-        result.setIterationLocal(Sets.newHashSet(analyzer.getLocalScope()));
+        result.setIterationLocal(new HashSet<VariableExprToken>(analyzer.getLocalScope()));
 
         nextAndExpected(iterator, BraceExprToken.class);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(

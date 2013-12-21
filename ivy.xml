@@ -5,10 +5,8 @@
         <dependency org="org.ow2.asm" name="asm-all" rev="4.1" />
         <dependency org="org.apache.commons" name="commons-lang3" rev="3.1"/>
         <dependency org="org.apache.commons" name="commons-math3" rev="3.2"/>
-        <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>
         <dependency org="commons-io" name="commons-io" rev="2.4"/>
 
-        <dependency org="com.google.guava" name="guava" rev="15.0" />
         <dependency org="com.beust" name="jcommander" rev="1.32"/>
     </dependencies>
 </ivy-module>

@@ -1,9 +1,9 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
-import com.google.common.collect.Lists;
-import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenType;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BodyStmtToken extends StmtToken {
@@ -25,7 +25,7 @@ public class BodyStmtToken extends StmtToken {
 
     public static BodyStmtToken of(ExprStmtToken... instructions){
         BodyStmtToken body = new BodyStmtToken(TokenMeta.of(instructions));
-        body.setInstructions(Lists.newArrayList(instructions));
+        body.setInstructions(Arrays.asList(instructions));
         return body;
     }
 

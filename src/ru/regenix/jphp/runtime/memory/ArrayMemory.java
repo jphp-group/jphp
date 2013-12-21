@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.exceptions.RecursiveException;
+import ru.regenix.jphp.lib.collections.map.LinkedMap;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.helper.ArrayKeyMemory;
@@ -18,7 +19,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     protected ArrayMemory original;
 
     protected List<ReferenceMemory> list;
-    protected LinkedHashMap<Object, ReferenceMemory> map;
+    protected LinkedMap<Object, ReferenceMemory> map;
 
     protected ThreadLocal<ForeachIterator> foreachIterator = new ThreadLocal<ForeachIterator>();
 
@@ -91,7 +92,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             }
         } else {
             result.list = null;
-            result.map = new LinkedHashMap<Object, ReferenceMemory>(map);
+            result.map = new LinkedMap<Object, ReferenceMemory>(map);
             for(Map.Entry<Object, ReferenceMemory> entry : map.entrySet()){
                 result.map.put(entry.getKey(), entry.getValue().duplicate());
             }
@@ -138,7 +139,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     private void convertToMap(){
-        map = new LinkedHashMap<Object, ReferenceMemory>();
+        map = new LinkedMap<Object, ReferenceMemory>();
         int i = 0;
         for(ReferenceMemory memory : list){
             if (memory != null){
@@ -470,8 +471,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             list.remove(0);
         } else {
             // TODO
-            //value = map.firstEntry().getValue();
-           // map.remove(map.firstKey());
+            value = map.remove(map.firstKey());
         }
 
         return value.toValue();
@@ -488,8 +488,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             list.remove(size - 1);
         } else {
             // TODO
-            //value = map.lastEntry().getValue();
-           // map.remove(map.lastKey());
+            value = map.remove(map.lastKey());
         }
         return value.toValue();
     }
@@ -503,7 +502,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             value = list.get(size - 1);
         else {
             // TODO
-            //value = map.lastEntry().getValue();
+            value = map.get(map.lastKey());
         }
 
         return value.toValue();
@@ -551,7 +550,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         }
 
         if (map != null){
-            map = new LinkedHashMap<Object, ReferenceMemory>();
+            map = new LinkedMap<Object, ReferenceMemory>();
         }
 
         size = 0;
