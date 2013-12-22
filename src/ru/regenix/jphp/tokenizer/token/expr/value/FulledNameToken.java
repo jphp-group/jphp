@@ -74,4 +74,13 @@ public class FulledNameToken extends NameToken {
     public boolean isSingle(){
         return names.size() == 1;
     }
+
+    public static FulledNameToken valueOf(String... names){
+        List<NameToken> tmp = new ArrayList<NameToken>();
+        for(String value : names){
+            tmp.add(NameToken.valueOf(value));
+        }
+        FulledNameToken fulledNameToken = new FulledNameToken(TokenMeta.empty(), tmp);
+        return fulledNameToken;
+    }
 }

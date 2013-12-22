@@ -24,7 +24,6 @@ import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +42,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         super(compiler);
         this.statement = statement;
         this.node = new ClassNodeImpl();
+    }
+
+    public boolean isClosure(){
+        return functionName == null;
     }
 
     public String getFunctionName() {
@@ -132,9 +135,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         MethodNode constructor = new MethodNodeImpl();
         constructor.name = Constants.INIT_METHOD;
         constructor.access = ACC_PUBLIC;
-        constructor.desc = Type.getMethodDescriptor(
-                Type.getType(void.class), Type.getType(Environment.class), Type.getType(ClassEntity.class)
-        );
         constructor.exceptions = new ArrayList();
 
         MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, constructor);
@@ -143,43 +143,68 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
         methodCompiler.addLocalVariable("this", l0);
-        methodCompiler.addLocalVariable("~env", l0, Environment.class);
-        methodCompiler.addLocalVariable("~class", l0, String.class);
 
-        // PROPERTIES
-        for(ClassVarStmtToken property : statement.getProperties()){
-            ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
-            Memory value = Memory.NULL;
-            if (property.getValue() != null)
-                value = expressionStmtCompiler.writeExpression(property.getValue(), true, true, false);
+        if (isClosure()){
+            constructor.desc = Type.getMethodDescriptor(
+                    Type.getType(void.class),
+                    Type.getType(ClassEntity.class),
+                    Type.getType(Memory[].class)
+            );
+            methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
+            methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
 
-            PropertyEntity prop = new PropertyEntity(compiler.getContext());
-            prop.setName(property.getVariable().getName());
-            prop.setModifier(property.getModifier());
-            prop.setStatic(property.isStatic());
-            prop.setDefaultValue(value);
-            entity.addProperty(prop);
+            methodCompiler.writeHeader();
+            expressionCompiler.writeVarLoad("this");
+            expressionCompiler.writeVarLoad("~class");
+            expressionCompiler.writeVarLoad("~uses");
+            constructor.instructions.add(new MethodInsnNode(
+                    INVOKESPECIAL,
+                    node.superName,
+                    Constants.INIT_METHOD,
+                    constructor.desc
+            ));
+        } else {
+            constructor.desc = Type.getMethodDescriptor(
+                    Type.getType(void.class), Type.getType(Environment.class), Type.getType(ClassEntity.class)
+            );
+            methodCompiler.addLocalVariable("~env", l0, Environment.class);
+            methodCompiler.addLocalVariable("~class", l0, String.class);
 
-            if (value == null && property.getValue() != null) {
-                throw new CompileException(
-                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName()),
-                    property.getVariable().toTraceInfo(compiler.getContext())
-                );
+            // PROPERTIES
+            for(ClassVarStmtToken property : statement.getProperties()){
+                ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+                Memory value = Memory.NULL;
+                if (property.getValue() != null)
+                    value = expressionStmtCompiler.writeExpression(property.getValue(), true, true, false);
+
+                PropertyEntity prop = new PropertyEntity(compiler.getContext());
+                prop.setName(property.getVariable().getName());
+                prop.setModifier(property.getModifier());
+                prop.setStatic(property.isStatic());
+                prop.setDefaultValue(value);
+                entity.addProperty(prop);
+
+                if (value == null && property.getValue() != null) {
+                    throw new CompileException(
+                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName()),
+                        property.getVariable().toTraceInfo(compiler.getContext())
+                    );
+                }
             }
+
+            expressionCompiler.writeVarLoad("this");
+            expressionCompiler.writeVarLoad("~env");
+            expressionCompiler.writeVarLoad("~class");
+            constructor.instructions.add(new MethodInsnNode(
+                    INVOKESPECIAL,
+                    node.superName,
+                    Constants.INIT_METHOD,
+                    constructor.desc
+            ));
         }
 
-        expressionCompiler.writeVarLoad("this");
-        expressionCompiler.writeVarLoad("~env");
-        expressionCompiler.writeVarLoad("~class");
-        constructor.instructions.add(new MethodInsnNode(
-                INVOKESPECIAL,
-                node.superName,
-                Constants.INIT_METHOD,
-                constructor.desc
-        ));
-        constructor.instructions.add(new InsnNode(RETURN));
-
         methodCompiler.writeFooter();
+        constructor.instructions.add(new InsnNode(RETURN));
         node.methods.add(constructor);
     }
 
@@ -226,12 +251,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 null
         ));
 
-        node.fields.add(new FieldNode(
-                ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
-                Type.getDescriptor(String.class),
-                null,
-                !functionName.isEmpty() ? functionName : entity.getName()
-        ));
+        if (functionName != null){
+            node.fields.add(new FieldNode(
+                    ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
+                    Type.getDescriptor(String.class),
+                    null,
+                    !functionName.isEmpty() ? functionName : entity.getName()
+            ));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -277,6 +304,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(statement.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
+        if (statement.getExtend() != null)
+            entity.setParent(compiler.getEnvironment().fetchClass(statement.getExtend().getName().getName(), false));
 
         if (!isSystem)
             entity.setInternalName("$_php_class_" + compiler.getScope().nextClassIndex());
@@ -291,7 +320,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         node.access = ACC_SUPER + ACC_PUBLIC;
         node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
-        node.superName = Type.getInternalName(PHPObject.class);
+        node.superName = entity.getParent() == null
+                ? Type.getInternalName(PHPObject.class)
+                : Type.getInternalName(entity.getParent().getNativeClazz());
+
         node.sourceFile = compiler.getSourceFile();
 
         writeSystemInfo();

@@ -424,7 +424,45 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return size;
     }
 
+    public void unshift(Memory value, int count){
+        checkCopied();
+        if (size == 0) {
+            for(int i = 0; i < count; i++)
+                add(value);
+        }  else {
+            if (list != null) {
+                List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
+                for(int i = 0; i < count; i++)
+                    tmp.add(new ReferenceMemory(value));
+
+                list.addAll(0, tmp);
+                size = list.size();
+            } else {
+                ArrayMemory tmp = new ArrayMemory();
+                tmp.convertToMap();
+
+                for(int i = 0; i < count; i++)
+                    tmp.add(value);
+
+                ForeachIterator iterator = getNewIterator(false, false);
+
+                while (iterator.next()){
+                    Object key = iterator.getKey();
+                    if (key instanceof String)
+                        tmp.put(key, iterator.getValue());
+                    else
+                        add(iterator.getValue());
+                }
+
+                lastLongIndex = tmp.lastLongIndex;
+                map = tmp.map;
+                size = tmp.size;
+            }
+        }
+    }
+
     public void unshift(Memory... values){
+        checkCopied();
         if (size == 0) {
             for (Memory value : values)
                 add(value);
@@ -446,11 +484,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 ForeachIterator iterator = getNewIterator(false, false);
 
                 while (iterator.next()){
-                    Object key = iterator.getCurrentKey();
+                    Object key = iterator.getKey();
                     if (key instanceof String)
-                        tmp.put(key, iterator.getCurrentValue());
+                        tmp.put(key, iterator.getValue());
                     else
-                        add(iterator.getCurrentValue());
+                        add(iterator.getValue());
                 }
 
                 lastLongIndex = tmp.lastLongIndex;
@@ -461,6 +499,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public Memory shift(){
+        checkCopied();
         if (size < 1)
             return null;
 
@@ -478,6 +517,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public Memory pop(){
+        checkCopied();
         if (size < 1)
             return null;
 
@@ -913,12 +953,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     if (plainReferences)
                         currentValue = value;
                     else
-                        currentValue = new ArrayValueMemory(getCurrentMemoryKey(), ArrayMemory.this, value);
+                        currentValue = new ArrayValueMemory(getMemoryKey(), ArrayMemory.this, value);
                 }  else
                     currentValue = value.toValue();
 
                 if (getKeyReferences) {
-                    currentKeyMemory = new ArrayKeyMemory(ArrayMemory.this, getCurrentMemoryKey());
+                    currentKeyMemory = new ArrayKeyMemory(ArrayMemory.this, getMemoryKey());
                 }
             }
 
@@ -1027,7 +1067,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             return FALSE;
         else {
             iterator.next();
-            Memory tmp = iterator.getCurrentValue();
+            Memory tmp = iterator.getValue();
             iterator.prev();
             return tmp;
         }

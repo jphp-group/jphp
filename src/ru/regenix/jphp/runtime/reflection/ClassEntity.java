@@ -6,6 +6,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
@@ -81,13 +82,14 @@ public class ClassEntity extends Entity {
             Reflection.Name name = nativeClazz.getAnnotation(Reflection.Name.class);
             setName(name.value());
         } else {
-            setName(nativeClazz.getName().replaceAll("\\.", "\\"));
+            setName(nativeClazz.getSimpleName());
         }
 
         for (Method method : nativeClazz.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
                 MethodEntity entity = new MethodEntity(extension, method);
                 entity.setClazz(this);
+                entity.setNativeMethod(method);
 
                 Reflection.Name name = method.getAnnotation(Reflection.Name.class);
                 entity.setName(name == null ? method.getName() : name.value());
@@ -289,7 +291,8 @@ public class ClassEntity extends Entity {
                 this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class);
                 this.nativeConstructor.setAccessible(true);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
+                this.nativeConstructor = null;
+                //throw new RuntimeException(e);
             }
         }
     }
@@ -311,7 +314,12 @@ public class ClassEntity extends Entity {
         }
 
         if (methodConstruct != null){
-            methodConstruct.invokeDynamic(object, env, args);
+            try {
+                env.pushCall(trace, object, args, methodConstruct.getName(), name);
+                methodConstruct.invokeDynamic(object, env, args);
+            } finally {
+                env.popCall();
+            }
         }
         return object;
     }
@@ -441,28 +449,39 @@ public class ClassEntity extends Entity {
                               PHPObject object, String property, Memory memory, SetterCallback callback)
             throws InvocationTargetException, IllegalAccessException {
         PropertyEntity entity = properties.get(property);
-        ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
+        ArrayMemory props = object.__dynamicProperties__;
+        ReferenceMemory value = props == null ? null : props.getByScalar(property);
 
         if (value == null) {
             if (methodMagicSet != null) {
+                StringMemory memoryProperty = new StringMemory(property);
+
                 if (callback != null){
                     Memory o1 = Memory.NULL;
-                    if (methodMagicGet != null)
-                        o1 = methodMagicGet.invokeDynamic(object, env, new StringMemory(property));
-
+                    if (methodMagicGet != null) {
+                        try {
+                            Memory[] args = new Memory[]{memoryProperty};
+                            env.pushCall(trace, object, args, methodMagicGet.getName(), name);
+                            o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
+                        } finally {
+                            env.popCall();
+                        }
+                    }
                     memory = callback.invoke(o1, memory);
                 }
 
-                methodMagicSet.invokeDynamic(
-                        object, env,
-                        new StringMemory(property),
-                        memory
-                );
+                try {
+                    Memory[] args = new Memory[]{memoryProperty, memory};
+                    env.pushCall(trace, object, args, methodMagicSet.getName(), name);
+                    methodMagicSet.invokeDynamic(object, env, args);
+                } finally {
+                    env.popCall();
+                }
             } else {
                 if (callback != null)
                     memory = callback.invoke(Memory.NULL, memory);
 
-                return object.__dynamicProperties__.refOfIndex(property).assign(memory);
+                return props == null ? Memory.NULL : object.__dynamicProperties__.refOfIndex(property).assign(memory);
             }
         } else {
             if (callback != null)
@@ -475,25 +494,40 @@ public class ClassEntity extends Entity {
 
     public Memory unsetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
-        if ( object.__dynamicProperties__.removeByScalar(property) == null ){
-            if (methodMagicUnset != null)
-                methodMagicUnset.invokeDynamic(
-                    object, env, new StringMemory(property)
-                );
+        if (object.__dynamicProperties__ == null || object.__dynamicProperties__.removeByScalar(property) == null ){
+            if (methodMagicUnset != null) {
+                try {
+                    Memory[] args = new Memory[]{new StringMemory(property)};
+                    env.pushCall(trace, object, args, methodMagicUnset.getName(), name);
+                    methodMagicUnset.invokeDynamic(object, env, args);
+                } finally {
+                    env.popCall();
+                }
+            }
         }
         return Memory.NULL;
     }
 
     public Memory emptyProperty(Environment env, TraceInfo trace, PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
-        Memory tmp = object.__dynamicProperties__.getByScalar(property);
-        if ( tmp != null ){
-            return tmp;
+        if (object.__dynamicProperties__ != null){
+            Memory tmp = object.__dynamicProperties__.getByScalar(property);
+            if ( tmp != null ){
+                return tmp;
+            }
         }
 
         if (methodMagicIsset != null){
-            return methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
-                    .toBoolean() ? Memory.FALSE : Memory.TRUE;
+            Memory result;
+            try {
+                Memory[] args = new Memory[]{new StringMemory(property)};
+                env.pushCall(trace, object, args, methodMagicIsset.getName(), name);
+                result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
+                        .toBoolean() ? Memory.FALSE : Memory.TRUE;
+            } finally {
+                env.popCall();
+            }
+            return result;
         }
         return Memory.FALSE;
     }
@@ -506,8 +540,16 @@ public class ClassEntity extends Entity {
         }
 
         if (methodMagicIsset != null){
-            return methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
-                    .toBoolean() ? Memory.TRUE : Memory.NULL;
+            Memory result;
+            try {
+                Memory[] args = new Memory[]{new StringMemory(property)};
+                env.pushCall(trace, object, args, methodMagicIsset.getName(), name);
+                result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
+                        .toBoolean() ? Memory.TRUE : Memory.NULL;
+            } finally {
+                env.popCall();
+            }
+            return result;
         }
         return Memory.NULL;
     }
@@ -517,14 +559,21 @@ public class ClassEntity extends Entity {
             throws InvocationTargetException, IllegalAccessException {
         PropertyEntity entity = properties.get(property);
 
-        ReferenceMemory value = object.__dynamicProperties__.getByScalar(property);
+        ReferenceMemory value = object.__dynamicProperties__ == null ? null : object.__dynamicProperties__.getByScalar(property);
         if (value != null)
             return value;
 
-        if (methodMagicGet != null)
-            return methodMagicGet.invokeDynamic(
-                    object, env, new StringMemory(property)
-            );
+        if (methodMagicGet != null) {
+            Memory result;
+            try {
+                Memory[] args = new Memory[]{new StringMemory(property)};
+                env.pushCall(trace, object, args, methodMagicGet.getName(), name);
+                result = methodMagicGet.invokeDynamic(object, env, args);
+            } finally {
+                env.popCall();
+            }
+            return result;
+        }
 
         /*env.triggerError(new FatalException(
                 Messages.ERR_FATAL_CANNOT_GET_OBJECT_PROPERTY_OF_CLASS.fetch(property, getName()),

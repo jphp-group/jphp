@@ -20,7 +20,7 @@ public class ObjectMemory extends Memory {
         this.value = object;
     }
 
-    public static ObjectMemory valueOf(PHPObject object){
+    public static Memory valueOf(PHPObject object){
         return new ObjectMemory(object);
     }
 
@@ -178,7 +178,7 @@ public class ObjectMemory extends Memory {
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 @Override
                 protected boolean init() {
-                    return iterator.rewind(value.__env__, className).toBoolean();
+                    return iterator.rewind(value.__env__).toBoolean();
                 }
 
                 @Override
@@ -193,11 +193,11 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public boolean next() {
-                    iterator.next(value.__env__, className);
-                    boolean valid = iterator.valid(value.__env__, className).toBoolean();
+                    iterator.next(value.__env__);
+                    boolean valid = iterator.valid(value.__env__).toBoolean();
                     if (valid){
-                        currentKey   = iterator.key(value.__env__, className);
-                        currentValue = iterator.current(value.__env__, className);
+                        currentKey   = iterator.key(value.__env__);
+                        currentValue = iterator.current(value.__env__);
                         if (!getReferences)
                             currentValue = currentValue.toImmutable();
                     }
@@ -205,12 +205,12 @@ public class ObjectMemory extends Memory {
                 }
 
                 @Override
-                public Object getCurrentKey() {
+                public Object getKey() {
                     return currentKey;
                 }
 
                 @Override
-                public Memory getCurrentMemoryKey() {
+                public Memory getMemoryKey() {
                     return (Memory)currentKey;
                 }
             };

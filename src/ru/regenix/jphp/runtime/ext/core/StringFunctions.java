@@ -22,7 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.zip.CRC32;
 
@@ -1189,16 +1188,16 @@ public class StringFunctions extends FunctionsContainer {
             ForeachIterator iterator = string.getNewIterator(false, false);
 
             while (iterator.next()){
-                String value = iterator.getCurrentValue().toString();
+                String value = iterator.getValue().toString();
 
                 if (replacementIterator != null && replacementIterator.next())
-                    replacement = replacementIterator.getCurrentValue().toString();
+                    replacement = replacementIterator.getValue().toString();
 
                 if (lengthIterator != null && lengthIterator.next())
-                    length = lengthIterator.getCurrentValue().toInteger();
+                    length = lengthIterator.getValue().toInteger();
 
                 if (startIterator != null && startIterator.next())
-                    start = startIterator.getCurrentValue().toInteger();
+                    start = startIterator.getValue().toInteger();
 
                 String result = _substr_replace(value, replacement, start, length);
                 resultArray.add(new StringMemory(result));
@@ -1207,13 +1206,13 @@ public class StringFunctions extends FunctionsContainer {
             return resultArray.toConstant();
         } else {
             if (replacementIterator != null && replacementIterator.next())
-                replacement = replacementIterator.getCurrentValue().toString();
+                replacement = replacementIterator.getValue().toString();
 
             if (lengthIterator != null && lengthIterator.next())
-                length = lengthIterator.getCurrentValue().toInteger();
+                length = lengthIterator.getValue().toInteger();
 
             if (startIterator != null && startIterator.next())
-                start = startIterator.getCurrentValue().toInteger();
+                start = startIterator.getValue().toInteger();
 
             return new StringMemory( _substr_replace(string.toString(), replacement, start, length));
         }

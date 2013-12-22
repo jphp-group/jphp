@@ -54,11 +54,11 @@ abstract public class ForeachIterator {
         return false;
     }
 
-    public Object getCurrentKey() {
+    public Object getKey() {
         return currentKey;
     }
 
-    public Memory getCurrentMemoryKey(){
+    public Memory getMemoryKey(){
         if (currentKeyMemory != null)
             return currentKeyMemory;
 
@@ -72,7 +72,7 @@ abstract public class ForeachIterator {
         return currentKeyMemory = Memory.NULL;
     }
 
-    public Memory getCurrentValue() {
+    public Memory getValue() {
         return currentValue;
     }
 }

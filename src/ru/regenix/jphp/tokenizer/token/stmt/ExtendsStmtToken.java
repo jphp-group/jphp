@@ -5,7 +5,6 @@ import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 
 public class ExtendsStmtToken extends StmtToken {
-
     private FulledNameToken name;
 
     public ExtendsStmtToken(TokenMeta meta) {
@@ -18,5 +17,11 @@ public class ExtendsStmtToken extends StmtToken {
 
     public void setName(FulledNameToken name) {
         this.name = name;
+    }
+
+    public static ExtendsStmtToken valueOf(String... fulledName){
+        ExtendsStmtToken result = new ExtendsStmtToken(TokenMeta.empty());
+        result.setName(FulledNameToken.valueOf(fulledName));
+        return result;
     }
 }

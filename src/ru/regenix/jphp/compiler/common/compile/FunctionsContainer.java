@@ -1,6 +1,5 @@
 package ru.regenix.jphp.compiler.common.compile;
 
-import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
@@ -59,9 +58,7 @@ abstract public class FunctionsContainer {
             if (Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())){
                 CompileFunction function = result.get(method.getName());
                 if (function == null)
-                    result.put(method.getName(), function = new CompileFunction(
-                            method.getName(), method.isAnnotationPresent(Runtime.Immutable.class)
-                    ));
+                    result.put(method.getName(), function = new CompileFunction(method.getName()));
 
                 function.addMethod(method);
             }
@@ -73,12 +70,11 @@ abstract public class FunctionsContainer {
             if (function == null){
                 result.put(item.getKey(),
                         function = new CompileFunction(
-                                item.getKey(),
-                                true
+                                item.getKey()
                         )
                 );
             }
-            function.addMethod(method);
+            function.addMethod(method, true);
         }
 
         return result.values();

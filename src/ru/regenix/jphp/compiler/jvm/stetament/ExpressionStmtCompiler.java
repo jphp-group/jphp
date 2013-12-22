@@ -29,6 +29,7 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
@@ -52,7 +53,6 @@ import java.util.Stack;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ExpressionStmtCompiler extends StmtCompiler {
-
     protected final MethodStmtCompiler method;
     protected final ExprStmtToken expression;
 
@@ -269,16 +269,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             while (foreachIterator.next()){
                 writePushDup();
                 if (array.isList()) {
-                    writePushMemory(foreachIterator.getCurrentValue());
+                    writePushMemory(foreachIterator.getValue());
                     writePopBoxing();
                     writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
                 } else {
-                    Memory key = foreachIterator.getCurrentMemoryKey();
+                    Memory key = foreachIterator.getMemoryKey();
                     writePushMemory(key);
                     if (!key.isString())
                         writePopBoxing();
 
-                    writePushMemory(foreachIterator.getCurrentValue());
+                    writePushMemory(foreachIterator.getValue());
                     writePopBoxing();
 
                     writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
@@ -482,6 +482,41 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPush(null, StackItem.Type.BOOL);
     }
 
+    void writePushClosure(ClosureStmtToken closure, boolean returnValue){
+        if (returnValue){
+            ClosureEntity entity = method.compiler.getModule().findClosure( closure.getId() );
+            if (closure.getFunction().getUses().isEmpty()){
+                writePushEnv();
+                writePushConstInt(compiler.getModule().getId());
+                writePushConstInt((int)entity.getId());
+                writeSysDynamicCall(Environment.class, "getSingletonClosure", Memory.class, Integer.TYPE, Integer.TYPE);
+            } else {
+                code.add(new TypeInsnNode(NEW, entity.getInternalName()));
+                stackPush(Memory.Type.REFERENCE);
+                writePushDup();
+
+                writePushEnv();
+                writePushConstInt(compiler.getModule().getId());
+                writePushConstInt((int)entity.getId());
+                writeSysDynamicCall(Environment.class, "__getClosure", ClassEntity.class, Integer.TYPE, Integer.TYPE);
+
+                writePushUses(closure.getFunction().getUses());
+                code.add(new MethodInsnNode(
+                        INVOKESPECIAL, entity.getInternalName(), Constants.INIT_METHOD,
+                        Type.getMethodDescriptor(
+                                Type.getType(void.class), Type.getType(ClassEntity.class), Type.getType(Memory[].class)
+                        )
+                ));
+                stackPop();
+                stackPop();
+                stackPop();
+
+                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, PHPObject.class);
+            }
+            setStackPeekAsImmutable();
+        }
+    }
+
     void writePushSelf(boolean toLower){
         writePushString(toLower ?
                 method.clazz.statement.getFulledName().toLowerCase()
@@ -565,12 +600,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     boolean writeOpcode, PushCallStatistic statistic){
         CompileFunction.Method method = compileFunction.find( function.getParameters().size() );
         if (method == null){
-            method = compileFunction.find( function.getParameters().size() + 1 );
-            if(method != null && method.parameterTypes[0] != Environment.class)
-                method = null;
-        }
-
-        if (method == null){
             throw new CompileException(
                     Messages.ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION.fetch(function.getName().getWord()),
                     function.getName().toTraceInfo(compiler.getContext())
@@ -587,7 +616,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         Object[] arguments = new Object[types.length];
         int j = 0;
-        boolean immutable = compileFunction.isImmutable && method.resultType != void.class;
+        boolean immutable = method.isImmutable && method.resultType != void.class;
 
         boolean init = false;
         for(int i = 0; i < types.length; i++){
@@ -598,7 +627,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     isRef = true;
             }
 
-            if (isRef)
+            if (isRef && !method.isImmutableIgnoreRefs)
                 immutable = false;
 
             if (argType == Environment.class){
@@ -794,6 +823,36 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writePushUses(Collection<ArgumentStmtToken> parameters){
+        if (parameters.isEmpty()){
+            code.add(new InsnNode(ACONST_NULL));
+            stackPush(Memory.Type.REFERENCE);
+            return;
+        }
+
+        writePushSmallInt(parameters.size());
+        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
+        stackPop();
+        stackPush(Memory.Type.REFERENCE);
+
+        int i = 0;
+        for(ArgumentStmtToken param : parameters){
+            writePushDup();
+            writePushSmallInt(i);
+
+            LocalVariable local = method.getLocalVariable(param.getName().getName());
+            writeVarLoad(local);
+            if (!param.isReference())
+                writePopBoxing(true);
+
+            code.add(new InsnNode(AASTORE));
+            stackPop();
+            stackPop();
+            stackPop();
+            i++;
+        }
+    }
+
     Memory writePushDynamicMethod(CallExprToken function, boolean returnValue, boolean writeOpcode,
                                   PushCallStatistic statistic){
         if (!writeOpcode)
@@ -946,16 +1005,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else {
             if (!writeOpcode)
                 return null;
+            writePush((ValueExprToken)function.getName(), true, false);
+            writePopBoxing();
+            writePushParameters(function.getParameters());
+
             writePushEnv();
             writePushTraceInfo(function);
 
-            writePush((ValueExprToken)function.getName(), true, false);
-            writePopBoxing();
-
-            writePushParameters(function.getParameters());
             writeSysStaticCall(
                     InvokeHelper.class, "callAny", Memory.class,
-                    Environment.class, String.class, TraceInfo.class, Memory.class, Memory[].class
+                    Memory.class, Memory[].class, Environment.class, TraceInfo.class
             );
             if (!returnValue)
                 writePopAll(1);
@@ -1421,6 +1480,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 return null;
             } else if (value instanceof StaticExprToken){
                 writePushStatic();
+                return null;
+            } else if (value instanceof ClosureStmtToken){
+                writePushClosure((ClosureStmtToken)value, returnValue);
                 return null;
             }
 
@@ -2122,9 +2184,24 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
             setStackPeekAsImmutable(false);
-        }  else if (operator instanceof ArrayGetExprToken) {
+        } else if (operator instanceof ArrayGetExprToken) {
             stackPush(o);
             writeArrayGet((ArrayGetExprToken)operator, returnValue);
+        } else if (operator instanceof CallOperatorToken) {
+            stackPush(o);
+
+            CallOperatorToken call = (CallOperatorToken)operator;
+
+            writePushParameters(call.getParameters());
+            writePushEnv();
+            writePushTraceInfo(operator);
+
+            writeSysStaticCall(
+                    InvokeHelper.class, "callAny", Memory.class,
+                    Memory.class, Memory[].class, Environment.class, TraceInfo.class
+            );
+            if (!returnValue)
+                writePopAll(1);
         } else {
                 writePush(o);
                 writePopBoxing();
@@ -2520,7 +2597,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LocalVariable key = method.getLocalVariable(token.getKey().getName());
 
             writePushDup();
-            writeSysDynamicCall(ForeachIterator.class, "getCurrentMemoryKey", Memory.class);
+            writeSysDynamicCall(ForeachIterator.class, "getMemoryKey", Memory.class);
             if (token.isKeyReference()) {
                 throw new FatalException(
                         "Key element cannot be a reference",
@@ -2533,7 +2610,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         // $var
         LocalVariable variable = method.getLocalVariable(token.getValue().getName());
-        writeSysDynamicCall(ForeachIterator.class, "getCurrentValue", Memory.class);
+        writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
 
         if (token.isValueReference())
             writeVarStore(variable, false, false);

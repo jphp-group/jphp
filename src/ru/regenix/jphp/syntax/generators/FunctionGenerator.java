@@ -11,10 +11,7 @@ import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +77,31 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         result.setArguments(arguments);
     }
 
+    protected void processUses(FunctionStmtToken result, ListIterator<Token> iterator){
+        Token next = nextToken(iterator);
+        if (next instanceof NamespaceUseStmtToken){
+            next = nextToken(iterator);
+            if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+                unexpectedToken(next, "(");
+
+            List<ArgumentStmtToken> arguments = new ArrayList<ArgumentStmtToken>();
+            while (iterator.hasNext()) {
+                ArgumentStmtToken argument = processArgument(iterator);
+                if (argument == null)
+                    break;
+
+                if (argument.getValue() != null)
+                    unexpectedToken(argument.getValue().getSingle());
+                arguments.add(argument);
+            }
+
+            result.setUses(arguments);
+        } else {
+            result.setUses(new ArrayList<ArgumentStmtToken>());
+            iterator.previous();
+        }
+    }
+
     protected void processBody(FunctionStmtToken result, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
         if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
@@ -92,8 +114,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             unexpectedToken(next);
     }
 
-    @Override
-    public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator) {
+    public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator, boolean closureAllowed) {
         if (current instanceof FunctionStmtToken){
             FunctionStmtToken result = (FunctionStmtToken)current;
 
@@ -125,6 +146,15 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             } else if (next instanceof BraceExprToken){
                 // xClosure
                 if (((BraceExprToken) next).isSimpleOpened()){
+                    if (closureAllowed){
+                        analyzer.addLocalScope();
+                        processArguments(result, iterator);
+                        processUses(result, iterator);
+                        processBody(result, iterator);
+                        result.setLocal(analyzer.removeLocalScope());
+                        return result;
+                    }
+
                     iterator.previous();
                     return null;
                 }
@@ -134,5 +164,10 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         }
 
         return null;
+    }
+
+    @Override
+    public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator) {
+        return getToken(current, iterator, false);
     }
 }

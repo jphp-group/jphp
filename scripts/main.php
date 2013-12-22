@@ -1,8 +1,11 @@
 <?php
 
-$array = array("size" => "XL", "color" => "gold");
-$x = array_values($array);
-$x[0] = 111;
+for($i = 0; $i < 10; $i++){
+    $func[] = function() use ($i) {
+        echo $i . "\n";
+    };
+}
 
-print_r($x);
-print_r($array);
+foreach($func as $el){
+    $el();
+}

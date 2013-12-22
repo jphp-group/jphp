@@ -16,4 +16,10 @@ public class NameToken extends ValueExprToken {
     public String getName() {
         return name;
     }
+
+    public static NameToken valueOf(String name){
+        NameToken token = new NameToken(TokenMeta.empty());
+        token.name = name;
+        return token;
+    }
 }

@@ -5,6 +5,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 
 import java.io.*;
 
@@ -22,6 +23,10 @@ public class OpcodePrinter {
 
     public OpcodePrinter(ClassEntity clazz){
         this(clazz.getData());
+    }
+
+    public OpcodePrinter(ClosureEntity closure){
+        this(closure.getData());
     }
 
     public OpcodePrinter(FunctionEntity function){

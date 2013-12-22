@@ -249,6 +249,28 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 }
             }
 
+            if (statement.getUses() != null && !statement.getUses().isEmpty()){
+                int i = 0;
+                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+                expressionCompiler.writeVarLoad("~this");
+                expressionCompiler.writeGetDynamic("uses", Memory[].class);
+
+                for (ArgumentStmtToken argument : statement.getUses()){
+                    LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
+                    if (argument.isReference()){
+                        local.setReference(true);
+                        statement.getUnstableLocal().add(argument.getName());
+                    }
+
+                    expressionCompiler.writePushDup();
+                    expressionCompiler.writePushGetFromArray(i, Memory.class);
+                    expressionCompiler.writeVarStore(local, false, false);
+                    local.pushLevel();
+                    i++;
+                }
+                expressionCompiler.writePopAll(1);
+            }
+
             int i = 0;
             for(ArgumentStmtToken argument : statement.getArguments()){
                 LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
@@ -256,7 +278,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     local.setReference(true);
                     statement.getUnstableLocal().add(argument.getName());
                 }
-
 
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
                 expressionCompiler.writeVarLoad(args);

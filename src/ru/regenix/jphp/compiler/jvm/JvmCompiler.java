@@ -3,16 +3,15 @@ package ru.regenix.jphp.compiler.jvm;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.jvm.stetament.ClassStmtCompiler;
-import ru.regenix.jphp.compiler.jvm.stetament.ExpressionStmtCompiler;
-import ru.regenix.jphp.compiler.jvm.stetament.FunctionStmtCompiler;
-import ru.regenix.jphp.compiler.jvm.stetament.MethodStmtCompiler;
+import ru.regenix.jphp.compiler.jvm.stetament.*;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class JvmCompiler extends AbstractCompiler {
-
     protected final ModuleEntity module;
     protected NamespaceStmtToken namespace;
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
@@ -119,6 +117,12 @@ public class JvmCompiler extends AbstractCompiler {
             } else {
                 // TODO: add warning
             }
+        }
+
+        // write closures
+        for(ClosureStmtToken closure : analyzer.getClosures()){
+            ClosureEntity closureEntity = new ClosureStmtCompiler(this, closure).compile();
+            module.addClosure(closureEntity);
         }
 
         for(Token token : tokens){

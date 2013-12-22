@@ -10,15 +10,15 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
 public interface ArrayAccess {
 
     @Signature(value = @Arg("offset"), result = @Arg(type = HintType.BOOLEAN))
-    public Memory offsetExists(Environment env, String calledClass, Memory... args);
+    public Memory offsetExists(Environment env, Memory... args);
 
     @Signature(@Arg("offset"))
-    public Memory offsetGet(Environment env, String calledClass, Memory... args);
+    public Memory offsetGet(Environment env, Memory... args);
 
     @Signature({@Arg("offset"), @Arg("value")})
-    public Memory offsetSet(Environment env, String calledClass, Memory... args);
+    public Memory offsetSet(Environment env, Memory... args);
 
     @Signature(@Arg("offset"))
-    public Memory offsetUnset(Environment env, String calledClass, Memory... args);
+    public Memory offsetUnset(Environment env, Memory... args);
 
 }

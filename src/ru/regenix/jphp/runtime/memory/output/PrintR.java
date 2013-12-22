@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory.output;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
@@ -83,13 +84,13 @@ public class PrintR extends Printer {
             int size = value.size();
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
-                Memory key = iterator.getCurrentMemoryKey();
+                Memory key = iterator.getMemoryKey();
 
                 printer.write('[');
                 printer.write(key.toString());
 
                 printer.write("] => ");
-                print(iterator.getCurrentValue(), level + 1, used);
+                print(iterator.getValue(), level + 1, used);
                 writeSeparator(i == size - 1);
                 i++;
             }
@@ -108,6 +109,28 @@ public class PrintR extends Printer {
     }
 
     @Override
+    protected void printClosure(Closure closure, int level, Set<Integer> used) {
+        ClassEntity classEntity = closure.__class__;
+
+        writeObjectHeader(Closure.class.getSimpleName());
+        if (used.contains(closure.getPointer())){
+            printer.write(" *RECURSION*");
+        } else {
+            printer.write(StringUtils.repeat(' ', level));
+            writeOpen();
+            level += PRINT_INDENT;
+
+            used.add(closure.getPointer());
+
+            level -= PRINT_INDENT;
+            printer.write(StringUtils.repeat(' ', level));
+            writeClose();
+
+            used.remove(closure.getPointer());
+        }
+    }
+
+    @Override
     protected void printObject(ObjectMemory value, int level, Set<Integer> used) {
         PHPObject object = value.value;
         ClassEntity classEntity = object.__class__;
@@ -123,32 +146,34 @@ public class PrintR extends Printer {
 
             used.add(value.getPointer());
 
-            ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false, false);
-            int i = 0;
-            int size = classEntity.properties.size();
-            while (iterator.next()){
-                printer.write(StringUtils.repeat(' ', level));
+            if (object.__dynamicProperties__ != null){
+                ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false, false);
+                int i = 0;
+                int size = classEntity.properties.size();
+                while (iterator.next()){
+                    printer.write(StringUtils.repeat(' ', level));
 
-                Object key = iterator.getCurrentKey();
-                PropertyEntity propertyEntity = classEntity.properties.get(key.toString());
-                printer.write('[');
+                    Object key = iterator.getKey();
+                    PropertyEntity propertyEntity = classEntity.properties.get(key.toString());
+                    printer.write('[');
 
-                printer.write(key.toString());
+                    printer.write(key.toString());
 
-                if (propertyEntity != null){
-                    switch (propertyEntity.getModifier()) {
-                        case PRIVATE:
-                            printer.write(":" + propertyEntity.getClazz().getName() + ":private");
-                            break;
-                        case PROTECTED:
-                            printer.write(":protected");
+                    if (propertyEntity != null){
+                        switch (propertyEntity.getModifier()) {
+                            case PRIVATE:
+                                printer.write(":" + propertyEntity.getClazz().getName() + ":private");
+                                break;
+                            case PROTECTED:
+                                printer.write(":protected");
+                        }
                     }
-                }
 
-                printer.write("] => ");
-                print(iterator.getCurrentValue(), level + 1, used);
-                writeSeparator(i == size - 1);
-                i++;
+                    printer.write("] => ");
+                    print(iterator.getValue(), level + 1, used);
+                    writeSeparator(i == size - 1);
+                    i++;
+                }
             }
 
             level -= PRINT_INDENT;

@@ -14,5 +14,7 @@ public @interface Runtime {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD})
-    public @interface Immutable {}
+    public @interface Immutable {
+        boolean ignoreRefs() default false;
+    }
 }

@@ -442,21 +442,22 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         List<Token> tokens = new ArrayList<Token>();
         do {
             if (current instanceof EndStmtToken || isTokenClass(current, endTokens)){
-                /*if (current instanceof ElseIfStmtToken){
-                    IfStmtToken ifStmt = new IfStmtToken(current.getMeta());
-                    processIf(ifStmt, iterator);
-                    tokens.add(ifStmt);
-                }*/
-
+                boolean doBreak = true;
                 if (!isTokenClass(current, endTokens))
                     unexpectedToken(current);
 
-                if (current instanceof BraceExprToken && !isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
-                    unexpectedToken(current);
+                if (current instanceof BraceExprToken){
+                    if (((BraceExprToken) current).isOpened()){
+                        doBreak = false;
+                    } else if (!isClosedBrace(current, BraceExprToken.Kind.BLOCK))
+                        unexpectedToken(current);
                 }
 
-                break;
-            } else if (current instanceof EchoRawToken){
+                if (doBreak)
+                    break;
+            }
+
+            if (current instanceof EchoRawToken){
                 tokens.add(current);
                 break;
             } else if (current instanceof OpenEchoTagToken){

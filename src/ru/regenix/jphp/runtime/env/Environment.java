@@ -230,7 +230,7 @@ public class Environment {
         if (entity == null){
             return null;
         } else {
-            if (isLoadedClass(nameL))
+            if (isLoadedClass(nameL) || entity.isInternal())
                 return entity;
             else {
                 return null;
@@ -571,6 +571,14 @@ public class Environment {
             warning(trace, "Invalid argument supplied for foreach()");
         }
         return iterator;
+    }
+
+    public ClassEntity __getClosure(int moduleIndex, int index){
+        return scope.moduleIndexMap.get(moduleIndex).findClosure(index);
+    }
+
+    public Memory getSingletonClosure(int moduleIndex, int index){
+        return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
     }
 
     public void __pushSilent(){

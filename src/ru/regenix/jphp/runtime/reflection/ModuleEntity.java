@@ -6,13 +6,12 @@ import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ModuleEntity extends Entity {
 
@@ -24,6 +23,7 @@ public class ModuleEntity extends Entity {
     private final Map<String, ClassEntity> classes;
     private final Map<String, FunctionEntity> functions;
     private final Map<String, ConstantEntity> constants;
+    private final List<ClosureEntity> closures;
 
     protected boolean isLoaded;
 
@@ -34,6 +34,7 @@ public class ModuleEntity extends Entity {
         this.classes = new HashMap<String, ClassEntity>();
         this.functions = new HashMap<String, FunctionEntity>();
         this.constants = new HashMap<String, ConstantEntity>();
+        this.closures = new ArrayList<ClosureEntity>();
         this.setName(context.getModuleNameNoThrow());
     }
 
@@ -118,6 +119,10 @@ public class ModuleEntity extends Entity {
         return classes.values();
     }
 
+    public Collection<ClosureEntity> getClosures(){
+        return closures;
+    }
+
     public Collection<FunctionEntity> getFunctions(){
         return functions.values();
     }
@@ -134,9 +139,20 @@ public class ModuleEntity extends Entity {
         return constants.get(name.toLowerCase());
     }
 
+    public ClosureEntity findClosure(int index){
+        if (index >= 0 && index < closures.size())
+            return closures.get(index);
+        else
+            return null;
+    }
+
     public void addConstant(ConstantEntity constant){
         if (!constants.containsKey(constant.getName()))
             constants.put(constant.getName(), constant);
+    }
+
+    public void addClosure(ClosureEntity closure){
+        closures.add(closure);
     }
 
     public void addClass(ClassEntity clazz){

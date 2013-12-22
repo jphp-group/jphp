@@ -8,5 +8,5 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 public interface Countable {
     
     @Reflection.Signature
-    public Memory count(Environment env, String calledClass, Memory... args);
+    public Memory count(Environment env, Memory... args);
 }

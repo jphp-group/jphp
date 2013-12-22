@@ -6,7 +6,6 @@ import ru.regenix.jphp.runtime.reflection.DocumentComment;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 
 abstract public class AbstractFunctionEntity extends Entity {
-
     protected boolean isImmutable;
     protected DocumentComment docComment;
     protected boolean returnReference;

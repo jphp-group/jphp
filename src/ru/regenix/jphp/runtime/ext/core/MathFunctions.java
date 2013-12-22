@@ -1,6 +1,5 @@
 package ru.regenix.jphp.runtime.ext.core;
 
-import org.apache.commons.math3.random.MersenneTwister;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.memory.*;
@@ -18,7 +17,7 @@ import java.util.Random;
 public class MathFunctions extends FunctionsContainer {
 
     private final static MathConstants constants = new MathConstants();
-    public static MersenneTwister MERSENNE_TWISTER = new MersenneTwister();
+    public static Random MERSENNE_TWISTER = new Random();
     public static Random RANDOM = new Random();
 
     private final static double[] COS_CACHE = new double[Short.MAX_VALUE * 5];
@@ -227,7 +226,7 @@ public class MathFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static long mt_getrandmax(){
-        return Long.MAX_VALUE;
+        return Integer.MAX_VALUE;
     }
 
 
@@ -237,15 +236,15 @@ public class MathFunctions extends FunctionsContainer {
 
     public static Memory mt_rand(long min, long max){
         if (max < min) return Memory.FALSE;
-        return LongMemory.valueOf(MERSENNE_TWISTER.nextLong((max - min) + 1) + min);
+        return LongMemory.valueOf(MERSENNE_TWISTER.nextInt((int)(max - min) + 1) + min);
     }
 
     public static void mt_srand(){
-        MERSENNE_TWISTER = new MersenneTwister();
+        MERSENNE_TWISTER = new Random();
     }
 
     public static void mt_srand(long seed){
-        MERSENNE_TWISTER = new MersenneTwister(seed);
+        MERSENNE_TWISTER = new Random(seed);
     }
 
     public static long rand(){

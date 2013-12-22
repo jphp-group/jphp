@@ -8,6 +8,7 @@ import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
@@ -34,6 +35,7 @@ public class SyntaxAnalyzer {
     private Map<String, ClassStmtToken> classes;
     private Map<String, FunctionStmtToken> functions;
     private Map<String, ConstStmtToken> constants;
+    private List<ClosureStmtToken> closures;
 
     public SyntaxAnalyzer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
@@ -41,6 +43,7 @@ public class SyntaxAnalyzer {
         classes = new LinkedHashMap<String, ClassStmtToken>();
         functions = new LinkedHashMap<String, FunctionStmtToken>();
         constants = new LinkedHashMap<String, ConstStmtToken>();
+        closures = new ArrayList<ClosureStmtToken>();
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
@@ -78,6 +81,11 @@ public class SyntaxAnalyzer {
         constants.put(constant.getFulledName(), constant);
     }
 
+    public void registerClosure(ClosureStmtToken closure){
+        closure.setId(closures.size());
+        closures.add(closure);
+    }
+
     public Collection<ClassStmtToken> getClasses() {
         return classes.values();
     }
@@ -88,6 +96,10 @@ public class SyntaxAnalyzer {
 
     public Collection<ConstStmtToken> getConstants(){
         return constants.values();
+    }
+
+    public Collection<ClosureStmtToken> getClosures(){
+        return closures;
     }
 
     public ClassStmtToken findClass(String name){

@@ -327,6 +327,8 @@ final public class CompilerUtils {
             return "newKeyValue";
         } else if (operator instanceof ArrayGetExprToken){
             return null;
+        } else if (operator instanceof CallOperatorToken){
+            return null;
         }
 
         throw new IllegalArgumentException("Unsupported operator: " + operator.getWord());

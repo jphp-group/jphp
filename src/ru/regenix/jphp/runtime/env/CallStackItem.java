@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.env;
 
+import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.output.PlainPrinter;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -51,10 +52,16 @@ public class CallStackItem {
         StringBuilder sb = new StringBuilder();
         if (clazz != null){
             sb.append(clazz);
-            sb.append("::");
+            if (object == null)
+                sb.append("::");
+            else
+                sb.append("->");
+
             sb.append(function);
         } else if (function != null){
             sb.append(function);
+        } else if (object instanceof Closure){
+            sb.append("{closure}");
         } else
             sb.append("<internal>");
 

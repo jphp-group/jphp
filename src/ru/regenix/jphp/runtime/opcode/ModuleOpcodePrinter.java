@@ -5,6 +5,7 @@ import org.objectweb.asm.ClassReader;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 
 import java.io.*;
 
@@ -26,6 +27,13 @@ public class ModuleOpcodePrinter {
             writer.write("#### Module class: " + module.getContext().getModuleName() + "\n");
             opcodePrinter.toWriter(writer, flags);
             writer.write("#### /Module class \n\n\n");
+
+            for(ClosureEntity closure : module.getClosures()){
+                opcodePrinter = new OpcodePrinter(closure);
+                writer.write("#### Closure: " + closure.getInternalName() + "\n");
+                opcodePrinter.toWriter(writer);
+                writer.write("#### /Closure \n\n\n");
+            }
 
             for(ClassEntity clazz : module.getClasses()){
                 opcodePrinter = new OpcodePrinter(clazz);

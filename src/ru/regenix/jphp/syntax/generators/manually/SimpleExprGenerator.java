@@ -5,6 +5,7 @@ import ru.regenix.jphp.common.Callback;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.syntax.generators.FunctionGenerator;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.*;
@@ -12,10 +13,12 @@ import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;
+import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,21 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     @Override
     public boolean isSingleton() {
         return false;
+    }
+
+    protected ClosureStmtToken processClosure(Token current, Token next, ListIterator<Token> iterator){
+        FunctionStmtToken functionStmtToken = analyzer.generator(FunctionGenerator.class).getToken(
+            current, iterator, true
+        );
+
+        if (functionStmtToken.getName() != null)
+            unexpectedToken(functionStmtToken.getName());
+
+        ClosureStmtToken result = new ClosureStmtToken(current.getMeta());
+        result.setFunction(functionStmtToken);
+        analyzer.registerClosure(result);
+
+        return result;
     }
 
     protected DieExprToken processDie(Token current, Token next, ListIterator<Token> iterator){
@@ -149,8 +167,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
         if (previous instanceof ValueExprToken)
             result.setName(analyzer.getRealName((ValueExprToken)previous));
-        else
-            result.setName((ExprToken)previous);
+        else {
+            if (previous instanceof DynamicAccessExprToken) {
+                result.setName((ExprToken)previous);
+            } else
+                result.setName(null);
+        }
 
         result.setParameters(parameters);
 
@@ -370,8 +392,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
         }
 
-        if (current instanceof OperatorExprToken)
+        if (current instanceof OperatorExprToken) {
             isRef = false;
+        }
 
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind, braceOpened);
@@ -623,7 +646,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             next = iterator.next();
             if (next instanceof AssignableOperatorToken){
                 result = new ArrayGetRefExprToken(result);
-
             }
             iterator.previous();
         }
@@ -667,7 +689,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             }
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 boolean isFunc = false;
-                if (previous instanceof NameToken || previous instanceof VariableExprToken)
+                if (previous instanceof NameToken
+                        || previous instanceof VariableExprToken
+                        || previous instanceof ClosureStmtToken
+                        || previous instanceof ArrayGetExprToken)
                     isFunc = true;
                 else if (previous instanceof StaticAccessExprToken){
                     isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
@@ -676,7 +701,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
 
                 if (isFunc){
-                    tokens.set(tokens.size() - 1, current = processCall(previous, current, iterator));
+                    CallExprToken call = processCall(previous, current, iterator);
+                    if (call.getName() != null) {
+                        tokens.set(tokens.size() - 1, call);
+                    } else {
+                        tokens.add(new CallOperatorToken(call));
+                    }
                 } else {
                     if (needBreak)
                         unexpectedToken(current);
@@ -717,6 +747,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processNewArray(current, iterator));
                 } else
                     unexpectedToken(current);
+            } else if (current instanceof FunctionStmtToken){
+                current = processClosure(current, next, iterator);
+                tokens.add(current);
             } else if (current instanceof DieExprToken){
                 processDie(current, next, iterator);
                 tokens.add(current);

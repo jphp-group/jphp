@@ -4,9 +4,12 @@ import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.*;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
+import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +42,26 @@ public class RuntimeClassLoader extends ClassLoader {
         clazz.setNativeClazz(result);
         for(MethodEntity method : clazz.getMethods().values()){
                 method.setNativeMethod(
-                        result.getDeclaredMethod(method.getName(), Environment.class, Memory[].class)
+                        result.getMethod(method.getName(), Environment.class, Memory[].class)
                 );
             method.getNativeMethod().setAccessible(true);
         }
         internalClasses.put(clazz.getInternalName(), clazz);
         return result;
+    }
+
+    protected Class<?> loadClosure(ClosureEntity closure) throws NoSuchMethodException, NoSuchFieldException {
+        return loadClass(closure);
+        /*byte[] data = closure.getData();
+        Class<?> result = defineClass(closure.getInternalName(), data, 0, data.length);
+        closure.setNativeClazz(result);
+        for(MethodEntity method : closure.getMethods().values()){
+            method.setNativeMethod(
+                    result.getDeclaredMethod(method.getName(), Environment.class, Memory[].class)
+            );
+            method.getNativeMethod().setAccessible(true);
+        }
+        internalClasses.put(closure.getInternalName(), closure); */
     }
 
     protected Class<?> loadFunction(FunctionEntity function) throws NoSuchMethodException {
@@ -63,6 +80,30 @@ public class RuntimeClassLoader extends ClassLoader {
 
     public boolean loadModule(ModuleEntity module){
         String internal = module.getFulledClassName(Constants.NAME_DELIMITER);
+
+        boolean ret = false;
+        if (!module.isLoaded()){
+            internalModules.put(internal, module);
+            try {
+                for(ClosureEntity closure : module.getClosures())
+                    loadClosure(closure);
+
+                for(ClassEntity clazz : module.getClasses())
+                    loadClass(clazz);
+
+                for(FunctionEntity function : module.getFunctions())
+                    loadFunction(function);
+
+            } catch (NoSuchMethodException e){
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+
+            module.setLoaded(true);
+            ret = true;
+        }
+
         Class<?> result = defineClass(
                 internal, module.getData(), 0, module.getData().length
         );
@@ -77,24 +118,6 @@ public class RuntimeClassLoader extends ClassLoader {
             throw new RuntimeException(e);
         }
 
-        if (!module.isLoaded()){
-            internalModules.put(internal, module);
-            try {
-                for(ClassEntity clazz : module.getClasses())
-                    loadClass(clazz);
-
-                for(FunctionEntity function : module.getFunctions())
-                    loadFunction(function);
-
-            } catch (NoSuchMethodException e){
-                throw new RuntimeException(e);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
-
-            module.setLoaded(true);
-            return true;
-        }
-        return false;
+        return ret;
     }
 }

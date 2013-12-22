@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory.output;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
@@ -79,7 +80,7 @@ public class VarDump extends Printer {
             ForeachIterator iterator = value.foreachIterator(false, false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
-                Memory key = iterator.getCurrentMemoryKey();
+                Memory key = iterator.getMemoryKey();
 
                 printer.write('[');
                 if (key.isString()){
@@ -93,7 +94,7 @@ public class VarDump extends Printer {
                 printer.write("]=>\n");
                 printer.write(StringUtils.repeat(' ', level));
 
-                print(iterator.getCurrentValue(), level + 1, used);
+                print(iterator.getValue(), level + 1, used);
                 //printer.write('\n');
             }
 
@@ -102,6 +103,31 @@ public class VarDump extends Printer {
             printer.write("}\n");
 
             used.remove(value.getPointer());
+        }
+    }
+
+    @Override
+    protected void printClosure(Closure closure, int level, Set<Integer> used) {
+        ClassEntity classEntity = closure.__class__;
+
+        if (used.contains(closure.getPointer())){
+            printer.write("*RECURSION*\n");
+        } else {
+
+            printer.write("object(");
+            printer.write(Closure.class.getSimpleName());
+            printer.write(")#" + closure.getPointer());
+            printer.write(" (" + closure.getUses().length + ") {\n");
+
+            level += PRINT_INDENT;
+
+            used.add(closure.getPointer());
+
+            level -= PRINT_INDENT;
+            printer.write(StringUtils.repeat(' ', level));
+            printer.write("}\n");
+
+            used.remove(closure.getPointer());
         }
     }
 
@@ -126,7 +152,7 @@ public class VarDump extends Printer {
             ForeachIterator iterator = arr.foreachIterator(false, false);
             while (iterator.next()){
                 printer.write(StringUtils.repeat(' ', level));
-                Memory key = iterator.getCurrentMemoryKey();
+                Memory key = iterator.getMemoryKey();
 
                 printer.write('[');
                 if (key.isString()){
@@ -151,7 +177,7 @@ public class VarDump extends Printer {
                 printer.write("]=>\n");
                 printer.write(StringUtils.repeat(' ', level));
 
-                print(iterator.getCurrentValue(), level + 1, used);
+                print(iterator.getValue(), level + 1, used);
                 printer.write('\n');
             }
 

@@ -97,7 +97,7 @@ final public class InvokeHelper {
         return passed;
     }
 
-    public static Memory callAny(Environment env, TraceInfo trace, Memory method, Memory[] args)
+    public static Memory callAny(Memory method, Memory[] args, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         method = method.toImmutable();
         if (method.isObject()){

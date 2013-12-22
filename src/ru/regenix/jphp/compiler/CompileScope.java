@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
+import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
@@ -19,6 +20,8 @@ public class CompileScope {
     protected final AtomicLong methodCount = new AtomicLong(0);
 
     public final Map<String, ModuleEntity> moduleMap;
+    public final Map<Integer, ModuleEntity> moduleIndexMap;
+
     public final Map<String, ClassEntity> classMap;
     public final Map<String, MethodEntity> methodMap;
 
@@ -40,6 +43,7 @@ public class CompileScope {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
         moduleMap = new HashMap<String, ModuleEntity>();
+        moduleIndexMap = new HashMap<Integer, ModuleEntity>();
 
         classMap = new HashMap<String, ClassEntity>();
         methodMap = new HashMap<String, MethodEntity>();
@@ -61,6 +65,8 @@ public class CompileScope {
         superGlobals.add("_FILES");
         superGlobals.add("_SESSION");
         superGlobals.add("_COOKIE");
+
+        addUserClass(new ClassEntity(null, Closure.class));
     }
 
     public int nextModuleIndex(){
@@ -120,6 +126,7 @@ public class CompileScope {
         }
 
         moduleMap.put(module.getName(), module);
+        moduleIndexMap.put(module.getId(), module);
     }
 
     public void addUserFunction(FunctionEntity function){

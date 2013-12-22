@@ -133,6 +133,7 @@ public class TokenFinder {
         put("implements", ImplementsStmtToken.class);
         put("namespace", NamespaceStmtToken.class);
         put("use", NamespaceUseStmtToken.class);
+        put("uses", UsesStmtToken.class);
         put("abstract", AbstractStmtToken.class);
         put("final", FinalStmtToken.class);
         put("private", PrivateStmtToken.class);

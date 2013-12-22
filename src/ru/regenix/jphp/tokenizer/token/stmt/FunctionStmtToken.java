@@ -17,6 +17,7 @@ public class FunctionStmtToken extends StmtToken {
 
     protected boolean returnReference;
     protected List<ArgumentStmtToken> arguments;
+    protected List<ArgumentStmtToken> uses;
     protected BodyStmtToken body;
     protected boolean interfacable;
 
@@ -63,6 +64,14 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
+    }
+
+    public List<ArgumentStmtToken> getUses() {
+        return uses;
+    }
+
+    public void setUses(List<ArgumentStmtToken> uses) {
+        this.uses = uses;
     }
 
     public Set<VariableExprToken> getRefLocal() {

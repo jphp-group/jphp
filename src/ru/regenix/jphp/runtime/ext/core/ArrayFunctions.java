@@ -19,11 +19,49 @@ import java.util.Set;
 
 public class ArrayFunctions extends FunctionsContainer {
 
+    @Runtime.Immutable(ignoreRefs = true)
+    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Runtime.Reference Memory array,
+                                   boolean strict){
+        if (expecting(env, trace, 2, array, Memory.Type.ARRAY)){
+            ForeachIterator iterator = array.getNewIterator(false, false);
+            while (iterator.next()){
+                if (strict){
+                    if (needle.identical(iterator.getValue()))
+                        return true;
+                } else {
+                    if (needle.equal(iterator.getValue()))
+                        return true;
+                }
+            }
+            return false;
+        } else
+            return false;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Runtime.Reference Memory array){
+        return in_array(env, trace, needle, array, false);
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static boolean array_key_exists(Environment env, TraceInfo trace, Memory key, @Runtime.Reference Memory array){
+        if (expecting(env, trace, 2, array, Memory.Type.ARRAY)){
+            ArrayMemory tmp = array.toValue(ArrayMemory.class);
+            return tmp.get(key) != null;
+        } else
+            return false;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static boolean key_exists(Environment env, TraceInfo trace, Memory key, @Runtime.Reference Memory array){
+        return array_key_exists(env, trace, key, array);
+    }
+
     private static int recursive_count(Environment env, TraceInfo trace, ArrayMemory array, Set<Integer> used){
         ForeachIterator iterator = array.foreachIterator(false, false);
         int size = array.size();
         while (iterator.next()){
-            Memory el = iterator.getCurrentValue();
+            Memory el = iterator.getValue();
             if (el.isArray()){
                 if (used == null)
                     used = new HashSet<Integer>();
@@ -53,7 +91,7 @@ public class ArrayFunctions extends FunctionsContainer {
             case OBJECT:
                 ObjectMemory objectMemory = var.toValue(ObjectMemory.class);
                 if (objectMemory.value instanceof Countable){
-                    long size = ((Countable) objectMemory.value).count(env, "", var).toLong();
+                    long size = ((Countable) objectMemory.value).count(env, var).toLong();
                     return LongMemory.valueOf(size);
                 } else {
                     return Memory.CONST_INT_1;
@@ -94,7 +132,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.next())
-                    return iterator.getCurrentValue().toImmutable();
+                    return iterator.getValue().toImmutable();
                 else
                     return Memory.FALSE;
             }
@@ -108,7 +146,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.prev())
-                    return iterator.getCurrentValue().toImmutable();
+                    return iterator.getValue().toImmutable();
                 else
                     return Memory.FALSE;
             }
@@ -119,7 +157,7 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory current(Environment env, TraceInfo trace, @Runtime.Reference Memory array){
         if (expectingReference(env, trace, array)){
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
-                Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getCurrentValue();
+                Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getValue();
                 return value == null ? Memory.FALSE : value.toImmutable();
             }
         }
@@ -135,7 +173,7 @@ public class ArrayFunctions extends FunctionsContainer {
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.end()) {
-                    return iterator.getCurrentValue().toImmutable();
+                    return iterator.getValue().toImmutable();
                 } else {
                     return Memory.FALSE;
                 }
@@ -149,8 +187,8 @@ public class ArrayFunctions extends FunctionsContainer {
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.next()) {
-                    Memory value = iterator.getCurrentValue().toImmutable();
-                    Memory key   = iterator.getCurrentMemoryKey();
+                    Memory value = iterator.getValue().toImmutable();
+                    Memory key   = iterator.getMemoryKey();
 
                     ArrayMemory result = new ArrayMemory();
 
@@ -255,7 +293,7 @@ public class ArrayFunctions extends FunctionsContainer {
             boolean done = true;
             for(ForeachIterator iterator : iterators){
                 if (iterator.next()) {
-                    args[i] = iterator.getCurrentValue();
+                    args[i] = iterator.getValue();
                     done = false;
                 } else
                     args[i] = Memory.NULL;
@@ -277,7 +315,7 @@ public class ArrayFunctions extends FunctionsContainer {
         }
 
         Invoker invoker = null;
-        if (callback != null && callback != Memory.NULL) {
+        if (callback != null && callback.toBoolean()) {
             invoker = expectingCallback(env, trace, 2, callback);
             if (invoker == null)
                 return Memory.NULL;
@@ -286,8 +324,8 @@ public class ArrayFunctions extends FunctionsContainer {
         ArrayMemory result = new ArrayMemory();
         ForeachIterator iterator = input.getNewIterator(true, false);
         while (iterator.next()){
-            Object key = iterator.getCurrentKey();
-            Memory value = iterator.getCurrentValue();
+            Object key = iterator.getKey();
+            Memory value = iterator.getValue();
             if (invoker == null){
                 if (!value.toBoolean())
                     continue;
@@ -322,7 +360,7 @@ public class ArrayFunctions extends FunctionsContainer {
         Memory result = initial;
         ForeachIterator iterator = array.getNewIterator(true, false);
         while (iterator.next()){
-            Memory el = iterator.getCurrentValue();
+            Memory el = iterator.getValue();
             result = invoker.call(result, el);
         }
 
@@ -348,8 +386,8 @@ public class ArrayFunctions extends FunctionsContainer {
 
         ForeachIterator iterator = input.getNewIterator(true, false);
         while (iterator.next()){
-            Memory item = iterator.getCurrentValue();
-            Memory key  = iterator.getCurrentMemoryKey();
+            Memory item = iterator.getValue();
+            Memory key  = iterator.getMemoryKey();
             invoker.call(item, key, userData);
         }
         return true;
@@ -369,7 +407,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
         ForeachIterator iterator = input.getNewIterator(true, false);
         while (iterator.next()){
-            Memory item = iterator.getCurrentValue();
+            Memory item = iterator.getValue();
             if (item.isArray()){
                 if (used.add(item.getPointer())) {
                     boolean result = _array_walk_recursive(env, trace, item, invoker, userData, used);
@@ -380,7 +418,7 @@ public class ArrayFunctions extends FunctionsContainer {
                     env.warning(trace, "array_walk_recursive(): recursion detected");
                 }
             } else {
-                Memory key  = iterator.getCurrentMemoryKey();
+                Memory key  = iterator.getMemoryKey();
                 invoker.call(item, key, userData);
             }
         }
@@ -418,7 +456,7 @@ public class ArrayFunctions extends FunctionsContainer {
         ArrayMemory result = new ArrayMemory();
         ForeachIterator iterator = input.getNewIterator(false, false);
         while (iterator.next())
-            result.put(ArrayMemory.toKey(iterator.getCurrentValue()), iterator.getCurrentMemoryKey());
+            result.put(ArrayMemory.toKey(iterator.getValue()), iterator.getMemoryKey());
 
         return result.toConstant();
     }
@@ -437,9 +475,9 @@ public class ArrayFunctions extends FunctionsContainer {
         int i = 0;
         while (iterator.next()) {
             if (saveKeys)
-                keys[i] = iterator.getCurrentKey();
+                keys[i] = iterator.getKey();
 
-            values[i] = iterator.getCurrentValue().toImmutable();
+            values[i] = iterator.getValue().toImmutable();
             i++;
         }
 
@@ -484,7 +522,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 i++;
                 if (!rands.contains(i))
                     continue;
-                result.add(iterator.getCurrentMemoryKey());
+                result.add(iterator.getMemoryKey());
                 if (result.size() >= numReq)
                     break;
             }
@@ -566,8 +604,207 @@ public class ArrayFunctions extends FunctionsContainer {
         ArrayMemory result = new ArrayMemory();
         ForeachIterator iterator = input.getNewIterator(false, false);
         while (iterator.next())
-            result.add(iterator.getCurrentMemoryKey());
+            result.add(iterator.getMemoryKey());
 
         return result.toConstant();
+    }
+
+    public static Memory array_pad(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
+                                   int padSize, Memory padValue){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
+            ArrayMemory array = input.toValue(ArrayMemory.class);
+            int size = array.size();
+            int needSize = Math.abs(padSize);
+
+            ArrayMemory result = input.toImmutable().toValue(ArrayMemory.class);
+            if (size == needSize)
+                return result;
+
+            result.checkCopied();
+            int count = needSize - size;
+            if (padSize >= 0) {
+                for(int i = 0; i < needSize - size; i++)
+                    result.add(padValue);
+            } else {
+                result.unshift(padValue, count);
+            }
+            return result;
+        } else
+            return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_product(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+            ForeachIterator iterator = input.getNewIterator(false, false);
+            Memory result = Memory.CONST_INT_1;
+            while (iterator.next()){
+                result = result.mul(iterator.getValue());
+            }
+            return result;
+        } else
+            return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_sum(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+            ForeachIterator iterator = input.getNewIterator(false, false);
+            Memory result = Memory.CONST_INT_0;
+            while (iterator.next()){
+                result = result.plus(iterator.getValue());
+            }
+            return result;
+        } else
+            return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_change_key_case(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int _case){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
+            ArrayMemory result = new ArrayMemory();
+            ForeachIterator iterator = input.getNewIterator(false, false);
+            while (iterator.next()){
+                Object key = iterator.getKey();
+                if (key instanceof String){
+                    String str = (String)key;
+                    str = _case == 0 ? str.toLowerCase() : str.toUpperCase();
+                    result.put(str, iterator.getValue().toImmutable());
+                } else
+                    result.put(key, iterator.getValue().toImmutable());
+            }
+            return result.toConstant();
+        }
+        return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_change_key_case(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
+        return array_change_key_case(env, trace, input, 0);
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_chunk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int size,
+                                     boolean saveKeys){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
+            if (size < 1) {
+                env.warning(trace, "array_chunk(): Size parameter expected to be greater than 0");
+                return Memory.NULL;
+            }
+
+            ArrayMemory result = new ArrayMemory();
+            ArrayMemory item = null;
+            ForeachIterator iterator = input.getNewIterator(false, false);
+
+            int i = 0;
+            while (iterator.next()){
+                if (i == 0){
+                    item = new ArrayMemory();
+                    result.add(item);
+                }
+
+                if (saveKeys){
+                    item.put(iterator.getKey(), iterator.getValue().toImmutable());
+                } else
+                    item.add(iterator.getValue().toImmutable());
+
+                if (++i == size)
+                    i = 0;
+            }
+
+            return result.toConstant();
+        } else
+            return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_chunk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int size){
+        return array_chunk(env, trace, input, size, false);
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_column(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory columnKey,
+                                      Memory indexKey){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
+            if (columnKey == Memory.NULL && indexKey == Memory.NULL)
+                return array_values(env, trace, input);
+
+            ArrayMemory result = new ArrayMemory();
+            ForeachIterator iterator = input.getNewIterator(false, false);
+            while (iterator.next()){
+                Memory value = iterator.getValue();
+                if (indexKey == Memory.NULL){
+                    result.add(value.valueOfIndex(columnKey).toImmutable());
+                } else {
+                    if (columnKey == Memory.NULL)
+                        result.refOfIndex( value.valueOfIndex(indexKey) ).assign( value.toImmutable() );
+                    else
+                        result.refOfIndex( value.valueOfIndex(indexKey) ).assign(value.valueOfIndex(columnKey));
+                }
+            }
+            return result.toConstant();
+        } else
+            return Memory.NULL;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_column(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory columnKey){
+        return array_column(env, trace, input, columnKey, Memory.NULL);
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_combine(Environment env, TraceInfo trace, @Runtime.Reference Memory keys,
+                                       @Runtime.Reference Memory values){
+        if (expecting(env, trace, 1, keys, Memory.Type.ARRAY) && expecting(env, trace, 2, values, Memory.Type.ARRAY)){
+            ArrayMemory _keys = keys.toValue(ArrayMemory.class);
+            ArrayMemory _values = keys.toValue(ArrayMemory.class);
+            int size1 = _keys.size();
+            int size2 = _values.size();
+
+            if (size1 != size2){
+                env.warning(trace, "array_combine(): Both parameters should have an equal number of elements");
+                return Memory.FALSE;
+            }
+
+            ArrayMemory result = new ArrayMemory();
+            if (size1 == 0)
+                return result.toConstant();
+
+            ForeachIterator iteratorKeys = _keys.getNewIterator(false, false);
+            ForeachIterator iteratorValues = _values.getNewIterator(false, false);
+            while (iteratorKeys.next()){
+                iteratorValues.next();
+                result.refOfIndex(iteratorKeys.getValue())
+                        .assign(iteratorValues.getValue().toImmutable());
+            }
+            return result.toConstant();
+        } else
+            return Memory.FALSE;
+    }
+
+    @Runtime.Immutable(ignoreRefs = true)
+    public static Memory array_count_values(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
+            ArrayMemory counts = new ArrayMemory();
+            ForeachIterator iterator = input.getNewIterator(false, false);
+            boolean warning = false;
+            while (iterator.next()){
+                Memory value = iterator.getValue();
+                switch (value.getRealType()){
+                    case INT:
+                    case STRING:
+                        Memory count = counts.getOrCreate(value);
+                        count.assign(count.inc());
+                        break;
+                    default:
+                        if (!warning){
+                            env.warning(trace, "array_count_values(): Can only count STRING and INTEGER values!");
+                            warning = true;
+                        }
+                }
+            }
+            return counts.toConstant();
+        } else
+            return Memory.NULL;
     }
 }

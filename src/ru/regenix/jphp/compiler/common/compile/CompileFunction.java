@@ -1,6 +1,7 @@
 package ru.regenix.jphp.compiler.common.compile;
 
 
+import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -17,13 +18,11 @@ public class CompileFunction {
     private Method methodVarArgs;
     private int methodVarArgsCount;
 
-    public final boolean isImmutable;
     private int minArgs = Integer.MAX_VALUE;
     private int maxArgs = 0;
 
-    public CompileFunction(String name, boolean isImmutable) {
+    public CompileFunction(String name) {
         this.name = name;
-        this.isImmutable = isImmutable;
         this.methods = new Method[5];
     }
 
@@ -45,10 +44,14 @@ public class CompileFunction {
     }
 
     public void addMethod(java.lang.reflect.Method method){
+        addMethod(method, false);
+    }
+
+    public void addMethod(java.lang.reflect.Method method, boolean asImmutable){
         if (method.isVarArgs()){
             if (methodVarArgs != null)
                 throw new IllegalArgumentException("Cannot add two var-args methods");
-            methodVarArgs = new Method(method);
+            methodVarArgs = new Method(method, asImmutable);
             methodVarArgsCount = method.getParameterTypes().length;
             int count = 0;
             Class<?>[] types = method.getParameterTypes();
@@ -92,7 +95,7 @@ public class CompileFunction {
         if (methods[count] != null)
             throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
-        methods[count] = new Method(method);
+        methods[count] = new Method(method, asImmutable);
     }
 
     @Override
@@ -123,6 +126,8 @@ public class CompileFunction {
     }
 
     public static class Method {
+        public final boolean isImmutable;
+        public final boolean isImmutableIgnoreRefs;
         public final java.lang.reflect.Method method;
         public final MemoryUtils.Converter<?>[] converters;
         public final Annotation[][] parameterAnnotations;
@@ -131,11 +136,17 @@ public class CompileFunction {
 
         public final boolean[] references;
 
-        public Method(java.lang.reflect.Method method) {
+        public Method(java.lang.reflect.Method method, boolean _asImmutable) {
             this.method = method;
             converters = MemoryUtils.getConverters(parameterTypes = method.getParameterTypes());
             parameterAnnotations = method.getParameterAnnotations();
             resultType = method.getReturnType();
+            isImmutable = method.isAnnotationPresent(Runtime.Immutable.class) || _asImmutable;
+            if (isImmutable){
+                Runtime.Immutable annotation = method.getAnnotation(Runtime.Immutable.class);
+                isImmutableIgnoreRefs = annotation != null && annotation.ignoreRefs();
+            } else
+                isImmutableIgnoreRefs = false;
 
             references = new boolean[parameterTypes.length];
             int i = 0;

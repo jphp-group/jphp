@@ -41,7 +41,7 @@ public class MethodEntity extends AbstractFunctionEntity {
             throw new IllegalArgumentException("Method is not annotated with @Reflection.Signature");
 
         Class<?>[] types = method.getParameterTypes();
-        if (types.length != 3 || types[0] != Environment.class || types[1] != String.class || types[2] != Memory[].class){
+        if (types.length != 2 || types[0] != Environment.class || types[1] != Memory[].class){
             throw new IllegalArgumentException(
                     "Invalid method signature: " + StringUtils.join(method.getTypeParameters(), ", ")
             );

@@ -94,4 +94,10 @@ public class TokenMeta {
     public TraceInfo toTraceInfo(Context context){
         return new TraceInfo(context, startLine, endLine, startPosition, endPosition);
     }
+
+    private static final TokenMeta empty = new TokenMeta("", 0, 0, 0, 0);
+
+    public static TokenMeta empty(){
+        return empty;
+    }
 }

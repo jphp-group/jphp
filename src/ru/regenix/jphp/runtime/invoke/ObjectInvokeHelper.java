@@ -35,9 +35,9 @@ final public class ObjectInvokeHelper {
         ClassEntity clazz = phpObject.__class__;
         MethodEntity method;
 
-        if (methodName == null)
+        if (methodName == null) {
             method = clazz.methodMagicInvoke;
-        else {
+        } else {
             method = clazz.methods.get(methodLowerName);
             if (method == null && ((method = clazz.methodMagicCall) != null)){
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
