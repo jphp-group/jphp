@@ -54,4 +54,24 @@ public class StaticMethodInvoker extends Invoker {
 
         return new StaticMethodInvoker(env, trace, "", methodEntity);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StaticMethodInvoker)) return false;
+
+        StaticMethodInvoker that = (StaticMethodInvoker) o;
+
+        if (!calledClass.equals(that.calledClass)) return false;
+        if (!method.equals(that.method)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = method.hashCode();
+        result = 31 * result + calledClass.hashCode();
+        return result;
+    }
 }

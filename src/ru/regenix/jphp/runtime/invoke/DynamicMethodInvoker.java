@@ -74,4 +74,24 @@ public class DynamicMethodInvoker extends Invoker {
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, Memory object){
         return valueOf(env, trace, ((ObjectMemory)object).value);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DynamicMethodInvoker)) return false;
+
+        DynamicMethodInvoker that = (DynamicMethodInvoker) o;
+
+        if (!method.equals(that.method)) return false;
+        if (object.getPointer() != that.object.getPointer()) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = object.hashCode();
+        result = 31 * result + method.hashCode();
+        return result;
+    }
 }

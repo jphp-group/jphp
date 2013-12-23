@@ -308,7 +308,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
         if (statement.getExtend() != null) {
-            ClassEntity parent = compiler.getEnvironment()
+            ClassEntity parent = null;
+            parent = compiler.getEnvironment()
                     .fetchClass(statement.getExtend().getName().getName(), false, true);
             if (parent == null){
                 parent = compiler.getModule().findClass(statement.getExtend().getName().getName());

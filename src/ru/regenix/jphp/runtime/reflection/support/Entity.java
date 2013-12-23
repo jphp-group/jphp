@@ -73,8 +73,7 @@ abstract public class Entity {
 
         Entity entity = (Entity) o;
 
-        if (!lowerName.equals(entity.lowerName)) return false;
-
+        if (hashCode() != entity.hashCode()) return false;
         return true;
     }
 

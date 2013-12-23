@@ -42,4 +42,20 @@ public class FunctionInvoker extends Invoker {
 
         return new FunctionInvoker(env, trace, functionEntity);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FunctionInvoker)) return false;
+
+        FunctionInvoker that = (FunctionInvoker) o;
+
+        if (!entity.equals(that.entity)) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return entity.hashCode();
+    }
 }

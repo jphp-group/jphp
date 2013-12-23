@@ -38,6 +38,7 @@ import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 public class Environment {
     private Locale locale = Locale.getDefault();
     private Set<String> includePaths;
+    protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
 
     private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
         @Override
@@ -213,11 +214,18 @@ public class Environment {
         return constantUsedMap.containsKey(lowerName);
     }
 
-    public ClassEntity fetchClass(String name, boolean magic){
+    public ClassEntity fetchClass(String name, boolean magic) {
         return fetchClass(name, magic, false);
     }
 
-    public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad){
+    public ClassEntity autoloadCall(String name){
+        StringMemory tmp = new StringMemory(name);
+        for(SplClassLoader loader : classLoaders)
+            loader.load(tmp);
+        return fetchClass(name, false, false);
+    }
+
+    public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad) {
         if (magic){
             if ("self".equals(name)){
                 ClassEntity e = getContextClass();
@@ -232,11 +240,14 @@ public class Environment {
         String nameL = name.toLowerCase();
         ClassEntity entity = scope.findUserClass(nameL);
         if (entity == null){
-            return null;
+            return autoLoad ? autoloadCall(name) : null;
         } else {
             if (isLoadedClass(nameL) || entity.isInternal())
                 return entity;
             else {
+                if (autoLoad){
+                    return autoloadCall(name);
+                }
                 return null;
             }
         }
@@ -622,7 +633,7 @@ public class Environment {
             return item.clazz;
     }
 
-    public ClassEntity getLateStaticClass(){
+    public ClassEntity getLateStaticClass() {
         CallStackItem item = peekCall(0);
         if (item == null || item.clazz == null)
             return null;
@@ -639,7 +650,7 @@ public class Environment {
         return item == null ? "" : item.clazz == null ? "" : item.clazz;
     }
 
-    public ClassEntity getContextClass(){
+    public ClassEntity getContextClass() {
         CallStackItem item = peekCall(1);
         if (item == null || item.clazz == null)
             return null;
@@ -651,7 +662,7 @@ public class Environment {
         }
     }
 
-    public ClassEntity getLastClassOnStack(){
+    public ClassEntity getLastClassOnStack() {
         int N = getCallStackTop();
         for (int i = 0; i < N; i++){
             CallStackItem item = peekCall(i);
@@ -662,5 +673,24 @@ public class Environment {
             }
         }
         return null;
+    }
+
+    public void autoloadRegister(SplClassLoader classLoader, boolean prepend){
+        if (prepend) {
+            classLoaders.add(0, classLoader);
+        } else
+            classLoaders.add(classLoader);
+    }
+
+    public boolean autoloadUnregister(SplClassLoader classLoader){
+        boolean result = false;
+        Iterator<SplClassLoader> iterator = classLoaders.iterator();
+        while (iterator.hasNext()){
+            if (iterator.next().equals(classLoader)){
+                result = true;
+                iterator.remove();
+            }
+        }
+        return result;
     }
 }

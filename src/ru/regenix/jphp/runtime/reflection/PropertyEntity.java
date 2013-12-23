@@ -7,6 +7,7 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 public class PropertyEntity extends Entity {
     protected ClassEntity clazz;
@@ -81,7 +82,7 @@ public class PropertyEntity extends Entity {
      * @param env
      * @return
      */
-    public int canAccess(Environment env){
+    public int canAccess(Environment env) throws InvocationTargetException, IllegalAccessException {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:

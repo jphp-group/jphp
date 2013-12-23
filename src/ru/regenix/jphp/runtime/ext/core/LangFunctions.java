@@ -4,6 +4,7 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.SplClassLoader;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.Closure;
@@ -467,5 +468,92 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory get_class(Environment env, TraceInfo trace){
         return get_class(env, trace, Memory.NULL);
+    }
+
+    public static Memory get_called_class(Environment env){
+        String name = env.getLateStatic();
+        return name == null || name.isEmpty() ? Memory.FALSE : new StringMemory(name);
+    }
+
+    public static Memory get_parent_class(Memory object){
+        if (object.isObject()){
+            ClassEntity classEntity = object.toValue(ObjectMemory.class).getSelfClass().getParent();
+            if (classEntity == null)
+                return Memory.NULL;
+            else
+                return new StringMemory(classEntity.getName());
+        } else {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory get_parent_class(Environment env){
+        CallStackItem item = env.peekCall(0);
+        if (item.clazz != null){
+            if (item.classEntity == null)
+                item.classEntity = env.fetchClass(item.clazz, false, false);
+
+            if (item.classEntity == null)
+                return Memory.FALSE;
+            else {
+                MethodEntity method = item.classEntity.findMethod(item.function);
+                if (method == null)
+                    return Memory.FALSE;
+
+                ClassEntity parent = method.getClazz().getParent();
+                return parent == null ? Memory.FALSE : new StringMemory(parent.getName());
+            }
+        }
+        return Memory.FALSE;
+    }
+
+    public static Memory class_parents(Environment env, Memory object, boolean autoLoad){
+        ClassEntity entity;
+        if (object.isObject()){
+            entity = object.toValue(ObjectMemory.class).getSelfClass();
+        } else {
+            entity = env.fetchClass(object.toString(), false, autoLoad);
+        }
+
+        if (entity == null)
+            return Memory.FALSE;
+
+        ArrayMemory result = new ArrayMemory();
+        do {
+            entity = entity.getParent();
+            if (entity == null) break;
+            result.refOfIndex(entity.getName()).assign(entity.getName());
+        } while (true);
+
+        return result.toConstant();
+    }
+
+    public static Memory class_parents(Environment env, Memory object){
+        return class_parents(env, object, true);
+    }
+
+    public static Memory spl_object_hash(Environment env, TraceInfo trace, Memory object){
+        if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
+            return LongMemory.valueOf(object.getPointer());
+        } else
+            return Memory.FALSE;
+    }
+
+    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw,
+                                               boolean prepend){
+        Invoker invoker = expectingCallback(env, trace, 1, callback);
+        if (invoker == null)
+            return Memory.FALSE;
+
+        env.autoloadRegister(new SplClassLoader(invoker), prepend);
+        return Memory.TRUE;
+    }
+
+    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw){
+        return spl_autoload_register(env, trace, callback, _throw, false);
+    }
+
+    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback){
+        return spl_autoload_register(env, trace, callback, true, false);
     }
 }

@@ -192,6 +192,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (closedBrace == null || braceOpened < 1)
             iterator.previous();
         result.setValue(value);
+
+        if (analyzer.getFunction() != null)
+            analyzer.getFunction().setDynamicLocal(true);
+
         return result;
     }
 

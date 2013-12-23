@@ -17,7 +17,8 @@ final public class InvokeHelper {
 
     private InvokeHelper() { }
 
-    public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method){
+    public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method)
+            throws InvocationTargetException, IllegalAccessException {
         switch (method.canAccess(env)){
             case 1: throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_PROTECTED_METHOD.fetch(
@@ -34,7 +35,8 @@ final public class InvokeHelper {
         }
     }
 
-    public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property){
+    public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property)
+            throws InvocationTargetException, IllegalAccessException {
         switch (property.canAccess(env)){
             case 1: throw new FatalException(
                     Messages.ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY.fetch(
@@ -217,6 +219,11 @@ final public class InvokeHelper {
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
         ClassEntity classEntity = env.scope.classMap.get(className);
+        if (classEntity == null){
+            // try autoload
+            classEntity = env.fetchClass(className, false, true);
+        }
+
         MethodEntity method = classEntity == null ? null : classEntity.methods.get(methodName);
 
         Memory[] passed = null;

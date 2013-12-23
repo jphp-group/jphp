@@ -228,7 +228,7 @@ public class MethodEntity extends AbstractFunctionEntity {
      * @param env
      * @return
      */
-    public int canAccess(Environment env){
+    public int canAccess(Environment env) throws InvocationTargetException, IllegalAccessException {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:
