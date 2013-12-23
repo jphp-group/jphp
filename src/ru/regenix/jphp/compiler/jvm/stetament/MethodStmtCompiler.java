@@ -244,7 +244,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     expressionCompiler.setStackPeekAsImmutable();
                     expressionCompiler.writeVarStore(local, false, true);
                 } else {
-                    expressionCompiler.writePushNewObject(ArrayMemory.class);
+                    expressionCompiler.writePushConstNull();
+                    expressionCompiler.writeSysStaticCall(ArrayMemory.class, "valueOfRef", ArrayMemory.class, ArrayMemory.class);
+                    expressionCompiler.setStackPeekAsImmutable();
                     expressionCompiler.writeVarStore(local, false, true);
                 }
             }
