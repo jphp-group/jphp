@@ -30,9 +30,4 @@ abstract public class PHPObject {
     final public int getPointer(){
         return super.hashCode();
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
 }

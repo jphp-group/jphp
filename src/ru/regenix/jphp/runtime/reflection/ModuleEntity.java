@@ -31,9 +31,9 @@ public class ModuleEntity extends Entity {
 
     public ModuleEntity(Context context) {
         super(context);
-        this.classes = new HashMap<String, ClassEntity>();
+        this.classes = new LinkedHashMap<String, ClassEntity>();
         this.functions = new HashMap<String, FunctionEntity>();
-        this.constants = new HashMap<String, ConstantEntity>();
+        this.constants = new LinkedHashMap<String, ConstantEntity>();
         this.closures = new ArrayList<ClosureEntity>();
         this.setName(context.getModuleNameNoThrow());
     }

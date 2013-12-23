@@ -9,10 +9,7 @@ import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.FunctionEntity;
-import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.reflection.ParameterEntity;
+import ru.regenix.jphp.runtime.reflection.*;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -31,6 +28,23 @@ final public class InvokeHelper {
             case 2: throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_PRIVATE_METHOD.fetch(
                             method.getClazz().getName() + "::" + method.getName(), env.getContext()
+                    ),
+                    trace
+            );
+        }
+    }
+
+    public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property){
+        switch (property.canAccess(env)){
+            case 1: throw new FatalException(
+                    Messages.ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY.fetch(
+                            property.getClazz().getName(), property.getName()
+                    ),
+                    trace
+            );
+            case 2: throw new FatalException(
+                    Messages.ERR_FATAL_ACCESS_TO_PRIVATE_PROPERTY.fetch(
+                            property.getClazz().getName(), property.getName()
                     ),
                     trace
             );
@@ -192,23 +206,24 @@ final public class InvokeHelper {
             throws InvocationTargetException, IllegalAccessException {
         return callStatic(
                 env, trace,
-                className + "#" + methodName,
+                className, methodName,
                 originClassName, originMethodName,
                 args
         );
     }
 
     public static Memory callStatic(Environment env, TraceInfo trace,
-                                    String sign, String originClassName, String originMethodName,
+                                    String className, String methodName, String originClassName, String originMethodName,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
-        MethodEntity method = env.scope.methodMap.get(sign);
+        ClassEntity classEntity = env.scope.classMap.get(className);
+        MethodEntity method = classEntity == null ? null : classEntity.methods.get(methodName);
+
         Memory[] passed = null;
 
         if (method == null){
-            ClassEntity __class__ = env.scope.classMap.get(originClassName.toLowerCase());
-            if (__class__ != null && __class__.methodMagicCallStatic != null){
-                method = __class__.methodMagicCallStatic;
+            if (classEntity != null && classEntity.methodMagicCallStatic != null){
+                method = classEntity.methodMagicCallStatic;
                 passed = new Memory[]{
                         new StringMemory(originMethodName),
                         new ArrayMemory(true, args)
@@ -231,6 +246,7 @@ final public class InvokeHelper {
             ));
         }
 
+        checkAccess(env, trace, method);
         if (passed == null)
             passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
 

@@ -214,6 +214,10 @@ public class Environment {
     }
 
     public ClassEntity fetchClass(String name, boolean magic){
+        return fetchClass(name, magic, false);
+    }
+
+    public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad){
         if (magic){
             if ("self".equals(name)){
                 ClassEntity e = getContextClass();
@@ -645,5 +649,18 @@ public class Environment {
 
             return item.classEntity = fetchClass(item.clazz, false);
         }
+    }
+
+    public ClassEntity getLastClassOnStack(){
+        int N = getCallStackTop();
+        for (int i = 0; i < N; i++){
+            CallStackItem item = peekCall(i);
+            if (item != null && item.clazz != null){
+                if (item.classEntity != null)
+                    return item.classEntity;
+                return item.classEntity = fetchClass(item.clazz, false);
+            }
+        }
+        return null;
     }
 }

@@ -46,4 +46,8 @@ public class StaticAccessExprToken extends ValueExprToken {
     public boolean isGetMethod(){
         return field instanceof NameToken;
     }
+
+    public boolean isAsParent(){
+        return clazz instanceof ParentExprToken;
+    }
 }

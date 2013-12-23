@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
@@ -71,5 +72,33 @@ public class PropertyEntity extends Entity {
 
     public boolean isDeprecated(){
         return false; // TODO
+    }
+
+    /**
+     * 0 - success
+     * 1 - invalid protected
+     * 2 - invalid private
+     * @param env
+     * @return
+     */
+    public int canAccess(Environment env){
+        switch (modifier){
+            case PUBLIC: return 0;
+            case PRIVATE:
+                ClassEntity cl = env.getLastClassOnStack();
+                return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
+            case PROTECTED:
+                ClassEntity clazz = env.getLastClassOnStack();
+                if (clazz == null)
+                    return 1;
+
+                long id = this.clazz.getId();
+                do {
+                    if (clazz.getId() == id)
+                        return 0;
+                    clazz = clazz.parent;
+                } while (clazz != null);
+        }
+        return 2;
     }
 }

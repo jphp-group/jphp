@@ -205,7 +205,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             if (statement.isFinal()) access += Opcodes.ACC_FINAL;
 
             node.access = access;
-            node.name = statement.getName().getName();
+            node.name = clazz.isSystem() || entity == null ? statement.getName().getName() : entity.getInternalName();
             node.desc = Type.getMethodDescriptor(
                     Type.getType(Memory.class),
                     Type.getType(Environment.class),
@@ -326,6 +326,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setStatic(statement.isStatic());
             entity.setModifier(statement.getModifier());
             entity.setReturnReference(statement.isReturnReference());
+
+            if (clazz.isSystem())
+                entity.setInternalName(entity.getName());
+            else
+                entity.setInternalName(entity.getName() + "$" + clazz.entity.nextMethodIndex());
 
             ParameterEntity[] parameters = new ParameterEntity[statement.getArguments().size()];
             int i = 0;

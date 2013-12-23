@@ -29,6 +29,7 @@ public class SyntaxAnalyzer {
     private NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
     private ClassStmtToken clazz;
     private FunctionStmtToken function;
+    private Stack<FunctionStmtToken> closureStack;
 
     private Stack<Set<VariableExprToken>> localStack;
 
@@ -44,6 +45,7 @@ public class SyntaxAnalyzer {
         functions = new LinkedHashMap<String, FunctionStmtToken>();
         constants = new LinkedHashMap<String, ConstStmtToken>();
         closures = new ArrayList<ClosureStmtToken>();
+        closureStack = new Stack<FunctionStmtToken>();
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
@@ -252,6 +254,21 @@ public class SyntaxAnalyzer {
 
     public void setFunction(FunctionStmtToken function) {
         this.function = function;
+    }
+
+    public void pushClosure(FunctionStmtToken closure) {
+        closureStack.push(closure);
+    }
+
+    public FunctionStmtToken peekClosure() {
+        if (closureStack.empty())
+            return null;
+        else
+            return closureStack.peek();
+    }
+
+    public FunctionStmtToken popClosure(){
+        return closureStack.pop();
     }
 
     public ValueExprToken getRealName(ValueExprToken value){

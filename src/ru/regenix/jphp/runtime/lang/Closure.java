@@ -12,8 +12,9 @@ public abstract class Closure extends PHPObject {
     protected Memory self = Memory.NULL;
     protected String scope = null;
 
-    public Closure(ClassEntity closure, Memory[] uses) {
+    public Closure(ClassEntity closure, Memory self, Memory[] uses) {
         super(closure);
+        this.self = self;
         this.uses = uses;
     }
 

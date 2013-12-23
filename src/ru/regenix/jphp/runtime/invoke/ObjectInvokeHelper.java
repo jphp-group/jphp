@@ -18,6 +18,66 @@ final public class ObjectInvokeHelper {
 
     private ObjectInvokeHelper(){ }
 
+    public static Memory invokeParentMethod(Memory object, String methodName, String methodLowerName,
+                                      Environment env, TraceInfo trace, Memory[] args)
+            throws InvocationTargetException, IllegalAccessException {
+        Memory[] passed = null;
+        boolean doublePop = false;
+
+        PHPObject phpObject = ((ObjectMemory)object).value;
+        ClassEntity clazz = phpObject.__class__.getParent();
+        MethodEntity method;
+
+        if (methodName == null) {
+            method = clazz.methodMagicInvoke;
+        } else {
+            method = clazz.methods.get(methodLowerName);
+            if (method == null && ((method = clazz.methodMagicCall) != null)){
+                passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
+                doublePop = true;
+            }
+        }
+
+        String className = clazz.getName();
+
+        if (method == null){
+            if (methodName == null)
+                methodName = "__invoke";
+
+            env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
+                            className + "::" + methodName
+                    ),
+                    trace
+            ));
+        }
+
+        if (passed == null) {
+            passed = InvokeHelper.makeArguments(
+                    env, args, method.parameters, className, methodName, trace
+            );
+        }
+
+        Memory result;
+        if (trace != null) {
+            env.pushCall(trace, phpObject, args, methodName, className);
+            if (doublePop)
+                env.pushCall(trace, phpObject, passed, method.getName(), className);
+        }
+
+        try {
+            InvokeHelper.checkAccess(env, trace, method);
+            result = method.invokeDynamic(phpObject, env, passed);
+        } finally {
+            if (trace != null){
+                env.popCall();
+                if (doublePop)
+                    env.popCall();
+            }
+        }
+        return result;
+    }
+
     public static Memory invokeMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
             throws InvocationTargetException, IllegalAccessException {

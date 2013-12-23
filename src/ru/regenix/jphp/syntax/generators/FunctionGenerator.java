@@ -147,11 +147,37 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 // xClosure
                 if (((BraceExprToken) next).isSimpleOpened()){
                     if (closureAllowed){
+                        analyzer.pushClosure(result);
+
                         analyzer.addLocalScope();
                         processArguments(result, iterator);
                         processUses(result, iterator);
                         processBody(result, iterator);
+                        //boolean thisExists = result.isThisExists();
                         result.setLocal(analyzer.removeLocalScope());
+                        //result.setThisExists(thisExists);
+
+                        analyzer.popClosure();
+
+                        FunctionStmtToken prevClosure = analyzer.peekClosure();
+                        if (prevClosure != null){
+                            if (result.isThisExists()) {
+                                analyzer.getLocalScope().add(FunctionStmtToken.thisVariable);
+                                //prevClosure.setThisExists(true);
+                            }
+                        }
+
+                        List<VariableExprToken> uses = new ArrayList<VariableExprToken>();
+                        for(ArgumentStmtToken argument : result.getUses()){
+                            if (argument.isReference()){
+                                if (analyzer.getFunction() != null){
+                                    analyzer.getFunction().getRefLocal().add(argument.getName());
+                                }
+                            }
+                            uses.add(argument.getName());
+                        }
+
+                        analyzer.getLocalScope().addAll( uses );
                         return result;
                     }
 

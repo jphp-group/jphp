@@ -83,6 +83,10 @@ abstract public class Entity {
         return lowerName.hashCode();
     }
 
+    public int getPointer(){
+        return super.hashCode();
+    }
+
     protected static Throwable getCause(InvocationTargetException e){
         while (e.getTargetException() instanceof InvocationTargetException){
             e = (InvocationTargetException)e.getTargetException();

@@ -249,7 +249,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (analyzer.getFunction() != null){
             analyzer.getFunction().setDynamicLocal(true);
-            analyzer.getFunction().setVarsExist(true);
+            analyzer.getFunction().setVarsExists(true);
         }
 
         GetVarExprToken result = new GetVarExprToken(TokenMeta.of(current, name));
@@ -409,7 +409,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (current instanceof VariableExprToken){
             analyzer.getLocalScope().add((VariableExprToken) current);
             if (analyzer.getFunction() != null)
-                analyzer.getFunction().setVarsExist(true);
+                analyzer.getFunction().setVarsExists(true);
         }
 
         if (current instanceof ValueIfElseToken){
@@ -525,7 +525,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (next instanceof StaticAccessExprToken){
             if (current instanceof NameToken || current instanceof VariableExprToken
-                    || current instanceof SelfExprToken || current instanceof StaticExprToken){
+                    || current instanceof SelfExprToken || current instanceof StaticExprToken
+                    || current instanceof ParentExprToken){
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
                 ValueExprToken clazz = (ValueExprToken)current;
                 if (clazz instanceof NameToken){
@@ -703,9 +704,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (isFunc){
                     CallExprToken call = processCall(previous, current, iterator);
                     if (call.getName() != null) {
+                        current = call;
                         tokens.set(tokens.size() - 1, call);
                     } else {
-                        tokens.add(new CallOperatorToken(call));
+                        tokens.add(current = new CallOperatorToken(call));
                     }
                 } else {
                     if (needBreak)
@@ -737,7 +739,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         ArrayGetExprToken.class,
                         DynamicAccessExprToken.class,
                         StringExprToken.class,
-                        StringBuilderExprToken.class)){
+                        StringBuilderExprToken.class,
+                        CallOperatorToken.class)){
                     // array
                     tokens.add(current = processArrayToken(previous, current, iterator));
                 } else if (previous instanceof OperatorExprToken

@@ -6,15 +6,15 @@ import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
+import ru.regenix.jphp.runtime.lang.Closure;
+import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.ConstantEntity;
-import ru.regenix.jphp.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.runtime.util.StackTracer;
 
 import java.lang.reflect.InvocationTargetException;
@@ -369,5 +369,103 @@ public class LangFunctions extends FunctionsContainer {
         name = name.toLowerCase();
         FunctionEntity function = env.scope.findUserFunction(name);
         return function != null && (function.isInternal() || env.isLoadedFunction(name));
+    }
+
+    public static boolean method_exists(Environment env, Memory clazz, String method){
+        ClassEntity classEntity;
+        if (clazz.isObject()){
+            ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
+            classEntity = tmp.getSelfClass();
+        } else {
+            classEntity = env.fetchClass(clazz.toString(), true, true);
+        }
+
+        return classEntity.findMethod(method.toLowerCase()) != null;
+    }
+
+    public static Memory property_exists(Environment env, Memory clazz, String property){
+        ClassEntity classEntity;
+        PHPObject object = null;
+        if (clazz.isObject()){
+            ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
+            classEntity = tmp.getSelfClass();
+            object = tmp.value;
+        } else {
+            classEntity = env.fetchClass(clazz.toString(), true, true);
+        }
+
+        if (classEntity == null){
+            return Memory.NULL;
+        }
+
+        if (object != null){
+            return (object.__dynamicProperties__ != null && object.__dynamicProperties__.getByScalar(property) != null)
+                    ? Memory.TRUE : Memory.FALSE;
+        } else {
+            PropertyEntity entity = classEntity.properties.get(property);
+            return entity != null ? Memory.TRUE : Memory.FALSE;
+        }
+    }
+
+    public static Memory is_subclass_of(Environment env, TraceInfo trace, Memory object, String className,
+                                        boolean allowedString){
+        ClassEntity classEntity = null;
+        ClassEntity parentClass;
+
+        if (allowedString && !object.isObject()){
+            classEntity = env.fetchClass(object.toString(), false, true);
+        } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
+            classEntity = object.toValue(ObjectMemory.class).getSelfClass();
+        }
+        parentClass = env.fetchClass(className, false, true);
+
+        if (classEntity == null) {
+            return Memory.NULL;
+        } else if (parentClass == null) {
+            return Memory.NULL;
+        } else {
+            if (object.isObject() && object.toValue(ObjectMemory.class).value instanceof Closure)
+                return Memory.FALSE;
+            do {
+                classEntity = classEntity.getParent();
+                if (classEntity == null)
+                    break;
+                if (classEntity.equals(parentClass))
+                    return Memory.TRUE;
+
+            } while (true);
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory is_subclass_of(Environment env, TraceInfo trace, Memory object, String className){
+        return is_subclass_of(env, trace, object, className, true);
+    }
+
+    public static Memory get_class(Environment env, TraceInfo trace, Memory object){
+        if (object.isNull()){
+            CallStackItem item = env.peekCall(0);
+            if (item.clazz != null){
+                if (item.classEntity == null)
+                    item.classEntity = env.fetchClass(item.clazz, false, false);
+
+                if (item.classEntity == null)
+                    return Memory.FALSE;
+                else {
+                    MethodEntity method = item.classEntity.findMethod(item.function);
+                    if (method == null)
+                        return Memory.FALSE;
+                    return new StringMemory(method.getClazz().getName());
+                }
+            }
+        } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
+            return new StringMemory(object.toValue(ObjectMemory.class).getSelfClass().getName());
+        }
+
+        return Memory.FALSE;
+    }
+
+    public static Memory get_class(Environment env, TraceInfo trace){
+        return get_class(env, trace, Memory.NULL);
     }
 }

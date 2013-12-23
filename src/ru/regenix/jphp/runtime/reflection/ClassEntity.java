@@ -1,15 +1,17 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.Extension;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Constructor;
@@ -24,6 +26,7 @@ public class ClassEntity extends Entity {
     public enum Type { CLASS, INTERFACE, TRAIT }
 
     private long id;
+    protected int methodCounts = 0;
     protected boolean isInternal;
 
     /** byte code */
@@ -84,6 +87,7 @@ public class ClassEntity extends Entity {
         } else {
             setName(nativeClazz.getSimpleName());
         }
+        setInternalName(nativeClazz.getName().replace('.', '/'));
 
         for (Method method : nativeClazz.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
@@ -172,6 +176,10 @@ public class ClassEntity extends Entity {
         this.methods.put(name, method);
     }
 
+    public int nextMethodIndex(){
+        return methodCounts++;
+    }
+
     public MethodEntity findMethod(String name){
         return methods.get(name);
     }
@@ -186,6 +194,8 @@ public class ClassEntity extends Entity {
 
     public void setParent(ClassEntity parent) {
         this.parent = parent;
+        this.methodCounts = parent.methodCounts;
+
         for(MethodEntity method : parent.getMethods().values()){
             MethodEntity implMethod = findMethod(method.getLowerName());
             if (implMethod == null){
@@ -282,6 +292,23 @@ public class ClassEntity extends Entity {
 
     public Class<?> getNativeClazz() {
         return nativeClazz;
+    }
+
+    protected static void invalidAccessToProperty(Environment env, TraceInfo trace, PropertyEntity entity, int accessFlag){
+        switch (accessFlag){
+            case 1: env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY.fetch(
+                            entity.getClazz().getName(), entity.getName()
+                    ),
+                    trace
+            ));
+            case 2: env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_ACCESS_TO_PRIVATE_PROPERTY.fetch(
+                            entity.getClazz().getName(), entity.getName()
+                    ),
+                    trace
+            ));
+        }
     }
 
     public void setNativeClazz(Class<?> nativeClazz) {
@@ -448,9 +475,12 @@ public class ClassEntity extends Entity {
     public Memory setProperty(Environment env, TraceInfo trace,
                               PHPObject object, String property, Memory memory, SetterCallback callback)
             throws InvocationTargetException, IllegalAccessException {
+        ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
+
         ArrayMemory props = object.__dynamicProperties__;
-        ReferenceMemory value = props == null ? null : props.getByScalar(property);
+        value = props == null || accessFlag != 0 ? null : props.getByScalar(property);
 
         if (value == null) {
             if (methodMagicSet != null) {
@@ -478,6 +508,9 @@ public class ClassEntity extends Entity {
                     env.popCall();
                 }
             } else {
+                if (accessFlag != 0)
+                    invalidAccessToProperty(env, trace, entity, accessFlag);
+
                 if (callback != null)
                     memory = callback.invoke(Memory.NULL, memory);
 
@@ -494,7 +527,12 @@ public class ClassEntity extends Entity {
 
     public Memory unsetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
-        if (object.__dynamicProperties__ == null || object.__dynamicProperties__.removeByScalar(property) == null ){
+        PropertyEntity entity = properties.get(property);
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
+
+        if (object.__dynamicProperties__ == null
+                || accessFlag != 0
+                || object.__dynamicProperties__.removeByScalar(property) == null ){
             if (methodMagicUnset != null) {
                 try {
                     Memory[] args = new Memory[]{new StringMemory(property)};
@@ -503,14 +541,22 @@ public class ClassEntity extends Entity {
                 } finally {
                     env.popCall();
                 }
+                return Memory.NULL;
             }
         }
+
+        if (accessFlag != 0)
+            invalidAccessToProperty(env, trace, entity, accessFlag);
+
         return Memory.NULL;
     }
 
     public Memory emptyProperty(Environment env, TraceInfo trace, PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
-        if (object.__dynamicProperties__ != null){
+        PropertyEntity entity = properties.get(property);
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
+
+        if (object.__dynamicProperties__ != null && accessFlag != 0){
             Memory tmp = object.__dynamicProperties__.getByScalar(property);
             if ( tmp != null ){
                 return tmp;
@@ -534,10 +580,15 @@ public class ClassEntity extends Entity {
 
     public Memory issetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
-        Memory tmp = object.__dynamicProperties__.getByScalar(property);
-        if ( tmp != null ){
+        PropertyEntity entity = properties.get(property);
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
+
+        Memory tmp = object.__dynamicProperties__ == null || accessFlag != 0
+                ? null
+                : object.__dynamicProperties__.getByScalar(property);
+
+        if ( tmp != null )
             return tmp.isNull() ? tmp : Memory.TRUE;
-        }
 
         if (methodMagicIsset != null){
             Memory result;
@@ -551,15 +602,22 @@ public class ClassEntity extends Entity {
             }
             return result;
         }
+
         return Memory.NULL;
     }
 
     public Memory getProperty(Environment env, TraceInfo trace,
                               PHPObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
+        ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        ReferenceMemory value = object.__dynamicProperties__ == null ? null : object.__dynamicProperties__.getByScalar(property);
+        if (entity != null && accessFlag != 0) {
+            value = null;
+        } else
+            value = object.__dynamicProperties__ == null ? null : object.__dynamicProperties__.getByScalar(property);
+
         if (value != null)
             return value;
 
@@ -575,10 +633,9 @@ public class ClassEntity extends Entity {
             return result;
         }
 
-        /*env.triggerError(new FatalException(
-                Messages.ERR_FATAL_CANNOT_GET_OBJECT_PROPERTY_OF_CLASS.fetch(property, getName()),
-                trace
-        ));*/
+        if (accessFlag != 0)
+            invalidAccessToProperty(env, trace, entity, accessFlag);
+
         return Memory.NULL;
     }
 

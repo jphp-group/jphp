@@ -215,7 +215,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     /**
-     * Recursion is not detected...!!!
      * @param array
      * @param recursive
      */
@@ -509,7 +508,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             value = list.get(0);
             list.remove(0);
         } else {
-            // TODO
             value = map.remove(map.firstKey());
         }
 
@@ -527,7 +525,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             value = list.get(size - 1);
             list.remove(size - 1);
         } else {
-            // TODO
             value = map.remove(map.lastKey());
         }
         return value.toValue();
@@ -541,7 +538,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         if (list != null)
             value = list.get(size - 1);
         else {
-            // TODO
             value = map.get(map.lastKey());
         }
 

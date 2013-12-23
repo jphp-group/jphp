@@ -41,10 +41,12 @@ public class RuntimeClassLoader extends ClassLoader {
         Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
         clazz.setNativeClazz(result);
         for(MethodEntity method : clazz.getMethods().values()){
+            if (method.getNativeMethod() == null){
                 method.setNativeMethod(
-                        result.getMethod(method.getName(), Environment.class, Memory[].class)
+                        result.getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );
-            method.getNativeMethod().setAccessible(true);
+                method.getNativeMethod().setAccessible(true);
+            }
         }
         internalClasses.put(clazz.getInternalName(), clazz);
         return result;
@@ -52,16 +54,6 @@ public class RuntimeClassLoader extends ClassLoader {
 
     protected Class<?> loadClosure(ClosureEntity closure) throws NoSuchMethodException, NoSuchFieldException {
         return loadClass(closure);
-        /*byte[] data = closure.getData();
-        Class<?> result = defineClass(closure.getInternalName(), data, 0, data.length);
-        closure.setNativeClazz(result);
-        for(MethodEntity method : closure.getMethods().values()){
-            method.setNativeMethod(
-                    result.getDeclaredMethod(method.getName(), Environment.class, Memory[].class)
-            );
-            method.getNativeMethod().setAccessible(true);
-        }
-        internalClasses.put(closure.getInternalName(), closure); */
     }
 
     protected Class<?> loadFunction(FunctionEntity function) throws NoSuchMethodException {

@@ -1,11 +1,23 @@
 <?php
 
-for($i = 0; $i < 10; $i++){
-    $func[] = function() use ($i) {
-        echo $i . "\n";
-    };
+class bar {
+
+    static function call(){
+        return static::test();
+    }
+
+    static function test(){
+        echo "bar\n";
+    }
 }
 
-foreach($func as $el){
-    $el();
+class foo extends bar {
+    static function test(){
+        return 1;
+    }
+}
+
+
+for($i = 0; $i < 10000000; $i++){
+    $x = foo::call();
 }

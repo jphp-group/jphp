@@ -485,7 +485,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushClosure(ClosureStmtToken closure, boolean returnValue){
         if (returnValue){
             ClosureEntity entity = method.compiler.getModule().findClosure( closure.getId() );
-            if (closure.getFunction().getUses().isEmpty()){
+            boolean thisExists = closure.getFunction().isThisExists();
+            if (closure.getFunction().getUses().isEmpty() && !thisExists){
                 writePushEnv();
                 writePushConstInt(compiler.getModule().getId());
                 writePushConstInt((int)entity.getId());
@@ -500,13 +501,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushConstInt((int)entity.getId());
                 writeSysDynamicCall(Environment.class, "__getClosure", ClassEntity.class, Integer.TYPE, Integer.TYPE);
 
+                if (thisExists)
+                    writePushThis();
+                else
+                    writePushNull();
+
                 writePushUses(closure.getFunction().getUses());
                 code.add(new MethodInsnNode(
                         INVOKESPECIAL, entity.getInternalName(), Constants.INIT_METHOD,
                         Type.getMethodDescriptor(
-                                Type.getType(void.class), Type.getType(ClassEntity.class), Type.getType(Memory[].class)
+                                Type.getType(void.class),
+                                Type.getType(ClassEntity.class), Type.getType(Memory.class), Type.getType(Memory[].class)
                         )
                 ));
+                stackPop();
                 stackPop();
                 stackPop();
                 stackPop();
@@ -852,6 +860,51 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             i++;
         }
     }
+    Memory writePushParentDynamicMethod(CallExprToken function, boolean returnValue, boolean writeOpcode,
+                                  PushCallStatistic statistic){
+        if (!writeOpcode)
+            return null;
+
+        StaticAccessExprToken dynamic = (StaticAccessExprToken)function.getName();
+        writeLineNumber(function);
+
+        writePushThis();
+        if (dynamic.getField() != null){
+            if (dynamic.getField() instanceof NameToken){
+                String name = ((NameToken) dynamic.getField()).getName();
+                writePushString(name);
+                writePushString(name.toLowerCase());
+            } else {
+                writePush(dynamic.getField(), true, false);
+                writePopString();
+                writePushDup();
+                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+            }
+        } else {
+            writeExpression(dynamic.getFieldExpr(), true, false);
+            writePopString();
+            writePushDup();
+            writeSysDynamicCall(String.class, "toLowerCase", String.class);
+        }
+
+        writePushEnv();
+        writePushTraceInfo(dynamic);
+        writePushParameters(function.getParameters());
+
+        writeSysStaticCall(
+                ObjectInvokeHelper.class, "invokeParentMethod",
+                Memory.class,
+                Memory.class, String.class, String.class, Environment.class, TraceInfo.class, Memory[].class
+        );
+
+        if (!returnValue)
+            writePopAll(1);
+
+        if (statistic != null)
+            statistic.returnType = StackItem.Type.REFERENCE;
+
+        return null;
+    }
 
     Memory writePushDynamicMethod(CallExprToken function, boolean returnValue, boolean writeOpcode,
                                   PushCallStatistic statistic){
@@ -903,7 +956,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             methodName = ((NameToken) access.getField()).getName();
 
-            writePushString(className.toLowerCase() + "#" + methodName.toLowerCase());
+            writePushString(className.toLowerCase());
+            writePushString(methodName.toLowerCase());
+
             writePushString(className);
             writePushString(methodName);
 
@@ -911,7 +966,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeSysStaticCall(
                     InvokeHelper.class, "callStatic", Memory.class,
                     Environment.class, TraceInfo.class,
-                    String.class, // lower sign name
+                    String.class, String.class, // lower sign name
                     String.class, String.class, // origin names
                     Memory[].class
             );
@@ -923,6 +978,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (clazz instanceof SelfExprToken){
                 writePushSelf(false);
                 writePushSelf(true);
+            } else if (clazz instanceof StaticExprToken){
+                writePushStatic();
+                writePushDup();
+                writeSysDynamicCall(String.class, "toLowerCase", String.class);
             } else {
                 writePush(clazz, true, false);
                 writePopString();
@@ -933,6 +992,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (access.getField() != null){
                 ValueExprToken field = access.getField();
                 if (field instanceof NameToken){
+                    writePushString(((NameToken) field).getName());
                     writePushString(((NameToken) field).getName().toLowerCase());
                 } else {
                     writePush(access.getField(), true, false);
@@ -999,7 +1059,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePopAll(1);
             }
         } else if (name instanceof StaticAccessExprToken){
-            return writePushStaticMethod(function, returnValue, writeOpcode, statistic);
+            if (((StaticAccessExprToken) name).isAsParent())
+                return writePushParentDynamicMethod(function, returnValue, writeOpcode, statistic);
+            else
+                return writePushStaticMethod(function, returnValue, writeOpcode, statistic);
         } else if (name instanceof DynamicAccessExprToken){
             return writePushDynamicMethod(function, returnValue, writeOpcode, statistic);
         } else {
@@ -1141,11 +1204,38 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
+    protected void writePushThis(){
+        if (method.clazz.isClosure()){
+            writeVarLoad("~this");
+            writeGetDynamic("self", Memory.class);
+        } else {
+            if (method.getLocalVariable("this") == null) {
+                if (!method.statement.isStatic()){
+                    LabelNode label = writeLabel(node);
+                    LocalVariable local = method.addLocalVariable("this", label, Memory.class);
+                    writeDefineThis(local);
+                } else {
+                    writePushNull();
+                    return;
+                }
+            }
+
+            writeVarLoad("this");
+        }
+    }
+
     protected void writeDefineThis(LocalVariable variable){
-        writeVarLoad("~this");
-        writeSysStaticCall(ObjectMemory.class, "valueOf", ObjectMemory.class, PHPObject.class);
-        makeVarStore(variable);
-        stackPop();
+        if (method.clazz.isClosure()){
+            writeVarLoad("~this");
+            writeGetDynamic("self", Memory.class);
+            makeVarStore(variable);
+            stackPop();
+        } else {
+            writeVarLoad("~this");
+            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, PHPObject.class);
+            makeVarStore(variable);
+            stackPop();
+        }
 
         variable.pushLevel();
         variable.setValue(null);
@@ -1670,6 +1760,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writeGetDynamic(String name, Class fieldClass){
+        stackPop();
         code.add(new FieldInsnNode(
                 GETFIELD,
                 method.clazz.node.name,

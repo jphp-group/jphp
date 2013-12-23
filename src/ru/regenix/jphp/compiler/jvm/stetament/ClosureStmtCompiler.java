@@ -27,6 +27,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         ClosureEntity entity = new ClosureEntity(getCompiler().getContext());
         entity.setReturnReference(statement.getFunction().isReturnReference());
         entity.setInternalName("$_php_closure_" + compiler.getModule().getId() + "_" + statement.getId());
+        entity.setId(statement.getId());
 
         ClassStmtToken classStmtToken = new ClassStmtToken(statement.getMeta());
         classStmtToken.setNamespace(NamespaceStmtToken.getDefault());
@@ -47,6 +48,8 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         ClassEntity clazzEntity = classStmtCompiler.compile();
 
         entity.methods.putAll(clazzEntity.methods);
+        if (clazzEntity.getParent() != null)
+            entity.setParent(clazzEntity.getParent());
 
         entity.setData(clazzEntity.getData());
         entity.setParameters(clazzEntity.findMethod("__invoke").parameters);

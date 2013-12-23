@@ -6,6 +6,7 @@ import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
 public class ObjectMemory extends Memory {
 
@@ -22,6 +23,10 @@ public class ObjectMemory extends Memory {
 
     public static Memory valueOf(PHPObject object){
         return new ObjectMemory(object);
+    }
+
+    public ClassEntity getSelfClass(){
+        return value.__class__;
     }
 
     @Override

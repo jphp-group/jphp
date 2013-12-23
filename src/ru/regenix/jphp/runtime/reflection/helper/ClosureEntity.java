@@ -41,15 +41,30 @@ public class ClosureEntity extends ClassEntity {
     }
 
     @Override
+    public String getName() {
+        return parent.getName();
+    }
+
+    @Override
+    public String getLowerName() {
+        return parent == null ? super.getLowerName() : parent.getLowerName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ClosureEntity;
+    }
+
+    @Override
     public void setNativeClazz(Class<?> nativeClazz) {
         this.nativeClazz = nativeClazz;
         if (!nativeClazz.isInterface()){
             try {
-                this.nativeConstructor = nativeClazz.getConstructor(ClassEntity.class, Memory[].class);
+                this.nativeConstructor = nativeClazz.getConstructor(ClassEntity.class, Memory.class, Memory[].class);
                 this.nativeConstructor.setAccessible(true);
 
                 //if (uses == null || uses.length == 0)
-                    singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(this, null));
+                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(this, Memory.NULL, null));
                 //else
                   //  singleton = null;
             } catch (NoSuchMethodException e) {

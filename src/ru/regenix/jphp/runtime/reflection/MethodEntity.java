@@ -208,10 +208,10 @@ public class MethodEntity extends AbstractFunctionEntity {
         return hashCode() == that.hashCode();
     }
 
-    @Override
+    /*@Override
     public int hashCode() {
         return hashCode(clazz.getLowerName(), lowerName);
-    }
+    }*/
 
     public static int hashCode(String classLowerName, String methodLowerName){
         return classLowerName.hashCode() + methodLowerName.hashCode();

@@ -29,13 +29,16 @@ public class FunctionStmtToken extends StmtToken {
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
-    protected boolean varsExist;
+    protected boolean varsExists;
+    protected boolean thisExists;
+    public static final VariableExprToken thisVariable = VariableExprToken.valueOf("this");
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
         this.dynamicLocal = false;
         this.callsExist = false;
-        this.varsExist = false;
+        this.varsExists = false;
+        this.thisExists = false;
         this.passedLocal = new HashSet<VariableExprToken>();
         this.arrayAccessLocal = new HashSet<VariableExprToken>();
         this.refLocal = new HashSet<VariableExprToken>();
@@ -128,6 +131,7 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setLocal(Set<VariableExprToken> local) {
         this.local = local;
+        this.thisExists = local.contains(thisVariable);
     }
 
     public Set<VariableExprToken> getPassedLocal() {
@@ -163,16 +167,16 @@ public class FunctionStmtToken extends StmtToken {
         return unstableLocal.contains(variable);
     }
 
-    public boolean isVarsExist() {
-        return varsExist;
+    public boolean isVarsExists() {
+        return varsExists;
     }
 
-    public void setVarsExist(boolean varsExist) {
-        this.varsExist = varsExist;
+    public void setVarsExists(boolean varsExists) {
+        this.varsExists = varsExists;
     }
 
     public boolean isMutable(){
-        return varsExist || callsExist;
+        return varsExists || callsExist;
     }
 
     public Set<VariableExprToken> getArrayAccessLocal() {
@@ -191,5 +195,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public String getFulledName(){
         return getFulledName('\\');
+    }
+
+    public void setThisExists(boolean thisExists) {
+        this.thisExists = thisExists;
+    }
+
+    public boolean isThisExists() {
+        return thisExists;
     }
 }

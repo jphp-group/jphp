@@ -45,6 +45,16 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
             lineNumber = el.getLineNumber();
             String className = el.getClassName();
             FunctionEntity f_e = JVMStackTracer.this.classLoader.getFunction(className);
+            String realMethodName = null;
+            if (el.getMethodName() != null){
+                if (el.getMethodName().indexOf('$') > -1)
+                    realMethodName = el.getMethodName().substring(0, el.getMethodName().indexOf('$'));
+                else
+                    realMethodName = el.getMethodName();
+
+                realMethodName = realMethodName.toLowerCase();
+            }
+
             if (f_e != null){
                 function = f_e;
                 module = f_e.getModule();
@@ -56,7 +66,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
                     clazz = c_e;
                     function = null;
                     if (c_e != null)
-                        method = c_e.findMethod(el.getMethodName().toLowerCase());
+                        method = c_e.findMethod(realMethodName);
                     else
                         method = null;
 

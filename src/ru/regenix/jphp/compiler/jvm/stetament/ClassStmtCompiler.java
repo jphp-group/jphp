@@ -148,14 +148,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             constructor.desc = Type.getMethodDescriptor(
                     Type.getType(void.class),
                     Type.getType(ClassEntity.class),
+                    Type.getType(Memory.class),
                     Type.getType(Memory[].class)
             );
             methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
+            methodCompiler.addLocalVariable("~self", l0, Memory.class);
             methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
 
             methodCompiler.writeHeader();
             expressionCompiler.writeVarLoad("this");
             expressionCompiler.writeVarLoad("~class");
+            expressionCompiler.writeVarLoad("~self");
             expressionCompiler.writeVarLoad("~uses");
             constructor.instructions.add(new MethodInsnNode(
                     INVOKESPECIAL,
@@ -304,8 +307,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(statement.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
-        if (statement.getExtend() != null)
-            entity.setParent(compiler.getEnvironment().fetchClass(statement.getExtend().getName().getName(), false));
+        if (statement.getExtend() != null) {
+            ClassEntity parent = compiler.getEnvironment()
+                    .fetchClass(statement.getExtend().getName().getName(), false, true);
+            if (parent == null){
+                parent = compiler.getModule().findClass(statement.getExtend().getName().getName());
+            }
+            entity.setParent(parent);
+        }
 
         if (!isSystem)
             entity.setInternalName("$_php_class_" + compiler.getScope().nextClassIndex());
@@ -322,7 +331,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
         node.superName = entity.getParent() == null
                 ? Type.getInternalName(PHPObject.class)
-                : Type.getInternalName(entity.getParent().getNativeClazz());
+                : entity.getParent().getInternalName();
 
         node.sourceFile = compiler.getSourceFile();
 
