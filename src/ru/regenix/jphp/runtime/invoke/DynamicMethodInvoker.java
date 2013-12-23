@@ -21,6 +21,14 @@ public class DynamicMethodInvoker extends Invoker {
         this.method = method;
     }
 
+    public PHPObject getObject() {
+        return object;
+    }
+
+    public MethodEntity getMethod() {
+        return method;
+    }
+
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
         env.pushCall(trace, object, args, method.getName(), object.__class__.getName());
@@ -31,6 +39,10 @@ public class DynamicMethodInvoker extends Invoker {
         return ObjectInvokeHelper.invokeMethod(object, method, env, null, args);
     }
 
+    @Override
+    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+        return method.canAccess(env, external);
+    }
 
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object, String methodName){
         MethodEntity methodEntity = object.__class__.findMethod(methodName.toLowerCase());

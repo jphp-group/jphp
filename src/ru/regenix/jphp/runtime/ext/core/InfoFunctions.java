@@ -211,7 +211,7 @@ public class InfoFunctions extends FunctionsContainer {
         return print_r(env, value, false);
     }
 
-    public static Memory var_dump(Environment env, @Runtime.Reference Memory value, @Runtime.Reference Memory[] values){
+    public static Memory var_dump(Environment env, @Runtime.Reference Memory value, @Runtime.Reference Memory... values){
         StringWriter writer = new StringWriter();
         VarDump printer = new VarDump(writer);
 
@@ -222,9 +222,5 @@ public class InfoFunctions extends FunctionsContainer {
 
         env.echo(writer.toString());
         return Memory.TRUE;
-    }
-
-    public static Memory var_dump(Environment env, @Runtime.Reference Memory value){
-        return var_dump(env, value, null);
     }
 }

@@ -1,8 +1,4 @@
 <?php
 
-function test($className){
-    include __DIR__ . '/' . strtolower($className) . ".php";
-}
-var_dump(spl_autoload_register('test'));
 
-Test::call();
+spl_autoload_extensions(".inc, .php, .lib, .lib.php ");

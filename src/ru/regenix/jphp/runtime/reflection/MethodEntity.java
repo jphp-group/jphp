@@ -228,14 +228,14 @@ public class MethodEntity extends AbstractFunctionEntity {
      * @param env
      * @return
      */
-    public int canAccess(Environment env) throws InvocationTargetException, IllegalAccessException {
+    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:
-                ClassEntity cl = env.getContextClass();
+                ClassEntity cl = env.getLastClassOnStack();
                 return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
             case PROTECTED:
-                ClassEntity clazz = env.getContextClass();
+                ClassEntity clazz = env.getLastClassOnStack();
                 if (clazz == null)
                     return 1;
 

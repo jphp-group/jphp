@@ -10,6 +10,7 @@ import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
+import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -38,6 +39,7 @@ import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
 public class Environment {
     private Locale locale = Locale.getDefault();
     private Set<String> includePaths;
+    protected SplClassLoader autoLoader = null;
     protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
 
     private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
@@ -113,6 +115,11 @@ public class Environment {
 
         this.globals.put("GLOBALS", this.globals);
         this.constants = new HashMap<String, ConstantEntity>();
+
+        Memory splAutoloader = new StringMemory("spl_autoload");
+        Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
+        if (invoker != null)
+            this.autoLoader = new SplClassLoader(invoker, splAutoloader);
     }
 
     public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
@@ -214,31 +221,35 @@ public class Environment {
         return constantUsedMap.containsKey(lowerName);
     }
 
-    public ClassEntity fetchClass(String name, boolean magic) {
-        return fetchClass(name, magic, false);
-    }
-
     public ClassEntity autoloadCall(String name){
         StringMemory tmp = new StringMemory(name);
         for(SplClassLoader loader : classLoaders)
             loader.load(tmp);
+
+        if (autoLoader != null)
+            autoLoader.load(tmp);
+
         return fetchClass(name, false, false);
     }
 
+    public ClassEntity fetchClass(String name, boolean magic) {
+        return fetchClass(name, magic, false);
+    }
+
     public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad) {
-        if (magic){
-            if ("self".equals(name)){
+        String nameL = name.toLowerCase();
+        ClassEntity entity = scope.classMap.get(nameL);
+        if (magic && entity == null){
+            if ("self".equals(nameL)){
                 ClassEntity e = getContextClass();
                 if (e == null)
                     e = getLateStaticClass();
                 return e;
             }
-            if ("static".equals(name))
-                return getLateStaticClass();
+            if ("static".equals(nameL))
+                return getLastClassOnStack();
         }
 
-        String nameL = name.toLowerCase();
-        ClassEntity entity = scope.findUserClass(nameL);
         if (entity == null){
             return autoLoad ? autoloadCall(name) : null;
         } else {
@@ -650,16 +661,20 @@ public class Environment {
         return item == null ? "" : item.clazz == null ? "" : item.clazz;
     }
 
-    public ClassEntity getContextClass() {
-        CallStackItem item = peekCall(1);
+    public ClassEntity __getContextClass(int offset) {
+        CallStackItem item = peekCall(offset);
         if (item == null || item.clazz == null)
             return null;
         else {
             if (item.classEntity != null)
                 return item.classEntity;
 
-            return item.classEntity = fetchClass(item.clazz, false);
+            return item.classEntity = fetchClass(item.clazz, false, false);
         }
+    }
+
+    public ClassEntity getContextClass() {
+        return __getContextClass(1);
     }
 
     public ClassEntity getLastClassOnStack() {
@@ -676,10 +691,18 @@ public class Environment {
     }
 
     public void autoloadRegister(SplClassLoader classLoader, boolean prepend){
+        for (SplClassLoader loader : classLoaders)
+            if (loader.equals(classLoader))
+                return;
+
         if (prepend) {
             classLoaders.add(0, classLoader);
         } else
             classLoaders.add(classLoader);
+    }
+
+    public List<SplClassLoader> getClassLoaders(){
+        return classLoaders;
     }
 
     public boolean autoloadUnregister(SplClassLoader classLoader){

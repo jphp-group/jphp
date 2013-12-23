@@ -156,8 +156,10 @@ public class LangFunctions extends FunctionsContainer {
         return Memory.NULL;
     }
 
-    public static boolean is_callable(Environment env, TraceInfo trace, @Runtime.Reference Memory memory){
-        return Invoker.valueOf(env, null, memory) != null;
+    public static boolean is_callable(Environment env, TraceInfo trace, @Runtime.Reference Memory memory)
+            throws InvocationTargetException, IllegalAccessException {
+        Invoker invoker = Invoker.valueOf(env, null, memory);
+        return invoker != null && invoker.canAccess(env, false) == 0;
     }
 
     @Runtime.Immutable
@@ -539,21 +541,55 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
     }
 
-    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw,
+    public static boolean spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw,
                                                boolean prepend){
         Invoker invoker = expectingCallback(env, trace, 1, callback);
         if (invoker == null)
-            return Memory.FALSE;
+            return false;
 
-        env.autoloadRegister(new SplClassLoader(invoker), prepend);
-        return Memory.TRUE;
+        env.autoloadRegister(new SplClassLoader(invoker, callback), prepend);
+        return true;
     }
 
-    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw){
+    public static boolean spl_autoload_register(Environment env, TraceInfo trace, Memory callback, boolean _throw){
         return spl_autoload_register(env, trace, callback, _throw, false);
     }
 
-    public static Memory spl_autoload_register(Environment env, TraceInfo trace, Memory callback){
+    public static boolean spl_autoload_register(Environment env, TraceInfo trace, Memory callback){
         return spl_autoload_register(env, trace, callback, true, false);
+    }
+
+    public static Memory spl_autoload_functions(Environment env){
+        ArrayMemory result = new ArrayMemory();
+        for (SplClassLoader loader : env.getClassLoaders()){
+            result.add(loader.getCallback().toImmutable());
+        }
+        return result.toConstant();
+    }
+
+    public static boolean spl_autoload_unregister(Environment env, TraceInfo trace, Memory callback){
+        Invoker invoker = expectingCallback(env, trace, 1, callback);
+        if (invoker == null)
+            return false;
+
+        return env.autoloadUnregister(new SplClassLoader(invoker, callback));
+    }
+
+    public static String spl_autoload_extensions(Environment env, String extensions){
+        env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).assign(extensions);
+        return extensions;
+    }
+
+    public static String spl_autoload_extensions(Environment env){
+        return env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).toString();
+    }
+
+    public static void spl_autoload(Environment env, String className, String fileExtensions){
+
+    }
+
+    public static void spl_autoload(Environment env, String className){
+        spl_autoload(env, className,
+                env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).toString());
     }
 }

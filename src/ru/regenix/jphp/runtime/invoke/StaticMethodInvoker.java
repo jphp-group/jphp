@@ -20,6 +20,14 @@ public class StaticMethodInvoker extends Invoker {
         this.calledClass = calledClass;
     }
 
+    public MethodEntity getMethod() {
+        return method;
+    }
+
+    public String getCalledClass() {
+        return calledClass;
+    }
+
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
         env.pushCall(trace, null, args, method.getName(), calledClass);
@@ -30,18 +38,20 @@ public class StaticMethodInvoker extends Invoker {
         return InvokeHelper.callStatic(env, trace, method, args);
     }
 
-    public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){
-        className = className.toLowerCase();
-        MethodEntity methodEntity = env.scope.methodMap.get(
-                className + "#" + methodName.toLowerCase()
-        );
+    @Override
+    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+        return method.canAccess(env, external);
+    }
 
-        if (methodEntity == null){
+    public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){
+        ClassEntity classEntity = env.fetchClass(className, true, true);
+        MethodEntity methodEntity = classEntity == null ? null : classEntity.methods.get(methodName.toLowerCase());
+
+        if (methodEntity == null || classEntity == null){
             if (trace == null) {
-                ClassEntity __class__ = env.scope.classMap.get(className);
-                if (__class__ != null && __class__.methodMagicCallStatic != null){
+                if (classEntity != null && classEntity.methodMagicCallStatic != null){
                     return new MagicStaticMethodInvoker(
-                            env, trace, className, __class__.methodMagicCallStatic, methodName
+                            env, trace, className, classEntity.methodMagicCallStatic, methodName
                     );
                 }
                 return null;
@@ -52,7 +62,7 @@ public class StaticMethodInvoker extends Invoker {
             ));
         }
 
-        return new StaticMethodInvoker(env, trace, "", methodEntity);
+        return new StaticMethodInvoker(env, trace, classEntity.getName(), methodEntity);
     }
 
     @Override

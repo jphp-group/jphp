@@ -52,7 +52,6 @@ public class CompileFunction {
             if (methodVarArgs != null)
                 throw new IllegalArgumentException("Cannot add two var-args methods");
             methodVarArgs = new Method(method, asImmutable);
-            methodVarArgsCount = method.getParameterTypes().length;
             int count = 0;
             Class<?>[] types = method.getParameterTypes();
             for(int i = 0; i < types.length; i++){
@@ -67,9 +66,11 @@ public class CompileFunction {
             if (count < minArgs)
                 minArgs = count;
 
+            methodVarArgsCount = count;
+
             maxArgs = Integer.MAX_VALUE;
             if (methodVarArgsCount < methods.length && methods[methodVarArgsCount] != null)
-                throw new IllegalArgumentException("Method with " + methodVarArgsCount + " args already exists");
+                throw new IllegalArgumentException("Method '"+ name +"' with " + methodVarArgsCount + " args already exists");
         }
 
         Class<?>[] types = method.getParameterTypes();
@@ -78,7 +79,6 @@ public class CompileFunction {
             Class<?> type = types[i];
             if (type == Environment.class || type == TraceInfo.class)
                 continue;
-
             count++;
         }
         if (count < minArgs)

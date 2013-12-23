@@ -1,6 +1,8 @@
 package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.runtime.invoke.Invoker;
+import ru.regenix.jphp.runtime.invoke.StaticMethodInvoker;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
@@ -8,9 +10,18 @@ import java.lang.reflect.InvocationTargetException;
 
 public class SplClassLoader {
     protected Invoker invoker;
+    protected Memory callback;
 
-    public SplClassLoader(Invoker invoker){
+    public SplClassLoader(Invoker invoker, Memory callback){
         this.invoker = invoker;
+        this.callback = callback;
+        if (invoker instanceof StaticMethodInvoker && !callback.isArray()){
+            StaticMethodInvoker staticMethodInvoker = (StaticMethodInvoker)invoker;
+            this.callback = new ArrayMemory(
+                    staticMethodInvoker.getCalledClass(),
+                    staticMethodInvoker.getMethod().getName()
+            );
+        }
     }
 
     @Override
@@ -41,5 +52,13 @@ public class SplClassLoader {
         } finally {
             invoker.popCall();
         }
+    }
+
+    public Invoker getInvoker() {
+        return invoker;
+    }
+
+    public Memory getCallback() {
+        return callback;
     }
 }

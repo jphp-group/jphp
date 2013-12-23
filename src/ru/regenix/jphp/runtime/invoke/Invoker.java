@@ -34,6 +34,8 @@ abstract public class Invoker {
         return valueOf(env, env.peekCall(0).trace, method);
     }
 
+    abstract public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException;
+
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toImmutable();
         if (method.isObject()){
@@ -64,7 +66,8 @@ abstract public class Invoker {
             if (one.isObject()) {
                 return DynamicMethodInvoker.valueOf(env, trace, one.toValue(), methodName);
             } else {
-                return StaticMethodInvoker.valueOf(env, trace, one.toString(), methodName);
+                String className = one.toString();
+                return StaticMethodInvoker.valueOf(env, trace, className, methodName);
             }
         } else {
             String methodName = method.toString();

@@ -59,14 +59,13 @@ final public class ObjectInvokeHelper {
         }
 
         Memory result;
-        if (trace != null) {
-            env.pushCall(trace, phpObject, args, methodName, className);
-            if (doublePop)
-                env.pushCall(trace, phpObject, passed, method.getName(), className);
-        }
-
+        InvokeHelper.checkAccess(env, trace, method);
         try {
-            InvokeHelper.checkAccess(env, trace, method);
+            if (trace != null) {
+                env.pushCall(trace, phpObject, args, methodName, className);
+                if (doublePop)
+                    env.pushCall(trace, phpObject, passed, method.getName(), className);
+            }
             result = method.invokeDynamic(phpObject, env, passed);
         } finally {
             if (trace != null){
@@ -134,14 +133,13 @@ final public class ObjectInvokeHelper {
         }
 
         Memory result;
-        if (trace != null) {
-            env.pushCall(trace, phpObject, args, methodName, className);
-            if (doublePop)
-                env.pushCall(trace, phpObject, passed, method.getName(), className);
-        }
-
+        InvokeHelper.checkAccess(env, trace, method);
         try {
-            InvokeHelper.checkAccess(env, trace, method);
+            if (trace != null) {
+                env.pushCall(trace, phpObject, args, methodName, className);
+                if (doublePop)
+                    env.pushCall(trace, phpObject, passed, method.getName(), className);
+            }
             result = method.invokeDynamic(phpObject, env, passed);
         } finally {
             if (trace != null){

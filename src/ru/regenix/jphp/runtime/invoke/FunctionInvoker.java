@@ -19,6 +19,10 @@ public class FunctionInvoker extends Invoker {
         this.env = env;
     }
 
+    public FunctionEntity getFunction() {
+        return entity;
+    }
+
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
         env.pushCall(trace, null, args, entity.getName(), null);
@@ -27,6 +31,11 @@ public class FunctionInvoker extends Invoker {
     @Override
     public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
         return InvokeHelper.call(env, trace, entity, args);
+    }
+
+    @Override
+    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+        return 0;
     }
 
     public static FunctionInvoker valueOf(Environment env, TraceInfo trace, String name){
