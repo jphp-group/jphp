@@ -3,7 +3,6 @@ package ru.regenix.jphp.runtime.memory.output;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -132,8 +131,7 @@ public class PrintR extends Printer {
 
     @Override
     protected void printObject(ObjectMemory value, int level, Set<Integer> used) {
-        PHPObject object = value.value;
-        ClassEntity classEntity = object.__class__;
+        ClassEntity classEntity = value.getReflection();
 
         writeObjectHeader(classEntity.getName());
 
@@ -146,8 +144,9 @@ public class PrintR extends Printer {
 
             used.add(value.getPointer());
 
-            if (object.__dynamicProperties__ != null){
-                ForeachIterator iterator = object.__dynamicProperties__.foreachIterator(false, false);
+            ArrayMemory props = value.getProperties();
+            if (props != null){
+                ForeachIterator iterator = props.foreachIterator(false, false);
                 int i = 0;
                 int size = classEntity.properties.size();
                 while (iterator.next()){

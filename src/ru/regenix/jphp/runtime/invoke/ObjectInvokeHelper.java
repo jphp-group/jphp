@@ -4,7 +4,7 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
@@ -24,8 +24,8 @@ final public class ObjectInvokeHelper {
         Memory[] passed = null;
         boolean doublePop = false;
 
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        ClassEntity clazz = phpObject.__class__.getParent();
+        IObject iObject = ((ObjectMemory)object).value;
+        ClassEntity clazz = iObject.getReflection().getParent();
         MethodEntity method;
 
         if (methodName == null) {
@@ -62,11 +62,11 @@ final public class ObjectInvokeHelper {
         InvokeHelper.checkAccess(env, trace, method);
         try {
             if (trace != null) {
-                env.pushCall(trace, phpObject, args, methodName, className);
+                env.pushCall(trace, iObject, args, methodName, className);
                 if (doublePop)
-                    env.pushCall(trace, phpObject, passed, method.getName(), className);
+                    env.pushCall(trace, iObject, passed, method.getName(), className);
             }
-            result = method.invokeDynamic(phpObject, env, passed);
+            result = method.invokeDynamic(iObject, env, passed);
         } finally {
             if (trace != null){
                 env.popCall();
@@ -90,8 +90,8 @@ final public class ObjectInvokeHelper {
                     trace
             ));
         }
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        ClassEntity clazz = phpObject.__class__;
+        IObject iObject = ((ObjectMemory)object).value;
+        ClassEntity clazz = iObject.getReflection();
         MethodEntity method;
 
         if (methodName == null) {
@@ -105,7 +105,7 @@ final public class ObjectInvokeHelper {
             /*if (method.isStatic()) { IT's not needed!!!
                 env.triggerError(new FatalException(
                         Messages.ERR_FATAL_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(
-                                phpObject.__class__.getName() + "::" + methodName
+                                iObject.__class__.getName() + "::" + methodName
                         ),
                         trace
                 ));
@@ -136,11 +136,11 @@ final public class ObjectInvokeHelper {
         InvokeHelper.checkAccess(env, trace, method);
         try {
             if (trace != null) {
-                env.pushCall(trace, phpObject, args, methodName, className);
+                env.pushCall(trace, iObject, args, methodName, className);
                 if (doublePop)
-                    env.pushCall(trace, phpObject, passed, method.getName(), className);
+                    env.pushCall(trace, iObject, passed, method.getName(), className);
             }
-            result = method.invokeDynamic(phpObject, env, passed);
+            result = method.invokeDynamic(iObject, env, passed);
         } finally {
             if (trace != null){
                 env.popCall();
@@ -151,13 +151,14 @@ final public class ObjectInvokeHelper {
         return result;
     }
 
-    public static Memory invokeMethod(PHPObject phpObject, MethodEntity method,
+    public static Memory invokeMethod(IObject iObject, MethodEntity method,
                                       Environment env, TraceInfo trace, Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
+        ClassEntity clazz = iObject.getReflection();
         if (method == null)
-            method = phpObject.__class__.methodMagicInvoke;
+            method = clazz.methodMagicInvoke;
 
-        String className = phpObject.__class__.getName();
+        String className = clazz.getName();
 
         if (method == null){
             env.triggerError(new FatalException(
@@ -173,11 +174,11 @@ final public class ObjectInvokeHelper {
         );
         Memory result;
         if (trace != null)
-            env.pushCall(trace, phpObject, args, method.getName(), className);
+            env.pushCall(trace, iObject, args, method.getName(), className);
 
         try {
             InvokeHelper.checkAccess(env, trace, method);
-            result = method.invokeDynamic(phpObject, env, passed);
+            result = method.invokeDynamic(iObject, env, passed);
         } finally {
             if (trace != null)
                 env.popCall();
@@ -195,8 +196,8 @@ final public class ObjectInvokeHelper {
             ));
         }
 
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        return phpObject.__class__.emptyProperty(env, trace, phpObject, property);
+        IObject iObject = ((ObjectMemory)object).value;
+        return iObject.getReflection().emptyProperty(env, trace, iObject, property);
     }
 
     public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace)
@@ -209,8 +210,8 @@ final public class ObjectInvokeHelper {
             ));
         }
 
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        return phpObject.__class__.issetProperty(env, trace, phpObject, property);
+        IObject iObject = ((ObjectMemory)object).value;
+        return iObject.getReflection().issetProperty(env, trace, iObject, property);
     }
 
     public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace)
@@ -223,8 +224,8 @@ final public class ObjectInvokeHelper {
             ));
         }
 
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        phpObject.__class__.unsetProperty(env, trace, phpObject, property);
+        IObject iObject = ((ObjectMemory)object).value;
+        iObject.getReflection().unsetProperty(env, trace, iObject, property);
     }
 
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
@@ -237,11 +238,11 @@ final public class ObjectInvokeHelper {
             ));
         }
 
-        PHPObject phpObject = ((ObjectMemory)object).value;
-        return phpObject.__class__.getProperty(env, trace, phpObject, property);
+        IObject iObject = ((ObjectMemory)object).value;
+        return iObject.getReflection().getProperty(env, trace, iObject, property);
     }
 
-    private static PHPObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
+    private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
         object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
@@ -250,78 +251,78 @@ final public class ObjectInvokeHelper {
             ));
         }
 
-        return  ((ObjectMemory)object).value;
+        return ((ObjectMemory)object).value;
     }
 
     public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.setProperty(env, trace, phpObject, property, value, null);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().setProperty(env, trace, iObject, property, value, null);
     }
 
     public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.plusProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().plusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.minusProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().minusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.mulProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().mulProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.divProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().divProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.modProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().modProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.concatProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().concatProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.bitAndProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().bitAndProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.bitOrProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().bitOrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.bitXorProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().bitXorProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.bitShrProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().bitShrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
-        PHPObject phpObject = fetchObject(object, property, env, trace);
-        return phpObject.__class__.bitShlProperty(env, trace, phpObject, property, value);
+        IObject iObject = fetchObject(object, property, env, trace);
+        return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value);
     }
 }

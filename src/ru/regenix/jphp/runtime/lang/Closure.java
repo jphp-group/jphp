@@ -7,7 +7,7 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
-public abstract class Closure extends PHPObject {
+public abstract class Closure extends BaseObject {
     protected Memory[] uses;
     protected Memory self = Memory.NULL;
     protected String scope = null;

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
@@ -22,8 +22,8 @@ public class ClassesTest extends JvmCompilerCase {
         memory = runDynamic("class A { } return new A();", false);
         Assert.assertTrue(memory.isObject());
 
-        PHPObject object = ((ObjectMemory)memory).value;
-        Assert.assertEquals("A", object.__class__.getName());
+        IObject object = ((ObjectMemory)memory).value;
+        Assert.assertEquals("A", object.getReflection().getName());
     }
 
     @Test
@@ -32,9 +32,9 @@ public class ClassesTest extends JvmCompilerCase {
         memory = runDynamic("class A { var $x, $y = 30; } return new A();", false);
         Assert.assertTrue(memory.isObject());
 
-        PHPObject object = ((ObjectMemory)memory).value;
-        Assert.assertEquals(30, object.__class__.getProperty(environment, null, object, "x").toLong());
-        Assert.assertEquals(30, object.__class__.getProperty(environment, null, object, "y").toLong());
+        IObject object = ((ObjectMemory)memory).value;
+        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "x").toLong());
+        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "y").toLong());
 
         memory = runDynamic("class A { public $arr = array(1, 2, 3); } return new A()->arr;", false);
         Assert.assertTrue(memory.isArray());

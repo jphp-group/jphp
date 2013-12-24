@@ -1,33 +1,37 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
-import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
 public class ObjectMemory extends Memory {
 
-    public PHPObject value;
+    public IObject value;
 
     public ObjectMemory() {
         super(Type.OBJECT);
     }
 
-    public ObjectMemory(PHPObject object){
+    public ObjectMemory(IObject object){
         this();
         this.value = object;
     }
 
-    public static Memory valueOf(PHPObject object){
+    public static Memory valueOf(IObject object){
         return new ObjectMemory(object);
     }
 
-    public ClassEntity getSelfClass(){
-        return value.__class__;
+    public ClassEntity getReflection(){
+        return value.getReflection();
+    }
+
+    public ArrayMemory getProperties(){
+        return value.getProperties();
     }
 
     @Override
@@ -179,14 +183,14 @@ public class ObjectMemory extends Memory {
     public ForeachIterator getNewIterator(final Environment env, boolean getReferences, boolean getKeyReferences) {
         if (value instanceof Iterator){
             final Iterator iterator = (Iterator)value;
-            final String className = value.__class__.getName();
+            final String className = value.getReflection().getName();
 
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 @Override
                 protected boolean init() {
                     env.pushCall(null, ObjectMemory.this.value, null, "rewind", className);
                     try {
-                        return iterator.rewind(value.__env__).toBoolean();
+                        return iterator.rewind(env).toBoolean();
                     } finally {
                         env.popCall();
                     }
@@ -208,15 +212,15 @@ public class ObjectMemory extends Memory {
 
                     env.pushCall(null, ObjectMemory.this.value, null, "valid", className);
                     try {
-                        valid = iterator.valid(value.__env__).toBoolean();
+                        valid = iterator.valid(env).toBoolean();
                         if (valid) {
                             env.pushCall(null, ObjectMemory.this.value, null, "key", className);
                             try {
-                                currentKey = iterator.key(value.__env__).toImmutable();
+                                currentKey = iterator.key(env).toImmutable();
 
                                 env.pushCall(null, ObjectMemory.this.value, null, "current", className);
                                 try {
-                                    currentValue = iterator.current(value.__env__);
+                                    currentValue = iterator.current(env);
                                     if (!getReferences)
                                         currentValue = currentValue.toImmutable();
                                 } finally {
@@ -232,7 +236,7 @@ public class ObjectMemory extends Memory {
 
                     env.pushCall(null, ObjectMemory.this.value, null, "next", className);
                     try {
-                        iterator.next(value.__env__);
+                        iterator.next(env);
                     } finally {
                         env.popCall();
                     }

@@ -22,8 +22,8 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
+import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -519,7 +519,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 stackPop();
                 stackPop();
 
-                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, PHPObject.class);
+                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, BaseObject.class);
             }
             setStackPeekAsImmutable();
         }
@@ -1232,7 +1232,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
         } else {
             writeVarLoad("~this");
-            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, PHPObject.class);
+            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, BaseObject.class);
             makeVarStore(variable);
             stackPop();
         }

@@ -91,8 +91,13 @@ public class ArrayFunctions extends FunctionsContainer {
             case OBJECT:
                 ObjectMemory objectMemory = var.toValue(ObjectMemory.class);
                 if (objectMemory.value instanceof Countable){
-                    long size = ((Countable) objectMemory.value).count(env, var).toLong();
-                    return LongMemory.valueOf(size);
+                    env.pushCall(objectMemory.value, "count");
+                    try {
+                        long size = ((Countable) objectMemory.value).count(env).toLong();
+                        return LongMemory.valueOf(size);
+                    } finally {
+                        env.popCall();
+                    }
                 } else {
                     return Memory.CONST_INT_1;
                 }
@@ -159,6 +164,16 @@ public class ArrayFunctions extends FunctionsContainer {
             if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getValue();
                 return value == null ? Memory.FALSE : value.toImmutable();
+            }
+        }
+        return Memory.FALSE;
+    }
+
+    public static Memory key(Environment env, TraceInfo trace, @Runtime.Reference Memory array){
+        if (expectingReference(env, trace, array)){
+            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
+                Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getMemoryKey();
+                return value == null ? Memory.FALSE : value;
             }
         }
         return Memory.FALSE;

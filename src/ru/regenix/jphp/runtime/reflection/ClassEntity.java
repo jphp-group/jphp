@@ -9,7 +9,8 @@ import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.BaseObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
@@ -137,7 +138,7 @@ public class ClassEntity extends Entity {
         }
 
         Class<?> extend = nativeClazz.getSuperclass();
-        if (extend != PHPObject.class && extend != null){
+        if (extend != IObject.class && extend != BaseObject.class && extend != null){
             String name = extend.getSimpleName();
             if (extend.isAnnotationPresent(Reflection.Name.class)){
                 name = extend.getAnnotation(Reflection.Name.class).value();
@@ -421,12 +422,13 @@ public class ClassEntity extends Entity {
         this.module = module;
     }
 
-    public PHPObject newObject(Environment env, TraceInfo trace, Memory[] args)
+    public IObject newObject(Environment env, TraceInfo trace, Memory[] args)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        PHPObject object = (PHPObject) nativeConstructor.newInstance(env, this);
+        IObject object = (IObject) nativeConstructor.newInstance(env, this);
 
+        ArrayMemory props = object.getProperties();
         for(PropertyEntity property : getProperties()){
-            object.__dynamicProperties__.put(property.getName(), property.getDefaultValue().toImmutable());
+            props.put(property.getName(), property.getDefaultValue().toImmutable());
         }
 
         if (methodConstruct != null){
@@ -441,7 +443,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory concatProperty(Environment env, TraceInfo trace,
-                               PHPObject object, String property, Memory memory)
+                               IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -452,7 +454,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory plusProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -463,7 +465,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory minusProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -474,7 +476,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory mulProperty(Environment env, TraceInfo trace,
-                                PHPObject object, String property, Memory memory)
+                                IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -485,7 +487,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory divProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -496,7 +498,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory modProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -507,7 +509,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory bitAndProperty(Environment env, TraceInfo trace,
-                                 PHPObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -518,7 +520,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory bitOrProperty(Environment env, TraceInfo trace,
-                                 PHPObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -529,7 +531,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory bitXorProperty(Environment env, TraceInfo trace,
-                                PHPObject object, String property, Memory memory)
+                                IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -540,7 +542,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory bitShrProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback(){
             @Override
@@ -551,7 +553,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory bitShlProperty(Environment env, TraceInfo trace,
-                                 PHPObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory)
             throws InvocationTargetException, IllegalAccessException {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -562,13 +564,13 @@ public class ClassEntity extends Entity {
     }
 
     public Memory setProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property, Memory memory, SetterCallback callback)
+                              IObject object, String property, Memory memory, SetterCallback callback)
             throws InvocationTargetException, IllegalAccessException {
         ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        ArrayMemory props = object.__dynamicProperties__;
+        ArrayMemory props = object.getProperties();
         value = props == null || accessFlag != 0 ? null : props.getByScalar(property);
 
         if (value == null) {
@@ -603,7 +605,7 @@ public class ClassEntity extends Entity {
                 if (callback != null)
                     memory = callback.invoke(Memory.NULL, memory);
 
-                return props == null ? Memory.NULL : object.__dynamicProperties__.refOfIndex(property).assign(memory);
+                return props == null ? Memory.NULL : object.getProperties().refOfIndex(property).assign(memory);
             }
         } else {
             if (callback != null)
@@ -614,14 +616,15 @@ public class ClassEntity extends Entity {
         return memory;
     }
 
-    public Memory unsetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+    public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        if (object.__dynamicProperties__ == null
+        ArrayMemory props = object.getProperties();
+        if (props == null
                 || accessFlag != 0
-                || object.__dynamicProperties__.removeByScalar(property) == null ){
+                || props.removeByScalar(property) == null ){
             if (methodMagicUnset != null) {
                 try {
                     Memory[] args = new Memory[]{new StringMemory(property)};
@@ -640,13 +643,14 @@ public class ClassEntity extends Entity {
         return Memory.NULL;
     }
 
-    public Memory emptyProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+    public Memory emptyProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        if (object.__dynamicProperties__ != null && accessFlag != 0){
-            Memory tmp = object.__dynamicProperties__.getByScalar(property);
+        ArrayMemory props = object.getProperties();
+        if (props != null && accessFlag != 0){
+            Memory tmp = props.getByScalar(property);
             if ( tmp != null ){
                 return tmp;
             }
@@ -667,14 +671,15 @@ public class ClassEntity extends Entity {
         return Memory.FALSE;
     }
 
-    public Memory issetProperty(Environment env, TraceInfo trace, PHPObject object, String property)
+    public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        Memory tmp = object.__dynamicProperties__ == null || accessFlag != 0
+        ArrayMemory props = object.getProperties();
+        Memory tmp = props == null || accessFlag != 0
                 ? null
-                : object.__dynamicProperties__.getByScalar(property);
+                : props.getByScalar(property);
 
         if ( tmp != null )
             return tmp.isNull() ? tmp : Memory.TRUE;
@@ -696,7 +701,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory getProperty(Environment env, TraceInfo trace,
-                              PHPObject object, String property)
+                              IObject object, String property)
             throws InvocationTargetException, IllegalAccessException {
         ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
@@ -704,8 +709,10 @@ public class ClassEntity extends Entity {
 
         if (entity != null && accessFlag != 0) {
             value = null;
-        } else
-            value = object.__dynamicProperties__ == null ? null : object.__dynamicProperties__.getByScalar(property);
+        } else {
+            ArrayMemory props = object.getProperties();
+            value = props == null ? null : props.getByScalar(property);
+        }
 
         if (value != null)
             return value;

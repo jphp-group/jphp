@@ -6,7 +6,7 @@ import ru.regenix.jphp.runtime.env.SplClassLoader;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.spl.Countable;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -50,7 +50,7 @@ public class SPLFunctions extends FunctionsContainer {
 
     public static long iterator_count(Environment env, TraceInfo trace, Memory object) {
         if (expectingImplement(env, trace, 1, object, Traversable.class)){
-            PHPObject tmp = object.toValue(ObjectMemory.class).value;
+            IObject tmp = object.toValue(ObjectMemory.class).value;
             if (tmp instanceof Countable){
                 return ((Countable)tmp).count(env).toLong();
             } else {
@@ -86,7 +86,7 @@ public class SPLFunctions extends FunctionsContainer {
     public static Memory class_parents(Environment env, Memory object, boolean autoLoad){
         ClassEntity entity;
         if (object.isObject()){
-            entity = object.toValue(ObjectMemory.class).getSelfClass();
+            entity = object.toValue(ObjectMemory.class).getReflection();
         } else {
             entity = env.fetchClass(object.toString(), false, autoLoad);
         }

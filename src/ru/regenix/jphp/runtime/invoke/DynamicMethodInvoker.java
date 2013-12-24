@@ -4,7 +4,7 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
@@ -12,16 +12,16 @@ import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import java.lang.reflect.InvocationTargetException;
 
 public class DynamicMethodInvoker extends Invoker {
-    protected final PHPObject object;
+    protected final IObject object;
     protected final MethodEntity method;
 
-    public DynamicMethodInvoker(Environment env, TraceInfo trace, PHPObject object, MethodEntity method) {
+    public DynamicMethodInvoker(Environment env, TraceInfo trace, IObject object, MethodEntity method) {
         super(env, trace);
         this.object = object;
         this.method = method;
     }
 
-    public PHPObject getObject() {
+    public IObject getObject() {
         return object;
     }
 
@@ -31,7 +31,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, object, args, method.getName(), object.__class__.getName());
+        env.pushCall(trace, object, args, method.getName(), object.getReflection().getName());
     }
 
     @Override
@@ -44,20 +44,20 @@ public class DynamicMethodInvoker extends Invoker {
         return method.canAccess(env, external);
     }
 
-    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object, String methodName){
-        MethodEntity methodEntity = object.__class__.findMethod(methodName.toLowerCase());
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, IObject object, String methodName){
+        MethodEntity methodEntity = object.getReflection().findMethod(methodName.toLowerCase());
         if (methodEntity == null){
             if (trace == null) {
-                if (object.__class__.methodMagicCall != null) {
+                if (object.getReflection().methodMagicCall != null) {
                     return new MagicDynamicMethodInvoker(
-                            env, trace, object, object.__class__.methodMagicCall, methodName
+                            env, trace, object, object.getReflection().methodMagicCall, methodName
                     );
                 }
 
                 return null;
             }
             env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::"+ methodName),
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() +"::"+ methodName),
                     trace
             ));
         }
@@ -69,13 +69,13 @@ public class DynamicMethodInvoker extends Invoker {
         return valueOf(env, trace, ((ObjectMemory)object).value, methodName);
     }
 
-    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, PHPObject object){
-        MethodEntity methodEntity = object.__class__.methodMagicInvoke;
+    public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, IObject object){
+        MethodEntity methodEntity = object.getReflection().methodMagicInvoke;
         if (methodEntity == null){
             if (trace == null)
                 return null;
             env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.__class__.getName() +"::__invoke"),
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() +"::__invoke"),
                     trace
             ));
         }

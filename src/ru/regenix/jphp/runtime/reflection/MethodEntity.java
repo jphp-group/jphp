@@ -8,7 +8,8 @@ import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.BaseObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.AbstractFunctionEntity;
 
@@ -85,7 +86,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         this.nativeMethod = nativeMethod;
     }
 
-    public Memory invokeDynamicNoThrow(PHPObject _this, Environment environment, Memory... arguments){
+    public Memory invokeDynamicNoThrow(IObject _this, Environment environment, Memory... arguments){
         try {
             return invokeDynamic(_this, environment, arguments);
         } catch (IllegalAccessException e) {
@@ -101,7 +102,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invokeDynamic(PHPObject _this, Environment environment, Memory... arguments)
+    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments)
             throws IllegalAccessException, InvocationTargetException {
         Memory result = (Memory)nativeMethod.invoke(_this, environment, arguments);
         if (arguments != null){

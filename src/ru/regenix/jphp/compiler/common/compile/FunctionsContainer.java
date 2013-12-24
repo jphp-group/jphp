@@ -36,7 +36,7 @@ abstract public class FunctionsContainer {
         if (!memory.isObject() || !memory.toValue(ObjectMemory.class).getClass().isAssignableFrom(clazz)) {
             String given = memory.getRealType().toString();
             if (memory.isObject())
-                given = memory.toValue(ObjectMemory.class).getSelfClass().getName();
+                given = memory.toValue(ObjectMemory.class).getReflection().getName();
 
             env.warning(trace, "expects parameter " + index + " must implement "
                     + (clazz.isInterface() ? "interface " : "") + clazz.getSimpleName() +

@@ -7,7 +7,7 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.Closure;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.LongMemory;
@@ -377,7 +377,7 @@ public class LangFunctions extends FunctionsContainer {
         ClassEntity classEntity;
         if (clazz.isObject()){
             ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
-            classEntity = tmp.getSelfClass();
+            classEntity = tmp.getReflection();
         } else {
             classEntity = env.fetchClass(clazz.toString(), true, true);
         }
@@ -387,10 +387,10 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory property_exists(Environment env, Memory clazz, String property){
         ClassEntity classEntity;
-        PHPObject object = null;
+        IObject object = null;
         if (clazz.isObject()){
             ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
-            classEntity = tmp.getSelfClass();
+            classEntity = tmp.getReflection();
             object = tmp.value;
         } else {
             classEntity = env.fetchClass(clazz.toString(), true, true);
@@ -401,7 +401,8 @@ public class LangFunctions extends FunctionsContainer {
         }
 
         if (object != null){
-            return (object.__dynamicProperties__ != null && object.__dynamicProperties__.getByScalar(property) != null)
+            ArrayMemory props = object.getProperties();
+            return (props != null && props.getByScalar(property) != null)
                     ? Memory.TRUE : Memory.FALSE;
         } else {
             PropertyEntity entity = classEntity.properties.get(property);
@@ -417,7 +418,7 @@ public class LangFunctions extends FunctionsContainer {
         if (allowedString && !object.isObject()){
             classEntity = env.fetchClass(object.toString(), false, true);
         } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
-            classEntity = object.toValue(ObjectMemory.class).getSelfClass();
+            classEntity = object.toValue(ObjectMemory.class).getReflection();
         }
         parentClass = env.fetchClass(className, false, true);
 
@@ -461,7 +462,7 @@ public class LangFunctions extends FunctionsContainer {
                 }
             }
         } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
-            return new StringMemory(object.toValue(ObjectMemory.class).getSelfClass().getName());
+            return new StringMemory(object.toValue(ObjectMemory.class).getReflection().getName());
         }
 
         return Memory.FALSE;
@@ -478,7 +479,7 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory get_parent_class(Memory object){
         if (object.isObject()){
-            ClassEntity classEntity = object.toValue(ObjectMemory.class).getSelfClass().getParent();
+            ClassEntity classEntity = object.toValue(ObjectMemory.class).getReflection().getParent();
             if (classEntity == null)
                 return Memory.NULL;
             else

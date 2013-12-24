@@ -13,7 +13,7 @@ import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
@@ -127,7 +127,7 @@ public class Environment {
         constantMap.putAll(scope.getConstantMap());
     }
 
-    public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
+    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz){
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
             System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
@@ -140,6 +140,10 @@ public class Environment {
             callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz);
 
         maxCallStackTop = callStackTop;
+    }
+
+    public void pushCall(IObject self, String method, Memory... args){
+        pushCall(null, self, args, method, self.getReflection().getName());
     }
 
     public void popCall(){

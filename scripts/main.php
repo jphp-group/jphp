@@ -1,4 +1,3 @@
 <?php
 
-
-return array(1, 2, 3);
+key(array('foo' => NULL));

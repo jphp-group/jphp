@@ -13,7 +13,7 @@ import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
@@ -410,7 +410,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             node.access = ACC_SUPER + ACC_PUBLIC;
             node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
             node.superName = entity.getParent() == null
-                    ? Type.getInternalName(PHPObject.class)
+                    ? Type.getInternalName(BaseObject.class)
                     : entity.getParent().getInternalName();
 
             node.sourceFile = compiler.getSourceFile();

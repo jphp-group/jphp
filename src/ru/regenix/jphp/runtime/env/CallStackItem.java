@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.runtime.lang.Closure;
-import ru.regenix.jphp.runtime.lang.PHPObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.output.PlainPrinter;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -10,7 +10,7 @@ import java.io.StringWriter;
 
 public class CallStackItem {
     public TraceInfo trace;
-    public PHPObject object;
+    public IObject object;
     public Memory[] args;
 
     public String function;
@@ -21,7 +21,7 @@ public class CallStackItem {
         this.trace = trace;
     }
 
-    public CallStackItem(TraceInfo trace, PHPObject object, Memory[] args, String function, String clazz) {
+    public CallStackItem(TraceInfo trace, IObject object, Memory[] args, String function, String clazz) {
         this.trace = trace;
         this.object = object;
         this.args = args;
@@ -29,7 +29,7 @@ public class CallStackItem {
         this.clazz = clazz;
     }
 
-    public void setParameters(TraceInfo trace, PHPObject object, Memory[] args, String function, String clazz) {
+    public void setParameters(TraceInfo trace, IObject object, Memory[] args, String function, String clazz) {
         this.trace = trace;
         this.object = object;
         this.args = args;

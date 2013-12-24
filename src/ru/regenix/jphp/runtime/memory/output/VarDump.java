@@ -3,7 +3,6 @@ package ru.regenix.jphp.runtime.memory.output;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
-import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -133,13 +132,12 @@ public class VarDump extends Printer {
 
     @Override
     protected void printObject(ObjectMemory value, int level, Set<Integer> used) {
-        PHPObject object = value.value;
-        ClassEntity classEntity = object.__class__;
+        ClassEntity classEntity = value.getReflection();
 
         if (used.contains(value.getPointer())){
             printer.write("*RECURSION*\n");
         } else {
-            ArrayMemory arr = object.__dynamicProperties__;
+            ArrayMemory arr = value.getProperties();
 
             printer.write("object(");
             printer.write(classEntity.getName());
