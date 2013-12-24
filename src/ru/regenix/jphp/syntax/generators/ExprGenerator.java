@@ -16,6 +16,7 @@ import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.KeyValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
@@ -440,6 +441,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
                                   Class<? extends Token>... endTokens) {
         List<Token> tokens = new ArrayList<Token>();
+        Token previous = null;
         do {
             if (current instanceof EndStmtToken || isTokenClass(current, endTokens)){
                 boolean doBreak = true;
@@ -527,7 +529,24 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof SemicolonToken){
                 tokens.add(current);
                 break;
-            } else if (current instanceof ExprToken || current instanceof FunctionStmtToken){
+            } else if (current instanceof FunctionStmtToken){
+                FunctionStmtToken token = analyzer.generator(FunctionGenerator.class)
+                        .getToken(current, iterator, true);
+                token.setStatic(false);
+                if (token.getName() == null){
+                    ClosureStmtToken closure = new ClosureStmtToken(token.getMeta());
+                    closure.setFunction(token);
+                    tokens.add(closure);
+                    analyzer.registerClosure(closure);
+
+                    List<Token> tmp = processSimpleExpr(current, iterator);
+                    tokens.addAll(tmp);
+                } else {
+                    tokens.add(token);
+                    analyzer.registerFunction(token);
+                }
+                break;
+            } else if (current instanceof ExprToken /*|| current instanceof FunctionStmtToken*/){
                 if (current instanceof StaticExprToken){
                     Token result = processStatic((StaticExprToken) current, iterator);
                     if (result != null){

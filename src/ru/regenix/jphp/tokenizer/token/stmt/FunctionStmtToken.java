@@ -32,6 +32,9 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean varsExists;
     protected boolean thisExists;
     public static final VariableExprToken thisVariable = VariableExprToken.valueOf("this");
+    protected int id;
+
+    protected boolean isStatic = false;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -43,6 +46,14 @@ public class FunctionStmtToken extends StmtToken {
         this.arrayAccessLocal = new HashSet<VariableExprToken>();
         this.refLocal = new HashSet<VariableExprToken>();
         this.unstableLocal = new HashSet<VariableExprToken>();
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public void setStatic(boolean aStatic) {
+        isStatic = aStatic;
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -203,5 +214,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public boolean isThisExists() {
         return thisExists;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 }

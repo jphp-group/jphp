@@ -19,9 +19,18 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     private Class<?> nativeClazz;
     private Method nativeMethod;
+    private boolean isStatic = false;
 
     public FunctionEntity(Context context) {
         super(context);
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public void setStatic(boolean aStatic) {
+        isStatic = aStatic;
     }
 
     public boolean isInternal() {

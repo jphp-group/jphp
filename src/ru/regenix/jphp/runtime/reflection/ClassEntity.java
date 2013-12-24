@@ -64,6 +64,8 @@ public class ClassEntity extends Entity {
     protected boolean isFinal = false;
     protected Type type = Type.CLASS;
 
+    protected boolean isStatic;
+
     public ClassEntity(Context context) {
         super(context);
         this.methods = new LinkedHashMap<String, MethodEntity>();
@@ -104,6 +106,14 @@ public class ClassEntity extends Entity {
         this.setNativeClazz(nativeClazz);
         this.isInternal = true;
         doneDeclare();
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public void setStatic(boolean aStatic) {
+        isStatic = aStatic;
     }
 
     public long getId() {

@@ -42,19 +42,23 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
-    protected ClosureStmtToken processClosure(Token current, Token next, ListIterator<Token> iterator){
+    protected Token processClosure(Token current, Token next, ListIterator<Token> iterator){
         FunctionStmtToken functionStmtToken = analyzer.generator(FunctionGenerator.class).getToken(
             current, iterator, true
         );
 
-        if (functionStmtToken.getName() != null)
-            unexpectedToken(functionStmtToken.getName());
+        if (functionStmtToken.getName() == null){
+            //unexpectedToken(functionStmtToken.getName());
 
-        ClosureStmtToken result = new ClosureStmtToken(current.getMeta());
-        result.setFunction(functionStmtToken);
-        analyzer.registerClosure(result);
+            ClosureStmtToken result = new ClosureStmtToken(current.getMeta());
+            result.setFunction(functionStmtToken);
+            analyzer.registerClosure(result);
 
-        return result;
+            return result;
+        } else {
+            analyzer.registerFunction(functionStmtToken);
+            return functionStmtToken;
+        }
     }
 
     protected DieExprToken processDie(Token current, Token next, ListIterator<Token> iterator){

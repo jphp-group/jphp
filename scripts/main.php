@@ -1,5 +1,13 @@
 <?php
+namespace foobar;
 
-$arr{20}{0} = "ura";
+class My {
+    static function run(){
+        function test(){
+            echo "FAIL";
+        }
+    }
+}
 
-echo $arr{20}{0};
+//My::run();
+test();

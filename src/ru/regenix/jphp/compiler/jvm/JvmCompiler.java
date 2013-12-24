@@ -125,14 +125,24 @@ public class JvmCompiler extends AbstractCompiler {
             module.addClosure(closureEntity);
         }
 
-        for(Token token : tokens){
+        for (FunctionStmtToken function : analyzer.getFunctions()){
+            if (!function.isStatic()) {
+                FunctionEntity entity = compileFunction(function);
+                entity.setStatic(function.isStatic());
+                module.addFunction(entity);
+            }
+        }
+
+        for(Token token : tokens) {
             if (token instanceof NamespaceStmtToken){
               setNamespace((NamespaceStmtToken)token);
             } if (token instanceof ClassStmtToken){
                 ClassEntity entity = compileClass((ClassStmtToken)token);
+                entity.setStatic(true);
                 module.addClass(entity);
             } else if (token instanceof FunctionStmtToken){
                 FunctionEntity entity = compileFunction((FunctionStmtToken)token);
+                entity.setStatic(true);
                 module.addFunction(entity);
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);

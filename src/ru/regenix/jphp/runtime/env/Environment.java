@@ -5,6 +5,7 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
@@ -79,9 +80,9 @@ public class Environment {
     private final Map<String, ModuleEntity> included;
 
     //
-    private final Map<String, ClassEntity> classUsedMap = new LinkedHashMap<String, ClassEntity>();
-    private final Map<String, FunctionEntity> functionUsedMap = new LinkedHashMap<String, FunctionEntity>();
-    private final Map<String, ConstantEntity> constantUsedMap = new LinkedHashMap<String, ConstantEntity>();
+    public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
+    public final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
+    public final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
     // call stack
     private final static int CALL_STACK_INIT_SIZE = 255;
@@ -120,6 +121,10 @@ public class Environment {
         Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
         if (invoker != null)
             this.autoLoader = new SplClassLoader(invoker, splAutoloader);
+
+        classMap.putAll(scope.getClassMap());
+        functionMap.putAll(scope.getFunctionMap());
+        constantMap.putAll(scope.getConstantMap());
     }
 
     public void pushCall(TraceInfo trace, PHPObject self, Memory[] args, String function, String clazz){
@@ -202,23 +207,23 @@ public class Environment {
     }
 
     public Map<String, ClassEntity> getLoadedClasses() {
-        return classUsedMap;
+        return classMap;
     }
 
     public Map<String, FunctionEntity> getLoadedFunctions() {
-        return functionUsedMap;
+        return functionMap;
     }
 
     public boolean isLoadedClass(String lowerName){
-        return classUsedMap.containsKey(lowerName);
+        return classMap.containsKey(lowerName);
     }
 
     public boolean isLoadedFunction(String lowerName){
-        return functionUsedMap.containsKey(lowerName);
+        return functionMap.containsKey(lowerName);
     }
 
     public boolean isLoadedConstant(String lowerName){
-        return constantUsedMap.containsKey(lowerName);
+        return constantMap.containsKey(lowerName);
     }
 
     public ClassEntity autoloadCall(String name){
@@ -238,7 +243,7 @@ public class Environment {
 
     public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad) {
         String nameL = name.toLowerCase();
-        ClassEntity entity = scope.classMap.get(nameL);
+        ClassEntity entity = classMap.get(nameL);
         if (magic && entity == null){
             if ("self".equals(nameL)){
                 ClassEntity e = getContextClass();
@@ -499,15 +504,17 @@ public class Environment {
 
     public void registerModule(ModuleEntity module){
         for(ClassEntity entity : module.getClasses()) {
-            classUsedMap.put(entity.getLowerName(), entity);
+            if (entity.isStatic())
+                classMap.put(entity.getLowerName(), entity);
         }
 
         for(FunctionEntity entity : module.getFunctions()) {
-            functionUsedMap.put(entity.getLowerName(), entity);
+            if (entity.isStatic())
+                functionMap.put(entity.getLowerName(), entity);
         }
 
         for(ConstantEntity entity : module.getConstants()) {
-            constantUsedMap.put(entity.getLowerName(), entity);
+            constantMap.put(entity.getLowerName(), entity);
         }
     }
 
@@ -580,7 +587,7 @@ public class Environment {
 
     public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        ClassEntity entity = scope.classMap.get(lowerName);
+        ClassEntity entity = classMap.get(lowerName);
         if (entity == null){
             triggerError(new CompileException(
                     Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originName),
@@ -624,6 +631,18 @@ public class Environment {
             flags = silents.pop();
 
         setErrorFlags(flags);
+    }
+
+    public void __defineFunction(TraceInfo trace, int moduleIndex, int index){
+        ModuleEntity module = scope.moduleIndexMap.get(moduleIndex);
+        FunctionEntity function = module.findFunction(index);
+
+        if (functionMap.put(function.getLowerName(), function) != null){
+            triggerError(new FatalException(
+                    Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(function.getName()),
+                    trace
+            ));
+        }
     }
 
     public void die(Memory value) {

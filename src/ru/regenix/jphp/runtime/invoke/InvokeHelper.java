@@ -199,7 +199,7 @@ final public class InvokeHelper {
 
     public static Memory call(Environment env, TraceInfo trace, String sign, String originName,
                               Memory[] args) throws InvocationTargetException, IllegalAccessException {
-        FunctionEntity function = env.scope.functionMap.get(sign);
+        FunctionEntity function = env.functionMap.get(sign);
         if (function == null) {
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(originName),
@@ -227,7 +227,7 @@ final public class InvokeHelper {
                                     String className, String methodName, String originClassName, String originMethodName,
                                     Memory[] args)
             throws InvocationTargetException, IllegalAccessException {
-        ClassEntity classEntity = env.scope.classMap.get(className);
+        ClassEntity classEntity = env.classMap.get(className);
         if (classEntity == null){
             // try autoload
             classEntity = env.fetchClass(className, false, true);

@@ -117,6 +117,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator, boolean closureAllowed) {
         if (current instanceof FunctionStmtToken){
             FunctionStmtToken result = (FunctionStmtToken)current;
+            result.setStatic(analyzer.getFunction() == null);
 
             Token next = nextToken(iterator);
             if (next instanceof AmpersandRefToken){
@@ -125,8 +126,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             }
 
             if (next instanceof NameToken){
-                if (analyzer.getFunction() != null)
-                    unexpectedToken(current);
+                /*if (analyzer.getFunction() != null)
+                    unexpectedToken(current);*/
 
                 analyzer.addLocalScope();
                 analyzer.setFunction(result);

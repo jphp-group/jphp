@@ -22,11 +22,9 @@ public class CompileScope {
     public final Map<String, ModuleEntity> moduleMap;
     public final Map<Integer, ModuleEntity> moduleIndexMap;
 
-    public final Map<String, ClassEntity> classMap;
-    public final Map<String, MethodEntity> methodMap;
-
-    public final Map<String, FunctionEntity> functionMap;
-    public final Map<String, ConstantEntity> constantMap;
+    protected final Map<String, ClassEntity> classMap;
+    protected final Map<String, FunctionEntity> functionMap;
+    protected final Map<String, ConstantEntity> constantMap;
 
     protected Map<String, Extension> extensions;
 
@@ -46,7 +44,6 @@ public class CompileScope {
         moduleIndexMap = new HashMap<Integer, ModuleEntity>();
 
         classMap = new HashMap<String, ClassEntity>();
-        methodMap = new HashMap<String, MethodEntity>();
         functionMap = new HashMap<String, FunctionEntity>();
         constantMap = new HashMap<String, ConstantEntity>();
 
@@ -66,7 +63,19 @@ public class CompileScope {
         superGlobals.add("_SESSION");
         superGlobals.add("_COOKIE");
 
-        addUserClass(new ClassEntity(null, Closure.class));
+        registerClass(new ClassEntity(null, Closure.class));
+    }
+
+    public Map<String, ClassEntity> getClassMap() {
+        return classMap;
+    }
+
+    public Map<String, FunctionEntity> getFunctionMap() {
+        return functionMap;
+    }
+
+    public Map<String, ConstantEntity> getConstantMap() {
+        return constantMap;
     }
 
     public int nextModuleIndex(){
@@ -87,7 +96,7 @@ public class CompileScope {
         compileFunctionMap.putAll(extension.getFunctions());
 
         for(ClassEntity clazz : extension.getClasses().values()){
-            addUserClass(clazz);
+            registerClass(clazz);
         }
 
         for(CompileFunction function : extension.getFunctions().values()){
@@ -105,35 +114,32 @@ public class CompileScope {
         return extensions.keySet();
     }
 
-    public void addUserClass(ClassEntity clazz){
+    public void registerClass(ClassEntity clazz){
         classMap.put(clazz.getLowerName(), clazz);
-        for(MethodEntity method : clazz.getMethods().values()){
-            methodMap.put(method.getKey(), method);
-        }
     }
 
     public void addUserModule(ModuleEntity module){
         for(ClassEntity clazz : module.getClasses()){
-            addUserClass(clazz);
+            registerClass(clazz);
         }
 
         for(FunctionEntity function : module.getFunctions()){
-            addUserFunction(function);
+            registerFunction(function);
         }
 
         for(ConstantEntity constant : module.getConstants()){
-            addUserConstant(constant);
+            registerConstant(constant);
         }
 
         moduleMap.put(module.getName(), module);
         moduleIndexMap.put(module.getId(), module);
     }
 
-    public void addUserFunction(FunctionEntity function){
+    public void registerFunction(FunctionEntity function){
         functionMap.put(function.getLowerName(), function);
     }
 
-    public void addUserConstant(ConstantEntity constant){
+    public void registerConstant(ConstantEntity constant){
         constantMap.put(constant.getLowerName(), constant);
     }
 

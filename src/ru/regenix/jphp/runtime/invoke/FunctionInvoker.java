@@ -39,7 +39,7 @@ public class FunctionInvoker extends Invoker {
     }
 
     public static FunctionInvoker valueOf(Environment env, TraceInfo trace, String name){
-        FunctionEntity functionEntity = env.scope.functionMap.get(name.toLowerCase());
+        FunctionEntity functionEntity = env.functionMap.get(name.toLowerCase());
         if (functionEntity == null){
             if (trace == null)
                 return null;

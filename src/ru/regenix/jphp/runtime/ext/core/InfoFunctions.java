@@ -92,28 +92,20 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory get_declared_classes(Environment env){
         ArrayMemory array = new ArrayMemory();
-        for(ClassEntity classEntity : env.scope.classMap.values()){
-            if (classEntity.isInternal() && classEntity.getType() == ClassEntity.Type.CLASS)
-                array.add(new StringMemory(classEntity.getName()));
-        }
-
-        for(ClassEntity classEntity : env.getLoadedClasses().values())
+        for(ClassEntity classEntity : env.classMap.values()){
             if (classEntity.getType() == ClassEntity.Type.CLASS)
                 array.add(new StringMemory(classEntity.getName()));
+        }
 
         return array.toConstant();
     }
 
     public static Memory get_declared_interfaces(Environment env){
         ArrayMemory array = new ArrayMemory();
-        for(ClassEntity classEntity : env.scope.classMap.values()){
-            if (classEntity.isInternal() && classEntity.getType() == ClassEntity.Type.INTERFACE)
-                array.add(new StringMemory(classEntity.getName()));
-        }
-
-        for(ClassEntity classEntity : env.getLoadedClasses().values())
+        for(ClassEntity classEntity : env.classMap.values()){
             if (classEntity.getType() == ClassEntity.Type.INTERFACE)
                 array.add(new StringMemory(classEntity.getName()));
+        }
 
         return array.toConstant();
     }
@@ -121,14 +113,16 @@ public class InfoFunctions extends FunctionsContainer {
     public static Memory get_defined_functions(Environment env){
         ArrayMemory array = new ArrayMemory();
         ArrayMemory item = (ArrayMemory)array.refOfIndex("internal").assign(new ArrayMemory());
-        for(FunctionEntity entity : env.scope.functionMap.values()){
+        for(FunctionEntity entity : env.functionMap.values()){
             if (entity.isInternal())
                 item.add(new StringMemory(entity.getName()));
         }
 
         item = (ArrayMemory)array.refOfIndex("user").assign(new ArrayMemory());
-        for(FunctionEntity entity : env.getLoadedFunctions().values())
-            item.add(new StringMemory(entity.getName()));
+        for(FunctionEntity entity : env.getLoadedFunctions().values()){
+            if (!entity.isInternal())
+                item.add(new StringMemory(entity.getName()));
+        }
 
         return array.toConstant();
     }

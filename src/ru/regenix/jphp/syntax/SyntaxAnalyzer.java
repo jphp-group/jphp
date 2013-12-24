@@ -34,7 +34,7 @@ public class SyntaxAnalyzer {
     private Stack<Set<VariableExprToken>> localStack;
 
     private Map<String, ClassStmtToken> classes;
-    private Map<String, FunctionStmtToken> functions;
+    private List<FunctionStmtToken> functions;
     private Map<String, ConstStmtToken> constants;
     private List<ClosureStmtToken> closures;
 
@@ -42,7 +42,7 @@ public class SyntaxAnalyzer {
         this.tokenizer = tokenizer;
 
         classes = new LinkedHashMap<String, ClassStmtToken>();
-        functions = new LinkedHashMap<String, FunctionStmtToken>();
+        functions = new ArrayList<FunctionStmtToken>();
         constants = new LinkedHashMap<String, ConstStmtToken>();
         closures = new ArrayList<ClosureStmtToken>();
         closureStack = new Stack<FunctionStmtToken>();
@@ -76,7 +76,10 @@ public class SyntaxAnalyzer {
     }
 
     public void registerFunction(FunctionStmtToken function){
-        functions.put(function.getFulledName(), function);
+        if (function.getId() <= functions.size()){
+            function.setId(functions.size());
+            functions.add(function);
+        }
     }
 
     public void registerConstant(ConstStmtToken constant){
@@ -93,7 +96,7 @@ public class SyntaxAnalyzer {
     }
 
     public Collection<FunctionStmtToken> getFunctions() {
-        return functions.values();
+        return functions;
     }
 
     public Collection<ConstStmtToken> getConstants(){
@@ -106,10 +109,6 @@ public class SyntaxAnalyzer {
 
     public ClassStmtToken findClass(String name){
         return classes.get(name.toLowerCase());
-    }
-
-    public FunctionStmtToken findFunction(String name){
-        return functions.get(name.toLowerCase());
     }
 
     public ConstStmtToken findConstant(String name){

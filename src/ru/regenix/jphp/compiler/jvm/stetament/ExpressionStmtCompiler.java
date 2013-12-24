@@ -1036,7 +1036,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             // try find system function, like max, sin, cos, etc.
             if (compileFunction == null
                     && name instanceof FulledNameToken
-                    && compiler.getAnalyzer().findFunction(realName) == null){
+                    && compiler.getEnvironment().functionMap.get(realName.toLowerCase()) == null){
                 String tryName = ((FulledNameToken) name).getLastName().getName();
                 compileFunction = compiler.getScope().findCompileFunction(tryName);
             }
@@ -2873,6 +2873,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
+    void writeFunction(FunctionStmtToken function){
+        writePushEnv();
+        writePushTraceInfo(function);
+        writePushConstInt(compiler.getModule().getId());
+        writePushConstInt(function.getId());
+
+        writeSysDynamicCall(
+                Environment.class, "__defineFunction", void.class, TraceInfo.class, Integer.TYPE, Integer.TYPE
+        );
+    }
+
     public Memory writeExpression(ExprStmtToken expression, boolean returnValue, boolean returnMemory){
         return writeExpression(expression, returnValue, returnMemory, true);
     }
@@ -2898,7 +2909,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         for(Token token : tokens){
             if (writeOpcode){
-                if (token instanceof EchoRawToken){   // <? ... ?>
+                if (token instanceof FunctionStmtToken){
+                    writeFunction((FunctionStmtToken)token);
+                } else if (token instanceof EchoRawToken){   // <? ... ?>
                     writeEchoRaw((EchoRawToken) token);
                 } else if (token instanceof EchoStmtToken){ // echo ...
                     writeEcho((EchoStmtToken) token);

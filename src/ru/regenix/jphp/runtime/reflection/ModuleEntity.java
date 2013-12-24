@@ -21,7 +21,7 @@ public class ModuleEntity extends Entity {
     protected Method nativeMethod;
 
     private final Map<String, ClassEntity> classes;
-    private final Map<String, FunctionEntity> functions;
+    private final List<FunctionEntity> functions;
     private final Map<String, ConstantEntity> constants;
     private final List<ClosureEntity> closures;
 
@@ -32,7 +32,7 @@ public class ModuleEntity extends Entity {
     public ModuleEntity(Context context) {
         super(context);
         this.classes = new LinkedHashMap<String, ClassEntity>();
-        this.functions = new HashMap<String, FunctionEntity>();
+        this.functions = new ArrayList<FunctionEntity>();
         this.constants = new LinkedHashMap<String, ConstantEntity>();
         this.closures = new ArrayList<ClosureEntity>();
         this.setName(context.getModuleNameNoThrow());
@@ -124,15 +124,18 @@ public class ModuleEntity extends Entity {
     }
 
     public Collection<FunctionEntity> getFunctions(){
-        return functions.values();
+        return functions;
     }
 
     public ClassEntity findClass(String name){
         return classes.get(name.toLowerCase());
     }
 
-    public FunctionEntity findFunction(String name){
-        return functions.get(name.toLowerCase());
+    public FunctionEntity findFunction(int index){
+        if (index >= 0 && index < functions.size())
+            return functions.get(index);
+        else
+            return null;
     }
 
     public ConstantEntity findConstant(String name){
@@ -160,7 +163,7 @@ public class ModuleEntity extends Entity {
     }
 
     public void addFunction(FunctionEntity function){
-        functions.put(function.getLowerName(), function);
+        functions.add(function);
     }
 
     public Class<?> getNativeClazz() {

@@ -1,15 +1,11 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
-import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
-import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
@@ -36,15 +32,15 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setModule(module);
         entity.setName(statement.getFulledName());
         entity.setReturnReference(statement.isReturnReference());
-        entity.setInternalName("$_php_func_" + compiler.getScope().nextClassIndex());
+        entity.setInternalName("$_php_func_" + compiler.getModule().getId() + "_" + statement.getId());
 
-        if (compiler.getModule().findFunction(entity.getLowerName()) != null
+        /*if (compiler.getModule().findFunction(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){
             throw new FatalException(
                     Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()),
                     statement.getName().toTraceInfo(compiler.getContext())
             );
-        }
+        }*/
 
         NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
         ClassStmtToken token = new ClassStmtToken(statement.getMeta());
