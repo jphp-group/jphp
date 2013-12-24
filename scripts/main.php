@@ -1,4 +1,5 @@
 <?php
 
+$arr{20}{0} = "ura";
 
-spl_autoload_extensions(".inc, .php, .lib, .lib.php ");
+echo $arr{20}{0};

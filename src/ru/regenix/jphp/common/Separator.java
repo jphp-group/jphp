@@ -8,5 +8,6 @@ public enum Separator {
     POINT,
     COMMA_OR_SEMICOLON,
     AS,
-    ARRAY
+    ARRAY,
+    ARRAY_BLOCK
 }
