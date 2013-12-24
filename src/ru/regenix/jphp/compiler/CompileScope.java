@@ -119,17 +119,17 @@ public class CompileScope {
     }
 
     public void addUserModule(ModuleEntity module){
-        for(ClassEntity clazz : module.getClasses()){
+        /*for(ClassEntity clazz : module.getClasses()){
             registerClass(clazz);
-        }
+        }*/
 
-        for(FunctionEntity function : module.getFunctions()){
+        /*for(FunctionEntity function : module.getFunctions()){
             registerFunction(function);
         }
 
         for(ConstantEntity constant : module.getConstants()){
             registerConstant(constant);
-        }
+        }*/
 
         moduleMap.put(module.getName(), module);
         moduleIndexMap.put(module.getId(), module);

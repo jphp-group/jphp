@@ -36,10 +36,12 @@ public class ModuleOpcodePrinter {
             }
 
             for(ClassEntity clazz : module.getClasses()){
-                opcodePrinter = new OpcodePrinter(clazz);
-                writer.write("#### Class: " + clazz.getName() + "\n");
-                opcodePrinter.toWriter(writer);
-                writer.write("#### /Class \n\n\n");
+                if (clazz.getType() == ClassEntity.Type.CLASS){
+                    opcodePrinter = new OpcodePrinter(clazz);
+                    writer.write("#### Class: " + clazz.getName() + "\n");
+                    opcodePrinter.toWriter(writer);
+                    writer.write("#### /Class \n\n\n");
+                }
             }
 
             for(FunctionEntity function : module.getFunctions()){

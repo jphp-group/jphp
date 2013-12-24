@@ -17,14 +17,17 @@ import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -298,6 +301,81 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.node.methods.add(node);
     }
 
+    protected void writeInterfaceMethod(MethodEntity method){
+        MethodNode node = new MethodNodeImpl();
+        node.access = ACC_PUBLIC;
+        node.name = method.getName();
+        node.desc = Type.getMethodDescriptor(
+                Type.getType(Memory.class),
+                Type.getType(Environment.class),
+                Type.getType(Memory[].class)
+        );
+
+        MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, node);
+        ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+        methodCompiler.writeHeader();
+
+        LabelNode l0 = writeLabel(node, statement.getMeta().getStartLine());
+        methodCompiler.addLocalVariable("~this", l0);
+        methodCompiler.addLocalVariable("~env", l0);
+        methodCompiler.addLocalVariable("~args", l0);
+
+        expressionCompiler.writeVarLoad("~this");
+        expressionCompiler.writeVarLoad("~env");
+        expressionCompiler.writeVarLoad("~args");
+
+        String internalName = entity.findMethod(method.getName()).getInternalName();
+        expressionCompiler.writeSysDynamicCall(null, internalName, Memory.class, Environment.class, Memory[].class);
+
+        node.instructions.add(new InsnNode(ARETURN));
+        methodCompiler.writeFooter();
+        this.node.methods.add(node);
+    }
+
+    protected void writeInterfaceMethods(Collection<MethodEntity> methods){
+        for(MethodEntity method : methods){
+            writeInterfaceMethod(method);
+        }
+    }
+
+    protected ClassEntity fetchClass(String name){
+        ClassEntity result = compiler.getModule().findClass(name);
+        if (result == null)
+            result = getCompiler().getEnvironment().fetchClass(name, false, true);
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void writeImplements(){
+        if (statement.getImplement() != null){
+            Environment env = compiler.getEnvironment();
+            for(FulledNameToken name : statement.getImplement()){
+                ClassEntity implement = fetchClass(name.getName());
+                if (implement == null) {
+                    env.triggerError(new FatalException(
+                            Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName()),
+                            name.toTraceInfo(compiler.getContext())
+                    ));
+                } else {
+                    if (implement.getType() != ClassEntity.Type.INTERFACE){
+                        env.triggerError(new FatalException(
+                                Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName()),
+                                name.toTraceInfo(compiler.getContext())
+                        ));
+                    }
+                    if (implement.isInternal())
+                        node.interfaces.add(implement.getInternalName());
+                }
+                ClassEntity.ClassAddResult addResult = entity.addInterface(implement);
+                addResult.check(env);
+
+                if (implement != null && implement.isInternal())
+                    writeInterfaceMethods(implement.getMethods().values());
+            }
+        }
+    }
+
     @Override
     public ClassEntity compile() {
         entity = new ClassEntity(compiler.getContext());
@@ -307,13 +385,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setAbstract(statement.isAbstract());
         entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
+        entity.setTrace(statement.toTraceInfo(compiler.getContext()));
+        if (statement.isInterface()){
+            entity.setType(ClassEntity.Type.INTERFACE);
+        }
+
         if (statement.getExtend() != null) {
-            ClassEntity parent = null;
-            parent = compiler.getEnvironment()
-                    .fetchClass(statement.getExtend().getName().getName(), false, true);
-            if (parent == null){
-                parent = compiler.getModule().findClass(statement.getExtend().getName().getName());
-            }
+            ClassEntity parent = fetchClass(statement.getExtend().getName().getName());
             entity.setParent(parent);
         }
 
@@ -328,37 +406,46 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             );
         }
 
-        node.access = ACC_SUPER + ACC_PUBLIC;
-        node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
-        node.superName = entity.getParent() == null
-                ? Type.getInternalName(PHPObject.class)
-                : entity.getParent().getInternalName();
+        if (!statement.isInterface()){
+            node.access = ACC_SUPER + ACC_PUBLIC;
+            node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
+            node.superName = entity.getParent() == null
+                    ? Type.getInternalName(PHPObject.class)
+                    : entity.getParent().getInternalName();
 
-        node.sourceFile = compiler.getSourceFile();
+            node.sourceFile = compiler.getSourceFile();
 
-        writeSystemInfo();
-        writeConstructor();
+            writeSystemInfo();
+            writeConstructor();
+        }
 
         // constants
         if (statement.getConstants() != null)
-        for(ConstStmtToken constant : statement.getConstants()){
-              writeConstant(constant);
+            for(ConstStmtToken constant : statement.getConstants()){
+                  writeConstant(constant);
         }
 
-        if (statement.getMethods() != null)
-        for (MethodStmtToken method : statement.getMethods()){
-            entity.addMethod(compiler.compileMethod(this, method, external));
+        if (statement.getMethods() != null){
+            for (MethodStmtToken method : statement.getMethods()){
+                entity.addMethod(compiler.compileMethod(this, method, external));
+            }
         }
 
+        ClassEntity.ClassAddResult result = entity.updateParentMethods();
+        result.check(compiler.getEnvironment());
+
+        writeImplements();
         entity.doneDeclare();
-        writeDestructor();
 
-        writeInitStatic();
+        if (!statement.isInterface()){
+            writeDestructor();
+            writeInitStatic();
 
-        cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
-        node.accept(cw);
+            cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
+            node.accept(cw);
 
-        entity.setData(cw.toByteArray());
+            entity.setData(cw.toByteArray());
+        }
         return entity;
     }
 

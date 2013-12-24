@@ -33,6 +33,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setName(statement.getFulledName());
         entity.setReturnReference(statement.isReturnReference());
         entity.setInternalName("$_php_func_" + compiler.getModule().getId() + "_" + statement.getId());
+        entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 
         /*if (compiler.getModule().findFunction(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){

@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler.common.compile;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 import java.lang.reflect.Method;
@@ -25,6 +26,21 @@ abstract public class FunctionsContainer {
         if (memory.getRealType() != type) {
             env.warning(trace, "expects parameter " + index + " to be " + type.toString() +
                     ", " + memory.getRealType().toString() + " given");
+            return false;
+        }
+        return true;
+    }
+
+    protected static boolean expectingImplement(Environment env, TraceInfo trace,
+                                                int index, Memory memory, Class<?> clazz){
+        if (!memory.isObject() || !memory.toValue(ObjectMemory.class).getClass().isAssignableFrom(clazz)) {
+            String given = memory.getRealType().toString();
+            if (memory.isObject())
+                given = memory.toValue(ObjectMemory.class).getSelfClass().getName();
+
+            env.warning(trace, "expects parameter " + index + " must implement "
+                    + (clazz.isInterface() ? "interface " : "") + clazz.getSimpleName() +
+                    ", " + given + " given");
             return false;
         }
         return true;

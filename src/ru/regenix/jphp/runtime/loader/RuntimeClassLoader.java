@@ -80,8 +80,10 @@ public class RuntimeClassLoader extends ClassLoader {
                 for(ClosureEntity closure : module.getClosures())
                     loadClosure(closure);
 
-                for(ClassEntity clazz : module.getClasses())
-                    loadClass(clazz);
+                for(ClassEntity clazz : module.getClasses()){
+                    if (clazz.getType() != ClassEntity.Type.INTERFACE)
+                        loadClass(clazz);
+                }
 
                 for(FunctionEntity function : module.getFunctions())
                     loadFunction(function);

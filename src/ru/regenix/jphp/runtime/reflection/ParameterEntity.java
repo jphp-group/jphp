@@ -87,6 +87,12 @@ public class ParameterEntity extends Entity {
         return isReference;
     }
 
+    public String getSignatureString(){
+        return (type == HintType.ANY ? "" : type.toString() + " ")
+                + (isReference ? "&" : "")
+                    + ("$" + name);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

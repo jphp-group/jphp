@@ -11,6 +11,7 @@ import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -328,6 +329,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setStatic(statement.isStatic());
             entity.setModifier(statement.getModifier());
             entity.setReturnReference(statement.isReturnReference());
+            entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 
             if (clazz.isSystem())
                 entity.setInternalName(entity.getName());
@@ -367,19 +369,34 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setParameters(parameters);
         }
 
-        writeHeader();
-
-        if (statement != null && statement.getBody() != null){
-            for(ExprStmtToken instruction : statement.getBody().getInstructions()){
-                compiler.compileExpression(this, instruction);
+        if (statement != null && clazz.statement.isInterface()){
+            if (!statement.isInterfacable()){
+                compiler.getEnvironment().triggerError(new FatalException(
+                        Messages.ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY.fetch(entity.getSignatureString(false)),
+                        entity.getTrace()
+                ));
             }
+            if (statement.isAbstract() || statement.isFinal()){
+                compiler.getEnvironment().triggerError(new FatalException(
+                        Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD.fetch(entity.getSignatureString(false)),
+                        entity.getTrace()
+                ));
+            }
+        } else {
+            writeHeader();
+
+            if (statement != null && statement.getBody() != null){
+                for(ExprStmtToken instruction : statement.getBody().getInstructions()){
+                    compiler.compileExpression(this, instruction);
+                }
+            }
+
+            ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
+            token.setValue(new ExprStmtToken(Token.of("null")));
+            compiler.compileExpression(this, new ExprStmtToken(token));
+
+            writeFooter();
         }
-
-        ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
-        token.setValue(new ExprStmtToken(Token.of("null")));
-        compiler.compileExpression(this, new ExprStmtToken(token));
-
-        writeFooter();
         return entity;
     }
 

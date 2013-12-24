@@ -20,6 +20,7 @@ public class ConstantStmtCompiler extends StmtCompiler<ConstantEntity> {
         entity = new ConstantEntity(compiler.getContext());
         entity.setClazz(clazzStatement.entity);
         entity.setName(statement.getName().getName());
+        entity.setTrace(statement.toTraceInfo(compiler.getContext()));
     }
 
     @Override

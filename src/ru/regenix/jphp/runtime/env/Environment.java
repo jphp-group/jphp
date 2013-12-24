@@ -435,6 +435,11 @@ public class Environment {
             triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
     }
 
+    public void warning(TraceInfo trace, Messages.Item message, Object... args){
+        if (isHandleErrors(E_WARNING))
+            triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
+    }
+
     public void notice(String message, Object... args){
         if (isHandleErrors(E_WARNING))
             triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
@@ -540,7 +545,7 @@ public class Environment {
             throws InvocationTargetException, IllegalAccessException, IOException {
         File file = new File(fileName);
         if (!file.exists()){
-            triggerMessage(new WarningMessage(this, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName));
+            warning(trace, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName);
             return Memory.FALSE;
         } else {
             ModuleEntity module = importModule(file);
@@ -598,10 +603,22 @@ public class Environment {
         return new ObjectMemory( entity.newObject(this, trace, args) );
     }
 
+    private static ForeachIterator invalidIterator = new ForeachIterator(false, false, false) {
+        @Override
+        protected boolean init() { return false; }
+
+        @Override
+        protected boolean nextValue() { return false; }
+
+        @Override
+        protected boolean prevValue() { return false; }
+    };
+
     public ForeachIterator getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
         ForeachIterator iterator = memory.getNewIterator(getReferences, getKeyReferences);
         if (iterator == null){
             warning(trace, "Invalid argument supplied for foreach()");
+            return invalidIterator;
         }
         return iterator;
     }

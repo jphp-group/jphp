@@ -17,9 +17,7 @@ import ru.regenix.jphp.runtime.reflection.support.Entity;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ClassEntity extends Entity {
     // types
@@ -202,19 +200,34 @@ public class ClassEntity extends Entity {
         return parent;
     }
 
-    public void setParent(ClassEntity parent) {
+    public ClassAddResult updateParentMethods(){
+        ClassAddResult result = new ClassAddResult();
+        if (parent != null){
+            for(MethodEntity method : parent.getMethods().values()){
+                MethodEntity implMethod = findMethod(method.getLowerName());
+                if (implMethod == null){
+                    addMethod(method);
+                } else {
+                    implMethod.setPrototype(method);
+                    if (!implMethod.equalsBySignature(method)){
+                        result.invalidSignature.add(implMethod);
+                    } else if (implMethod.isStatic() && !method.isStatic()){
+                        result.mustNonStatic.add(implMethod);
+                    } else if (!implMethod.isStatic() && method.isStatic()){
+                        result.mustStatic.add(implMethod);
+                    }
+                }
+            }
+            doneDeclare();
+        }
+        return result;
+    }
+
+    public ClassAddResult setParent(ClassEntity parent) {
         this.parent = parent;
         this.methodCounts = parent.methodCounts;
 
-        for(MethodEntity method : parent.getMethods().values()){
-            MethodEntity implMethod = findMethod(method.getLowerName());
-            if (implMethod == null){
-                addMethod(method);
-            } else {
-                // TODO check signature impl method
-            }
-        }
-        doneDeclare();
+        return updateParentMethods();
     }
 
     public byte[] getData() {
@@ -225,17 +238,33 @@ public class ClassEntity extends Entity {
         this.data = data;
     }
 
-    public void addInterface(ClassEntity _interface) {
+    /**
+     * return empty list if success else list with not valid implemented methods in class
+     * @param _interface
+     * @return
+     */
+    public ClassAddResult addInterface(ClassEntity _interface) {
+        ClassAddResult result = new ClassAddResult();
+
         this.interfaces.put(_interface.getLowerName(), _interface);
         for(MethodEntity method : _interface.getMethods().values()){
             MethodEntity implMethod = findMethod(method.getLowerName());
             if (implMethod == null){
                 addMethod(method);
-                // TODO throw no implemented method
+                result.nonExists.add(method);
             } else {
-                // TODO check signature
+                implMethod.setPrototype(method);
+
+                if (!implMethod.equalsBySignature(method)){
+                    result.invalidSignature.add(implMethod);
+                } else if (implMethod.isStatic() && !method.isStatic()){
+                    result.mustNonStatic.add(implMethod);
+                } else if (!implMethod.isStatic() && method.isStatic()){
+                    result.mustStatic.add(implMethod);
+                }
             }
         }
+        return result;
     }
 
     public Map<String, ClassEntity> getInterfaces() {
@@ -671,5 +700,92 @@ public class ClassEntity extends Entity {
         int result = super.hashCode();
         result = 31 * result + (int) (id ^ (id >>> 32));
         return result;
+    }
+
+
+    public class ClassAddResult {
+        final List<MethodEntity> nonExists;
+        final List<MethodEntity> invalidSignature;
+        final List<MethodEntity> mustStatic;
+        final List<MethodEntity> mustNonStatic;
+
+        ClassAddResult() {
+            this.nonExists = new ArrayList<MethodEntity>();
+            this.invalidSignature = new ArrayList<MethodEntity>();
+            this.mustStatic = new ArrayList<MethodEntity>();
+            this.mustNonStatic = new ArrayList<MethodEntity>();
+        }
+
+        public Collection<MethodEntity> getNonExists() {
+            return nonExists;
+        }
+
+        public Collection<MethodEntity> getInvalidSignature() {
+            return invalidSignature;
+        }
+
+        public Collection<MethodEntity> getMustStatic() {
+            return mustStatic;
+        }
+
+        public Collection<MethodEntity> getMustNonStatic() {
+            return mustNonStatic;
+        }
+
+        public boolean valid(){
+            return nonExists.isEmpty();
+        }
+
+        public void check(Environment env){
+            if (!valid()){
+                StringBuilder needs = new StringBuilder();
+                Iterator<MethodEntity> iterator = getNonExists().iterator();
+                int size = 0;
+                while (iterator.hasNext()){
+                    MethodEntity el = iterator.next();
+                    needs.append(el.getClazz().getName())
+                            .append("::")
+                            .append(el.getName());
+
+                    if (iterator.hasNext())
+                        needs.append(", ");
+                    size++;
+                }
+
+                env.triggerError(new FatalException(
+                        Messages.ERR_FATAL_IMPLEMENT_METHOD.fetch(ClassEntity.this.getName(), size, needs),
+                        ClassEntity.this.getTrace()
+                ));
+            }
+
+            for(MethodEntity el : getInvalidSignature()){
+                env.triggerError(new FatalException(
+                        Messages.ERR_FATAL_INVALID_METHOD_SIGNATURE.fetch(
+                                el.getSignatureString(true), el.getPrototype().getSignatureString(true)
+                        ),
+                        el.getTrace()
+                ));
+            }
+
+            for (MethodEntity el : getMustStatic()){
+                env.triggerError(new FatalException(
+                        Messages.ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC.fetch(
+                                el.getPrototype().getSignatureString(false),
+                                ClassEntity.this.getName()
+                        ),
+                        el.getTrace()
+                ));
+            }
+
+            for (MethodEntity el : getMustNonStatic()){
+                env.triggerError(new FatalException(
+                        Messages.ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC.fetch(
+                                el.getPrototype().getSignatureString(false),
+                                ClassEntity.this.getName()
+                        ),
+                        el.getTrace()
+                ));
+            }
+        }
     }
 }

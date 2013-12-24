@@ -26,7 +26,7 @@ public class IfSyntaxTest extends AbstractSyntaxTestCase {
         Assert.assertTrue(((ExprStmtToken) tree.get(0)).getTokens().get(0) instanceof IfStmtToken);
 
         IfStmtToken token = (IfStmtToken) ((ExprStmtToken) tree.get(0)).getTokens().get(0);
-        Assert.assertNull(token.getBody());
+        Assert.assertNotNull(token.getBody());
         Assert.assertNotNull(token.getCondition());
     }
 

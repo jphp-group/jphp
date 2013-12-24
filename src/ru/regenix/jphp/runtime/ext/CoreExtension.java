@@ -5,6 +5,7 @@ import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.runtime.ext.core.*;
 import ru.regenix.jphp.runtime.lang.spl.ArrayAccess;
 import ru.regenix.jphp.runtime.lang.StdClass;
+import ru.regenix.jphp.runtime.lang.spl.PHPIterator;
 
 public class CoreExtension extends Extension {
     @Override
@@ -32,5 +33,6 @@ public class CoreExtension extends Extension {
 
         registerNativeClass(StdClass.class);
         registerNativeClass(ArrayAccess.class);
+        registerNativeClass(PHPIterator.class);
     }
 }

@@ -128,6 +128,7 @@ public class TokenFinder {
         put("exit", DieExprToken.class);
 
         put("class", ClassStmtToken.class);
+        put("interface", InterfaceStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);
         put("implements", ImplementsStmtToken.class);

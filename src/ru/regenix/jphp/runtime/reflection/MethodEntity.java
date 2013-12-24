@@ -28,6 +28,8 @@ public class MethodEntity extends AbstractFunctionEntity {
     protected Modifier modifier;
     private String key;
 
+    protected String signature;
+
     public MethodEntity(Context context) {
         super(context);
     }
@@ -219,6 +221,38 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public String getKey() {
         return key;
+    }
+
+    public String getSignatureString(boolean withArgs){
+        StringBuilder sb = new StringBuilder(getClazz().getName() + "::" + getName() + "(");
+
+        int i = 0;
+        if (parameters != null && withArgs)
+        for(ParameterEntity param : parameters){
+            sb.append(param.getSignatureString());
+            if (i < parameters.length - 1)
+                sb.append(", ");
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public String getSignature() {
+        if (signature != null)
+            return signature;
+
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        if (parameters != null)
+        for(ParameterEntity param : parameters){
+            sb.append(param.type).append("|").append(param.isReference ? "&" : "");
+        }
+        return signature = sb.toString();
+    }
+
+    public boolean equalsBySignature(MethodEntity method){
+        return getSignature().equals(method.getSignature());
     }
 
     /**

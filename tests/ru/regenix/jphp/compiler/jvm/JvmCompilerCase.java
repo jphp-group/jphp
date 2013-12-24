@@ -70,6 +70,7 @@ abstract public class JvmCompilerCase {
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
         environment.getScope().loadModule(module);
+        environment.registerModule(module);
 
         return module.includeNoThrow(environment);
     }
@@ -83,6 +84,7 @@ abstract public class JvmCompilerCase {
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
         environment.getScope().loadModule(module);
+        environment.registerModule(module);
 
         if (globals != null)
             environment.getGlobals().putAll(globals);

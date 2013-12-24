@@ -34,6 +34,18 @@ final public class Messages {
     public final static Item ERR_FATAL_CANNOT_REDECLARE_CLASS = new Item("Cannot redeclare class %s");
     public final static Item ERR_FATAL_CANNOT_REDECLARE_FUNCTION = new Item("Cannot redeclare function %s");
     public final static Item ERR_FATAL_CANNOT_REDECLARE_CONSTANT = new Item("Cannot redeclare constant %s");
+    public final static Item ERR_FATAL_CANNOT_IMPLEMENT = new Item("%s cannot implement %s - it is not an interface");
+    public final static Item ERR_FATAL_INTERFACE_NOT_FOUND = new Item("Interface '%s' not found");
+    public final static Item ERR_FATAL_TRAIT_NOT_FOUND = new Item("Trait '%s' not found");
+
+    public final static Item ERR_FATAL_IMPLEMENT_METHOD =
+            new Item("Class %s contains %s abstract method(s) and therefore be declared abstract or implement the remaining methods (%s)");
+
+    public final static Item ERR_FATAL_INVALID_METHOD_SIGNATURE = new Item("Declaration of %s must be compatible with %s");
+    public final static Item ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY = new Item("Interface function %s cannot contain body");
+    public final static Item ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD = new Item("Access type for interface method %s must be omitted");
+    public final static Item ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot make non static method %s static in class %s");
+    public final static Item ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC = new Item("Cannot make static method %s non static in class %s");
 
     public final static Item ERR_FATAL_CLASS_NOT_FOUND = new Item("Class '%s' not found");
     public final static Item ERR_WARNING_MISSING_ARGUMENT = new Item("Missing argument %s for %s()");

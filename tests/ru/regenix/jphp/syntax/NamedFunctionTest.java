@@ -46,7 +46,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
         Assert.assertNotNull(arguments.get(2).getValue());
 
         Assert.assertEquals("myFunc", func.getName().getName());
-        Assert.assertNull(func.getBody());
+        Assert.assertNotNull(func.getBody());
         Assert.assertFalse(func.isInterfacable());
 
         Assert.assertTrue(iterator.hasNext());

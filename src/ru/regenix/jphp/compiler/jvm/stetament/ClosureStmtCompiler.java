@@ -28,6 +28,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         entity.setReturnReference(statement.getFunction().isReturnReference());
         entity.setInternalName("$_php_closure_" + compiler.getModule().getId() + "_" + statement.getId());
         entity.setId(statement.getId());
+        entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 
         ClassStmtToken classStmtToken = new ClassStmtToken(statement.getMeta());
         classStmtToken.setNamespace(NamespaceStmtToken.getDefault());

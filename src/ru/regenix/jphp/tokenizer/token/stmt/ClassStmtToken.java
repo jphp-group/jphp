@@ -23,11 +23,21 @@ public class ClassStmtToken extends StmtToken {
     private List<ClassVarStmtToken> properties;
     private List<MethodStmtToken> methods;
 
+    private boolean isInterface = false;
+
     public ClassStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_CLASS);
         properties = new ArrayList<ClassVarStmtToken>();
         constants = new ArrayList<ConstStmtToken>();
         methods = new ArrayList<MethodStmtToken>();
+    }
+
+    public boolean isInterface() {
+        return isInterface;
+    }
+
+    public void setInterface(boolean anInterface) {
+        isInterface = anInterface;
     }
 
     public NameToken getName() {

@@ -2,11 +2,13 @@ package ru.regenix.jphp.runtime.reflection.support;
 
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 
 import java.lang.reflect.InvocationTargetException;
 
 abstract public class Entity {
     protected Context context;
+    protected TraceInfo trace;
     protected String name;
     protected String lowerName;
 
@@ -17,6 +19,14 @@ abstract public class Entity {
 
     public Entity(Context context) {
         this.context = context;
+    }
+
+    public TraceInfo getTrace() {
+        return trace;
+    }
+
+    public void setTrace(TraceInfo trace) {
+        this.trace = trace;
     }
 
     public String getInternalName() {

@@ -5,9 +5,10 @@ import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 
+import java.util.Iterator;
 import java.util.List;
 
-public class ImplementsStmtToken extends ExprToken {
+public class ImplementsStmtToken extends ExprToken implements Iterable<FulledNameToken> {
 
     private List<FulledNameToken> names;
 
@@ -21,5 +22,10 @@ public class ImplementsStmtToken extends ExprToken {
 
     public void setNames(List<FulledNameToken> names) {
         this.names = names;
+    }
+
+    @Override
+    public Iterator<FulledNameToken> iterator() {
+        return names.iterator();
     }
 }
