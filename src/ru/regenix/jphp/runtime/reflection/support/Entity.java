@@ -66,7 +66,10 @@ abstract public class Entity {
         this.lowerName = name.toLowerCase();
 
         String[] tmp = StringUtils.split(name, '\\');
-        this.shortName = tmp[tmp.length - 1];
+        if (tmp.length == 0)
+            this.shortName = name;
+        else
+            this.shortName = tmp[tmp.length - 1];
 
         if (tmp.length > 1)
             this.namespaceName = StringUtils.join(tmp, '\\', 0, tmp.length - 1);

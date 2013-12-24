@@ -23,7 +23,7 @@ public class ArrayFunctions extends FunctionsContainer {
     public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Runtime.Reference Memory array,
                                    boolean strict){
         if (expecting(env, trace, 2, array, Memory.Type.ARRAY)){
-            ForeachIterator iterator = array.getNewIterator(false, false);
+            ForeachIterator iterator = array.getNewIterator(env, false, false);
             while (iterator.next()){
                 if (strict){
                     if (needle.identical(iterator.getValue()))
@@ -275,14 +275,14 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
 
         if (arrays == null) {
-            iterators = new ForeachIterator[] { _array.getNewIterator(false, false) };
+            iterators = new ForeachIterator[] { _array.getNewIterator(env, false, false) };
         } else {
             iterators = new ForeachIterator[1 + arrays.length];
-            iterators[0] = _array.getNewIterator(false, false);
+            iterators[0] = _array.getNewIterator(env, false, false);
             for(int i = 0; i < arrays.length; i++){
                 if (!expecting(env, trace, i + 3, arrays[i], Memory.Type.ARRAY))
                     return Memory.NULL;
-                iterators[i + 1] = arrays[i].getNewIterator(false, false);
+                iterators[i + 1] = arrays[i].getNewIterator(env, false, false);
             }
         }
 
@@ -322,7 +322,7 @@ public class ArrayFunctions extends FunctionsContainer {
         }
 
         ArrayMemory result = new ArrayMemory();
-        ForeachIterator iterator = input.getNewIterator(true, false);
+        ForeachIterator iterator = input.getNewIterator(env, true, false);
         while (iterator.next()){
             Object key = iterator.getKey();
             Memory value = iterator.getValue();
@@ -358,7 +358,7 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
 
         Memory result = initial;
-        ForeachIterator iterator = array.getNewIterator(true, false);
+        ForeachIterator iterator = array.getNewIterator(env, true, false);
         while (iterator.next()){
             Memory el = iterator.getValue();
             result = invoker.call(result, el);
@@ -384,7 +384,7 @@ public class ArrayFunctions extends FunctionsContainer {
         if (invoker == null)
             return false;
 
-        ForeachIterator iterator = input.getNewIterator(true, false);
+        ForeachIterator iterator = input.getNewIterator(env, true, false);
         while (iterator.next()){
             Memory item = iterator.getValue();
             Memory key  = iterator.getMemoryKey();
@@ -405,7 +405,7 @@ public class ArrayFunctions extends FunctionsContainer {
         if (used == null)
             used = new HashSet<Integer>();
 
-        ForeachIterator iterator = input.getNewIterator(true, false);
+        ForeachIterator iterator = input.getNewIterator(env, true, false);
         while (iterator.next()){
             Memory item = iterator.getValue();
             if (item.isArray()){
@@ -454,7 +454,7 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
 
         ArrayMemory result = new ArrayMemory();
-        ForeachIterator iterator = input.getNewIterator(false, false);
+        ForeachIterator iterator = input.getNewIterator(env, false, false);
         while (iterator.next())
             result.put(ArrayMemory.toKey(iterator.getValue()), iterator.getMemoryKey());
 
@@ -467,7 +467,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
         ArrayMemory array = input.toValue(ArrayMemory.class);
         ArrayMemory result = new ArrayMemory();
-        ForeachIterator iterator = input.getNewIterator(false, false);
+        ForeachIterator iterator = input.getNewIterator(env, false, false);
 
         Memory[] values = new Memory[array.size()];
         Object[] keys = saveKeys ? new Object[values.length] : null;
@@ -510,7 +510,7 @@ public class ArrayFunctions extends FunctionsContainer {
         if (numReq == 1){
             return array.getRandomElementKey(MathFunctions.RANDOM);
         } else {
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             Set<Integer> rands = new HashSet<Integer>();
             for(i = 0; i < numReq; i++){
                 while (!rands.add( MathFunctions.rand(0, size - 1).toInteger() ));
@@ -602,7 +602,7 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
 
         ArrayMemory result = new ArrayMemory();
-        ForeachIterator iterator = input.getNewIterator(false, false);
+        ForeachIterator iterator = input.getNewIterator(env, false, false);
         while (iterator.next())
             result.add(iterator.getMemoryKey());
 
@@ -636,7 +636,7 @@ public class ArrayFunctions extends FunctionsContainer {
     @Runtime.Immutable(ignoreRefs = true)
     public static Memory array_product(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
         if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             Memory result = Memory.CONST_INT_1;
             while (iterator.next()){
                 result = result.mul(iterator.getValue());
@@ -649,7 +649,7 @@ public class ArrayFunctions extends FunctionsContainer {
     @Runtime.Immutable(ignoreRefs = true)
     public static Memory array_sum(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
         if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             Memory result = Memory.CONST_INT_0;
             while (iterator.next()){
                 result = result.plus(iterator.getValue());
@@ -663,7 +663,7 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory array_change_key_case(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int _case){
         if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
             ArrayMemory result = new ArrayMemory();
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             while (iterator.next()){
                 Object key = iterator.getKey();
                 if (key instanceof String){
@@ -694,7 +694,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
             ArrayMemory result = new ArrayMemory();
             ArrayMemory item = null;
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
 
             int i = 0;
             while (iterator.next()){
@@ -730,7 +730,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 return array_values(env, trace, input);
 
             ArrayMemory result = new ArrayMemory();
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             while (iterator.next()){
                 Memory value = iterator.getValue();
                 if (indexKey == Memory.NULL){
@@ -770,8 +770,8 @@ public class ArrayFunctions extends FunctionsContainer {
             if (size1 == 0)
                 return result.toConstant();
 
-            ForeachIterator iteratorKeys = _keys.getNewIterator(false, false);
-            ForeachIterator iteratorValues = _values.getNewIterator(false, false);
+            ForeachIterator iteratorKeys = _keys.getNewIterator(env, false, false);
+            ForeachIterator iteratorValues = _values.getNewIterator(env, false, false);
             while (iteratorKeys.next()){
                 iteratorValues.next();
                 result.refOfIndex(iteratorKeys.getValue())
@@ -786,7 +786,7 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory array_count_values(Environment env, TraceInfo trace, @Runtime.Reference Memory input){
         if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
             ArrayMemory counts = new ArrayMemory();
-            ForeachIterator iterator = input.getNewIterator(false, false);
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
             boolean warning = false;
             while (iterator.next()){
                 Memory value = iterator.getValue();

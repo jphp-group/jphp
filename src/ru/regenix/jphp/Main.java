@@ -29,6 +29,7 @@ public class Main {
             scope.registerExtension(new CTypeExtension());
             scope.registerExtension(new CalendarExtension());
             scope.registerExtension(new DateExtension());
+            scope.registerExtension(new SPLExtension());
 
             Environment environment = new Environment(scope, System.out);
             Context context = environment.createContext(new File("scripts/main.php"));

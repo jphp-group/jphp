@@ -587,7 +587,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         } else {
             next = nextToken(iterator);
             if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
-                unexpectedToken(next);
+                unexpectedToken(next, "(");
             braceKind = BraceExprToken.Kind.SIMPLE;
         }
 
@@ -712,50 +712,42 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             }
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 boolean isFunc = false;
-                if (previous instanceof NameToken
-                        || previous instanceof VariableExprToken
-                        || previous instanceof ClosureStmtToken
-                        || previous instanceof ArrayGetExprToken)
-                    isFunc = true;
-                else if (previous instanceof StaticAccessExprToken){
-                    isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
-                } else if (previous instanceof DynamicAccessExprToken){
-                    isFunc = true;
-                }
-
-                if (isFunc){
-                    CallExprToken call = processCall(previous, current, iterator);
-                    if (call.getName() != null) {
-                        current = call;
-                        tokens.set(tokens.size() - 1, call);
-                    } else {
-                        tokens.add(current = new CallOperatorToken(call));
-                    }
+                if (previous instanceof NameToken && previous.getMeta().getWord().equalsIgnoreCase("array")){
+                    iterator.previous();
+                    tokens.set(tokens.size() - 1, current = processNewArray(previous, iterator));
                 } else {
-                    if (needBreak)
-                        unexpectedToken(current);
+                    if (previous instanceof NameToken
+                            || previous instanceof VariableExprToken
+                            || previous instanceof ClosureStmtToken
+                            || previous instanceof ArrayGetExprToken)
+                        isFunc = true;
+                    else if (previous instanceof StaticAccessExprToken){
+                        isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
+                    } else if (previous instanceof DynamicAccessExprToken){
+                        isFunc = true;
+                    }
 
-                    braceOpened += 1;
-                    tokens.add(current);
+                    if (isFunc){
+                        CallExprToken call = processCall(previous, current, iterator);
+                        if (call.getName() != null) {
+                            current = call;
+                            tokens.set(tokens.size() - 1, call);
+                        } else {
+                            tokens.add(current = new CallOperatorToken(call));
+                        }
+                    } else {
+                        if (needBreak)
+                            unexpectedToken(current);
+
+                        braceOpened += 1;
+                        tokens.add(current);
+                    }
                 }
             } else if (braceOpened > 0 && isClosedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 braceOpened -= 1;
                 tokens.add(current);
                 if (isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))
                     unexpectedToken(current);
-
-            } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
-                if (separator == Separator.ARRAY)
-                    break;
-                if (closedBraceKind == BraceExprToken.Kind.ARRAY){
-                    //if (tokens.isEmpty())
-                        iterator.previous();
-                    break;
-                }
-                unexpectedToken(current);
-            } else if (separator == Separator.ARRAY_BLOCK
-                    && braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
-                break;
             } else if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)
                     || isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
                 if (isTokenClass(previous,
@@ -776,6 +768,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     tokens.add(current = processNewArray(current, iterator));
                 } else
                     unexpectedToken(current);
+            } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
+                if (separator == Separator.ARRAY)
+                    break;
+                if (closedBraceKind == BraceExprToken.Kind.ARRAY){
+                    //if (tokens.isEmpty())
+                    iterator.previous();
+                    break;
+                }
+                unexpectedToken(current);
+            } else if (separator == Separator.ARRAY_BLOCK
+                    && braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                break;
             } else if (current instanceof FunctionStmtToken){
                 current = processClosure(current, next, iterator);
                 tokens.add(current);
@@ -827,7 +831,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (needBreak)
                     unexpectedToken(current);
 
-                tokens.add(processNewArray(current, iterator));
+                tokens.add(current = processNewArray(current, iterator));
             } else if (current instanceof ExprToken) {
                 if (needBreak)
                     unexpectedToken(current);

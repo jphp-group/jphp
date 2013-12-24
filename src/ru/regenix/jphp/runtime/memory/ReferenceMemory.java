@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
@@ -838,8 +839,8 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences) {
-        return value.getNewIterator(getReferences, getKeyReferences);
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return value.getNewIterator(env, getReferences, getKeyReferences);
     }
 
     @Override

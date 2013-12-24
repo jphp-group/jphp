@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory.support;
 
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
 
@@ -527,5 +528,6 @@ abstract public class Memory {
 
     abstract public byte[] getBinaryBytes();
 
-    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences){ return null; }
+    public ForeachIterator getNewIterator(Environment env,
+                                          boolean getReferences, boolean getKeyReferences){ return null; }
 }

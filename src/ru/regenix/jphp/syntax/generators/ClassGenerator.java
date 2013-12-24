@@ -6,6 +6,7 @@ import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.ColonToken;
+import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
@@ -221,6 +222,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         modifiers.clear();
                     } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
                         break;
+                    } else if (current instanceof CommentToken){
+                        // todo comment process
                     } else
                         unexpectedToken(current);
                 }

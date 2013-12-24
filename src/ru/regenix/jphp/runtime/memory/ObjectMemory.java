@@ -1,7 +1,8 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.Resource;
-import ru.regenix.jphp.runtime.lang.spl.PHPIterator;
+import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.PHPObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -175,15 +176,20 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences) {
-        if (value instanceof PHPIterator){
-            final PHPIterator iterator = (PHPIterator)value;
+    public ForeachIterator getNewIterator(final Environment env, boolean getReferences, boolean getKeyReferences) {
+        if (value instanceof Iterator){
+            final Iterator iterator = (Iterator)value;
             final String className = value.__class__.getName();
 
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 @Override
                 protected boolean init() {
-                    return iterator.rewind(value.__env__).toBoolean();
+                    env.pushCall(null, ObjectMemory.this.value, null, "rewind", className);
+                    try {
+                        return iterator.rewind(value.__env__).toBoolean();
+                    } finally {
+                        env.popCall();
+                    }
                 }
 
                 @Override
@@ -198,13 +204,37 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public boolean next() {
-                    iterator.next(value.__env__);
-                    boolean valid = iterator.valid(value.__env__).toBoolean();
-                    if (valid){
-                        currentKey   = iterator.key(value.__env__);
-                        currentValue = iterator.current(value.__env__);
-                        if (!getReferences)
-                            currentValue = currentValue.toImmutable();
+                    boolean valid = false;
+
+                    env.pushCall(null, ObjectMemory.this.value, null, "valid", className);
+                    try {
+                        valid = iterator.valid(value.__env__).toBoolean();
+                        if (valid) {
+                            env.pushCall(null, ObjectMemory.this.value, null, "key", className);
+                            try {
+                                currentKey = iterator.key(value.__env__).toImmutable();
+
+                                env.pushCall(null, ObjectMemory.this.value, null, "current", className);
+                                try {
+                                    currentValue = iterator.current(value.__env__);
+                                    if (!getReferences)
+                                        currentValue = currentValue.toImmutable();
+                                } finally {
+                                    env.popCall();
+                                }
+                            } finally {
+                                env.popCall();
+                            }
+                        }
+                    } finally {
+                        env.popCall();
+                    }
+
+                    env.pushCall(null, ObjectMemory.this.value, null, "next", className);
+                    try {
+                        iterator.next(value.__env__);
+                    } finally {
+                        env.popCall();
                     }
                     return valid;
                 }

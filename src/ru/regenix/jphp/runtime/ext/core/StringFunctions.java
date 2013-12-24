@@ -1167,25 +1167,25 @@ public class StringFunctions extends FunctionsContainer {
 
         ForeachIterator replacementIterator = null;
         if (replacementM.isArray())
-            replacementIterator = replacementM.getNewIterator(false, false);
+            replacementIterator = replacementM.getNewIterator(env, false, false);
         else
             replacement = replacementM.toString();
 
         ForeachIterator startIterator = null;
         if (startM.isArray())
-            startIterator = startM.getNewIterator(false, false);
+            startIterator = startM.getNewIterator(env, false, false);
         else
             start = startM.toInteger();
 
         ForeachIterator lengthIterator = null;
         if (lengthM.isArray())
-            lengthIterator = lengthM.getNewIterator(false, false);
+            lengthIterator = lengthM.getNewIterator(env, false, false);
         else
             length = lengthM.toInteger();
 
         if (string.isArray()){
             ArrayMemory resultArray = new ArrayMemory();
-            ForeachIterator iterator = string.getNewIterator(false, false);
+            ForeachIterator iterator = string.getNewIterator(env, false, false);
 
             while (iterator.next()){
                 String value = iterator.getValue().toString();

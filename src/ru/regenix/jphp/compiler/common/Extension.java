@@ -31,8 +31,8 @@ abstract public class Extension {
         return classes;
     }
 
-    public void registerNativeClass(Class<?> clazz){
-        ClassEntity classEntity = new ClassEntity(this, clazz);
+    public void registerNativeClass(CompileScope scope, Class<?> clazz){
+        ClassEntity classEntity = new ClassEntity(this, scope, clazz);
         classes.put(classEntity.getLowerName(), classEntity);
     }
 

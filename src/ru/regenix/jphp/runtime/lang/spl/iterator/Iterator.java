@@ -1,11 +1,12 @@
-package ru.regenix.jphp.runtime.lang.spl;
+package ru.regenix.jphp.runtime.lang.spl.iterator;
 
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 @Reflection.Name("Iterator")
-public interface PHPIterator extends Traversable {
+public interface Iterator extends Traversable {
     @Reflection.Signature
     public Memory current(Environment env, Memory... args);
 

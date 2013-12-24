@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.lib.collections.map.LinkedMap;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.helper.ArrayKeyMemory;
@@ -185,7 +186,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         if (list != null){
             if (key instanceof Memory){
                 int index = (int)((Memory) key).toLong();
-                if (index < list.size()){
+                if (index >= 0 && index < list.size()){
                     return list.get(index);
                 } else
                     return null;
@@ -443,7 +444,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 for(int i = 0; i < count; i++)
                     tmp.add(value);
 
-                ForeachIterator iterator = getNewIterator(false, false);
+                ForeachIterator iterator = getNewIterator(null, false, false);
 
                 while (iterator.next()){
                     Object key = iterator.getKey();
@@ -480,7 +481,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 for(Memory el : values)
                     tmp.add(el);
 
-                ForeachIterator iterator = getNewIterator(false, false);
+                ForeachIterator iterator = getNewIterator(null, false, false);
 
                 while (iterator.next()){
                     Object key = iterator.getKey();
@@ -1043,7 +1044,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public ForeachIterator getNewIterator(boolean getReferences, boolean getKeyReferences) {
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
         return foreachIterator(getReferences, getKeyReferences, false);
     }
 

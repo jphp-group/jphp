@@ -259,67 +259,67 @@ final public class ObjectInvokeHelper {
         return phpObject.__class__.setProperty(env, trace, phpObject, property, value, null);
     }
 
-    public static Memory plusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.plusProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory minusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.minusProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory mulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.mulProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory divProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.divProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory modProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.modProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory concatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.concatProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory bitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.bitAndProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory bitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.bitOrProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory bitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.bitXorProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory bitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.bitShrProperty(env, trace, phpObject, property, value);
     }
 
-    public static Memory bitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws InvocationTargetException, IllegalAccessException {
         PHPObject phpObject = fetchObject(object, property, env, trace);
         return phpObject.__class__.bitShlProperty(env, trace, phpObject, property, value);

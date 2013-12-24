@@ -4,6 +4,9 @@ import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.runtime.lang.Closure;
+import ru.regenix.jphp.runtime.lang.StdClass;
+import ru.regenix.jphp.runtime.lang.spl.*;
+import ru.regenix.jphp.runtime.lang.spl.iterator.*;
 import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
@@ -63,7 +66,16 @@ public class CompileScope {
         superGlobals.add("_SESSION");
         superGlobals.add("_COOKIE");
 
-        registerClass(new ClassEntity(null, Closure.class));
+        registerClass(new ClassEntity(this, Closure.class));
+        registerClass(new ClassEntity(this, StdClass.class));
+        registerClass(new ClassEntity(this, ArrayAccess.class));
+
+        // iterators
+        registerClass(new ClassEntity(this, Traversable.class));
+        registerClass(new ClassEntity(this, ru.regenix.jphp.runtime.lang.spl.iterator.Iterator.class));
+        registerClass(new ClassEntity(this, IteratorAggregate.class));
+
+        registerClass(new ClassEntity(this, Serializable.class));
     }
 
     public Map<String, ClassEntity> getClassMap() {
@@ -148,11 +160,11 @@ public class CompileScope {
     }
 
     public ClassEntity findUserClass(String name){
-        return classMap.get(name);
+        return classMap.get(name.toLowerCase());
     }
 
     public FunctionEntity findUserFunction(String name){
-        return functionMap.get(name);
+        return functionMap.get(name.toLowerCase());
     }
 
     public ConstantEntity findUserConstant(String name){

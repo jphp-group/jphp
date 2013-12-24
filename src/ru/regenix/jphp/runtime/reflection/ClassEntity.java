@@ -1,8 +1,10 @@
 package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -75,7 +77,11 @@ public class ClassEntity extends Entity {
         this.isInternal = false;
     }
 
-    public ClassEntity(Extension extension, Class<?> nativeClazz){
+    public ClassEntity(CompileScope scope, Class<?> nativeClazz){
+        this(null, scope, nativeClazz);
+    }
+
+    public ClassEntity(Extension extension, CompileScope scope, Class<?> nativeClazz){
         this(null);
         this.extension = extension;
         if (nativeClazz.isInterface())
@@ -98,9 +104,52 @@ public class ClassEntity extends Entity {
                 Reflection.Name name = method.getAnnotation(Reflection.Name.class);
                 entity.setName(name == null ? method.getName() : name.value());
 
+                Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
+                ParameterEntity[] params = new ParameterEntity[signature.value().length];
+
+                int i = 0;
+                for (Reflection.Arg arg : signature.value()){
+                    ParameterEntity param = new ParameterEntity(context);
+                    param.setMethod(entity);
+                    param.setReference(arg.reference());
+                    param.setType(arg.type());
+                    param.setName(arg.value());
+
+                    params[i++] = param;
+                }
+
+                entity.setParameters(params);
                 addMethod(entity);
             }
         }
+
+        for (Class<?> interface_ : nativeClazz.getInterfaces()){
+            String name = interface_.getSimpleName();
+            if (interface_.isAnnotationPresent(Reflection.Name.class)){
+                name = interface_.getAnnotation(Reflection.Name.class).value();
+            }
+            ClassEntity entity = scope.findUserClass(name);
+            if (entity == null || entity.getType() != Type.INTERFACE)
+                throw new IllegalArgumentException("Interface '"+name+"' not registered");
+
+            ClassAddResult result = addInterface(entity);
+            result.check();
+        }
+
+        Class<?> extend = nativeClazz.getSuperclass();
+        if (extend != PHPObject.class && extend != null){
+            String name = extend.getSimpleName();
+            if (extend.isAnnotationPresent(Reflection.Name.class)){
+                name = extend.getAnnotation(Reflection.Name.class).value();
+            }
+            ClassEntity entity = scope.findUserClass(name);
+            if (entity == null || entity.getType() != Type.CLASS)
+                throw new IllegalArgumentException("Class '"+name+"' not registered");
+
+            ClassAddResult result = addInterface(entity);
+            result.check();
+        }
+
         this.setNativeClazz(nativeClazz);
         this.isInternal = true;
         doneDeclare();
@@ -251,7 +300,8 @@ public class ClassEntity extends Entity {
             MethodEntity implMethod = findMethod(method.getLowerName());
             if (implMethod == null){
                 addMethod(method);
-                result.nonExists.add(method);
+                if (type == Type.CLASS)
+                    result.nonExists.add(method);
             } else {
                 implMethod.setPrototype(method);
 
@@ -736,6 +786,10 @@ public class ClassEntity extends Entity {
             return nonExists.isEmpty();
         }
 
+        public void check(){
+            check(null);
+        }
+
         public void check(Environment env){
             if (!valid()){
                 StringBuilder needs = new StringBuilder();
@@ -752,39 +806,56 @@ public class ClassEntity extends Entity {
                     size++;
                 }
 
-                env.triggerError(new FatalException(
+                ErrorException e = new FatalException(
                         Messages.ERR_FATAL_IMPLEMENT_METHOD.fetch(ClassEntity.this.getName(), size, needs),
                         ClassEntity.this.getTrace()
-                ));
+                );
+
+                if (env == null)
+                    throw e;
+                else
+                    env.triggerError(e);
             }
 
             for(MethodEntity el : getInvalidSignature()){
-                env.triggerError(new FatalException(
+                ErrorException e = new FatalException(
                         Messages.ERR_FATAL_INVALID_METHOD_SIGNATURE.fetch(
                                 el.getSignatureString(true), el.getPrototype().getSignatureString(true)
                         ),
                         el.getTrace()
-                ));
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.triggerError(e);
             }
 
             for (MethodEntity el : getMustStatic()){
-                env.triggerError(new FatalException(
+                ErrorException e = new FatalException(
                         Messages.ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC.fetch(
                                 el.getPrototype().getSignatureString(false),
                                 ClassEntity.this.getName()
                         ),
                         el.getTrace()
-                ));
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.triggerError(e);
             }
 
             for (MethodEntity el : getMustNonStatic()){
-                env.triggerError(new FatalException(
+                ErrorException e = new FatalException(
                         Messages.ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC.fetch(
                                 el.getPrototype().getSignatureString(false),
                                 ClassEntity.this.getName()
                         ),
                         el.getTrace()
-                ));
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.triggerError(e);
             }
         }
     }

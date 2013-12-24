@@ -615,7 +615,7 @@ public class Environment {
     };
 
     public ForeachIterator getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
-        ForeachIterator iterator = memory.getNewIterator(getReferences, getKeyReferences);
+        ForeachIterator iterator = memory.getNewIterator(this, getReferences, getKeyReferences);
         if (iterator == null){
             warning(trace, "Invalid argument supplied for foreach()");
             return invalidIterator;

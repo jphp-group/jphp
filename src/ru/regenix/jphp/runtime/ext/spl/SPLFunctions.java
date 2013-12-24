@@ -30,7 +30,7 @@ public class SPLFunctions extends FunctionsContainer {
                 return 0;
             }
 
-            ForeachIterator iterator = object.getNewIterator(false, false);
+            ForeachIterator iterator = object.getNewIterator(env, false, false);
             Memory[] values = args == null ? null : args.toValue(ArrayMemory.class).values(true);
             int i = 0;
             while (iterator.next()){
@@ -54,7 +54,7 @@ public class SPLFunctions extends FunctionsContainer {
             if (tmp instanceof Countable){
                 return ((Countable)tmp).count(env).toLong();
             } else {
-                ForeachIterator iterator = object.getNewIterator(true, false);
+                ForeachIterator iterator = object.getNewIterator(env, true, false);
                 int i = 0;
                 while (iterator.next()) i++;
                 return i;
@@ -66,7 +66,7 @@ public class SPLFunctions extends FunctionsContainer {
     public static Memory iterator_to_array(Environment env, TraceInfo trace, Memory object, boolean useKeys){
         if (expectingImplement(env, trace, 1, object, Traversable.class)){
             ArrayMemory result = new ArrayMemory();
-            ForeachIterator iterator = object.getNewIterator(false, false);
+            ForeachIterator iterator = object.getNewIterator(env, false, false);
             while (iterator.next()){
                 if (useKeys){
                     result.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
