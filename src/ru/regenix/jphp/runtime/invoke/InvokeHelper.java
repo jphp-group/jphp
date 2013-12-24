@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
@@ -79,7 +80,7 @@ final public class InvokeHelper {
                         passed[i] = new ReferenceMemory(def.toImmutable());
                 } else {
                     env.triggerMessage(new WarningMessage(
-                            env,
+                            new CallStackItem(trace),
                             Messages.ERR_WARNING_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
                             originMethodName == null ? originClassName : originClassName + "::" + originMethodName
                     ));

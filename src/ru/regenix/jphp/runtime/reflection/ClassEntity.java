@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
@@ -9,12 +10,14 @@ import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Constructor;
@@ -96,6 +99,25 @@ public class ClassEntity extends Entity {
         }
         setInternalName(nativeClazz.getName().replace('.', '/'));
 
+        if (nativeClazz.isAnnotationPresent(Reflection.Signature.class)){
+            Reflection.Signature signature = nativeClazz.getAnnotation(Reflection.Signature.class);
+            for(Reflection.Arg arg : signature.value()){
+                PropertyEntity entity = new PropertyEntity(context);
+                entity.setClazz(this);
+                entity.setModifier(arg.modifier());
+                entity.setName(arg.value());
+                entity.setStatic(false);
+
+                if (arg.optional().exists()){
+                    entity.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
+                } else {
+                    entity.setDefaultValue(null);
+                }
+
+                addProperty(entity);
+            }
+        }
+
         for (Method method : nativeClazz.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
                 MethodEntity entity = new MethodEntity(extension, method);
@@ -116,6 +138,10 @@ public class ClassEntity extends Entity {
                     param.setType(arg.type());
                     param.setName(arg.value());
 
+                    if (arg.optional().exists() || !arg.value().isEmpty() || arg.type() != HintType.ANY){
+                        param.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
+                    }
+
                     params[i++] = param;
                 }
 
@@ -125,6 +151,8 @@ public class ClassEntity extends Entity {
         }
 
         for (Class<?> interface_ : nativeClazz.getInterfaces()){
+            if (interface_ == IObject.class) continue;
+
             String name = interface_.getSimpleName();
             if (interface_.isAnnotationPresent(Reflection.Name.class)){
                 name = interface_.getAnnotation(Reflection.Name.class).value();
@@ -138,7 +166,7 @@ public class ClassEntity extends Entity {
         }
 
         Class<?> extend = nativeClazz.getSuperclass();
-        if (extend != IObject.class && extend != BaseObject.class && extend != null){
+        if (extend != Object.class && extend != IObject.class && extend != BaseObject.class && extend != null){
             String name = extend.getSimpleName();
             if (extend.isAnnotationPresent(Reflection.Name.class)){
                 name = extend.getAnnotation(Reflection.Name.class).value();
@@ -427,17 +455,13 @@ public class ClassEntity extends Entity {
         IObject object = (IObject) nativeConstructor.newInstance(env, this);
 
         ArrayMemory props = object.getProperties();
-        for(PropertyEntity property : getProperties()){
-            props.put(property.getName(), property.getDefaultValue().toImmutable());
+        for(PropertyEntity property : getProperties()) {
+            if (property.defaultValue != null)
+                props.putAsKeyString(property.getName(), property.defaultValue.toImmutable());
         }
 
         if (methodConstruct != null){
-            try {
-                env.pushCall(trace, object, args, methodConstruct.getName(), name);
-                methodConstruct.invokeDynamic(object, env, args);
-            } finally {
-                env.popCall();
-            }
+            ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args);
         }
         return object;
     }

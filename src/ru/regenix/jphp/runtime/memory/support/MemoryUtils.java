@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory.support;
 
+import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.runtime.memory.*;
 
 import java.util.*;
@@ -188,6 +189,26 @@ public class MemoryUtils {
                 return new ArrayMemory((Object[])value);
         } else
             return Memory.NULL;
+    }
+
+    public static Memory valueOf(String value, HintType type){
+        switch (type){
+            case STRING: return new StringMemory(value);
+            case ANY: return value.equals("NULL") ? Memory.NULL : new StringMemory(value);
+            case NUMERIC: {
+                try {
+                    return new DoubleMemory(Double.parseDouble(value));
+                } catch (NumberFormatException e){
+                    return LongMemory.valueOf(Long.parseLong(value));
+                }
+            }
+            case BOOLEAN:
+                return new StringMemory(value).toBoolean() ? Memory.TRUE : Memory.FALSE;
+            case CALLABLE:
+                return new StringMemory(value);
+            default:
+                throw new IllegalArgumentException("Unsupported type - " + type);
+        }
     }
 
     public static interface Converter<T> {

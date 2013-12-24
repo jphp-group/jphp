@@ -24,10 +24,18 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     protected ThreadLocal<ForeachIterator> foreachIterator = new ThreadLocal<ForeachIterator>();
 
-    public ArrayMemory() {
+    public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);
-        list = new ArrayList<ReferenceMemory>();
+        if (asMap)
+            convertToMap();
+        else {
+            list = new ArrayList<ReferenceMemory>();
+        }
         lastLongIndex = -1;
+    }
+
+    public ArrayMemory(){
+        this(false);
     }
 
     public ArrayMemory(Collection collection){
@@ -141,12 +149,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     private void convertToMap(){
         map = new LinkedMap<Object, ReferenceMemory>();
-        int i = 0;
-        for(ReferenceMemory memory : list){
-            if (memory != null){
-                map.put(LongMemory.valueOf(i), memory);
+        if (list != null){
+            int i = 0;
+            for(ReferenceMemory memory : list){
+                if (memory != null){
+                    map.put(LongMemory.valueOf(i), memory);
+                }
+                i++;
             }
-            i++;
         }
         list = null;
     }
@@ -310,6 +320,18 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
             map.putAll(array.map);
         }
+    }
+
+    public ReferenceMemory putAsKeyString(String key, Memory value){
+        ReferenceMemory mem = new ReferenceMemory(value);
+        if (list != null)
+            convertToMap();
+
+        Memory last = map.put(key, mem);
+        if (last == null){
+            size++;
+        }
+        return mem;
     }
 
     public ReferenceMemory put(Object key, Memory value) {

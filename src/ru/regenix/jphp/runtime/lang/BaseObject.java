@@ -20,7 +20,7 @@ abstract public class BaseObject implements IObject {
 
     public BaseObject(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
-        this.__dynamicProperties__ = new ArrayMemory();
+        this.__dynamicProperties__ = new ArrayMemory(true);
     }
 
     @Override

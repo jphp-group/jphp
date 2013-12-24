@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.annotation;
 
 import ru.regenix.jphp.common.HintType;
+import ru.regenix.jphp.common.Modifier;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +18,7 @@ public @interface Reflection {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({METHOD})
+    @Target({METHOD, TYPE})
     public @interface Signature {
         Arg[] value() default {};
         Arg result() default @Arg(type = HintType.ANY);
@@ -28,12 +29,14 @@ public @interface Reflection {
         String value() default "";
         Optional optional() default @Optional(exists = false);
         HintType type() default HintType.ANY;
+        Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Optional {
         String value() default "";
+        HintType type() default HintType.ANY;
         boolean exists() default true;
     }
 

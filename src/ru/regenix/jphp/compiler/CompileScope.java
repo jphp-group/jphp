@@ -3,6 +3,7 @@ package ru.regenix.jphp.compiler;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
+import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.lang.spl.*;
@@ -67,6 +68,7 @@ public class CompileScope {
         superGlobals.add("_COOKIE");
 
         registerClass(new ClassEntity(this, Closure.class));
+        registerClass(new ClassEntity(this, BaseException.class));
         registerClass(new ClassEntity(this, StdClass.class));
         registerClass(new ClassEntity(this, ArrayAccess.class));
 
