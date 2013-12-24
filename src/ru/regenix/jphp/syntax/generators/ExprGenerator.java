@@ -441,7 +441,6 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
                                   Class<? extends Token>... endTokens) {
         List<Token> tokens = new ArrayList<Token>();
-        Token previous = null;
         do {
             if (current instanceof EndStmtToken || isTokenClass(current, endTokens)){
                 boolean doBreak = true;
@@ -565,6 +564,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 List<Token> tmp = processSimpleExpr(current, iterator);
                 tokens.addAll(tmp);
                 break;
+            } else if (current instanceof ClassStmtToken){
+                unexpectedToken(current);
             } else {
                 if (!tokens.isEmpty())
                     unexpectedToken(current);

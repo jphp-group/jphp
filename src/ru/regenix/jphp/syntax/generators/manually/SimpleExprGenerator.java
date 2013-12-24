@@ -642,8 +642,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                 if (iterator.hasNext()){
                     Token tmp = nextToken(iterator);
-                    if (isOpenedBrace(tmp, braceKind))
+                    if (isOpenedBrace(tmp, BraceExprToken.Kind.ARRAY)){
+                        braceKind = BraceExprToken.Kind.ARRAY;
+                        separator = Separator.ARRAY;
                         continue;
+                    } else if (isOpenedBrace(tmp, BraceExprToken.Kind.BLOCK)){
+                        braceKind = BraceExprToken.Kind.BLOCK;
+                        separator = Separator.ARRAY_BLOCK;
+                        continue;
+                    }
                     iterator.previous();
                     break;
                 }

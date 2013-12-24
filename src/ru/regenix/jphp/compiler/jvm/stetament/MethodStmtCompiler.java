@@ -214,11 +214,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             if (external){
                 node.desc = Type.getMethodDescriptor(
-                                Type.getType(Memory.class),
-                                Type.getType(Environment.class),
-                                Type.getType(Memory[].class),
-                                Type.getType(ArrayMemory.class)
-                        );
+                        Type.getType(Memory.class),
+                        Type.getType(Environment.class),
+                        Type.getType(Memory[].class),
+                        Type.getType(ArrayMemory.class)
+                );
             }
         }
 
