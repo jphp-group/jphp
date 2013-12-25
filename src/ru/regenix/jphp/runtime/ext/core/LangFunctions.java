@@ -157,6 +157,9 @@ public class LangFunctions extends FunctionsContainer {
 
     public static boolean is_callable(Environment env, TraceInfo trace, @Runtime.Reference Memory memory)
             throws InvocationTargetException, IllegalAccessException {
+        // optimize
+        if (memory.isObject() && memory.toValue(ObjectMemory.class).value instanceof Closure)
+            return true;
         Invoker invoker = Invoker.valueOf(env, null, memory);
         return invoker != null && invoker.canAccess(env, false) == 0;
     }

@@ -47,22 +47,22 @@ public class StaticMethodInvoker extends Invoker {
         ClassEntity classEntity = env.fetchClass(className, true, true);
         MethodEntity methodEntity = classEntity == null ? null : classEntity.methods.get(methodName.toLowerCase());
 
-        if (methodEntity == null || classEntity == null){
-            if (trace == null) {
-                if (classEntity != null && classEntity.methodMagicCallStatic != null){
-                    return new MagicStaticMethodInvoker(
-                            env, trace, className, classEntity.methodMagicCallStatic, methodName
-                    );
-                }
-                return null;
+        if (methodEntity == null || !methodEntity.isStatic()){
+            if (classEntity != null && classEntity.methodMagicCallStatic != null){
+                return new MagicStaticMethodInvoker(
+                        env, trace, className, classEntity.methodMagicCallStatic, methodName
+                );
             }
+            if (trace == null)
+                return null;
+
             env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className +"::"+ methodName),
                     trace
             ));
         }
 
-        return new StaticMethodInvoker(env, trace, classEntity.getName(), methodEntity);
+        return new StaticMethodInvoker(env, trace, className, methodEntity);
     }
 
     @Override

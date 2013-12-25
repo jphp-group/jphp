@@ -1,6 +1,5 @@
 package ru.regenix.jphp.runtime.lang;
 
-import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -18,7 +17,7 @@ public abstract class Closure extends BaseObject {
         this.uses = uses;
     }
 
-    @Reflection.Signature(@Reflection.Arg(type = HintType.VARARG))
+    @Reflection.Signature
     abstract public Memory __invoke(Environment env, Memory... args);
 
     public Memory[] getUses() {

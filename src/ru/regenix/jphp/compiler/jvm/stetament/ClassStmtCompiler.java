@@ -39,6 +39,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
     private boolean external = false;
     private boolean isSystem = false;
+    private boolean isInterfaceCheck = true;
     private String functionName = "";
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken statement) {
@@ -65,6 +66,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     public void setSystem(boolean system) {
         isSystem = system;
+    }
+
+    public void setInterfaceCheck(boolean check){
+        isInterfaceCheck = check;
     }
 
     public boolean isExternal() {
@@ -432,7 +437,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
 
         ClassEntity.ClassAddResult result = entity.updateParentMethods();
-        result.check(compiler.getEnvironment());
+        if (isInterfaceCheck)
+            result.check(compiler.getEnvironment());
 
         writeImplements();
         entity.doneDeclare();

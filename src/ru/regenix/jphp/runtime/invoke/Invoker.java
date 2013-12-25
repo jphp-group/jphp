@@ -4,7 +4,7 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,16 +37,17 @@ abstract public class Invoker {
     abstract public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException;
 
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
-        method = method.toImmutable();
+        method = method.toValue();
         if (method.isObject()){
             return DynamicMethodInvoker.valueOf(env, trace, method);
         } else if (method.isArray()){
             Memory one = null, two = null;
-            for(Memory el : method.toValue(ArrayMemory.class).values()){
+            ForeachIterator iterator = method.getNewIterator(env, false, false);
+            while (iterator.next()){
                 if (one == null)
-                    one = el;
+                    one = iterator.getValue();
                 else if (two == null)
-                    two = el;
+                    two = iterator.getValue();
                 else
                     break;
             }
