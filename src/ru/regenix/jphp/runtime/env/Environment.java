@@ -12,6 +12,7 @@ import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
 import ru.regenix.jphp.runtime.invoke.Invoker;
+import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -160,6 +161,20 @@ public class Environment {
 
     public int getCallStackTop(){
         return callStackTop;
+    }
+
+    public CallStackItem[] getCallStackSnapshot(){
+        CallStackItem[] result = new CallStackItem[callStackTop];
+        int i = 0;
+        for(CallStackItem el : callStack){
+            if (i == callStackTop)
+                break;
+
+            result[i] = new CallStackItem(el);
+            i++;
+        }
+
+        return result;
     }
 
     public Environment(OutputStream output){
@@ -633,6 +648,21 @@ public class Environment {
 
     public Memory getSingletonClosure(int moduleIndex, int index){
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
+    }
+
+    public void __throwException(TraceInfo trace, Memory exception){
+        IObject object;
+        if (exception.isObject() && ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseException)){
+            BaseException e = (BaseException)object;
+            e.setTraceInfo(this, trace);
+            throw e;
+        } else {
+            warning(trace, "cannot throw non exception");
+        }
+    }
+
+    public Memory __throwCatch(BaseException e){
+        return new ObjectMemory(e);
     }
 
     public void __pushSilent(){

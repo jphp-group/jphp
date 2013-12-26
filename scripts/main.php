@@ -1,10 +1,10 @@
 <?php
 
-function test(){
 
-    for($i=0; $i < 10000000; $i++){
-        $func = is_callable(function($x){  });
+
+for($i=0;$i<1000000;$i++){
+    try {
+        throw new Exception("Message", $i);
+    } catch (Exception $e) {
     }
 }
-
-test();

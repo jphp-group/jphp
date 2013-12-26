@@ -99,8 +99,8 @@ public class ClassEntity extends Entity {
         }
         setInternalName(nativeClazz.getName().replace('.', '/'));
 
-        if (nativeClazz.isAnnotationPresent(Reflection.Signature.class)){
-            Reflection.Signature signature = nativeClazz.getAnnotation(Reflection.Signature.class);
+        Reflection.Signature signature = nativeClazz.getAnnotation(Reflection.Signature.class);
+        if (signature != null){
             for(Reflection.Arg arg : signature.value()){
                 PropertyEntity entity = new PropertyEntity(context);
                 entity.setClazz(this);
@@ -127,11 +127,11 @@ public class ClassEntity extends Entity {
                 Reflection.Name name = method.getAnnotation(Reflection.Name.class);
                 entity.setName(name == null ? method.getName() : name.value());
 
-                Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
-                ParameterEntity[] params = new ParameterEntity[signature.value().length];
+                Reflection.Signature sign = method.getAnnotation(Reflection.Signature.class);
+                ParameterEntity[] params = new ParameterEntity[sign.value().length];
 
                 int i = 0;
-                for (Reflection.Arg arg : signature.value()){
+                for (Reflection.Arg arg : sign.value()){
                     ParameterEntity param = new ParameterEntity(context);
                     param.setMethod(entity);
                     param.setReference(arg.reference());
@@ -150,33 +150,35 @@ public class ClassEntity extends Entity {
             }
         }
 
-        for (Class<?> interface_ : nativeClazz.getInterfaces()){
-            if (interface_ == IObject.class) continue;
+        if (signature == null || !signature.root()){
+            for (Class<?> interface_ : nativeClazz.getInterfaces()){
+                if (interface_ == IObject.class) continue;
 
-            String name = interface_.getSimpleName();
-            if (interface_.isAnnotationPresent(Reflection.Name.class)){
-                name = interface_.getAnnotation(Reflection.Name.class).value();
+                String name = interface_.getSimpleName();
+                if (interface_.isAnnotationPresent(Reflection.Name.class)){
+                    name = interface_.getAnnotation(Reflection.Name.class).value();
+                }
+                ClassEntity entity = scope.findUserClass(name);
+                if (entity == null || entity.getType() != Type.INTERFACE)
+                    throw new IllegalArgumentException("Interface '"+name+"' not registered");
+
+                ClassAddResult result = addInterface(entity);
+                result.check();
             }
-            ClassEntity entity = scope.findUserClass(name);
-            if (entity == null || entity.getType() != Type.INTERFACE)
-                throw new IllegalArgumentException("Interface '"+name+"' not registered");
 
-            ClassAddResult result = addInterface(entity);
-            result.check();
-        }
+            Class<?> extend = nativeClazz.getSuperclass();
+            if (extend != Object.class && extend != IObject.class && extend != BaseObject.class && extend != null){
+                String name = extend.getSimpleName();
+                if (extend.isAnnotationPresent(Reflection.Name.class)){
+                    name = extend.getAnnotation(Reflection.Name.class).value();
+                }
+                ClassEntity entity = scope.findUserClass(name);
+                if (entity == null || entity.getType() != Type.CLASS)
+                    throw new IllegalArgumentException("Class '"+name+"' not registered");
 
-        Class<?> extend = nativeClazz.getSuperclass();
-        if (extend != Object.class && extend != IObject.class && extend != BaseObject.class && extend != null){
-            String name = extend.getSimpleName();
-            if (extend.isAnnotationPresent(Reflection.Name.class)){
-                name = extend.getAnnotation(Reflection.Name.class).value();
+                ClassAddResult result = addInterface(entity);
+                result.check();
             }
-            ClassEntity entity = scope.findUserClass(name);
-            if (entity == null || entity.getType() != Type.CLASS)
-                throw new IllegalArgumentException("Class '"+name+"' not registered");
-
-            ClassAddResult result = addInterface(entity);
-            result.check();
         }
 
         this.setNativeClazz(nativeClazz);

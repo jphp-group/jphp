@@ -514,6 +514,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 processSwitch((SwitchStmtToken) current, iterator);
                 tokens.add(current);
                 break;
+            } else if (current instanceof ThrowStmtToken){
+                tokens.add(analyzer.generator(ThrowGenerator.class).getToken(current, iterator));
+                break;
+            } else if (current instanceof TryStmtToken){
+                tokens.add(analyzer.generator(TryCatchGenerator.class).getToken(current, iterator));
+                break;
             } else if (current instanceof GlobalStmtToken){
                 processGlobal((GlobalStmtToken) current, iterator);
                 tokens.add(current);

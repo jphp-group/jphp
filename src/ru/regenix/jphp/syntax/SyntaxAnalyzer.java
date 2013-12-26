@@ -4,6 +4,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
+import ru.regenix.jphp.syntax.generators.ThrowGenerator;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.Token;
@@ -57,6 +58,8 @@ public class SyntaxAnalyzer {
         generators.add(new ClassGenerator(this));
         generators.add(new ConstGenerator(this));
         generators.add(new FunctionGenerator(this));
+        generators.add(new TryCatchGenerator(this));
+        generators.add(new ThrowGenerator(this));
         generators.add(new NameGenerator(this));
 
         // non-automatic

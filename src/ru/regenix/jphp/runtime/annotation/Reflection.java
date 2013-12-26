@@ -20,6 +20,7 @@ public @interface Reflection {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, TYPE})
     public @interface Signature {
+        boolean root() default false;
         Arg[] value() default {};
         Arg result() default @Arg(type = HintType.ANY);
     }

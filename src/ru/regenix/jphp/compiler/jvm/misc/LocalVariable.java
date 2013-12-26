@@ -10,6 +10,7 @@ public class LocalVariable {
     public final String name;
     public final int index;
     public final LabelNode label;
+    private LabelNode endLabel;
     private Class clazz;
 
     private boolean isImmutable;
@@ -87,5 +88,13 @@ public class LocalVariable {
 
     public void setImmutable(boolean immutable) {
         isImmutable = immutable;
+    }
+
+    public LabelNode getEndLabel() {
+        return endLabel;
+    }
+
+    public void setEndLabel(LabelNode endLabel) {
+        this.endLabel = endLabel;
     }
 }

@@ -21,6 +21,14 @@ public class CallStackItem {
         this.trace = trace;
     }
 
+    public CallStackItem(CallStackItem copy){
+        this.trace = copy.trace;
+        this.object = copy.object;
+        this.args = copy.args;
+        this.function = copy.function;
+        this.clazz = copy.clazz;
+    }
+
     public CallStackItem(TraceInfo trace, IObject object, Memory[] args, String function, String clazz) {
         this.trace = trace;
         this.object = object;

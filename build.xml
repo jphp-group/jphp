@@ -42,6 +42,7 @@
 
     <target name="jar" depends="compile" description="--> make a jar file for this project">
         <mkdir dir="${jar.dir}"/>
+
         <jar destfile="${jar.dir}/${jar.file}" basedir="${build.dir}/classes">
             <zipgroupfileset dir="${lib.dir}" includes="*.jar" excludes="*-javadoc.jar, *-sources.jar, junit*" />
             <manifest>

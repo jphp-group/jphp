@@ -22,6 +22,7 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
+import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
@@ -2668,8 +2669,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeSysDynamicCall(Environment.class, "getIterator", ForeachIterator.class, TraceInfo.class, Memory.class, Boolean.TYPE, Boolean.TYPE);
 
         LocalVariable foreachVariable = method.addLocalVariable(
-                "~foreach~" + method.nextStatementIndex(), l, ForeachIterator.class
+                "~foreach~" + method.nextStatementIndex(ForeachIterator.class), l, ForeachIterator.class
         );
+        foreachVariable.setEndLabel(end);
 
         writeVarStore(foreachVariable, false, false);
 
@@ -2716,6 +2718,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         method.popJump();
         writeUndefineVariables(token.getLocal());
+        method.prevStatementIndex(ForeachIterator.class);
     }
 
     void writeFor(ForStmtToken token){
@@ -2822,6 +2825,56 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new InsnNode(ARETURN));
         //removeStackFrame();
         stackPop();
+    }
+
+    void writeThrow(ThrowStmtToken throwStmt){
+        writePushEnv();
+        writePushTraceInfo(throwStmt.getException());
+        writeExpression(throwStmt.getException(), true, false, true);
+        writePopBoxing();
+        writeSysDynamicCall(Environment.class, "__throwException", void.class, TraceInfo.class, Memory.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    void writeTryCatch(TryStmtToken tryCatch){
+        if (tryCatch.getBody() == null || tryCatch.getBody().getInstructions().isEmpty())
+            return;
+
+        writeDefineVariables(tryCatch.getLocal());
+        LabelNode tryStart = writeLabel(node, tryCatch.getMeta().getStartLine());
+        LabelNode tryEnd   = new LabelNode();
+        LabelNode catchStart = new LabelNode();
+        LabelNode catchEnd = new LabelNode();
+
+        method.node.tryCatchBlocks.add(
+                new TryCatchBlockNode(tryStart, tryEnd, catchStart, Type.getInternalName(BaseException.class))
+        );
+
+        writeBody(tryCatch.getBody());
+        code.add(tryEnd);
+        code.add(new JumpInsnNode(GOTO, catchEnd));
+        code.add(catchStart);
+
+        LocalVariable exception = method.addLocalVariable(
+                "~catch~" + method.nextStatementIndex(BaseException.class), catchStart, BaseException.class
+        );
+        exception.setEndLabel(catchEnd);
+        makeVarStore(exception);
+
+
+        for(CatchStmtToken _catch : tryCatch.getCatches()) {
+            LocalVariable local = method.getLocalVariable(_catch.getVariable().getName());
+            writePushEnv();
+            writeVarLoad(exception);
+            writeSysDynamicCall(Environment.class, "__throwCatch", Memory.class, BaseException.class);
+
+            writeVarAssign(local, false, false);
+            writeBody(_catch.getBody());
+        }
+
+        code.add(catchEnd);
+        writeUndefineVariables(tryCatch.getLocal());
+        method.prevStatementIndex(BaseException.class);
     }
 
     void writeGlobal(GlobalStmtToken global){
@@ -2933,6 +2986,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeFor((ForStmtToken) token);
                 } else if (token instanceof ForeachStmtToken){
                     writeForeach((ForeachStmtToken) token);
+                } else if (token instanceof TryStmtToken){
+                    writeTryCatch((TryStmtToken)token);
+                } else if (token instanceof ThrowStmtToken){
+                    writeThrow((ThrowStmtToken)token);
                 } else if (token instanceof JumpStmtToken){  // break, continue
                     writeJump((JumpStmtToken)token);
                 } else if (token instanceof GlobalStmtToken){

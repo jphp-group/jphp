@@ -25,6 +25,7 @@ import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ReturnStmtToken;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     public final ClassStmtCompiler clazz;
@@ -46,6 +47,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private boolean external = false;
 
     private long methodId;
+
+    private Map<Class<?>, AtomicInteger> statementIndexes = new HashMap<Class<?>, AtomicInteger>();
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodNode node){
         super(clazz.getCompiler());
@@ -108,8 +111,20 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return localVariables;
     }
 
-    int nextStatementIndex(){
-        return statementIndex++;
+    int nextStatementIndex(Class<?> clazz){
+        AtomicInteger atomic = statementIndexes.get(clazz);
+        if (atomic == null)
+            statementIndexes.put(clazz, atomic = new AtomicInteger());
+
+        return atomic.getAndIncrement();
+    }
+
+    int prevStatementIndex(Class<?> clazz){
+        AtomicInteger atomic = statementIndexes.get(clazz);
+        if (atomic == null)
+            statementIndexes.put(clazz, atomic = new AtomicInteger());
+
+        return atomic.getAndDecrement();
     }
 
     void pushJump(LabelNode breakLabel, LabelNode continueLabel, int stackSize){
@@ -303,14 +318,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
             if (variable.name.equals("~this"))
-                description = "L" + clazz.statement.getFulledName('/') + ";";
+                description = "L" + clazz.entity.getInternalName() + ";";
 
             node.localVariables.add(new LocalVariableNode(
                     variable.name,
                     description,
                     null,
                     variable.label,
-                    endL,
+                    variable.getEndLabel() == null ? endL : variable.getEndLabel(),
                     variable.index
             ));
         }

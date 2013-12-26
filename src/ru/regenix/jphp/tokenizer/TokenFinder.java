@@ -144,6 +144,7 @@ public class TokenFinder {
         put("try", TryStmtToken.class);
         put("catch", CatchStmtToken.class);
         put("finally", FinallyStmtToken.class);
+        put("throw", ThrowStmtToken.class);
         put("extends", ExtendsStmtToken.class);
         put("implements", ImplementsStmtToken.class);
         put("global", GlobalStmtToken.class);

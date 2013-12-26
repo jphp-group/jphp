@@ -2,10 +2,15 @@ package ru.regenix.jphp.tokenizer.token.stmt;
 
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
+
+import java.util.List;
+import java.util.Set;
 
 public class TryStmtToken extends StmtToken {
-
     private BodyStmtToken body;
+    private Set<VariableExprToken> local;
+    private List<CatchStmtToken> catches;
 
     public TryStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_TRY);
@@ -17,5 +22,21 @@ public class TryStmtToken extends StmtToken {
 
     public void setBody(BodyStmtToken body) {
         this.body = body;
+    }
+
+    public Set<VariableExprToken> getLocal() {
+        return local;
+    }
+
+    public void setLocal(Set<VariableExprToken> local) {
+        this.local = local;
+    }
+
+    public List<CatchStmtToken> getCatches() {
+        return catches;
+    }
+
+    public void setCatches(List<CatchStmtToken> catches) {
+        this.catches = catches;
     }
 }
