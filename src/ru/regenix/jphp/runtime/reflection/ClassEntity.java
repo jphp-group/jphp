@@ -60,6 +60,7 @@ public class ClassEntity extends Entity {
     public final Map<String, ConstantEntity> constants;
     public final Map<String, PropertyEntity> properties;
     public final Map<String, PropertyEntity> staticProperties;
+    public final Set<String> instanceOfList = new HashSet<String>();
 
     protected ClassEntity parent;
     protected DocumentComment docComment;
@@ -280,17 +281,13 @@ public class ClassEntity extends Entity {
         return parent;
     }
 
-    public boolean isInstanceOf(ClassEntity parent){
-        while (parent != null){
-            if (parent.getId() == getId())
-                return true;
+    public boolean isInstanceOf(ClassEntity what){
+        return id == what.id || instanceOfList.contains(what.lowerName);
+    }
 
-            if (interfaces.containsKey(parent.getLowerName()))
-                return true;
-
-            parent = parent.parent;
-        }
-        return false;
+    public boolean isInstanceOf(String name){
+        String lowerName = name.toLowerCase();
+        return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
     public ClassAddResult updateParentMethods(){
@@ -320,6 +317,9 @@ public class ClassEntity extends Entity {
         this.parent = parent;
         this.methodCounts = parent.methodCounts;
 
+        this.instanceOfList.add(parent.getLowerName());
+        this.instanceOfList.addAll(parent.instanceOfList);
+
         return updateParentMethods();
     }
 
@@ -340,6 +340,9 @@ public class ClassEntity extends Entity {
         ClassAddResult result = new ClassAddResult();
 
         this.interfaces.put(_interface.getLowerName(), _interface);
+        this.instanceOfList.add(_interface.getLowerName());
+        this.instanceOfList.addAll(_interface.instanceOfList);
+
         for(MethodEntity method : _interface.getMethods().values()){
             MethodEntity implMethod = findMethod(method.getLowerName());
             if (implMethod == null){

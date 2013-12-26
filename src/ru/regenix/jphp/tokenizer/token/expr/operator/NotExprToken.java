@@ -16,6 +16,6 @@ public class NotExprToken extends OperatorExprToken {
 
     @Override
     public int getPriority() {
-        return 30;
+        return 21;
     }
 }

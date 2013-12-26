@@ -2069,6 +2069,28 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushTraceInfo(dynamic);
     }
 
+    void writeInstanceOf(InstanceofExprToken instanceOf, boolean returnValue){
+        if (stackEmpty(true))
+            unexpectedToken(instanceOf);
+
+        StackItem o = stackPop();
+        writePush(o);
+
+        if (stackPeek().isConstant())
+            unexpectedToken(instanceOf);
+
+        writePopBoxing();
+        writePushEnv();
+        writePushConstString(instanceOf.getWhat().getName());
+        writePushConstString(instanceOf.getWhat().getName().toLowerCase());
+
+        writeSysDynamicCall(Memory.class, "instanceOf",
+                Boolean.TYPE, Environment.class, String.class, String.class);
+
+        if (!returnValue)
+            writePopAll(1);
+    }
+
     void writeDynamicAccess(DynamicAccessExprToken dynamic, boolean returnValue){
         writeDynamicAccessPrepare(dynamic, false);
 
@@ -2350,6 +2372,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     Memory writeOperator(OperatorExprToken operator, boolean returnValue, boolean writeOpcode){
+        if (operator instanceof InstanceofExprToken) {
+            if (writeOpcode)
+                writeInstanceOf((InstanceofExprToken)operator, returnValue);
+
+            return null;
+        }
+
         if (operator instanceof DynamicAccessExprToken){
             if (writeOpcode)
                 writeDynamicAccess((DynamicAccessExprToken)operator, returnValue);

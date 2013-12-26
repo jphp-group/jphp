@@ -7,6 +7,7 @@ import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.syntax.generators.FunctionGenerator;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
@@ -402,6 +403,16 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (current instanceof OperatorExprToken) {
             isRef = false;
+        }
+
+        if (current instanceof InstanceofExprToken){
+            if (next instanceof NameToken){
+                nextToken(iterator);
+                InstanceofExprToken instanceOf = (InstanceofExprToken)current;
+                instanceOf.setWhat( analyzer.getRealName((NameToken)next) );
+                return instanceOf;
+            } else
+                unexpectedToken(next, TokenType.T_STRING);
         }
 
         if (current instanceof ImportExprToken)

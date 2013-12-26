@@ -256,4 +256,19 @@ public class ObjectMemory extends Memory {
         }
         return null;
     }
+
+    @Override
+    public boolean instanceOf(Environment env, String className, String lowerClassName) {
+        ClassEntity origin = value.getReflection();
+        ClassEntity what   = env.fetchClass(className, lowerClassName, true, true);
+        if (what == null) {
+            /*env.triggerError(new FatalException(
+                    Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className),
+                    trace
+            ));*/
+            return false;
+        }
+
+        return origin.isInstanceOf(what);
+    }
 }

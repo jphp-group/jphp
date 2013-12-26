@@ -585,6 +585,7 @@ public class ReferenceMemory extends Memory {
         }
     }
 
+    @Override
     public <T extends Memory> T toValue(Class<T> clazz){
         switch (value.type){
             case REFERENCE: return value.toValue(clazz);
@@ -593,6 +594,7 @@ public class ReferenceMemory extends Memory {
         }
     }
 
+    @Override
     public Memory toValue(){
         switch (value.type){
             case REFERENCE: return value.toValue();
@@ -879,5 +881,10 @@ public class ReferenceMemory extends Memory {
     public Memory assignConcat(String memory) {
         needStringBuilder().append(memory);
         return this;
+    }
+
+    @Override
+    public boolean instanceOf(Environment env, String className, String lowerClassName) {
+        return value.instanceOf(env, className, lowerClassName);
     }
 }

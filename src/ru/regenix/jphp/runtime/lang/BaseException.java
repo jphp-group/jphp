@@ -6,8 +6,6 @@ import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
@@ -57,23 +55,28 @@ public class BaseException extends RuntimeException implements IObject {
     }
 
     @Signature
+    final public Memory getMessage(Environment env, Memory... args){
+        return getProperties().valueOfIndex("message");
+    }
+
+    @Signature
     final public Memory getLine(Environment env, Memory... args){
-        return LongMemory.valueOf(trace == null ? 0 : trace.getStartLine());
+        return getProperties().valueOfIndex("line");
     }
 
     @Signature
     final public Memory getPosition(Environment env, Memory... args){
-        return LongMemory.valueOf(trace == null ? 0 : trace.getStartPosition());
+        return getProperties().valueOfIndex("position");
     }
 
     @Signature
     final public Memory getFile(Environment env, Memory... args){
-        return trace == null ? Memory.NULL : new StringMemory(trace.getFileName());
+        return getProperties().valueOfIndex("file");
     }
 
     @Signature
     final public Memory getTrace(Environment env, Memory... args){
-        return __dynamicProperties__.valueOfIndex("trace");
+        return getProperties().valueOfIndex("trace");
     }
 
     @Override

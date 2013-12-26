@@ -530,4 +530,12 @@ abstract public class Memory {
 
     public ForeachIterator getNewIterator(Environment env,
                                           boolean getReferences, boolean getKeyReferences){ return null; }
+
+    public boolean instanceOf(Environment env, String className, String lowerClassName){
+        return false;
+    }
+
+    final public boolean instanceOf(Environment env, String name){
+        return instanceOf(env, name, name.toLowerCase());
+    }
 }
