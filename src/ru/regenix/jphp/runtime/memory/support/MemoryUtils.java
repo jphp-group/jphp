@@ -195,7 +195,7 @@ public class MemoryUtils {
         switch (type){
             case STRING: return new StringMemory(value);
             case ANY: return value.equals("NULL") ? Memory.NULL : new StringMemory(value);
-            case NUMERIC: {
+            case INT: {
                 try {
                     return new DoubleMemory(Double.parseDouble(value));
                 } catch (NumberFormatException e){

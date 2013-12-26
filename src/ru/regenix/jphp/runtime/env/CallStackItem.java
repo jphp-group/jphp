@@ -2,6 +2,8 @@ package ru.regenix.jphp.runtime.env;
 
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.IObject;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.output.PlainPrinter;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -54,6 +56,44 @@ public class CallStackItem {
     @Override
     public String toString() {
         return toString(false);
+    }
+
+    public ArrayMemory toArray(){
+        return toArray(true, false);
+    }
+
+    public ArrayMemory toArray(boolean provideObject, boolean ignoreArgs){
+        ArrayMemory el = new ArrayMemory();
+
+        if (trace != null) {
+            if (trace.getFile() != null)
+                el.refOfIndex("file").assign(trace.getFileName());
+
+            el.refOfIndex("line").assign(trace.getStartLine() + 1);
+        }
+
+        el.refOfIndex("function").assign(function);
+
+        if (clazz != null) {
+            el.refOfIndex("class").assign(clazz);
+            el.refOfIndex("type").assign("::");
+        }
+
+        if (object != null){
+            if (provideObject){
+                el.refOfIndex("object").assign(new ObjectMemory(object));
+            }
+            el.refOfIndex("type").assign("->");
+        }
+
+        if (!ignoreArgs){
+            el.refOfIndex("args").assign(new ArrayMemory(true, args));
+        }
+
+        if (trace != null)
+            el.refOfIndex("position").assign(trace.getStartPosition() + 1);
+
+        return el;
     }
 
     public String toString(boolean withArgs) {

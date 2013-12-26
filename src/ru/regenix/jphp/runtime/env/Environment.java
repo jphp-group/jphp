@@ -7,7 +7,6 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.UserException;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
@@ -261,7 +260,10 @@ public class Environment {
     }
 
     public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad) {
-        String nameL = name.toLowerCase();
+        return fetchClass(name, name.toLowerCase(), magic, autoLoad);
+    }
+
+    public ClassEntity fetchClass(String name, String nameL, boolean magic, boolean autoLoad) {
         ClassEntity entity = classMap.get(nameL);
         if (magic && entity == null){
             if ("self".equals(nameL)){
@@ -435,13 +437,6 @@ public class Environment {
 
     public boolean isHandleErrors(ErrorException.Type type){
         return ErrorException.Type.check(errorFlags.get(), type);
-    }
-
-    public void triggerException(UserException exception){
-        if (exceptionHandler != null)
-            exceptionHandler.onException(exception);
-
-        throw exception;
     }
 
     public void warning(String message, Object... args){
@@ -651,18 +646,32 @@ public class Environment {
     }
 
     public void __throwException(TraceInfo trace, Memory exception){
-        IObject object;
-        if (exception.isObject() && ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseException)){
-            BaseException e = (BaseException)object;
-            e.setTraceInfo(this, trace);
-            throw e;
+        if (exception.isObject() ) {
+            IObject object;
+            if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseException){
+                BaseException e = (BaseException)object;
+                e.setTraceInfo(this, trace);
+                throw e;
+            } else {
+                triggerError(new FatalException(
+                        "Exceptions must be valid objects derived from the Exception base class", trace
+                ));
+            }
         } else {
-            warning(trace, "cannot throw non exception");
+            triggerError(new FatalException(
+                    "Can only throw objects", trace
+            ));
         }
     }
 
-    public Memory __throwCatch(BaseException e){
-        return new ObjectMemory(e);
+    public Memory __throwCatch(BaseException e, String className, String lowerClassName){
+        ClassEntity origin = e.getReflection();
+        ClassEntity cause = fetchClass(className, lowerClassName, false, true);
+
+        if (cause.isInstanceOf(origin))
+            return new ObjectMemory(e);
+        else
+            return Memory.NULL;
     }
 
     public void __pushSilent(){

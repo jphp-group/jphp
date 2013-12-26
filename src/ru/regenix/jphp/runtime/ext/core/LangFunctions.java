@@ -307,36 +307,7 @@ public class LangFunctions extends FunctionsContainer {
                 break;
 
             CallStackItem item = env.peekCall(i);
-            ArrayMemory el = new ArrayMemory();
-
-            if (item.trace != null) {
-                if (item.trace.getFile() != null)
-                    el.refOfIndex("file").assign(item.trace.getFile().getPath());
-
-                el.refOfIndex("line").assign(item.trace.getStartLine() + 1);
-            }
-
-            el.refOfIndex("function").assign(item.function);
-
-            if (item.clazz != null) {
-                el.refOfIndex("class").assign(item.clazz);
-                el.refOfIndex("type").assign("::");
-            }
-
-            if (item.object != null){
-                if (provideObject){
-                    el.refOfIndex("object").assign(new ObjectMemory(item.object));
-                }
-                el.refOfIndex("type").assign("->");
-            }
-
-            if (!ignoreArgs){
-                el.refOfIndex("args").assign(new ArrayMemory(true, item.args));
-            }
-
-            if (item.trace != null)
-                el.refOfIndex("position").assign(item.trace.getStartPosition() + 1);
-
+            ArrayMemory el = item.toArray(provideObject, ignoreArgs);
             result.add(el);
         }
 

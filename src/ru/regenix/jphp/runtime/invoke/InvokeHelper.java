@@ -101,7 +101,7 @@ final public class InvokeHelper {
                     if (!passed[i].isArray())
                         env.triggerError(new FatalException("Argument " + i + " must be array", trace));
                 } break;
-                case NUMERIC:
+                case INT:
                     if (!passed[i].isNumber())
                         env.triggerError(new FatalException("Argument " + i + " must be int or double", trace));
                     break;

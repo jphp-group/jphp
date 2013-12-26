@@ -3,11 +3,9 @@ package ru.regenix.jphp.runtime.env;
 import ru.regenix.jphp.common.Constants;
 import ru.regenix.jphp.exceptions.CoreException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.UserException;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.regex.Pattern;
 
 public class Context {
 
@@ -93,9 +91,5 @@ public class Context {
 
     public void triggerError(ErrorException error){
         environment.triggerError(error);
-    }
-
-    public void triggerException(UserException exception){
-        environment.triggerException(exception);
     }
 }

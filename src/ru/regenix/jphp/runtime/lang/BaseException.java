@@ -6,6 +6,8 @@ import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.LongMemory;
+import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
@@ -16,17 +18,20 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
 @Signature(root = true, value =
 {
        @Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
-       @Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.NUMERIC),
+       @Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.INT),
        @Arg(value = "previous", modifier = Modifier.PROTECTED, type = HintType.OBJECT),
        @Arg(value = "trace", modifier = Modifier.PROTECTED, type = HintType.ARRAY),
        @Arg(value = "file", modifier = Modifier.PROTECTED, type = HintType.STRING),
-       @Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.NUMERIC)
+       @Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
+       @Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
 })
 public class BaseException extends RuntimeException implements IObject {
     public final ArrayMemory __dynamicProperties__;
     public final ClassEntity __class__;
     public TraceInfo trace;
     public CallStackItem[] callStack;
+
+    private boolean init = true;
 
     public BaseException(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
@@ -35,7 +40,7 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Signature({
             @Arg(value = "message", optional = @Optional(value = "", type = HintType.STRING)),
-            @Arg(value = "code", optional = @Optional(value = "0", type = HintType.NUMERIC)),
+            @Arg(value = "code", optional = @Optional(value = "0", type = HintType.INT)),
             @Arg(value = "previous", optional = @Optional(value = "NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
@@ -48,21 +53,22 @@ public class BaseException extends RuntimeException implements IObject {
     public void setTraceInfo(Environment env, TraceInfo trace){
         this.callStack = env.getCallStackSnapshot();
         this.trace = trace;
-
-        if (trace != null){
-            __dynamicProperties__.refOfIndex("line").assign(trace.getStartLine() + 1);
-            __dynamicProperties__.refOfIndex("file").assign(trace.getFileName());
-        }
+        this.init = false;
     }
 
     @Signature
     final public Memory getLine(Environment env, Memory... args){
-        return __dynamicProperties__.valueOfIndex("line");
+        return LongMemory.valueOf(trace == null ? 0 : trace.getStartLine());
+    }
+
+    @Signature
+    final public Memory getPosition(Environment env, Memory... args){
+        return LongMemory.valueOf(trace == null ? 0 : trace.getStartPosition());
     }
 
     @Signature
     final public Memory getFile(Environment env, Memory... args){
-        return __dynamicProperties__.valueOfIndex("file");
+        return trace == null ? Memory.NULL : new StringMemory(trace.getFileName());
     }
 
     @Signature
@@ -77,6 +83,21 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Override
     public ArrayMemory getProperties() {
+        if (!init){
+            init = true;
+            if (trace != null){
+                __dynamicProperties__.refOfIndex("file").assign(trace.getFileName());
+                __dynamicProperties__.refOfIndex("line").assign(trace.getStartLine() + 1);
+                __dynamicProperties__.refOfIndex("position").assign(trace.getStartPosition() + 1);
+
+                ArrayMemory backTrace = new ArrayMemory();
+                for(CallStackItem el : callStack)
+                    backTrace.add(el.toArray());
+
+                __dynamicProperties__.refOfIndex("trace").assign(backTrace);
+            }
+        }
+
         return __dynamicProperties__;
     }
 
@@ -85,10 +106,13 @@ public class BaseException extends RuntimeException implements IObject {
         return super.hashCode();
     }
 
+
+
     /**
      * Since we override this method, no stacktrace is generated - much faster
      * @return always null
      */
+    @Override
     public Throwable fillInStackTrace() {
         return null;
     }

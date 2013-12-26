@@ -280,6 +280,19 @@ public class ClassEntity extends Entity {
         return parent;
     }
 
+    public boolean isInstanceOf(ClassEntity parent){
+        while (parent != null){
+            if (parent.getId() == getId())
+                return true;
+
+            if (interfaces.containsKey(parent.getLowerName()))
+                return true;
+
+            parent = parent.parent;
+        }
+        return false;
+    }
+
     public ClassAddResult updateParentMethods(){
         ClassAddResult result = new ClassAddResult();
         if (parent != null){

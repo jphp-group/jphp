@@ -1,12 +1,13 @@
 package ru.regenix.jphp.common;
 
 public enum HintType {
-    ANY, BOOLEAN, NUMERIC, STRING, ARRAY, OBJECT, CALLABLE, VARARG;
+    ANY, BOOLEAN, INT, DOUBLE, STRING, ARRAY, OBJECT, CALLABLE, VARARG;
 
     public String toString(){
         switch (this){
             case BOOLEAN: return "boolean";
-            case NUMERIC: return "numeric";
+            case INT: return "int";
+            case DOUBLE: return "float";
             case STRING: return "string";
             case ARRAY: return "array";
             case OBJECT: return "object";

@@ -2862,17 +2862,40 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         makeVarStore(exception);
 
 
+        LabelNode nextCatch = null;
+        int i = 0, size = tryCatch.getCatches().size();
+        LocalVariable local = null;
         for(CatchStmtToken _catch : tryCatch.getCatches()) {
-            LocalVariable local = method.getLocalVariable(_catch.getVariable().getName());
+            if (nextCatch != null) {
+                code.add(nextCatch);
+            }
+            if (i == size - 1) {
+                nextCatch = catchEnd;
+            } else {
+                nextCatch = new LabelNode();
+            }
+
+            local = method.getLocalVariable(_catch.getVariable().getName());
+
             writePushEnv();
             writeVarLoad(exception);
-            writeSysDynamicCall(Environment.class, "__throwCatch", Memory.class, BaseException.class);
+            writePushConstString(_catch.getException().toName());
+            writePushConstString(_catch.getException().toName().toLowerCase());
+            writeSysDynamicCall(
+                    Environment.class, "__throwCatch", Memory.class, BaseException.class, String.class, String.class
+            );
 
-            writeVarAssign(local, false, false);
+            writeVarAssign(local, true, false);
+            writePopBoolean();
+            code.add(new JumpInsnNode(IFEQ, nextCatch));
+            stackPop();
+
             writeBody(_catch.getBody());
+            code.add(new JumpInsnNode(GOTO, catchEnd));
+            i++;
         }
-
         code.add(catchEnd);
+
         writeUndefineVariables(tryCatch.getLocal());
         method.prevStatementIndex(BaseException.class);
     }
