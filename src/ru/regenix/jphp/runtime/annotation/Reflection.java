@@ -13,6 +13,10 @@ public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD})
+    public @interface Ignore {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE, METHOD})
     public @interface Name {
         String value();
     }

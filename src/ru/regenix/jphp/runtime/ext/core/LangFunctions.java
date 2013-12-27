@@ -244,7 +244,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     private static Memory _call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         Invoker invoker = expectingCallback(env, trace, 1, function);
         if (invoker == null){
             return Memory.FALSE;
@@ -263,7 +263,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         Memory[] passed;
         if (args == null){
             passed = new Memory[]{function};
@@ -282,7 +282,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory call_user_func_array(Environment env, TraceInfo trace, Memory function, Memory args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (expecting(env, trace, 2, args, Memory.Type.ARRAY)){
             Memory[] passed = new Memory[]{function, args};
             env.pushCall(trace, null, passed, "call_user_func_array", null);

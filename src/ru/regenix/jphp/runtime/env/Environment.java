@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -290,10 +289,8 @@ public class Environment {
         }
     }
 
-    public Memory findConstant(String name){
-        String nameL = name.toLowerCase();
-
-        ConstantEntity entity = constants.get(nameL);
+    public Memory findConstant(String name, String nameLower){
+        ConstantEntity entity = constants.get(nameLower);
         if (entity != null) {
             if (!entity.caseSensitise || name.equals(entity.getName()))
                 return entity.getValue();
@@ -304,6 +301,10 @@ public class Environment {
             return constant.value;
 
         return null;
+    }
+
+    public Memory findConstant(String name){
+        return findConstant(name, name.toLowerCase());
     }
 
     public boolean defineConstant(String name, Memory value, boolean caseSensitise){
@@ -538,8 +539,8 @@ public class Environment {
     }
 
     /***** UTILS *****/
-    public Memory getConstant(String name, TraceInfo trace){
-        Memory constant = findConstant(name);
+    public Memory __getConstant(String name, String lowerName, TraceInfo trace){
+        Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
             if (isHandleErrors(E_NOTICE)) {
@@ -551,12 +552,12 @@ public class Environment {
         return constant;
     }
 
-    public Memory include(String fileName) throws IllegalAccessException, IOException, InvocationTargetException {
+    public Memory include(String fileName) throws Throwable {
         return include(fileName, globals, null);
     }
 
     public Memory include(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
             warning(trace, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName);
@@ -577,7 +578,7 @@ public class Environment {
     }
 
     public Memory includeOnce(String fileName, ArrayMemory locals, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws Throwable {
         Context context = new Context(this, new File(fileName));
         if (included.containsKey(context.getModuleName()))
             return Memory.TRUE;
@@ -585,12 +586,12 @@ public class Environment {
     }
 
     public Memory include(String fileName, ArrayMemory locals, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws Throwable {
         return include(fileName, locals, trace, false);
     }
 
     public void require(String fileName, ArrayMemory locals, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
             triggerError(new CompileException(
@@ -605,7 +606,7 @@ public class Environment {
     }
 
     public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws Throwable {
         ClassEntity entity = classMap.get(lowerName);
         if (entity == null){
             triggerError(new CompileException(

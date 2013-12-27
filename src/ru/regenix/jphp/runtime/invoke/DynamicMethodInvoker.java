@@ -35,7 +35,7 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
     @Override
-    public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
+    public Memory call(Memory... args) throws Throwable {
         return ObjectInvokeHelper.invokeMethod(object, method, env, null, args);
     }
 

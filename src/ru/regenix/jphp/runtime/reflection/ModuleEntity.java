@@ -74,27 +74,30 @@ public class ModuleEntity extends Entity {
         this.nativeMethod = nativeMethod;
     }
 
-    public Memory include(Environment env, ArrayMemory locals)
-            throws InvocationTargetException, IllegalAccessException {
-        return (Memory) nativeMethod.invoke(null, env, argsMock, locals);
+    public Memory include(Environment env, ArrayMemory locals) throws Throwable {
+        try {
+            return (Memory) nativeMethod.invoke(null, env, argsMock, locals);
+        } catch (InvocationTargetException e){
+            throw e.getTargetException();
+        }
     }
 
-    public Memory include(Environment env) throws InvocationTargetException, IllegalAccessException {
-        return (Memory) nativeMethod.invoke(null, env, argsMock, env.getGlobals());
+    public Memory include(Environment env) throws Throwable {
+        try {
+            return (Memory) nativeMethod.invoke(null, env, argsMock, env.getGlobals());
+        } catch (InvocationTargetException e){
+            throw e.getTargetException();
+        }
     }
 
     public Memory includeNoThrow(Environment env, ArrayMemory locals){
         try {
             return include(env, locals);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            Throwable throwable = getCause(e);
-            if (throwable instanceof ErrorException)
-                throw (ErrorException) throwable;
-            if (throwable instanceof DieException)
-                throw (DieException) throwable;
-
+        } catch (DieException e) {
+            throw e;
+        } catch (ErrorException e){
+            throw e;
+        } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
     }

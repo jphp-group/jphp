@@ -250,8 +250,17 @@ public class SyntaxAnalyzer {
         this.clazz = clazz;
     }
 
-    public FunctionStmtToken getFunction() {
+    public FunctionStmtToken getFunction(boolean absolute) {
+        if (!absolute){
+            FunctionStmtToken func = peekClosure();
+            if (func != null)
+                return func;
+        }
         return function;
+    }
+
+    public FunctionStmtToken getFunction() {
+        return getFunction(false);
     }
 
     public void setFunction(FunctionStmtToken function) {

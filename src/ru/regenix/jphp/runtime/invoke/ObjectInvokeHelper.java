@@ -12,15 +12,13 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 final public class ObjectInvokeHelper {
 
     private ObjectInvokeHelper(){ }
 
     public static Memory invokeParentMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         Memory[] passed = null;
         boolean doublePop = false;
 
@@ -60,6 +58,10 @@ final public class ObjectInvokeHelper {
 
         Memory result;
         InvokeHelper.checkAccess(env, trace, method);
+        if (method.isImmutable()){
+            method.unsetArguments(passed);
+            return method.getResult().toImmutable();
+        }
         try {
             if (trace != null) {
                 env.pushCall(trace, iObject, args, methodName, className);
@@ -79,7 +81,7 @@ final public class ObjectInvokeHelper {
 
     public static Memory invokeMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         object = object.toValue();
         Memory[] passed = null;
         boolean doublePop = false;
@@ -134,6 +136,11 @@ final public class ObjectInvokeHelper {
 
         Memory result;
         InvokeHelper.checkAccess(env, trace, method);
+        if (method.isImmutable()){
+            method.unsetArguments(passed);
+            return method.getResult().toImmutable();
+        }
+
         try {
             if (trace != null) {
                 env.pushCall(trace, iObject, args, methodName, className);
@@ -153,7 +160,7 @@ final public class ObjectInvokeHelper {
 
     public static Memory invokeMethod(IObject iObject, MethodEntity method,
                                       Environment env, TraceInfo trace, Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         ClassEntity clazz = iObject.getReflection();
         if (method == null)
             method = clazz.methodMagicInvoke;
@@ -173,11 +180,16 @@ final public class ObjectInvokeHelper {
                 env, args, method.parameters, className, method.getName(), trace
         );
         Memory result;
+        InvokeHelper.checkAccess(env, trace, method);
+        if (method.isImmutable()){
+            method.unsetArguments(passed);
+            return method.getResult().toImmutable();
+        }
+
         if (trace != null)
             env.pushCall(trace, iObject, args, method.getName(), className);
 
         try {
-            InvokeHelper.checkAccess(env, trace, method);
             result = method.invokeDynamic(iObject, env, passed);
         } finally {
             if (trace != null)
@@ -187,7 +199,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory emptyProperty(Memory object, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
@@ -201,7 +213,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
@@ -215,7 +227,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
@@ -229,7 +241,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
             env.triggerError(new FatalException(
@@ -255,73 +267,73 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().setProperty(env, trace, iObject, property, value, null);
     }
 
     public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().plusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().minusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().mulProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().divProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().modProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().concatProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().bitAndProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().bitOrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().bitXorProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().bitShrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value);
     }

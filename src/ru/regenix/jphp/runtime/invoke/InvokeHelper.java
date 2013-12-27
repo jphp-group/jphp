@@ -115,7 +115,7 @@ final public class InvokeHelper {
     }
 
     public static Memory callAny(Memory method, Memory[] args, Environment env, TraceInfo trace)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         method = method.toImmutable();
         if (method.isObject()){
             return ObjectInvokeHelper.invokeMethod(method, null, null, env, trace, args);
@@ -180,10 +180,15 @@ final public class InvokeHelper {
     }
 
     public static Memory call(Environment env, TraceInfo trace, FunctionEntity function, Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         Memory[] passed = function.parameters == null
                 ? args
                 : makeArguments(env, args, function.parameters, function.getName(), null, trace);
+
+        if (function.isImmutable()){
+            function.unsetArguments(passed);
+            return function.getResult().toImmutable();
+        }
 
         Memory result;
         if (trace != null)
@@ -199,7 +204,7 @@ final public class InvokeHelper {
     }
 
     public static Memory call(Environment env, TraceInfo trace, String sign, String originName,
-                              Memory[] args) throws InvocationTargetException, IllegalAccessException {
+                              Memory[] args) throws Throwable {
         FunctionEntity function = env.functionMap.get(sign);
         if (function == null) {
             env.triggerError(new FatalException(
@@ -207,15 +212,13 @@ final public class InvokeHelper {
                     trace
             ));
         }
-        assert function != null;
         return call(env, trace, function, args);
     }
 
     public static Memory callStaticDynamic(Environment env, TraceInfo trace,
                                            String originClassName, String className,
                                            String originMethodName, String methodName,
-                                           Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+                                           Memory[] args) throws Throwable {
         return callStatic(
                 env, trace,
                 className, methodName,
@@ -227,7 +230,7 @@ final public class InvokeHelper {
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     String className, String methodName, String originClassName, String originMethodName,
                                     Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         ClassEntity classEntity = env.classMap.get(className);
         if (classEntity == null){
             // try autoload
@@ -235,7 +238,6 @@ final public class InvokeHelper {
         }
 
         MethodEntity method = classEntity == null ? null : classEntity.methods.get(methodName);
-
         Memory[] passed = null;
 
         if (method == null){
@@ -269,8 +271,11 @@ final public class InvokeHelper {
 
         Memory result;
 
+        if (method.isImmutable()){
+            method.unsetArguments(passed);
+            return method.getResult().toImmutable();
+        }
 
-        checkAccess(env, trace, method);
         try {
             if (trace != null)
                 env.pushCall(trace, null, args, originMethodName, originClassName);
@@ -287,7 +292,7 @@ final public class InvokeHelper {
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 

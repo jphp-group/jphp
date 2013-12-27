@@ -60,6 +60,11 @@ public class BaseException extends RuntimeException implements IObject {
     }
 
     @Signature
+    final public Memory getCode(Environment env, Memory... args){
+        return getProperties().valueOfIndex("code");
+    }
+
+    @Signature
     final public Memory getLine(Environment env, Memory... args){
         return getProperties().valueOfIndex("line");
     }
@@ -108,8 +113,6 @@ public class BaseException extends RuntimeException implements IObject {
     final public int getPointer() {
         return super.hashCode();
     }
-
-
 
     /**
      * Since we override this method, no stacktrace is generated - much faster

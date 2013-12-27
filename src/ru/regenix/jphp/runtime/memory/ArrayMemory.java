@@ -56,11 +56,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     public ArrayMemory(boolean toImmutable, Memory... array){
         this();
-        for(Memory el : array){
-            list.add(new ReferenceMemory(toImmutable ? el.toImmutable() : el));
+        if (array != null){
+            for(Memory el : array){
+                list.add(new ReferenceMemory(toImmutable ? el.toImmutable() : el));
+            }
+            size = array.length;
+
+            lastLongIndex = size - 1;
         }
-        size = array.length;
-        lastLongIndex = size - 1;
     }
 
     public ArrayMemory(String[] array){

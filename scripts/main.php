@@ -1,10 +1,15 @@
 <?php
+function test(){
+    throw new Exception("foobar", 100500);
+}
 
+try {
+    test();
+} catch (Exception $e){
+    $trace = $e->getTrace()[0];
 
-class A { }
-interface IA { }
-class C extends A implements IA { }
+    var_dump(empty($trace['file']));
+    return 'success';
+}
 
-$c = new C();
-if (!($c instanceof iA))
-    return 'fail_ia';
+return 'fail';

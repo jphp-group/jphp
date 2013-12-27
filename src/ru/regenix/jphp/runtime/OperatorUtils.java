@@ -18,7 +18,7 @@ public class OperatorUtils {
     }
 
     public static boolean empty(Memory value){
-        return value.toBoolean();
+        return !value.toBoolean();
     }
 
     public static boolean toBoolean(double value){

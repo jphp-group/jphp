@@ -13,7 +13,6 @@ import ru.regenix.jphp.runtime.memory.LongMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -278,7 +277,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_map(Environment env, TraceInfo trace, Memory callback, Memory _array, Memory... arrays)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         Invoker invoker = expectingCallback(env, trace, 1, callback);
         if (invoker == null) {
             return Memory.NULL;
@@ -324,7 +323,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_filter(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (!expecting(env, trace, 1, input, Memory.Type.ARRAY)){
             return Memory.NULL;
         }
@@ -354,13 +353,13 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_filter(Environment env, TraceInfo trace, @Runtime.Reference Memory input)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return array_filter(env, trace, input, null);
     }
 
     public static Memory array_reduce(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback,
                                       Memory initial)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
             return Memory.NULL;
 
@@ -383,12 +382,12 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_reduce(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return array_reduce(env, trace, input, callback, Memory.NULL);
     }
 
     public static boolean array_walk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback,
-                                     Memory userData) throws InvocationTargetException, IllegalAccessException {
+                                     Memory userData) throws Throwable {
         if (!expectingReference(env, trace, input))
             return false;
 
@@ -409,14 +408,14 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static boolean array_walk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return array_walk(env, trace, input, callback, Memory.NULL);
     }
 
     public static boolean _array_walk_recursive(Environment env, TraceInfo trace,
                                                 Memory input,
                                                 Invoker invoker, Memory userData, Set<Integer> used)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (used == null)
             used = new HashSet<Integer>();
 
@@ -442,7 +441,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
     public static boolean array_walk_recursive(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
                                                 Memory callback, Memory userData)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (!expectingReference(env, trace, input))
             return false;
 
@@ -460,7 +459,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
     public static boolean array_walk_recursive(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
                                                Memory callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return array_walk_recursive(env, trace, input, callback, Memory.NULL);
     }
 

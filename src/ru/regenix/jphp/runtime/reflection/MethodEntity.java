@@ -3,12 +3,9 @@ package ru.regenix.jphp.runtime.reflection;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.AbstractFunctionEntity;
@@ -84,57 +81,33 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public void setNativeMethod(Method nativeMethod) {
         this.nativeMethod = nativeMethod;
+        nativeMethod.setAccessible(true);
     }
 
-    public Memory invokeDynamicNoThrow(IObject _this, Environment environment, Memory... arguments){
+    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
+        Memory result = null;
         try {
-            return invokeDynamic(_this, environment, arguments);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            Throwable cause = getCause(e);
-            if (cause instanceof ErrorException)
-                throw (ErrorException) e.getCause();
-            if (cause instanceof DieException)
-                throw (DieException)cause;
-
-            throw new RuntimeException(cause);
-        }
-    }
-
-    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments)
-            throws IllegalAccessException, InvocationTargetException {
-        Memory result = (Memory)nativeMethod.invoke(_this, environment, arguments);
-        if (arguments != null){
-            int x = 0;
-            for(ParameterEntity argument : this.parameters){
-                if (!argument.isReference) {
-                    arguments[x].unset();
+            result = isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
+        } catch (InvocationTargetException e){
+            throw e.getTargetException();
+        } finally {
+            if (arguments != null){
+                int x = 0;
+                for(ParameterEntity argument : this.parameters){
+                    if (!argument.isReference) {
+                        arguments[x].unset();
+                    }
+                    x++;
                 }
-                x++;
             }
         }
-
         if (!isReturnReference())
             return result.toImmutable();
         else
             return result;
     }
 
-    public Memory invokeStaticNoThrow(Environment environment, Memory... arguments){
-        try {
-            return invokeStatic(environment, arguments);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof ErrorException)
-                throw (ErrorException) e.getCause();
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    public Memory invokeStatic(Environment environment, Memory... arguments)
-            throws IllegalAccessException, InvocationTargetException {
+    public Memory invokeStatic(Environment environment, Memory... arguments) throws Throwable {
         return invokeDynamic(null, environment, arguments);
     }
 

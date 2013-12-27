@@ -15,12 +15,10 @@ import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class SPLFunctions extends FunctionsContainer {
 
     public static long iterator_apply(Environment env, TraceInfo trace, Memory object, Memory callback, Memory args)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         if (expectingImplement(env, trace, 1, object, Traversable.class)){
             Invoker invoker = expectingCallback(env, trace, 2, callback);
             if (invoker == null)
@@ -44,7 +42,7 @@ public class SPLFunctions extends FunctionsContainer {
     }
 
     public static long iterator_apply(Environment env, TraceInfo trace, Memory object, Memory callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return iterator_apply(env, trace, object, callback, null);
     }
 

@@ -1,13 +1,18 @@
 package ru.regenix.jphp.runtime.lang;
 
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.lib.collections.map.HashedMap;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
-public abstract class Closure extends BaseObject {
+import java.util.Map;
+
+public abstract class Closure extends BaseObject implements IStaticVariables {
     protected Memory[] uses;
+    private Map<String, ReferenceMemory> statics;
     protected Memory self = Memory.NULL;
     protected String scope = null;
 
@@ -46,5 +51,24 @@ public abstract class Closure extends BaseObject {
     @Reflection.Signature({@Reflection.Arg("prop")})
     public Memory __isset(Environment env, Memory... args){
         return __set(env, args);
+    }
+
+    public Memory getStatic(String name){
+        if (statics == null)
+            return null;
+
+        return statics.get(name);
+    }
+
+    public Memory getOrCreateStatic(String name, Memory initValue){
+        if (statics == null)
+            statics = new HashedMap<String, ReferenceMemory>();
+
+        ReferenceMemory result = statics.get(name);
+        if (result == null) {
+            result = new ReferenceMemory(initValue);
+            statics.put(name, result);
+        }
+        return result;
     }
 }

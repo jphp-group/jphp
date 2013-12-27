@@ -345,6 +345,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setModifier(statement.getModifier());
             entity.setReturnReference(statement.isReturnReference());
             entity.setTrace(statement.toTraceInfo(compiler.getContext()));
+            entity.setImmutable( statement.getArguments().isEmpty() );
 
             if (clazz.isSystem())
                 entity.setInternalName(entity.getName());
@@ -400,9 +401,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         } else {
             writeHeader();
 
+            entity.setEmpty(true);
             if (statement != null && statement.getBody() != null){
                 for(ExprStmtToken instruction : statement.getBody().getInstructions()){
                     compiler.compileExpression(this, instruction);
+                    entity.setEmpty(false);
                 }
             }
 

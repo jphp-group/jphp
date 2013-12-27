@@ -10,8 +10,6 @@ import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
-import java.lang.reflect.InvocationTargetException;
-
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ClassesTest extends JvmCompilerCase {
@@ -27,7 +25,7 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testProperties() throws InvocationTargetException, IllegalAccessException {
+    public void testProperties() throws Throwable {
         Memory memory;
         memory = runDynamic("class A { var $x, $y = 30; } return new A();", false);
         Assert.assertTrue(memory.isObject());

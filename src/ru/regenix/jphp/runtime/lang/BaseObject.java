@@ -1,9 +1,11 @@
 package ru.regenix.jphp.runtime.lang;
 
+import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
+@Reflection.Ignore
 abstract public class BaseObject implements IObject {
     public final ArrayMemory __dynamicProperties__;
     public final ClassEntity __class__;

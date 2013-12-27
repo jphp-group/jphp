@@ -25,6 +25,7 @@ import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -487,7 +488,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (returnValue){
             ClosureEntity entity = method.compiler.getModule().findClosure( closure.getId() );
             boolean thisExists = closure.getFunction().isThisExists();
-            if (closure.getFunction().getUses().isEmpty() && !thisExists){
+            if (closure.getFunction().getUses().isEmpty() && !thisExists
+                    && closure.getFunction().getStaticLocal().isEmpty()){
                 writePushEnv();
                 writePushConstInt(compiler.getModule().getId());
                 writePushConstInt((int)entity.getId());
@@ -520,7 +522,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 stackPop();
                 stackPop();
 
-                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, BaseObject.class);
+                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
             }
             setStackPeekAsImmutable();
         }
@@ -1163,6 +1165,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushNew(NewExprToken newToken, boolean returnValue){
+        writeLineNumber(newToken);
+
         writePushEnv();
         if (newToken.isDynamic()){
             writePushVariable((VariableExprToken) newToken.getName());
@@ -1447,8 +1451,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 writePushEnv();
                 writePushString(token.getName());
+                writePushString(token.getName().toLowerCase());
+
+               // writePushDupLowerCase();
                 writePushTraceInfo(token);
-                writeSysDynamicCall(Environment.class, "getConstant", Memory.class, String.class, TraceInfo.class);
+                writeSysDynamicCall(Environment.class, "__getConstant",
+                        Memory.class, String.class, String.class, TraceInfo.class);
                 setStackPeekAsImmutable();
             }
         }
@@ -2830,10 +2838,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeReturn(ReturnStmtToken token){
         //addStackFrame();
 
-        if (token.getValue() == null)
-            writePushNull();
-        else
-            writeExpression(token.getValue(), true, false);
+        Memory result = Memory.NULL;
+        boolean isImmutable = method.entity.isImmutable();
+        if (token.getValue() != null)
+            result = writeExpression(token.getValue(), true, true);
+
+        if (result != null) {
+            if (isImmutable) {
+                if (method.entity.getResult() == null)
+                    method.entity.setResult(result);
+            }
+            writePushMemory(result);
+        } else {
+            method.entity.setImmutable(false);
+        }
 
         if (stackEmpty(false))
             writePushNull();
@@ -2947,18 +2965,27 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         assert local != null;
 
         LabelNode end = new LabelNode();
-        String name = local.name + "\0" + method.getMethodId();
+        boolean isClosure = method.clazz.isClosure();
+        String name = isClosure ? local.name : local.name + "\0" + method.getMethodId();
 
-        writePushEnv();
+        if (isClosure)
+            writeVarLoad("~this");
+        else
+            writePushEnv();
+
         writePushConstString(name);
-        writeSysDynamicCall(Environment.class, "getStatic", Memory.class, String.class);
+        writeSysDynamicCall(isClosure ? null : Environment.class, "getStatic", Memory.class, String.class);
         writePushDup();
 
         code.add(new JumpInsnNode(IFNONNULL, end));
         stackPop();
 
             writePopAll(1);
-            writePushEnv();
+            if (isClosure)
+                writeVarLoad("~this");
+            else
+                writePushEnv();
+
             writePushConstString(name);
             if (static_.getInitValue() != null){
                 writeExpression(static_.getInitValue(), true, false, true);
@@ -2966,7 +2993,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNull();
             }
             writePopBoxing(true);
-            writeSysDynamicCall(Environment.class, "getOrCreateStatic", Memory.class, String.class, Memory.class);
+            writeSysDynamicCall(isClosure ? null : Environment.class, "getOrCreateStatic", Memory.class, String.class, Memory.class);
 
         code.add(end);
         writeVarStore(local, false, false);
@@ -3015,6 +3042,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         for(Token token : tokens){
             if (writeOpcode){
+                if (token instanceof StmtToken){
+                    if (!(token instanceof ReturnStmtToken))
+                        method.entity.setImmutable(false);
+                }
+
                 if (token instanceof FunctionStmtToken){
                     writeFunction((FunctionStmtToken)token);
                 } else if (token instanceof EchoRawToken){   // <? ... ?>
@@ -3056,6 +3088,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (token instanceof CallExprToken && ((CallExprToken)token).getName() instanceof OperatorExprToken){
                     if (writeOpcode) {
                         writePush((ValueExprToken) token, true, true);
+                        method.entity.setImmutable(false);
                     } else
                         break;
                 } else
@@ -3071,6 +3104,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                     if (!writeOpcode && result == null)
                         break;
+
+                    if (result == null)
+                        method.entity.setImmutable(false);
                 }
             } else
                 break;

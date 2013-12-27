@@ -4,6 +4,7 @@ import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
@@ -63,7 +64,12 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         classStmtCompiler.setFunctionName(entity.getName());
         ClassEntity clazzEntity = classStmtCompiler.compile();
         entity.setData(clazzEntity.getData());
-        entity.setParameters(clazzEntity.findMethod("__invoke").parameters);
+
+        MethodEntity methodEntity = clazzEntity.findMethod("__invoke");
+        entity.setParameters(methodEntity.parameters);
+        entity.setEmpty(methodEntity.isEmpty());
+        entity.setImmutable(methodEntity.isImmutable());
+        entity.setResult(methodEntity.getResult());
 
         return entity;
     }

@@ -8,8 +8,6 @@ import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 class MagicDynamicMethodInvoker extends DynamicMethodInvoker {
     protected final Memory methodName;
 
@@ -36,7 +34,7 @@ class MagicDynamicMethodInvoker extends DynamicMethodInvoker {
     }
 
     @Override
-    public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException {
+    public Memory call(Memory... args) throws Throwable {
         return super.call(methodName, new ArrayMemory(false, args));
     }
 }

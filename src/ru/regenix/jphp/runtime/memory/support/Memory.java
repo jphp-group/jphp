@@ -205,7 +205,7 @@ abstract public class Memory {
     public Memory mod(String value){ return div(StringMemory.toNumeric(value)); }
 
     // NOT
-    public boolean not(){ return toLong() == 0; }
+    public boolean not(){ return !toBoolean(); }
 
     // EQUAL
     abstract public boolean equal(Memory memory);

@@ -356,6 +356,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             if (analyzer.getFunction() != null){
                 analyzer.getFunction().getRefLocal().add(variable);
                 analyzer.getFunction().getUnstableLocal().add(variable);
+                analyzer.getFunction().getStaticLocal().add(variable);
             }
 
             StaticStmtToken result = new StaticStmtToken(token.getMeta());

@@ -93,6 +93,17 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 if (argument.getValue() != null)
                     unexpectedToken(argument.getValue().getSingle());
                 arguments.add(argument);
+
+                FunctionStmtToken parent = analyzer.getFunction(true);
+                if (argument.isReference() && parent != null) {
+                    parent.getPassedLocal().add(argument.getName());
+                    parent.getUnstableLocal().add(argument.getName());
+
+                    parent = analyzer.peekClosure();
+                    if (parent != null){
+                        parent.getUnstableLocal().add(argument.getName());
+                    }
+                }
             }
 
             result.setUses(arguments);

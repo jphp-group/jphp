@@ -1,0 +1,38 @@
+package ru.regenix.jphp.compiler.jvm;
+
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+
+@RunWith(JUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class ClosuresTest extends JvmCompilerCase {
+
+    @Test
+    public void testSimple(){
+        Memory memory = includeResource("closures/simple.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testReferences(){
+        Memory memory = includeResource("closures/references.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testDynamic(){
+        Memory memory = includeResource("closures/dynamic.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testStaticVars(){
+        Memory memory = includeResource("closures/static_vars.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+}

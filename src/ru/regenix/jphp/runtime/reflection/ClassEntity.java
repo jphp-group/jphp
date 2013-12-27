@@ -11,7 +11,6 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
-import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
@@ -21,7 +20,6 @@ import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -153,7 +151,7 @@ public class ClassEntity extends Entity {
 
         if (signature == null || !signature.root()){
             for (Class<?> interface_ : nativeClazz.getInterfaces()){
-                if (interface_ == IObject.class) continue;
+                if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
 
                 String name = interface_.getSimpleName();
                 if (interface_.isAnnotationPresent(Reflection.Name.class)){
@@ -168,7 +166,7 @@ public class ClassEntity extends Entity {
             }
 
             Class<?> extend = nativeClazz.getSuperclass();
-            if (extend != Object.class && extend != IObject.class && extend != BaseObject.class && extend != null){
+            if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
                 String name = extend.getSimpleName();
                 if (extend.isAnnotationPresent(Reflection.Name.class)){
                     name = extend.getAnnotation(Reflection.Name.class).value();
@@ -469,7 +467,7 @@ public class ClassEntity extends Entity {
     }
 
     public IObject newObject(Environment env, TraceInfo trace, Memory[] args)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws Throwable {
         IObject object = (IObject) nativeConstructor.newInstance(env, this);
 
         ArrayMemory props = object.getProperties();
@@ -486,7 +484,7 @@ public class ClassEntity extends Entity {
 
     public Memory concatProperty(Environment env, TraceInfo trace,
                                IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -497,7 +495,7 @@ public class ClassEntity extends Entity {
 
     public Memory plusProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -508,7 +506,7 @@ public class ClassEntity extends Entity {
 
     public Memory minusProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -519,7 +517,7 @@ public class ClassEntity extends Entity {
 
     public Memory mulProperty(Environment env, TraceInfo trace,
                                 IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -530,7 +528,7 @@ public class ClassEntity extends Entity {
 
     public Memory divProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -541,7 +539,7 @@ public class ClassEntity extends Entity {
 
     public Memory modProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -552,7 +550,7 @@ public class ClassEntity extends Entity {
 
     public Memory bitAndProperty(Environment env, TraceInfo trace,
                                  IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -563,7 +561,7 @@ public class ClassEntity extends Entity {
 
     public Memory bitOrProperty(Environment env, TraceInfo trace,
                                  IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -574,7 +572,7 @@ public class ClassEntity extends Entity {
 
     public Memory bitXorProperty(Environment env, TraceInfo trace,
                                 IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -585,7 +583,7 @@ public class ClassEntity extends Entity {
 
     public Memory bitShrProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback(){
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -596,7 +594,7 @@ public class ClassEntity extends Entity {
 
     public Memory bitShlProperty(Environment env, TraceInfo trace,
                                  IObject object, String property, Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
@@ -607,7 +605,7 @@ public class ClassEntity extends Entity {
 
     public Memory setProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory, SetterCallback callback)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
@@ -659,7 +657,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -686,7 +684,7 @@ public class ClassEntity extends Entity {
     }
 
     public Memory emptyProperty(Environment env, TraceInfo trace, IObject object, String property)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -694,9 +692,9 @@ public class ClassEntity extends Entity {
         if (props != null && accessFlag == 0){
             Memory tmp = props.getByScalar(property);
             if ( tmp != null ){
-                return tmp.toBoolean() ? Memory.FALSE : Memory.TRUE;
+                return tmp.toBoolean() ? Memory.TRUE : Memory.NULL;
             } else
-                return Memory.TRUE;
+                return Memory.NULL;
         }
 
         if (methodMagicIsset != null){
@@ -705,17 +703,17 @@ public class ClassEntity extends Entity {
                 Memory[] args = new Memory[]{new StringMemory(property)};
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), name);
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
-                        .toBoolean() ? Memory.FALSE : Memory.TRUE;
+                        .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
                 env.popCall();
             }
             return result;
         }
-        return Memory.TRUE;
+        return Memory.NULL;
     }
 
     public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -745,7 +743,7 @@ public class ClassEntity extends Entity {
 
     public Memory getProperty(Environment env, TraceInfo trace,
                               IObject object, String property)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         ReferenceMemory value;
         PropertyEntity entity = properties.get(property);
         int accessFlag = entity == null ? 0 : entity.canAccess(env);

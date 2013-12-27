@@ -26,6 +26,7 @@ public class FunctionStmtToken extends StmtToken {
     protected Set<VariableExprToken> arrayAccessLocal;
     protected Set<VariableExprToken> refLocal;
     protected Set<VariableExprToken> unstableLocal;
+    protected Set<VariableExprToken> staticLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -46,6 +47,19 @@ public class FunctionStmtToken extends StmtToken {
         this.arrayAccessLocal = new HashSet<VariableExprToken>();
         this.refLocal = new HashSet<VariableExprToken>();
         this.unstableLocal = new HashSet<VariableExprToken>();
+        this.staticLocal = new HashSet<VariableExprToken>();
+    }
+
+    public Set<VariableExprToken> getStaticLocal() {
+        return staticLocal;
+    }
+
+    public void setStaticLocal(Set<VariableExprToken> staticLocal) {
+        this.staticLocal = staticLocal;
+    }
+
+    public static VariableExprToken getThisVariable() {
+        return thisVariable;
     }
 
     public boolean isStatic() {

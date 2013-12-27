@@ -1,8 +1,6 @@
 package ru.regenix.jphp.runtime.reflection;
 
-import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -19,6 +17,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     private Class<?> nativeClazz;
     private Method nativeMethod;
+
     private boolean isStatic = false;
 
     public FunctionEntity(Context context) {
@@ -51,6 +50,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     public void setNativeMethod(Method nativeMethod) {
         this.nativeMethod = nativeMethod;
+        nativeMethod.setAccessible(true);
     }
 
     public byte[] getData() {
@@ -73,37 +73,24 @@ public class FunctionEntity extends AbstractFunctionEntity {
         this.module = module;
     }
 
-    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
-        Memory result = (Memory)nativeMethod.invoke(null, env, arguments);
-        if (arguments != null){
-            int x = 0;
-            for(ParameterEntity argument : this.parameters){
-                if (!argument.isReference) {
-                    arguments[x].unset();
-                }
-                x++;
-            }
+    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
+        if (isEmpty){
+            unsetArguments(arguments);
+            return Memory.NULL;
+        }
+
+        Memory result = null;
+        try {
+            result = (Memory)nativeMethod.invoke(null, env, arguments);
+        } catch (InvocationTargetException e){
+            throw e.getTargetException();
+        } finally {
+            unsetArguments(arguments);
         }
 
         if (!isReturnReference())
             return result.toImmutable();
         else
             return result;
-    }
-
-    public Memory invokeNoThrow(Environment env, TraceInfo trace, Memory[] arguments){
-        try {
-            return invoke(env, trace, arguments);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            Throwable cause = getCause(e);
-            if (cause instanceof ErrorException)
-                throw (ErrorException) cause;
-            if (cause instanceof DieException)
-                throw (DieException) cause;
-
-            throw new RuntimeException(cause);
-        }
     }
 }

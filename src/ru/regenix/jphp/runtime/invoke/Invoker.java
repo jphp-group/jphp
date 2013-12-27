@@ -20,7 +20,7 @@ abstract public class Invoker {
 
     abstract public void pushCall(TraceInfo trace, Memory[] args);
 
-    abstract public Memory call(Memory... args) throws InvocationTargetException, IllegalAccessException;
+    abstract public Memory call(Memory... args) throws Throwable;
 
     public void popCall(){
         env.popCall();

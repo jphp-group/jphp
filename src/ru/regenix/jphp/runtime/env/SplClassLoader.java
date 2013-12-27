@@ -6,8 +6,6 @@ import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class SplClassLoader {
     protected Invoker invoker;
     protected Memory callback;
@@ -45,10 +43,8 @@ public class SplClassLoader {
         invoker.pushCall(null, new Memory[0]);
         try {
             return invoker.call(className).toBoolean();
-        } catch (InvocationTargetException e){
-            throw new RuntimeException(e.getCause());
-        } catch (IllegalAccessException e){
-            throw new RuntimeException(e);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
         } finally {
             invoker.popCall();
         }
