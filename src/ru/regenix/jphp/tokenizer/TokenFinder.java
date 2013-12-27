@@ -131,7 +131,6 @@ public class TokenFinder {
         put("interface", InterfaceStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);
-        put("implements", ImplementsStmtToken.class);
         put("namespace", NamespaceStmtToken.class);
         put("use", NamespaceUseStmtToken.class);
         put("uses", UsesStmtToken.class);

@@ -691,11 +691,12 @@ public class ClassEntity extends Entity {
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
-        if (props != null && accessFlag != 0){
+        if (props != null && accessFlag == 0){
             Memory tmp = props.getByScalar(property);
             if ( tmp != null ){
-                return tmp;
-            }
+                return tmp.toBoolean() ? Memory.FALSE : Memory.TRUE;
+            } else
+                return Memory.TRUE;
         }
 
         if (methodMagicIsset != null){
@@ -710,7 +711,7 @@ public class ClassEntity extends Entity {
             }
             return result;
         }
-        return Memory.FALSE;
+        return Memory.TRUE;
     }
 
     public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property)

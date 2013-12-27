@@ -28,6 +28,10 @@ public class NewExprToken extends ValueExprToken {
         this.name = name;
     }
 
+    public void setName(StaticExprToken name){
+        this.name = name;
+    }
+
     public boolean isDynamic(){
         return name instanceof VariableExprToken;
     }

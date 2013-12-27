@@ -28,4 +28,10 @@ public class LoopsTest extends JvmCompilerCase {
         Memory memory = includeResource("loops/do_while.php");
         Assert.assertEquals("AAAAAAAAA", memory.toString());
     }
+
+    @Test
+    public void testForeach(){
+        Memory memory = includeResource("loops/foreach.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

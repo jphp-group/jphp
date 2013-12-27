@@ -29,4 +29,10 @@ public class VariablesTest extends JvmCompilerCase {
         Memory memory = includeResource("variables/reference.php");
         Assert.assertEquals("foobar|foobar|foobar", memory.toString());
     }
+
+    @Test
+    public void testStatic(){
+        Memory memory = includeResource("variables/static.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

@@ -3,9 +3,9 @@ package ru.regenix.jphp.syntax.generators;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;
-import ru.regenix.jphp.tokenizer.token.ColonToken;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
@@ -17,7 +17,6 @@ import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.*;
 
@@ -47,13 +46,42 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             unexpectedToken(name, TokenType.T_STRING);
     }
 
+    protected void _processImplements(Token token, ClassStmtToken result, ListIterator<Token> iterator){
+        ImplementsStmtToken implement = new ImplementsStmtToken(token.getMeta());
+
+        Token prev = null;
+        List<FulledNameToken> names = new ArrayList<FulledNameToken>();
+        do {
+            token = nextToken(iterator);
+            if (token instanceof NameToken){
+                names.add(analyzer.getRealName((NameToken)token));
+            } else if (token instanceof CommaToken){
+                if (!(prev instanceof NameToken))
+                    unexpectedToken(token);
+            } else if (isOpenedBrace(token, BraceExprToken.Kind.BLOCK)){
+                iterator.previous();
+                break;
+            } else
+                unexpectedToken(token);
+
+            prev = token;
+        } while (true);
+
+        implement.setNames(names);
+        result.setImplement(implement);
+    }
+
     protected void processExtends(ClassStmtToken result, ListIterator<Token> iterator){
         Token token = nextToken(iterator);
         if (token instanceof ExtendsStmtToken){
-            ExtendsStmtToken extend = (ExtendsStmtToken)token;
-            FulledNameToken what = analyzer.generator(NameGenerator.class).getToken(nextToken(iterator), iterator);
-            extend.setName(analyzer.getRealName(what));
-            result.setExtend(extend);
+            if (result.isInterface()){
+                _processImplements(token, result, iterator);
+            } else {
+                ExtendsStmtToken extend = (ExtendsStmtToken)token;
+                FulledNameToken what = analyzer.generator(NameGenerator.class).getToken(nextToken(iterator), iterator);
+                extend.setName(analyzer.getRealName(what));
+                result.setExtend(extend);
+            }
         } else
             iterator.previous();
     }
@@ -62,6 +90,11 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         checkUnexpectedEnd(iterator);
         Token token = iterator.next();
         if (token instanceof ImplementsStmtToken){
+            if (result.isInterface())
+                unexpectedToken(token, "extends");
+
+            _processImplements(token, result, iterator);
+            /*
             ImplementsStmtToken implement = new ImplementsStmtToken(token.getMeta());
 
             Token prev = null;
@@ -70,7 +103,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 token = nextToken(iterator);
                 if (token instanceof NameToken){
                     names.add(analyzer.getRealName((NameToken)token));
-                } else if (token instanceof ColonToken){
+                } else if (token instanceof CommaToken){
                     if (!(prev instanceof NameToken))
                         unexpectedToken(token);
                 } else if (isOpenedBrace(token, BraceExprToken.Kind.BLOCK)){
@@ -83,7 +116,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             } while (true);
 
             implement.setNames(names);
-            result.setImplement(implement);
+            result.setImplement(implement);*/
         } else
             iterator.previous();
     }
@@ -246,7 +279,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             if (next instanceof ClassStmtToken){
                 ClassStmtToken result;
                 result = (ClassStmtToken)next;
-                result.setInterface(true);
+                result.setInterface(false);
 
                 result.setAbstract(current instanceof AbstractStmtToken);
                 result.setFinal(current instanceof FinalStmtToken);

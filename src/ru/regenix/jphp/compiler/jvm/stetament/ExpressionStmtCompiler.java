@@ -579,6 +579,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new InsnNode(DUP));
     }
 
+    void writePushDupLowerCase(){
+        writePushDup();
+        writePopString();
+        writeSysDynamicCall(String.class, "toLowerCase", String.class);
+    }
+
     void writePushNull(){
         writePushMemory(Memory.NULL);
     }
@@ -878,14 +884,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 writePush(dynamic.getField(), true, false);
                 writePopString();
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             }
         } else {
             writeExpression(dynamic.getFieldExpr(), true, false);
             writePopString();
-            writePushDup();
-            writeSysDynamicCall(String.class, "toLowerCase", String.class);
+            writePushDupLowerCase();
         }
 
         writePushEnv();
@@ -974,20 +978,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else {
             if (clazz instanceof NameToken){
                 writePushString(((NameToken) clazz).getName());
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             } else if (clazz instanceof SelfExprToken){
                 writePushSelf(false);
                 writePushSelf(true);
             } else if (clazz instanceof StaticExprToken){
                 writePushStatic();
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             } else {
                 writePush(clazz, true, false);
                 writePopString();
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             }
 
             if (access.getField() != null){
@@ -998,14 +999,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     writePush(access.getField(), true, false);
                     writePopString();
-                    writePushDup();
-                    writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                    writePushDupLowerCase();
                 }
             } else {
                 writeExpression(access.getFieldExpr(), true, false);
                 writePopString();
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             }
 
             writePushParameters(function.getParameters());
@@ -1168,12 +1167,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (newToken.isDynamic()){
             writePushVariable((VariableExprToken) newToken.getName());
             writePopString();
-            writePushDup();
-            writeSysDynamicCall(String.class, "toLowerCase", String.class);
+            writePushDupLowerCase();
         } else {
-            FulledNameToken name = (FulledNameToken) newToken.getName();
-            writePushString(name.getName());
-            writePushString(name.getName().toLowerCase());
+            if (newToken.getName() instanceof StaticExprToken){
+                writePushStatic();
+                writePushDupLowerCase();
+            } else {
+                FulledNameToken name = (FulledNameToken) newToken.getName();
+                writePushString(name.getName());
+                writePushString(name.getName().toLowerCase());
+            }
         }
         writePushTraceInfo(newToken.getName());
         writePushParameters(newToken.getParameters());
@@ -2053,16 +2056,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePush(dynamic.getField(), true, false);
                 writePopString();
                 if (addLowerName){
-                    writePushDup();
-                    writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                    writePushDupLowerCase();
                 }
             }
         } else {
             writeExpression(dynamic.getFieldExpr(), true, false);
             writePopString();
             if (addLowerName){
-                writePushDup();
-                writeSysDynamicCall(String.class, "toLowerCase", String.class);
+                writePushDupLowerCase();
             }
         }
         writePushEnv();

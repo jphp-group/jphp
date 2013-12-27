@@ -300,6 +300,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result.setName(nameToken);
         } else if (next instanceof VariableExprToken){
             result.setName((VariableExprToken)next);
+        } else if (next instanceof StaticExprToken){
+            result.setName((StaticExprToken)next);
+        } else if (next instanceof SelfExprToken){
+            if (analyzer.getClazz() == null)
+                unexpectedToken(next);
+
+            result.setName(new FulledNameToken(next.getMeta(), new ArrayList<Token>(){{
+                if (analyzer.getClazz().getNamespace().getName() != null)
+                    addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                add(analyzer.getClazz().getName());
+            }}));
+
         } else
             unexpectedToken(next);
 

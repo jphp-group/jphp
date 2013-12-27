@@ -53,4 +53,34 @@ public class ClassesTest extends JvmCompilerCase {
         memory = runDynamic("class A { static function b() { return 100500; } } return new A->b();", false);
         Assert.assertEquals(100500, memory.toLong());
     }
+
+    @Test
+    public void testSimple(){
+        Memory memory = includeResource("classes/simple.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testStdClass(){
+        Memory memory = includeResource("classes/std_class.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testInstanceOf(){
+        Memory memory = includeResource("classes/instance_of.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testSelf(){
+        Memory memory = includeResource("classes/self.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
+    public void testStatic(){
+        Memory memory = includeResource("classes/static.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }
