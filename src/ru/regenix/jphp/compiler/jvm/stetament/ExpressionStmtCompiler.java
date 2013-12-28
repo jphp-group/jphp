@@ -245,6 +245,19 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writePushBooleanAsMemory(boolean value){
+        if (value)
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "TRUE", Type.getDescriptor(Memory.class)
+            ));
+        else
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "FALSE", Type.getDescriptor(Memory.class)
+            ));
+
+        stackPush(Memory.Type.REFERENCE);
+    }
+
     void writePushMemory(Memory memory){
         Memory.Type type = Memory.Type.REFERENCE;
 
@@ -253,13 +266,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     GETSTATIC, Type.getInternalName(Memory.class), "NULL", Type.getDescriptor(Memory.class)
             ));
         } else if (memory instanceof FalseMemory){
-            code.add(new FieldInsnNode(
+            writePushConstBoolean(false);
+            return;
+            /*code.add(new FieldInsnNode(
                     GETSTATIC, Type.getInternalName(Memory.class), "FALSE", Type.getDescriptor(Memory.class)
-            ));
+            )); */
         } else if (memory instanceof TrueMemory){
-            code.add(new FieldInsnNode(
+            writePushConstBoolean(true);
+            return;
+            /*code.add(new FieldInsnNode(
                     GETSTATIC, Type.getInternalName(Memory.class), "TRUE", Type.getDescriptor(Memory.class)
-            ));
+            ));*/
         } else if (memory instanceof ReferenceMemory){
             code.add(new TypeInsnNode(NEW, Type.getInternalName(ReferenceMemory.class)));
             code.add(new InsnNode(DUP));
@@ -395,7 +412,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushInt(new IntegerExprToken(TokenMeta.of(value.getValue() + "", value)));
     }
 
-    void writePushBoolean(boolean value){
+    void _writePushBoolean(boolean value){
         writePushMemory(value ? Memory.TRUE : Memory.FALSE);
     }
 
@@ -406,7 +423,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushBoolean(BooleanExprToken value){
-        writePushBoolean(value.getValue());
+        _writePushBoolean(value.getValue());
     }
 
     void writePushStringBuilder(StringBuilderExprToken value){
@@ -1154,7 +1171,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         writeSysDynamicCall(Environment.class, "die", void.class, Memory.class);
         if (returnValue)
-            writePushBoolean(true);
+            writePushConstBoolean(true);
     }
 
     void writePushIsset(IssetExprToken token, boolean returnValue){
@@ -1590,7 +1607,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof HexExprValue){
                 writePushHex((HexExprValue)value);
             } else if (value instanceof BooleanExprToken){
-                writePushBoolean((BooleanExprToken)value);
+                writePushBoolean((BooleanExprToken) value);
             } else if (value instanceof NullExprToken){
                 writePushNull();
             } else if (value instanceof StringExprToken){
@@ -2392,14 +2409,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new JumpInsnNode(IFEQ, next));
             stackPop();
             if (returnValue){
-                writePushBoolean(true);
+                writePushBooleanAsMemory(true);
                 stackPop();
             }
         } else if (operator instanceof BooleanAndExprToken || operator instanceof BooleanAnd2ExprToken){
             code.add(new JumpInsnNode(IFNE, next));
             stackPop();
             if (returnValue){
-                writePushBoolean(false);
+                writePushBooleanAsMemory(false);
                 stackPop();
             }
         }
