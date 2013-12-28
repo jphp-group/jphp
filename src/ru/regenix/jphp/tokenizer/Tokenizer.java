@@ -9,9 +9,12 @@ import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Tokenizer {
     protected Context context;
@@ -57,10 +60,21 @@ public class Tokenizer {
         return code;
     }
 
+    protected final static Map<Class<?>, Constructor> tokenConstructors = new HashMap<Class<?>, Constructor>();
+
     @SuppressWarnings("unchecked")
     protected <T extends Token> T buildToken(Class<T> clazz, TokenMeta meta){
+        Constructor<T> constructor = tokenConstructors.get(clazz);
+        if (constructor == null){
+            try {
+                tokenConstructors.put(clazz, constructor = clazz.getConstructor(TokenMeta.class));
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         try {
-            return (T) (prevToken = clazz.getConstructor(TokenMeta.class).newInstance(meta));
+            return (T) (prevToken = constructor.newInstance(meta));
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e.getTargetException());
         } catch (Exception e) {
@@ -663,6 +677,8 @@ public class Tokenizer {
             return buildToken(tokenClazz, meta);
         }
     }
+
+    private Token token = new Token(null, TokenType.T_STRING);
 
     public List<Token> fetchAll(){
         List<Token> result = new ArrayList<Token>();

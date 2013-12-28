@@ -173,30 +173,135 @@ public class TokenFinder {
         if (token != null)
             return token;
 
-        if (word.matches("^[1-9][0-9]*$") || word.matches("^[0]+$"))
-            return IntegerExprToken.class;
+        int length = word.length();
 
-        if (word.matches("^[0-9]+\\.[0-9]+$")) // 1.234
-            return DoubleExprToken.class;
+        boolean isVar = false;
+        boolean isHex = false;
+        boolean isInt = true;
+        boolean isFloat = false;
+        boolean isName = true;
+        boolean isFulledName = false;
 
-        if (word.matches("^[0-9]+\\.[0-9]+e[\\-|\\+]?[0-9]+$")) // 1.2e3;
-            return DoubleExprToken.class;
+        boolean e_ch = false;
+        boolean p_ch = false;
+        boolean sign_ch = false;
+        for(int i = 0; i < length; i++){
+            char ch = word.charAt(i);
 
-        if (word.matches("^[0-9]+e[\\-|\\+][0-9]+$")) // 7E-10
-            return DoubleExprToken.class;
+            switch (ch){
+                case '$':
+                    isVar = true;
+                    if (i == 0){
+                        for(int j = i + 1; j < length; j++){
+                            ch = word.charAt(j);
+                            if (j == i + 1 && Character.isDigit(ch)) {
+                                isVar = false;
+                                break;
+                            }
+                            if (ch != '_' && !Character.isLetter(ch) && !Character.isDigit(ch)) {
+                                isVar = false;
+                                break;
+                            }
+                        }
+                    } else
+                        isVar = false;
+                    break;
+                case '\\':
+                    if (isName){
+                        isFulledName = true;
+                    }
+                    isFloat = isHex = isInt = isVar = false;
+                    break;
+                case 'x':case 'X':
+                    if (i == 1 && word.charAt(i - 1) == '0') {
+                        isHex = true;
+                        isFloat = false;
+                        isInt = false;
 
-        if (word.matches("^0x[0-9a-f]+$"))
-            return HexExprValue.class;
+                        for(int j = i + 1; j < length; j++){
+                            ch = word.charAt(j);
+                            if (!(ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch))){
+                                isHex = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        isInt = false;
+                    }
+                    break;
+                case '_':
+                    isInt = false;
+                    break;
+                case '-':case '+':
+                    if (!sign_ch && isInt){
+                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
 
-        if (word.matches("^\\\\?[a-z_\\x7f-\\xff][\\\\a-z0-9_\\x7f-\\xff]*$")){
-            if (word.indexOf('\\') > -1)
-                return FulledNameToken.class;
-            else
-                return NameToken.class;
+                        if (ch == 'e' || ch == 'E'){
+                            sign_ch = true;
+                        } else
+                            return null;
+                    } else {
+                        return null;
+                    }
+                    break;
+                case '.':
+                    if (!p_ch && isInt){
+                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
+                        if (Character.isDigit(ch)){
+                            isFloat = true;
+                        } else
+                            return null;
+                    } else
+                        return null;
+                    break;
+                case 'e':case 'E':
+                    if (!e_ch && isFloat){
+                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
+                        if (!Character.isDigit(ch)){
+                            if (ch == '-' || ch == '+'){
+                                ch = i + 2 < length ? word.charAt(i + 2) : 0;
+                                if (!Character.isDigit(ch)) {
+                                    return null;
+                                }
+                                i += 1;
+                            } else {
+                                isInt = false;
+                                //i += 0;
+                            }
+                        }
+                        e_ch = true;
+                    }
+                    break;
+                default:
+                    if (Character.isDigit(ch)){
+                        if (i == 0){
+                            isName = false;
+                        }
+                    } else if (Character.isLetter(ch)){
+                        isInt = false;
+                    } else {
+                        return null;
+                    }
+            }
         }
 
-        if (word.matches("^[\\$][a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]*$"))
+        if (isVar)
             return VariableExprToken.class;
+
+        if (isHex)
+            return HexExprValue.class;
+
+        if (isInt && isFloat)
+            return DoubleExprToken.class;
+
+        if (isInt)
+            return IntegerExprToken.class;
+
+        if (isName && isFulledName)
+            return FulledNameToken.class;
+
+        if (isName)
+            return NameToken.class;
 
         return null;
     }

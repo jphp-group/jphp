@@ -1686,11 +1686,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
         if (INVOKE_TYPE != INVOKESPECIAL && clazz != null){
-            try {
-                clazz.getDeclaredMethod(method, paramClasses);
-            } catch (java.lang.NoSuchMethodException e) {
+            if (!methodExists(clazz, method, paramClasses))
                 throw new NoSuchMethodException(clazz, method, paramClasses);
-            }
         }
 
         Type[] args = new Type[paramClasses.length];
