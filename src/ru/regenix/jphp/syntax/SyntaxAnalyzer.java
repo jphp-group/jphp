@@ -46,6 +46,7 @@ public class SyntaxAnalyzer {
     public void reset(Tokenizer tokenizer){
         removeLocalScope();
 
+        tokenizer.reset();
         this.tokenizer = tokenizer;
 
         this.function = null;
@@ -64,6 +65,8 @@ public class SyntaxAnalyzer {
     }
 
     public SyntaxAnalyzer(Tokenizer tokenizer, FunctionStmtToken function) {
+        if (tokenizer != null)
+            tokenizer.reset();
         this.tokenizer = tokenizer;
 
         this.function = function;

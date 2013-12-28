@@ -8,6 +8,8 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.ext.*;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.opcode.ModuleOpcodePrinter;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.runtime.util.JVMStackTracer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
@@ -33,25 +35,22 @@ public class Main {
             Context context = environment.createContext(new File("scripts/main.php"));
 
             // compile
-
-            long t = System.currentTimeMillis();
-
             Tokenizer tokenizer = new Tokenizer(context);
-            //tokenizer.fetchAll();
             SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
             AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
             ModuleEntity module = compiler.compile();
-            /*
-            //System.out.println(new ModuleOpcodePrinter(module).toString());
 
-            /*scope.loadModule(module);
+            System.out.println(new ModuleOpcodePrinter(module).toString());
+
+            scope.loadModule(module);
             environment.registerModule(module);
 
+            long t = System.currentTimeMillis();
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();
 
-            System.out.println();*/
+            System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
             //System.out.println(result);

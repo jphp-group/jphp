@@ -30,4 +30,9 @@ public class AssignExprToken extends OperatorExprToken
     public boolean isRightSide() {
         return true;
     }
+
+    @Override
+    public String getCode() {
+        return asReference ? "assignRef" : "assign";
+    }
 }

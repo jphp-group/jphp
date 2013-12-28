@@ -151,7 +151,7 @@ public class CompileFunction {
     }
 
     public static class Method {
-        public final boolean isImmutable;
+        public boolean isImmutable;
         public final boolean isImmutableIgnoreRefs;
         public final java.lang.reflect.Method method;
         public final MemoryUtils.Converter<?>[] converters;
@@ -178,11 +178,17 @@ public class CompileFunction {
 
             for (Class<?> type : parameterTypes){
                 for(Annotation annotation : parameterAnnotations[i]){
-                    if (annotation instanceof Reflection.Reference)
+                    if (annotation instanceof Reflection.Reference) {
                         references[i] = true;
+                        if (!isImmutableIgnoreRefs)
+                            isImmutable = false;
+                    }
                 }
                 i++;
             }
+
+            if (resultType == void.class)
+                isImmutable = false;
         }
 
         public boolean isPresentAnnotationOfParam(int index, Class<? extends Annotation> clazz){

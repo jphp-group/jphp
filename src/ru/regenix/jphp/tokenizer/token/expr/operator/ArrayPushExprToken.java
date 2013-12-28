@@ -18,4 +18,9 @@ public class ArrayPushExprToken extends OperatorExprToken {
     public int getPriority() {
         return 10;
     }
+
+    @Override
+    public String getCode() {
+        return "refOfPush";
+    }
 }

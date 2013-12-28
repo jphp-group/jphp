@@ -45,7 +45,6 @@ import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -668,25 +667,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             statistic.returnType = StackItem.Type.valueOf(method.resultType);
 
         Class[] types = method.parameterTypes;
-        Annotation[][] annotations = method.parameterAnnotations;
-
         ListIterator<ExprStmtToken> iterator = function.getParameters().listIterator();
 
         Object[] arguments = new Object[types.length];
         int j = 0;
-        boolean immutable = method.isImmutable && method.resultType != void.class;
+        boolean immutable = method.isImmutable;
 
         boolean init = false;
         for(int i = 0; i < method.parameterTypes.length; i++){
             Class<?> argType = method.parameterTypes[i];
-            boolean isRef = false;
-            for(Annotation annotation : annotations[i]){
-                if (annotation.annotationType().equals(ru.regenix.jphp.annotation.Runtime.Reference.class))
-                    isRef = true;
-            }
-
-            if (isRef && !method.isImmutableIgnoreRefs)
-                immutable = false;
+            boolean isRef = method.references[i];
 
             if (method.isPresentAnnotationOfParam(i, Runtime.GetLocals.class)){
                 if (!writeOpcode)
@@ -832,8 +822,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             Object[] typedArguments = new Object[arguments.length];
             for(int i = 0; i < arguments.length; i++){
-                if (arguments[i] instanceof Memory)
-                    typedArguments[i] = MemoryUtils.toValue((Memory)arguments[i], types[i]);
+                if (method.parameterTypes[i] != Memory.class && arguments[i] instanceof Memory)
+                    typedArguments[i] = method.converters[i].run((Memory)arguments[i]);
+                                        //MemoryUtils.toValue((Memory)arguments[i], types[i]);
                 else
                     typedArguments[i] = arguments[i];
             }
@@ -1686,6 +1677,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
         if (INVOKE_TYPE != INVOKESPECIAL && clazz != null){
+            if (compiler.getScope().isDebugMode())
             if (!methodExists(clazz, method, paramClasses))
                 throw new NoSuchMethodException(clazz, method, paramClasses);
         }
@@ -1922,7 +1914,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (isInvert){
             writePopBoxing();
             writePush(L);
-            if (CompilerUtils.isSideOperator(operator))
+            if (operator.isSide())
                 operatorName += "Right";
 
             writeSysDynamicCall(Memory.class, operatorName, operatorResult, stackPeek().type.toClass());
@@ -2155,7 +2147,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (dynamic instanceof DynamicAccessAssignExprToken){
             OperatorExprToken operator = (OperatorExprToken) ((DynamicAccessAssignExprToken) dynamic).getAssignOperator();
             writeSysStaticCall(ObjectInvokeHelper.class,
-                    CompilerUtils.getOperatorCode(operator) + "Property", Memory.class,
+                    operator.getCode() + "Property", Memory.class,
                     Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
             );
         } else if (dynamic instanceof DynamicAccessUnsetExprToken){
@@ -2264,8 +2256,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!writeOpcode)
             return null;
 
-        String name = CompilerUtils.getOperatorCode(operator);
-        Class operatorResult = CompilerUtils.getOperatorResult(operator);
+        String name = operator.getCode();
+        Class operatorResult = operator.getResultClass();
 
         LocalVariable variable = null;
         if (L instanceof VariableExprToken){
@@ -2511,15 +2503,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         StackItem.Type Lt = tryGetType(o2);
         StackItem.Type Rt = tryGetType(o1);
 
-        String name = CompilerUtils.getOperatorCode(operator);
-        Class operatorResult = CompilerUtils.getOperatorResult(operator);
+        String name = operator.getCode();
+        Class operatorResult = operator.getResultClass();
 
         boolean isInvert = false;
-        boolean sideOperator = CompilerUtils.isSideOperator(operator);
+        boolean sideOperator = operator.isSide();
 
         if (variable != null && !variable.isReference()){
             if (operator instanceof AssignOperatorExprToken){
-                name = CompilerUtils.getAssignOperatorCode((AssignOperatorExprToken)operator);
+                name = ((AssignOperatorExprToken)operator).getOperatorCode();
                 if (operator instanceof AssignConcatExprToken)
                     operatorResult = String.class;
                 if (operator instanceof AssignPlusExprToken || operator instanceof AssignMulExprToken)

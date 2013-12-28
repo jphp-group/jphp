@@ -7,4 +7,14 @@ public class AssignXorExprToken extends AssignOperatorExprToken {
     public AssignXorExprToken(TokenMeta meta) {
         super(meta, TokenType.T_XOR_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignBitXor";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "bitXor";
+    }
 }

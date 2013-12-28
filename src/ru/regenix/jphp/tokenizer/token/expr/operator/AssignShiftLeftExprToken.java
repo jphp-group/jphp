@@ -7,4 +7,14 @@ public class AssignShiftLeftExprToken extends AssignOperatorExprToken {
     public AssignShiftLeftExprToken(TokenMeta meta) {
         super(meta, TokenType.T_SL_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignBitShl";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "bitShl";
+    }
 }

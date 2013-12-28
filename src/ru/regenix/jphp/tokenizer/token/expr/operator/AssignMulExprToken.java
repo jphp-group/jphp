@@ -7,4 +7,14 @@ public class AssignMulExprToken extends AssignOperatorExprToken {
     public AssignMulExprToken(TokenMeta meta) {
         super(meta, TokenType.T_MUL_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignMul";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "mul";
+    }
 }

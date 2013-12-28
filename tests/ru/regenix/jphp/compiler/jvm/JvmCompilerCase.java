@@ -24,6 +24,7 @@ abstract public class JvmCompilerCase {
 
     protected CompileScope newScope(){
         CompileScope compileScope = new CompileScope();
+        compileScope.setDebugMode(true);
 
         compileScope.registerExtension(new CoreExtension());
         compileScope.registerExtension(new BCMathExtension());

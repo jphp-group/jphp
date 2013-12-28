@@ -34,15 +34,10 @@ public class Tokenizer {
 
     public Tokenizer(Context context){
         this.context = context;
-        this.currentPosition = -1;
-        this.currentLine = 0;
-        this.relativePosition = -1;
         this.code = context.getContent();
         this.codeLength = code.length();
-        this.tokenFinder = new TokenFinder();
         this.rawMode = context.isFile();
-        if (!rawMode)
-            this.relativePosition = 0;
+        reset();
     }
 
     public Tokenizer(String code, Context context){
@@ -54,6 +49,15 @@ public class Tokenizer {
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
         this.rawMode = false;
+    }
+
+    public void reset(){
+        this.currentPosition = -1;
+        this.currentLine = 0;
+        this.relativePosition = -1;
+        this.tokenFinder = new TokenFinder();
+        if (!rawMode)
+            this.relativePosition = 0;
     }
 
     public String getCode() {
@@ -687,11 +691,6 @@ public class Tokenizer {
             result.add(token);
 
         return result;
-    }
-
-    public void reset(){
-        this.currentPosition = -1;
-        this.currentLine = 0;
     }
 
     public Context getContext() {

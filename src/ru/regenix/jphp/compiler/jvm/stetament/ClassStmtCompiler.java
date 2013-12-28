@@ -219,19 +219,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.methods.add(constructor);
     }
 
-    @SuppressWarnings("unchecked")
-    protected void writeProperty(ClassVarStmtToken property){
-        if (!property.isStatic()){
-            int flags = ACC_PUBLIC;
-            node.fields.add(new FieldNode(
-                    flags, property.getVariable().getName(),
-                    Type.getDescriptor(Memory.class),
-                    null,
-                    null
-            ));
-        }
-    }
-
     protected void writeConstant(ConstStmtToken constant){
         MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken)null);
         ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodStmtCompiler, null);

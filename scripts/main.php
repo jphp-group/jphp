@@ -1,8 +1,7 @@
 <?php
 
-
-for($i = 0; $i < 1000; $i++){
-    $x = eval('$result = 20 + $i * 40 + cos(11);');
+for($i = 0; $i < 10000; $i++){
+    eval('$x = $i;');
 }
 
-var_dump($x);
+echo $x;

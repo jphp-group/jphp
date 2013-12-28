@@ -18,4 +18,9 @@ public class IncExprToken extends OperatorExprToken {
     public boolean isBinary() {
         return false;
     }
+
+    @Override
+    public String getCode() {
+        return "inc";
+    }
 }

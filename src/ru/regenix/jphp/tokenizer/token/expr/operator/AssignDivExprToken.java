@@ -7,4 +7,14 @@ public class AssignDivExprToken extends AssignOperatorExprToken {
     public AssignDivExprToken(TokenMeta meta) {
         super(meta, TokenType.T_DIV_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignDiv";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "div";
+    }
 }

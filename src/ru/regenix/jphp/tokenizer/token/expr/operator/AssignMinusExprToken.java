@@ -7,4 +7,14 @@ public class AssignMinusExprToken extends AssignOperatorExprToken {
     public AssignMinusExprToken(TokenMeta meta) {
         super(meta, TokenType.T_MINUS_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignMinus";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "minus";
+    }
 }

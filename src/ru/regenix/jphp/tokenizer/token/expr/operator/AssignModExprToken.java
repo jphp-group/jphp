@@ -7,4 +7,14 @@ public class AssignModExprToken extends AssignOperatorExprToken {
     public AssignModExprToken(TokenMeta meta) {
         super(meta, TokenType.T_MOD_EQUAL);
     }
+
+    @Override
+    public String getCode() {
+        return "assignMod";
+    }
+
+    @Override
+    public String getOperatorCode() {
+        return "mod";
+    }
 }

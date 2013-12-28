@@ -41,6 +41,8 @@ public class CompileScope {
 
     public final Set<String> superGlobals;
 
+    public boolean debugMode = false;
+
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
@@ -78,6 +80,14 @@ public class CompileScope {
         registerClass(new ClassEntity(this, IteratorAggregate.class));
 
         registerClass(new ClassEntity(this, Serializable.class));
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
     }
 
     public Map<String, ClassEntity> getClassMap() {

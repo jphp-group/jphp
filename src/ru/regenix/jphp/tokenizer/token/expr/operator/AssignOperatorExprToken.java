@@ -19,4 +19,6 @@ abstract public class AssignOperatorExprToken extends OperatorExprToken
     public boolean isRightSide() {
         return true;
     }
+
+    abstract public String getOperatorCode();
 }
