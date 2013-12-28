@@ -1,8 +1,15 @@
 package ru.regenix.jphp.runtime.ext.core;
 
 import ru.regenix.jphp.annotation.Runtime;
+import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.CallStackItem;
+import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
@@ -17,13 +24,47 @@ import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.runtime.util.StackTracer;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.GrammarUtils;
+import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class LangFunctions extends FunctionsContainer {
 
     protected final static LangConstants constants = new LangConstants();
+
+    private static String evalErrorMessage(ErrorException e){
+        return e.getMessage() + ", eval()'s code on line " + (e.getTraceInfo().getStartLine() + 1)
+                + ", position " + (e.getTraceInfo().getStartPosition() + 1);
+    }
+
+    public static Memory eval(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, String code)
+            throws Throwable {
+        Context context = new Context(env, code);
+
+        try {
+            Tokenizer tokenizer = new Tokenizer(context);
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            AbstractCompiler compiler = new JvmCompiler(env, context, analyzer);
+
+            ModuleEntity module = compiler.compile();
+            env.scope.loadModule(module);
+            env.registerModule(module);
+
+            return module.include(env, locals);
+        } catch (ParseException e){
+            if (env.isHandleErrors(ErrorException.Type.E_PARSE))
+                throw new ParseException(evalErrorMessage(e), trace);
+        } catch (FatalException e){
+            if (env.isHandleErrors(ErrorException.Type.E_NOTICE))
+                throw new FatalException(evalErrorMessage(e), trace);
+        } catch (CompileException e){
+            if (env.isHandleErrors(ErrorException.Type.E_CORE_ERROR))
+                throw new CompileException(evalErrorMessage(e), trace);
+        }
+        return Memory.FALSE;
+    }
 
     public static Memory compact(@Runtime.GetLocals ArrayMemory locals,
                                  Memory varName, Memory... varNames){

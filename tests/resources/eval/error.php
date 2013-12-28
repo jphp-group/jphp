@@ -1,0 +1,3 @@
+<?php
+
+$x = eval('return ');

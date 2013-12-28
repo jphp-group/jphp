@@ -38,13 +38,15 @@ public class Tokenizer {
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();
         this.rawMode = context.isFile();
+        if (!rawMode)
+            this.relativePosition = 0;
     }
 
     public Tokenizer(String code, Context context){
         this.context = context;
         this.currentPosition = -1;
         this.currentLine = 0;
-        this.relativePosition = -1;
+        this.relativePosition = 0;
         this.code = code;
         this.codeLength = code.length();
         this.tokenFinder = new TokenFinder();

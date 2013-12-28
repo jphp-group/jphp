@@ -31,6 +31,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         add("extract");
         add("compact");
         add("get_defined_vars");
+        add("eval");
     }};
 
     public SimpleExprGenerator(SyntaxAnalyzer analyzer) {

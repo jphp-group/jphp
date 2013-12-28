@@ -646,14 +646,11 @@ public class Environment {
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
     }
 
-    public void __throwException(BaseException e){
-        throw e;
-    }
-
     public void __throwException(TraceInfo trace, Memory exception){
         if (exception.isObject() ) {
             IObject object;
             if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseException){
+                __clearSilent();
                 BaseException e = (BaseException)object;
                 e.setTraceInfo(this, trace);
                 throw e;
