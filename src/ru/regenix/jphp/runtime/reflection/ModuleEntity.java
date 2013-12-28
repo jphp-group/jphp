@@ -4,6 +4,8 @@ import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.lang.BaseException;
+import ru.regenix.jphp.runtime.lang.UncaughtException;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
@@ -97,6 +99,8 @@ public class ModuleEntity extends Entity {
             throw e;
         } catch (ErrorException e){
             throw e;
+        } catch (BaseException e){
+            throw new UncaughtException(e);
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

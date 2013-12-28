@@ -2948,12 +2948,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         LabelNode nextCatch = null;
         int i = 0, size = tryCatch.getCatches().size();
         LocalVariable local = null;
+        LabelNode catchFail = new LabelNode();
         for(CatchStmtToken _catch : tryCatch.getCatches()) {
             if (nextCatch != null) {
                 code.add(nextCatch);
             }
             if (i == size - 1) {
-                nextCatch = catchEnd;
+                nextCatch = catchFail;
             } else {
                 nextCatch = new LabelNode();
             }
@@ -2977,6 +2978,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new JumpInsnNode(GOTO, catchEnd));
             i++;
         }
+        code.add(catchFail);
+
+        makeVarLoad(exception);
+        code.add(new InsnNode(ATHROW));
+
         code.add(catchEnd);
 
         writeUndefineVariables(tryCatch.getLocal());

@@ -1,11 +1,10 @@
 <?php
 
 
-function test(&$ref){
-    $ref = 'foobar';
+class X extends Exception {}
+
+try {
+    throw new X;
+} catch (Exception $e){
+    echo "aaa";
 }
-
-$var = 100500;
-test($var);
-
-return $var;

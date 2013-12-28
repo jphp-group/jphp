@@ -646,6 +646,10 @@ public class Environment {
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
     }
 
+    public void __throwException(BaseException e){
+        throw e;
+    }
+
     public void __throwException(TraceInfo trace, Memory exception){
         if (exception.isObject() ) {
             IObject object;

@@ -8,9 +8,6 @@ class _TestBytecode {
             x = 3;
             throw new BaseException(null, null);
         } catch (BaseException e){
-            System.out.append("aaa");
-        } catch (RuntimeException e){
-
         }
     }
 }

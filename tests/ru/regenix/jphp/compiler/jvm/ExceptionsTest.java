@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.runtime.lang.UncaughtException;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 @RunWith(JUnit4.class)
@@ -22,5 +23,10 @@ public class ExceptionsTest extends JvmCompilerCase {
     public void testTrace(){
         Memory memory = includeResource("exceptions/test_trace.php");
         Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test(expected = UncaughtException.class)
+    public void testUncaught(){
+        includeResource("exceptions/uncaught.php");
     }
 }
