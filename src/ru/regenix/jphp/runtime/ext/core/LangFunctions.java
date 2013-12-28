@@ -39,13 +39,20 @@ public class LangFunctions extends FunctionsContainer {
                 + ", position " + (e.getTraceInfo().getStartPosition() + 1);
     }
 
+    protected final static ThreadLocal<SyntaxAnalyzer> syntaxAnalyzer = new ThreadLocal<SyntaxAnalyzer>(){
+        @Override
+        protected SyntaxAnalyzer initialValue() {
+            return new SyntaxAnalyzer(null);
+        }
+    };
+
     public static Memory eval(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, String code)
             throws Throwable {
         Context context = new Context(env, code);
-
         try {
             Tokenizer tokenizer = new Tokenizer(context);
-            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            SyntaxAnalyzer analyzer = syntaxAnalyzer.get();
+            analyzer.reset(tokenizer);
             AbstractCompiler compiler = new JvmCompiler(env, context, analyzer);
 
             ModuleEntity module = compiler.compile();

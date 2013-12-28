@@ -43,6 +43,26 @@ public class SyntaxAnalyzer {
         this(tokenizer, null);
     }
 
+    public void reset(Tokenizer tokenizer){
+        removeLocalScope();
+
+        this.tokenizer = tokenizer;
+
+        this.function = null;
+        classes.clear();
+        functions.clear();
+        constants.clear();
+        closures.clear();
+        closureStack.clear();
+
+        tokens.clear();
+        tree.clear();
+        localStack.clear();
+
+        addLocalScope();
+        process();
+    }
+
     public SyntaxAnalyzer(Tokenizer tokenizer, FunctionStmtToken function) {
         this.tokenizer = tokenizer;
 
@@ -76,7 +96,8 @@ public class SyntaxAnalyzer {
             map.put(generator.getClass(), generator);
 
         addLocalScope();
-        process();
+        if (tokenizer != null)
+            process();
     }
 
     public void registerClass(ClassStmtToken clazz){

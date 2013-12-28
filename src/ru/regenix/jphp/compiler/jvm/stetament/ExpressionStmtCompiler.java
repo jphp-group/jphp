@@ -3173,10 +3173,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 break;
         }
 
-        if (!invalid && returnMemory && returnValue && !stackEmpty(false) && stackPeek().isConstant())
-            return stackPop().memory;
 
         Memory result = null;
+        if (!invalid && returnMemory && returnValue && !stackEmpty(false) && stackPeek().isConstant()) {
+            result = stackPop().memory;
+            invalid = true;
+        }
+
         if (!invalid){
             if (returnValue && !stackEmpty(false) && stackPeek().isKnown()){
                 if (returnMemory)
