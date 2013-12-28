@@ -1,15 +1,11 @@
 <?php
-function test(){
-    throw new Exception("foobar", 100500);
+
+
+function test(&$ref){
+    $ref = 'foobar';
 }
 
-try {
-    test();
-} catch (Exception $e){
-    $trace = $e->getTrace()[0];
+$var = 100500;
+test($var);
 
-    var_dump(empty($trace['file']));
-    return 'success';
-}
-
-return 'fail';
+return $var;

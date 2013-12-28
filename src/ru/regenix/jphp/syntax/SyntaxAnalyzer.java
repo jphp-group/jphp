@@ -39,9 +39,14 @@ public class SyntaxAnalyzer {
     private Map<String, ConstStmtToken> constants;
     private List<ClosureStmtToken> closures;
 
-    public SyntaxAnalyzer(Tokenizer tokenizer) {
+    public SyntaxAnalyzer(Tokenizer tokenizer){
+        this(tokenizer, null);
+    }
+
+    public SyntaxAnalyzer(Tokenizer tokenizer, FunctionStmtToken function) {
         this.tokenizer = tokenizer;
 
+        this.function = function;
         classes = new LinkedHashMap<String, ClassStmtToken>();
         functions = new ArrayList<FunctionStmtToken>();
         constants = new LinkedHashMap<String, ConstStmtToken>();

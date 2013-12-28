@@ -17,6 +17,7 @@ public class CoreExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+        registerConstants(new LangConstants());
         registerFunctions(new LangFunctions());
         registerFunctions(new InfoFunctions());
 

@@ -21,14 +21,17 @@ import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.Generator;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     private boolean isRef = false;
     private boolean canStartByReference = false;
+    private static final Set<String> dynamicLocalFunctions = new HashSet<String>(){{
+        add("extract");
+        add("compact");
+        add("get_defined_vars");
+    }};
 
     public SimpleExprGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
@@ -128,7 +131,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (!(param.getSingle() instanceof VariableValueExprToken))
                 unexpectedToken(param);
 
-            if (last instanceof VariableExprToken){
+            if (last instanceof VariableExprToken || last instanceof GetVarExprToken){
                 newToken = last;
                 // nop
             } else if (last instanceof ArrayGetExprToken){
@@ -170,9 +173,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         nextToken(iterator);
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
-        if (previous instanceof ValueExprToken)
+        if (previous instanceof ValueExprToken) {
             result.setName(analyzer.getRealName((ValueExprToken)previous));
-        else {
+            if (analyzer.getFunction() != null){
+                if (result.getName() instanceof NameToken)
+                if (dynamicLocalFunctions.contains(((NameToken) result.getName()).getName().toLowerCase()))
+                    analyzer.getFunction().setDynamicLocal(true);
+            }
+        } else {
             if (previous instanceof DynamicAccessExprToken) {
                 result.setName((ExprToken)previous);
             } else
@@ -367,8 +375,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             Tokenizer tokenizer = new Tokenizer(dynamic + ";", analyzer.getContext());
 
             try {
-                SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokenizer);
+                SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokenizer, analyzer.getFunction());
                 List<Token> tree = syntaxAnalyzer.getTree();
+                analyzer.getLocalScope().addAll(syntaxAnalyzer.getLocalScope());
+
                 assert tree.size() > 0;
 
                 Token item = tree.get(0);

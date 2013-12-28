@@ -12,6 +12,10 @@ public class GrammarUtils {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     }
 
+    public static boolean isValidName(String name){
+        return (name.matches("^[a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]{0,60}$"));
+    }
+
     public static boolean isVariableChar(char ch){
         return ch == '$';
     }

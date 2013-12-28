@@ -192,7 +192,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public ReferenceMemory getByScalarOrCreate(Object sKey){
-        return getByScalarOrCreate(sKey, NULL);
+        return getByScalarOrCreate(sKey, UNDEFINED);
     }
 
     public ReferenceMemory getByScalar(Object key){
@@ -845,31 +845,31 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     @Override
     public Memory valueOfIndex(Memory index) {
         Memory e = get(index);
-        return e == null ? NULL : e;
+        return e == null ? UNDEFINED : e;
     }
 
     @Override
     public Memory valueOfIndex(long index) {
         Memory e = getByScalar(LongMemory.valueOf(index));
-        return e == null ? NULL : e;
+        return e == null ? UNDEFINED : e;
     }
 
     @Override
     public Memory valueOfIndex(double index) {
         Memory e = getByScalar(LongMemory.valueOf((long) index));
-        return e == null ? NULL : e;
+        return e == null ? UNDEFINED : e;
     }
 
     @Override
     public Memory valueOfIndex(boolean index) {
         Memory e = getByScalar(index ? CONST_INT_0 : CONST_INT_1);
-        return e == null ? NULL : e;
+        return e == null ? UNDEFINED : e;
     }
 
     @Override
     public Memory valueOfIndex(String index) {
         Memory e = getByScalar(index);
-        return e == null ? NULL : e;
+        return e == null ? UNDEFINED : e;
     }
 
     @Override
@@ -881,7 +881,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     @Override
     public Memory refOfPush(){
         checkCopied();
-        return add(NULL);
+        return add(UNDEFINED);
     }
 
     @Override

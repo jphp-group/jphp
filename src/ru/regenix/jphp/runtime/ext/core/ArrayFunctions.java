@@ -740,17 +740,17 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory array_column(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory columnKey,
                                       Memory indexKey){
         if (expecting(env, trace, 1, input, Memory.Type.ARRAY)){
-            if (columnKey == Memory.NULL && indexKey == Memory.NULL)
+            if (columnKey.isNull() && indexKey.isNull())
                 return array_values(env, trace, input);
 
             ArrayMemory result = new ArrayMemory();
             ForeachIterator iterator = input.getNewIterator(env, false, false);
             while (iterator.next()){
                 Memory value = iterator.getValue();
-                if (indexKey == Memory.NULL){
+                if (indexKey.isNull()){
                     result.add(value.valueOfIndex(columnKey).toImmutable());
                 } else {
-                    if (columnKey == Memory.NULL)
+                    if (columnKey.isNull())
                         result.refOfIndex( value.valueOfIndex(indexKey) ).assign( value.toImmutable() );
                     else
                         result.refOfIndex( value.valueOfIndex(indexKey) ).assign(value.valueOfIndex(columnKey));

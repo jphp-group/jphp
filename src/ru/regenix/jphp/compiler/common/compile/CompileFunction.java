@@ -5,6 +5,7 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 
@@ -48,6 +49,8 @@ public class CompileFunction {
     }
 
     public void addMethod(java.lang.reflect.Method method, boolean asImmutable){
+        Annotation[][] paramAnnotations = method.getParameterAnnotations();
+
         if (method.isVarArgs()){
             if (methodVarArgs != null)
                 throw new IllegalArgumentException("Cannot add two var-args methods");
@@ -61,7 +64,17 @@ public class CompileFunction {
                 if (type == Memory[].class)
                     continue;
 
-                count++;
+                boolean ignore = false;
+                for (Annotation el : paramAnnotations[i]){
+                    if (el.annotationType().equals(Runtime.GetLocals.class)) {
+                        if (type != ArrayMemory.class)
+                            throw new RuntimeException("@Runtime.GetLocals: param type must be ArrayMemory");
+                        ignore = true;
+                        break;
+                    }
+                }
+
+                if (!ignore) count++;
             }
             if (count < minArgs)
                 minArgs = count;
@@ -75,11 +88,23 @@ public class CompileFunction {
 
         Class<?>[] types = method.getParameterTypes();
         int count = 0;
+
         for(int i = 0; i < types.length; i++){
             Class<?> type = types[i];
             if (type == Environment.class || type == TraceInfo.class)
                 continue;
-            count++;
+
+            boolean ignore = false;
+            for (Annotation el : paramAnnotations[i]){
+                if (el.annotationType().equals(Runtime.GetLocals.class)) {
+                    if (type != ArrayMemory.class)
+                        throw new RuntimeException("@Runtime.GetLocals: param type must be ArrayMemory");
+                    ignore = true;
+                    break;
+                }
+            }
+
+            if (!ignore) count++;
         }
         if (count < minArgs)
             minArgs = count;
@@ -158,6 +183,16 @@ public class CompileFunction {
                 }
                 i++;
             }
+        }
+
+        public boolean isPresentAnnotationOfParam(int index, Class<? extends Annotation> clazz){
+            assert index >= 0 && index < parameterAnnotations.length;
+
+            for (Annotation el : parameterAnnotations[index])
+                if (el.annotationType().equals(clazz))
+                    return true;
+
+            return false;
         }
     }
 }

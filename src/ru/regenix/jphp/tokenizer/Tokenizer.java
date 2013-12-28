@@ -375,13 +375,13 @@ public class Tokenizer {
                             int complex = 0;
                             if (k < codeLength) {
                                 char first = code.charAt(k);
-                                if (GrammarUtils.isEngLetter(first)){
+                                if (GrammarUtils.isEngLetter(first) || first == '_'){
                                     k++;
                                     done = true;
                                     for(; i < codeLength; k++){
                                         if (k < codeLength){
                                             first = code.charAt(k);
-                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first)){
+                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first) || first == '_'){
                                                 // nop
                                             } else if (complex == 0 && first == '[') {
                                                 opened++;

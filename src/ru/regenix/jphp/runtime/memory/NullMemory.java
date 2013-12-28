@@ -5,6 +5,7 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 public class NullMemory extends FalseMemory {
 
     public final static NullMemory INSTANCE = new NullMemory();
+    public final static NullMemory UNDEFINED = new NullMemory();
 
     protected NullMemory() {
         super(Type.NULL);

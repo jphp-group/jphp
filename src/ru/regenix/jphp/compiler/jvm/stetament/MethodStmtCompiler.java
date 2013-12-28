@@ -291,16 +291,19 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             int i = 0;
             for(ArgumentStmtToken argument : statement.getArguments()){
-                LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
                 if (argument.isReference()){
-                    local.setReference(true);
+                    statement.getRefLocal().add(argument.getName());
                     statement.getUnstableLocal().add(argument.getName());
                 }
 
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+                expressionCompiler.writeDefineVariable(argument.getName());
+
+                LocalVariable local = getLocalVariable(argument.getName().getName());
+
                 expressionCompiler.writeVarLoad(args);
                 expressionCompiler.writePushGetFromArray(i, Memory.class);
-                expressionCompiler.writeVarStore(local, false, false);
+                expressionCompiler.writeVarAssign(local, false, false);
                 local.pushLevel();
 
                 i++;

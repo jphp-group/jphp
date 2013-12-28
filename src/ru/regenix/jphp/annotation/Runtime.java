@@ -17,4 +17,8 @@ public @interface Runtime {
     public @interface Immutable {
         boolean ignoreRefs() default false;
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({PARAMETER})
+    public @interface GetLocals {}
 }

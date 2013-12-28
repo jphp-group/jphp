@@ -71,6 +71,7 @@ abstract public class Memory {
     }
 
     public static final Memory NULL = NullMemory.INSTANCE;
+    public static final Memory UNDEFINED = NullMemory.UNDEFINED;
     public static final Memory FALSE = FalseMemory.INSTANCE;
     public static final Memory TRUE = TrueMemory.INSTANCE;
 
@@ -89,6 +90,10 @@ abstract public class Memory {
 
     public boolean isNull(){
         return type == Type.NULL;
+    }
+
+    public boolean isUndefined(){
+        return toValue() == UNDEFINED;
     }
 
     public boolean isShortcut(){

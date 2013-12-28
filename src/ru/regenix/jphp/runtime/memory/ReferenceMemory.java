@@ -15,7 +15,7 @@ public class ReferenceMemory extends Memory {
 
     public ReferenceMemory(Memory value) {
         super(Type.REFERENCE);
-        this.value = value == null ? Memory.NULL : value;
+        this.value = value == null ? Memory.UNDEFINED : value;
     }
 
     public static Memory valueOf(Memory value){
@@ -24,7 +24,7 @@ public class ReferenceMemory extends Memory {
 
     public ReferenceMemory() {
         super(Type.REFERENCE);
-        this.value = Memory.NULL;
+        this.value = Memory.UNDEFINED;
     }
 
     public ReferenceMemory duplicate(){
@@ -694,7 +694,7 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public void unset() {
-        this.value = NULL;
+        this.value = UNDEFINED;
     }
 
     public void needArray(){

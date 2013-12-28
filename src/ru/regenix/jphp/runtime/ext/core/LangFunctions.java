@@ -7,6 +7,7 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.Closure;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -16,12 +17,141 @@ import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.runtime.util.StackTracer;
+import ru.regenix.jphp.tokenizer.GrammarUtils;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class LangFunctions extends FunctionsContainer {
 
     protected final static LangConstants constants = new LangConstants();
+
+    public static Memory compact(@Runtime.GetLocals ArrayMemory locals,
+                                 Memory varName, Memory... varNames){
+        ArrayMemory result = new ArrayMemory();
+        Memory value = locals.valueOfIndex(varName).toValue();
+        if (value != Memory.UNDEFINED)
+            result.refOfIndex(varName).assign(value.toImmutable());
+
+        if (varNames != null){
+            for(Memory el : varNames){
+                value = locals.valueOfIndex(el).toValue();
+                if (value != Memory.UNDEFINED)
+                    result.refOfIndex(el).assign(value.toImmutable());
+            }
+        }
+
+        return result.toImmutable();
+    }
+
+    public static Memory get_defined_vars(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals){
+        return locals.toImmutable();
+    }
+
+    public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
+                              @Runtime.Reference Memory array, int extractType){
+        return extract(env, trace, locals, array, extractType, Memory.NULL);
+    }
+
+    public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
+                              @Runtime.Reference Memory array){
+        return extract(env, trace, locals, array, LangConstants.EXTR_OVERWRITE, Memory.NULL);
+    }
+
+    public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
+                                 @Runtime.Reference Memory array, int extractType, Memory _prefix){
+        if (expecting(env, trace, 1, array, Memory.Type.ARRAY)){
+            boolean isRefs = (extractType & LangConstants.EXTR_REFS) == LangConstants.EXTR_REFS;
+            ForeachIterator iterator = array.getNewIterator(env, isRefs, false);
+            int count = 0;
+            if (extractType == LangConstants.EXTR_PREFIX_ALL || extractType == LangConstants.EXTR_PREFIX_IF_EXISTS
+                    || extractType == LangConstants.EXTR_PREFIX_INVALID || extractType == LangConstants.EXTR_PREFIX_SAME)
+                if (_prefix.isNull()) {
+                    env.warning(trace, "extract(): specified extract type requires the prefix parameter");
+                    return 0;
+                }
+
+            String prefix = _prefix.isNull() ? "" : _prefix.concat("_");
+            if (!prefix.isEmpty())
+                if (!GrammarUtils.isValidName(prefix)) {
+                    env.warning(trace, "extract(): prefix is not a valid identifier");
+                    return 0;
+                }
+
+            while (iterator.next()){
+                Object key = iterator.getKey();
+                String keyS = key.toString();
+                String var;
+                Memory value = iterator.getValue();
+
+                if (!isRefs)
+                    value = value.toImmutable();
+
+                switch (extractType){
+                    case LangConstants.EXTR_OVERWRITE:
+                        if (GrammarUtils.isValidName(keyS)) {
+                            locals.refOfIndex(keyS).assign(value);
+                            count++;
+                        }
+                        break;
+                    case LangConstants.EXTR_SKIP:
+                        if (GrammarUtils.isValidName(keyS) && locals.valueOfIndex(keyS).isUndefined()){
+                            locals.refOfIndex(keyS).assign(value);
+                            count++;
+                        }
+                        break;
+                    case LangConstants.EXTR_PREFIX_SAME:
+                        if (!locals.valueOfIndex(keyS).isUndefined()) {
+                            var = prefix.concat(keyS);
+                            if (GrammarUtils.isValidName(var)) {
+                                locals.refOfIndex(var).assign(value);
+                                count++;
+                            }
+                        } else if (GrammarUtils.isValidName(keyS)){
+                            locals.refOfIndex(keyS).assign(value);
+                            count++;
+                        }
+                        break;
+                    case LangConstants.EXTR_PREFIX_ALL:
+                        var = prefix.concat(keyS);
+                        if (GrammarUtils.isValidName(var)) {
+                            locals.refOfIndex(prefix.concat(keyS)).assign(value);
+                            count++;
+                        }
+                        break;
+                    case LangConstants.EXTR_PREFIX_INVALID:
+                        if (GrammarUtils.isValidName(keyS)) {
+                            locals.refOfIndex(keyS).assign(value);
+                            count++;
+                        } else {
+                            var = prefix.concat(keyS);
+                            if (GrammarUtils.isValidName(var)) {
+                                locals.refOfIndex(var).assign(value);
+                                count++;
+                            }
+                        }
+                        break;
+                    case LangConstants.EXTR_IF_EXISTS:
+                        if (GrammarUtils.isValidName(keyS))
+                        if (!locals.valueOfIndex(keyS).isUndefined()) {
+                            locals.refOfIndex(keyS).assign(value);
+                            count++;
+                        }
+                        break;
+                    case LangConstants.EXTR_PREFIX_IF_EXISTS:
+                        if (!locals.valueOfIndex(keyS).isUndefined()){
+                            var = prefix.concat(keyS);
+                            if (GrammarUtils.isValidName(var)) {
+                                locals.refOfIndex(var).assign(value);
+                                count++;
+                            }
+                        }
+                        break;
+                }
+            }
+            return count;
+        } else
+            return 0;
+    }
 
     public static boolean defined(Environment env, String name){
         Memory value = env.findConstant(name);
