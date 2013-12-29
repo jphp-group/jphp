@@ -27,6 +27,7 @@ public class JvmCompiler extends AbstractCompiler {
     protected NamespaceStmtToken namespace;
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
+    private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
 
     public JvmCompiler(Environment environment, Context context) {
         this(environment, context, new SyntaxAnalyzer(new Tokenizer(context)));
@@ -41,6 +42,10 @@ public class JvmCompiler extends AbstractCompiler {
 
     public ConstantEntity findConstant(String shortName){
         return constants.get(shortName);
+    }
+
+    public FunctionEntity findFunction(String name){
+        return functions.get(name.toLowerCase());
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -144,6 +149,7 @@ public class JvmCompiler extends AbstractCompiler {
                 FunctionEntity entity = compileFunction((FunctionStmtToken)token);
                 entity.setStatic(true);
                 module.addFunction(entity);
+                functions.put(entity.getLowerName(), entity);
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);
             } else
