@@ -1,5 +1,6 @@
 package ru.regenix.jphp.tokenizer.token.expr.operator;
 
+import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
@@ -30,5 +31,10 @@ public class ArrayGetExprToken extends OperatorExprToken {
     @Override
     public boolean isBinary() {
         return false;
+    }
+
+    @Override
+    public Association getOnlyAssociation() {
+        return Association.LEFT;
     }
 }

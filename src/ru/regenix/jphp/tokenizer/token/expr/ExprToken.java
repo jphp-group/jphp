@@ -12,4 +12,8 @@ abstract public class ExprToken extends Token {
     public int getPriority(){
         return 0;
     }
+
+    public Token getLast(){
+        return this;
+    }
 }

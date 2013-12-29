@@ -40,6 +40,8 @@ public class ExprStmtToken extends StmtToken {
     }
 
     public Token getLast(){
+        if (tokens.size() == 0)
+            return null;
         return tokens.get(tokens.size() - 1);
     }
 }

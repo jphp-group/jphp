@@ -1,8 +1,10 @@
 package ru.regenix.jphp.compiler.common;
 
+import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
@@ -10,6 +12,7 @@ import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.ArrayList;
@@ -18,12 +21,13 @@ import java.util.Stack;
 
 public class ASMExpression {
     protected Context context;
+    protected Environment env;
     protected ExprStmtToken result;
     protected ExprStmtToken expr;
-    /*protected Token prev;
-    protected Token next;*/
+    protected Token prev;
 
-    public ASMExpression(Context context, ExprStmtToken expr){
+    public ASMExpression(Environment env, Context context, ExprStmtToken expr){
+        this.env = env;
         this.context = context;
         this.expr = expr;
 
@@ -32,22 +36,78 @@ public class ASMExpression {
 
         int i = 0;
         for(Token token : expr.getTokens()){
-            /*if (i + 1 < expr.getTokens().size())
-                next = expr.getTokens().get(i + 1);
-            else
-                next = null;
+            if (token instanceof OperatorExprToken) {
+                boolean isRight = prev == null;
+                OperatorExprToken operator = null;
+                if (prev instanceof OperatorExprToken)
+                    operator = (OperatorExprToken)prev;
+                else if (prev instanceof CallExprToken && ((CallExprToken) prev).getName() instanceof OperatorExprToken)
+                    operator = (OperatorExprToken) ((CallExprToken) prev).getName();
 
-            if (i > 0)
-                prev = expr.getTokens().get(i - 1);
-            else
-                prev = null;*/
+                if (operator != null){
+                    isRight = operator.getOnlyAssociation() != Association.LEFT;
+                } else if (prev instanceof BraceExprToken){
+                    isRight = ((BraceExprToken) prev).isOpened();
+                }
 
+                if (isRight)
+                    ((OperatorExprToken) token).setAssociation(Association.RIGHT);
+                else
+                    ((OperatorExprToken) token).setAssociation(Association.LEFT);
+            }
             processToken(token, stack, result);
+            prev = token instanceof ExprToken ? ((ExprToken)token).getLast() : token;
             i++;
         }
 
         if (!stack.empty())
             processOperator(stack, result, Integer.MAX_VALUE);
+
+        Stack<Token> checkStack = new Stack<Token>();
+        i = 0;
+        for(Token el : result){
+            if (el instanceof OperatorExprToken){
+                OperatorExprToken operator = (OperatorExprToken)el;
+                if (!operator.isValidAssociation())
+                    unexpectedToken(operator);
+
+                if (operator.isBinary()){
+                    if (checkStack.size() < 2)
+                        unexpectedToken(operator);
+                    checkStack.pop();
+                    checkStack.pop();
+                    checkStack.push(null);
+                } else {
+                    if (checkStack.empty())
+                        unexpectedToken(operator);
+                    checkStack.pop();
+                    checkStack.push(null);
+                }
+            } else if (el instanceof CallExprToken){
+                if (((CallExprToken) el).getName() instanceof OperatorExprToken){
+                    OperatorExprToken operator = (OperatorExprToken) ((CallExprToken) el).getName();
+                    if (operator.isBinary()){
+                        unexpectedToken(operator);
+                    } else {
+                        if (checkStack.empty())
+                            unexpectedToken(operator);
+                        checkStack.pop();
+                        checkStack.push(null);
+                    }
+                } else
+                    checkStack.push(el);
+            } else {
+                checkStack.push(el);
+            }
+
+            i++;
+        }
+
+        if (checkStack.size() > 1){
+            for (Token el : checkStack)
+                if (el != null)
+                    unexpectedToken(el);
+        }
 
         this.result = new ExprStmtToken(result);
     }
@@ -61,6 +121,7 @@ public class ASMExpression {
                 if (elPrior == prior && ((OperatorExprToken)el).isRightSide())
                     break;
 
+                OperatorExprToken operator = (OperatorExprToken)el;
                 stack.pop();
                 if (el instanceof LogicOperatorExprToken){
                     ExprStmtToken value = ((LogicOperatorExprToken)el).getRightValue();
@@ -114,6 +175,7 @@ public class ASMExpression {
                     result.add(token);
                     return;
                 }
+
                 stack.push(token);
                 return;
             }
@@ -143,7 +205,7 @@ public class ASMExpression {
             unexpected = token.getWord();
 
         context.triggerError(new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X.fetch(unexpected),
+                Messages.ERR_PARSE_UNEXPECTED_X.fetch(token.getWord()),
                 token.toTraceInfo(context)
         ));
     }

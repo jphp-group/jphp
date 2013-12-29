@@ -1,13 +1,32 @@
 package ru.regenix.jphp.tokenizer.token.expr;
 
+import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 
 abstract public class OperatorExprToken extends ExprToken {
 
+    protected Association association = Association.BOTH;
+
     public OperatorExprToken(TokenMeta meta, TokenType type) {
         super(meta, type);
+    }
+
+    public Association getOnlyAssociation(){
+        return Association.BOTH;
+    }
+
+    public Association getAssociation() {
+        return association;
+    }
+
+    public boolean isValidAssociation(){
+        return getOnlyAssociation() == Association.BOTH || getOnlyAssociation() == getAssociation();
+    }
+
+    public void setAssociation(Association association) {
+        this.association = association;
     }
 
     public boolean isBinary(){
