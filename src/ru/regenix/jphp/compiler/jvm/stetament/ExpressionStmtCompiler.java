@@ -2436,12 +2436,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return null;
         }
 
-        if (!operator.isBinary()){
-            return writeUnaryOperator(operator, returnValue, writeOpcode);
-        }
-
         if (operator instanceof LogicOperatorExprToken){
             return writeLogicOperator((LogicOperatorExprToken)operator, returnValue, writeOpcode);
+        }
+
+        if (!operator.isBinary()){
+            return writeUnaryOperator(operator, returnValue, writeOpcode);
         }
 
         if (stackEmpty(true))
@@ -3076,10 +3076,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (expression.getTokens().size() == 1){
             Token token = expression.getTokens().get(0);
             if (!(token instanceof StmtToken)){
-                expression = new ASMExpression(compiler.getContext(), expression).getResult();
+                expression = new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
             }
         } else
-            expression = new ASMExpression(compiler.getContext(), expression).getResult();
+            expression = new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
 
         List<Token> tokens = expression.getTokens();
         int operatorCount = 0;

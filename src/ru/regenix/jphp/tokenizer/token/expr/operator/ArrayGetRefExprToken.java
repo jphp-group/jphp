@@ -12,10 +12,12 @@ public class ArrayGetRefExprToken extends ArrayGetExprToken {
         parameters = token.getParameters();
     }
 
+    @Override
     public List<ExprStmtToken> getParameters() {
         return parameters;
     }
 
+    @Override
     public void setParameters(List<ExprStmtToken> parameters) {
         this.parameters = parameters;
     }

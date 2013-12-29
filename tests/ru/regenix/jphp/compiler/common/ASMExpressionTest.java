@@ -32,6 +32,7 @@ public class ASMExpressionTest {
         Assert.assertTrue(analyzer.getTree().get(0) instanceof ExprStmtToken);
 
         return new ASMExpression(
+                null,
                 context,
                 (ExprStmtToken)analyzer.getTree().get(0)
         );
