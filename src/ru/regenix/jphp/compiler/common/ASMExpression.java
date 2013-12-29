@@ -34,9 +34,22 @@ public class ASMExpression {
         Stack<Token> stack  = new Stack<Token>();
         List<Token> result = new ArrayList<Token>();
 
-        int i = 0;
+        int i = 0, size = expr.getTokens().size();
+        Token next = null;
         for(Token token : expr.getTokens()){
+            next = i >= size - 1 ? null : expr.getTokens().get(i + 1);
+
             if (token instanceof OperatorExprToken) {
+                OperatorExprToken operatorToken = (OperatorExprToken)token;
+                if (operatorToken.isBinary()){
+                    if (next == null)
+                        unexpectedToken(operatorToken);
+                    else if (next instanceof OperatorExprToken){
+                        if (((OperatorExprToken)next).isBinary())
+                            unexpectedToken(next);
+                    }
+                }
+
                 boolean isRight = prev == null;
                 OperatorExprToken operator = null;
                 if (prev instanceof OperatorExprToken)
