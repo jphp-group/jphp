@@ -1,6 +1,7 @@
 package ru.regenix.jphp.exceptions;
 
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 
@@ -15,7 +16,7 @@ public class FatalException extends ErrorException {
     }
 
     @Override
-    public Type getType() {
-        return Type.E_ERROR;
+    public ErrorType getType() {
+        return ErrorType.E_ERROR;
     }
 }

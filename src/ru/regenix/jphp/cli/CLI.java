@@ -60,14 +60,22 @@ public class CLI {
     protected void executeFile(String filename){
         File file = new File(filename);
         Environment environment = new Environment(compileScope, output);
-        Context context = environment.createContext(file);
+        try {
+            Context context = environment.createContext(file);
 
-        AbstractCompiler compiler = new JvmCompiler(environment, context);
-        ModuleEntity module = compiler.compile();
-        compileScope.loadModule(module);
-        environment.registerModule(module);
+            AbstractCompiler compiler = new JvmCompiler(environment, context);
+            ModuleEntity module = compiler.compile();
+            compileScope.loadModule(module);
+            environment.registerModule(module);
 
-        module.includeNoThrow(environment);
+            module.includeNoThrow(environment);
+        } finally {
+            try {
+                environment.clear();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
     }
 
     public void process(){

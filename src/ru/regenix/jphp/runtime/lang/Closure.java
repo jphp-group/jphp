@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.lang;
 
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.lib.collections.map.HashedMap;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -31,10 +32,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables {
 
     @Reflection.Signature({@Reflection.Arg("prop"), @Reflection.Arg("value")})
     public Memory __set(Environment env, Memory... args){
-        env.triggerError(new FatalException(
-                "Closure object cannot have properties",
-                env.peekCall(0).trace
-        ));
+        env.error(ErrorType.E_ERROR, "Closure object cannot have properties");
         return Memory.NULL;
     }
 
@@ -53,6 +51,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables {
         return __set(env, args);
     }
 
+    @Override
     public Memory getStatic(String name){
         if (statics == null)
             return null;

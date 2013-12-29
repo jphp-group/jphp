@@ -11,7 +11,7 @@ import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -390,16 +390,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         if (statement != null && clazz.statement.isInterface()){
             if (!statement.isInterfacable()){
-                compiler.getEnvironment().triggerError(new FatalException(
-                        Messages.ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY.fetch(entity.getSignatureString(false)),
-                        entity.getTrace()
-                ));
+                compiler.getEnvironment().error(entity.getTrace(), ErrorType.E_COMPILE_ERROR,
+                        Messages.ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY.fetch(entity.getSignatureString(false))
+                );
             }
             if (statement.isAbstract() || statement.isFinal()){
-                compiler.getEnvironment().triggerError(new FatalException(
-                        Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD.fetch(entity.getSignatureString(false)),
-                        entity.getTrace()
-                ));
+                compiler.getEnvironment().error(entity.getTrace(), ErrorType.E_COMPILE_ERROR,
+                        Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD.fetch(entity.getSignatureString(false))
+                );
             }
         } else {
             writeHeader();

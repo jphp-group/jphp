@@ -5,28 +5,32 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
+import java.lang.ref.WeakReference;
+
 @Reflection.Ignore
 abstract public class BaseObject implements IObject {
-    public final ArrayMemory __dynamicProperties__;
-    public final ClassEntity __class__;
-    public final Environment __env__;
+    protected final ArrayMemory __dynamicProperties__;
+    protected final ClassEntity __class__;
+    protected final WeakReference<Environment> __env__;
+
+    private boolean isFinalized;
 
     protected BaseObject(ClassEntity entity) {
         this.__class__ = entity;
         this.__dynamicProperties__ = null;
-        this.__env__ = null;
+        this.__env__ = new WeakReference<Environment>(null);
     }
 
     protected BaseObject(ArrayMemory __dynamicProperties__, Environment __env__, ClassEntity __class__) {
         this.__dynamicProperties__ = __dynamicProperties__;
         this.__class__ = __class__;
-        this.__env__ = __env__;
+        this.__env__ = new WeakReference<Environment>(__env__);
     }
 
     public BaseObject(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory(true);
-        this.__env__ = env;
+        this.__env__ = new WeakReference<Environment>(env);
     }
 
     @Override
@@ -46,6 +50,16 @@ abstract public class BaseObject implements IObject {
 
     @Override
     public Environment getEnvironment() {
-        return __env__;
+        return __env__.get();
+    }
+
+    @Override
+    public boolean isFinalized() {
+        return isFinalized;
+    }
+
+    @Override
+    public void doFinalize() {
+        isFinalized = true;
     }
 }

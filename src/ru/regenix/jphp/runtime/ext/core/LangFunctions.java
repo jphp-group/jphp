@@ -4,10 +4,9 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -61,20 +60,15 @@ public class LangFunctions extends FunctionsContainer {
 
             return module.include(env, locals);
         } catch (ParseException e){
-            if (env.isHandleErrors(ErrorException.Type.E_PARSE))
+            if (env.isHandleErrors(ErrorType.E_PARSE))
                 throw new ParseException(evalErrorMessage(e), trace);
-        } catch (FatalException e){
-            if (env.isHandleErrors(ErrorException.Type.E_NOTICE))
-                throw new FatalException(evalErrorMessage(e), trace);
-        } catch (CompileException e){
-            if (env.isHandleErrors(ErrorException.Type.E_CORE_ERROR))
-                throw new CompileException(evalErrorMessage(e), trace);
+        } catch (ErrorException e){
+            env.error(trace, e.getType(), e.getMessage());
         }
         return Memory.FALSE;
     }
 
-    public static Memory compact(@Runtime.GetLocals ArrayMemory locals,
-                                 Memory varName, Memory... varNames){
+    public static Memory compact(@Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames){
         ArrayMemory result = new ArrayMemory();
         Memory value = locals.valueOfIndex(varName).toValue();
         if (value != Memory.UNDEFINED)

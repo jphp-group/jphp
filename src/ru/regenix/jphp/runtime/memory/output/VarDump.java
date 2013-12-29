@@ -107,12 +107,11 @@ public class VarDump extends Printer {
 
     @Override
     protected void printClosure(Closure closure, int level, Set<Integer> used) {
-        ClassEntity classEntity = closure.__class__;
+        ClassEntity classEntity = closure.getReflection();
 
         if (used.contains(closure.getPointer())){
             printer.write("*RECURSION*\n");
         } else {
-
             printer.write("object(");
             printer.write(Closure.class.getSimpleName());
             printer.write(")#" + closure.getPointer());

@@ -4,10 +4,10 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.CustomErrorException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.message.CustomSystemMessage;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
@@ -33,10 +33,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static ru.regenix.jphp.exceptions.support.ErrorException.Type.*;
+import static ru.regenix.jphp.exceptions.support.ErrorType.*;
 
 public class Environment {
     private Locale locale = Locale.getDefault();
@@ -90,15 +93,66 @@ public class Environment {
 
     private int callStackTop = 0;
     private int maxCallStackTop = -1;
-    private CallStackItem[] callStack    = new CallStackItem[CALL_STACK_INIT_SIZE];
+    private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
+
+    protected static final ThreadLocal<Environment> environment = new ThreadLocal<Environment>();
+
+    /**
+     * Gets Environment for current thread context
+     * @return
+     */
+    public static Environment current(){
+        return environment.get();
+    }
+
+    private final ReferenceQueue<IObject> gcObjectRefQueue = new ReferenceQueue<IObject>();
+    private final Set<WeakReference<IObject>> gcObjects = new HashSet<WeakReference<IObject>>();
+
+    public void clear() throws Throwable {
+        finalizeObjects();
+        lastMessage = null;
+    }
+
+    /**
+     * Remove all method which does not destruct
+     * @throws Throwable
+     */
+    public void finalizeObjects() throws Throwable {
+        cleanGcObjects();
+        for (WeakReference<IObject> el : gcObjects){
+            IObject o = el.get();
+            if (o == null)
+                continue;
+
+            ClassEntity entity = o.getReflection();
+            if (entity.methodDestruct != null) {
+                if (!o.isFinalized()) {
+                    o.doFinalize();
+                    entity.methodDestruct.invokeDynamic(o, this);
+                }
+            }
+        }
+        gcObjects.clear();
+    }
+
+    private void cleanGcObjects() throws Throwable {
+        Reference<? extends IObject> object;
+        while (true){
+            object = gcObjectRefQueue.poll();
+            if (object == null)
+                break;
+            else
+                gcObjects.remove(object);
+        }
+    }
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
         this.outputBuffers = new Stack<OutputBuffer>();
 
         this.defaultBuffer = new OutputBuffer(this, null);
-        this.outputBuffers.push(defaultBuffer);
         this.defaultBuffer.setOutput(output);
+        this.outputBuffers.push(defaultBuffer);
 
         this.includePaths = new HashSet<String>();
         this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
@@ -126,6 +180,7 @@ public class Environment {
         classMap.putAll(scope.getClassMap());
         functionMap.putAll(scope.getFunctionMap());
         constantMap.putAll(scope.getConstantMap());
+        environment.set(this);
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz){
@@ -423,27 +478,32 @@ public class Environment {
         return previousExceptionHandler;
     }
 
-    public void triggerError(ErrorException err){
-        ErrorException.Type type = err.getType();
-        throw err;
+    protected void triggerError(ErrorException err){
+        ErrorType type = err.getType();
+        if (type.isFatal() || isHandleErrors(type))
+            throw err;
     }
 
-    public void triggerError(TraceInfo trace, ErrorException.Type type, String message, Object... args){
+    public void error(TraceInfo trace, ErrorType type, String message, Object... args){
         if (type.isFatal())
             triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), trace));
         else
             triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), new Messages.Item(message), args));
     }
 
-    public void triggerError(ErrorException.Type type, String message, Object... args){
+    public void error(ErrorType type, String message, Object... args){
         if (type.isFatal())
             triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), peekCall(0).trace));
         else
             triggerMessage(new CustomSystemMessage(type, this, new Messages.Item(message), args));
     }
 
+    public void error(TraceInfo trace, String message, Object... args){
+        error(trace, E_ERROR, message, args);
+    }
+
     public void triggerMessage(SystemMessage message){
-        ErrorException.Type type = message.getType();
+        ErrorType type = message.getType();
         if (isHandleErrors(type)){
             lastMessage = message;
             if (errorHandler != null)
@@ -452,8 +512,8 @@ public class Environment {
         }
     }
 
-    public boolean isHandleErrors(ErrorException.Type type){
-        return ErrorException.Type.check(errorFlags.get(), type);
+    public boolean isHandleErrors(ErrorType type){
+        return ErrorType.check(errorFlags.get(), type);
     }
 
     public void warning(String message, Object... args){
@@ -508,18 +568,23 @@ public class Environment {
 
     public void echo(String value){
         OutputBuffer buffer = peekOutputBuffer();
-        buffer.write(value);
+        if (buffer != null)
+            buffer.write(value);
     }
 
     public void echo(InputStream input) throws IOException {
         OutputBuffer buffer = peekOutputBuffer();
-        buffer.write(input);
+        if (buffer != null)
+            buffer.write(input);
     }
 
     public void flushAll() throws IOException {
+        OutputBuffer last = null;
         while (peekOutputBuffer() != null){
-            popOutputBuffer().flush();
+            last = popOutputBuffer();
+            last.flush();
         }
+        outputBuffers.push(defaultBuffer);
     }
 
     public ModuleEntity importModule(File file) throws IOException {
@@ -610,10 +675,7 @@ public class Environment {
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
-            triggerError(new CompileException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName),
-                    trace
-            ));
+            error(trace, E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
         } else {
             ModuleEntity module = importModule(file);
             included.put(fileName, module);
@@ -624,14 +686,21 @@ public class Environment {
     public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
         ClassEntity entity = classMap.get(lowerName);
-        if (entity == null){
-            triggerError(new CompileException(
-                    Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originName),
-                    trace
-            ));
+        if (entity == null) {
+            error(trace, E_ERROR, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originName));
         }
+
         assert entity != null;
-        return new ObjectMemory( entity.newObject(this, trace, args) );
+        IObject object = entity.newObject(this, trace, args);
+
+        if (entity.methodDestruct != null) {
+            cleanGcObjects();
+
+            WeakReference<IObject> wr = new WeakReference<IObject>(object, gcObjectRefQueue);
+            gcObjects.add(wr);
+        }
+
+        return new ObjectMemory( object );
     }
 
     private static ForeachIterator invalidIterator = new ForeachIterator(false, false, false) {

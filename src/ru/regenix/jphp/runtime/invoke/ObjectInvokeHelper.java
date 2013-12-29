@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.IObject;
@@ -42,12 +42,11 @@ final public class ObjectInvokeHelper {
             if (methodName == null)
                 methodName = "__invoke";
 
-            env.triggerError(new FatalException(
+            env.error(trace, ErrorType.E_ERROR,
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::" + methodName
-                    ),
-                    trace
-            ));
+                    )
+            );
         }
 
         if (passed == null) {
@@ -86,12 +85,9 @@ final public class ObjectInvokeHelper {
         Memory[] passed = null;
         boolean doublePop = false;
 
-        if (object.type != Memory.Type.OBJECT){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName),
-                    trace
-            ));
-        }
+        if (object.type != Memory.Type.OBJECT)
+            env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
+
         IObject iObject = ((ObjectMemory)object).value;
         ClassEntity clazz = iObject.getReflection();
         MethodEntity method;
@@ -120,12 +116,9 @@ final public class ObjectInvokeHelper {
             if (methodName == null)
                 methodName = "__invoke";
 
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
-                            className + "::" + methodName
-                    ),
-                    trace
-            ));
+            env.error(trace, ErrorType.E_ERROR,
+                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName)
+            );
         }
 
         if (passed == null) {
@@ -168,12 +161,7 @@ final public class ObjectInvokeHelper {
         String className = clazz.getName();
 
         if (method == null){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
-                            className + "::__invoke"
-                    ),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::__invoke"));
         }
 
         Memory[] passed = InvokeHelper.makeArguments(
@@ -202,10 +190,8 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
-                    trace
-            ));
+            return Memory.NULL;
+            //env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -216,10 +202,8 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
-                    trace
-            ));
+            return Memory.NULL;
+            //env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -230,10 +214,8 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
-                    trace
-            ));
+            return;
+            //env.error(trace, ErrorType.E_WARNING, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -244,10 +226,10 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property),
-                    trace
-            ));
+            env.error(trace, ErrorType.E_NOTICE,
+                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
+            );
+            return Memory.NULL;
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -257,10 +239,8 @@ final public class ObjectInvokeHelper {
     private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
         object = object.toValue();
         if (!object.isObject()){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property),
-                    trace
-            ));
+            env.error(trace, ErrorType.E_WARNING, Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            return null;
         }
 
         return ((ObjectMemory)object).value;
@@ -269,72 +249,84 @@ final public class ObjectInvokeHelper {
     public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().setProperty(env, trace, iObject, property, value, null);
     }
 
     public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().plusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().minusProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().mulProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().divProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().modProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().concatProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitAndProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitOrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitXorProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitShrProperty(env, trace, iObject, property, value);
     }
 
     public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value);
     }
 }

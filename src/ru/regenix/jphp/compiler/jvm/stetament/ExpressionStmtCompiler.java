@@ -24,7 +24,6 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.InvokeHelper;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.lang.BaseException;
-import ru.regenix.jphp.runtime.lang.BaseObject;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.*;
@@ -588,7 +587,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         LocalVariable variable = method.getLocalVariable("~env");
         if (variable == null) {
             if (!method.statement.isStatic())
-                writePushEnvFromField();
+                writePushEnvFromSelf();
             else
                 throw new RuntimeException("Cannot find `~end` variable");
             return;
@@ -598,9 +597,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         makeVarLoad(variable);
     }
 
-    void writePushEnvFromField(){
+    void writePushEnvFromSelf(){
         writeVarLoad("~this");
-        writeGetDynamic("__env__", Environment.class);
+        writeSysDynamicCall(null, "getEnvironment", Environment.class);
     }
 
     void writePushDup(StackItem.Type type){
@@ -1284,7 +1283,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
         } else {
             writeVarLoad("~this");
-            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, BaseObject.class);
+            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
             makeVarStore(variable);
             stackPop();
         }

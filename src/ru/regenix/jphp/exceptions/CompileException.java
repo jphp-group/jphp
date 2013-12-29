@@ -1,5 +1,6 @@
 package ru.regenix.jphp.exceptions;
 
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.support.ErrorException;
@@ -15,7 +16,7 @@ public class CompileException extends ErrorException {
     }
 
     @Override
-    public Type getType() {
-        return Type.E_COMPILE_ERROR;
+    public ErrorType getType() {
+        return ErrorType.E_COMPILE_ERROR;
     }
 }

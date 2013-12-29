@@ -11,6 +11,7 @@ import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.BaseObject;
@@ -105,32 +106,35 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             LabelNode end = new LabelNode();
             LabelNode l0 = writeLabel(destructor, statement.getMeta().getStartLine());
             methodCompiler.addLocalVariable("~this", l0);
-            methodCompiler.addLocalVariable("~env", l0, Environment.class);
 
-            /*expressionCompiler.writeVarLoad("~this");
-            expressionCompiler.writeGetDynamic("__finalized__", Boolean.TYPE);
-            destructor.instructions.add(new JumpInsnNode(IFEQ, end));*/
+            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeSysDynamicCall(null, "isFinalized", Boolean.TYPE);
+            destructor.instructions.add(new JumpInsnNode(IFEQ, end));
 
             // --- if (!__finalized__) {
             expressionCompiler.writeVarLoad("~this");
-            expressionCompiler.writePushEnvFromField();
-            expressionCompiler.writePushConstString(entity.getName());
+            expressionCompiler.writePushDup();
+            expressionCompiler.writeSysDynamicCall(null, "doFinalize", void.class);
+
+            expressionCompiler.writePushEnvFromSelf();
             expressionCompiler.writePushConstNull();
 
             expressionCompiler.writeSysDynamicCall(
-                    null, entity.methodDestruct.getName(), Memory.class, Environment.class, String.class, Memory[].class
+                    null, entity.methodDestruct.getInternalName(), Memory.class, Environment.class, Memory[].class
             );
             expressionCompiler.writePopAll(1);
             // ---- }
-            //destructor.instructions.add(end);
+            destructor.instructions.add(end);
 
-            expressionCompiler.writeVarLoad("~this");
+            // call parent
+            // WARNING!!! It's commented for better performance, super.finalize empty in JDK 1.6, 1.7, 1.8
+            /*expressionCompiler.writeVarLoad("~this");
             destructor.instructions.add(new MethodInsnNode(
                     INVOKEVIRTUAL,
-                    node.superName,
+                    Type.getInternalName(Object.class),
                     destructor.name,
                     destructor.desc
-            ));
+            ));*/
 
             destructor.instructions.add(new InsnNode(Opcodes.RETURN));
             methodCompiler.writeFooter();
@@ -345,16 +349,16 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             for(FulledNameToken name : statement.getImplement()){
                 ClassEntity implement = fetchClass(name.getName());
                 if (implement == null) {
-                    env.triggerError(new FatalException(
-                            Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName()),
-                            name.toTraceInfo(compiler.getContext())
-                    ));
+                    env.error(
+                            name.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_COMPILE_ERROR, Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName())
+                    );
                 } else {
                     if (implement.getType() != ClassEntity.Type.INTERFACE){
-                        env.triggerError(new FatalException(
-                                Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName()),
-                                name.toTraceInfo(compiler.getContext())
-                        ));
+                        env.error(
+                                name.toTraceInfo(compiler.getContext()),
+                                ErrorType.E_COMPILE_ERROR, Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName())
+                        );
                     }
                     if (implement.isInternal())
                         node.interfaces.add(implement.getInternalName());

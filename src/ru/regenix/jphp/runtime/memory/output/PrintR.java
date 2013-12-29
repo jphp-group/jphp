@@ -109,7 +109,7 @@ public class PrintR extends Printer {
 
     @Override
     protected void printClosure(Closure closure, int level, Set<Integer> used) {
-        ClassEntity classEntity = closure.__class__;
+        ClassEntity classEntity = closure.getReflection();
 
         writeObjectHeader(Closure.class.getSimpleName());
         if (used.contains(closure.getPointer())){

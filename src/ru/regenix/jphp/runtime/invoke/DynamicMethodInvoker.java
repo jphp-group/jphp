@@ -1,7 +1,6 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.IObject;
@@ -56,10 +55,7 @@ public class DynamicMethodInvoker extends Invoker {
 
                 return null;
             }
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() +"::"+ methodName),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::" + methodName));
         }
 
         return new DynamicMethodInvoker(env, trace, object, methodEntity);
@@ -74,10 +70,7 @@ public class DynamicMethodInvoker extends Invoker {
         if (methodEntity == null){
             if (trace == null)
                 return null;
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() +"::__invoke"),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::__invoke"));
         }
 
         return new DynamicMethodInvoker(env, null, object, methodEntity);
