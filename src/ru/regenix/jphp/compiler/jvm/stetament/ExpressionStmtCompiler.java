@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.annotation.Runtime;
+import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
@@ -2267,19 +2268,44 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         if (operator instanceof IncExprToken || operator instanceof DecExprToken){
-            writePush(o);
-
             if (variable == null || variable.isReference()){
-                writePushDup();
+                if (operator.getAssociation() == Association.LEFT && returnValue) {
+                    writePush(o);
+                    if (stackPeek().type.isConstant())
+                        unexpectedToken(operator);
+
+                    writePushDup();
+                    writePopImmutable();
+                    code.add(new InsnNode(SWAP));
+                    writePushDup();
+                } else {
+                    writePush(o);
+                    if (stackPeek().type.isConstant())
+                        unexpectedToken(operator);
+
+                    writePushDup();
+                }
                 writeSysDynamicCall(Memory.class, name, operatorResult);
                 writeSysDynamicCall(Memory.class, "assign", Memory.class, operatorResult);
-                if (!returnValue) {
+                if (!returnValue || operator.getAssociation() == Association.LEFT) {
                     writePopAll(1);
                 }
             } else {
+                writePush(o);
+                if (stackPeek().type.isConstant())
+                    unexpectedToken(operator);
+
+                if (operator.getAssociation() == Association.LEFT && returnValue){
+                    writeVarLoad(variable);
+                }
+
                 writeSysDynamicCall(Memory.class, name, operatorResult);
                 variable.setValue(null); // TODO for constant values
-                writeVarStore(variable, returnValue);
+                if (operator.getAssociation() == Association.RIGHT)
+                    writeVarStore(variable, returnValue);
+                else {
+                    writeVarStore(variable, false);
+                }
             }
         } else if (operator instanceof AmpersandRefToken){
             writePush(o, false, false);
