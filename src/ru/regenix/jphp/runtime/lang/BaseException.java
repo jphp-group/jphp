@@ -9,6 +9,8 @@ import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
+import java.lang.ref.WeakReference;
+
 import static ru.regenix.jphp.runtime.annotation.Reflection.*;
 
 
@@ -26,16 +28,17 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
 public class BaseException extends RuntimeException implements IObject {
     protected final ArrayMemory __dynamicProperties__;
     protected final ClassEntity __class__;
-    protected final Environment __env__;
+    protected final WeakReference<Environment> __env__;
     protected TraceInfo trace;
     protected CallStackItem[] callStack;
 
     private boolean init = true;
+    private boolean isFinalized = false;
 
     public BaseException(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory();
-        this.__env__ = env;
+        this.__env__ = new WeakReference<Environment>(env);
     }
 
     @Signature({
@@ -127,6 +130,16 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Override
     public Environment getEnvironment() {
-        return __env__;
+        return __env__.get();
+    }
+
+    @Override
+    public boolean isFinalized() {
+        return isFinalized;
+    }
+
+    @Override
+    public void doFinalize() {
+        isFinalized = true;
     }
 }

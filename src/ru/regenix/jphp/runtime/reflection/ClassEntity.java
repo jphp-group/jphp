@@ -6,6 +6,7 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -432,18 +433,14 @@ public class ClassEntity extends Entity {
 
     protected static void invalidAccessToProperty(Environment env, TraceInfo trace, PropertyEntity entity, int accessFlag){
         switch (accessFlag){
-            case 1: env.triggerError(new FatalException(
+            case 1: env.error(trace, ErrorType.E_ERROR,
                     Messages.ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY.fetch(
                             entity.getClazz().getName(), entity.getName()
-                    ),
-                    trace
-            ));
-            case 2: env.triggerError(new FatalException(
+                    ));
+            case 2: env.error(trace, ErrorType.E_ERROR,
                     Messages.ERR_FATAL_ACCESS_TO_PRIVATE_PROPERTY.fetch(
                             entity.getClazz().getName(), entity.getName()
-                    ),
-                    trace
-            ));
+                    ));
         }
     }
 
@@ -641,8 +638,10 @@ public class ClassEntity extends Entity {
                     env.popCall();
                 }
             } else {
-                if (accessFlag != 0)
+                if (accessFlag != 0) {
                     invalidAccessToProperty(env, trace, entity, accessFlag);
+                    return Memory.NULL;
+                }
 
                 if (callback != null)
                     memory = callback.invoke(Memory.NULL, memory);
@@ -864,7 +863,7 @@ public class ClassEntity extends Entity {
                 if (env == null)
                     throw e;
                 else
-                    env.triggerError(e);
+                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
             }
 
             for(MethodEntity el : getInvalidSignature()){
@@ -877,7 +876,7 @@ public class ClassEntity extends Entity {
                 if (env == null)
                     throw e;
                 else
-                    env.triggerError(e);
+                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
             }
 
             for (MethodEntity el : getMustStatic()){
@@ -891,7 +890,7 @@ public class ClassEntity extends Entity {
                 if (env == null)
                     throw e;
                 else
-                    env.triggerError(e);
+                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
             }
 
             for (MethodEntity el : getMustNonStatic()){
@@ -905,7 +904,7 @@ public class ClassEntity extends Entity {
                 if (env == null)
                     throw e;
                 else
-                    env.triggerError(e);
+                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
             }
         }
     }

@@ -95,6 +95,11 @@ abstract public class JvmCompilerCase {
             environment.getGlobals().putAll(globals);
 
         Memory memory = module.includeNoThrow(environment, environment.getGlobals());
+        try {
+            environment.clear();
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
         lastOutput = environment.getDefaultBuffer().getOutputAsString();
         return memory;
     }

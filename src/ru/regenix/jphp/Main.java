@@ -16,13 +16,12 @@ import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class Main {
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
+    public static void main(String[] args) throws Throwable {
         CompileScope scope = new CompileScope();
+        Environment environment = null;
         try {
             scope.registerExtension(new CoreExtension());
             scope.registerExtension(new BCMathExtension());
@@ -31,7 +30,7 @@ public class Main {
             scope.registerExtension(new DateExtension());
             scope.registerExtension(new SPLExtension());
 
-            Environment environment = new Environment(scope, System.out);
+            environment = new Environment(scope, System.out);
             Context context = environment.createContext(new File("scripts/main.php"));
 
             // compile
@@ -73,6 +72,9 @@ public class Main {
             }
 
             //e.printStackTrace();
+        } finally {
+            if (environment != null)
+                environment.clear();
         }
     }
 }

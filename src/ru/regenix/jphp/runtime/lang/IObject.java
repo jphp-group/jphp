@@ -11,4 +11,7 @@ public interface IObject {
     ArrayMemory getProperties();
     Environment getEnvironment();
     int getPointer();
+
+    boolean isFinalized();
+    void doFinalize();
 }

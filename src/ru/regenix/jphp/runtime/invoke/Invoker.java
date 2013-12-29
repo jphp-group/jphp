@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
@@ -55,10 +55,7 @@ abstract public class Invoker {
             if (one == null || two == null) {
                 if (trace == null)
                     return null;
-                env.triggerError(new FatalException(
-                        Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()),
-                        trace
-                ));
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
             }
 
             assert one != null;

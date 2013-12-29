@@ -1,10 +1,9 @@
 package ru.regenix.jphp.runtime.env.message;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
 
 abstract public class SystemMessage {
     private final Messages.Item message;
@@ -38,5 +37,5 @@ abstract public class SystemMessage {
                 + " at pos " + (trace.trace.getStartPosition() + 1);
     }
 
-    abstract public ErrorException.Type getType();
+    abstract public ErrorType getType();
 }

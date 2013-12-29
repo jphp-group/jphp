@@ -1,5 +1,6 @@
 package ru.regenix.jphp.exceptions;
 
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 
@@ -9,7 +10,7 @@ public class ParseException extends ErrorException {
     }
 
     @Override
-    public Type getType() {
-        return Type.E_PARSE;
+    public ErrorType getType() {
+        return ErrorType.E_PARSE;
     }
 }

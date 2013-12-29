@@ -2,7 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -64,10 +64,7 @@ public class CompileFunctionEntity extends FunctionEntity {
                 passed[i] = arg;
                 break;
             } else {
-                env.triggerError(new FatalException(
-                        name + "(): Cannot call this function dynamically",
-                        trace
-                ));
+                env.error(trace, ErrorType.E_CORE_ERROR, name + "(): Cannot call this function dynamically");
                 passed[i] = Memory.NULL;
             }
             i++;

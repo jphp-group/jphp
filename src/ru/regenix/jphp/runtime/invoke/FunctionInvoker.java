@@ -1,7 +1,6 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -43,10 +42,7 @@ public class FunctionInvoker extends Invoker {
         if (functionEntity == null){
             if (trace == null)
                 return null;
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(name),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(name));
         }
 
         return new FunctionInvoker(env, trace, functionEntity);

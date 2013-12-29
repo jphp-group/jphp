@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -99,15 +100,15 @@ final public class InvokeHelper {
             switch (param.getType()){
                 case ARRAY: {
                     if (!passed[i].isArray())
-                        env.triggerError(new FatalException("Argument " + i + " must be array", trace));
+                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be array", i);
                 } break;
                 case INT:
                     if (!passed[i].isNumber())
-                        env.triggerError(new FatalException("Argument " + i + " must be int or double", trace));
+                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be int or double", i);
                     break;
                 case STRING:
                     if (!passed[i].isString())
-                        env.triggerError(new FatalException("Argument " + i + " must be string", trace));
+                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be string", i);
             }
             i++;
         }
@@ -131,10 +132,8 @@ final public class InvokeHelper {
             }
 
             if (one == null || two == null) {
-                env.triggerError(new FatalException(
-                        Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()),
-                        trace
-                ));
+                env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
+                return Memory.NULL;
             }
 
             assert one != null;
@@ -207,10 +206,8 @@ final public class InvokeHelper {
                               Memory[] args) throws Throwable {
         FunctionEntity function = env.functionMap.get(sign);
         if (function == null) {
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(originName),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
+            return Memory.NULL;
         }
         return call(env, trace, function, args);
     }
@@ -248,21 +245,20 @@ final public class InvokeHelper {
                         new ArrayMemory(true, args)
                 };
             } else {
-                // TODO: class auto loading...
+                if (classEntity == null) {
+                    env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originClassName));
+                    return Memory.NULL;
+                }
             }
         }
         if (method == null){
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName));
+            return Memory.NULL;
         }
         assert method != null;
         if (!method.isStatic()) {
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName));
+            return Memory.NULL;
         }
 
         checkAccess(env, trace, method);

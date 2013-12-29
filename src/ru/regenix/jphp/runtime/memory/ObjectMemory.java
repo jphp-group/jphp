@@ -1,6 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
@@ -80,6 +80,9 @@ public class ObjectMemory extends Memory {
         ClassEntity entity = value.getReflection();
         if (entity.methodMagicToString != null){
             Environment env = value.getEnvironment();
+            if (env == null)
+                return "Object";
+
             // We can't get real trace info from toString method :(
             env.pushCall(
                     entity.methodMagicToString.getTrace(),
@@ -88,8 +91,8 @@ public class ObjectMemory extends Memory {
             try {
                 Memory result = entity.methodMagicToString.invokeDynamic(value, env);
                 if (!result.isString())
-                    env.triggerError(
-                            ErrorException.Type.E_RECOVERABLE_ERROR, "Methods %s must return a string value",
+                    env.error(
+                            ErrorType.E_RECOVERABLE_ERROR, "Methods %s must return a string value",
                             entity.methodMagicToString.getSignatureString(false)
                     );
                 return result.toString();

@@ -1,7 +1,6 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -56,10 +55,8 @@ public class StaticMethodInvoker extends Invoker {
             if (trace == null)
                 return null;
 
-            env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className +"::"+ methodName),
-                    trace
-            ));
+            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName));
+            return null;
         }
 
         return new StaticMethodInvoker(env, trace, className, methodEntity);
