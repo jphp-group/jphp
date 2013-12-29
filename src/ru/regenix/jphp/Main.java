@@ -59,6 +59,7 @@ public class Main {
             System.exit(e.getExitCode());
         } catch (ErrorException e){
             System.out.println();
+
             System.out.println("[" + e.getType().name() + "] " + e.getMessage());
             System.out.print("    at line " + (e.getTraceInfo().getStartLine() + 1));
             System.out.print(", position " + (e.getTraceInfo().getStartPosition() + 1));

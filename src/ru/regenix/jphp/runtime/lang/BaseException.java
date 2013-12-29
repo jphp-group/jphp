@@ -24,16 +24,18 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
        @Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
 })
 public class BaseException extends RuntimeException implements IObject {
-    public final ArrayMemory __dynamicProperties__;
-    public final ClassEntity __class__;
-    public TraceInfo trace;
-    public CallStackItem[] callStack;
+    protected final ArrayMemory __dynamicProperties__;
+    protected final ClassEntity __class__;
+    protected final Environment __env__;
+    protected TraceInfo trace;
+    protected CallStackItem[] callStack;
 
     private boolean init = true;
 
     public BaseException(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory();
+        this.__env__ = env;
     }
 
     @Signature({
@@ -121,5 +123,10 @@ public class BaseException extends RuntimeException implements IObject {
     @Override
     public Throwable fillInStackTrace() {
         return null;
+    }
+
+    @Override
+    public Environment getEnvironment() {
+        return __env__;
     }
 }

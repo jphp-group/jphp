@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
@@ -76,7 +77,31 @@ public class ObjectMemory extends Memory {
 
     @Override
     public String toString() {
-        return "Object";
+        ClassEntity entity = value.getReflection();
+        if (entity.methodMagicToString != null){
+            Environment env = value.getEnvironment();
+            // We can't get real trace info from toString method :(
+            env.pushCall(
+                    entity.methodMagicToString.getTrace(),
+                    value, null, entity.methodMagicToString.getName(), entity.getName()
+            );
+            try {
+                Memory result = entity.methodMagicToString.invokeDynamic(value, env);
+                if (!result.isString())
+                    env.triggerError(
+                            ErrorException.Type.E_RECOVERABLE_ERROR, "Methods %s must return a string value",
+                            entity.methodMagicToString.getSignatureString(false)
+                    );
+                return result.toString();
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Throwable e){
+                throw new RuntimeException(e);
+            } finally {
+                env.popCall();
+            }
+        } else
+            return "Object";
     }
 
     @Override
