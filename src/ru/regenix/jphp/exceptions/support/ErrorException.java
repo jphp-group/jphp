@@ -61,6 +61,21 @@ abstract public class ErrorException extends PhpException {
             return "Unknown";
         }
 
+        public boolean isFatal(){
+            switch (this){
+                case E_DEPRECATED:
+                case E_USER_DEPRECATED:
+                case E_NOTICE:
+                case E_WARNING:
+                case E_CORE_WARNING:
+                case E_USER_NOTICE:
+                case E_USER_WARNING:
+                case E_STRICT:
+                    return false;
+            }
+            return true;
+        }
+
         public static Type valueOf(int typeNo) {
             return map.get(typeNo);
         }

@@ -49,6 +49,7 @@ public class ClassEntity extends Entity {
     public MethodEntity methodMagicCall;
     public MethodEntity methodMagicCallStatic;
     public MethodEntity methodMagicInvoke;
+    public MethodEntity methodMagicToString;
 
     protected MethodEntity constructor;
 
@@ -220,6 +221,7 @@ public class ClassEntity extends Entity {
         methodMagicCallStatic = methods.get("__callstatic");
 
         methodMagicInvoke = methods.get("__invoke");
+        methodMagicToString = methods.get("__tostring");
     }
 
     public Extension getExtension() {

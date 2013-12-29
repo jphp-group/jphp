@@ -5,8 +5,10 @@ import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.CompileException;
+import ru.regenix.jphp.exceptions.CustomErrorException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.runtime.env.message.CustomSystemMessage;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
@@ -424,6 +426,20 @@ public class Environment {
     public void triggerError(ErrorException err){
         ErrorException.Type type = err.getType();
         throw err;
+    }
+
+    public void triggerError(TraceInfo trace, ErrorException.Type type, String message, Object... args){
+        if (type.isFatal())
+            triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), trace));
+        else
+            triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), new Messages.Item(message), args));
+    }
+
+    public void triggerError(ErrorException.Type type, String message, Object... args){
+        if (type.isFatal())
+            triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), peekCall(0).trace));
+        else
+            triggerMessage(new CustomSystemMessage(type, this, new Messages.Item(message), args));
     }
 
     public void triggerMessage(SystemMessage message){

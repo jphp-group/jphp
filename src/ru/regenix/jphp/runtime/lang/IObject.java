@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.lang;
 
 import ru.regenix.jphp.runtime.annotation.Reflection;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
@@ -8,5 +9,6 @@ import ru.regenix.jphp.runtime.reflection.ClassEntity;
 public interface IObject {
     ClassEntity getReflection();
     ArrayMemory getProperties();
+    Environment getEnvironment();
     int getPointer();
 }
