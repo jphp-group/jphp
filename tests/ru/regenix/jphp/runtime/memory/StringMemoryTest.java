@@ -60,7 +60,7 @@ public class StringMemoryTest {
         StringMemory memory = new StringMemory("foo");
         Assert.assertEquals("foobar", memory.concat("bar"));
         Assert.assertEquals("foo123", memory.concat(123));
-        Assert.assertEquals("foo123.0", memory.concat(123.0));
+        Assert.assertEquals("foo123", memory.concat(123.0));
         Assert.assertEquals("foo1", memory.concat(true));
         Assert.assertEquals("foo", memory.concat(false));
 
@@ -68,7 +68,7 @@ public class StringMemoryTest {
         Assert.assertEquals("foo", memory.concat(Memory.FALSE));
         Assert.assertEquals("foo1", memory.concat(Memory.TRUE));
         Assert.assertEquals("foo123", memory.concat(new LongMemory(123)));
-        Assert.assertEquals("foo123.0", memory.concat(new DoubleMemory(123)));
+        Assert.assertEquals("foo123", memory.concat(new DoubleMemory(123)));
         Assert.assertEquals("foobar", memory.concat(new StringMemory("bar")));
     }
 

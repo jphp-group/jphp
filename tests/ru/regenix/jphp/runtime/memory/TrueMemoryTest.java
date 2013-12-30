@@ -49,7 +49,7 @@ public class TrueMemoryTest {
         Assert.assertEquals("11", Memory.TRUE.concat(Memory.TRUE));
         Assert.assertEquals("1", Memory.TRUE.concat(false));
         Assert.assertEquals("1", Memory.TRUE.concat(Memory.FALSE));
-        Assert.assertEquals("11.0", Memory.TRUE.concat(1.0));
+        Assert.assertEquals("11", Memory.TRUE.concat(1.0));
 
         Assert.assertEquals("foobar1", Memory.TRUE.concatRight("foobar"));
         Assert.assertEquals("11", Memory.TRUE.concatRight(true));

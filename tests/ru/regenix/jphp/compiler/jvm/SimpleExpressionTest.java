@@ -80,7 +80,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals("bar", memory.toString());
 
         memory = run("1.0 . 'bar'");
-        Assert.assertEquals("1.0bar", memory.toString());
+        Assert.assertEquals("1bar", memory.toString());
     }
 
     @Test

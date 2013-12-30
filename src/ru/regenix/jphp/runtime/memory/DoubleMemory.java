@@ -3,6 +3,10 @@ package ru.regenix.jphp.runtime.memory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 public class DoubleMemory extends Memory {
 
     double value;
@@ -35,9 +39,11 @@ public class DoubleMemory extends Memory {
         return value != 0.0;
     }
 
+    public final static DecimalFormat format = new DecimalFormat("0.#", new DecimalFormatSymbols(Locale.ENGLISH));
+
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return String.valueOf(format.format(value));
     }
 
     @Override

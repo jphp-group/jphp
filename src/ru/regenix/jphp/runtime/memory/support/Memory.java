@@ -184,7 +184,7 @@ abstract public class Memory {
     // CONCAT
     public String concat(Memory memory){  return toString() + memory.toString(); }
     public String concat(long value) { return toString() + value; }
-    public String concat(double value) { return toString() + value; }
+    public String concat(double value) { return toString() + DoubleMemory.format.format(value); }
     public String concat(boolean value) { return toString() + boolToString(value); }
     public String concat(String value) { return toString() + value; }
 

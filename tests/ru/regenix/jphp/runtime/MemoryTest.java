@@ -91,7 +91,7 @@ public class MemoryTest {
 
         Assert.assertEquals(Memory.Type.DOUBLE, memory.type);
         Assert.assertTrue(memory.toBoolean());
-        Assert.assertEquals("50.0", memory.toString());
+        Assert.assertEquals("50", memory.toString());
         Assert.assertEquals(50, memory.toDouble(), 0.000001);
         Assert.assertEquals(50, memory.toLong());
 
