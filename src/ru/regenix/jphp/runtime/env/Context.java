@@ -25,11 +25,16 @@ public class Context {
     }
 
     public Context(Environment environment, String content){
-        this.file = null;
+        this(environment, content, null);
+    }
+
+    public Context(Environment environment, String content, File file){
+        this.file = file;
         this.environment = environment;
         this.content = content;
         this.charset = environment.getDefaultCharset();
     }
+
 
     protected void readContent(Reader reader){
         BufferedReader bufferedReader = new BufferedReader(reader);

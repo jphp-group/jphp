@@ -1,12 +1,9 @@
-package ru.regenix.jphp.cli.tester;
+package ru.regenix.jphp.tester;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Test {
     protected String test;
@@ -37,12 +34,17 @@ public class Test {
         try {
             _sections = new LinkedHashMap<String, String>();
 
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            Scanner reader = new Scanner(new FileReader(file));
             String line;
             List<String> content = new ArrayList<String>();
             String section = null;
-            while ((line = reader.readLine()) != null){
-                if (line.startsWith("--") && line.endsWith("--")){
+            while (reader.hasNextLine()){
+                line = reader.nextLine();
+                if (line == null)
+                    line = "";
+
+                if (line.startsWith("--") && line.endsWith("--") && line.length() > 2
+                        && Character.isLetter(line.charAt(2))){
                     if (section != null)
                         _sections.put(section, StringUtils.join(content, '\n'));
 
@@ -107,5 +109,21 @@ public class Test {
 
     public Map<String, String> getSections(){
         return _sections;
+    }
+
+    public String getExpect() {
+        return expect;
+    }
+
+    public String getTest() {
+        return test;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public String getCookie() {
+        return cookie;
     }
 }

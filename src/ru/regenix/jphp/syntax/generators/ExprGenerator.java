@@ -348,10 +348,17 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setVariables(variables);
     }
 
-    protected StaticStmtToken processStatic(StaticExprToken token, ListIterator<Token> iterator){
+    protected List<StaticStmtToken> processStatic(StaticExprToken token, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
-        if (next instanceof VariableExprToken){
+        if (!(next instanceof VariableExprToken)){
+            //iterator.previous();
+            return null;
+        }
+
+        List<StaticStmtToken> list = new ArrayList<StaticStmtToken>();
+        while (next instanceof VariableExprToken){
             VariableExprToken variable = (VariableExprToken)next;
+
             analyzer.addLocalScope().add(variable);
             if (analyzer.getFunction() != null){
                 analyzer.getFunction().getRefLocal().add(variable);
@@ -359,25 +366,32 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 analyzer.getFunction().getStaticLocal().add(variable);
             }
 
-            StaticStmtToken result = new StaticStmtToken(token.getMeta());
+            StaticStmtToken result = new StaticStmtToken(variable.getMeta());
             result.setVariable((VariableExprToken)next);
             next = nextToken(iterator);
             if (next instanceof AssignExprToken){
                 ExprStmtToken initValue = analyzer.generator(SimpleExprGenerator.class).getToken(
-                        nextToken(iterator), iterator, null, null
+                        nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null
                 );
                 result.setInitValue(initValue);
+                list.add(result);
             } else if (next instanceof SemicolonToken){
                 result.setInitValue(null);
+                list.add(result);
             } else
                 unexpectedToken(next);
-            return result;
-        } else {
-            iterator.previous();
 
-            //unexpectedToken(next); TODO: check it!
+            next = iterator.previous();
+            if (!(next instanceof CommaToken)) {
+                break;
+            }
+            iterator.next();
+
+            next = nextToken(iterator);
         }
-        return null;
+
+        //unexpectedToken(next); TODO: check it!
+        return list;
     }
 
     protected void processJump(JumpStmtToken result, ListIterator<Token> iterator){
@@ -423,7 +437,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             if (argument != null)
                 arguments.add(argument);
 
-            if (iterator.previous() instanceof SemicolonToken){
+            Token prev = iterator.previous();
+            if (prev instanceof SemicolonToken || prev instanceof BreakToken){
                 iterator.next();
                 break;
             }
@@ -554,9 +569,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ExprToken /*|| current instanceof FunctionStmtToken*/){
                 if (current instanceof StaticExprToken){
-                    Token result = processStatic((StaticExprToken) current, iterator);
+                    List<StaticStmtToken> result = processStatic((StaticExprToken) current, iterator);
                     if (result != null){
-                        tokens.add(result);
+                        tokens.addAll(result);
                         break;
                     }
                 }

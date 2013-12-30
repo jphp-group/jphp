@@ -1,11 +1,13 @@
 package ru.regenix.jphp.compiler.jvm;
 
+import org.junit.Assert;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.runtime.ext.BCMathExtension;
 import ru.regenix.jphp.runtime.ext.CTypeExtension;
 import ru.regenix.jphp.runtime.ext.CoreExtension;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.tester.Test;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.runtime.env.Context;
@@ -80,6 +82,8 @@ abstract public class JvmCompilerCase {
         return module.includeNoThrow(environment);
     }
 
+
+
     @SuppressWarnings("unchecked")
     protected Memory includeResource(String name, ArrayMemory globals){
         Environment environment = new Environment(newScope());
@@ -110,6 +114,31 @@ abstract public class JvmCompilerCase {
 
     protected Memory includeResource(String name){
         return includeResource(name, null);
+    }
+
+    public void check(String name){
+        File file;
+        Environment environment = new Environment(newScope());
+        Test test = new Test(file = new File(
+                Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile()
+        ));
+        Context context = new Context(environment, test.getFile(), file);
+
+        JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
+        ModuleEntity module = compiler.compile();
+        environment.getScope().loadModule(module);
+        environment.registerModule(module);
+
+        Memory memory = module.includeNoThrow(environment, environment.getGlobals());
+        try {
+            environment.clear();
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+        lastOutput = environment.getDefaultBuffer().getOutputAsString();
+
+        if (test.getExpect() != null)
+            Assert.assertEquals("EXPECT: " + name, test.getExpect(), lastOutput);
     }
 
     protected Memory run(String code){

@@ -9,6 +9,7 @@ import java.util.List;
 
 public class ExprStmtToken extends StmtToken {
     private List<Token> tokens;
+    private boolean isStmtList = true;
 
     protected ExprStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -28,6 +29,12 @@ public class ExprStmtToken extends StmtToken {
     }
 
     public void setTokens(List<Token> tokens) {
+        for (Token el : tokens)
+            if (!(el instanceof StmtToken)) {
+                isStmtList = false;
+                break;
+            }
+
         this.tokens = tokens;
     }
 
@@ -43,5 +50,9 @@ public class ExprStmtToken extends StmtToken {
         if (tokens.size() == 0)
             return null;
         return tokens.get(tokens.size() - 1);
+    }
+
+    public boolean isStmtList() {
+        return isStmtList;
     }
 }

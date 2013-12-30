@@ -3120,12 +3120,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int initStackSize = method.getStackCount();
         exprStackInit.push(initStackSize);
 
-        if (expression.getTokens().size() == 1){
-            Token token = expression.getTokens().get(0);
-            if (!(token instanceof StmtToken)){
-                expression = new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
-            }
-        } else
+        if (!expression.isStmtList())
             expression = new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
 
         List<Token> tokens = expression.getTokens();
@@ -3144,70 +3139,70 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
 
                 if (token instanceof FunctionStmtToken){
-                    writeFunction((FunctionStmtToken)token);
+                    writeFunction((FunctionStmtToken)token); continue;
                 } else if (token instanceof EchoRawToken){   // <? ... ?>
-                    writeEchoRaw((EchoRawToken) token);
+                    writeEchoRaw((EchoRawToken) token); continue;
                 } else if (token instanceof EchoStmtToken){ // echo ...
-                    writeEcho((EchoStmtToken) token);
+                    writeEcho((EchoStmtToken) token); continue;
                 } else  if (token instanceof OpenEchoTagToken){ // <?= ... ?>
-                    writeOpenEchoTag((OpenEchoTagToken) token);
+                    writeOpenEchoTag((OpenEchoTagToken) token); continue;
                 } else if (token instanceof ReturnStmtToken){ // return ...
-                    writeReturn((ReturnStmtToken) token);
+                    writeReturn((ReturnStmtToken) token); continue;
                 } else if (token instanceof BodyStmtToken){ // { .. }
-                    writeBody((BodyStmtToken) token);
+                    writeBody((BodyStmtToken) token); continue;
                 } else if (token instanceof IfStmtToken){ // if [else]
-                    writeIf((IfStmtToken) token);
+                    writeIf((IfStmtToken) token); continue;
                 } else if (token instanceof SwitchStmtToken){  // switch ...
-                    writeSwitch((SwitchStmtToken) token);
+                    writeSwitch((SwitchStmtToken) token); continue;
                 } else if (token instanceof WhileStmtToken){  // while { .. }
-                    writeWhile((WhileStmtToken) token);
+                    writeWhile((WhileStmtToken) token); continue;
                 } else if (token instanceof DoStmtToken){ // do { ... } while( ... );
-                    writeDo((DoStmtToken) token);
+                    writeDo((DoStmtToken) token); continue;
                 } else if (token instanceof ForStmtToken){ // for(...;...;...){ ... }
-                    writeFor((ForStmtToken) token);
+                    writeFor((ForStmtToken) token); continue;
                 } else if (token instanceof ForeachStmtToken){
-                    writeForeach((ForeachStmtToken) token);
+                    writeForeach((ForeachStmtToken) token); continue;
                 } else if (token instanceof TryStmtToken){
-                    writeTryCatch((TryStmtToken)token);
+                    writeTryCatch((TryStmtToken)token); continue;
                 } else if (token instanceof ThrowStmtToken){
-                    writeThrow((ThrowStmtToken)token);
+                    writeThrow((ThrowStmtToken)token); continue;
                 } else if (token instanceof JumpStmtToken){  // break, continue
-                    writeJump((JumpStmtToken)token);
+                    writeJump((JumpStmtToken)token); continue;
                 } else if (token instanceof GlobalStmtToken){
-                    writeGlobal((GlobalStmtToken) token);
+                    writeGlobal((GlobalStmtToken) token); continue;
                 } else if (token instanceof StaticStmtToken){
-                    writeStatic((StaticStmtToken) token);
+                    writeStatic((StaticStmtToken) token); continue;
                 }
             }
-
-            if (token instanceof ValueExprToken){  // mixed, calls, numbers, strings, vars, etc.
-                if (token instanceof CallExprToken && ((CallExprToken)token).getName() instanceof OperatorExprToken){
-                    if (writeOpcode) {
-                        writePush((ValueExprToken) token, true, true);
-                        method.entity.setImmutable(false);
+                if (token instanceof ValueExprToken){  // mixed, calls, numbers, strings, vars, etc.
+                    if (token instanceof CallExprToken && ((CallExprToken)token).getName() instanceof OperatorExprToken){
+                        if (writeOpcode) {
+                            writePush((ValueExprToken) token, true, true);
+                            method.entity.setImmutable(false);
+                        } else
+                            break;
                     } else
-                        break;
-                } else
-                    stackPush((ValueExprToken) token);
-            } else if (token instanceof OperatorExprToken){ // + - * / % && || or ! and == > < etc.
-                operatorCount--;
-                if (operatorCount >= 0) {
-                    Memory result;
-                    if (operatorCount == 0) {
-                        result = writeOperator((OperatorExprToken) token, returnValue, writeOpcode);
-                    } else
-                        result = writeOperator((OperatorExprToken) token, true, writeOpcode);
+                        stackPush((ValueExprToken) token);
+                } else if (token instanceof OperatorExprToken){ // + - * / % && || or ! and == > < etc.
+                    operatorCount--;
+                    if (operatorCount >= 0) {
+                        Memory result;
+                        if (operatorCount == 0) {
+                            result = writeOperator((OperatorExprToken) token, returnValue, writeOpcode);
+                        } else
+                            result = writeOperator((OperatorExprToken) token, true, writeOpcode);
 
-                    if (!writeOpcode && result == null){
-                        invalid = true;
-                        break;
+                        if (!writeOpcode && result == null){
+                            invalid = true;
+                            break;
+                        }
+
+                        if (result == null)
+                            method.entity.setImmutable(false);
                     }
+                } else
+                    break;
 
-                    if (result == null)
-                        method.entity.setImmutable(false);
-                }
-            } else
-                break;
         }
 
 

@@ -433,8 +433,9 @@ public class Tokenizer {
                                             new TraceInfo(context, startLine, 0, pos, 0)
                                     );
 
-                                segments.add(new StringExprToken.Segment(i - currentPosition - 1, k - currentPosition - 1, true));
-                                sb.append(code.substring(i, k));
+                                String s = code.substring(i, k);
+                                segments.add(new StringExprToken.Segment(sb.length(), sb.length() + s.length(), true));
+                                sb.append(s);
                             } else
                                 sb.append(ch);
 

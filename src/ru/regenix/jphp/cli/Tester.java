@@ -2,7 +2,7 @@ package ru.regenix.jphp.cli;
 
 import com.beust.jcommander.JCommander;
 import org.apache.commons.io.FileUtils;
-import ru.regenix.jphp.cli.tester.Test;
+import ru.regenix.jphp.tester.Test;
 import ru.regenix.jphp.compiler.CompileScope;
 
 import java.io.File;
