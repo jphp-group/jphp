@@ -361,7 +361,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     } else {
                         convertToMap();
                     }
-                }
+                } else
+                    convertToMap();
             }
         } else {
             if (list != null)
