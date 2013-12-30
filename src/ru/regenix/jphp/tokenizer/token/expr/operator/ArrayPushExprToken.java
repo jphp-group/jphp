@@ -22,7 +22,7 @@ public class ArrayPushExprToken extends OperatorExprToken {
 
     @Override
     public int getPriority() {
-        return 10;
+        return 1;
     }
 
     @Override

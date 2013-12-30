@@ -11,7 +11,6 @@ import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
@@ -74,7 +73,7 @@ public class ASMExpression {
         }
 
         if (!stack.empty())
-            processOperator(stack, result, Integer.MAX_VALUE);
+            processOperator(stack, result, null);
 
         Stack<Token> checkStack = new Stack<Token>();
         i = 0;
@@ -125,25 +124,20 @@ public class ASMExpression {
         this.result = new ExprStmtToken(result);
     }
 
-    protected void processOperator(Stack<Token> stack, List<Token> result, int prior){
+    protected void processOperator(Stack<Token> stack, List<Token> result, OperatorExprToken current){
         List<Token> list = new ArrayList<Token>();
+        boolean isRightOperator = current != null && current.isRightSide();
+        int prior = current == null ? -1 : current.getPriority();
+
         while (!stack.empty()){
             Token el = stack.peek();
             int elPrior = getPriority(el);
-            if (elPrior <= prior){
-                if (elPrior == prior && ((OperatorExprToken)el).isRightSide())
-                    break;
+            if (el instanceof BraceExprToken)
+                break;
 
-                OperatorExprToken operator = (OperatorExprToken)el;
+            boolean flush = current == null || elPrior == 1 || (isRightOperator ? elPrior > prior : elPrior <= prior);
+            if (flush){
                 stack.pop();
-                if (el instanceof LogicOperatorExprToken){
-                    ExprStmtToken value = ((LogicOperatorExprToken)el).getRightValue();
-                    /*if (recursive)
-                        value = new ASMExpression(context, value).getResult();*/
-
-                    ((LogicOperatorExprToken) el).setRightValue(value);
-                }
-
                 list.add(el);
             } else {
                 break;
@@ -154,7 +148,7 @@ public class ASMExpression {
     }
 
     protected void processToken(Token token, Stack<Token> stack, List<Token> result){
-        int prior = getPriority(token);
+        //int prior = getPriority(token);
 
         if (token instanceof ValueExprToken){
             result.add(token);
@@ -182,7 +176,15 @@ public class ASMExpression {
                 unexpectedToken(brace);
         } else if (token instanceof OperatorExprToken){
             OperatorExprToken operator = (OperatorExprToken)token;
-            if (!stack.empty() && getPriority(stack.peek()) > prior){
+            /*boolean done = !stack.empty();
+            if (done){
+                if (operator.isRightSide())
+                    done = getPriority(stack.peek()) > prior;
+                else
+                    done = getPriority(stack.peek()) > prior;
+            }
+
+            if (done){
                 if (prior == 1){
                     processOperator(stack, result, prior);
                     result.add(token);
@@ -191,9 +193,9 @@ public class ASMExpression {
 
                 stack.push(token);
                 return;
-            }
+            }*/
 
-            processOperator(stack, result, prior);
+            processOperator(stack, result, operator);
             stack.push(token);
         }
     }
