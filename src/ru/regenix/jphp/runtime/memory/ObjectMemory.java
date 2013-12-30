@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
@@ -9,6 +10,7 @@ import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 
 public class ObjectMemory extends Memory {
 
@@ -298,5 +300,42 @@ public class ObjectMemory extends Memory {
         }
 
         return origin.isInstanceOf(what);
+    }
+
+    @Override
+    public Memory toObject(Environment env) {
+        return this;
+    }
+
+    @Override
+    public Memory toArray() {
+        ArrayMemory result = new ArrayMemory();
+        ArrayMemory props = value.getProperties();
+        ForeachIterator iterator = props.foreachIterator(false, false);
+        ClassEntity reflection = value.getReflection();
+
+        while (iterator.next()){
+            Object key = iterator.getKey();
+            Memory value = iterator.getValue().toImmutable();
+
+            if (key instanceof String){
+                String keyS = (String)key;
+                PropertyEntity prop = reflection.properties.get(keyS);
+
+                if (prop == null || prop.getModifier() == Modifier.PUBLIC){
+                    result.refOfIndex(keyS).assign(iterator.getValue().toImmutable());
+                } else {
+                    if (prop.getModifier() == Modifier.PROTECTED){
+                        result.refOfIndex("\0*\0" + keyS).assign(value);
+                    } else {
+                        result.refOfIndex("\0" + prop.getClazz().getName() + "\0" + keyS).assign(value);
+                    }
+                }
+            } else {
+                result.refOfIndex(iterator.getMemoryKey()).assign(value);
+            }
+        }
+
+        return result.toConstant();
     }
 }

@@ -52,4 +52,8 @@ abstract public class OperatorExprToken extends ExprToken {
     public Memory calc(Memory o1, Memory o2){
         return null;
     }
+
+    public boolean isEnvironmentNeeded(){
+        return false;
+    }
 }

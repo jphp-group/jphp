@@ -4,6 +4,7 @@ import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.lib.collections.map.LinkedMap;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.helper.ArrayKeyMemory;
 import ru.regenix.jphp.runtime.memory.helper.ArrayValueMemory;
@@ -143,7 +144,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     return number;
             }
             case INT: return key;
-            case NULL: return Memory.CONST_INT_0;
+            case NULL: return Memory.CONST_EMPTY_STRING;
             case REFERENCE: return toKey(key.toValue());
             default:
                 return LongMemory.valueOf(key.toLong());
@@ -1102,6 +1103,23 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     public boolean isList(){
         return list != null;
+    }
+
+    @Override
+    public Memory toArray() {
+        return this;
+    }
+
+    @Override
+    public Memory toObject(Environment env) {
+        StdClass stdClass = new StdClass(env, env.scope.stdClassEntity);
+        ArrayMemory props = stdClass.getProperties();
+        ForeachIterator iterator = getNewIterator(env, false, false);
+        while (iterator.next()){
+            props.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+        }
+
+        return new ObjectMemory(stdClass);
     }
 
     public static class UncomparableArrayException extends Exception {}

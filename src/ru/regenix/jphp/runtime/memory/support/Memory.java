@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.memory.support;
 
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
+import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.memory.*;
 
 abstract public class Memory {
@@ -107,6 +108,19 @@ abstract public class Memory {
     abstract public boolean toBoolean();
     abstract public Memory toNumeric();
     abstract public String toString();
+    public Memory toUnset() { return NULL; }
+
+    public Memory toArray() {
+        ArrayMemory result = new ArrayMemory();
+        result.add(toImmutable());
+        return result.toConstant();
+    }
+
+    public Memory toObject(Environment env) {
+        StdClass stdClass = new StdClass(env);
+        stdClass.getProperties().refOfIndex("scalar").assign(toImmutable());
+        return new ObjectMemory(stdClass);
+    }
 
     public Type getRealType(){
         return type;

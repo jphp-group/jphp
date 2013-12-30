@@ -10,4 +10,8 @@ public class StdClass extends BaseObject {
     public StdClass(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
+
+    public StdClass(Environment env){
+        super(env, env.scope.stdClassEntity);
+    }
 }

@@ -43,6 +43,8 @@ public class CompileScope {
 
     public boolean debugMode = false;
 
+    public final ClassEntity stdClassEntity;
+
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
@@ -71,7 +73,7 @@ public class CompileScope {
 
         registerClass(new ClassEntity(this, Closure.class));
         registerClass(new ClassEntity(this, BaseException.class));
-        registerClass(new ClassEntity(this, StdClass.class));
+        registerClass(stdClassEntity = new ClassEntity(this, StdClass.class));
         registerClass(new ClassEntity(this, ArrayAccess.class));
 
         // iterators

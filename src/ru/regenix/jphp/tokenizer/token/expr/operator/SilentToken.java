@@ -1,5 +1,6 @@
 package ru.regenix.jphp.tokenizer.token.expr.operator;
 
+import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
@@ -21,11 +22,16 @@ public class SilentToken extends OperatorExprToken {
 
     @Override
     public int getPriority() {
-        return 3;
+        return 21;
     }
 
     @Override
     public Memory calc(Memory o1, Memory o2) {
         return o1;
+    }
+
+    @Override
+    public Association getOnlyAssociation() {
+        return Association.RIGHT;
     }
 }

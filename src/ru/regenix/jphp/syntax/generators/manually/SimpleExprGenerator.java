@@ -12,6 +12,8 @@ import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
+import ru.regenix.jphp.tokenizer.token.expr.operator.cast.CastExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
@@ -827,12 +829,20 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 processIsset(previous, current, iterator);
                 tokens.add(current);
             } else if (current instanceof UnsetExprToken){
-                if (previous != null)
-                    unexpectedToken(current);
+                if (isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE)
+                        && isClosedBrace(next, BraceExprToken.Kind.SIMPLE)){
+                    current = new UnsetCastExprToken(current.getMeta());
+                    tokens.set(tokens.size() - 1, current);
+                    iterator.next();
+                    braceOpened--;
+                } else {
+                    if (previous != null)
+                        unexpectedToken(current);
 
-                processUnset(previous, current, iterator);
-                tokens.add(current);
-                needBreak = true;
+                    processUnset(previous, current, iterator);
+                    tokens.add(current);
+                    needBreak = true;
+                }
             } else if (current instanceof CommaToken){
                 if (separator == Separator.COMMA || separator == Separator.COMMA_OR_SEMICOLON){
                     break;
@@ -870,11 +880,25 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (needBreak)
                     unexpectedToken(current);
 
-                Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind, braceOpened);
-                if (token != null)
-                    current = token;
+                CastExprToken cast = null;
+                if (current instanceof NameToken && isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE)
+                        && isClosedBrace(next, BraceExprToken.Kind.SIMPLE)){
+                    cast = CastExprToken.valueOf(((NameToken)current).getName(), current.getMeta());
+                    if (cast != null){
+                        current = cast;
+                        iterator.next();
+                        braceOpened--;
+                        tokens.set(tokens.size() - 1, current);
+                    }
+                }
 
-                tokens.add(current);
+                if (cast == null){
+                    Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind, braceOpened);
+                    if (token != null)
+                        current = token;
+
+                    tokens.add(current);
+                }
             } else
                 unexpectedToken(current);
 

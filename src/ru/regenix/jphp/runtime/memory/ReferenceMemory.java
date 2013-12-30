@@ -887,4 +887,14 @@ public class ReferenceMemory extends Memory {
     public boolean instanceOf(Environment env, String className, String lowerClassName) {
         return value.instanceOf(env, className, lowerClassName);
     }
+
+    @Override
+    public Memory toArray() {
+        return value.toArray();
+    }
+
+    @Override
+    public Memory toObject(Environment env) {
+        return value.toObject(env);
+    }
 }

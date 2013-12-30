@@ -2396,7 +2396,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePush(o);
                 writePopBoxing();
 
-                writeSysDynamicCall(Memory.class, name, operatorResult);
+                if (operator.isEnvironmentNeeded()) {
+                    writePushEnv();
+                    writeSysDynamicCall(Memory.class, name, operatorResult, Environment.class);
+                } else
+                    writeSysDynamicCall(Memory.class, name, operatorResult);
+
                 if (!returnValue){
                     writePopAll(1);
                 }
