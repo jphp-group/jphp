@@ -85,6 +85,12 @@ public class LangFunctions extends FunctionsContainer {
         return result.toImmutable();
     }
 
+    public static int error_reporting(Environment env, int level){
+        int old = env.getErrorFlags();
+        env.setErrorFlags(level);
+        return old;
+    }
+
     public static Memory get_defined_vars(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals){
         return locals.toImmutable();
     }

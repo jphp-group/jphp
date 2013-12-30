@@ -30,4 +30,14 @@ public class FuncTest extends JvmCompilerCase {
     public void testGeneral2(){
         check("zend/func/004_general.php");
     }
+
+    @Test
+    public void testIni(){
+        check("zend/func/007_ini_test.php");
+    }
+
+    @Test
+    public void testIniAlter(){
+        check("zend/func/ini_alter.php");
+    }
 }

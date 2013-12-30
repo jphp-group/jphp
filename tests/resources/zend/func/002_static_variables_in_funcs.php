@@ -19,4 +19,3 @@ if (isset($hey) || isset($yo)) {
 hey=0, 0
 hey=1, -1
 hey=2, -2
-

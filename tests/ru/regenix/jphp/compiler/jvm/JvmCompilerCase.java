@@ -138,7 +138,7 @@ abstract public class JvmCompilerCase {
         lastOutput = environment.getDefaultBuffer().getOutputAsString();
 
         if (test.getExpect() != null)
-            Assert.assertEquals("EXPECT: " + name, test.getExpect(), lastOutput);
+            Assert.assertEquals(test.getTest(), test.getExpect(), lastOutput.trim());
     }
 
     protected Memory run(String code){

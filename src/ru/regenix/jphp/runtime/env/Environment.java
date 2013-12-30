@@ -416,6 +416,10 @@ public class Environment {
     }
 
     public Memory setConfigValue(String name, Memory value){
+        value = value.toValue();
+        if (!value.isString())
+            value = new StringMemory(value.toString());   // fix capability with zend php
+
         return configuration.put(name, value);
     }
 
