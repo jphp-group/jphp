@@ -257,8 +257,11 @@ final public class InvokeHelper {
         }
         assert method != null;
         if (!method.isStatic()) {
-            env.error(trace, Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName));
-            return Memory.NULL;
+            env.error(trace,
+                    ErrorType.E_STRICT,
+                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName)
+            );
+            //return Memory.NULL;
         }
 
         checkAccess(env, trace, method);

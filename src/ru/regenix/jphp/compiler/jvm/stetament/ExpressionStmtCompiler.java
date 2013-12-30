@@ -1283,10 +1283,27 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             makeVarStore(variable);
             stackPop();
         } else {
+            LabelNode endLabel = new LabelNode();
+            LabelNode elseLabel = new LabelNode();
+
+            writeVarLoad("~this");
+            writeSysDynamicCall(null, "isMock", Boolean.TYPE);
+
+            code.add(new JumpInsnNode(IFEQ, elseLabel));
+            stackPop();
+
+            writePushNull();
+            writeVarStore(variable, false, false);
+
+            code.add(new JumpInsnNode(GOTO, endLabel));
+            code.add(elseLabel);
+
             writeVarLoad("~this");
             writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
             makeVarStore(variable);
             stackPop();
+
+            code.add(endLabel);
         }
 
         variable.pushLevel();

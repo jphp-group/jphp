@@ -190,8 +190,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            return Memory.NULL;
-            //env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -202,8 +201,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            return Memory.NULL;
-            //env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -214,8 +212,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            return;
-            //env.error(trace, ErrorType.E_WARNING, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -226,7 +223,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, ErrorType.E_NOTICE,
+            env.error(trace,
                     Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
             );
             return Memory.NULL;
@@ -239,7 +236,7 @@ final public class ObjectInvokeHelper {
     private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, ErrorType.E_WARNING, Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
             return null;
         }
 

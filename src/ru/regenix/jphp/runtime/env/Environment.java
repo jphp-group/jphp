@@ -64,7 +64,7 @@ public class Environment {
     private SystemMessage lastMessage;
 
     private ErrorHandler previousErrorHandler;
-    private ErrorHandler errorHandler;
+    private ErrorHandler errorReportHandler;
 
     private ExceptionHandler previousExceptionHandler;
     private ExceptionHandler exceptionHandler;
@@ -155,12 +155,12 @@ public class Environment {
         this.outputBuffers.push(defaultBuffer);
 
         this.includePaths = new HashSet<String>();
-        this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value));
+        this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value /*| E_STRICT.value | E_DEPRECATED.value*/));
 
         this.globals = new ArrayMemory();
         this.statics = new HashMap<String, ReferenceMemory>();
         this.included = new LinkedHashMap<String, ModuleEntity>();
-        this.setErrorHandler(new ErrorHandler() {
+        this.setErrorReportHandler(new ErrorHandler() {
             @Override
             public boolean onError(SystemMessage error) {
                 Environment.this.echo(error.getDebugMessage());
@@ -461,13 +461,13 @@ public class Environment {
         this.exceptionHandler = exceptionHandler;
     }
 
-    public ErrorHandler getErrorHandler() {
-        return errorHandler;
+    public ErrorHandler getErrorReportHandler() {
+        return errorReportHandler;
     }
 
-    public void setErrorHandler(ErrorHandler errorHandler) {
-        this.previousErrorHandler = this.errorHandler;
-        this.errorHandler = errorHandler;
+    public void setErrorReportHandler(ErrorHandler errorReportHandler) {
+        this.previousErrorHandler = this.errorReportHandler;
+        this.errorReportHandler = errorReportHandler;
     }
 
     public ErrorHandler getPreviousErrorHandler() {
@@ -491,11 +491,20 @@ public class Environment {
             triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), new Messages.Item(message), args));
     }
 
+    public void error(TraceInfo trace, ErrorType type, Messages.Item message, Object... args){
+        if (type.isFatal()) {
+            triggerError(new CustomErrorException(type, message.fetch(args), trace));
+        } else {
+            triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), message, args));
+        }
+    }
+
     public void error(ErrorType type, String message, Object... args){
         if (type.isFatal())
             triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), peekCall(0).trace));
-        else
+        else {
             triggerMessage(new CustomSystemMessage(type, this, new Messages.Item(message), args));
+        }
     }
 
     public void error(TraceInfo trace, String message, Object... args){
@@ -503,13 +512,9 @@ public class Environment {
     }
 
     public void triggerMessage(SystemMessage message){
-        ErrorType type = message.getType();
-        if (isHandleErrors(type)){
-            lastMessage = message;
-            if (errorHandler != null)
-                if (errorHandler.onError(message))
-                    return;
-        }
+        lastMessage = message;
+        if (errorReportHandler != null && isHandleErrors(message.getType()))
+            errorReportHandler.onError(message);
     }
 
     public boolean isHandleErrors(ErrorType type){

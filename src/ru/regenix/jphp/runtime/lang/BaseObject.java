@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 @Reflection.Ignore
 abstract public class BaseObject implements IObject {
     protected final ArrayMemory __dynamicProperties__;
-    protected final ClassEntity __class__;
+    protected ClassEntity __class__;
     protected final WeakReference<Environment> __env__;
 
     private boolean isFinalized;
@@ -61,5 +61,15 @@ abstract public class BaseObject implements IObject {
     @Override
     public void doFinalize() {
         isFinalized = true;
+    }
+
+    @Override
+    public boolean isMock() {
+        return __class__ == null;
+    }
+
+    @Override
+    public void setAsMock() {
+        __class__ = null;
     }
 }

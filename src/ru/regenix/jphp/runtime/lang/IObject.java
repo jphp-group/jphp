@@ -12,6 +12,9 @@ public interface IObject {
     Environment getEnvironment();
     int getPointer();
 
+    boolean isMock();
+    void setAsMock();
+
     boolean isFinalized();
     void doFinalize();
 }

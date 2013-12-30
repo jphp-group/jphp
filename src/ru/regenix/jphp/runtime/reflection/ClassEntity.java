@@ -465,6 +465,12 @@ public class ClassEntity extends Entity {
         this.module = module;
     }
 
+    public IObject newMock(Environment env) throws Throwable {
+        IObject object = (IObject) nativeConstructor.newInstance(env, this);
+        object.setAsMock();
+        return object;
+    }
+
     public IObject newObject(Environment env, TraceInfo trace, Memory[] args)
             throws Throwable {
         IObject object = (IObject) nativeConstructor.newInstance(env, this);
@@ -774,6 +780,7 @@ public class ClassEntity extends Entity {
         if (accessFlag != 0)
             invalidAccessToProperty(env, trace, entity, accessFlag);
 
+        env.error(trace, ErrorType.E_NOTICE, Messages.ERR_NOTICE_UNDEFINED_PROPERTY, name, property);
         return Memory.NULL;
     }
 

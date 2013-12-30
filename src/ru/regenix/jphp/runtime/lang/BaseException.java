@@ -27,7 +27,7 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
 })
 public class BaseException extends RuntimeException implements IObject {
     protected final ArrayMemory __dynamicProperties__;
-    protected final ClassEntity __class__;
+    protected ClassEntity __class__;
     protected final WeakReference<Environment> __env__;
     protected TraceInfo trace;
     protected CallStackItem[] callStack;
@@ -117,6 +117,16 @@ public class BaseException extends RuntimeException implements IObject {
     @Override
     final public int getPointer() {
         return super.hashCode();
+    }
+
+    @Override
+    public boolean isMock() {
+        return __class__ == null;
+    }
+
+    @Override
+    public void setAsMock() {
+        __class__ = null;
     }
 
     /**

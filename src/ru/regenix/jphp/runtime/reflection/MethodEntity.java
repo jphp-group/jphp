@@ -87,6 +87,9 @@ public class MethodEntity extends AbstractFunctionEntity {
     public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
         Memory result = null;
         try {
+            if (_this == null)
+                _this = clazz.newMock(environment);
+
             result = isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){
             throw e.getTargetException();

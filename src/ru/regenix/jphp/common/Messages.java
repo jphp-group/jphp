@@ -54,6 +54,7 @@ final public class Messages {
     public final static Item ERR_WARNING_INCLUDE_FAILED = new Item("%s(): Failed opening '%s' for inclusion");
     public final static Item ERR_NOTICE_USE_UNDEFINED_CONSTANT = new Item("Use of undefined constant %s - assumed '%s'");
     public final static Item ERR_NOTICE_RETURN_NOT_REFERENCE = new Item("Only variable references should be returned by reference");
+    public final static Item ERR_NOTICE_UNDEFINED_PROPERTY = new Item("Undefined property: %s::$%s");
 
     public final static Item ERR_FATAL_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'%s' operator accepts only positive numbers > 0");
 
