@@ -29,15 +29,18 @@ public class Test {
     protected String clean;
 
     private Map<String, String> _sections;
+    private Map<String, Integer> _sectionLines;
 
     public Test(File file){
         try {
             _sections = new LinkedHashMap<String, String>();
+            _sectionLines = new HashMap<String, Integer>();
 
             Scanner reader = new Scanner(new FileReader(file));
             String line;
             List<String> content = new ArrayList<String>();
             String section = null;
+            int i = 0;
             while (reader.hasNextLine()){
                 line = reader.nextLine();
                 if (line == null)
@@ -49,10 +52,12 @@ public class Test {
                         _sections.put(section, StringUtils.join(content, '\n'));
 
                     section = line.substring(2, line.length() - 2);
+                    _sectionLines.put(section, i);
                     content = new ArrayList<String>();
                 } else if (section != null) {
                     content.add(line);
                 }
+                i++;
             }
 
             if (section != null)
@@ -125,5 +130,9 @@ public class Test {
 
     public String getCookie() {
         return cookie;
+    }
+
+    public int getSectionLine(String section){
+        return _sectionLines.get(section);
     }
 }

@@ -276,11 +276,13 @@ public class Tokenizer {
                 }
             } else {
                 int dynamic = 0;
-                if (ch == '$' && (i + 1 < codeLength && code.charAt(i + 1) == '{') ) {
-                    dynamic = 2;
+                if (!slash){
+                    if (ch == '$' && (i + 1 < codeLength && code.charAt(i + 1) == '{') ) {
+                        dynamic = 2;
+                    }
+                    if (ch == '{' && (i + 1 < codeLength && code.charAt(i + 1) == '$') )
+                        dynamic = 1;
                 }
-                if (ch == '{')
-                    dynamic = 1;
 
                 if (dynamic > 0) {
                     if (dynamic == 2 ||  i + 1 < codeLength && code.charAt(i + 1) == '$') {
@@ -548,6 +550,14 @@ public class Tokenizer {
 
         currentPosition -= 1;
         return buildToken(tokenClazz, meta);
+    }
+
+    public static String ltrim(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        return s.substring(i);
     }
 
     public Token nextToken(){

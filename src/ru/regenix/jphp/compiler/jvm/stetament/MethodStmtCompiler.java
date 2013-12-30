@@ -47,6 +47,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private boolean external = false;
 
     private long methodId;
+    private LabelNode labelStart;
 
     private Map<Class<?>, AtomicInteger> statementIndexes = new HashMap<Class<?>, AtomicInteger>();
 
@@ -239,7 +240,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         }
 
         if (statement != null){
-            LabelNode label = writeLabel(node, statement.getMeta().getStartLine());
+            LabelNode label = labelStart = writeLabel(node, statement.getMeta().getStartLine());
 
             if (!statement.isStatic())
                 addLocalVariable("~this", label, Object.class);
@@ -309,7 +310,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 i++;
             }
         } else {
-            LabelNode label = writeLabel(node, clazz.statement.getMeta().getStartLine());
+            LabelNode label = labelStart = writeLabel(node, clazz.statement.getMeta().getStartLine());
         }
     }
 
@@ -327,7 +328,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     variable.name,
                     description,
                     null,
-                    variable.label,
+                    variable.label == null ? labelStart : variable.label,
                     variable.getEndLabel() == null ? endL : variable.getEndLabel(),
                     variable.index
             ));

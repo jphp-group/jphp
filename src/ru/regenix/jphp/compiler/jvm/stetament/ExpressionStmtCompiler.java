@@ -1244,8 +1244,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     protected void writeUndefineVariables(Collection<VariableExprToken> values){
+        LabelNode end = new LabelNode();
         for(VariableExprToken value : values)
-            writeUndefineVariable(value);
+            writeUndefineVariable(value, end);
     }
 
     protected void writeDefineGlobalVar(String name){
@@ -1354,7 +1355,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             variable.pushLevel();
     }
 
-    protected void writeUndefineVariable(VariableExprToken value){
+    protected void writeUndefineVariable(VariableExprToken value, LabelNode end){
         LocalVariable variable = method.getLocalVariable(value.getName());
         variable.popLevel();
     }
@@ -1601,6 +1602,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return StackItem.Type.STRING;
         else if (value instanceof ArrayExprToken)
             return StackItem.Type.ARRAY;
+        else if (value instanceof StringBuilderExprToken)
+            return StackItem.Type.STRING;
         else if (value instanceof CallExprToken) {
             PushCallStatistic statistic = new PushCallStatistic();
             writePushCall((CallExprToken)value, true, false, statistic);
@@ -2731,7 +2734,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writeSwitch(SwitchStmtToken token){
         writeDefineVariables(token.getLocal());
 
+        LabelNode l = new LabelNode();
         LabelNode end = new LabelNode();
+
+        code.add(l);
+        LocalVariable switchValue = method.addLocalVariable(
+                "~switch~" + method.nextStatementIndex(Memory.class), l, Memory.class
+        );
+        switchValue.setEndLabel(end);
+
 
         LabelNode[][] jumps = new LabelNode[token.getCases().size() + 1][2];
         int i = 0;
@@ -2744,22 +2755,25 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
         jumps[jumps.length - 1] = new LabelNode[]{end, end};
 
+
         method.pushJump(end, end);
         writeExpression(token.getValue(), true, false);
         writePopBoxing();
+
+        writeVarStore(switchValue, false, false);
 
         i = 0;
         for(CaseStmtToken one : token.getCases()){
             code.add(jumps[i][0]); // conditional
 
             if (one.getConditional() != null){
-                writePushDup();
+                writeVarLoad(switchValue);
                 writeExpression(one.getConditional(), true, false);
                 writeSysDynamicCall(Memory.class, "equal", Boolean.TYPE, stackPeek().type.toClass());
                 code.add(new JumpInsnNode(IFEQ, jumps[i + 1][0]));
+                stackPop();
             }
 
-            writePopAll(1);
             code.add(new JumpInsnNode(GOTO, jumps[i][1])); // if is done...
             i++;
         }
@@ -2775,6 +2789,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(end);
 
         code.add(new LineNumberNode(token.getMeta().getEndLine(), end));
+        method.prevStatementIndex(Memory.class);
         writeUndefineVariables(token.getLocal());
     }
 

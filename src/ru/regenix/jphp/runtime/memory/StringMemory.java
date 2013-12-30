@@ -184,6 +184,21 @@ public class StringMemory extends Memory {
     }
 
     @Override
+    public boolean equal(long value) {
+        return toNumeric().equal(value);
+    }
+
+    @Override
+    public boolean equal(double value) {
+        return toNumeric().equal(value);
+    }
+
+    @Override
+    public boolean equal(String value) {
+        return toString().equals(value);
+    }
+
+    @Override
     public boolean notEqual(Memory memory) {
         return !equal(memory);
     }

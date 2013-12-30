@@ -789,6 +789,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (isTokenClass(previous,
                         NameToken.class,
                         VariableExprToken.class,
+                        GetVarExprToken.class,
                         CallExprToken.class,
                         ArrayGetExprToken.class,
                         DynamicAccessExprToken.class,

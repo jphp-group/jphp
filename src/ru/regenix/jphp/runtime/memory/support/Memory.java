@@ -451,6 +451,30 @@ abstract public class Memory {
     public String concatRight(boolean value) { return boolToString(value) + toString(); }
     public String concatRight(String value) { return value + toString(); }
 
+    public boolean smallerRight(Memory value) { return value.smaller(this); }
+    public boolean smallerRight(long value) { return this.greaterEq(value); }
+    public boolean smallerRight(double value) { return this.greaterEq(value); }
+    public boolean smallerRight(boolean value) { return this.greaterEq(value); }
+    public boolean smallerRight(String value) { return this.greaterEq(value); }
+
+    public boolean smallerEqRight(Memory value) { return value.smallerEq(this); }
+    public boolean smallerEqRight(long value) { return this.greater(value); }
+    public boolean smallerEqRight(double value) { return this.greater(value); }
+    public boolean smallerEqRight(boolean value) { return this.greater(value); }
+    public boolean smallerEqRight(String value) { return this.greater(value); }
+
+    public boolean greaterRight(Memory value) { return value.greater(this); }
+    public boolean greaterRight(long value) { return this.smallerEq(value); }
+    public boolean greaterRight(double value) { return this.smallerEq(value); }
+    public boolean greaterRight(boolean value) { return this.smallerEq(value); }
+    public boolean greaterRight(String value) { return this.smallerEq(value); }
+
+    public boolean greaterEqRight(Memory value) { return value.greaterEq(this); }
+    public boolean greaterEqRight(long value) { return this.smaller(value); }
+    public boolean greaterEqRight(double value) { return this.smaller(value); }
+    public boolean greaterEqRight(boolean value) { return this.smaller(value); }
+    public boolean greaterEqRight(String value) { return this.smaller(value); }
+
     public Memory bitShrRight(Memory value){ return value.bitShr(this); }
     public Memory bitShrRight(long value){ return new LongMemory(value >> toLong()); }
     public Memory bitShrRight(double value){ return new LongMemory((long)value >> toLong()); }

@@ -33,6 +33,7 @@ public class SyntaxAnalyzer {
     private Stack<FunctionStmtToken> closureStack;
 
     private Stack<Set<VariableExprToken>> localStack;
+    private Set<VariableExprToken> rootLocal = new HashSet<VariableExprToken>();
 
     private Map<String, ClassStmtToken> classes;
     private List<FunctionStmtToken> functions;
@@ -60,7 +61,7 @@ public class SyntaxAnalyzer {
         tree.clear();
         localStack.clear();
 
-        addLocalScope();
+        rootLocal = addLocalScope();
         process();
     }
 
@@ -98,7 +99,7 @@ public class SyntaxAnalyzer {
         for (Generator generator : generators)
             map.put(generator.getClass(), generator);
 
-        addLocalScope();
+        rootLocal = addLocalScope();
         if (tokenizer != null)
             process();
     }
@@ -209,6 +210,7 @@ public class SyntaxAnalyzer {
     }
 
     public Set<VariableExprToken> removeLocalScope(){
+        rootLocal.addAll(getLocalScope());
         return localStack.pop();
     }
 

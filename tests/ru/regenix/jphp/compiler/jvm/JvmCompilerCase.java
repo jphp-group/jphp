@@ -2,6 +2,8 @@ package ru.regenix.jphp.compiler.jvm;
 
 import org.junit.Assert;
 import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.exceptions.CustomErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.ext.BCMathExtension;
 import ru.regenix.jphp.runtime.ext.CTypeExtension;
 import ru.regenix.jphp.runtime.ext.CoreExtension;
@@ -124,12 +126,22 @@ abstract public class JvmCompilerCase {
         ));
         Context context = new Context(environment, test.getFile(), file);
 
-        JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
-        ModuleEntity module = compiler.compile();
-        environment.getScope().loadModule(module);
-        environment.registerModule(module);
+        try {
+            JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
+            ModuleEntity module = compiler.compile();
+            environment.getScope().loadModule(module);
+            environment.registerModule(module);
 
-        Memory memory = module.includeNoThrow(environment, environment.getGlobals());
+
+            Memory memory = module.includeNoThrow(environment, environment.getGlobals());
+        } catch (ErrorException e){
+            throw new CustomErrorException(e.getType(), e.getMessage()
+                    + " line: "
+                    + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 1)
+                    + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
+                    e.getTraceInfo());
+        }
+
         try {
             environment.clear();
         } catch (Throwable throwable) {
