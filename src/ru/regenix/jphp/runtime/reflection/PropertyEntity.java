@@ -18,8 +18,19 @@ public class PropertyEntity extends Entity {
     protected boolean isStatic;
     protected Field field;
 
+    protected String specificName;
+    protected PropertyEntity prototype;
+
     public PropertyEntity(Context context) {
         super(context);
+    }
+
+    public PropertyEntity getPrototype() {
+        return prototype;
+    }
+
+    public void setPrototype(PropertyEntity prototype) {
+        this.prototype = prototype;
     }
 
     public Field getField() {
@@ -53,6 +64,7 @@ public class PropertyEntity extends Entity {
 
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
+        updateSpecificName();
     }
 
     public boolean isStatic() {
@@ -69,10 +81,30 @@ public class PropertyEntity extends Entity {
 
     public void setClazz(ClassEntity clazz) {
         this.clazz = clazz;
+        updateSpecificName();
     }
 
     public boolean isDeprecated(){
         return false; // TODO
+    }
+
+    public void updateSpecificName(){
+        switch (modifier){
+            case PRIVATE: if (clazz != null) { specificName = "\0" + clazz.getName() + "\0" + name; } break;
+            case PROTECTED: specificName = "\0*\0" + name; break;
+            default:
+                specificName = name;
+        }
+    }
+
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+        updateSpecificName();
+    }
+
+    public String getSpecificName() {
+        return specificName;
     }
 
     /**

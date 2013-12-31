@@ -24,6 +24,7 @@ public class MethodEntity extends AbstractFunctionEntity {
     protected boolean isFinal;
     protected boolean isStatic;
     protected Modifier modifier;
+    protected boolean dynamicSignature = false;
     private String key;
 
     protected String signature;
@@ -69,6 +70,14 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         nativeMethod = method;
+    }
+
+    public boolean isDynamicSignature() {
+        return dynamicSignature;
+    }
+
+    public void setDynamicSignature(boolean dynamicSignature) {
+        this.dynamicSignature = dynamicSignature;
     }
 
     public Extension getExtension() {

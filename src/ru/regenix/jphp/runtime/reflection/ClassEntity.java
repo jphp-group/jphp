@@ -209,8 +209,8 @@ public class ClassEntity extends Entity {
 
     public void doneDeclare(){
         methodConstruct  = methods.get("__construct");
-        if (methodConstruct == null)
-            methodConstruct = methods.get(getLowerName());
+        if (methodConstruct != null)
+            methodConstruct.setDynamicSignature(true);
 
         methodDestruct = methods.get("__destruct");
 
@@ -263,6 +263,9 @@ public class ClassEntity extends Entity {
 
     public void addMethod(MethodEntity method){
         String name = method.getLowerName();
+        if (name.equals(lowerName))
+            name = "__construct";
+
         this.methods.put(name, method);
     }
 
@@ -283,7 +286,7 @@ public class ClassEntity extends Entity {
     }
 
     public boolean isInstanceOf(ClassEntity what){
-        return id == what.id || instanceOfList.contains(what.lowerName);
+        return what != null && (id == what.id || instanceOfList.contains(what.lowerName));
     }
 
     public boolean isInstanceOf(String name){
@@ -300,7 +303,7 @@ public class ClassEntity extends Entity {
                     addMethod(method);
                 } else {
                     implMethod.setPrototype(method);
-                    if (!implMethod.equalsBySignature(method)){
+                    if (!method.dynamicSignature && !implMethod.equalsBySignature(method)){
                         result.invalidSignature.add(implMethod);
                     } else if (implMethod.isStatic() && !method.isStatic()){
                         result.mustNonStatic.add(implMethod);
@@ -321,6 +324,7 @@ public class ClassEntity extends Entity {
         this.instanceOfList.add(parent.getLowerName());
         this.instanceOfList.addAll(parent.instanceOfList);
 
+        this.properties.putAll(parent.properties);
         return updateParentMethods();
     }
 
@@ -353,7 +357,7 @@ public class ClassEntity extends Entity {
             } else {
                 implMethod.setPrototype(method);
 
-                if (!implMethod.equalsBySignature(method)){
+                if (!method.isDynamicSignature() && !implMethod.equalsBySignature(method)){
                     result.invalidSignature.add(implMethod);
                 } else if (implMethod.isStatic() && !method.isStatic()){
                     result.mustNonStatic.add(implMethod);
@@ -397,6 +401,11 @@ public class ClassEntity extends Entity {
     public void addProperty(PropertyEntity property){
         if (property.isStatic())
             throw new IllegalArgumentException("Property must be non-static");
+
+        PropertyEntity prototype = properties.get(property.getLowerName());
+        if (prototype != null && prototype.getModifier() != property.getModifier()){
+            property.setPrototype(prototype);
+        }
 
         properties.put(property.getLowerName(), property);
         property.setClazz(this);
@@ -477,8 +486,20 @@ public class ClassEntity extends Entity {
 
         ArrayMemory props = object.getProperties();
         for(PropertyEntity property : getProperties()) {
-            if (property.defaultValue != null)
-                props.putAsKeyString(property.getName(), property.defaultValue.toImmutable());
+            //if (property.defaultValue != null)
+            PropertyEntity prototype = property.prototype;
+            while (prototype != null) {
+                props.putAsKeyString(
+                        prototype.getSpecificName(),
+                        prototype.defaultValue == null ? Memory.NULL : prototype.defaultValue.toImmutable()
+                );
+                prototype = prototype.prototype;
+            }
+
+            props.putAsKeyString(
+                    property.getSpecificName(),
+                    property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
+            );
         }
 
         if (methodConstruct != null){
@@ -612,11 +633,13 @@ public class ClassEntity extends Entity {
                               IObject object, String property, Memory memory, SetterCallback callback)
             throws Throwable {
         ReferenceMemory value;
-        PropertyEntity entity = properties.get(property);
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
-        value = props == null || accessFlag != 0 ? null : props.getByScalar(property);
+        value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
 
         if (value == null) {
             if (methodMagicSet != null) {
@@ -665,13 +688,15 @@ public class ClassEntity extends Entity {
 
     public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
-        PropertyEntity entity = properties.get(property);
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
         if (props == null
                 || accessFlag != 0
-                || props.removeByScalar(property) == null ){
+                || props.removeByScalar(entity == null ? property : entity.specificName) == null ){
             if (methodMagicUnset != null) {
                 try {
                     Memory[] args = new Memory[]{new StringMemory(property)};
@@ -692,12 +717,14 @@ public class ClassEntity extends Entity {
 
     public Memory emptyProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
-        PropertyEntity entity = properties.get(property);
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
         if (props != null && accessFlag == 0){
-            Memory tmp = props.getByScalar(property);
+            Memory tmp = props.getByScalar(entity == null ? property : entity.specificName);
             if ( tmp != null ){
                 return tmp.toBoolean() ? Memory.TRUE : Memory.NULL;
             } else
@@ -721,13 +748,15 @@ public class ClassEntity extends Entity {
 
     public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
-        PropertyEntity entity = properties.get(property);
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
         Memory tmp = props == null || accessFlag != 0
                 ? null
-                : props.getByScalar(property);
+                : props.getByScalar(entity == null ? property : entity.specificName);
 
         if ( tmp != null )
             return tmp.isNull() ? tmp : Memory.TRUE;
@@ -748,18 +777,19 @@ public class ClassEntity extends Entity {
         return Memory.NULL;
     }
 
-    public Memory getProperty(Environment env, TraceInfo trace,
-                              IObject object, String property)
+    public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
         ReferenceMemory value;
-        PropertyEntity entity = properties.get(property);
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         if (entity != null && accessFlag != 0) {
             value = null;
         } else {
             ArrayMemory props = object.getProperties();
-            value = props == null ? null : props.getByScalar(property);
+            value = props == null ? null : props.getByScalar(entity == null ? property : entity.specificName);
         }
 
         if (value != null)

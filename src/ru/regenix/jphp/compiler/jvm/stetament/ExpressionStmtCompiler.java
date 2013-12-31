@@ -841,6 +841,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!writeOpcode)
             return null;
 
+        this.method.entity.setImmutable(false);
+
         writeLineNumber(function);
         writePushStaticCall(method.method);
         if (returnValue){
@@ -1087,6 +1089,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 if (!writeOpcode)
                     return null;
+                method.entity.setImmutable(false);
+
                 writePushEnv();
                 writePushTraceInfo(function);
                 writePushString(realName.toLowerCase());
@@ -1100,15 +1104,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePopAll(1);
             }
         } else if (name instanceof StaticAccessExprToken){
+            method.entity.setImmutable(false);
             if (((StaticAccessExprToken) name).isAsParent())
                 return writePushParentDynamicMethod(function, returnValue, writeOpcode, statistic);
             else
                 return writePushStaticMethod(function, returnValue, writeOpcode, statistic);
         } else if (name instanceof DynamicAccessExprToken){
+            method.entity.setImmutable(false);
             return writePushDynamicMethod(function, returnValue, writeOpcode, statistic);
         } else {
             if (!writeOpcode)
                 return null;
+            method.entity.setImmutable(false);
             writeLineNumber(function);
 
             writePush((ValueExprToken)function.getName(), true, false);
