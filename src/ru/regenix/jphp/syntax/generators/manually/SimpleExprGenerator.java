@@ -215,6 +215,23 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected CallExprToken processPrint(Token current, Token next, ListIterator<Token> iterator,
+                                         BraceExprToken.Kind closedBrace, int braceOpened){
+        CallExprToken callExprToken = new CallExprToken(current.getMeta());
+        callExprToken.setName((ExprToken)current);
+
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        );
+        if (closedBrace == null || braceOpened < 1)
+            iterator.previous();
+        if (value == null)
+            unexpectedToken(iterator.previous());
+
+        callExprToken.setParameters(Arrays.asList(value));
+        return callExprToken;
+    }
+
     protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, ListIterator<Token> iterator,
             BraceExprToken.Kind closedBraceKind, int braceOpened){
         DynamicAccessExprToken result = (DynamicAccessExprToken)current;
@@ -443,6 +460,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind, braceOpened);
 
+        if (current instanceof PrintNameToken){
+            return processPrint(current, next, iterator, closedBraceKind, braceOpened);
+        }
+
         if (current instanceof NewExprToken)
             return processNew(current, iterator);
 
@@ -669,6 +690,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         ExprStmtToken param;
         List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+        boolean lastPush = false;
         do {
             param = analyzer.generator(SimpleExprGenerator.class)
                     .getToken(nextToken(iterator), iterator, separator, braceKind);
@@ -690,6 +712,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     iterator.previous();
                     break;
                 }
+            }  else {
+                Token prev = iterator.previous();
+                if (isClosedBrace(prev, braceKind)){
+                    iterator.previous();
+                    lastPush = true;
+                } else
+                    iterator.next();
             }
 
         } while (param != null);
@@ -703,7 +732,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result = new ArrayGetRefExprToken(result);
         } else if (iterator.hasNext()){
             next = iterator.next();
-            if (next instanceof AssignableOperatorToken){
+            if (next instanceof AssignableOperatorToken || lastPush){
                 result = new ArrayGetRefExprToken(result);
             }
             iterator.previous();

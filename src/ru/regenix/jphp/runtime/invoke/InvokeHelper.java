@@ -89,7 +89,7 @@ final public class InvokeHelper {
                 }
             } else {
                 if (param.isReference()) {
-                    if (!arg.isReference()){
+                    if (!arg.isReference() && !arg.isObject()){
                         env.warning(trace, "Only variables can be passed by reference");
                         passed[i] = new ReferenceMemory(arg);
                     }

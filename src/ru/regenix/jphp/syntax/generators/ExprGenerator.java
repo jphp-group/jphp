@@ -6,10 +6,7 @@ import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
-import ru.regenix.jphp.tokenizer.token.BreakToken;
-import ru.regenix.jphp.tokenizer.token.OpenEchoTagToken;
-import ru.regenix.jphp.tokenizer.token.SemicolonToken;
-import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
@@ -51,11 +48,15 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!(result instanceof DefaultStmtToken)){
             Token next = nextToken(iterator);
             ExprStmtToken conditional = analyzer.generator(SimpleExprGenerator.class).getToken(
-                    next, iterator, Separator.COLON, null
+                        next, iterator, Separator.COLON, null
             );
             if (conditional == null)
                 unexpectedToken(next);
             result.setConditional(conditional);
+        } else {
+            Token next = nextToken(iterator);
+            if (!(next instanceof SemicolonToken || next instanceof ColonToken))
+                unexpectedToken(next);
         }
 
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
@@ -66,7 +67,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processSwitch(SwitchStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addLocalScope(false);
         result.setValue(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
         if (result.getValue() == null)
             unexpectedToken(iterator);
@@ -99,7 +100,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addLocalScope(false);
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         if (condition == null)
@@ -139,7 +140,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processForeach(ForeachStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addLocalScope(false);
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
@@ -192,6 +193,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndforeachStmtToken.class
         );
+        if (body.isAlternativeSyntax())
+            iterator.next();
+
         result.setBody(body);
 
         if (analyzer.getFunction() != null) {
@@ -264,6 +268,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
             nextToken(iterator), iterator, EndforStmtToken.class
         );
+        if (body.isAlternativeSyntax())
+            iterator.next();
 
         result.setInitExpr(inits);
         result.setCondition(condition);
@@ -282,6 +288,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndwhileStmtToken.class
         );
+        if (body.isAlternativeSyntax())
+            iterator.next();
+
         result.setCondition(condition);
         result.setBody(body);
 

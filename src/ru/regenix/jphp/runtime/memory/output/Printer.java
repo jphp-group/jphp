@@ -28,7 +28,9 @@ abstract public class Printer {
     abstract protected void printClosure(Closure value, int level, Set<Integer> used);
 
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used){
-        print(reference.toValue(), level, used);
+        Memory value = reference.toValue();
+        if (value != Memory.UNDEFINED)
+            print(reference.toValue(), level, used);
     }
 
     protected void print(Memory value, int level, Set<Integer> used){
@@ -37,7 +39,7 @@ abstract public class Printer {
         }
 
         switch (value.type){
-            case NULL: printNull(); break;
+            case NULL: if (value != Memory.UNDEFINED)  printNull(); break;
             case BOOL:
                 if (value instanceof TrueMemory)
                     printTrue();

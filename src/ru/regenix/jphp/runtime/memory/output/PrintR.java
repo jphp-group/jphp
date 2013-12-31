@@ -82,6 +82,9 @@ public class PrintR extends Printer {
             int i = 0;
             int size = value.size();
             while (iterator.next()){
+                Memory el = iterator.getValue();
+                if (el == Memory.UNDEFINED) continue;
+
                 printer.write(StringUtils.repeat(' ', level));
                 Memory key = iterator.getMemoryKey();
 
@@ -89,7 +92,7 @@ public class PrintR extends Printer {
                 printer.write(key.toString());
 
                 printer.write("] => ");
-                print(iterator.getValue(), level + 1, used);
+                print(el, level + 1, used);
                 writeSeparator(i == size - 1);
                 i++;
             }

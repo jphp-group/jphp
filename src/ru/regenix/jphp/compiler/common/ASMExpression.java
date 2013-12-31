@@ -150,7 +150,13 @@ public class ASMExpression {
     protected void processToken(Token token, Stack<Token> stack, List<Token> result){
         //int prior = getPriority(token);
 
-        if (token instanceof ValueExprToken){
+        if (token instanceof CallExprToken) {
+            CallExprToken call = (CallExprToken)token;
+            if (call.getName() instanceof OperatorExprToken){
+                processOperator(stack, result, (OperatorExprToken)call.getName());
+            }
+            result.add(token);
+        } else if (token instanceof ValueExprToken){
             result.add(token);
         } else if (token instanceof BraceExprToken){
             BraceExprToken brace = (BraceExprToken)token;

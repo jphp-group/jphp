@@ -33,7 +33,7 @@ public class SyntaxAnalyzer {
     private Stack<FunctionStmtToken> closureStack;
 
     private Stack<Set<VariableExprToken>> localStack;
-    private Set<VariableExprToken> rootLocal = new HashSet<VariableExprToken>();
+    private Stack<Set<VariableExprToken>> rootLocalStack = new Stack<Set<VariableExprToken>>();
 
     private Map<String, ClassStmtToken> classes;
     private List<FunctionStmtToken> functions;
@@ -61,7 +61,7 @@ public class SyntaxAnalyzer {
         tree.clear();
         localStack.clear();
 
-        rootLocal = addLocalScope();
+        addLocalScope(true);
         process();
     }
 
@@ -99,7 +99,7 @@ public class SyntaxAnalyzer {
         for (Generator generator : generators)
             map.put(generator.getClass(), generator);
 
-        rootLocal = addLocalScope();
+        addLocalScope(true);
         if (tokenizer != null)
             process();
     }
@@ -204,13 +204,23 @@ public class SyntaxAnalyzer {
     }
 
     public Set<VariableExprToken> addLocalScope(){
+        return addLocalScope(false);
+    }
+
+    public Set<VariableExprToken> addLocalScope(boolean isRoot){
         Set<VariableExprToken> local = new HashSet<VariableExprToken>();
         localStack.push(local);
+        if (isRoot)
+            rootLocalStack.push(local);
         return local;
     }
 
     public Set<VariableExprToken> removeLocalScope(){
-        rootLocal.addAll(getLocalScope());
+        Set<VariableExprToken> scope = getLocalScope();
+        if (rootLocalStack.peek() == scope){
+            rootLocalStack.pop();
+        } else
+            rootLocalStack.peek().addAll(getLocalScope());
         return localStack.pop();
     }
 

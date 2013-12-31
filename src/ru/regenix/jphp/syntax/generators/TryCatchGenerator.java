@@ -59,7 +59,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         if (current instanceof TryStmtToken){
             TryStmtToken result = (TryStmtToken)current;
 
-            analyzer.addLocalScope();
+            analyzer.addLocalScope(false);
             BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
             result.setBody(body);
 

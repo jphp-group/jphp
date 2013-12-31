@@ -361,7 +361,7 @@ while ($i<5) {
 ***********************
 
 *** Nested file include test ***
-<?php include("023-2.inc"); ?>
+<?php include(__DIR__ . "/023-2.inc"); ?>
 ********************************
 
 <?php
@@ -402,7 +402,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -538,52 +538,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -627,7 +627,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -763,52 +763,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -852,7 +852,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -988,52 +988,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -1077,7 +1077,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -1213,52 +1213,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -1302,7 +1302,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -1438,52 +1438,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -1527,7 +1527,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -1663,52 +1663,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -1752,7 +1752,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -1888,52 +1888,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -1977,7 +1977,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -2113,52 +2113,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -2202,7 +2202,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -2338,52 +2338,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -2427,7 +2427,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -2563,52 +2563,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -2652,7 +2652,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -2788,52 +2788,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -2877,7 +2877,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -3013,52 +3013,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -3102,7 +3102,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -3238,52 +3238,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -3327,7 +3327,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -3463,52 +3463,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -3552,7 +3552,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -3688,52 +3688,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -3777,7 +3777,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -3913,52 +3913,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -4002,7 +4002,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -4138,52 +4138,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -4227,7 +4227,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -4363,52 +4363,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -4452,7 +4452,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -4588,52 +4588,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -4677,7 +4677,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -4813,52 +4813,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -4902,7 +4902,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -5038,52 +5038,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -5127,7 +5127,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -5263,52 +5263,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -5352,7 +5352,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -5488,52 +5488,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -5577,7 +5577,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -5713,52 +5713,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -5802,7 +5802,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -5938,52 +5938,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -6027,7 +6027,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -6163,52 +6163,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -6252,7 +6252,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -6388,52 +6388,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -6477,7 +6477,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -6613,52 +6613,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -6702,7 +6702,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -6838,52 +6838,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -6927,7 +6927,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -7063,52 +7063,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -7152,7 +7152,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -7288,52 +7288,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -7377,7 +7377,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -7513,52 +7513,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -7602,7 +7602,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -7738,52 +7738,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -7827,7 +7827,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -7963,52 +7963,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -8052,7 +8052,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -8188,52 +8188,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -8277,7 +8277,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -8413,52 +8413,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -8502,7 +8502,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -8638,52 +8638,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -8727,7 +8727,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -8863,52 +8863,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -8952,7 +8952,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -9088,52 +9088,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -9177,7 +9177,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -9313,52 +9313,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -9402,7 +9402,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -9538,52 +9538,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -9627,7 +9627,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -9763,52 +9763,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -9852,7 +9852,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -9988,52 +9988,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -10077,7 +10077,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -10213,52 +10213,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -10302,7 +10302,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -10438,52 +10438,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -10527,7 +10527,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -10663,52 +10663,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -10752,7 +10752,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -10888,52 +10888,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -10977,7 +10977,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -11113,52 +11113,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -11202,7 +11202,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -11338,52 +11338,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 
@@ -11427,7 +11427,7 @@ Correct result - 3: 3
 
 *** Testing if/elseif/else control ***
 
-This works
+This  works
 this_still_works
 should_print
 
@@ -11563,52 +11563,52 @@ baaaaaaaaaa
 *** break/continue test ***
 $i should go from 0 to 2
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=0
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=1
 $j should go from 3 to 4, and $q should go from 3 to 4
-$j=3
-$q=3
-$q=4
-$j=4
-$q=3
-$q=4
+ $j=3
+ $q=3
+ $q=4
+ $j=4
+ $q=3
+ $q=4
 $j should go from 0 to 2
-$j=0
-$j=1
-$j=2
+ $j=0
+ $j=1
+ $j=2
 $k should go from 0 to 2
-$k=0
-$k=1
-$k=2
+ $k=0
+ $k=1
+ $k=2
 $i=2
 ***********************
 

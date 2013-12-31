@@ -118,6 +118,15 @@ abstract public class JvmCompilerCase {
         return includeResource(name, null);
     }
 
+
+    public static String rtrim(String s) {
+        int i = s.length() - 1;
+        while (i >= 0 && Character.isWhitespace(s.charAt(i))) {
+            i--;
+        }
+        return s.substring(0, i + 1);
+    }
+
     public void check(String name){
         File file;
         Environment environment = new Environment(newScope());
@@ -137,7 +146,7 @@ abstract public class JvmCompilerCase {
         } catch (ErrorException e){
             throw new CustomErrorException(e.getType(), e.getMessage()
                     + " line: "
-                    + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 1)
+                    + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 2)
                     + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
                     e.getTraceInfo());
         }
@@ -150,7 +159,7 @@ abstract public class JvmCompilerCase {
         lastOutput = environment.getDefaultBuffer().getOutputAsString();
 
         if (test.getExpect() != null)
-            Assert.assertEquals(test.getTest(), test.getExpect(), lastOutput.trim());
+            Assert.assertEquals(test.getTest(), test.getExpect(), rtrim(lastOutput));
     }
 
     protected Memory run(String code){

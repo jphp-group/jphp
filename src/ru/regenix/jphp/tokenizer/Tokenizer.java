@@ -552,14 +552,6 @@ public class Tokenizer {
         return buildToken(tokenClazz, meta);
     }
 
-    public static String ltrim(String s) {
-        int i = 0;
-        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
-            i++;
-        }
-        return s.substring(i);
-    }
-
     public Token nextToken(){
         boolean init = false;
         char ch = '\0';
@@ -685,7 +677,7 @@ public class Tokenizer {
             return null;
 
         //currentPosition -= 1;
-        Class<? extends Token> tokenClazz = tokenFinder.find(meta);
+        Class<? extends Token> tokenClazz = rawMode ? EchoRawToken.class : tokenFinder.find(meta);
         if (tokenClazz == null){
             return prevToken = new Token(meta, TokenType.T_J_CUSTOM);
         } else {

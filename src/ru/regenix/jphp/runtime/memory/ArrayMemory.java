@@ -620,7 +620,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         size = 0;
     }
 
-    public int compare(ArrayMemory otherRef) throws UncomparableArrayException {
+    public int compare(ArrayMemory otherRef, boolean strict) {
         int size1 = size(),
             size2 = otherRef.size();
 
@@ -629,21 +629,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         else if (size1 > size2)
             return 1;
 
-        //Iterator<ReferenceMemory> iterator = this.iterator();
+        ForeachIterator iterator = this.foreachIterator(false, false);
         // TODO
-        /*while (iterator.hasNext()){
-            ReferenceMemory value1 = iterator.next();
-            //Object key    = value1.key;
-            Memory value2 = otherRef.getByScalar(key);
+        while (iterator.next()){
+            Memory value1 = iterator.getValue();
+            Memory key    = iterator.getMemoryKey();
+            Memory value2 = otherRef.get(key);
 
             if (value2 == null)
-                throw new UncomparableArrayException();
+                return -2;
+
+            if ((strict && value1.identical(value2)) || (!strict && value1.equal(value2)))
+                continue;
 
             if (value1.smaller(value2))
                 return -1;
             else
                 return 1;
-        }*/
+        }
         return 0;
     }
 
@@ -753,14 +756,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public boolean equal(Memory memory) {
-        if (memory.type == Type.ARRAY){
-            try {
-                return compare((ArrayMemory)memory) == 0;
-            } catch (UncomparableArrayException e) {
+        switch (memory.type){
+            case ARRAY:
+                return compare((ArrayMemory)memory, false) == 0;
+            case REFERENCE: return equal(memory.toValue());
+            default:
                 return false;
-            }
         }
-        return false;
     }
 
     @Override
@@ -770,50 +772,48 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public boolean smaller(Memory memory) {
-        if (memory.type == Type.ARRAY){
-            try {
-                return compare((ArrayMemory)memory) < 0;
-            } catch (UncomparableArrayException e) {
+        switch (memory.type){
+            case ARRAY:
+                return compare((ArrayMemory)memory, false) == -1;
+            case REFERENCE: return equal(memory.toValue());
+            default:
                 return false;
-            }
         }
-        return false;
     }
 
     @Override
     public boolean smallerEq(Memory memory) {
-        if (memory.type == Type.ARRAY){
-            try {
-                return compare((ArrayMemory)memory) <= 0;
-            } catch (UncomparableArrayException e) {
+        switch (memory.type){
+            case ARRAY:
+                int r = compare((ArrayMemory)memory, false);
+                return r == 0 || r == -1;
+            case REFERENCE: return equal(memory.toValue());
+            default:
                 return false;
-            }
         }
-        return false;
     }
 
     @Override
     public boolean greater(Memory memory) {
-        if (memory.type == Type.ARRAY){
-            try {
-                return compare((ArrayMemory)memory) > 0;
-            } catch (UncomparableArrayException e) {
+        switch (memory.type){
+            case ARRAY:
+                return compare((ArrayMemory)memory, false) == 1;
+            case REFERENCE: return equal(memory.toValue());
+            default:
                 return false;
-            }
         }
-        return true;
     }
 
     @Override
     public boolean greaterEq(Memory memory) {
-        if (memory.type == Type.ARRAY){
-            try {
-                return compare((ArrayMemory)memory) >= 0;
-            } catch (UncomparableArrayException e) {
+        switch (memory.type){
+            case ARRAY:
+                int r = compare((ArrayMemory)memory, false);
+                return r == 0 || r == 1;
+            case REFERENCE: return equal(memory.toValue());
+            default:
                 return false;
-            }
         }
-        return true;
     }
 
     @Override

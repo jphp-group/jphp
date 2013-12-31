@@ -78,6 +78,9 @@ public class VarDump extends Printer {
             used.add(value.getPointer());
             ForeachIterator iterator = value.foreachIterator(false, false);
             while (iterator.next()){
+                Memory el = iterator.getValue();
+                if (el == Memory.UNDEFINED) continue;
+
                 printer.write(StringUtils.repeat(' ', level));
                 Memory key = iterator.getMemoryKey();
 
@@ -93,7 +96,7 @@ public class VarDump extends Printer {
                 printer.write("]=>\n");
                 printer.write(StringUtils.repeat(' ', level));
 
-                print(iterator.getValue(), level + 1, used);
+                print(el, level + 1, used);
                 //printer.write('\n');
             }
 
