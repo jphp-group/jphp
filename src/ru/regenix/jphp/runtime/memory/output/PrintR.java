@@ -72,10 +72,10 @@ public class PrintR extends Printer {
         if (used.contains(value.getPointer())){
             printer.write(" *RECURSION*");
         } else {
-            printer.write(StringUtils.repeat(' ', level));
+            printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             writeOpen();
 
-            level += PRINT_INDENT;
+            level += 1;
 
             used.add(value.getPointer());
             ForeachIterator iterator = value.foreachIterator(false, false);
@@ -85,7 +85,7 @@ public class PrintR extends Printer {
                 Memory el = iterator.getValue();
                 if (el == Memory.UNDEFINED) continue;
 
-                printer.write(StringUtils.repeat(' ', level));
+                printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
                 Memory key = iterator.getMemoryKey();
 
                 printer.write('[');
@@ -97,8 +97,8 @@ public class PrintR extends Printer {
                 i++;
             }
 
-            level -= PRINT_INDENT;
-            printer.write(StringUtils.repeat(' ', level));
+            level -= 1;
+            printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             writeClose();
 
             used.remove(value.getPointer());
@@ -141,9 +141,9 @@ public class PrintR extends Printer {
         if (used.contains(value.getPointer())){
             printer.write(" *RECURSION*");
         } else {
-            printer.write(StringUtils.repeat(' ', level));
+            printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             writeOpen();
-            level += PRINT_INDENT;
+            level += 1;
 
             used.add(value.getPointer());
 
@@ -153,7 +153,7 @@ public class PrintR extends Printer {
                 int i = 0;
                 int size = classEntity.properties.size();
                 while (iterator.next()){
-                    printer.write(StringUtils.repeat(' ', level));
+                    printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
                     Object key = iterator.getKey();
                     PropertyEntity propertyEntity = classEntity.properties.get(key.toString());
@@ -178,8 +178,8 @@ public class PrintR extends Printer {
                 }
             }
 
-            level -= PRINT_INDENT;
-            printer.write(StringUtils.repeat(' ', level));
+            level -= 1;
+            printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             writeClose();
 
             used.remove(value.getPointer());

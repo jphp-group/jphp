@@ -29,7 +29,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, null, args, method.getName(), calledClass);
+        env.pushCall(trace, null, args, method.getName(), method.getClazz().getName(), calledClass);
     }
 
     @Override
@@ -43,8 +43,11 @@ public class StaticMethodInvoker extends Invoker {
     }
 
     public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){
-        ClassEntity classEntity = env.fetchClass(className, true, true);
-        MethodEntity methodEntity = classEntity == null ? null : classEntity.methods.get(methodName.toLowerCase());
+        ClassEntity classEntity = env.fetchClass(className, true);
+        if (classEntity == null)
+            classEntity = env.fetchMagicClass(className);
+
+        MethodEntity methodEntity = classEntity == null ? null : classEntity.findMethod(methodName.toLowerCase());
 
         if (methodEntity == null || !methodEntity.isStatic()){
             if (classEntity != null && classEntity.methodMagicCallStatic != null){

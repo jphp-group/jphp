@@ -10,6 +10,7 @@ import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
 final public class ObjectInvokeHelper {
@@ -23,14 +24,20 @@ final public class ObjectInvokeHelper {
         boolean doublePop = false;
 
         IObject iObject = ((ObjectMemory)object).value;
-        ClassEntity clazz = iObject.getReflection().getParent();
+        ClassEntity childClazz = iObject.getReflection();
+        ClassEntity clazz = childClazz.getParent();
         MethodEntity method;
 
         if (methodName == null) {
-            method = clazz.methodMagicInvoke;
+            method = childClazz.methodMagicInvoke != null ? childClazz.methodMagicInvoke : clazz.methodMagicInvoke;
         } else {
-            method = clazz.methods.get(methodLowerName);
-            if (method == null && ((method = clazz.methodMagicCall) != null)){
+            method = clazz.findMethod(methodLowerName);
+            if (method == null
+                    && ((
+                    method = childClazz.methodMagicCall != null
+                        ? childClazz.methodMagicCall
+                        : clazz.methodMagicCall)
+                    != null)){
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
                 doublePop = true;
             }
@@ -63,9 +70,9 @@ final public class ObjectInvokeHelper {
         }
         try {
             if (trace != null) {
-                env.pushCall(trace, iObject, args, methodName, className);
+                env.pushCall(trace, iObject, args, methodName, method.getClazz().getName(), className);
                 if (doublePop)
-                    env.pushCall(trace, iObject, passed, method.getName(), className);
+                    env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
             result = method.invokeDynamic(iObject, env, passed);
         } finally {
@@ -95,7 +102,7 @@ final public class ObjectInvokeHelper {
         if (methodName == null) {
             method = clazz.methodMagicInvoke;
         } else {
-            method = clazz.methods.get(methodLowerName);
+            method = clazz.findMethod(methodLowerName);
             if (method == null && ((method = clazz.methodMagicCall) != null)){
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
                 doublePop = true;
@@ -136,9 +143,9 @@ final public class ObjectInvokeHelper {
 
         try {
             if (trace != null) {
-                env.pushCall(trace, iObject, args, methodName, className);
+                env.pushCall(trace, iObject, args, methodName, method.getClazz().getName(), className);
                 if (doublePop)
-                    env.pushCall(trace, iObject, passed, method.getName(), className);
+                    env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
             result = method.invokeDynamic(iObject, env, passed);
         } finally {
@@ -175,7 +182,7 @@ final public class ObjectInvokeHelper {
         }
 
         if (trace != null)
-            env.pushCall(trace, iObject, args, method.getName(), className);
+            env.pushCall(trace, iObject, args, method.getName(), method.getClazz().getName(), className);
 
         try {
             result = method.invokeDynamic(iObject, env, passed);
@@ -219,6 +226,26 @@ final public class ObjectInvokeHelper {
         iObject.getReflection().unsetProperty(env, trace, iObject, property);
     }
 
+    public static Memory getConstant(String className, String lowerClassName, String constant,
+                                     Environment env, TraceInfo trace){
+        ClassEntity entity = env.fetchClass(className, lowerClassName, true);
+        /*if (entity == null)
+            entity = env.fetchMagicClass(className, lowerClassName);*/
+
+        if (entity == null) {
+            env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className));
+            return Memory.NULL;
+        }
+
+        ConstantEntity constantEntity = entity.findConstant(constant);
+        if (constantEntity == null){
+            env.error(trace, Messages.ERR_FATAL_UNDEFINED_CLASS_CONSTANT.fetch(constant));
+            return Memory.NULL;
+        }
+
+        return constantEntity.getValue();
+    }
+
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws Throwable {
         object = object.toValue();
@@ -231,6 +258,17 @@ final public class ObjectInvokeHelper {
 
         IObject iObject = ((ObjectMemory)object).value;
         return iObject.getReflection().getProperty(env, trace, iObject, property);
+    }
+
+    public static Memory getStaticProperty(String className, String lowerClassName, String property, Environment env,
+                                           TraceInfo trace) throws Throwable {
+        ClassEntity entity = env.fetchClass(className, lowerClassName, true);
+        if (entity == null) {
+            env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className));
+            return Memory.NULL;
+        }
+
+        return entity.getStaticProperty(env, trace, property);
     }
 
     private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){

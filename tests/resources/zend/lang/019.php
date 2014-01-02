@@ -13,7 +13,7 @@ while ($i<10) {
 }
 
 // eval('-');
---EXPECTF--
+--EXPECT--
 hey, this is a regular echo'd eval()
 hey, this is a function inside an eval()!
 hey, this is a regular echo'd eval()

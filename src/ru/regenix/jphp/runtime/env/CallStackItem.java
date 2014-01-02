@@ -17,7 +17,9 @@ public class CallStackItem {
 
     public String function;
     public String clazz;
+    public String staticClazz;
     public ClassEntity classEntity;
+    public ClassEntity staticClassEntity;
 
     public CallStackItem(TraceInfo trace) {
         this.trace = trace;
@@ -31,21 +33,26 @@ public class CallStackItem {
         this.clazz = copy.clazz;
     }
 
-    public CallStackItem(TraceInfo trace, IObject object, Memory[] args, String function, String clazz) {
+    public CallStackItem(TraceInfo trace, IObject object, Memory[] args, String function, String clazz,
+                         String staticClazz) {
         this.trace = trace;
         this.object = object;
         this.args = args;
         this.function = function;
         this.clazz = clazz;
+        this.staticClazz = staticClazz;
     }
 
-    public void setParameters(TraceInfo trace, IObject object, Memory[] args, String function, String clazz) {
+    public void setParameters(TraceInfo trace, IObject object, Memory[] args, String function, String clazz,
+                              String staticClazz) {
         this.trace = trace;
         this.object = object;
         this.args = args;
         this.function = function;
         this.clazz = clazz;
+        this.staticClazz = staticClazz;
         this.classEntity = null;
+        this.staticClassEntity = null;
     }
 
     public void clear(){

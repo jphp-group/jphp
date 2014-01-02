@@ -216,8 +216,10 @@ public class MethodEntity extends AbstractFunctionEntity {
         if (parameters != null && withArgs)
         for(ParameterEntity param : parameters){
             sb.append(param.getSignatureString());
-            if (i < parameters.length - 1)
+            if (i != parameters.length - 1)
                 sb.append(", ");
+
+            i++;
         }
 
         sb.append(")");

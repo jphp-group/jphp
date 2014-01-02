@@ -167,6 +167,20 @@ public class Environment {
                 Environment.this.echo("\n");
                 return false;
             }
+
+            @Override
+            public boolean onFatal(ErrorException error) {
+                Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
+                if (error.getTraceInfo() != null){
+                    Environment.this.echo(
+                        " in " + error.getTraceInfo().getFileName()
+                        + " on line " + error.getTraceInfo().getStartLine()
+                        + ", position " + error.getTraceInfo().getStartPosition()
+                    );
+                }
+                Environment.this.echo("\n");
+                return false;
+            }
         });
 
         this.globals.put("GLOBALS", this.globals);
@@ -183,7 +197,7 @@ public class Environment {
         environment.set(this);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz){
+    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
             System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
@@ -191,15 +205,15 @@ public class Environment {
         }
 
         if (callStackTop < maxCallStackTop)
-            callStack[callStackTop++].setParameters(trace, self, args, function, clazz);
+            callStack[callStackTop++].setParameters(trace, self, args, function, clazz, staticClazz);
         else
-            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz);
+            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
 
         maxCallStackTop = callStackTop;
     }
 
     public void pushCall(IObject self, String method, Memory... args){
-        pushCall(null, self, args, method, self.getReflection().getName());
+        pushCall(null, self, args, method, self.getReflection().getName(), null);
     }
 
     public void popCall(){
@@ -308,29 +322,43 @@ public class Environment {
         if (autoLoader != null)
             autoLoader.load(tmp);
 
-        return fetchClass(name, false, false);
+        return fetchClass(name, false);
     }
 
-    public ClassEntity fetchClass(String name, boolean magic) {
-        return fetchClass(name, magic, false);
+    public ClassEntity fetchClass(String name) {
+        return fetchClass(name, false);
     }
 
-    public ClassEntity fetchClass(String name, boolean magic, boolean autoLoad) {
-        return fetchClass(name, name.toLowerCase(), magic, autoLoad);
+    public ClassEntity fetchClass(String name, boolean autoLoad) {
+        return fetchClass(name, name.toLowerCase(), autoLoad);
     }
 
-    public ClassEntity fetchClass(String name, String nameL, boolean magic, boolean autoLoad) {
+    public ClassEntity fetchMagicClass(String name){
+        return fetchMagicClass(name, name.toLowerCase());
+    }
+
+    public ClassEntity fetchMagicClass(String name, String nameL){
+        if ("self".equals(nameL)){
+            ClassEntity e = getContextClass();
+            if (e == null)
+                e = getLateStaticClass();
+            return e;
+        } else if ("static".equals(nameL)){
+            return getLateStaticClass();
+        }/* else if ("parent".equals(nameL)){
+            ClassEntity e = getContextClass();
+            if (e == null)
+                e = getLateStaticClass();
+            return e == null ? null : e.getParent();
+        }*/ else
+            return null;
+    }
+
+    public ClassEntity fetchClass(String name, String nameL, boolean autoLoad) {
         ClassEntity entity = classMap.get(nameL);
-        if (magic && entity == null){
-            if ("self".equals(nameL)){
-                ClassEntity e = getContextClass();
-                if (e == null)
-                    e = getLateStaticClass();
-                return e;
-            }
-            if ("static".equals(nameL))
-                return getLastClassOnStack();
-        }
+        /*if (magic && entity == null){
+            entity = fetchMagicClass(name, nameL);
+        }*/
 
         if (entity == null){
             return autoLoad ? autoloadCall(name) : null;
@@ -657,7 +685,7 @@ public class Environment {
             included.put(module.getName(), module);
 
             Memory result;
-            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "include_once" : "include", null);
+            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "include_once" : "include", null, null);
             try {
                 result = module.include(this, locals);
             } finally {
@@ -762,7 +790,7 @@ public class Environment {
 
     public Memory __throwCatch(BaseException e, String className, String lowerClassName){
         ClassEntity origin = e.getReflection();
-        ClassEntity cause = fetchClass(className, lowerClassName, false, true);
+        ClassEntity cause = fetchClass(className, lowerClassName, true);
 
         if (cause.isInstanceOf(origin))
             return new ObjectMemory(e);
@@ -816,7 +844,15 @@ public class Environment {
         if (item == null || item.clazz == null)
             return "";
         else
-            return item.clazz;
+            return item.staticClazz != null ? item.staticClazz : item.clazz;
+    }
+
+    public IObject getLateObject(){
+        CallStackItem item = peekCall(0);
+        if (item == null)
+            return null;
+        else
+            return item.object;
     }
 
     public ClassEntity getLateStaticClass() {
@@ -824,10 +860,10 @@ public class Environment {
         if (item == null || item.clazz == null)
             return null;
         else {
-            if (item.classEntity != null)
+            if (item.staticClassEntity != null)
                 return item.classEntity;
 
-            return item.classEntity = fetchClass(item.clazz, false);
+            return item.staticClassEntity = fetchClass(item.staticClazz != null ? item.staticClazz : item.clazz, false);
         }
     }
 
@@ -844,7 +880,7 @@ public class Environment {
             if (item.classEntity != null)
                 return item.classEntity;
 
-            return item.classEntity = fetchClass(item.clazz, false, false);
+            return item.classEntity = fetchClass(item.clazz, false);
         }
     }
 

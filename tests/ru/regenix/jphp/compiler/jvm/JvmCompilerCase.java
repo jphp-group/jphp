@@ -4,19 +4,22 @@ import org.junit.Assert;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.exceptions.CustomErrorException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.ext.BCMathExtension;
 import ru.regenix.jphp.runtime.ext.CTypeExtension;
 import ru.regenix.jphp.runtime.ext.CoreExtension;
+import ru.regenix.jphp.runtime.ext.core.StringFunctions;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.util.PrintF;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tester.Test;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.File;
 import java.util.List;
@@ -128,6 +131,10 @@ abstract public class JvmCompilerCase {
     }
 
     public void check(String name){
+        check(name, false);
+    }
+
+    public void check(String name, boolean withErrors){
         File file;
         Environment environment = new Environment(newScope());
         Test test = new Test(file = new File(
@@ -143,12 +150,16 @@ abstract public class JvmCompilerCase {
 
 
             Memory memory = module.includeNoThrow(environment, environment.getGlobals());
-        } catch (ErrorException e){
-            throw new CustomErrorException(e.getType(), e.getMessage()
-                    + " line: "
-                    + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 2)
-                    + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
-                    e.getTraceInfo());
+        } catch (ErrorException e) {
+            if (withErrors){
+                environment.getErrorReportHandler().onFatal(e);
+            } else {
+                throw new CustomErrorException(e.getType(), e.getMessage()
+                        + " line: "
+                        + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 2)
+                        + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
+                        e.getTraceInfo());
+            }
         }
 
         try {
@@ -159,7 +170,18 @@ abstract public class JvmCompilerCase {
         lastOutput = environment.getDefaultBuffer().getOutputAsString();
 
         if (test.getExpect() != null)
-            Assert.assertEquals(test.getTest(), test.getExpect(), rtrim(lastOutput));
+            Assert.assertEquals(test.getTest() + " (" + name + ")", test.getExpect(), rtrim(lastOutput));
+
+        if (test.getExpectF() != null){
+
+            Memory result = StringFunctions.sscanf(
+                    environment, TraceInfo.valueOf(file.getName(), 0, 0), rtrim(lastOutput), test.getExpectF()
+            );
+            PrintF printF = new PrintF(environment.getLocale(), test.getExpectF(), ((ArrayMemory)result).values());
+            String out = printF.toString();
+
+            Assert.assertEquals(out, rtrim(lastOutput));
+        }
     }
 
     protected Memory run(String code){

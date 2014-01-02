@@ -337,7 +337,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected ClassEntity fetchClass(String name){
         ClassEntity result = compiler.getModule().findClass(name);
         if (result == null)
-            result = getCompiler().getEnvironment().fetchClass(name, false, true);
+            result = getCompiler().getEnvironment().fetchClass(name, true);
 
         return result;
     }
@@ -423,7 +423,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getMethods() != null){
             for (MethodStmtToken method : statement.getMethods()){
-                entity.addMethod(compiler.compileMethod(this, method, external));
+                ClassEntity.ClassAddResult result = entity.addMethod(compiler.compileMethod(this, method, external));
+                result.check(compiler.getEnvironment());
             }
         }
 

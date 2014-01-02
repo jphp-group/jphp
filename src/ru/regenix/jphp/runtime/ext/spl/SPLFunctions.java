@@ -81,16 +81,18 @@ public class SPLFunctions extends FunctionsContainer {
         return iterator_to_array(env, trace, object, true);
     }
 
-    public static Memory class_parents(Environment env, Memory object, boolean autoLoad){
+    public static Memory class_parents(Environment env, TraceInfo trace, Memory object, boolean autoLoad){
         ClassEntity entity;
         if (object.isObject()){
             entity = object.toValue(ObjectMemory.class).getReflection();
         } else {
-            entity = env.fetchClass(object.toString(), false, autoLoad);
+            entity = env.fetchClass(object.toString(), autoLoad);
         }
 
-        if (entity == null)
+        if (entity == null) {
+            env.warning(trace, "class_parents(): Class %s does not exist and could not be loaded", object.toString());
             return Memory.FALSE;
+        }
 
         ArrayMemory result = new ArrayMemory();
         do {
@@ -102,8 +104,37 @@ public class SPLFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory class_parents(Environment env, Memory object){
-        return class_parents(env, object, true);
+    public static Memory class_parents(Environment env, TraceInfo trace, Memory object){
+        return class_parents(env, trace, object, true);
+    }
+
+    public static Memory class_implements(Environment env, TraceInfo trace, Memory object, boolean autoLoad){
+        ClassEntity entity;
+        if (object.isObject()){
+            entity = object.toValue(ObjectMemory.class).getReflection();
+        } else {
+            entity = env.fetchClass(object.toString(), autoLoad);
+        }
+
+        if (entity == null) {
+            env.warning(trace, "class_implements(): Class %s does not exist and could not be loaded", object.toString());
+            return Memory.FALSE;
+        }
+
+        ArrayMemory result = new ArrayMemory();
+        do {
+            for (ClassEntity el : entity.getInterfaces().values()){
+                result.refOfIndex(el.getName()).assign(el.getName());
+            }
+            entity = entity.getParent();
+            if (entity == null) break;
+        } while (true);
+
+        return result.toConstant();
+    }
+
+    public static Memory class_implements(Environment env, TraceInfo trace, Memory object){
+        return class_implements(env, trace, object, true);
     }
 
     public static Memory spl_object_hash(Environment env, TraceInfo trace, Memory object){

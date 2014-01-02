@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Printf {
+public class PrintF {
     private static final BigInteger BIG_2_64 = BigInteger.ONE.shiftLeft(64);
     private static final BigInteger BIG_TEN = new BigInteger("10");
 
@@ -15,7 +15,7 @@ public class Printf {
     private final Locale locale;
     protected final Memory[] args;
 
-    public Printf(Locale locale, String format, Memory[] args){
+    public PrintF(Locale locale, String format, Memory[] args){
         this.locale = locale;
         this.format = format;
         this.args   = args;

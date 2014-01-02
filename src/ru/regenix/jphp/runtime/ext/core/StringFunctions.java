@@ -9,7 +9,8 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.util.Printf;
+import ru.regenix.jphp.runtime.util.PrintF;
+import ru.regenix.jphp.runtime.util.SScanF;
 import ru.regenix.jphp.util.DigestUtils;
 
 import javax.crypto.*;
@@ -90,9 +91,88 @@ public class StringFunctions extends FunctionsContainer {
             return -1;
     }
 
+    public static Memory sscanf(Environment env, TraceInfo trace, String string, String format,
+                                @Runtime.Reference Memory... args){
+        SScanF.Segment[] formatArray = SScanF.parse(env, trace, format);
+
+        int strlen = string.length();
+        int sIndex = 0;
+
+        boolean isReturnArray = args == null || args.length == 0;
+        int argIndex = 0;
+
+        if (strlen == 0) {
+            return isReturnArray ? Memory.NULL : Memory.CONST_INT_M1;
+        }
+
+        ArrayMemory array = new ArrayMemory();
+
+        for (int i = 0; i < formatArray.length; i++) {
+            SScanF.Segment segment = formatArray[i];
+            Memory var;
+
+            if (! segment.isAssigned()) {
+                var = null;
+            } else if (isReturnArray) {
+                var = array;
+            } else {
+                if (argIndex < args.length) {
+                    var = args[argIndex];
+
+                    if (sIndex < strlen)
+                        argIndex++;
+
+                }  else {
+                    env.warning(trace, "sscanf(): not enough variables passed in");
+                    var = new ReferenceMemory();
+                }
+            }
+
+            if (!(var instanceof ReferenceMemory))
+                var = new ReferenceMemory(var);
+
+            sIndex = segment.apply(string, strlen, sIndex, (ReferenceMemory)var, isReturnArray);
+
+            if (sIndex < 0) {
+                if (isReturnArray)
+                    return sscanfFillNull(array, formatArray, i);
+                else
+                    return LongMemory.valueOf(argIndex);
+            }
+        }
+
+        return sscanfReturn(env, trace, array, args, argIndex, isReturnArray, false);
+    }
+
+    private static Memory sscanfReturn(Environment env, TraceInfo trace,
+                                      ArrayMemory array,
+                                      Memory[] args,
+                                      int argIndex,
+                                      boolean isReturnArray,
+                                      boolean isWarn) {
+        if (isReturnArray)
+            return array;
+        else {
+            if (isWarn && args != null && argIndex != args.length)
+                env.warning(trace, "%s vars passed in but saw only %s '%' args", args.length, argIndex);
+
+            return LongMemory.valueOf(argIndex);
+        }
+    }
+
+    private static Memory sscanfFillNull(ArrayMemory array, SScanF.Segment[] formatArray, int fIndex) {
+        for (; fIndex < formatArray.length; fIndex++) {
+            SScanF.Segment segment = formatArray[fIndex];
+            if (segment.isAssigned())
+                array.add(Memory.NULL);
+        }
+        return array;
+    }
+
+
     public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args){
-        Printf printf = new Printf(env.getLocale(), format, args);
-        String result = printf.toString();
+        PrintF printF = new PrintF(env.getLocale(), format, args);
+        String result = printF.toString();
         if (result == null){
             env.warning(trace, "Too few arguments");
             return Memory.NULL;

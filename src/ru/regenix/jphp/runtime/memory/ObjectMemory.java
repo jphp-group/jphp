@@ -88,7 +88,7 @@ public class ObjectMemory extends Memory {
             // We can't get real trace info from toString method :(
             env.pushCall(
                     entity.methodMagicToString.getTrace(),
-                    value, null, entity.methodMagicToString.getName(), entity.getName()
+                    value, null, entity.methodMagicToString.getName(), entity.getName(), null
             );
             try {
                 Memory result = entity.methodMagicToString.invokeDynamic(value, env);
@@ -218,7 +218,7 @@ public class ObjectMemory extends Memory {
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 @Override
                 protected boolean init() {
-                    env.pushCall(null, ObjectMemory.this.value, null, "rewind", className);
+                    env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
                     try {
                         return iterator.rewind(env).toBoolean();
                     } finally {
@@ -240,15 +240,15 @@ public class ObjectMemory extends Memory {
                 public boolean next() {
                     boolean valid = false;
 
-                    env.pushCall(null, ObjectMemory.this.value, null, "valid", className);
+                    env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
                     try {
                         valid = iterator.valid(env).toBoolean();
                         if (valid) {
-                            env.pushCall(null, ObjectMemory.this.value, null, "key", className);
+                            env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
                             try {
                                 currentKey = iterator.key(env).toImmutable();
 
-                                env.pushCall(null, ObjectMemory.this.value, null, "current", className);
+                                env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
                                 try {
                                     currentValue = iterator.current(env);
                                     if (!getReferences)
@@ -264,7 +264,7 @@ public class ObjectMemory extends Memory {
                         env.popCall();
                     }
 
-                    env.pushCall(null, ObjectMemory.this.value, null, "next", className);
+                    env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
                     try {
                         iterator.next(env);
                     } finally {
@@ -290,7 +290,7 @@ public class ObjectMemory extends Memory {
     @Override
     public boolean instanceOf(Environment env, String className, String lowerClassName) {
         ClassEntity origin = value.getReflection();
-        ClassEntity what   = env.fetchClass(className, lowerClassName, true, true);
+        ClassEntity what   = env.fetchClass(className, lowerClassName, true);
         if (what == null) {
             /*env.triggerError(new FatalException(
                     Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className),

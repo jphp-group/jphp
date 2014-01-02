@@ -1660,6 +1660,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof GetVarExprToken){
                 writePushGetVar((GetVarExprToken)value, returnValue);
                 return null;
+            } else if (value instanceof StaticAccessExprToken){
+                writePushStaticAccess((StaticAccessExprToken)value, returnValue);
             }
 
         if (value instanceof NameToken){
@@ -2173,7 +2175,47 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePopAll(1);
     }
 
-    void writeDynamicAccess(DynamicAccessExprToken dynamic, boolean returnValue){
+    void writePushStaticAccess(StaticAccessExprToken token, boolean returnValue) {
+        boolean isConstant = token.getField() instanceof NameToken;
+        if (token.getField() == null)
+            unexpectedToken(token.getFieldExpr().getSingle());
+
+        ValueExprToken clazz = token.getClazz();
+        if (clazz instanceof NameToken){
+            writePushConstString(((NameToken)clazz).getName());
+            writePushConstString(((NameToken)clazz).getName().toLowerCase());
+        } else {
+            writePush(clazz, true, false);
+            writePopString();
+            writePushDupLowerCase();
+        }
+
+        if (isConstant){
+            writePushConstString(((NameToken)token.getField()).getName());
+            writePushEnv();
+            writePushTraceInfo(token);
+
+            writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
+                    Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+            );
+        } else {
+            if (!(token.getField() instanceof VariableExprToken))
+                unexpectedToken(token.getField());
+
+            writePushConstString(((VariableExprToken)token.getField()).getName());
+            writePushEnv();
+            writePushTraceInfo(token);
+
+            writeSysStaticCall(ObjectInvokeHelper.class, "getStaticProperty",
+                    Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+            );
+        }
+
+        if (!returnValue)
+            writePopAll(1);
+    }
+
+    void writePushDynamicAccess(DynamicAccessExprToken dynamic, boolean returnValue) {
         writeDynamicAccessPrepare(dynamic, false);
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
@@ -2493,7 +2535,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (operator instanceof DynamicAccessExprToken){
             if (writeOpcode)
-                writeDynamicAccess((DynamicAccessExprToken)operator, returnValue);
+                writePushDynamicAccess((DynamicAccessExprToken) operator, returnValue);
             return null;
         }
 

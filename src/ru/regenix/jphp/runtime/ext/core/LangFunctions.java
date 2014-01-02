@@ -451,7 +451,7 @@ public class LangFunctions extends FunctionsContainer {
             passed[0] = function;
         }
 
-        env.pushCall(trace, null, passed, "call_user_func", null);
+        env.pushCall(trace, null, passed, "call_user_func", null, null);
         try {
             return _call_user_func(env, trace, function, args);
         } finally {
@@ -463,7 +463,7 @@ public class LangFunctions extends FunctionsContainer {
             throws Throwable {
         if (expecting(env, trace, 2, args, Memory.Type.ARRAY)){
             Memory[] passed = new Memory[]{function, args};
-            env.pushCall(trace, null, passed, "call_user_func_array", null);
+            env.pushCall(trace, null, passed, "call_user_func_array", null, null);
             try {
                 return call_user_func(env, trace, function, ((ArrayMemory) args).values(true));
             } finally {
@@ -531,33 +531,60 @@ public class LangFunctions extends FunctionsContainer {
             ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
             classEntity = tmp.getReflection();
         } else {
-            classEntity = env.fetchClass(clazz.toString(), true, true);
+            String name = clazz.toString();
+            String nameL = name.toLowerCase();
+            classEntity = env.fetchClass(name, nameL, true);
+            if (classEntity == null)
+                classEntity = env.fetchMagicClass(name, nameL);
         }
 
         return classEntity.findMethod(method.toLowerCase()) != null;
     }
 
-    public static Memory property_exists(Environment env, Memory clazz, String property){
+    public static Memory property_exists(Environment env, Memory clazz, String property) throws Throwable {
         ClassEntity classEntity;
         IObject object = null;
+        boolean isMagic = false;
         if (clazz.isObject()){
             ObjectMemory tmp = clazz.toValue(ObjectMemory.class);
             classEntity = tmp.getReflection();
             object = tmp.value;
         } else {
-            classEntity = env.fetchClass(clazz.toString(), true, true);
+            String name = clazz.toString();
+            String nameL = name.toLowerCase();
+
+            classEntity = env.fetchClass(name, nameL, true);
+            if (classEntity == null) {
+                classEntity = env.fetchMagicClass(name, nameL);
+                isMagic = true;
+            }
         }
 
         if (classEntity == null){
-            return Memory.NULL;
+            return Memory.FALSE;
         }
 
         if (object != null){
             ArrayMemory props = object.getProperties();
-            return (props != null && props.getByScalar(property) != null)
+
+            ClassEntity context = env.getLastClassOnStack();
+            PropertyEntity entity = classEntity.isInstanceOf(context)
+                    ? context.properties.get(property) : classEntity.properties.get(property);
+
+            int accessFlags = entity == null ? 0 : entity.canAccess(env);
+            if (accessFlags != 0)
+                return Memory.FALSE;
+
+            return (props != null && props.getByScalar(entity == null ? property : entity.getSpecificName()) != null)
                     ? Memory.TRUE : Memory.FALSE;
         } else {
             PropertyEntity entity = classEntity.properties.get(property);
+            if (isMagic){
+                int accessFlags = entity == null ? 0 : entity.canAccess(env);
+                if (accessFlags != 0)
+                    return Memory.FALSE;
+            }
+
             return entity != null ? Memory.TRUE : Memory.FALSE;
         }
     }
@@ -568,11 +595,17 @@ public class LangFunctions extends FunctionsContainer {
         ClassEntity parentClass;
 
         if (allowedString && !object.isObject()){
-            classEntity = env.fetchClass(object.toString(), false, true);
+            String name = object.toString();
+            String nameL = name.toLowerCase();
+
+            classEntity = env.fetchClass(name, nameL, true);
+            if (classEntity == null)
+                classEntity = env.fetchMagicClass(name, nameL);
+
         } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
             classEntity = object.toValue(ObjectMemory.class).getReflection();
         }
-        parentClass = env.fetchClass(className, false, true);
+        parentClass = env.fetchClass(className, true);
 
         if (classEntity == null) {
             return Memory.NULL;
@@ -602,7 +635,7 @@ public class LangFunctions extends FunctionsContainer {
             CallStackItem item = env.peekCall(0);
             if (item.clazz != null){
                 if (item.classEntity == null)
-                    item.classEntity = env.fetchClass(item.clazz, false, false);
+                    item.classEntity = env.fetchClass(item.clazz, false);
 
                 if (item.classEntity == null)
                     return Memory.FALSE;
@@ -645,7 +678,7 @@ public class LangFunctions extends FunctionsContainer {
         CallStackItem item = env.peekCall(0);
         if (item.clazz != null){
             if (item.classEntity == null)
-                item.classEntity = env.fetchClass(item.clazz, false, false);
+                item.classEntity = env.fetchClass(item.clazz, false);
 
             if (item.classEntity == null)
                 return Memory.FALSE;

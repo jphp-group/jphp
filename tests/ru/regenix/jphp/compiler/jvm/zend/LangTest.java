@@ -49,5 +49,13 @@ public class LangTest extends JvmCompilerCase {
         check("zend/lang/035.php");
         check("zend/lang/036.php");
         check("zend/lang/037.php");
+
+        check("zend/lang/040.php");
+
+
+        check("zend/lang/array_shortcut_001.php");
+        check("zend/lang/array_shortcut_002.php");
+        check("zend/lang/array_shortcut_003.php");
+        check("zend/lang/array_shortcut_005.php");
     }
 }

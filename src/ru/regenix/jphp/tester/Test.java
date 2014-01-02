@@ -25,7 +25,7 @@ public class Test {
 
     protected String xfail;
     protected String expectHeaders;
-    protected String expect, expectIf, expectRegex, expectExternal, expectRegex_external;
+    protected String expect, expectF, expectRegex, expectExternal, expectRegex_external;
     protected String clean;
 
     private Map<String, String> _sections;
@@ -94,7 +94,7 @@ public class Test {
 
             this.expectHeaders = _sections.get("EXPECT_HEADERS");
             this.expect = _sections.get("EXPECT");
-            this.expectIf = _sections.get("EXPECTIF");
+            this.expectF = _sections.get("EXPECTF");
             this.expectRegex = _sections.get("EXPECTREGEX");
             this.expectExternal = _sections.get("EXPECTEXTERNAL");
             this.expectRegex_external = _sections.get("EXPECTREGEX_EXTERNAL");
@@ -102,8 +102,6 @@ public class Test {
             this.clean = _sections.get("CLEAN");
 
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -118,6 +116,10 @@ public class Test {
 
     public String getExpect() {
         return expect;
+    }
+
+    public String getExpectF() {
+        return expectF;
     }
 
     public String getTest() {

@@ -2,6 +2,7 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.FatalException;
@@ -13,6 +14,7 @@ import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
 import ru.regenix.jphp.runtime.lang.IObject;
+import ru.regenix.jphp.runtime.lang.support.MagicSignatureClass;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
@@ -39,7 +41,7 @@ public class ClassEntity extends Entity {
     protected Constructor nativeConstructor;
     protected ModuleEntity module;
 
-    public final Map<String, MethodEntity> methods;
+    protected final Map<String, MethodEntity> methods;
     public MethodEntity methodConstruct;
     public MethodEntity methodDestruct;
 
@@ -70,6 +72,8 @@ public class ClassEntity extends Entity {
     protected Type type = Type.CLASS;
 
     protected boolean isStatic;
+
+    protected static final ClassEntity magicSignatureClass = new ClassEntity(null, MagicSignatureClass.class);
 
     public ClassEntity(Context context) {
         super(context);
@@ -167,18 +171,20 @@ public class ClassEntity extends Entity {
                 result.check();
             }
 
-            Class<?> extend = nativeClazz.getSuperclass();
-            if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
-                String name = extend.getSimpleName();
-                if (extend.isAnnotationPresent(Reflection.Name.class)){
-                    name = extend.getAnnotation(Reflection.Name.class).value();
-                }
-                ClassEntity entity = scope.findUserClass(name);
-                if (entity == null || entity.getType() != Type.CLASS)
-                    throw new IllegalArgumentException("Class '"+name+"' not registered");
+            if (scope != null){
+                Class<?> extend = nativeClazz.getSuperclass();
+                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
+                    String name = extend.getSimpleName();
+                    if (extend.isAnnotationPresent(Reflection.Name.class)){
+                        name = extend.getAnnotation(Reflection.Name.class).value();
+                    }
+                    ClassEntity entity = scope.findUserClass(name);
+                    if (entity == null || entity.getType() != Type.CLASS)
+                        throw new IllegalArgumentException("Class '"+name+"' not registered");
 
-                ClassAddResult result = addInterface(entity);
-                result.check();
+                    ClassAddResult result = addInterface(entity);
+                    result.check();
+                }
             }
         }
 
@@ -261,12 +267,35 @@ public class ClassEntity extends Entity {
         return methods;
     }
 
-    public void addMethod(MethodEntity method){
+    public ClassAddResult addMethod(MethodEntity method){
         String name = method.getLowerName();
         if (name.equals(lowerName))
             name = "__construct";
 
+        ClassAddResult addResult = new ClassAddResult();
+        if (magicSignatureClass != null){
+            MethodEntity systemMethod = magicSignatureClass.findMethod(name.toLowerCase());
+            if (systemMethod != null) {
+                if (method.prototype == null)
+                    method.setPrototype(systemMethod);
+
+                if (systemMethod.getModifier() == Modifier.PUBLIC && method.getModifier() != Modifier.PUBLIC){
+                    addResult.mustBePublic.add(method);
+                    method.setModifier(Modifier.PUBLIC);
+                }
+
+                if (!systemMethod.equalsBySignature(method)){
+                    addResult.invalidSignature.add(method);
+                } else if (systemMethod.isStatic && !method.isStatic)
+                    addResult.mustStatic.add(method);
+                else if (!systemMethod.isStatic && method.isStatic){
+                    addResult.mustNonStatic.add(method);
+                }
+            }
+        }
+
         this.methods.put(name, method);
+        return addResult;
     }
 
     public int nextMethodIndex(){
@@ -300,7 +329,12 @@ public class ClassEntity extends Entity {
             for(MethodEntity method : parent.getMethods().values()){
                 MethodEntity implMethod = findMethod(method.getLowerName());
                 if (implMethod == null){
-                    addMethod(method);
+                    ClassAddResult addResult = addMethod(method);
+                    result.invalidSignature.addAll(addResult.invalidSignature);
+                    result.mustStatic.addAll(addResult.mustStatic);
+                    result.mustNonStatic.addAll(addResult.mustNonStatic);
+                    result.nonExists.addAll(addResult.nonExists);
+                    result.mustBePublic.addAll(addResult.mustBePublic);
                 } else {
                     implMethod.setPrototype(method);
                     if (!method.dynamicSignature && !implMethod.equalsBySignature(method)){
@@ -325,6 +359,8 @@ public class ClassEntity extends Entity {
         this.instanceOfList.addAll(parent.instanceOfList);
 
         this.properties.putAll(parent.properties);
+        this.staticProperties.putAll(parent.staticProperties);
+        this.constants.putAll(parent.constants);
         return updateParentMethods();
     }
 
@@ -343,6 +379,8 @@ public class ClassEntity extends Entity {
      */
     public ClassAddResult addInterface(ClassEntity _interface) {
         ClassAddResult result = new ClassAddResult();
+
+        this.constants.putAll(_interface.constants);
 
         this.interfaces.put(_interface.getLowerName(), _interface);
         this.instanceOfList.add(_interface.getLowerName());
@@ -399,15 +437,21 @@ public class ClassEntity extends Entity {
     }
 
     public void addProperty(PropertyEntity property){
-        if (property.isStatic())
-            throw new IllegalArgumentException("Property must be non-static");
+        if (property.isStatic()) {
+            PropertyEntity prototype = staticProperties.get(property.getLowerName());
+            if (prototype != null && prototype.getModifier() != property.getModifier()){
+                property.setPrototype(prototype);
+            }
 
-        PropertyEntity prototype = properties.get(property.getLowerName());
-        if (prototype != null && prototype.getModifier() != property.getModifier()){
-            property.setPrototype(prototype);
+            staticProperties.put(property.getLowerName(), property);
+        } else {
+            PropertyEntity prototype = properties.get(property.getLowerName());
+            if (prototype != null && prototype.getModifier() != property.getModifier()){
+                property.setPrototype(prototype);
+            }
+
+            properties.put(property.getLowerName(), property);
         }
-
-        properties.put(property.getLowerName(), property);
         property.setClazz(this);
     }
 
@@ -650,7 +694,9 @@ public class ClassEntity extends Entity {
                     if (methodMagicGet != null) {
                         try {
                             Memory[] args = new Memory[]{memoryProperty};
-                            env.pushCall(trace, object, args, methodMagicGet.getName(), name);
+                            env.pushCall(
+                                    trace, object, args, methodMagicGet.getName(), methodMagicSet.getClazz().getName(), name
+                            );
                             o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
                         } finally {
                             env.popCall();
@@ -661,7 +707,7 @@ public class ClassEntity extends Entity {
 
                 try {
                     Memory[] args = new Memory[]{memoryProperty, memory};
-                    env.pushCall(trace, object, args, methodMagicSet.getName(), name);
+                    env.pushCall(trace, object, args, methodMagicSet.getName(), methodMagicSet.getClazz().getName(), name);
                     methodMagicSet.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -700,7 +746,7 @@ public class ClassEntity extends Entity {
             if (methodMagicUnset != null) {
                 try {
                     Memory[] args = new Memory[]{new StringMemory(property)};
-                    env.pushCall(trace, object, args, methodMagicUnset.getName(), name);
+                    env.pushCall(trace, object, args, methodMagicUnset.getName(), methodMagicUnset.getClazz().getName(), name);
                     methodMagicUnset.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -735,7 +781,7 @@ public class ClassEntity extends Entity {
             Memory result;
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
-                env.pushCall(trace, object, args, methodMagicIsset.getName(), name);
+                env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -765,7 +811,7 @@ public class ClassEntity extends Entity {
             Memory result;
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
-                env.pushCall(trace, object, args, methodMagicIsset.getName(), name);
+                env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -777,11 +823,31 @@ public class ClassEntity extends Entity {
         return Memory.NULL;
     }
 
+    public Memory getStaticProperty(Environment env, TraceInfo trace, String property)
+            throws Throwable {
+        ClassEntity context = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(context)
+                ? context.staticProperties.get(property) : staticProperties.get(property);
+
+        if (entity == null){
+            env.error(trace, Messages.ERR_FATAL_ACCESS_TO_UNDECLARED_STATIC_PROPERTY.fetch(name, property));
+            return Memory.NULL;
+        }
+
+        int accessFlag = entity.canAccess(env);
+        if (accessFlag != 0) {
+            invalidAccessToProperty(env, trace, entity, accessFlag);
+            return Memory.NULL;
+        }
+
+        return env.getOrCreateStatic(entity.specificName, entity.getDefaultValue().toImmutable());
+    }
+
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
         ReferenceMemory value;
-        ClassEntity contex = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+        ClassEntity context = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -799,7 +865,7 @@ public class ClassEntity extends Entity {
             Memory result;
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
-                env.pushCall(trace, object, args, methodMagicGet.getName(), name);
+                env.pushCall(trace, object, args, methodMagicGet.getName(), methodMagicGet.getClazz().getName(), name);
                 result = methodMagicGet.invokeDynamic(object, env, args);
             } finally {
                 env.popCall();
@@ -844,12 +910,14 @@ public class ClassEntity extends Entity {
         final List<MethodEntity> invalidSignature;
         final List<MethodEntity> mustStatic;
         final List<MethodEntity> mustNonStatic;
+        final List<MethodEntity> mustBePublic;
 
         ClassAddResult() {
             this.nonExists = new ArrayList<MethodEntity>();
             this.invalidSignature = new ArrayList<MethodEntity>();
             this.mustStatic = new ArrayList<MethodEntity>();
             this.mustNonStatic = new ArrayList<MethodEntity>();
+            this.mustBePublic = new ArrayList<MethodEntity>();
         }
 
         public Collection<MethodEntity> getNonExists() {
@@ -942,6 +1010,13 @@ public class ClassEntity extends Entity {
                     throw e;
                 else
                     env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
+            }
+
+            for (MethodEntity el : mustBePublic){
+                if (env != null)
+                    env.warning(el.getTrace(),
+                            "The magic method %s must have public visibility", el.getSignatureString(false)
+                    );
             }
         }
     }

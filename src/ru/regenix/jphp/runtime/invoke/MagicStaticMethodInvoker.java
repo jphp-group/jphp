@@ -18,11 +18,11 @@ class MagicStaticMethodInvoker extends StaticMethodInvoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, null, args, methodName.toString(), calledClass);
+        env.pushCall(trace, null, args, methodName.toString(), method.getClazz().getName(), calledClass);
         env.pushCall(
                 trace, null,
                 new Memory[]{methodName, new ArrayMemory(true, args)},
-                method.getName(), calledClass
+                method.getName(), method.getClazz().getName(), calledClass
         );
     }
 

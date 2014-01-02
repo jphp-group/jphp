@@ -7,7 +7,9 @@ import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.env.message.WarningMessage;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -191,7 +193,7 @@ final public class InvokeHelper {
 
         Memory result;
         if (trace != null)
-            env.pushCall(trace, null, args, function.getName(), null);
+            env.pushCall(trace, null, args, function.getName(), null, null);
 
         try {
             result = function.invoke(env, trace, passed);
@@ -231,13 +233,19 @@ final public class InvokeHelper {
         ClassEntity classEntity = env.classMap.get(className);
         if (classEntity == null){
             // try autoload
-            classEntity = env.fetchClass(className, false, true);
+            classEntity = env.fetchClass(originClassName, className, true);
         }
 
-        MethodEntity method = classEntity == null ? null : classEntity.methods.get(methodName);
+        MethodEntity method = classEntity == null ? null : classEntity.findMethod(methodName);
         Memory[] passed = null;
 
+        IObject maybeObject = env.getLateObject();
         if (method == null){
+            if (maybeObject.getReflection().isInstanceOf(classEntity))
+                return ObjectInvokeHelper.invokeMethod(
+                        new ObjectMemory(maybeObject), originMethodName, methodName, env, trace, args
+                );
+
             if (classEntity != null && classEntity.methodMagicCallStatic != null){
                 method = classEntity.methodMagicCallStatic;
                 passed = new Memory[]{
@@ -251,12 +259,17 @@ final public class InvokeHelper {
                 }
             }
         }
+
         if (method == null){
             env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName));
             return Memory.NULL;
         }
+
         assert method != null;
         if (!method.isStatic()) {
+            if (maybeObject != null && maybeObject.getReflection().isInstanceOf(classEntity))
+                return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args);
+
             env.error(trace,
                     ErrorType.E_STRICT,
                     Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName)
@@ -277,7 +290,7 @@ final public class InvokeHelper {
 
         try {
             if (trace != null)
-                env.pushCall(trace, null, args, originMethodName, originClassName);
+                env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
 
             result = method.invokeStatic(env, passed);
         } finally {
@@ -301,7 +314,7 @@ final public class InvokeHelper {
         checkAccess(env, trace, method);
         try {
             if (trace != null)
-                env.pushCall(trace, null, args, originMethodName, originClassName);
+                env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
 
             result = method.invokeStatic(env, passed);
         } finally {

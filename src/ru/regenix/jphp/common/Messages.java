@@ -24,6 +24,7 @@ final public class Messages {
 
     public final static Item ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY = new Item("Cannot access protected property %s::$%s");
     public final static Item ERR_FATAL_ACCESS_TO_PRIVATE_PROPERTY = new Item("Cannot access private property %s::$%s");
+    public final static Item ERR_FATAL_ACCESS_TO_UNDECLARED_STATIC_PROPERTY = new Item("Access to undeclared static property: %s::$%s");
 
     public final static Item ERR_FATAL_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Static method %s() should not be called dynamically");
     public final static Item ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION = new Item("Pass incorrect number of arguments to function %s()");
@@ -55,6 +56,7 @@ final public class Messages {
     public final static Item ERR_NOTICE_USE_UNDEFINED_CONSTANT = new Item("Use of undefined constant %s - assumed '%s'");
     public final static Item ERR_NOTICE_RETURN_NOT_REFERENCE = new Item("Only variable references should be returned by reference");
     public final static Item ERR_NOTICE_UNDEFINED_PROPERTY = new Item("Undefined property: %s::$%s");
+    public final static Item ERR_FATAL_UNDEFINED_CLASS_CONSTANT = new Item("Undefined class constant '%s'");
 
     public final static Item ERR_FATAL_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'%s' operator accepts only positive numbers > 0");
 

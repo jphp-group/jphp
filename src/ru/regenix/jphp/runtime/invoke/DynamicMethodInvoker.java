@@ -30,7 +30,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, object, args, method.getName(), object.getReflection().getName());
+        env.pushCall(trace, object, args, method.getName(), method.getClazz().getName(), object.getReflection().getName());
     }
 
     @Override
@@ -46,13 +46,12 @@ public class DynamicMethodInvoker extends Invoker {
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, IObject object, String methodName){
         MethodEntity methodEntity = object.getReflection().findMethod(methodName.toLowerCase());
         if (methodEntity == null){
+            if (object.getReflection().methodMagicCall != null) {
+                return new MagicDynamicMethodInvoker(
+                        env, trace, object, object.getReflection().methodMagicCall, methodName
+                );
+            }
             if (trace == null) {
-                if (object.getReflection().methodMagicCall != null) {
-                    return new MagicDynamicMethodInvoker(
-                            env, trace, object, object.getReflection().methodMagicCall, methodName
-                    );
-                }
-
                 return null;
             }
             env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::" + methodName));

@@ -95,6 +95,9 @@ public class PropertyEntity extends Entity {
             default:
                 specificName = name;
         }
+
+        if (isStatic && clazz != null)
+            specificName = "\0" + clazz.getLowerName() + "#" + specificName;
     }
 
     @Override

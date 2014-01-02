@@ -24,7 +24,7 @@ public class FunctionInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, null, args, entity.getName(), null);
+        env.pushCall(trace, null, args, entity.getName(), null, null);
     }
 
     @Override

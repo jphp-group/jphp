@@ -44,7 +44,7 @@ public enum ErrorType {
             case E_COMPILE_WARNING: return "Compile warning";
             case E_CORE_ERROR: return "Core error";
             case E_CORE_WARNING: return "Core warning";
-            case E_ERROR: return "Error";
+            case E_ERROR: return "Fatal error";
             case E_PARSE: return "Parse error";
             case E_RECOVERABLE_ERROR: return "Recoverable error";
             case E_USER_DEPRECATED: return "User deprecated";

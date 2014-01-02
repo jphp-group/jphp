@@ -19,11 +19,11 @@ class MagicDynamicMethodInvoker extends DynamicMethodInvoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, object, args, methodName.toString(), object.getReflection().getName());
+        env.pushCall(trace, object, args, methodName.toString(), method.getClazz().getName(), object.getReflection().getName());
         env.pushCall(
                 trace, object,
                 new Memory[]{methodName, new ArrayMemory(true, args)},
-                method.getName(), object.getReflection().getName()
+                method.getName(), method.getClazz().getName(), object.getReflection().getName()
         );
     }
 

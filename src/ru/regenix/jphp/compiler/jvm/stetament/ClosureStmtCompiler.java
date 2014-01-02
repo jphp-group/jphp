@@ -49,7 +49,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         classStmtCompiler.setFunctionName(null);
         ClassEntity clazzEntity = classStmtCompiler.compile();
 
-        entity.methods.putAll(clazzEntity.methods);
+        entity.getMethods().putAll(clazzEntity.getMethods());
         if (clazzEntity.getParent() != null)
             entity.setParent(clazzEntity.getParent());
 
