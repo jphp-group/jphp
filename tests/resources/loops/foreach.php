@@ -6,15 +6,24 @@ foreach($arr as $el){
     $sum += $el;
 }
 
+if ($sum !== 10)
+    return 'fail_1';
+
 $index = 0;
 foreach($arr as $i => &$el){
     $el = 2;
     $index += $i;
 }
 
+if ($index !== 6)
+    return 'fail_2';
+
 foreach($arr as $el){
     $sum += $el; // 2
 }
+
+if ($sum !== 18)
+    return "fail_3: $sum != 18";
 
 $str = '';
 $hash = ['y' => 2, 'x' => 3];
@@ -23,9 +32,18 @@ foreach($hash as $key => $el){
     $sum -= $el;
 }
 
+if ($str !== 'yx')
+    return "fail_4: $str != yx";
+
+if ($sum !== 13)
+    return "fail_4: $sum != 13";
+
 foreach($arr as $i => $el){
     unset($arr[$i]);
 }
+
+if (sizeof($arr) !== 0)
+    return "fail_5: sizeof";
 
 $hash2 = $hash;
 foreach($hash2 as &$el){
@@ -33,6 +51,25 @@ foreach($hash2 as &$el){
 }
 
 $sum2 = $hash['x'] + $hash['y'] + $hash2['x'] + $hash2['y'];
+if ($sum2 !== 5)
+    return "fail_6: $sum2 != 5";
 
-return $sum === 13 && $index === 6 && $str === 'yx'
-    && sizeof($arr) === 0 && $sum2 == 5 ? 'success' : 'fail';
+$sum = 0;
+foreach($hash as $el[0][1]){
+    $sum += $el[0][1];
+}
+
+if ($sum !== 5)
+    return "fail_7: $sum != 5";
+
+
+$sum = 0;
+$el = new stdClass();
+foreach($hash as $el->prop){
+    $sum += $el->prop;
+}
+
+if ($sum !== 5)
+    return "fail_8: $sum != 5";
+
+return 'success';

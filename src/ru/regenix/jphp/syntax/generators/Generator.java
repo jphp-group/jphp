@@ -109,5 +109,12 @@ abstract public class Generator<T extends Token> {
         return iterator.next();
     }
 
+    protected Token nextTokenAndPrev(ListIterator<Token> iterator){
+        checkUnexpectedEnd(iterator);
+        Token result = iterator.next();
+        iterator.previous();
+        return result;
+    }
+
     abstract public T getToken(Token current, ListIterator<Token> iterator);
 }

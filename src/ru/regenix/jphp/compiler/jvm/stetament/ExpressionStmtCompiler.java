@@ -2107,22 +2107,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         );
     }
 
-    void writeDynamicAccessPrepare(DynamicAccessExprToken dynamic, boolean addLowerName){
-        if (stackEmpty(true))
-            unexpectedToken(dynamic);
-
-        StackItem o = stackPop();
-        writePush(o);
-
-        if (stackPeek().isConstant())
-            unexpectedToken(dynamic);
-        writePopBoxing();
-
-        if (dynamic instanceof DynamicAccessAssignExprToken){
-            writeExpression(((DynamicAccessAssignExprToken) dynamic).getValue(), true, false);
-            writePopBoxing(true);
-        }
-
+    void writeDynamicAccessInfo(DynamicAccessExprToken dynamic, boolean addLowerName){
         if (dynamic.getField() != null){
             if (dynamic.getField() instanceof NameToken){
                 String name = ((NameToken) dynamic.getField()).getName();
@@ -2145,6 +2130,25 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
         writePushEnv();
         writePushTraceInfo(dynamic);
+    }
+
+    void writeDynamicAccessPrepare(DynamicAccessExprToken dynamic, boolean addLowerName){
+        if (stackEmpty(true))
+            unexpectedToken(dynamic);
+
+        StackItem o = stackPop();
+        writePush(o);
+
+        if (stackPeek().isConstant())
+            unexpectedToken(dynamic);
+        writePopBoxing();
+
+        if (dynamic instanceof DynamicAccessAssignExprToken){
+            writeExpression(((DynamicAccessAssignExprToken) dynamic).getValue(), true, false);
+            writePopBoxing(true);
+        }
+
+        writeDynamicAccessInfo(dynamic, addLowerName);
     }
 
     void writeInstanceOf(InstanceofExprToken instanceOf, boolean returnValue){
@@ -2833,12 +2837,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new JumpInsnNode(IFEQ, end));
         stackPop();
 
-        writeVarLoad(foreachVariable);
         // $key
         if (token.getKey() != null) {
             LocalVariable key = method.getLocalVariable(token.getKey().getName());
 
-            writePushDup();
+            writeVarLoad(foreachVariable);
             writeSysDynamicCall(ForeachIterator.class, "getMemoryKey", Memory.class);
             if (token.isKeyReference()) {
                 throw new FatalException(
@@ -2852,13 +2855,39 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         // $var
         //LocalVariable variable = method.getLocalVariable(token.getValue().getName());
+        Token last = token.getValue().getLast();
+        if (last instanceof DynamicAccessExprToken){
+            DynamicAccessExprToken setter = (DynamicAccessExprToken)last;
 
-        writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
-        writeExpression(token.getValue(), true, false);
-        if (!token.isValueReference())
-            writePopImmutable();
+            ExprStmtToken value = new ExprStmtToken(token.getValue().getTokens());
+            value.getTokens().remove(value.getTokens().size() - 1);
+            writeExpression(value, true, false);
 
-        writeSysStaticCall(Memory.class, "assignRight", Memory.class, Memory.class, Memory.class);
+            writeVarLoad(foreachVariable);
+            writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
+            if (!token.isValueReference())
+                writePopImmutable();
+
+            writeDynamicAccessInfo(setter, false);
+
+            writeSysStaticCall(ObjectInvokeHelper.class,
+                    "assignProperty", Memory.class,
+                    Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
+            );
+        } else {
+            writeVarLoad(foreachVariable);
+            writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
+            if (!token.isValueReference())
+                writePopImmutable();
+
+            writeExpression(token.getValue(), true, false);
+            if (stackPeek().immutable)
+                unexpectedToken(token.getValue().getLast());
+
+            writeSysStaticCall(Memory.class,
+                    token.isValueReference() ? "assignRefRight" : "assignRight", Memory.class, Memory.class, Memory.class
+            );
+        }
         writePopAll(1);
                      /*
         if (token.isValueReference())

@@ -157,48 +157,45 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             next = nextToken(iterator);
         }
 
-        if (next instanceof VariableExprToken) {
-            VariableExprToken value = (VariableExprToken)next;
-            if (nextToken(iterator) instanceof KeyValueExprToken){
-                result.setKey(value);
-                result.setKeyReference(reference);
+        if (next instanceof VariableExprToken && nextTokenAndPrev(iterator) instanceof KeyValueExprToken){
+            iterator.next();
+            result.setKey((VariableExprToken)next);
+            result.setKeyReference(reference);
 
+            next = nextToken(iterator);
+            reference = false;
+            if (next instanceof AmpersandRefToken){
+                reference = true;
                 next = nextToken(iterator);
-                reference = false;
-                if (next instanceof AmpersandRefToken){
-                    reference = true;
-                    next = nextToken(iterator);
-                }
-
-                ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
-                        .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
-
-                Token single = eValue.getLast();
-
-                if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
-                        || single instanceof DynamicAccessExprToken))
-                    unexpectedToken(single);
-
-                result.setValue(eValue);
-                result.setValueReference(reference);
-
-            } else {
-                iterator.previous();
-                ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
-                        .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
-
-                Token single = eValue.getLast();
-
-                if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
-                        || single instanceof DynamicAccessExprToken))
-                    unexpectedToken(single);
-
-                result.setValue(eValue);
-                result.setValueReference(reference);
-                iterator.previous();
             }
-        } else
-            unexpectedToken(next, "$var");
+
+            ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
+                    .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+
+            Token single = eValue.getLast();
+
+            if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
+                    || single instanceof DynamicAccessExprToken))
+                unexpectedToken(single);
+
+            result.setValue(eValue);
+            result.setValueReference(reference);
+
+        } else {
+            //next = iterator.previous();
+            ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
+                    .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+
+            Token single = eValue.getLast();
+
+            if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
+                    || single instanceof DynamicAccessExprToken))
+                unexpectedToken(single);
+
+            result.setValue(eValue);
+            result.setValueReference(reference);
+        }
+            //unexpectedToken(next, "$var");
 
         next = nextToken(iterator);
         if (!isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
@@ -212,18 +209,24 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
         result.setBody(body);
 
+        Token last = result.getValue().getLast();
         if (analyzer.getFunction() != null) {
             if (result.getKey() != null){
                 analyzer.getFunction().getRefLocal().add(result.getKey());
                 analyzer.getFunction().getUnstableLocal().add(result.getKey());
             }
 
-            Token last = result.getValue().getLast();
             if (last instanceof VariableExprToken){
                 VariableExprToken variable = (VariableExprToken)last;
                 analyzer.getFunction().getRefLocal().add(variable);
                 analyzer.getFunction().getUnstableLocal().add(variable);
             }
+        }
+
+        if (last instanceof ArrayGetExprToken){
+            result.getValue().getTokens().set(
+                    result.getValue().getTokens().size() - 1, new ArrayGetRefExprToken((ArrayGetExprToken)last)
+            );
         }
 
         if (result.getKey() != null)

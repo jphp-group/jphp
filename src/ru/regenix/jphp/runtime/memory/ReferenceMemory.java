@@ -618,7 +618,7 @@ public class ReferenceMemory extends Memory {
         }
     }
 
-    private ReferenceMemory getReference(){
+    public ReferenceMemory getReference(){
         if (value.type == Type.REFERENCE){
             return ((ReferenceMemory)value).getReference();
         } else

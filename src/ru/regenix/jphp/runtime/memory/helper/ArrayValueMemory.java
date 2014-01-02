@@ -50,6 +50,13 @@ public class ArrayValueMemory extends ReferenceMemory {
     }
 
     @Override
+    public Memory assignRef(Memory reference) {
+        ArrayMemory dup = array.checkCopied();
+        if (dup != null) return dup.get(key).assignRef(reference);
+        return super.assignRef(reference);
+    }
+
+    @Override
     public Memory refOfPush() {
         ArrayMemory dup = array.checkCopied();
         if (dup != null) return dup.get(key).refOfPush();
@@ -89,5 +96,10 @@ public class ArrayValueMemory extends ReferenceMemory {
         ArrayMemory dup = array.checkCopied();
         if (dup != null) return dup.get(key).refOfIndex(index);
         return super.refOfIndex(index);
+    }
+
+    @Override
+    public ReferenceMemory getReference() {
+        return this;
     }
 }
