@@ -2851,13 +2851,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         // $var
-        LocalVariable variable = method.getLocalVariable(token.getValue().getName());
-        writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
+        //LocalVariable variable = method.getLocalVariable(token.getValue().getName());
 
+        writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
+        writeExpression(token.getValue(), true, false);
+        if (!token.isValueReference())
+            writePopImmutable();
+
+        writeSysStaticCall(Memory.class, "assignRight", Memory.class, Memory.class, Memory.class);
+        writePopAll(1);
+                     /*
         if (token.isValueReference())
             writeVarStore(variable, false, false);
         else
-            writeVarAssign(variable, false, true);
+            writeVarAssign(variable, false, true); */
 
         // body
         writeBody(token.getBody());

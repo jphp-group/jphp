@@ -875,6 +875,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
             } else if (current instanceof CommaToken){
                 if (separator == Separator.COMMA || separator == Separator.COMMA_OR_SEMICOLON){
+                    if (tokens.isEmpty())
+                        unexpectedToken(current);
                     break;
                 } else {
                     unexpectedToken(current);
@@ -889,12 +891,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof BreakToken){
                 break;
             } else if (current instanceof ColonToken){
-                if (separator == Separator.COLON || separator == Separator.COMMA_OR_SEMICOLON)
+                if (separator == Separator.COLON) {
+                    if (tokens.isEmpty())
+                        unexpectedToken(current);
                     break;
+                }
                 unexpectedToken(current);
             } else if (current instanceof SemicolonToken){ // TODO refactor!
-                if (separator == Separator.SEMICOLON || separator == Separator.COMMA_OR_SEMICOLON)
+                if (separator == Separator.SEMICOLON || separator == Separator.COMMA_OR_SEMICOLON) {
+                    if (tokens.isEmpty())
+                        unexpectedToken(current);
                     break;
+                }
 
                 if (separator == Separator.COMMA || closedBraceKind != null || tokens.isEmpty())
                     unexpectedToken(current);

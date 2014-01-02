@@ -10,9 +10,7 @@ import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.KeyValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
@@ -172,14 +170,30 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                     next = nextToken(iterator);
                 }
 
-                if (next instanceof VariableExprToken){
-                    result.setValue((VariableExprToken)next);
-                    result.setValueReference(reference);
-                } else
-                    unexpectedToken(next, "$var");
+                ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+
+                Token single = eValue.getLast();
+
+                if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
+                        || single instanceof DynamicAccessExprToken))
+                    unexpectedToken(single);
+
+                result.setValue(eValue);
+                result.setValueReference(reference);
 
             } else {
-                result.setValue(value);
+                iterator.previous();
+                ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+
+                Token single = eValue.getLast();
+
+                if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
+                        || single instanceof DynamicAccessExprToken))
+                    unexpectedToken(single);
+
+                result.setValue(eValue);
                 result.setValueReference(reference);
                 iterator.previous();
             }
@@ -204,13 +218,16 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 analyzer.getFunction().getUnstableLocal().add(result.getKey());
             }
 
-            analyzer.getFunction().getRefLocal().add(result.getValue());
-            analyzer.getFunction().getUnstableLocal().add(result.getValue());
+            Token last = result.getValue().getLast();
+            if (last instanceof VariableExprToken){
+                VariableExprToken variable = (VariableExprToken)last;
+                analyzer.getFunction().getRefLocal().add(variable);
+                analyzer.getFunction().getUnstableLocal().add(variable);
+            }
         }
 
         if (result.getKey() != null)
             analyzer.getLocalScope().add(result.getKey());
-        analyzer.getLocalScope().add(result.getValue());
 
         result.setLocal(analyzer.removeLocalScope());
     }

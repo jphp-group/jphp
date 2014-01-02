@@ -1,7 +1,7 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
-import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 
 import java.util.Set;
@@ -11,7 +11,7 @@ public class ForeachStmtToken extends StmtToken {
     private ExprStmtToken iterator;
     private BodyStmtToken body;
     private VariableExprToken key;
-    private VariableExprToken value;
+    private ExprStmtToken value;
 
     private boolean valueReference;
     private boolean keyReference;
@@ -44,14 +44,6 @@ public class ForeachStmtToken extends StmtToken {
         this.key = key;
     }
 
-    public VariableExprToken getValue() {
-        return value;
-    }
-
-    public void setValue(VariableExprToken value) {
-        this.value = value;
-    }
-
     public boolean isValueReference() {
         return valueReference;
     }
@@ -74,5 +66,13 @@ public class ForeachStmtToken extends StmtToken {
 
     public void setIterator(ExprStmtToken iterator) {
         this.iterator = iterator;
+    }
+
+    public ExprStmtToken getValue() {
+        return value;
+    }
+
+    public void setValue(ExprStmtToken value) {
+        this.value = value;
     }
 }
