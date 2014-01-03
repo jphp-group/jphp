@@ -92,6 +92,12 @@ abstract public class Generator<T extends Token> {
         return false;
     }
 
+    protected boolean isClosedBrace(Token token){
+        if (token instanceof BraceExprToken)
+            return ((BraceExprToken) token).isClosed();
+        return false;
+    }
+
     protected void checkUnexpectedEnd(ListIterator<Token> iterator){
         if (!iterator.hasNext()){
             iterator.previous();

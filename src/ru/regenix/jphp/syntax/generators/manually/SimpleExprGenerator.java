@@ -557,7 +557,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (current instanceof MinusExprToken){
             if (!(previous instanceof ValueExprToken
                     || previous instanceof ArrayGetExprToken
-                    || previous instanceof DynamicAccessExprToken)){
+                    || previous instanceof DynamicAccessExprToken
+                    || isClosedBrace(previous))){
                 return new UnarMinusExprToken(current.getMeta());
             }
         }

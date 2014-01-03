@@ -4,6 +4,8 @@ package ru.regenix.jphp.runtime.ext.core;
 import ru.regenix.jphp.compiler.common.compile.ConstantsContainer;
 
 public class LangConstants extends ConstantsContainer {
+    public final static int PHP_INT_SIZE = 8;
+
     public final static int DEBUG_BACKTRACE_PROVIDE_OBJECT = 1;
     public final static int DEBUG_BACKTRACE_IGNORE_ARGS = 2;
 

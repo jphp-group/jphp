@@ -4,16 +4,31 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 
+import java.math.BigInteger;
+
 public class IntegerExprToken extends ValueExprToken {
     private long value;
+    private BigInteger bigValue;
 
     public IntegerExprToken(TokenMeta meta) {
         super(meta, TokenType.T_LNUMBER);
-        this.value = Long.parseLong(meta.getWord());
+        try {
+            this.value = Long.parseLong(meta.getWord());
+        } catch (NumberFormatException e){
+            this.bigValue = new BigInteger(meta.getWord());
+        }
     }
 
     public long getValue() {
         return value;
+    }
+
+    public BigInteger getBigValue() {
+        return bigValue == null ? BigInteger.valueOf(value) : bigValue;
+    }
+
+    public boolean isBigValue(){
+        return bigValue != null;
     }
 
     public boolean isByte(){

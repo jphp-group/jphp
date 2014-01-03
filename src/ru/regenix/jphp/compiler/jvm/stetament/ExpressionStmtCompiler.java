@@ -1525,6 +1525,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     setStackPeekAsImmutable();
                 }
             } else {
+                if (!writeOpcode)
+                    return null;
                 writePushEnv();
                 writePushString(token.getName());
                 writePushString(token.getName().toLowerCase());

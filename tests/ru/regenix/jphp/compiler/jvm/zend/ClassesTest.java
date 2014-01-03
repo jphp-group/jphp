@@ -48,5 +48,11 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/private_007b.php");
 
         check("zend/classes/private_members.php");
+        check("zend/classes/private_redeclare.php", true);
+    }
+
+    @Test
+    public void testSingleton(){
+        check("zend/classes/singleton_001.php");
     }
 }

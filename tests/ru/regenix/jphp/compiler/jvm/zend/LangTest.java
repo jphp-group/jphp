@@ -58,4 +58,9 @@ public class LangTest extends JvmCompilerCase {
         check("zend/lang/array_shortcut_003.php");
         check("zend/lang/array_shortcut_005.php");
     }
+
+    @Test
+    public void testOperators(){
+        //check("zend/lang/operators/add_basiclong_64bit.php");
+    }
 }

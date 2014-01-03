@@ -566,6 +566,7 @@ public class Tokenizer {
         if (codeLength == 0)
             return null;
 
+        boolean first = true;
         while (currentPosition < codeLength){
             currentPosition++;
             relativePosition++;
@@ -600,6 +601,7 @@ public class Tokenizer {
                     return token;
                 } else {
                     init = true;
+                    first = true;
                     continue;
                 }
             }
@@ -608,7 +610,7 @@ public class Tokenizer {
                 return buildToken(OpenEchoTagToken.class, buildMeta(startPosition, startLine));
             }
 
-            if (!init || prevToken == null){
+            if (first && (!init || prevToken == null)){
                 // numbers: integers, doubles, hex
                 if (Character.isDigit(ch)){
                     return readNumber(startPosition, startLine);
@@ -627,6 +629,7 @@ public class Tokenizer {
                 }
             }
             init = true;
+            first = false;
 
             if (GrammarUtils.isDelimiter(ch)){
                 if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
@@ -634,6 +637,7 @@ public class Tokenizer {
                     startLine = currentLine;
                     startRelativePosition = relativePosition;
                     prevToken = null;
+                    first = true;
                     continue;
                 }
 

@@ -187,13 +187,15 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(environment.createContext("123foobar"));
+        tokenizer = new Tokenizer(environment.createContext("123foobar MAX_64Bit"));
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof NameToken);
         assertEquals("foobar", token.getWord());
+        assertTrue(tokenizer.nextToken() instanceof NameToken);
+        assertNull(tokenizer.nextToken());
 
         assertNull(tokenizer.nextToken());
     }
