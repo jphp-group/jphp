@@ -12,4 +12,5 @@ class Test {
 
 ?>
 --EXPECTF--
+
 Fatal error: Declaration of Test::__call() must be compatible with Object::__call($name, $arguments) in %s on line %d, position %d

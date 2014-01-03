@@ -5,22 +5,24 @@ import ru.regenix.jphp.common.Callback;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.FunctionGenerator;
+import ru.regenix.jphp.syntax.generators.Generator;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.Tokenizer;
-import ru.regenix.jphp.tokenizer.token.*;
+import ru.regenix.jphp.tokenizer.token.BreakToken;
+import ru.regenix.jphp.tokenizer.token.ColonToken;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
+import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.operator.cast.CastExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.AsStmtToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.syntax.generators.ExprGenerator;
-import ru.regenix.jphp.syntax.generators.Generator;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
 
 import java.util.*;
@@ -232,7 +234,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return callExprToken;
     }
 
-    protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, ListIterator<Token> iterator,
+    protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, Token prev, ListIterator<Token> iterator,
             BraceExprToken.Kind closedBraceKind, int braceOpened){
         DynamicAccessExprToken result = (DynamicAccessExprToken)current;
         if (next instanceof NameToken){
@@ -440,7 +442,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (current instanceof DynamicAccessExprToken){
-            return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
+            return processDynamicAccess(current, next, previous, iterator, closedBraceKind, braceOpened);
         }
 
         if (current instanceof OperatorExprToken) {

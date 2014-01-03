@@ -31,6 +31,8 @@ public class TokenMeta {
         int i = 0;
         int size = tokens.size();
         for(Token token : tokens){
+            if (token == null) continue;
+
             if (i == 0){
                 startPosition = token.getMeta().startPosition;
                 startLine = token.getMeta().startLine;

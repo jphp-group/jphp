@@ -39,7 +39,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
-        return method.canAccess(env, external);
+        return method.canAccess(env);
     }
 
     public static StaticMethodInvoker valueOf(Environment env, TraceInfo trace, String className, String methodName){

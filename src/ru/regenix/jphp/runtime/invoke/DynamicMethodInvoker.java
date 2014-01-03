@@ -40,7 +40,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
-        return method.canAccess(env, external);
+        return method.canAccess(env);
     }
 
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, IObject object, String methodName){

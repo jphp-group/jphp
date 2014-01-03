@@ -170,6 +170,7 @@ public class Environment {
 
             @Override
             public boolean onFatal(ErrorException error) {
+                Environment.this.echo("\n");
                 Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
                 if (error.getTraceInfo() != null){
                     Environment.this.echo(
@@ -178,7 +179,6 @@ public class Environment {
                         + ", position " + error.getTraceInfo().getStartPosition()
                     );
                 }
-                Environment.this.echo("\n");
                 return false;
             }
         });

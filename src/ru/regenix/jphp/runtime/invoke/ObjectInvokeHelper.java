@@ -1,12 +1,14 @@
 package ru.regenix.jphp.runtime.invoke;
 
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
+import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -102,7 +104,12 @@ final public class ObjectInvokeHelper {
         if (methodName == null) {
             method = clazz.methodMagicInvoke;
         } else {
-            method = clazz.findMethod(methodLowerName);
+            ClassEntity context = env.getLastClassOnStack();
+            method = context == null ? null : context.findMethod(methodLowerName);
+            if (method == null || method.getModifier() != Modifier.PRIVATE){
+                method = clazz.findMethod(methodLowerName);
+            }
+
             if (method == null && ((method = clazz.methodMagicCall) != null)){
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
                 doublePop = true;
@@ -281,6 +288,36 @@ final public class ObjectInvokeHelper {
         return ((ObjectMemory)object).value;
     }
 
+    public static Memory incAndGetProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws Throwable {
+        return assignPlusProperty(object, Memory.CONST_INT_1, property, env, trace);
+    }
+
+    public static Memory GetAndIncProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws Throwable {
+        IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
+
+        ReferenceMemory ref = new ReferenceMemory();
+        iObject.getReflection().plusProperty(env, trace, iObject, property, Memory.CONST_INT_1, ref);
+        return ref.value;
+    }
+
+    public static Memory decAndGetProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws Throwable {
+        return assignMinusProperty(object, Memory.CONST_INT_1, property, env, trace);
+    }
+
+    public static Memory GetAndDecProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws Throwable {
+        IObject iObject = fetchObject(object, property, env, trace);
+        if (iObject == null) return Memory.NULL;
+
+        ReferenceMemory ref = new ReferenceMemory();
+        iObject.getReflection().minusProperty(env, trace, iObject, property, Memory.CONST_INT_1, ref);
+        return ref.value;
+    }
+
     public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
@@ -292,14 +329,14 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().plusProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().plusProperty(env, trace, iObject, property, value, null);
     }
 
     public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().minusProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().minusProperty(env, trace, iObject, property, value, null);
     }
 
     public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)

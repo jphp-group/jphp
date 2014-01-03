@@ -1295,23 +1295,29 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode elseLabel = new LabelNode();
 
             writeVarLoad("~this");
-            writeSysDynamicCall(null, "isMock", Boolean.TYPE);
 
-            code.add(new JumpInsnNode(IFEQ, elseLabel));
-            stackPop();
+            if (method.statement.isStatic()) {
+                writePushNull();
+                writeVarStore(variable, false, false);
+            } else {
+                writeSysDynamicCall(null, "isMock", Boolean.TYPE);
 
-            writePushNull();
-            writeVarStore(variable, false, false);
+                code.add(new JumpInsnNode(IFEQ, elseLabel));
+                stackPop();
 
-            code.add(new JumpInsnNode(GOTO, endLabel));
-            code.add(elseLabel);
+                writePushNull();
+                writeVarStore(variable, false, false);
 
-            writeVarLoad("~this");
-            writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
-            makeVarStore(variable);
-            stackPop();
+                code.add(new JumpInsnNode(GOTO, endLabel));
+                code.add(elseLabel);
 
-            code.add(endLabel);
+                writeVarLoad("~this");
+                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
+                makeVarStore(variable);
+                stackPop();
+
+                code.add(endLabel);
+            }
         }
 
         variable.pushLevel();
@@ -2146,8 +2152,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePopBoxing();
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
-            writeExpression(((DynamicAccessAssignExprToken) dynamic).getValue(), true, false);
-            writePopBoxing(true);
+            if (((DynamicAccessAssignExprToken) dynamic).getValue() != null){
+                writeExpression(((DynamicAccessAssignExprToken) dynamic).getValue(), true, false);
+                writePopBoxing(true);
+            }
         }
 
         writeDynamicAccessInfo(dynamic, addLowerName);
@@ -2220,10 +2228,23 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (dynamic instanceof DynamicAccessAssignExprToken){
             OperatorExprToken operator = (OperatorExprToken) ((DynamicAccessAssignExprToken) dynamic).getAssignOperator();
-            writeSysStaticCall(ObjectInvokeHelper.class,
-                    operator.getCode() + "Property", Memory.class,
-                    Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
-            );
+            String code = operator.getCode();
+            if (operator instanceof IncExprToken || operator instanceof DecExprToken){
+                if (operator.getAssociation() == Association.RIGHT)
+                    code = code + "AndGet";
+                else
+                    code = "GetAnd" + code.substring(0, 1).toUpperCase() + code.substring(1);
+
+                writeSysStaticCall(ObjectInvokeHelper.class,
+                        code + "Property", Memory.class,
+                        Memory.class, String.class, Environment.class, TraceInfo.class
+                );
+            } else {
+                writeSysStaticCall(ObjectInvokeHelper.class,
+                        code + "Property", Memory.class,
+                        Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
+                );
+            }
         } else if (dynamic instanceof DynamicAccessUnsetExprToken){
             writeSysStaticCall(ObjectInvokeHelper.class,
                     "unsetProperty", void.class,
@@ -3232,6 +3253,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         boolean invalid = false;
         for(Token token : tokens){
+            if (token == null) continue;
+
             if (writeOpcode){
                 if (token instanceof StmtToken){
                     if (!(token instanceof ReturnStmtToken))

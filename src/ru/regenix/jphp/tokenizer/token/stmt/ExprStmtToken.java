@@ -29,11 +29,14 @@ public class ExprStmtToken extends StmtToken {
     }
 
     public void setTokens(List<Token> tokens) {
-        for (Token el : tokens)
+        for (Token el : tokens){
+            if (el == null) continue;
+
             if (!(el instanceof StmtToken)) {
                 isStmtList = false;
                 break;
             }
+        }
 
         this.tokens = tokens;
     }

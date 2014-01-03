@@ -11,6 +11,10 @@ import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.DecExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.DynamicAccessAssignExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.DynamicAccessExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.IncExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
@@ -77,11 +81,22 @@ public class ASMExpression {
 
         Stack<Token> checkStack = new Stack<Token>();
         i = 0;
+        Token prev = null;
+
         for(Token el : result){
             if (el instanceof OperatorExprToken){
                 OperatorExprToken operator = (OperatorExprToken)el;
                 if (!operator.isValidAssociation())
                     unexpectedToken(operator);
+
+                if ((el instanceof IncExprToken || el instanceof DecExprToken)
+                        && prev.getClass() == DynamicAccessExprToken.class){
+                    DynamicAccessAssignExprToken newAssign
+                            = new DynamicAccessAssignExprToken((DynamicAccessExprToken)prev);
+                    newAssign.setAssignOperator(el);
+                    result.set(i - 1, newAssign);
+                    result.set(i, null);
+                }
 
                 if (operator.isBinary()){
                     if (checkStack.size() < 2)
@@ -113,6 +128,7 @@ public class ASMExpression {
             }
 
             i++;
+            prev = el;
         }
 
         if (checkStack.size() > 1){

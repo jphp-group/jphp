@@ -39,7 +39,10 @@ abstract public class Printer {
         }
 
         switch (value.type){
-            case NULL: if (value != Memory.UNDEFINED)  printNull(); break;
+            case NULL:
+                //if (value != Memory.UNDEFINED)
+                    printNull();
+                break;
             case BOOL:
                 if (value instanceof TrueMemory)
                     printTrue();

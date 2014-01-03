@@ -280,16 +280,17 @@ public class ClassEntity extends Entity {
                     method.setPrototype(systemMethod);
 
                 if (systemMethod.getModifier() == Modifier.PUBLIC && method.getModifier() != Modifier.PUBLIC){
-                    addResult.mustBePublic.add(method);
+                    addResult.mustBePublic.add(ResultItem.warning(method));
                     method.setModifier(Modifier.PUBLIC);
                 }
 
                 if (!systemMethod.equalsBySignature(method)){
-                    addResult.invalidSignature.add(method);
+                    addResult.invalidSignature.add(ResultItem.error(method));
                 } else if (systemMethod.isStatic && !method.isStatic)
-                    addResult.mustStatic.add(method);
+                    addResult.mustStatic.add(ResultItem.error(method));
                 else if (!systemMethod.isStatic && method.isStatic){
-                    addResult.mustNonStatic.add(method);
+                    //method.setStatic(false);
+                    addResult.mustNonStatic.add(ResultItem.warning(method));
                 }
             }
         }
@@ -328,6 +329,8 @@ public class ClassEntity extends Entity {
         if (parent != null){
             for(MethodEntity method : parent.getMethods().values()){
                 MethodEntity implMethod = findMethod(method.getLowerName());
+                if (implMethod == method) continue;
+
                 if (implMethod == null){
                     ClassAddResult addResult = addMethod(method);
                     result.invalidSignature.addAll(addResult.invalidSignature);
@@ -338,11 +341,11 @@ public class ClassEntity extends Entity {
                 } else {
                     implMethod.setPrototype(method);
                     if (!method.dynamicSignature && !implMethod.equalsBySignature(method)){
-                        result.invalidSignature.add(implMethod);
+                        result.invalidSignature.add(ResultItem.error(implMethod));
                     } else if (implMethod.isStatic() && !method.isStatic()){
-                        result.mustNonStatic.add(implMethod);
+                        result.mustNonStatic.add(ResultItem.error(implMethod));
                     } else if (!implMethod.isStatic() && method.isStatic()){
-                        result.mustStatic.add(implMethod);
+                        result.mustStatic.add(ResultItem.error(implMethod));
                     }
                 }
             }
@@ -388,19 +391,21 @@ public class ClassEntity extends Entity {
 
         for(MethodEntity method : _interface.getMethods().values()){
             MethodEntity implMethod = findMethod(method.getLowerName());
+            if (implMethod == method) continue;
+
             if (implMethod == null){
                 addMethod(method);
                 if (type == Type.CLASS)
-                    result.nonExists.add(method);
+                    result.nonExists.add(ResultItem.error(method));
             } else {
                 implMethod.setPrototype(method);
 
                 if (!method.isDynamicSignature() && !implMethod.equalsBySignature(method)){
-                    result.invalidSignature.add(implMethod);
+                    result.invalidSignature.add(ResultItem.error(implMethod));
                 } else if (implMethod.isStatic() && !method.isStatic()){
-                    result.mustNonStatic.add(implMethod);
+                    result.mustNonStatic.add(ResultItem.error(implMethod));
                 } else if (!implMethod.isStatic() && method.isStatic()){
-                    result.mustStatic.add(implMethod);
+                    result.mustStatic.add(ResultItem.error(implMethod));
                 }
             }
         }
@@ -529,21 +534,37 @@ public class ClassEntity extends Entity {
         IObject object = (IObject) nativeConstructor.newInstance(env, this);
 
         ArrayMemory props = object.getProperties();
+
         for(PropertyEntity property : getProperties()) {
             //if (property.defaultValue != null)
-            PropertyEntity prototype = property.prototype;
-            while (prototype != null) {
+           // PropertyEntity prototype = property.prototype;
+            /*while (prototype != null) {
                 props.putAsKeyString(
                         prototype.getSpecificName(),
                         prototype.defaultValue == null ? Memory.NULL : prototype.defaultValue.toImmutable()
                 );
                 prototype = prototype.prototype;
+            }*/
+            if (id == property.clazz.getId()){
+                props.putAsKeyString(
+                        property.getSpecificName(),
+                        property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
+                );
             }
+        }
 
-            props.putAsKeyString(
-                    property.getSpecificName(),
-                    property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
-            );
+        ClassEntity tmp = parent;
+        while (tmp != null){
+            long otherId = tmp.getId();
+            for(PropertyEntity property : tmp.getProperties()) {
+                if (property.getClazz().getId() == otherId){
+                    props.getByScalarOrCreate(
+                            property.getSpecificName(),
+                            property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
+                    );
+                }
+            }
+            tmp = tmp.parent;
         }
 
         if (methodConstruct != null){
@@ -564,22 +585,28 @@ public class ClassEntity extends Entity {
     }
 
     public Memory plusProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory, final ReferenceMemory oldValue)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
+                if (oldValue != null)
+                    oldValue.assign(o1);
+
                 return o1.plus(o2);
             }
         });
     }
 
     public Memory minusProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory, final ReferenceMemory oldValue)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
+                if (oldValue != null)
+                    oldValue.assign(o1);
+
                 return o1.minus(o2);
             }
         });
@@ -734,8 +761,8 @@ public class ClassEntity extends Entity {
 
     public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
-        ClassEntity contex = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+        ClassEntity context = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -905,34 +932,52 @@ public class ClassEntity extends Entity {
     }
 
 
-    public class ClassAddResult {
-        final List<MethodEntity> nonExists;
-        final List<MethodEntity> invalidSignature;
-        final List<MethodEntity> mustStatic;
-        final List<MethodEntity> mustNonStatic;
-        final List<MethodEntity> mustBePublic;
+    public static class ResultItem {
+        public final MethodEntity method;
+        public final ErrorType errorType;
 
-        ClassAddResult() {
-            this.nonExists = new ArrayList<MethodEntity>();
-            this.invalidSignature = new ArrayList<MethodEntity>();
-            this.mustStatic = new ArrayList<MethodEntity>();
-            this.mustNonStatic = new ArrayList<MethodEntity>();
-            this.mustBePublic = new ArrayList<MethodEntity>();
+        protected ResultItem(MethodEntity method, ErrorType errorType) {
+            this.method = method;
+            this.errorType = errorType;
         }
 
-        public Collection<MethodEntity> getNonExists() {
+        public static ResultItem warning(MethodEntity method){
+            return new ResultItem(method, ErrorType.E_WARNING);
+        }
+
+        public static ResultItem error(MethodEntity method){
+            return new ResultItem(method, ErrorType.E_ERROR);
+        }
+    }
+
+    public class ClassAddResult {
+        final List<ResultItem> nonExists;
+        final List<ResultItem> invalidSignature;
+        final List<ResultItem> mustStatic;
+        final List<ResultItem> mustNonStatic;
+        final List<ResultItem> mustBePublic;
+
+        ClassAddResult() {
+            this.nonExists = new ArrayList<ResultItem>();
+            this.invalidSignature = new ArrayList<ResultItem>();
+            this.mustStatic = new ArrayList<ResultItem>();
+            this.mustNonStatic = new ArrayList<ResultItem>();
+            this.mustBePublic = new ArrayList<ResultItem>();
+        }
+
+        public Collection<ResultItem> getNonExists() {
             return nonExists;
         }
 
-        public Collection<MethodEntity> getInvalidSignature() {
+        public Collection<ResultItem> getInvalidSignature() {
             return invalidSignature;
         }
 
-        public Collection<MethodEntity> getMustStatic() {
+        public Collection<ResultItem> getMustStatic() {
             return mustStatic;
         }
 
-        public Collection<MethodEntity> getMustNonStatic() {
+        public Collection<ResultItem> getMustNonStatic() {
             return mustNonStatic;
         }
 
@@ -945,15 +990,22 @@ public class ClassEntity extends Entity {
         }
 
         public void check(Environment env){
+            boolean asWarning;
             if (!valid()){
+                asWarning = true;
                 StringBuilder needs = new StringBuilder();
-                Iterator<MethodEntity> iterator = getNonExists().iterator();
+                Iterator<ResultItem> iterator = getNonExists().iterator();
                 int size = 0;
-                while (iterator.hasNext()){
-                    MethodEntity el = iterator.next();
-                    needs.append(el.getClazz().getName())
+                ErrorType errorType = ErrorType.E_NOTICE;
+
+                while (iterator.hasNext()) {
+                    ResultItem el = iterator.next();
+                    if (el.errorType.value > errorType.value)
+                        errorType = el.errorType;
+
+                    needs.append(el.method.getClazz().getName())
                             .append("::")
-                            .append(el.getName());
+                            .append(el.method.getName());
 
                     if (iterator.hasNext())
                         needs.append(", ");
@@ -967,55 +1019,56 @@ public class ClassEntity extends Entity {
 
                 if (env == null)
                     throw e;
-                else
-                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
+                else {
+                    env.error(e.getTraceInfo(), errorType, e.getMessage());
+                }
             }
 
-            for(MethodEntity el : getInvalidSignature()){
+            for(ResultItem el : getInvalidSignature()){
                 ErrorException e = new FatalException(
                         Messages.ERR_FATAL_INVALID_METHOD_SIGNATURE.fetch(
-                                el.getSignatureString(true), el.getPrototype().getSignatureString(true)
+                                el.method.getSignatureString(true), el.method.getPrototype().getSignatureString(true)
                         ),
-                        el.getTrace()
+                        el.method.getTrace()
                 );
                 if (env == null)
                     throw e;
                 else
-                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
             }
 
-            for (MethodEntity el : getMustStatic()){
+            for (ResultItem el : getMustStatic()){
                 ErrorException e = new FatalException(
                         Messages.ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC.fetch(
-                                el.getPrototype().getSignatureString(false),
+                                el.method.getPrototype().getSignatureString(false),
                                 ClassEntity.this.getName()
                         ),
-                        el.getTrace()
+                        el.method.getTrace()
                 );
                 if (env == null)
                     throw e;
                 else
-                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
             }
 
-            for (MethodEntity el : getMustNonStatic()){
+            for (ResultItem el : getMustNonStatic()){
                 ErrorException e = new FatalException(
                         Messages.ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC.fetch(
-                                el.getPrototype().getSignatureString(false),
+                                el.method.getPrototype().getSignatureString(false),
                                 ClassEntity.this.getName()
                         ),
-                        el.getTrace()
+                        el.method.getTrace()
                 );
                 if (env == null)
                     throw e;
                 else
-                    env.error(e.getTraceInfo(), ErrorType.E_ERROR, e.getMessage());
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
             }
 
-            for (MethodEntity el : mustBePublic){
+            for (ResultItem el : mustBePublic){
                 if (env != null)
-                    env.warning(el.getTrace(),
-                            "The magic method %s must have public visibility", el.getSignatureString(false)
+                    env.error(el.method.getTrace(), el.errorType,
+                            "The magic method %s must have public visibility", el.method.getSignatureString(false)
                     );
             }
         }

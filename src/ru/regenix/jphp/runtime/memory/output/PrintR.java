@@ -1,12 +1,12 @@
 package ru.regenix.jphp.runtime.memory.output;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 
 import java.io.Writer;
 import java.util.Set;
@@ -156,19 +156,30 @@ public class PrintR extends Printer {
                     printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
                     Object key = iterator.getKey();
-                    PropertyEntity propertyEntity = classEntity.properties.get(key.toString());
                     printer.write('[');
 
-                    printer.write(key.toString());
-
-                    if (propertyEntity != null){
-                        switch (propertyEntity.getModifier()) {
-                            case PRIVATE:
-                                printer.write(":" + propertyEntity.getClazz().getName() + ":private");
-                                break;
-                            case PROTECTED:
-                                printer.write(":protected");
+                    String realKey = key.toString();
+                    int pos;
+                    Modifier modifier = Modifier.PUBLIC;
+                    String className = "";
+                    if ((pos = realKey.lastIndexOf("\0")) > -1){
+                        if (realKey.startsWith("\0*\0")){
+                            modifier = Modifier.PROTECTED;
+                        } else {
+                            modifier = Modifier.PRIVATE;
+                            className = realKey.substring(1, pos);
                         }
+                        realKey = realKey.substring(pos + 1);
+                    }
+
+                    printer.write(realKey);
+
+                    switch (modifier) {
+                        case PRIVATE:
+                            printer.write(":" + className + ":private");
+                            break;
+                        case PROTECTED:
+                            printer.write(":protected");
                     }
 
                     printer.write("] => ");

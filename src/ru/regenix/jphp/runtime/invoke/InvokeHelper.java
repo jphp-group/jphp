@@ -23,16 +23,23 @@ final public class InvokeHelper {
 
     public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method)
             throws InvocationTargetException, IllegalAccessException {
-        switch (method.canAccess(env, true)){
+        int access = method.canAccess(env);
+        if (access == 0)
+            return;
+
+        ClassEntity contextCls = env.getLastClassOnStack();
+        String context = contextCls == null ? "" : contextCls.getName();
+
+        switch (access){
             case 1: throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_PROTECTED_METHOD.fetch(
-                            method.getClazz().getName() + "::" + method.getName(), env.getContext()
+                            method.getClazz().getName() + "::" + method.getName(), context
                     ),
                     trace
             );
             case 2: throw new FatalException(
                     Messages.ERR_FATAL_CALL_TO_PRIVATE_METHOD.fetch(
-                            method.getClazz().getName() + "::" + method.getName(), env.getContext()
+                            method.getClazz().getName() + "::" + method.getName(), context
                     ),
                     trace
             );
