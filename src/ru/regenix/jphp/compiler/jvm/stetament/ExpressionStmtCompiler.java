@@ -2722,6 +2722,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
+    void writeDebugMessage(String message){
+        writePushEnv();
+        writePushConstString(message);
+        writeSysDynamicCall(Environment.class, "echo", void.class, String.class);
+    }
+
     void writeEchoRaw(EchoRawToken token){
         if (!token.getMeta().getWord().isEmpty()){
             writePushEnv();

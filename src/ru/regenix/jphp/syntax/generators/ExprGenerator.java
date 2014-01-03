@@ -380,7 +380,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     protected List<StaticStmtToken> processStatic(StaticExprToken token, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
         if (!(next instanceof VariableExprToken)){
-            //iterator.previous();
+            iterator.previous();
             return null;
         }
 

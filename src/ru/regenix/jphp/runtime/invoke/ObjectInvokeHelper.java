@@ -105,7 +105,7 @@ final public class ObjectInvokeHelper {
             method = clazz.methodMagicInvoke;
         } else {
             ClassEntity context = env.getLastClassOnStack();
-            method = context == null ? null : context.findMethod(methodLowerName);
+            method = context == null ? null : clazz.isInstanceOf(context) ? context.findMethod(methodLowerName) : null;
             if (method == null || method.getModifier() != Modifier.PRIVATE){
                 method = clazz.findMethod(methodLowerName);
             }
