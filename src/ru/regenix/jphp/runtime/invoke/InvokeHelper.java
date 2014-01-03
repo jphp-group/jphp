@@ -68,6 +68,9 @@ final public class InvokeHelper {
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
                                        TraceInfo trace){
+        if (parameters == null)
+            return args;
+
         Memory[] passed = args;
         if ((args == null && parameters.length > 0) || (args != null && args.length < parameters.length)){
             passed = new Memory[parameters.length];
@@ -77,7 +80,6 @@ final public class InvokeHelper {
         }
 
         int i = 0;
-        //assert passed != null;
         if (passed != null)
         for(ParameterEntity param : parameters){
             Memory arg = passed[i];
@@ -145,21 +147,14 @@ final public class InvokeHelper {
                 return Memory.NULL;
             }
 
-            assert one != null;
-            assert two != null;
             String methodName = two.toString();
             if (one.isObject())
                 return ObjectInvokeHelper.invokeMethod(one, methodName, methodName.toLowerCase(), env, trace, args);
             else {
                 String className = one.toString();
-                if ("self".equals(className)){
-                    ClassEntity e = env.getContextClass();
-                    if (e == null)
-                        e = env.getLateStaticClass();
-                    if (e != null)
-                        className = e.getName();
-                } else if ("static".equals(className))
-                    className = env.getLateStatic();
+                ClassEntity magic = env.fetchMagicClass(className);
+                if (magic != null)
+                    className = magic.getName();
 
                 return InvokeHelper.callStaticDynamic(
                         env,
@@ -189,19 +184,12 @@ final public class InvokeHelper {
 
     public static Memory call(Environment env, TraceInfo trace, FunctionEntity function, Memory[] args)
             throws Throwable {
-        Memory[] passed = function.parameters == null
-                ? args
-                : makeArguments(env, args, function.parameters, function.getName(), null, trace);
+        Memory[] passed = makeArguments(env, args, function.parameters, function.getName(), null, trace);
 
-        if (function.isImmutable()){
-            function.unsetArguments(passed);
-            return function.getResult().toImmutable();
-        }
+        Memory result = function.getImmutableResult();
+        if (result != null) return result;
 
-        Memory result;
-        if (trace != null)
-            env.pushCall(trace, null, args, function.getName(), null, null);
-
+        if (trace != null) env.pushCall(trace, null, args, function.getName(), null, null);
         try {
             result = function.invoke(env, trace, passed);
         } finally {
@@ -237,11 +225,7 @@ final public class InvokeHelper {
                                     String className, String methodName, String originClassName, String originMethodName,
                                     Memory[] args)
             throws Throwable {
-        ClassEntity classEntity = env.classMap.get(className);
-        if (classEntity == null){
-            // try autoload
-            classEntity = env.fetchClass(originClassName, className, true);
-        }
+        ClassEntity classEntity = env.fetchClass(originClassName, className, true);
 
         MethodEntity method = classEntity == null ? null : classEntity.findMethod(methodName);
         Memory[] passed = null;
@@ -272,7 +256,6 @@ final public class InvokeHelper {
             return Memory.NULL;
         }
 
-        assert method != null;
         if (!method.isStatic()) {
             if (maybeObject != null && maybeObject.getReflection().isInstanceOf(classEntity))
                 return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args);
@@ -281,19 +264,14 @@ final public class InvokeHelper {
                     ErrorType.E_STRICT,
                     Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName)
             );
-            //return Memory.NULL;
         }
 
         checkAccess(env, trace, method);
         if (passed == null)
             passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
 
-        Memory result;
-
-        if (method.isImmutable()){
-            method.unsetArguments(passed);
-            return method.getResult().toImmutable();
-        }
+        Memory result = method.getImmutableResult();
+        if (result != null) return result;
 
         try {
             if (trace != null)
@@ -315,13 +293,17 @@ final public class InvokeHelper {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
-        Memory result;
 
         checkAccess(env, trace, method);
+
+        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+        Memory result = method.getImmutableResult();
+        if (result != null)
+            return result;
+
         try {
             if (trace != null)
-                env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
+                env.pushCall(trace, null, args, originMethodName, method.getClazzName(), originClassName);
 
             result = method.invokeStatic(env, passed);
         } finally {

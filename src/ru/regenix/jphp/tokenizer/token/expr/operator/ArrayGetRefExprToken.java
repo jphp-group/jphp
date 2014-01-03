@@ -6,10 +6,19 @@ import java.util.List;
 
 public class ArrayGetRefExprToken extends ArrayGetExprToken {
     private List<ExprStmtToken> parameters;
+    private boolean isShortcut = false;
 
     public ArrayGetRefExprToken(ArrayGetExprToken token){
         super(token.getMeta());
         parameters = token.getParameters();
+    }
+
+    public boolean isShortcut() {
+        return isShortcut;
+    }
+
+    public void setShortcut(boolean shortcut) {
+        isShortcut = shortcut;
     }
 
     @Override

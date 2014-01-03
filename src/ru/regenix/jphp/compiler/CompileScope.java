@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class CompileScope {
 
+    public enum Mode { JPHP, PHP }
+
     protected final AtomicInteger moduleCount = new AtomicInteger(0);
     protected final AtomicLong classCount = new AtomicLong(0);
     protected final AtomicLong methodCount = new AtomicLong(0);
@@ -42,6 +44,7 @@ public class CompileScope {
     public final Set<String> superGlobals;
 
     public boolean debugMode = false;
+    public Mode mode = Mode.JPHP;
 
     public final ClassEntity stdClassEntity;
 
@@ -82,6 +85,14 @@ public class CompileScope {
         registerClass(new ClassEntity(this, IteratorAggregate.class));
 
         registerClass(new ClassEntity(this, Serializable.class));
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 
     public boolean isDebugMode() {

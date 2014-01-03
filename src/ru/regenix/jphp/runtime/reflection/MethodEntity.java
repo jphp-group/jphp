@@ -141,6 +141,10 @@ public class MethodEntity extends AbstractFunctionEntity {
         return clazz;
     }
 
+    public String getClazzName(){
+        return clazz.getName();
+    }
+
     public void setClazz(ClassEntity clazz) {
         this.clazz = clazz;
     }

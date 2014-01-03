@@ -167,6 +167,7 @@ abstract public class Memory {
     public Memory valueOfIndex(boolean index) { return NULL; }
 
     public Memory refOfIndex(Memory index) { return NULL; }
+    public Memory refOfIndexAsShortcut(Memory index) { return refOfIndex(index); }
     public Memory refOfIndex(long index) { return NULL; }
     public Memory refOfIndex(double index) { return NULL; }
     public Memory refOfIndex(String index) { return NULL; }

@@ -72,6 +72,13 @@ abstract public class AbstractFunctionEntity extends Entity {
         return isImmutable;
     }
 
+    public Memory getImmutableResult(){
+        if (isImmutable)
+            return getResult().toImmutable();
+
+        return null;
+    }
+
     public void setImmutable(boolean immutable) {
         isImmutable = immutable;
     }

@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
@@ -2299,6 +2300,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (returnValue)
                     writePushNull();
             } else {
+                // PHP CMP: $hack = &$arr[0];
+                if (compiler.getScope().getMode() == CompileScope.Mode.PHP){
+                    if (i == size - 1 && operator instanceof ArrayGetRefExprToken && ((ArrayGetRefExprToken) operator).isShortcut()){
+                        writePopBoxing();
+                        writeSysDynamicCall(Memory.class, methodName + "AsShortcut", Memory.class, Memory.class);
+                        continue;
+                    }
+                }
                 writeSysDynamicCall(Memory.class, methodName, Memory.class, stackPeek().type.toClass());
                 i++;
             }

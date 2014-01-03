@@ -732,6 +732,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (isRef){
             result = new ArrayGetRefExprToken(result);
+            ((ArrayGetRefExprToken)result).setShortcut(true);
         } else if (iterator.hasNext()){
             next = iterator.next();
             if (next instanceof AssignableOperatorToken || lastPush){
@@ -970,6 +971,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return getToken(current, iterator, false, null);
     }
 
+    @Override
     public boolean isAutomatic() {
         return false;
     }

@@ -114,14 +114,6 @@ final public class ObjectInvokeHelper {
                 passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
                 doublePop = true;
             }
-            /*if (method.isStatic()) { IT's not needed!!!
-                env.triggerError(new FatalException(
-                        Messages.ERR_FATAL_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(
-                                iObject.__class__.getName() + "::" + methodName
-                        ),
-                        trace
-                ));
-            }*/
         }
 
         String className = clazz.getName();
@@ -133,13 +125,13 @@ final public class ObjectInvokeHelper {
             env.error(trace, ErrorType.E_ERROR,
                     Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName)
             );
+            return Memory.NULL;
         }
 
-        if (passed == null) {
+        if (passed == null)
             passed = InvokeHelper.makeArguments(
                     env, args, method.parameters, className, methodName, trace
             );
-        }
 
         Memory result;
         InvokeHelper.checkAccess(env, trace, method);
@@ -166,8 +158,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory invokeMethod(IObject iObject, MethodEntity method,
-                                      Environment env, TraceInfo trace, Memory[] args)
-            throws Throwable {
+                                      Environment env, TraceInfo trace, Memory[] args) throws Throwable {
         ClassEntity clazz = iObject.getReflection();
         if (method == null)
             method = clazz.methodMagicInvoke;
@@ -176,6 +167,7 @@ final public class ObjectInvokeHelper {
 
         if (method == null){
             env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::__invoke"));
+            return Memory.NULL;
         }
 
         Memory[] passed = InvokeHelper.makeArguments(

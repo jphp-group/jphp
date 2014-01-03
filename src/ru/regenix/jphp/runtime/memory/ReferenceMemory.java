@@ -747,6 +747,16 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public Memory refOfIndexAsShortcut(Memory index){
+        needArray();
+        switch (value.type){
+            case STRING:
+                return refOfIndex(index);
+            default: return value.refOfIndexAsShortcut(index);
+        }
+    }
+
+    @Override
     public Memory refOfIndex(Memory index) {
         needArray();
         switch (value.type){

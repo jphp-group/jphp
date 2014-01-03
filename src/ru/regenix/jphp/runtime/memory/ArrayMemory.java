@@ -184,12 +184,30 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return getByScalarOrCreate(toKey(key));
     }
 
+    public ReferenceMemory getOrCreateAsShortcut(Memory key){
+        return getByScalarOrCreateAsShortcut(toKey(key));
+    }
+
     public ReferenceMemory getByScalarOrCreate(Object sKey, Memory initValue){
         ReferenceMemory value = getByScalar(sKey);
         if (value == null)
             return put(sKey, initValue);
 
         return value;
+    }
+
+    public ReferenceMemory getByScalarOrCreateAsShortcut(Object sKey){
+        //checkCopied();
+        ReferenceMemory value = getByScalar(sKey);
+        if (value == null)
+            return put(sKey, new ReferenceMemory(UNDEFINED));
+
+        if (value.isShortcut())
+            return (ReferenceMemory)value.value;
+        else {
+            put(sKey, new ReferenceMemory(value));
+            return value;
+        }
     }
 
     public ReferenceMemory getByScalarOrCreate(Object sKey){
@@ -352,7 +370,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 if (index >= 0){
                     if (index < size){
                         list.set(index, mem);
-                        this.size++;
+                        //this.size++;
                         return mem;
                     } else if (index == size){
                         list.add(mem);
@@ -884,6 +902,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     public Memory refOfPush(){
         checkCopied();
         return add(UNDEFINED);
+    }
+
+    @Override
+    public Memory refOfIndexAsShortcut(Memory index) {
+        checkCopied();
+        return getOrCreateAsShortcut(index);
     }
 
     @Override
