@@ -2,10 +2,10 @@ package ru.regenix.jphp.syntax.generators;
 
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.tokenizer.TokenType;
+import ru.regenix.jphp.exceptions.support.ErrorType;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.ListIterator;
 
@@ -33,24 +33,16 @@ abstract public class Generator<T extends Token> {
      * @param token
      */
     protected void unexpectedToken(Token token){
-        Object unexpected = token.getType();
-        if (token.getType() == TokenType.T_J_CUSTOM)
-            unexpected = token.getWord();
-
-        throw new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X.fetch(token.getWord()),
-                token.toTraceInfo(analyzer.getContext())
+        analyzer.getEnvironment().error(
+                token.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_X.fetch(token.getWord())
         );
     }
 
     protected void unexpectedToken(Token token, Object expected){
-        Object unexpected = token.getType();
-        if (token.getType() == TokenType.T_J_CUSTOM)
-            unexpected = token.getWord();
-
-        throw new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected),
-                token.toTraceInfo(analyzer.getContext())
+        analyzer.getEnvironment().error(
+                token.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected)
         );
     }
 
@@ -103,10 +95,10 @@ abstract public class Generator<T extends Token> {
             iterator.previous();
             Token current = iterator.next();
 
-            analyzer.getContext().triggerError(new ParseException(
-                    Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE.fetch(),
-                    current.toTraceInfo(analyzer.getContext())
-            ));
+            analyzer.getEnvironment().error(
+                    current.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
+                    Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE
+            );
         }
     }
 

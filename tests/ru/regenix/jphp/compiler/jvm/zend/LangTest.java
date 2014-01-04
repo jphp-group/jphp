@@ -62,5 +62,28 @@ public class LangTest extends JvmCompilerCase {
     @Test
     public void testOperators(){
         //check("zend/lang/operators/add_basiclong_64bit.php");
+        check("zend/lang/operators/add_variationStr.php");
+        check("zend/lang/operators/bitwiseAnd_variationStr.php");
+        check("zend/lang/operators/bitwiseNot_variationStr.php");
+        check("zend/lang/operators/bitwiseOr_variationStr.php");
+        check("zend/lang/operators/bitwiseShiftLeft_variationStr.php");
+        check("zend/lang/operators/bitwiseShiftRight_variationStr.php");
+        check("zend/lang/operators/bitwiseXor_variationStr.php");
+        check("zend/lang/operators/divide_variationStr.php");
+        check("zend/lang/operators/modulus_variationStr.php");
+        check("zend/lang/operators/multiply_variationStr.php");
+        check("zend/lang/operators/negate_variationStr.php");
+
+        check("zend/lang/operators/operator_equals_basic.php");
+        check("zend/lang/operators/operator_gt_basic.php");
+        check("zend/lang/operators/operator_gt_or_equal_basic.php");
+        check("zend/lang/operators/operator_identical_basic.php");
+        check("zend/lang/operators/operator_lt_basic.php");
+        check("zend/lang/operators/operator_lt_or_equal_basic.php");
+        check("zend/lang/operators/operator_notequals_basic.php");
+        check("zend/lang/operators/operator_notidentical_basic.php");
+
+        check("zend/lang/operators/postdec_variationStr.php");
+        //check("zend/lang/operators/postinc_variationStr.php");
     }
 }

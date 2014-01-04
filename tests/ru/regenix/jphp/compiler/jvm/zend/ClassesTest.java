@@ -15,6 +15,7 @@ public class ClassesTest extends JvmCompilerCase {
     public void testMagicCall(){
         check("zend/classes/__call_001.php");
         check("zend/classes/__call_002.php", true);
+        check("zend/classes/__call_003.php");
 
         check("zend/classes/__call_004.php");
         check("zend/classes/__call_005.php");

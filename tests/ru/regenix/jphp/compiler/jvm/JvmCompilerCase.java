@@ -42,13 +42,13 @@ abstract public class JvmCompilerCase {
 
     protected List<Token> getSyntaxTree(Context context){
         Tokenizer tokenizer = new Tokenizer(context);
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
         return analyzer.getTree();
     }
 
     protected SyntaxAnalyzer getSyntax(Context context){
         Tokenizer tokenizer = new Tokenizer(context);
-        return new SyntaxAnalyzer(tokenizer);
+        return new SyntaxAnalyzer(environment, tokenizer);
     }
 
     protected List<Token> getSyntaxTree(String code){

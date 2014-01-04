@@ -24,7 +24,7 @@ public class StringMemory extends Memory {
 
     @Override
     public long toLong() {
-        return toNumeric().toLong();
+        return toLongNumeric().toLong();
     }
 
     @Override
@@ -61,6 +61,14 @@ public class StringMemory extends Memory {
     }
 
     public static Memory toNumeric(String value){
+        return toNumeric(value, false, CONST_INT_0);
+    }
+
+    public Memory toLongNumeric(){
+        return toNumeric(value, true, CONST_INT_0);
+    }
+
+    public static Memory toNumeric(String value, boolean onlyInt, Memory def){
         int len = value.length();
         boolean real = false;
         int i = 0;
@@ -71,31 +79,40 @@ public class StringMemory extends Memory {
         }
 
         int start = i;
+        boolean canSign = true;
         boolean e_char = false;
+
         for(; i < len; i++){
             char ch = value.charAt(i);
             if (!('9' >= ch && ch >= '0')){
-                if (ch == '-'){
-                    if (i == start)
-                        continue;
+                if (canSign && (ch == '-' || ch == '+')){
+                    canSign = false;
+                    continue;
                 }
 
-                /*if (!e_char && ch == 'e' || ch == 'E'){
-                    e_char = true;
-                    continue;
-                }*/
+                if (!e_char && i != start && ((ch == 'e' || ch == 'E') && value.charAt(i - 1) != '.')){
+                    if (onlyInt)
+                        break;
 
+                    e_char = true;
+                    real = true;
+                    canSign = true;
+                    continue;
+                }
+
+                canSign = false;
                 if (ch == '.'){
-                    if (real)
+                    if (real || onlyInt)
                         break;
                     real = true;
                     continue;
                 }
-                if (i == 0)
-                    return CONST_INT_0;
+                if (i == start || (value.charAt(i - 1) == '-' || value.charAt(i - 1) == '+'))
+                    return def;
                 else
                     break;
             }
+            canSign = false;
         }
         if (real) {
             if (len == i && start == 0)
@@ -103,10 +120,14 @@ public class StringMemory extends Memory {
             else
                 return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
         } else {
-            if (len == i && start == 0)
+            if (len == 0)
+                return def;
+
+            if (len == i && start == 0){
                 return LongMemory.valueOf(Long.parseLong(value));
-            else
+            } else {
                 return LongMemory.valueOf(Long.parseLong(value.substring(start, i)));
+            }
         }
     }
 
@@ -117,12 +138,42 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory inc() {
-        return toNumeric().inc();
+        String str = toString();
+        if (str.isEmpty())
+            return CONST_INT_1;
+
+        char ch = str.charAt(str.length() - 1);
+        Memory ret = toNumeric(str, false, null);
+
+        if (ret == null || !Character.isDigit(ch)){
+            if ((ch >= 'a' && ch <= 'z')){
+                ch++;
+                if (ch > 'z')
+                    return new StringMemory(str.substring(0, str.length() - 1) + "za");
+                return new StringMemory(str.substring(0, str.length() - 1) + String.valueOf(ch));
+            }
+
+            if ((ch >= 'A' && ch <= 'Z')){
+                ch++;
+                if (ch > 'Z')
+                    return new StringMemory(str.substring(0, str.length() - 1) + "ZA");
+                return new StringMemory(str.substring(0, str.length() - 1) + String.valueOf(ch));
+            }
+
+            return this;
+        }
+
+        return ret.inc();
     }
 
     @Override
     public Memory dec() {
-        return toNumeric().dec();
+        String str = toString();
+        Memory ret = toNumeric(str, false, null);
+        // hack for php
+        if (ret == null || str.isEmpty() || !Character.isDigit(str.charAt(str.length() - 1)))
+            return this;
+        return ret.dec();
     }
 
     @Override
@@ -161,8 +212,13 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return toNumeric().mod(memory);
+    public Memory div(double value) {
+        return toNumeric().div(value);
+    }
+
+    @Override
+    public Memory div(String value) {
+        return toNumeric().div(value);
     }
 
     @Override
@@ -320,43 +376,51 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory bitNot() {
+        /*Memory value = toNumeric(toString(), null);
+        if (value != null)
+            return value.bitNot();*/
+
         return OperatorUtils.binaryNot(this);
     }
 
     @Override
     public Memory bitShr(Memory memory) {
-        if(memory.isString())
+        /*if(memory.isString())
             return OperatorUtils.binaryShr(this, memory);
-        else
-            return super.bitShr(memory);
+        else*/
+            return toLongNumeric().bitShr(memory);
     }
 
     @Override
     public Memory bitShr(String memory) {
-        return OperatorUtils.binaryShr(this, new StringMemory(memory));
+        return toLongNumeric().bitShr(memory);
+        //return OperatorUtils.binaryShr(this, new StringMemory(memory));
     }
 
     @Override
     public Memory bitShl(Memory memory) {
-        if(memory.isString())
+        /*if(memory.isString())
             return OperatorUtils.binaryShl(this, memory);
-        else
-            return super.bitShl(memory);
+        else */
+            return toLongNumeric().bitShl(memory);
     }
 
     @Override
     public Memory bitShl(String memory) {
-        return OperatorUtils.binaryShl(this, new StringMemory(memory));
+        return toLongNumeric().bitShl(memory);
+        //return OperatorUtils.binaryShl(this, new StringMemory(memory));
     }
 
     @Override
     public Memory bitShrRight(String value) {
-        return OperatorUtils.binaryShr(new StringMemory(value), this);
+        return toNumeric(value, true, CONST_INT_0).bitShr(this);
+        //return OperatorUtils.binaryShr(new StringMemory(value), this);
     }
 
     @Override
     public Memory bitShlRight(String value) {
-        return OperatorUtils.binaryShl(new StringMemory(value), this);
+        return toNumeric(value, true, CONST_INT_0).bitShl(this);
+        //return OperatorUtils.binaryShl(new StringMemory(value), this);
     }
 
     @Override

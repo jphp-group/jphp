@@ -397,7 +397,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             Tokenizer tokenizer = new Tokenizer(dynamic + ";", analyzer.getContext());
 
             try {
-                SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokenizer, analyzer.getFunction());
+                SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(analyzer.getEnvironment(), tokenizer, analyzer.getFunction());
                 List<Token> tree = syntaxAnalyzer.getTree();
                 analyzer.getLocalScope().addAll(syntaxAnalyzer.getLocalScope());
 

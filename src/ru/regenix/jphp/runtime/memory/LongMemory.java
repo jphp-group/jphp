@@ -162,17 +162,6 @@ public class LongMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        switch (memory.type){
-            case INT: return LongMemory.valueOf(value % ((LongMemory)memory).value);
-            case DOUBLE: return new DoubleMemory(value % ((DoubleMemory)memory).value);
-            case STRING: return mod(memory.toNumeric());
-            case REFERENCE: return mod(memory.toImmutable());
-            default: return new LongMemory(value % memory.toLong());
-        }
-    }
-
-    @Override
     public boolean identical(Memory memory) {
         return memory.type == Type.INT && ((LongMemory)memory).value == value;
     }
@@ -247,7 +236,7 @@ public class LongMemory extends Memory {
 
     @Override
     public boolean greaterEq(Memory memory) {
-        return memory.smallerEq(memory);
+        return memory.smallerEq(this);
     }
 
     @Override

@@ -1,10 +1,12 @@
 package ru.regenix.jphp.syntax;
 
+import ru.regenix.jphp.common.Directive;
+import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
-import ru.regenix.jphp.syntax.generators.ThrowGenerator;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.Token;
@@ -40,14 +42,22 @@ public class SyntaxAnalyzer {
     private Map<String, ConstStmtToken> constants;
     private List<ClosureStmtToken> closures;
 
-    public SyntaxAnalyzer(Tokenizer tokenizer){
-        this(tokenizer, null);
+    private Environment environment;
+    private LangMode langMode = null;
+
+    public SyntaxAnalyzer(Environment environment, Tokenizer tokenizer){
+        this(environment, tokenizer, null);
     }
 
-    public void reset(Tokenizer tokenizer){
+    public LangMode getLangMode() {
+        return langMode;
+    }
+
+    public void reset(Environment environment, Tokenizer tokenizer){
         removeLocalScope();
 
         tokenizer.reset();
+        this.environment = environment;
         this.tokenizer = tokenizer;
 
         this.function = null;
@@ -65,9 +75,10 @@ public class SyntaxAnalyzer {
         process();
     }
 
-    public SyntaxAnalyzer(Tokenizer tokenizer, FunctionStmtToken function) {
+    public SyntaxAnalyzer(Environment environment, Tokenizer tokenizer, FunctionStmtToken function) {
         if (tokenizer != null)
             tokenizer.reset();
+        this.environment = environment;
         this.tokenizer = tokenizer;
 
         this.function = function;
@@ -102,6 +113,10 @@ public class SyntaxAnalyzer {
         addLocalScope(true);
         if (tokenizer != null)
             process();
+    }
+
+    public Environment getEnvironment() {
+        return environment;
     }
 
     public void registerClass(ClassStmtToken clazz){
@@ -159,6 +174,17 @@ public class SyntaxAnalyzer {
                     continue;
             }
             tokens.add(token);
+        }
+
+        if (tokenizer.hasDirective("mode")){
+            Directive mode = tokenizer.getDirective("mode");
+            try {
+                this.langMode = LangMode.valueOf(mode.value.toUpperCase());
+            } catch (IllegalArgumentException e){
+                environment.warning(
+                        mode.getTraceInfo(getContext()), "Invalid value '%s' for directive 'mode'", mode.value
+                );
+            }
         }
 
         ListIterator<Token> iterator = tokens.listIterator();

@@ -41,7 +41,7 @@ public class LangFunctions extends FunctionsContainer {
     protected final static ThreadLocal<SyntaxAnalyzer> syntaxAnalyzer = new ThreadLocal<SyntaxAnalyzer>(){
         @Override
         protected SyntaxAnalyzer initialValue() {
-            return new SyntaxAnalyzer(null);
+            return new SyntaxAnalyzer(null, null);
         }
     };
 
@@ -51,7 +51,7 @@ public class LangFunctions extends FunctionsContainer {
         try {
             Tokenizer tokenizer = new Tokenizer(context);
             SyntaxAnalyzer analyzer = syntaxAnalyzer.get();
-            analyzer.reset(tokenizer);
+            analyzer.reset(env, tokenizer);
             AbstractCompiler compiler = new JvmCompiler(env, context, analyzer);
 
             ModuleEntity module = compiler.compile();
@@ -59,11 +59,12 @@ public class LangFunctions extends FunctionsContainer {
             env.registerModule(module);
 
             return module.include(env, locals);
-        } catch (ParseException e){
-            if (env.isHandleErrors(ErrorType.E_PARSE))
-                throw new ParseException(evalErrorMessage(e), trace);
         } catch (ErrorException e){
-            env.error(trace, e.getType(), e.getMessage());
+            if (e.getType() == ErrorType.E_PARSE){
+                if (env.isHandleErrors(ErrorType.E_PARSE))
+                    throw new ParseException(evalErrorMessage(e), trace);
+            } else
+                env.error(trace, e.getType(), e.getMessage());
         }
         return Memory.FALSE;
     }

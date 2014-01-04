@@ -1,5 +1,6 @@
 package ru.regenix.jphp.tokenizer;
 
+import ru.regenix.jphp.common.Directive;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.runtime.env.Context;
@@ -32,6 +33,8 @@ public class Tokenizer {
 
     protected boolean rawMode;
 
+    protected Map<String, Directive> directives = new HashMap<String, Directive>();
+
     public Tokenizer(Context context){
         this.context = context;
         this.code = context.getContent();
@@ -58,6 +61,20 @@ public class Tokenizer {
         this.tokenFinder = new TokenFinder();
         if (!rawMode)
             this.relativePosition = 0;
+
+        this.directives.clear();
+    }
+
+    public boolean hasDirective(String name){
+        return directives.get(name) != null;
+    }
+
+    public Directive getDirective(String name){
+        Directive value = directives.get(name);
+        if (value == null)
+            return null;
+        else
+            return value;
     }
 
     public String getCode() {
@@ -496,9 +513,25 @@ public class Tokenizer {
                         text,
                         startLine, currentLine, startRelativePosition, relativePosition
                 );
+
                 currentPosition = i;
                 relativePosition = pos;
-                return buildToken(CommentToken.class, meta);
+                Token result = buildToken(CommentToken.class, meta);
+
+                if (kind == CommentToken.Kind.SIMPLE && text.startsWith("//")){
+                    String directive = text.substring(2).trim();
+                    if (directive.startsWith("@@")){
+                        int p = directive.indexOf(' ');
+                        if (p != -1){
+                            String name = directive.substring(2, p);
+                            String value = p + 1 < directive.length() ? directive.substring(p + 1) : "";
+                            if (!directives.containsKey(name.toLowerCase()))
+                                directives.put(name.toLowerCase(), new Directive(value, result));
+                        }
+                    }
+                }
+
+                return result;
             }
         }
         assert false;

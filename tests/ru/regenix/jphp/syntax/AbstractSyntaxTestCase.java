@@ -13,7 +13,7 @@ abstract class AbstractSyntaxTestCase {
 
     protected List<Token> getSyntaxTree(String code){
         Tokenizer tokenizer = new Tokenizer(new Context(environment, code));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         return analyzer.getTree();
     }

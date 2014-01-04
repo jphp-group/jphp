@@ -27,4 +27,14 @@ public class NullMemory extends FalseMemory {
     public boolean identical(boolean value) {
         return false;
     }
+
+    @Override
+    public Memory inc() {
+        return CONST_INT_1;
+    }
+
+    @Override
+    public Memory dec() {
+        return CONST_INT_M1;
+    }
 }

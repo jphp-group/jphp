@@ -48,7 +48,7 @@ public class GrammarUtils {
     }
 
     public static boolean isDelimiter(char ch){
-        return "+-=/*:<>!?%@&^.|([{}]);,\t\n\r ".indexOf(ch) > -1;
+        return "~+-=/*:<>!?%@&^.|([{}]);,\t\n\r ".indexOf(ch) > -1;
     }
 
     public static boolean isNewline(char ch){

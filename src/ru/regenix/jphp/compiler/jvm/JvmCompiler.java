@@ -30,13 +30,13 @@ public class JvmCompiler extends AbstractCompiler {
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
 
     public JvmCompiler(Environment environment, Context context) {
-        this(environment, context, new SyntaxAnalyzer(new Tokenizer(context)));
+        this(environment, context, new SyntaxAnalyzer(environment, new Tokenizer(context)));
     }
 
     public JvmCompiler(Environment environment, Context context, SyntaxAnalyzer analyzer) {
         super(environment, context, analyzer);
         this.classes = new ArrayList<ClassStmtCompiler>();
-        this.module = new ModuleEntity(context);
+        this.module = new ModuleEntity(context, getLangMode());
         this.module.setId( scope.nextModuleIndex() );
     }
 

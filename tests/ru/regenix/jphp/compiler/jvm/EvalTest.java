@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 @RunWith(JUnit4.class)
@@ -31,7 +31,7 @@ public class EvalTest extends JvmCompilerCase {
         Assert.assertEquals("success", memory.toString());
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testError(){
         Memory memory = includeResource("eval/error.php");
         Assert.assertEquals("success", memory.toString());

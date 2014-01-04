@@ -35,7 +35,7 @@ public class Main {
 
             // compile
             Tokenizer tokenizer = new Tokenizer(context);
-            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
             AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
             ModuleEntity module = compiler.compile();
 

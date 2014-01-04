@@ -144,11 +144,12 @@ public class OperatorUtils {
         byte[] bytes1 = o1.getBinaryBytes();
         byte[] bytes2 = o2.getBinaryBytes();
 
-        byte[] result = bytes1.length <= bytes2.length
+        int min = Math.min(bytes1.length, bytes2.length);
+        byte[] result = bytes1.length > bytes2.length
                 ? Arrays.copyOf(bytes1, bytes1.length)
                 : Arrays.copyOf(bytes2, bytes2.length);
 
-        for(int i = 0; i < result.length; i++){
+        for(int i = 0; i < min; i++){
             result[i] = (byte)(bytes1[i] | bytes2[i]);
         }
         return new BinaryMemory(result);

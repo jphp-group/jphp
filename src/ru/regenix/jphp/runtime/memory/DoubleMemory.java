@@ -3,8 +3,6 @@ package ru.regenix.jphp.runtime.memory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 public class DoubleMemory extends Memory {
@@ -39,11 +37,62 @@ public class DoubleMemory extends Memory {
         return value != 0.0;
     }
 
-    public final static DecimalFormat format = new DecimalFormat("0.#", new DecimalFormatSymbols(Locale.ENGLISH));
-
     @Override
     public String toString() {
-        return String.valueOf(format.format(value));
+        long longValue = (long) value;
+
+        double abs = value < 0 ? - value : value;
+        int exp = (int) Math.log10(abs);
+        // php/0c02
+        if (longValue == value && exp < 18) {
+            return longValue > Integer.MAX_VALUE ? Double.toString(longValue) : String.valueOf(longValue);
+        }
+
+        if (-5 < exp && exp < 18) {
+            int pr = 13;
+
+            char[] tmp = Double.toString(value).toCharArray();
+            for(int i = 0; i < tmp.length; i++){
+                switch (tmp[i]){
+                    case '-': if (i == 0) continue; else break;
+                    case '0': pr += 1;
+                    case '.': continue;
+                }
+                break;
+            }
+
+            int digits = pr - exp;
+
+            if (digits > pr) {
+                digits = pr;
+            } else if (digits < 0) {
+                digits = 0;
+            }
+
+            String v = String.format(Locale.ENGLISH, "%." + digits + "f", value);
+
+            int len = v.length();
+            int nonzero = -1;
+            boolean dot = false;
+
+            int i = len - 1;
+            for(; i >= 0; i--){
+                char ch = v.charAt(i);
+                if (ch == '.')
+                    dot = true;
+
+                if (ch != '0' && nonzero < 0){
+                    nonzero = ch == '.' ? i - 1 : i;
+                }
+            }
+            if (dot && nonzero > 0) {
+                return v.substring(0, nonzero + 1);
+            } else {
+                return v;
+            }
+        } else {
+            return String.format(Locale.ENGLISH, "%.13E", value);
+        }
     }
 
     @Override
@@ -115,16 +164,6 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        switch (memory.type){
-            case INT: return new DoubleMemory(value % ((LongMemory)memory).value);
-            case DOUBLE: return new DoubleMemory(value % ((DoubleMemory)memory).value);
-            case REFERENCE: return mod(memory.toImmutable());
-            default: return mod(memory.toNumeric());
-        }
-    }
-
-    @Override
     public boolean equal(Memory memory) {
         switch (memory.type){
             case INT: return almostEqual(value, ((LongMemory)memory).value);
@@ -136,7 +175,7 @@ public class DoubleMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.INT && ((DoubleMemory)memory).value == value;
+        return memory.type == Type.DOUBLE && ((DoubleMemory)memory).value == value;
     }
 
     @Override

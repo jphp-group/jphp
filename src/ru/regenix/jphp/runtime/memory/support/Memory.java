@@ -86,6 +86,7 @@ abstract public class Memory {
 
     public static final Memory CONST_DOUBLE_0 = new DoubleMemory(0.0);
     public static final Memory CONST_DOUBLE_1 = new DoubleMemory(1.0);
+    public static final Memory CONST_DOUBLE_NAN = new DoubleMemory(Double.NaN);
 
     public static final Memory CONST_EMPTY_STRING = new StringMemory("");
 
@@ -185,7 +186,7 @@ abstract public class Memory {
     // CONCAT
     public String concat(Memory memory){  return toString() + memory.toString(); }
     public String concat(long value) { return toString() + value; }
-    public String concat(double value) { return toString() + DoubleMemory.format.format(value); }
+    public String concat(double value) { return toString() + new DoubleMemory(value).toString(); }
     public String concat(boolean value) { return toString() + boolToString(value); }
     public String concat(String value) { return toString() + value; }
 
@@ -218,11 +219,18 @@ abstract public class Memory {
     public Memory div(String value){ return div(StringMemory.toNumeric(value)); }
 
     // MOD
-    abstract public Memory mod(Memory memory);
+    public Memory mod(Memory memory) {
+        long t = memory.toLong();
+        if (t == 0)
+            return FALSE;
+
+        return LongMemory.valueOf(toLong() % t);
+    }
+
     public Memory mod(long value){ if (value==0) return FALSE; return LongMemory.valueOf(toLong() % value); }
     public Memory mod(double value){ return mod((long)value); }
     public Memory mod(boolean value){ if (!value) return FALSE; return LongMemory.valueOf(toLong() % 1); }
-    public Memory mod(String value){ return div(StringMemory.toNumeric(value)); }
+    public Memory mod(String value){ return mod(StringMemory.toNumeric(value, true, CONST_INT_0)); }
 
     // NOT
     public boolean not(){ return !toBoolean(); }

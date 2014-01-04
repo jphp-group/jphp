@@ -17,7 +17,7 @@ public class GreaterOrEqualExprToken extends OperatorExprToken {
 
     @Override
     public String getCode() {
-        return "greaterOr";
+        return "greaterEq";
     }
 
     @Override

@@ -8,6 +8,7 @@ import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
 import ru.regenix.jphp.runtime.memory.helper.ArrayKeyMemory;
 import ru.regenix.jphp.runtime.memory.helper.ArrayValueMemory;
+import ru.regenix.jphp.runtime.memory.helper.ShortcutMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
@@ -199,13 +200,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     public ReferenceMemory getByScalarOrCreateAsShortcut(Object sKey){
         //checkCopied();
         ReferenceMemory value = getByScalar(sKey);
-        if (value == null)
-            return put(sKey, new ReferenceMemory(UNDEFINED));
+        if (value == null) {
+            value = new ReferenceMemory(UNDEFINED);
+            return put(sKey, new ShortcutMemory(value));
+        }
 
-        if (value.isShortcut())
-            return (ReferenceMemory)value.value;
+        if (value instanceof ShortcutMemory)
+            return (ShortcutMemory)value.value;
         else {
-            put(sKey, new ReferenceMemory(value));
+            put(sKey, new ShortcutMemory(value));
             return value;
         }
     }
@@ -768,11 +771,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return toNumeric().mod(memory);
-    }
-
-    @Override
     public boolean equal(Memory memory) {
         switch (memory.type){
             case ARRAY:
@@ -1003,7 +1001,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     else
                         currentValue = new ArrayValueMemory(getMemoryKey(), ArrayMemory.this, value);
                 }  else
-                    currentValue = value.toValue();
+                    currentValue = value.value;
 
                 if (getKeyReferences) {
                     currentKeyMemory = new ArrayKeyMemory(ArrayMemory.this, getMemoryKey());

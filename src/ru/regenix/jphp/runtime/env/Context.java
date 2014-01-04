@@ -51,10 +51,6 @@ public class Context {
         this.content = result.toString();
     }
 
-    public Environment getEnvironment() {
-        return environment;
-    }
-
     public File getFile() {
         return file;
     }

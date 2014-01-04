@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.DieException;
@@ -21,6 +22,7 @@ public class ModuleEntity extends Entity {
     private byte[] data;
     private Class<?> nativeClazz;
     protected Method nativeMethod;
+    protected LangMode langMode;
 
     private final Map<String, ClassEntity> classes;
     private final List<FunctionEntity> functions;
@@ -31,13 +33,21 @@ public class ModuleEntity extends Entity {
 
     private final static Memory[] argsMock = new Memory[]{};
 
-    public ModuleEntity(Context context) {
+    public ModuleEntity(Context context, LangMode langMode) {
         super(context);
         this.classes = new LinkedHashMap<String, ClassEntity>();
         this.functions = new ArrayList<FunctionEntity>();
         this.constants = new LinkedHashMap<String, ConstantEntity>();
         this.closures = new ArrayList<ClosureEntity>();
         this.setName(context.getModuleNameNoThrow());
+    }
+
+    public ModuleEntity(Context context){
+        this(context, LangMode.JPHP);
+    }
+
+    public LangMode getLangMode() {
+        return langMode;
     }
 
     public int getId() {

@@ -68,12 +68,12 @@ public class TrueMemory extends Memory {
 
     @Override
     public Memory inc() {
-        return CONST_INT_2;
+        return this;
     }
 
     @Override
     public Memory dec() {
-        return CONST_INT_0;
+        return this;
     }
 
     @Override
@@ -149,18 +149,13 @@ public class TrueMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return mod(memory.toLong());
-    }
-
-    @Override
     public boolean equal(Memory memory) {
-        return toBoolean();
+        return memory.toBoolean();
     }
 
     @Override
     public boolean notEqual(Memory memory) {
-        return !toBoolean();
+        return !memory.toBoolean();
     }
 
     @Override
@@ -180,12 +175,24 @@ public class TrueMemory extends Memory {
 
     @Override
     public boolean greater(Memory memory) {
-        return false;
+        switch (memory.type){
+            case STRING:
+                String str = memory.toString();
+                if (str.isEmpty())
+                    return true;
+
+                Memory value = StringMemory.toNumeric(str, true, null);
+                return value != null && 1 > value.toLong();
+            case REFERENCE:
+                return greater(memory.toValue());
+            default:
+                return 1 > memory.toLong();
+        }
     }
 
     @Override
     public boolean greaterEq(Memory memory) {
-        return memory.toBoolean();
+        return 1 >= memory.toLong();
     }
 
     @Override

@@ -5,13 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void test1(){
         getSyntaxTree("$d =");
     }
@@ -21,28 +21,28 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("$d =;"); // it's checks on operators in compiler
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBraces1(){
         getSyntaxTree("(3 + 4");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBraces11(){
         getSyntaxTree("(cos($i) + 4");
     }
 
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBraces2(){
         getSyntaxTree("(3 + 4))");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBraces3(){
         getSyntaxTree("[3 + 4");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBraces4(){
         getSyntaxTree("[3 + 4]];");
     }
@@ -62,12 +62,12 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("$x = &call();");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testAmpersandRefEmpty(){
         getSyntaxTree("$x = &;");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testBlock(){
         getSyntaxTree("{ $x = 22; ");
     }
@@ -77,12 +77,12 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("{ $x = 20; }");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testIf(){
         getSyntaxTree("if(){ }");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testIf2(){
         getSyntaxTree("if(true) ");
     }
@@ -97,7 +97,7 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("global $x, $y, $z;");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testStaticsInvalid(){
         getSyntaxTree("static $x, $y;");
     }

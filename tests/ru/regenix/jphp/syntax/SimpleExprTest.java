@@ -25,7 +25,7 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
     @Test
     public void testSimpleCall(){
         Tokenizer tokenizer = new Tokenizer(new Context(environment, "myCall(1 * 2, func(3, 2), 4);"));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         List<Token> tokens = analyzer.getTree();
         Assert.assertTrue(tokens.size() == 1);

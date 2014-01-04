@@ -50,9 +50,14 @@ public class VarDump extends Printer {
     }
 
     @Override
-    protected void printDouble(DoubleMemory value) {
+    protected void printDouble(DoubleMemory avalue) {
         printer.write("float(");
-        printer.write(value.toString());
+
+        double value = avalue.toDouble();
+        if (value == 0.0 && Double.doubleToRawLongBits(value) != Double.doubleToRawLongBits(0.0))
+            printer.write("-");
+
+        printer.write(avalue.toString());
         printer.write(")\n");
     }
 

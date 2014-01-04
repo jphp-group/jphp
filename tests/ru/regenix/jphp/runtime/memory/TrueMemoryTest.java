@@ -210,7 +210,7 @@ public class TrueMemoryTest {
         Assert.assertTrue(Memory.TRUE.modRight(true) instanceof LongMemory);
         Assert.assertTrue(Memory.TRUE.modRight(1) instanceof LongMemory);
         Assert.assertTrue(Memory.TRUE.modRight(1).toLong() == 0);
-        Assert.assertTrue(Memory.TRUE.modRight(1.0) instanceof DoubleMemory);
-        Assert.assertEquals(0.3, Memory.TRUE.modRight(1.3).toDouble(), 0.000001);
+        Assert.assertTrue(Memory.TRUE.modRight(1.0) instanceof LongMemory);
+        Assert.assertEquals(0, Memory.TRUE.modRight(1.3).toDouble(), 0.000001);
     }
 }

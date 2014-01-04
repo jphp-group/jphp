@@ -27,7 +27,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     @Test
     public void testSimple(){
         Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc($x, &$y, $z = 33){  } $x = 10;"));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         ListIterator<Token> iterator = analyzer.getTree().listIterator();
         Token token;
@@ -58,7 +58,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     @Test
     public void testNoArguments(){
         Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc(){}"));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
         Assert.assertTrue(analyzer.getTree().get(0) instanceof FunctionStmtToken);
@@ -69,7 +69,7 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     @Test
     public void testInterfacable(){
         Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc();"));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
         Assert.assertTrue(analyzer.getTree().get(0) instanceof FunctionStmtToken);

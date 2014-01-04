@@ -238,6 +238,7 @@ public class TokenFinder {
                         ch = i + 1 < length ? word.charAt(i + 1) : 0;
 
                         if (ch == 'e' || ch == 'E'){
+                            isFloat = true;
                             sign_ch = true;
                         } else
                             return null;
@@ -256,7 +257,8 @@ public class TokenFinder {
                         return null;
                     break;
                 case 'e':case 'E':
-                    if (!e_ch && isFloat){
+                    if (!e_ch){
+                        isFloat = true;
                         ch = i + 1 < length ? word.charAt(i + 1) : 0;
                         if (!Character.isDigit(ch)){
                             if (ch == '-' || ch == '+'){

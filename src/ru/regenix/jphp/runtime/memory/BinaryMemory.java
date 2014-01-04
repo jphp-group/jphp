@@ -24,7 +24,17 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
+    public char toChar() {
+        return (char)((bytes == null || bytes.length == 0 ? 0 : bytes[0]) & 0xFF);
+    }
+
+    @Override
     public String toString() {
-        return new String(bytes);
+        char[] tmp = new char[bytes.length];
+        int length = bytes.length;
+        for(int i = 0; i < length; i++){
+            tmp[i] = (char)(bytes[i] & 0xFF);
+        }
+        return new String(tmp);
     }
 }

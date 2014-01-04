@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
@@ -32,12 +32,12 @@ public class ConstTest extends AbstractSyntaxTestCase {
         Assert.assertTrue(constant.getValue().getTokens().get(0) instanceof IntegerExprToken);
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testInvalid(){
         getSyntaxTree("const my_CONST = 22}");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testInvalid2(){
         getSyntaxTree("const my_CONST = ;");
     }

@@ -629,7 +629,7 @@ public class Environment {
         ModuleEntity module = scope.findUserModule(context.getModuleName());
         if (module == null){
             Tokenizer tokenizer = new Tokenizer(context);
-            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(this, tokenizer);
             JvmCompiler compiler = new JvmCompiler(this, context, analyzer);
 
             module = compiler.compile(true);

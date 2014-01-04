@@ -7,7 +7,7 @@ import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 
 /**
- * Silent mode token
+ * Silent langMode token
  * @ callfunc()
  */
 public class SilentToken extends OperatorExprToken {

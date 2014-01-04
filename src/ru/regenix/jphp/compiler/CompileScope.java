@@ -1,5 +1,6 @@
 package ru.regenix.jphp.compiler;
 
+import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
@@ -18,8 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CompileScope {
-
-    public enum Mode { JPHP, PHP }
 
     protected final AtomicInteger moduleCount = new AtomicInteger(0);
     protected final AtomicLong classCount = new AtomicLong(0);
@@ -44,7 +43,7 @@ public class CompileScope {
     public final Set<String> superGlobals;
 
     public boolean debugMode = false;
-    public Mode mode = Mode.JPHP;
+    public LangMode langMode = LangMode.JPHP;
 
     public final ClassEntity stdClassEntity;
 
@@ -87,12 +86,12 @@ public class CompileScope {
         registerClass(new ClassEntity(this, Serializable.class));
     }
 
-    public Mode getMode() {
-        return mode;
+    public LangMode getLangMode() {
+        return langMode;
     }
 
-    public void setMode(Mode mode) {
-        this.mode = mode;
+    public void setLangMode(LangMode langMode) {
+        this.langMode = langMode;
     }
 
     public boolean isDebugMode() {

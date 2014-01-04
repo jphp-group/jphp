@@ -222,11 +222,6 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return value.mod(memory);
-    }
-
-    @Override
     public Memory mod(long value) {
         return this.value.mod(value);
     }

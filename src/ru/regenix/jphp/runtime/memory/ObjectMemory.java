@@ -145,11 +145,6 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return toNumeric().mod(memory);
-    }
-
-    @Override
     public boolean equal(Memory memory) {
         return false;
     }

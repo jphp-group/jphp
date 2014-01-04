@@ -6,16 +6,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.MulExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -26,7 +26,7 @@ public class ASMExpressionTest {
 
     private ASMExpression getASMExpression(String expr){
         Tokenizer tokenizer = new Tokenizer(context = environment.createContext(expr + ";"));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(tokenizer);
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
         Assert.assertTrue(analyzer.getTree().get(0) instanceof ExprStmtToken);
@@ -87,7 +87,7 @@ public class ASMExpressionTest {
         Assert.assertTrue(expression.getTokens().get(2) instanceof MulExprToken);
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testWithBracesInvalid(){
         getASMExpression("1 + 2)");
     }
@@ -97,7 +97,7 @@ public class ASMExpressionTest {
         getASMExpression("[10]");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testInvalidBraces2(){
         getASMExpression("{x}");
     }

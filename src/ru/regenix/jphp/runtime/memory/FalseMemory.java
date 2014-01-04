@@ -36,12 +36,12 @@ public class FalseMemory extends Memory {
 
     @Override
     public Memory inc() {
-        return CONST_INT_1;
+        return this;
     }
 
     @Override
     public Memory dec(){
-        return LongMemory.valueOf(-1);
+        return this;
     }
 
     @Override
@@ -107,18 +107,13 @@ public class FalseMemory extends Memory {
     }
 
     @Override
-    public Memory mod(Memory memory) {
-        return div(memory);
-    }
-
-    @Override
     public boolean equal(Memory memory) {
         switch (memory.type){
             case INT: return (((LongMemory)memory).value == 0);
             case NULL: return true;
             case REFERENCE: return equal(memory.toImmutable());
             default:
-                return !toBoolean();
+                return !memory.toBoolean();
         }
     }
 
@@ -165,26 +160,34 @@ public class FalseMemory extends Memory {
     @Override
     public boolean greater(Memory memory) {
         switch (memory.type){
-            case INT: return 0 > ((LongMemory)memory).value;
-            case DOUBLE: return 0 > ((DoubleMemory)memory).value;
-            case BOOL: return 0 > memory.toLong();
-            case NULL: return false;
-            case REFERENCE: return greater(memory.toImmutable());
+            case STRING:
+                String str = memory.toString();
+                if (str.isEmpty())
+                    return false;
+
+                Memory value = StringMemory.toNumeric(str, true, null);
+                return value != null && 0 > value.toLong();
+            case REFERENCE:
+                return greater(memory.toValue());
             default:
-                return greater(memory.toBoolean());
+                return 0 > memory.toLong();
         }
     }
 
     @Override
     public boolean greaterEq(Memory memory) {
         switch (memory.type){
-            case INT: return 0 >= ((LongMemory)memory).value;
-            case DOUBLE: return 0 >= ((DoubleMemory)memory).value;
-            case BOOL: return 0 >= memory.toLong();
-            case NULL: return true;
-            case REFERENCE: return greaterEq(memory.toImmutable());
+            case STRING:
+                String str = memory.toString();
+                if (str.isEmpty())
+                    return true;
+
+                Memory value = StringMemory.toNumeric(str, true, null);
+                return value != null && 0 >= value.toLong();
+            case REFERENCE:
+                return greater(memory.toValue());
             default:
-                return greater(memory.toBoolean());
+                return 0 >= memory.toLong();
         }
     }
 

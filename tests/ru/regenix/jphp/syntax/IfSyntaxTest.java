@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.IfStmtToken;
@@ -56,12 +56,12 @@ public class IfSyntaxTest extends AbstractSyntaxTestCase {
         Assert.assertNotNull(token.getCondition());
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testInvalidAlternative(){
         getSyntaxTree("if (true){ 123; endif");
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = ErrorException.class)
     public void testInvalidAlternative2(){
         getSyntaxTree("if (true): 123; }");
     }

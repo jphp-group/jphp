@@ -482,11 +482,8 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static int ord(String value){
-        if (value.isEmpty())
-            return 0;
-        else
-            return value.charAt(0);
+    public static int ord(char value){
+        return value;
     }
 
     @Runtime.Immutable
