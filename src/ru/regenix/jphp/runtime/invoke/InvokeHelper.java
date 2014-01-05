@@ -294,7 +294,6 @@ final public class InvokeHelper {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-
         checkAccess(env, trace, method);
 
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);

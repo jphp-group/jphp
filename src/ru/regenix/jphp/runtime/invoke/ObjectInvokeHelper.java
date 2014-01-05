@@ -25,6 +25,13 @@ final public class ObjectInvokeHelper {
         Memory[] passed = null;
         boolean doublePop = false;
 
+        if (object.isNull()){
+            ClassEntity parent = env.__getParentClass(trace);
+            return InvokeHelper.callStatic(
+                    env, trace, parent.getLowerName(), methodLowerName, parent.getName(), methodName, args
+            );
+        }
+
         IObject iObject = ((ObjectMemory)object).value;
         ClassEntity childClazz = iObject.getReflection();
         ClassEntity clazz = childClazz.getParent();

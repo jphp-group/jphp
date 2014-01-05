@@ -897,6 +897,25 @@ public class Environment {
         return null;
     }
 
+    public ClassEntity __getParentClass(TraceInfo trace){
+        ClassEntity context = getLastClassOnStack();
+        if (context == null){
+            error(trace, "Cannot access parent:: when no class scope is active");
+            return null;
+        }
+        ClassEntity parent = context.getParent();
+        if (parent == null) {
+            error(trace, "Cannot access parent:: when current class scope has no parent");
+            return null;
+        }
+
+        return parent;
+    }
+
+    public String __getParent(TraceInfo trace){
+        return __getParentClass(trace).getName();
+    }
+
     public void autoloadRegister(SplClassLoader classLoader, boolean prepend){
         for (SplClassLoader loader : classLoaders)
             if (loader.equals(classLoader))

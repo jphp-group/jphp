@@ -2227,7 +2227,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushConstString(((NameToken)clazz).getName());
             writePushConstString(((NameToken)clazz).getName().toLowerCase());
         } else {
-            writePush(clazz, true, false);
+            if (clazz instanceof ParentExprToken){
+                writePushEnv();
+                writePushTraceInfo(clazz);
+                writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+            } else
+                writePush(clazz, true, false);
             writePopString();
             writePushDupLowerCase();
         }
