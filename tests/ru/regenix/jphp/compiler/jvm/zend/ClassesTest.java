@@ -56,4 +56,9 @@ public class ClassesTest extends JvmCompilerCase {
     public void testSingleton(){
         check("zend/classes/singleton_001.php");
     }
+
+    @Test
+    public void testThis(){
+        check("zend/classes/this.php", true);
+    }
 }

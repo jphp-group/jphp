@@ -87,7 +87,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     unexpectedToken(next);
 
                 analyzer.getLocalScope().add((VariableExprToken)next);
-                result.addVariable(((VariableExprToken) next).getName(), i, indexes);
+                result.addVariable(((VariableExprToken) next), i, indexes);
             } else if (next instanceof ListExprToken){
                 if (prev != null && !(prev instanceof CommaToken))
                     unexpectedToken(next);

@@ -1193,6 +1193,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         for(ExprStmtToken param : token.getParameters()){
             if (param.isSingle() && param.getSingle() instanceof VariableExprToken){
                 VariableExprToken variable = (VariableExprToken)param.getSingle();
+                checkAssignableVar(variable);
                 LocalVariable local = method.getLocalVariable(variable.getName());
 
                 if (local.isReference()){
@@ -1200,7 +1201,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeSysDynamicCall(Memory.class, "unset", void.class);
                 } else {
                     writePushNull();
-                    writeVarAssign(local, false, false);
+                    writeVarAssign(local, null, false, false);
                 }
                 local.setValue(null);
             } else if (param.isSingle() && param.getSingle() instanceof GetVarExprToken){
@@ -1305,7 +1306,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 code.add(new JumpInsnNode(IFEQ, elseLabel));
                 stackPop();
 
-                writePushNull();
+                if (variable.isReference()){
+                    writePushNewObject(ReferenceMemory.class);
+                } else {
+                    writePushNull();
+                }
                 writeVarStore(variable, false, false);
 
                 code.add(new JumpInsnNode(GOTO, endLabel));
@@ -1781,7 +1786,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    void writeVarAssign(LocalVariable variable, boolean returned, boolean asImmutable){
+    void checkAssignableVar(VariableExprToken var){
+        if (method.clazz.isClosure() || !method.clazz.isSystem()){
+            if (var.getName().equals("this"))
+                compiler.getEnvironment().error(var.toTraceInfo(compiler.getContext()), "Cannot re-assign $this");
+        }
+    }
+
+    void writeVarAssign(LocalVariable variable, VariableExprToken token, boolean returned, boolean asImmutable){
+        if (token != null)
+            checkAssignableVar(token);
+
         writePopBoxing(asImmutable);
 
         if (variable.isReference()){
@@ -1876,6 +1891,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     void writeVariableAssign(VariableExprToken variable, StackItem R, AssignExprToken operator, boolean returnValue){
         LocalVariable local = method.getLocalVariable(variable.getName());
+        checkAssignableVar(variable);
 
         Memory value = R.getMemory();
 
@@ -2142,7 +2158,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushConstLong(v.index);
             writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, stackPeek().type.toClass());
 
-            writeVarAssign(variable, false, true);
+            writeVarAssign(variable, v.var, false, true);
         }
 
         if (!returnValue)
@@ -2957,6 +2973,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         // $key
         if (token.getKey() != null) {
             LocalVariable key = method.getLocalVariable(token.getKey().getName());
+            checkAssignableVar(token.getKey());
 
             writeVarLoad(foreachVariable);
             writeSysDynamicCall(ForeachIterator.class, "getMemoryKey", Memory.class);
@@ -2967,7 +2984,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 );
                 // writeVarStore(key, false, false);
             } else
-                writeVarAssign(key, false, false);
+                writeVarAssign(key, null, false, false);
         }
 
         // $var
@@ -2992,6 +3009,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
             );
         } else {
+            if (token.getValue().getSingle() instanceof VariableExprToken)
+                checkAssignableVar((VariableExprToken)token.getValue().getSingle());
+
             writeVarLoad(foreachVariable);
             writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
             if (!token.isValueReference())
@@ -3198,7 +3218,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     Environment.class, "__throwCatch", Memory.class, BaseException.class, String.class, String.class
             );
 
-            writeVarAssign(local, true, false);
+            writeVarAssign(local, _catch.getVariable(), true, false);
             writePopBoolean();
             code.add(new JumpInsnNode(IFEQ, nextCatch));
             stackPop();

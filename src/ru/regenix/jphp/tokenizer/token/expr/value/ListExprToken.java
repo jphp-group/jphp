@@ -29,8 +29,8 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
         return variables;
     }
 
-    public Variable addVariable(String name, int index, List<Integer> indexes){
-        Variable var = new Variable(name, index, indexes);
+    public Variable addVariable(VariableExprToken v, int index, List<Integer> indexes){
+        Variable var = new Variable(v, index, indexes);
         variables.add(var);
         return var;
     }
@@ -41,12 +41,14 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
     }
 
     public class Variable {
+        public final VariableExprToken var;
         public final String name;
         public final int index;
         public final List<Integer> indexes;
 
-        public Variable(String name, int index, List<Integer> indexes) {
-            this.name = name;
+        public Variable(VariableExprToken var, int index, List<Integer> indexes) {
+            this.var = var;
+            this.name = var.getName();
             this.index = index;
             this.indexes = indexes;
         }

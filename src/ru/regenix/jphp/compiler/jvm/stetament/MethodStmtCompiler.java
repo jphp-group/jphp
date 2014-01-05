@@ -310,7 +310,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                 expressionCompiler.writeVarLoad(args);
                 expressionCompiler.writePushGetFromArray(i, Memory.class);
-                expressionCompiler.writeVarAssign(local, true, false);
+                expressionCompiler.writeVarAssign(local, argument.getName(), true, false);
 
                 // if length <= i then undefined
                 node.instructions.add(new JumpInsnNode(Opcodes.IFNONNULL, next));
@@ -321,7 +321,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 else
                     expressionCompiler.writeExpression(argument.getValue(), true, false);
 
-                expressionCompiler.writeVarAssign(local, false, false);
+                expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
                 node.instructions.add(next);
 
                 local.pushLevel();
