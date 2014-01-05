@@ -146,21 +146,61 @@ public class StringMemory extends Memory {
         Memory ret = toNumeric(str, false, null);
 
         if (ret == null || !Character.isDigit(ch)){
-            if ((ch >= 'a' && ch <= 'z')){
+
+            StringBuilder sb = new StringBuilder();
+
+            int length = str.length(), i = length - 1;
+            int type = -1;
+
+            while (i >= -1){
+                if (i >= 0)
+                    ch = str.charAt(i);
+                else {
+                    switch (type){
+                        case 0: sb.append('0'); break;
+                        case 1: sb.append('a'); break;
+                        case 2: sb.append('A'); break;
+                    }
+                    break;
+                }
+
+                if (ch >= '0' && ch <= '9') type = 0;
+                else if (ch >= 'a' && ch <= 'z') type = 1;
+                else if (ch >= 'A' && ch <= 'Z') type = 2;
+                else {
+                    i += 1;
+                    break;
+                }
+
                 ch++;
-                if (ch > 'z')
-                    return new StringMemory(str.substring(0, str.length() - 1) + "za");
-                return new StringMemory(str.substring(0, str.length() - 1) + String.valueOf(ch));
+                boolean next = false;
+                switch (type){
+                    case 0: if (ch > '9') {
+                        ch = '0';
+                        next = true;
+                    } break;
+                    case 1: if (ch > 'z') {
+                        ch = 'a';
+                        next = true;
+                    } break;
+                    case 2: if (ch > 'Z') {
+                        ch = 'A';
+                        next = true;
+                    }
+                }
+                if (type > -1)
+                    sb.insert(0, ch);
+
+                if (!next)
+                    break;
+
+                i--;
             }
 
-            if ((ch >= 'A' && ch <= 'Z')){
-                ch++;
-                if (ch > 'Z')
-                    return new StringMemory(str.substring(0, str.length() - 1) + "ZA");
-                return new StringMemory(str.substring(0, str.length() - 1) + String.valueOf(ch));
-            }
+            if (i > 0)
+                sb.insert(0, str.substring(0, i));
 
-            return this;
+            return new StringMemory(sb.toString());
         }
 
         return ret.inc();

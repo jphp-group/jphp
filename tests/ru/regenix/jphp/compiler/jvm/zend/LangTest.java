@@ -84,6 +84,9 @@ public class LangTest extends JvmCompilerCase {
         check("zend/lang/operators/operator_notidentical_basic.php");
 
         check("zend/lang/operators/postdec_variationStr.php");
-        //check("zend/lang/operators/postinc_variationStr.php");
+        check("zend/lang/operators/postinc_variationStr.php");
+        check("zend/lang/operators/predec_variationStr.php");
+        check("zend/lang/operators/preinc_variationStr.php");
+        check("zend/lang/operators/subtract_variationStr.php");
     }
 }

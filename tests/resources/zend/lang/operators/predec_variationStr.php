@@ -1,5 +1,5 @@
 --TEST--
-Test N++ operator : various numbers as strings
+Test --N operator : various numbers as strings
 --FILE--
 <?php
 
@@ -11,39 +11,38 @@ $strVals = array(
 
 foreach ($strVals as $strVal) {
    echo "--- testing: '$strVal' ---\n";
-   $strVal++;
-   var_dump($strVal);
+   var_dump(--$strVal);
 }
 
 ?>
 ===DONE===
 --EXPECT--
 --- testing: '0' ---
-int(1)
+int(-1)
 --- testing: '65' ---
-int(66)
+int(64)
 --- testing: '-44' ---
-int(-43)
+int(-45)
 --- testing: '1.2' ---
-float(2.2)
+float(0.2)
 --- testing: '-7.7' ---
-float(-6.7)
+float(-8.7)
 --- testing: 'abc' ---
-string(3) "abd"
+string(3) "abc"
 --- testing: '123abc' ---
-string(6) "123abd"
+string(6) "123abc"
 --- testing: '123e5' ---
-float(12300001)
+float(12299999)
 --- testing: '123e5xyz' ---
-string(8) "123e5xza"
+string(8) "123e5xyz"
 --- testing: ' 123abc' ---
-string(7) " 123abd"
+string(7) " 123abc"
 --- testing: '123 abc' ---
-string(7) "123 abd"
+string(7) "123 abc"
 --- testing: '123abc ' ---
 string(7) "123abc "
 --- testing: '3.4a' ---
-string(4) "3.4b"
+string(4) "3.4a"
 --- testing: 'a5.9' ---
-string(4) "a5.0"
+string(4) "a5.9"
 ===DONE===

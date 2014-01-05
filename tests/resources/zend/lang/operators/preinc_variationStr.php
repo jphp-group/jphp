@@ -1,5 +1,5 @@
 --TEST--
-Test N++ operator : various numbers as strings
+Test ++N operator : various numbers as strings
 --FILE--
 <?php
 
@@ -11,8 +11,7 @@ $strVals = array(
 
 foreach ($strVals as $strVal) {
    echo "--- testing: '$strVal' ---\n";
-   $strVal++;
-   var_dump($strVal);
+   var_dump(++$strVal);
 }
 
 ?>
