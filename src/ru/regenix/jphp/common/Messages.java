@@ -17,7 +17,7 @@ final public class Messages {
 
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_METHOD = new Item("Call to undefined method %s()");
-    public final static Item ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Non-static method %s() should not be called statically");
+    public final static Item ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Non-static method %s::%s() should not be called statically");
 
     public final static Item ERR_FATAL_CALL_TO_PRIVATE_METHOD = new Item("Call to private method %s() from context '%s'");
     public final static Item ERR_FATAL_CALL_TO_PROTECTED_METHOD = new Item("Call to protected method %s() from context '%s'");

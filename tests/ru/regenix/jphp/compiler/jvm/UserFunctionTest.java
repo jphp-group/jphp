@@ -82,4 +82,10 @@ public class UserFunctionTest extends JvmCompilerCase {
         Memory memory = includeResource("user_function/static_variables.php");
         Assert.assertEquals(33, memory.toLong());
     }
+
+    @Test
+    public void testWithConstDefault(){
+        Memory memory = includeResource("user_function/with_const_default.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

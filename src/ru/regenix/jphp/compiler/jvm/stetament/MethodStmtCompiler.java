@@ -2,6 +2,7 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -10,15 +11,18 @@ import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
-import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.helper.ClassConstantMemory;
+import ru.regenix.jphp.runtime.memory.helper.ConstantMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.ParameterEntity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.StaticAccessExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
@@ -245,6 +249,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             if (!statement.isStatic())
                 addLocalVariable("~this", label, Object.class);
 
+            ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+
             addLocalVariable("~env", label, Environment.class); // Environment env
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
 
@@ -253,7 +259,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     addLocalVariable("~passedLocal", label, ArrayMemory.class);
 
                 LocalVariable local = addLocalVariable("~local", label, ArrayMemory.class);
-                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
 
                 if (external){
                     expressionCompiler.writeVarLoad("~passedLocal");
@@ -270,7 +275,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             if (statement.getUses() != null && !statement.getUses().isEmpty()){
                 int i = 0;
-                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
                 expressionCompiler.writeVarLoad("~this");
                 expressionCompiler.writeGetDynamic("uses", Memory[].class);
 
@@ -291,20 +295,35 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             }
 
             int i = 0;
+
             for(ArgumentStmtToken argument : statement.getArguments()){
                 if (argument.isReference()){
                     statement.getRefLocal().add(argument.getName());
                     statement.getUnstableLocal().add(argument.getName());
                 }
 
-                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
-                expressionCompiler.writeDefineVariable(argument.getName());
+                LabelNode undefined = new LabelNode();
+                LabelNode next = new LabelNode();
 
+                expressionCompiler.writeDefineVariable(argument.getName());
                 LocalVariable local = getLocalVariable(argument.getName().getName());
 
                 expressionCompiler.writeVarLoad(args);
                 expressionCompiler.writePushGetFromArray(i, Memory.class);
+                expressionCompiler.writeVarAssign(local, true, false);
+
+                // if length <= i then undefined
+                node.instructions.add(new JumpInsnNode(Opcodes.IFNONNULL, next));
+                expressionCompiler.stackPop();
+
+                if (argument.getValue() == null)
+                    expressionCompiler.writePushNull();
+                else
+                    expressionCompiler.writeExpression(argument.getValue(), true, false);
+
                 expressionCompiler.writeVarAssign(local, false, false);
+                node.instructions.add(next);
+
                 local.pushLevel();
 
                 i++;
@@ -365,25 +384,43 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setName(argument.getName().getName());
 
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(compiler);
-                if (argument.getValue() != null){
-                    Memory defaultValue = expressionStmtCompiler.writeExpression(argument.getValue(), true, true, false);
+                ExprStmtToken value = argument.getValue();
+                if (value != null){
+                    Memory defaultValue = expressionStmtCompiler.writeExpression(value, true, true, false);
                     if (defaultValue == null){
-                        throw new CompileException(
-                                Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(argument.getName()),
-                                argument.toTraceInfo(compiler.getContext())
-                        );
+                        // try detect constant
+                        if (value.isSingle()) {
+                            if (value.getSingle() instanceof NameToken){
+                                parameters[i].setDefaultValue(new ConstantMemory(((NameToken) value.getSingle()).getName()));
+                            } else if (value.getSingle() instanceof StaticAccessExprToken){
+                                StaticAccessExprToken access = (StaticAccessExprToken)value.getSingle();
+                                if (access.getClazz() instanceof NameToken && access.getField() instanceof NameToken){
+                                    parameters[i].setDefaultValue(new ClassConstantMemory(
+                                            ((NameToken) access.getClazz()).getName(),
+                                            ((NameToken) access.getField()).getName()
+                                    ));
+                                }
+                            }
+                        }
+
+                        if (parameters[i].getDefaultValue() == null)
+                            compiler.getEnvironment().error(
+                                    argument.toTraceInfo(compiler.getContext()), ErrorType.E_COMPILE_ERROR,
+                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
+                            );
+                    } else {
+                        parameters[i].setDefaultValue(defaultValue);
                     }
-                    parameters[i].setDefaultValue(defaultValue);
                 }
 
-                if (argument.getValue() != null){
+                /*if (argument.getValue() != null){
                     ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
                     Memory result = expressionCompiler.writeExpression(argument.getValue(), true, true);
                     if (result == null){
                         unexpectedToken(argument.getValue().getTokens().get(0));
                     }
                     parameters[i].setDefaultValue( result );
-                }
+                }   */
                 i++;
             }
             entity.setParameters(parameters);

@@ -87,9 +87,9 @@ final public class InvokeHelper {
                 Memory def = param.getDefaultValue();
                 if (def != null){
                     if (!param.isReference())
-                        passed[i] = def.toImmutable();
+                        passed[i] = def.toImmutable(env, trace);
                     else
-                        passed[i] = new ReferenceMemory(def.toImmutable());
+                        passed[i] = new ReferenceMemory(def.toImmutable(env, trace));
                 } else {
                     env.triggerMessage(new WarningMessage(
                             new CallStackItem(trace),
@@ -262,7 +262,8 @@ final public class InvokeHelper {
 
             env.error(trace,
                     ErrorType.E_STRICT,
-                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(originClassName + "::" + originMethodName)
+                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY,
+                    originClassName, originMethodName
             );
         }
 

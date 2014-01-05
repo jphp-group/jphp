@@ -74,11 +74,6 @@ public class FunctionEntity extends AbstractFunctionEntity {
     }
 
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
-        if (isEmpty){
-            unsetArguments(arguments);
-            return Memory.NULL;
-        }
-
         Memory result = null;
         try {
             result = (Memory)nativeMethod.invoke(null, env, arguments);

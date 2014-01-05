@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory.support;
 
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.memory.*;
@@ -420,6 +421,10 @@ abstract public class Memory {
 
     public Memory toImmutable(){
         return this;
+    }
+
+    public Memory toImmutable(Environment env, TraceInfo trace){
+        return toImmutable();
     }
 
     @SuppressWarnings("unchecked")

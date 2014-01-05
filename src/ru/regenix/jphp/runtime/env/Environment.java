@@ -356,13 +356,11 @@ public class Environment {
 
     public ClassEntity fetchClass(String name, String nameL, boolean autoLoad) {
         ClassEntity entity = classMap.get(nameL);
-        /*if (magic && entity == null){
-            entity = fetchMagicClass(name, nameL);
-        }*/
 
         if (entity == null){
             return autoLoad ? autoloadCall(name) : null;
         } else {
+            return entity;/*
             if (isLoadedClass(nameL) || entity.isInternal())
                 return entity;
             else {
@@ -370,7 +368,7 @@ public class Environment {
                     return autoloadCall(name);
                 }
                 return null;
-            }
+            }*/
         }
     }
 
@@ -661,9 +659,7 @@ public class Environment {
         Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
-            if (isHandleErrors(E_NOTICE)) {
-                triggerMessage(new NoticeMessage(new CallStackItem(trace), Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name));
-            }
+            error(trace, E_NOTICE, Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name);
             return StringMemory.valueOf(name);
         }
 

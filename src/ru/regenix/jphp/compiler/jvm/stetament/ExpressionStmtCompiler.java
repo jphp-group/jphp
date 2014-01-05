@@ -590,7 +590,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (!method.statement.isStatic())
                 writePushEnvFromSelf();
             else
-                throw new RuntimeException("Cannot find `~end` variable");
+                throw new RuntimeException("Cannot find `~env` variable");
             return;
         }
 
@@ -1460,6 +1460,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
         stackPop();
         stackPush(null, StackItem.Type.valueOf(clazz));
+    }
+
+    void writePushGetArrayLength(){
+        code.add(new InsnNode(ARRAYLENGTH));
+        stackPop();
+        stackPush(null, StackItem.Type.INT);
     }
 
     void writePushTraceInfo(int line, int position){
