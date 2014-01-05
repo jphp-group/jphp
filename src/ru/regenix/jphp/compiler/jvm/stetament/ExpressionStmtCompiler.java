@@ -1676,6 +1676,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 return null;
             } else if (value instanceof StaticAccessExprToken){
                 writePushStaticAccess((StaticAccessExprToken)value, returnValue);
+            } else if (value instanceof ListExprToken){
+                writePushList((ListExprToken)value, returnValue);
             }
 
         if (value instanceof NameToken){
@@ -2121,6 +2123,30 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeSysDynamicCall(
                 Environment.class, "getClass", Class.class, Environment.class, String.class, TraceInfo.class
         );
+    }
+
+    void writePushList(ListExprToken list, boolean returnValue){
+        writeExpression(list.getValue(), true, false);
+        int i, length = list.getVariables().size();
+        for(i = length - 1; i >= 0; i--){ // desc order as in PHP
+            ListExprToken.Variable v = list.getVariables().get(i);
+            LocalVariable variable = method.getLocalVariable(v.name);
+
+            writePushDup();
+            if (v.indexes != null){
+                for(int index : v.indexes){
+                    writePushConstLong(index);
+                    writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, stackPeek().type.toClass());
+                }
+            }
+            writePushConstLong(v.index);
+            writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, stackPeek().type.toClass());
+
+            writeVarAssign(variable, false, true);
+        }
+
+        if (!returnValue)
+            writePopAll(1);
     }
 
     void writeDynamicAccessInfo(DynamicAccessExprToken dynamic, boolean addLowerName){

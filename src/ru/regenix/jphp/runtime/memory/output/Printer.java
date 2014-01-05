@@ -29,7 +29,7 @@ abstract public class Printer {
 
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used){
         Memory value = reference.toValue();
-        if (value != Memory.UNDEFINED)
+        //if (value != Memory.UNDEFINED)
             print(reference.toValue(), level, used);
     }
 

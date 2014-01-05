@@ -2,7 +2,6 @@ package ru.regenix.jphp.compiler.common.compile;
 
 
 import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -178,7 +177,7 @@ public class CompileFunction {
 
             for (Class<?> type : parameterTypes){
                 for(Annotation annotation : parameterAnnotations[i]){
-                    if (annotation instanceof Reflection.Reference) {
+                    if (annotation.annotationType() == Runtime.Reference.class) {
                         references[i] = true;
                         if (!isImmutableIgnoreRefs)
                             isImmutable = false;

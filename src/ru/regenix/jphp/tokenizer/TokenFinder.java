@@ -147,6 +147,7 @@ public class TokenFinder {
         put("extends", ExtendsStmtToken.class);
         put("implements", ImplementsStmtToken.class);
         put("global", GlobalStmtToken.class);
+        put("list", ListExprToken.class);
 
         put("__line__", LineMacroToken.class);
         put("__file__", FileMacroToken.class);

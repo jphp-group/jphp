@@ -15,7 +15,7 @@ public class ReferenceMemory extends Memory {
 
     public ReferenceMemory(Memory value) {
         super(Type.REFERENCE);
-        this.value = value == null ? Memory.UNDEFINED : value;
+        this.value = value == null ? Memory.NULL : value;
     }
 
     public static Memory valueOf(Memory value){
@@ -24,7 +24,7 @@ public class ReferenceMemory extends Memory {
 
     public ReferenceMemory() {
         super(Type.REFERENCE);
-        this.value = Memory.UNDEFINED;
+        this.value = Memory.NULL;
     }
 
     public ReferenceMemory duplicate(){
@@ -574,6 +574,7 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory toImmutable() {
         switch (value.type){
+            case NULL:
             case REFERENCE:
             case ARRAY: return value.toImmutable();
             default: return value;
@@ -670,7 +671,7 @@ public class ReferenceMemory extends Memory {
     }
 
     private StringMemory typeString(){
-        if (toImmutable().type != Type.STRING){
+        if (toValue().type != Type.STRING){
             assign(new StringMemory(value.toString()));
         }
 

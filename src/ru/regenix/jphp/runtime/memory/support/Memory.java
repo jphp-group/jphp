@@ -5,6 +5,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.memory.*;
+import ru.regenix.jphp.runtime.memory.helper.UndefinedMemory;
 
 abstract public class Memory {
     public enum Type {
@@ -73,7 +74,7 @@ abstract public class Memory {
     }
 
     public static final Memory NULL = NullMemory.INSTANCE;
-    public static final Memory UNDEFINED = NullMemory.UNDEFINED;
+    public static final Memory UNDEFINED = UndefinedMemory.INSTANCE;
     public static final Memory FALSE = FalseMemory.INSTANCE;
     public static final Memory TRUE = TrueMemory.INSTANCE;
 

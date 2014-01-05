@@ -57,7 +57,7 @@ public class ArrayMemoryTest {
     @Test
     public void testValueOfIndex(){
         ArrayMemory memory = new ArrayMemory();
-        assertEquals(Memory.NULL, memory.valueOfIndex(0));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(0));
         assertEquals(0, memory.size());
 
         memory.refOfIndex(new DoubleMemory(2)).assign(2);
@@ -74,7 +74,7 @@ public class ArrayMemoryTest {
         assertEquals(3, memory.size());
         memory.removeByScalar(1);
         assertEquals(2, memory.size());
-        assertEquals(Memory.NULL, memory.valueOfIndex(1));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(1));
 
         memory.refOfIndex(1).assign(33);
         assertEquals(33, memory.valueOfIndex(1).toLong());
@@ -86,8 +86,8 @@ public class ArrayMemoryTest {
         memory.removeByScalar(100500);
         assertEquals(0, memory.size());
 
-        assertEquals(Memory.NULL, memory.valueOfIndex(0));
-        assertEquals(Memory.NULL, memory.valueOfIndex(2));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(0));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(2));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ArrayMemoryTest {
 
         assertEquals(3, memory.size());
         memory.removeByScalar("x1");
-        assertEquals(Memory.NULL, memory.valueOfIndex("x1"));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex("x1"));
         assertEquals(2, memory.size());
 
         memory.refOfIndex("x1").assign("foobar");

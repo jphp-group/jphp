@@ -42,7 +42,7 @@ public class LangTest extends JvmCompilerCase {
         check("zend/lang/027.php");
         check("zend/lang/028.php");
         check("zend/lang/030.php");
-
+        check("zend/lang/031.php");
         check("zend/lang/032.php");
         check("zend/lang/033.php");
 

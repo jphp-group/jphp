@@ -682,6 +682,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             mem.map  = map;
             mem.lastLongIndex = lastLongIndex;
             copies++;
+            resetCurrentIterator();
             return mem;
         } else {
             copies++;
@@ -783,7 +784,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public boolean notEqual(Memory memory) {
-        return !equals(memory);
+        return !equal(memory);
     }
 
     @Override

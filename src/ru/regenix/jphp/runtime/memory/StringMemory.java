@@ -87,6 +87,9 @@ public class StringMemory extends Memory {
             if (!('9' >= ch && ch >= '0')){
                 if (canSign && (ch == '-' || ch == '+')){
                     canSign = false;
+                    // fix bug for OpenJDK 1.6 because cannot convert +1234 numbers
+                    if (start == i && ch == '+')
+                        start += 1;
                     continue;
                 }
 

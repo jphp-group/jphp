@@ -70,6 +70,63 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
     }
 
+    protected ListExprToken processList(Token current, ListIterator<Token> iterator, List<Integer> indexes,
+                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
+        ListExprToken result = (ListExprToken)current;
+
+        Token next = nextToken(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next, "(");
+
+        Token prev = null;
+        int i = 0;
+        while (true){
+            next = nextToken(iterator);
+            if (next instanceof VariableExprToken){
+                if (prev != null && !(prev instanceof CommaToken))
+                    unexpectedToken(next);
+
+                analyzer.getLocalScope().add((VariableExprToken)next);
+                result.addVariable(((VariableExprToken) next).getName(), i, indexes);
+            } else if (next instanceof ListExprToken){
+                if (prev != null && !(prev instanceof CommaToken))
+                    unexpectedToken(next);
+
+                List<Integer> indexes_ = new ArrayList<Integer>();
+                if (indexes != null)
+                    indexes_.addAll(indexes);
+                indexes_.add(i);
+
+                ListExprToken tmp = processList(next, iterator, indexes_, null, -1);
+                result.addList(tmp);
+            } else if (next instanceof CommaToken){
+                // skip
+                i++;
+            } else if (isClosedBrace(next, BraceExprToken.Kind.SIMPLE)){
+                break;
+            }
+
+            prev = next;
+        }
+
+        if (braceOpened != -1){
+            next = nextToken(iterator);
+            if (!(next instanceof AssignExprToken))
+                unexpectedToken(next, "=");
+
+            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                    nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
+            );
+            if (isClosedBrace(iterator.previous(), closedBraceKind) || braceOpened > 0){
+                iterator.next();
+            }
+
+            result.setValue(value);
+        }
+
+        return result;
+    }
+
     protected DieExprToken processDie(Token current, Token next, ListIterator<Token> iterator){
         DieExprToken die = (DieExprToken)current;
         if (isOpenedBrace(next, BraceExprToken.Kind.SIMPLE)){
@@ -207,8 +264,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
                 nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
         );
-        if (closedBrace == null || braceOpened < 1)
-            iterator.previous();
+        if (isClosedBrace(iterator.previous(), closedBrace) || braceOpened > 0){
+            iterator.next();
+        }
+
         result.setValue(value);
 
         if (analyzer.getFunction() != null)
@@ -225,8 +284,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
                 nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
         );
-        if (closedBrace == null || braceOpened < 1)
-            iterator.previous();
+        if (isClosedBrace(iterator.previous(), closedBrace) || braceOpened > 0){
+            iterator.next();
+        }
         if (value == null)
             unexpectedToken(iterator.previous());
 
@@ -852,6 +912,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof FunctionStmtToken){
                 current = processClosure(current, next, iterator);
+                tokens.add(current);
+            } else if (current instanceof ListExprToken){
+                current = processList(current, iterator, null, closedBraceKind, braceOpened);
                 tokens.add(current);
             } else if (current instanceof DieExprToken){
                 processDie(current, next, iterator);
