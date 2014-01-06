@@ -79,7 +79,7 @@
 
 + **Properties**
 + **Constants**
-+ Autoloading
++ **Autoloading** (todo improve)
 + **Constructors** & **Destructors** (finalize)
 + **Visibility**
 + **Object inheritance**
