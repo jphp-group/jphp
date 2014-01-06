@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     public final ClassStmtCompiler clazz;
-    public final MethodStmtToken statement;
+    public MethodStmtToken statement;
     public final MethodNode node;
 
     protected int statementIndex = 0;

@@ -90,6 +90,8 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
             String result;
             if (function != null)
                 result = function.getName();
+            else if (clazz != null && method == null)
+                result = clazz.getName() + ".<init>";
             else if (clazz != null)
                 result = clazz.getName() + "." + method.getName();
             else if (module != null)

@@ -11,9 +11,11 @@ import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.BaseObject;
+import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
@@ -153,7 +155,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         methodCompiler.writeHeader();
 
         LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
-        methodCompiler.addLocalVariable("this", l0);
+        methodCompiler.addLocalVariable("~this", l0);
 
         if (isClosure()){
             constructor.desc = Type.getMethodDescriptor(
@@ -167,7 +169,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
 
             methodCompiler.writeHeader();
-            expressionCompiler.writeVarLoad("this");
+            expressionCompiler.writeVarLoad("~this");
             expressionCompiler.writeVarLoad("~class");
             expressionCompiler.writeVarLoad("~self");
             expressionCompiler.writeVarLoad("~uses");
@@ -184,6 +186,16 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             methodCompiler.addLocalVariable("~env", l0, Environment.class);
             methodCompiler.addLocalVariable("~class", l0, String.class);
 
+            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeVarLoad("~env");
+            expressionCompiler.writeVarLoad("~class");
+            constructor.instructions.add(new MethodInsnNode(
+                    INVOKESPECIAL,
+                    node.superName,
+                    Constants.INIT_METHOD,
+                    constructor.desc
+            ));
+
             // PROPERTIES
             for(ClassVarStmtToken property : statement.getProperties()){
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
@@ -196,25 +208,33 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setModifier(property.getModifier());
                 prop.setStatic(property.isStatic());
                 prop.setDefaultValue(value);
+
                 entity.addProperty(prop);
 
-                if (value == null && property.getValue() != null) {
-                    throw new CompileException(
-                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName()),
-                        property.getVariable().toTraceInfo(compiler.getContext())
-                    );
+                if (value == null) {
+                    if (property.getValue() != null){
+                        expressionCompiler.writeVarLoad("~class");
+                        expressionCompiler.writeVarLoad("~this");
+                        expressionCompiler.writePushConstString(prop.getSpecificName());
+                        try {
+                            expressionCompiler.writeExpression(property.getValue(), true, false);
+                        } catch (Exception e){
+                            compiler.getEnvironment().error(
+                                    property.getVariable().toTraceInfo(compiler.getContext()),
+                                    ErrorType.E_COMPILE_ERROR,
+                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName())
+                            );
+                        }
+                        expressionCompiler.writePopBoxing(true);
+                        expressionCompiler.writeSysDynamicCall(
+                                ClassEntity.class, "appendProperty", void.class, IObject.class, String.class, Memory.class
+                        );
+                    } else {
+                        prop.setDefaultValue(Memory.NULL);
+                    }
+                    /**/
                 }
             }
-
-            expressionCompiler.writeVarLoad("this");
-            expressionCompiler.writeVarLoad("~env");
-            expressionCompiler.writeVarLoad("~class");
-            constructor.instructions.add(new MethodInsnNode(
-                    INVOKESPECIAL,
-                    node.superName,
-                    Constants.INIT_METHOD,
-                    constructor.desc
-            ));
         }
 
         methodCompiler.writeFooter();

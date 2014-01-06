@@ -57,6 +57,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class ExpressionStmtCompiler extends StmtCompiler {
     protected final MethodStmtCompiler method;
+    protected final MethodStmtToken methodStatement;
     protected final ExprStmtToken expression;
 
     private MethodNode node;
@@ -73,6 +74,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         this.expression = expression;
         this.node = method.node;
         this.code = method.node.instructions;
+        this.methodStatement = method.statement != null ? method.statement : MethodStmtToken.of("", method.clazz.statement);
         this.frames = new Stack<StackFrame>();
     }
 
@@ -84,6 +86,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         );
 
         this.method = new MethodStmtCompiler(classStmtCompiler, (MethodStmtToken) null);
+        this.methodStatement = method.statement != null ? method.statement : MethodStmtToken.of("", method.clazz.statement);
+
         this.node = method.node;
         this.code = method.node.instructions;
         this.frames = new Stack<StackFrame>();
@@ -186,7 +190,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPush(token, StackItem.Type.REFERENCE);
         } else {
             if (token instanceof VariableExprToken
-                    && !method.statement.isUnstableVariable((VariableExprToken)token)){
+                    && !methodStatement.isUnstableVariable((VariableExprToken)token)){
                 LocalVariable local = method.getLocalVariable(((VariableExprToken) token).getName());
                 if (local != null && local.getValue() != null){
                     stackPush(token, local.getValue());
@@ -503,7 +507,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushGetVar(GetVarExprToken getVar, boolean returnValue){
-        assert method.statement.isDynamicLocal();
+        if (!methodStatement.isDynamicLocal())
+            throw new UnsupportedTokenException(getVar);
 
         Memory result = writeExpression(getVar.getName(), true, true, false);
         if (result != null && result.isString()){
@@ -588,7 +593,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushEnv(){
         LocalVariable variable = method.getLocalVariable("~env");
         if (variable == null) {
-            if (!method.statement.isStatic())
+            if (!methodStatement.isStatic())
                 writePushEnvFromSelf();
             else
                 throw new RuntimeException("Cannot find `~env` variable");
@@ -1266,7 +1271,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeGetDynamic("self", Memory.class);
         } else {
             if (method.getLocalVariable("this") == null) {
-                if (!method.statement.isStatic()){
+                if (!methodStatement.isStatic()){
                     LabelNode label = writeLabel(node);
                     LocalVariable local = method.addLocalVariable("this", label, Memory.class);
                     writeDefineThis(local);
@@ -1292,7 +1297,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writeVarLoad("~this");
 
-            if (method.statement.isStatic()) {
+            if (methodStatement.isStatic()) {
                 writePushNull();
                 writeVarStore(variable, false, false);
             } else {
@@ -1332,7 +1337,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
-            if (method.statement.isReference(value) || compiler.getScope().superGlobals.contains(value.getName())) {
+            if (methodStatement.isReference(value) || compiler.getScope().superGlobals.contains(value.getName())) {
                 variable.setReference(true);
             } else {
                 variable.setReference(false);
@@ -1342,7 +1347,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeDefineThis(variable);
             } else if (compiler.getScope().superGlobals.contains(value.getName())){ // super-globals
                 writeDefineGlobalVar(value.getName());
-            } else if (method.statement.isDynamicLocal()){ // ref-local variables
+            } else if (methodStatement.isDynamicLocal()){ // ref-local variables
                 writePushLocal();
                 writePushConstString(value.getName());
                 writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, String.class);
@@ -1383,7 +1388,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     Memory tryWritePushVariable(VariableExprToken value, boolean heavyObjects){
-        if (method.statement.isUnstableVariable(value))
+        if (methodStatement.isUnstableVariable(value))
             return null;
 
         if (compiler.getScope().superGlobals.contains(value.getName()))
@@ -1393,7 +1398,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (variable == null || variable.getClazz() == null) {
             return Memory.NULL;
         } else {
-            if (method.statement.getPassedLocal().contains(value))
+            if (methodStatement.getPassedLocal().contains(value))
                 return null;
 
             Memory mem = variable.getValue();
@@ -1923,10 +1928,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarStore(local, returnValue, true);
         }
 
-        if (!method.statement.getPassedLocal().contains(variable))
+        if (!methodStatement.getPassedLocal().contains(variable))
             local.setValue(value);
 
-        if (method.statement.isDynamicLocal())
+        if (methodStatement.isDynamicLocal())
             local.setValue(null);
     }
 
@@ -3473,7 +3478,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     @Override
     public Entity compile() {
-        writeDefineVariables(method.statement.getLocal());
+        writeDefineVariables(methodStatement.getLocal());
         writeExpression(expression, false, false);
         method.popAll();
         return null;
@@ -3482,6 +3487,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public static class NoSuchMethodException extends RuntimeException {
         public NoSuchMethodException(Class clazz, String method, Class... parameters){
             super("No such method " + clazz.getName() + "." + method + "(" + StringUtils.join(parameters, ", ") + ")");
+        }
+    }
+
+    public static class UnsupportedTokenException extends RuntimeException {
+        protected final Token token;
+
+        public UnsupportedTokenException(Token token) {
+            this.token = token;
         }
     }
 }

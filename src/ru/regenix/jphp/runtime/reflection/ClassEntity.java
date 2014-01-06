@@ -23,6 +23,7 @@ import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -565,14 +566,19 @@ public class ClassEntity extends Entity {
         } else if (type == Type.INTERFACE)
             env.error(trace, "Cannot instantiate interface %s", name);
 
-        IObject object = (IObject) nativeConstructor.newInstance(env, this);
+        IObject object;
+        try {
+            object = (IObject) nativeConstructor.newInstance(env, this);
+        } catch (InvocationTargetException e){
+            throw e.getCause();
+        }
         ArrayMemory props = object.getProperties();
 
         for(PropertyEntity property : getProperties()) {
-            if (id == property.clazz.getId()){
+            if (id == property.clazz.getId() && property.defaultValue != null){
                 props.putAsKeyString(
                         property.getSpecificName(),
-                        property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
+                        property.defaultValue.toImmutable()
                 );
             }
         }
@@ -581,10 +587,10 @@ public class ClassEntity extends Entity {
         while (tmp != null){
             long otherId = tmp.getId();
             for(PropertyEntity property : tmp.getProperties()) {
-                if (property.getClazz().getId() == otherId){
+                if (property.getClazz().getId() == otherId && property.defaultValue != null){
                     props.getByScalarOrCreate(
                             property.getSpecificName(),
-                            property.defaultValue == null ? Memory.NULL : property.defaultValue.toImmutable()
+                            property.defaultValue.toImmutable()
                     );
                 }
             }
@@ -722,6 +728,10 @@ public class ClassEntity extends Entity {
                 return o1.bitShl(o2);
             }
         });
+    }
+
+    public void appendProperty(IObject object, String property, Memory value){
+        object.getProperties().put(property, value);
     }
 
     public Memory setProperty(Environment env, TraceInfo trace,
