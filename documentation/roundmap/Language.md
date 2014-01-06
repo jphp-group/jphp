@@ -1,5 +1,7 @@
 ## PHP Language
 
+> ! Bold text - implemented
+
 ### Basic syntax
 + **PHP tags**
 + **Comments**
@@ -13,9 +15,9 @@
 + **Strings** (UTF-16 Unicode)
 + **Arrays**
 + **Objects**
-+ Resources ? (maybe will not implemented)
++ **Resources** ? (like objects, but with a few differents)
 + **NULL**
-+ **Callbacks** - to do improve
++ **Callbacks**
 + **Type Juggling**
 
 ---
@@ -25,7 +27,7 @@
 + **Static variables** `static $var`
 + **Global scope for variables**
 + **Global statement** - `global $var`
-+ Super Global variables - `$GLOBALS, $_POST, $_ENV, etc.`
++ **Super Global variables** - `$GLOBALS, $_POST, $_ENV, etc.`
 
 ---
 
@@ -56,7 +58,7 @@
 + **foreach**
 + goto
 + declare
-+ try catch
++ **try catch**
 + try finally
 + **HEREDOC, NOWDOC for strings**
 
@@ -69,32 +71,32 @@
 + **Default arguments values** - to do improve: add default for unknown constants
 + **Return references**
 + **Internal built-in functions**
-+ Anonymous functions
++ **Anonymous functions**
 
 ---
 
 ### Classes and Objects
 
-+ **Properties** (todo implement static properties, private, protected modifiers)
-+ Constants
++ **Properties**
++ **Constants**
 + Autoloading
 + **Constructors** & **Destructors** (finalize)
-+ Visibility
-+ Object inheritance **(partly)**
++ **Visibility**
++ **Object inheritance**
 + **Scope Resolution Operator (::)**
 + **Static keyword** - to do improve
-+ Class abstraction **(partly)**
-+ Interfaces **(partly)**
++ **Class abstraction**
++ **Interfaces**
 + Traits
 + Overloading `__set`, `__get`, `__callStatic`, etc. **(partly)**
-+ Object Iteration
++ **Object Iteration**
 + Magic Methods **(partly)**
 + Final Keyword **(partly)**
 + Object Cloning
 + Comparing Objects
 + Type Hinting
-+ Late Static Bindings **(partly)**
-+ Objects and references **(partly)**
++ **Late Static Bindings**
++ **Objects and references**
 + Object Serialization
 
 ---
@@ -105,7 +107,7 @@
 + **Declaring sub-namespaces**
 + **Defining multiple namespaces in the same file**
 + **Using namespaces: Basics**
-+ Multiple values for use statements
++ **Multiple values for use statements**
 + **namespace keyword and __NAMESPACE__ constant**
 + **Using namespaces: Aliasing/Importing**
 + **Global space**
@@ -114,7 +116,7 @@
 ---
 
 ### Exceptions
-+ Extending Exceptions
++ **Extending Exceptions**
 
 ---
 
@@ -133,7 +135,7 @@
 ---
 
 ### Predefined Exceptions
-+ Exception
++ **Exception**
 + ErrorException
 
 ---
@@ -141,10 +143,10 @@
 ### Predefined Interfaces and Classes
 + **Traversable** — The Traversable interface
 + **Iterator** — The Iterator interface (_todo improve and check_)
-+ IteratorAggregate — The IteratorAggregate interface
++ **IteratorAggregate** — The IteratorAggregate interface
 + ArrayAccess — The ArrayAccess interface
 + Serializable — The Serializable interface
-+ Closure — The Closure class
++ **Closure** — The Closure class
 + Generator — The Generator class
 
 ---
