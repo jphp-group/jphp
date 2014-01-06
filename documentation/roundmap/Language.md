@@ -39,9 +39,9 @@
 + **Assign** `= += -= *= /= %= .= &= |= ^= ++ --`, `++ --` - to do fix!!!
 + **Concat** `.`
 + **Compare** `== != > < >= <=`, undone: `=== !==`
-+ for Arrays `+ == === != <> !==`
-+ instanceof
-+ Typed `(int) (float) (double) (string) (object) (array)`
++ for Arrays `+ == === != <> !==`  **(partly, only compare)**
++ **instanceof**
++ **Typed** `(int) (float) (double) (string) (object) (array)`
 
 ---
 
@@ -84,17 +84,17 @@
 + **Visibility**
 + **Object inheritance**
 + **Scope Resolution Operator (::)**
-+ **Static keyword** - to do improve
++ **Static keyword**
 + **Class abstraction**
 + **Interfaces**
 + Traits
-+ Overloading `__set`, `__get`, `__callStatic`, etc. **(partly)**
++ **Overloading** `__set`, `__get`, `__callStatic`, etc.
 + **Object Iteration**
-+ Magic Methods **(partly)**
-+ Final Keyword **(partly)**
++ Magic Methods **(partly, __set, __get, __call, __callStatic, __destruct, __construct, __isset, __unset)**
++ **Final Keyword**
 + Object Cloning
 + Comparing Objects
-+ Type Hinting
++ Type Hinting **(partly)**
 + **Late Static Bindings**
 + **Objects and references**
 + Object Serialization
@@ -130,7 +130,7 @@
 + **Passing by Reference**
 + **Returning References**
 + **Unsetting References**
-+ Spotting References
++ **Spotting References**
 
 ---
 
