@@ -6,6 +6,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.common.Association;
+import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
@@ -2984,6 +2985,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         // $var
         //LocalVariable variable = method.getLocalVariable(token.getValue().getName());
         Token last = token.getValue().getLast();
+        VariableExprToken var = null;
         if (last instanceof DynamicAccessExprToken){
             DynamicAccessExprToken setter = (DynamicAccessExprToken)last;
 
@@ -3004,7 +3006,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             );
         } else {
             if (token.getValue().getSingle() instanceof VariableExprToken)
-                checkAssignableVar((VariableExprToken)token.getValue().getSingle());
+                checkAssignableVar(var = (VariableExprToken)token.getValue().getSingle());
 
             writeVarLoad(foreachVariable);
             writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
@@ -3020,7 +3022,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             );
         }
         writePopAll(1);
-                     /*
+
+        /*
         if (token.isValueReference())
             writeVarStore(variable, false, false);
         else
@@ -3031,6 +3034,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         code.add(new JumpInsnNode(GOTO, start));
         code.add(end);
+
+        if (compiler.getLangMode() == LangMode.JPHP){
+            if (token.isValueReference() && var != null){
+                writeVarLoad(var.getName());
+                writeSysDynamicCall(Memory.class, "unset", void.class);
+            }
+        }
 
         method.popJump();
         writeUndefineVariables(token.getLocal());

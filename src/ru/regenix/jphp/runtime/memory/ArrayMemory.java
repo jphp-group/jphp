@@ -990,7 +990,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     if (withPrevious || getKeyReferences)
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
                     else
-                        keys = map.keySet().iterator();
+                        keys = new ArrayList<Object>(map.keySet()).iterator();
                 }
                 return true;
             }
@@ -1079,7 +1079,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                         keys = tmp.listIterator(cursor - 1);
                     }
 
-                    if (keys.hasNext()){
+                    if (keys.hasNext()) {
                         currentKey = keys.next();
                         setCurrentValue(map.get(currentKey));
                         return true;
