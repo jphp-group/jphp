@@ -64,7 +64,7 @@ public class LangFunctions extends FunctionsContainer {
                 if (env.isHandleErrors(ErrorType.E_PARSE))
                     throw new ParseException(evalErrorMessage(e), trace);
             } else
-                env.error(trace, e.getType(), e.getMessage());
+                env.error(trace, e.getType(), evalErrorMessage(e));
         }
         return Memory.FALSE;
     }

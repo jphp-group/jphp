@@ -167,7 +167,7 @@ public class ClassEntity extends Entity {
                 if (entity == null || entity.getType() != Type.INTERFACE)
                     throw new IllegalArgumentException("Interface '"+name+"' not registered");
 
-                ClassAddResult result = addInterface(entity);
+                MethodsResult result = addInterface(entity);
                 result.check();
             }
 
@@ -182,7 +182,7 @@ public class ClassEntity extends Entity {
                     if (entity == null || entity.getType() != Type.CLASS)
                         throw new IllegalArgumentException("Class '"+name+"' not registered");
 
-                    ClassAddResult result = addInterface(entity);
+                    MethodsResult result = addInterface(entity);
                     result.check();
                 }
             }
@@ -267,15 +267,28 @@ public class ClassEntity extends Entity {
         return methods;
     }
 
-    public ClassAddResult addMethod(MethodEntity method){
+    public MethodsResult addMethod(MethodEntity method){
         String name = method.getLowerName();
         if (name.equals(lowerName))
             name = "__construct";
 
-        ClassAddResult addResult = new ClassAddResult();
+        MethodsResult addResult = new MethodsResult();
+        if (method.isAbstract && method.isFinal){
+            addResult.finalAbstractMethods.add(ResultItem.error(method));
+        } else if (method.isAbstractable() && !(method.isAbstract || type == Type.INTERFACE)){
+            addResult.nonAbstract.add(ResultItem.error(method));
+        } else if (method.isAbstract && !method.isAbstractable()){
+            addResult.nonAbstractable.add(ResultItem.error(method));
+        } else if (method.isAbstract && !this.isAbstract){
+            addResult.nonExists.add(ResultItem.error(method));
+        } else if (type == Type.INTERFACE &&
+                (method.modifier != Modifier.PUBLIC || method.isFinal)){
+            addResult.invalidAccessInterfaceMethods.add(ResultItem.error(method));
+        }
+
         if (magicSignatureClass != null){
             MethodEntity systemMethod = magicSignatureClass.findMethod(name.toLowerCase());
-            if (systemMethod != null) {
+            if (systemMethod != null && method.clazz.getId() == getId()) {
                 if (method.prototype == null)
                     method.setPrototype(systemMethod);
 
@@ -324,15 +337,15 @@ public class ClassEntity extends Entity {
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
-    public ClassAddResult updateParentMethods(){
-        ClassAddResult result = new ClassAddResult();
+    public MethodsResult updateParentMethods(){
+        MethodsResult result = new MethodsResult();
         if (parent != null){
             for(MethodEntity method : parent.getMethods().values()){
                 MethodEntity implMethod = findMethod(method.getLowerName());
                 if (implMethod == method) continue;
 
                 if (implMethod == null){
-                    ClassAddResult addResult = addMethod(method);
+                    MethodsResult addResult = addMethod(method);
                     result.invalidSignature.addAll(addResult.invalidSignature);
                     result.mustStatic.addAll(addResult.mustStatic);
                     result.mustNonStatic.addAll(addResult.mustNonStatic);
@@ -340,6 +353,12 @@ public class ClassEntity extends Entity {
                     result.mustBePublic.addAll(addResult.mustBePublic);
                 } else {
                     implMethod.setPrototype(method);
+                    if (method.isFinal)
+                        result.finalMethods.add(ResultItem.error(implMethod));
+
+                    if (!isAbstract && method.isAbstract && implMethod.isAbstract)
+                        result.nonExists.add(ResultItem.error(implMethod));
+
                     if (!method.dynamicSignature && !implMethod.equalsBySignature(method)){
                         result.invalidSignature.add(ResultItem.error(implMethod));
                     } else if (implMethod.isStatic() && !method.isStatic()){
@@ -354,7 +373,13 @@ public class ClassEntity extends Entity {
         return result;
     }
 
-    public ClassAddResult setParent(ClassEntity parent) {
+    public ParentResult setParent(ClassEntity parent) {
+        return setParent(parent, true);
+    }
+
+    public ParentResult setParent(ClassEntity parent, boolean updateParentMethods) {
+        ParentResult result = new ParentResult(parent);
+
         this.parent = parent;
         this.methodCounts = parent.methodCounts;
 
@@ -364,7 +389,11 @@ public class ClassEntity extends Entity {
         this.properties.putAll(parent.properties);
         this.staticProperties.putAll(parent.staticProperties);
         this.constants.putAll(parent.constants);
-        return updateParentMethods();
+
+        if (updateParentMethods)
+            result.methods = updateParentMethods();
+
+        return result;
     }
 
     public byte[] getData() {
@@ -380,8 +409,8 @@ public class ClassEntity extends Entity {
      * @param _interface
      * @return
      */
-    public ClassAddResult addInterface(ClassEntity _interface) {
-        ClassAddResult result = new ClassAddResult();
+    public MethodsResult addInterface(ClassEntity _interface) {
+        MethodsResult result = new MethodsResult();
 
         this.constants.putAll(_interface.constants);
 
@@ -395,7 +424,7 @@ public class ClassEntity extends Entity {
 
             if (implMethod == null){
                 addMethod(method);
-                if (type == Type.CLASS)
+                if (type == Type.CLASS && !isAbstract)
                     result.nonExists.add(ResultItem.error(method));
             } else {
                 implMethod.setPrototype(method);
@@ -531,20 +560,15 @@ public class ClassEntity extends Entity {
 
     public IObject newObject(Environment env, TraceInfo trace, Memory[] args)
             throws Throwable {
-        IObject object = (IObject) nativeConstructor.newInstance(env, this);
+        if (isAbstract){
+            env.error(trace, "Cannot instantiate abstract class %s", name);
+        } else if (type == Type.INTERFACE)
+            env.error(trace, "Cannot instantiate interface %s", name);
 
+        IObject object = (IObject) nativeConstructor.newInstance(env, this);
         ArrayMemory props = object.getProperties();
 
         for(PropertyEntity property : getProperties()) {
-            //if (property.defaultValue != null)
-           // PropertyEntity prototype = property.prototype;
-            /*while (prototype != null) {
-                props.putAsKeyString(
-                        prototype.getSpecificName(),
-                        prototype.defaultValue == null ? Memory.NULL : prototype.defaultValue.toImmutable()
-                );
-                prototype = prototype.prototype;
-            }*/
             if (id == property.clazz.getId()){
                 props.putAsKeyString(
                         property.getSpecificName(),
@@ -948,21 +972,84 @@ public class ClassEntity extends Entity {
         public static ResultItem error(MethodEntity method){
             return new ResultItem(method, ErrorType.E_ERROR);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ResultItem)) return false;
+
+            ResultItem that = (ResultItem) o;
+
+            if (!method.equals(that.method)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return method.hashCode();
+        }
     }
 
-    public class ClassAddResult {
-        final List<ResultItem> nonExists;
-        final List<ResultItem> invalidSignature;
-        final List<ResultItem> mustStatic;
-        final List<ResultItem> mustNonStatic;
-        final List<ResultItem> mustBePublic;
+    public class ParentResult {
+        ClassEntity parent;
+        MethodsResult methods;
 
-        ClassAddResult() {
-            this.nonExists = new ArrayList<ResultItem>();
-            this.invalidSignature = new ArrayList<ResultItem>();
-            this.mustStatic = new ArrayList<ResultItem>();
-            this.mustNonStatic = new ArrayList<ResultItem>();
-            this.mustBePublic = new ArrayList<ResultItem>();
+        ParentResult(ClassEntity parent) {
+            this.parent = parent;
+        }
+
+        public void check(Environment env){
+            if (parent != null){
+                if (parent.isFinal){
+                    FatalException e = new FatalException(
+                            Messages.ERR_FATAL_CLASS_MAY_NOT_INHERIT_FINAL_CLASS.fetch(ClassEntity.this.getName(), parent.getName()),
+                            ClassEntity.this.trace
+                    );
+                    if (env != null)
+                        env.error(e.getTraceInfo(), e.getType(), e.getMessage());
+                    else
+                        throw e;
+                }
+                if (ClassEntity.this.type == Type.CLASS && parent.type != Type.CLASS){
+                    FatalException e = new FatalException(
+                            Messages.ERR_FATAL_CANNOT_EXTENDS.fetch(ClassEntity.this.getName(), parent.getName()),
+                            ClassEntity.this.trace
+                    );
+                    if (env != null)
+                        env.error(e.getTraceInfo(), e.getType(), e.getMessage());
+                    else
+                        throw e;
+                }
+            }
+            if (methods != null)
+                methods.check(env);
+        }
+    }
+
+    public class MethodsResult {
+        final Set<ResultItem> nonExists;
+        final Set<ResultItem> invalidSignature;
+        final Set<ResultItem> mustStatic;
+        final Set<ResultItem> mustNonStatic;
+        final Set<ResultItem> mustBePublic;
+        final Set<ResultItem> finalMethods;
+        final Set<ResultItem> nonAbstract;
+        final Set<ResultItem> nonAbstractable;
+        final Set<ResultItem> invalidAccessInterfaceMethods;
+        final Set<ResultItem> finalAbstractMethods;
+
+        MethodsResult() {
+            this.nonExists = new HashSet<ResultItem>();
+            this.invalidSignature = new HashSet<ResultItem>();
+            this.mustStatic = new HashSet<ResultItem>();
+            this.mustNonStatic = new HashSet<ResultItem>();
+            this.mustBePublic = new HashSet<ResultItem>();
+            this.finalMethods = new HashSet<ResultItem>();
+            this.nonAbstract = new HashSet<ResultItem>();
+            this.nonAbstractable = new HashSet<ResultItem>();
+            this.invalidAccessInterfaceMethods = new HashSet<ResultItem>();
+            this.finalAbstractMethods = new HashSet<ResultItem>();
         }
 
         public Collection<ResultItem> getNonExists() {
@@ -989,10 +1076,23 @@ public class ClassEntity extends Entity {
             check(null);
         }
 
+        private void checkItems(Environment env, Collection<ResultItem> items, Messages.Item message){
+            for(ResultItem el : items){
+                ErrorException e = new FatalException(
+                        message.fetch(
+                                el.method.getSignatureString(false)
+                        ),
+                        el.method.getTrace()
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
+            }
+        }
+
         public void check(Environment env){
-            boolean asWarning;
             if (!valid()){
-                asWarning = true;
                 StringBuilder needs = new StringBuilder();
                 Iterator<ResultItem> iterator = getNonExists().iterator();
                 int size = 0;
@@ -1000,7 +1100,7 @@ public class ClassEntity extends Entity {
 
                 while (iterator.hasNext()) {
                     ResultItem el = iterator.next();
-                    if (el.errorType.value > errorType.value)
+                    if (el.errorType.value < errorType.value)
                         errorType = el.errorType;
 
                     needs.append(el.method.getClazz().getName())
@@ -1071,6 +1171,12 @@ public class ClassEntity extends Entity {
                             "The magic method %s must have public visibility", el.method.getSignatureString(false)
                     );
             }
+
+            checkItems(env, finalAbstractMethods, Messages.ERR_FATAL_CANNOT_USE_FINAL_ON_ABSTRACT);
+            checkItems(env, finalMethods, Messages.ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD);
+            checkItems(env, nonAbstract, Messages.ERR_FATAL_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY);
+            checkItems(env, nonAbstractable, Messages.ERR_FATAL_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY);
+            checkItems(env, invalidAccessInterfaceMethods, Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD);
         }
     }
 }

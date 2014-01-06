@@ -34,6 +34,21 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testAbstract(){
+        check("zend/classes/abstract.php", true);
+        check("zend/classes/abstract_by_interface_001.php", true);
+        check("zend/classes/abstract_by_interface_002.php", true);
+        check("zend/classes/abstract_class.php", true);
+        check("zend/classes/abstract_derived.php", true);
+        check("zend/classes/abstract_final.php", true);
+        check("zend/classes/abstract_inherit.php", true);
+        check("zend/classes/abstract_not_declared.php", true);
+        check("zend/classes/abstract_redeclare.php", true);
+        check("zend/classes/abstract_static.php", true);
+        check("zend/classes/abstract_user_call.php", true);
+    }
+
+    @Test
     public void testPrivate(){
         check("zend/classes/private_001.php", true);
         check("zend/classes/private_002.php", true);

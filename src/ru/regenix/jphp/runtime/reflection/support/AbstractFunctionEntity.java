@@ -14,6 +14,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     public ParameterEntity[] parameters;
 
     protected Memory result;
+    protected boolean abstractable = false;
 
     protected AbstractFunctionEntity(Context context) {
         super(context);
@@ -37,6 +38,14 @@ abstract public class AbstractFunctionEntity extends Entity {
                 x++;
             }
         }
+    }
+
+    public boolean isAbstractable() {
+        return abstractable;
+    }
+
+    public void setAbstractable(boolean abstractable) {
+        this.abstractable = abstractable;
     }
 
     public boolean isEmpty() {
@@ -73,7 +82,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     }
 
     public Memory getImmutableResult(){
-        if (isImmutable)
+        if (isImmutable && !abstractable)
             return getResult().toImmutable();
 
         return null;

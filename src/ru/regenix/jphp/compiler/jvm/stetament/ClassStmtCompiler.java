@@ -11,7 +11,6 @@ import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.BaseObject;
@@ -351,19 +350,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 if (implement == null) {
                     env.error(
                             name.toTraceInfo(compiler.getContext()),
-                            ErrorType.E_COMPILE_ERROR, Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName())
+                            Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName())
                     );
                 } else {
                     if (implement.getType() != ClassEntity.Type.INTERFACE){
                         env.error(
                                 name.toTraceInfo(compiler.getContext()),
-                                ErrorType.E_COMPILE_ERROR, Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName())
+                                Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName(), implement.getName())
                         );
                     }
                     if (implement.isInternal())
                         node.interfaces.add(implement.getInternalName());
                 }
-                ClassEntity.ClassAddResult addResult = entity.addInterface(implement);
+                ClassEntity.MethodsResult addResult = entity.addInterface(implement);
                 addResult.check(env);
 
                 if (implement != null && implement.isInternal())
@@ -388,7 +387,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getExtend() != null) {
             ClassEntity parent = fetchClass(statement.getExtend().getName().getName());
-            entity.setParent(parent);
+            ClassEntity.ParentResult result = entity.setParent(parent, false);
+            result.check(compiler.getEnvironment());
         }
 
         if (!isSystem)
@@ -423,12 +423,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getMethods() != null){
             for (MethodStmtToken method : statement.getMethods()){
-                ClassEntity.ClassAddResult result = entity.addMethod(compiler.compileMethod(this, method, external));
+                ClassEntity.MethodsResult result = entity.addMethod(compiler.compileMethod(this, method, external));
                 result.check(compiler.getEnvironment());
             }
         }
 
-        ClassEntity.ClassAddResult result = entity.updateParentMethods();
+        ClassEntity.MethodsResult result = entity.updateParentMethods();
         if (isInterfaceCheck)
             result.check(compiler.getEnvironment());
 

@@ -222,7 +222,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             }
 
             if (statement.isStatic()) access += Opcodes.ACC_STATIC;
-            if (statement.isAbstract()) access += Opcodes.ACC_ABSTRACT;
+            //if (statement.isAbstract()) access += Opcodes.ACC_ABSTRACT;
             if (statement.isFinal()) access += Opcodes.ACC_FINAL;
 
             node.access = access;
@@ -363,6 +363,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 statement.setDynamicLocal(true);
 
             entity.setAbstract(statement.isAbstract());
+            entity.setAbstractable(statement.getBody() == null);
             entity.setFinal(statement.isFinal());
             entity.setStatic(statement.isStatic());
             entity.setModifier(statement.getModifier());

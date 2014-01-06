@@ -41,7 +41,7 @@ public class RuntimeClassLoader extends ClassLoader {
         Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
         clazz.setNativeClazz(result);
         for(MethodEntity method : clazz.getMethods().values()){
-            if (method.getNativeMethod() == null){
+            if (method.getNativeMethod() == null && !method.isAbstractable()){
                 method.setNativeMethod(
                         result.getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );

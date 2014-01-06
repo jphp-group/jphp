@@ -37,6 +37,11 @@ final public class ObjectInvokeHelper {
         ClassEntity clazz = childClazz.getParent();
         MethodEntity method;
 
+        if (clazz == null){
+            env.error(trace, "Cannot access parent:: when current class scope has no parent");
+            return Memory.NULL;
+        }
+
         if (methodName == null) {
             method = childClazz.methodMagicInvoke != null ? childClazz.methodMagicInvoke : clazz.methodMagicInvoke;
         } else {
@@ -71,12 +76,11 @@ final public class ObjectInvokeHelper {
             );
         }
 
-        Memory result;
         InvokeHelper.checkAccess(env, trace, method);
-        if (method.isImmutable()){
-            method.unsetArguments(passed);
-            return method.getResult().toImmutable();
-        }
+
+        Memory result = method.getImmutableResult();
+        if (result != null) return result;
+
         try {
             if (trace != null) {
                 env.pushCall(trace, iObject, args, methodName, method.getClazz().getName(), className);
@@ -180,11 +184,11 @@ final public class ObjectInvokeHelper {
         Memory[] passed = InvokeHelper.makeArguments(
                 env, args, method.parameters, className, method.getName(), trace
         );
-        Memory result;
         InvokeHelper.checkAccess(env, trace, method);
-        if (method.isImmutable()){
-            method.unsetArguments(passed);
-            return method.getResult().toImmutable();
+
+        Memory result = method.getImmutableResult();
+        if (result != null){
+            return result;
         }
 
         if (trace != null)

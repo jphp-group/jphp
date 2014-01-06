@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.reflection;
 import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.common.Extension;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.annotation.Reflection;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -93,9 +94,15 @@ public class MethodEntity extends AbstractFunctionEntity {
         nativeMethod.setAccessible(true);
     }
 
-    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
+    public Memory invokeDynamic(IObject _this,
+                                Environment environment, Memory... arguments) throws Throwable {
         Memory result = null;
         try {
+            if (isAbstract){
+                environment.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
+                return Memory.NULL;
+            }
+
             if (_this == null && !isStatic)
                 _this = clazz.newMock(environment);
 

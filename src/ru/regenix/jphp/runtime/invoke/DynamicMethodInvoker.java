@@ -6,6 +6,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
+import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
 import java.lang.reflect.InvocationTargetException;
@@ -35,7 +36,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public Memory call(Memory... args) throws Throwable {
-        return ObjectInvokeHelper.invokeMethod(object, method, env, null, args);
+        return ObjectInvokeHelper.invokeMethod(object, method, env, trace, args);
     }
 
     @Override
@@ -44,7 +45,22 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
     public static DynamicMethodInvoker valueOf(Environment env, TraceInfo trace, IObject object, String methodName){
-        MethodEntity methodEntity = object.getReflection().findMethod(methodName.toLowerCase());
+        String methodNameL = methodName.toLowerCase();
+        int pos;
+        MethodEntity methodEntity;
+        if ((pos = methodName.indexOf("::")) > -1){
+            String className = methodNameL.substring(0, pos);
+            methodNameL = methodNameL.substring(pos + 2);
+
+            ClassEntity classEntity = object.getReflection();
+            ClassEntity clazz = env.fetchClass(methodName.substring(0, pos), className, false);
+            if (!classEntity.isInstanceOf(clazz)){
+                return null;
+            }
+            methodEntity = clazz.findMethod(methodNameL);
+        } else
+            methodEntity = object.getReflection().findMethod(methodNameL);
+
         if (methodEntity == null){
             if (object.getReflection().methodMagicCall != null) {
                 return new MagicDynamicMethodInvoker(

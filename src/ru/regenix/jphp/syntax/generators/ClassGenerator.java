@@ -285,6 +285,10 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 result.setFinal(current instanceof FinalStmtToken);
 
                 return result;
+            } else if (next instanceof InterfaceStmtToken) {
+                unexpectedToken(current);
+            } else if (next instanceof AbstractStmtToken || next instanceof FinalStmtToken){
+                unexpectedToken(next);
             } else {
                 iterator.previous();
             }
@@ -295,6 +299,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         else if (current instanceof InterfaceStmtToken){
             ClassStmtToken result = new ClassStmtToken(current.getMeta());
             result.setInterface(true);
+
             return result;
         }
 

@@ -36,17 +36,23 @@ final public class Messages {
     public final static Item ERR_FATAL_CANNOT_REDECLARE_FUNCTION = new Item("Cannot redeclare function %s");
     public final static Item ERR_FATAL_CANNOT_REDECLARE_CONSTANT = new Item("Cannot redeclare constant %s");
     public final static Item ERR_FATAL_CANNOT_IMPLEMENT = new Item("%s cannot implement %s - it is not an interface");
+    public final static Item ERR_FATAL_CANNOT_EXTENDS = new Item("%s cannot extend from %s - it is not an class");
     public final static Item ERR_FATAL_INTERFACE_NOT_FOUND = new Item("Interface '%s' not found");
     public final static Item ERR_FATAL_TRAIT_NOT_FOUND = new Item("Trait '%s' not found");
 
     public final static Item ERR_FATAL_IMPLEMENT_METHOD =
-            new Item("Class %s contains %s abstract method(s) and therefore be declared abstract or implement the remaining methods (%s)");
+            new Item("Class %s contains %s abstract method(s) and must therefore be declared abstract or implement the remaining methods (%s)");
 
     public final static Item ERR_FATAL_INVALID_METHOD_SIGNATURE = new Item("Declaration of %s must be compatible with %s");
     public final static Item ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY = new Item("Interface function %s cannot contain body");
     public final static Item ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD = new Item("Access type for interface method %s must be omitted");
     public final static Item ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot make non static method %s static in class %s");
     public final static Item ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC = new Item("Cannot make static method %s non static in class %s");
+    public final static Item ERR_FATAL_CLASS_MAY_NOT_INHERIT_FINAL_CLASS = new Item("Class %s may not inherit from final class (%s)");
+    public final static Item ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD = new Item("Cannot override final method %s");
+    public final static Item ERR_FATAL_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY = new Item("Non-abstract method %s must contain body");
+    public final static Item ERR_FATAL_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY = new Item("Abstract method %s cannot contain body");
+    public final static Item ERR_FATAL_CANNOT_USE_FINAL_ON_ABSTRACT = new Item("Cannot use the final modifier on an abstract class member");
 
     public final static Item ERR_FATAL_CLASS_NOT_FOUND = new Item("Class '%s' not found");
     public final static Item ERR_WARNING_MISSING_ARGUMENT = new Item("Missing argument %s for %s()");
