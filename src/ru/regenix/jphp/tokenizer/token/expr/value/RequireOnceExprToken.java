@@ -7,4 +7,9 @@ public class RequireOnceExprToken extends ImportExprToken {
     public RequireOnceExprToken(TokenMeta meta) {
         super(meta, TokenType.T_REQUIRE_ONCE);
     }
+
+    @Override
+    public String getCode() {
+        return "requireOnce";
+    }
 }

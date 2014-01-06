@@ -23,7 +23,7 @@ package ru.regenix.jphp.lib.collections;
  * If an input parameter is required, then {@link } is more appropriate.
  * <p/>
  * Standard implementations of common factories are provided by
- * {@link FactoryUtils}. These include factories that return a constant,
+ * {@link FactoryUtils}. These __include factories that return a constant,
  * a copy of a prototype or a new instance.
  *
  * @author Arron Bates

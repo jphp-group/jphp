@@ -7,4 +7,9 @@ public class IncludeOnceExprToken extends ImportExprToken {
     public IncludeOnceExprToken(TokenMeta meta) {
         super(meta, TokenType.T_INCLUDE_ONCE);
     }
+
+    @Override
+    public String getCode() {
+        return "includeOnce";
+    }
 }

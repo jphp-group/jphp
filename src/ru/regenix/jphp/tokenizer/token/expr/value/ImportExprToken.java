@@ -19,4 +19,6 @@ abstract public class ImportExprToken extends ValueExprToken implements Callable
     public void setValue(ExprStmtToken value) {
         this.value = value;
     }
+
+    abstract public String getCode();
 }

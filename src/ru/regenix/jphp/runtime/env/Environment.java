@@ -666,11 +666,7 @@ public class Environment {
         return constant;
     }
 
-    public Memory include(String fileName) throws Throwable {
-        return include(fileName, globals, null);
-    }
-
-    public Memory include(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
+    private Memory __include(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
@@ -691,29 +687,55 @@ public class Environment {
         }
     }
 
-    public Memory includeOnce(String fileName, ArrayMemory locals, TraceInfo trace)
+    public Memory __include(String fileName) throws Throwable {
+        return __include(fileName, globals, null);
+    }
+
+    public Memory __includeOnce(String fileName, ArrayMemory locals, TraceInfo trace)
             throws Throwable {
         Context context = new Context(this, new File(fileName));
         if (included.containsKey(context.getModuleName()))
             return Memory.TRUE;
-        return include(fileName, locals, trace, true);
+        return __include(fileName, locals, trace, true);
     }
 
-    public Memory include(String fileName, ArrayMemory locals, TraceInfo trace)
+    public Memory __include(String fileName, ArrayMemory locals, TraceInfo trace)
             throws Throwable {
-        return include(fileName, locals, trace, false);
+        return __include(fileName, locals, trace, false);
     }
 
-    public void require(String fileName, ArrayMemory locals, TraceInfo trace)
+    private Memory __require(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
             error(trace, E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
+            return Memory.NULL;
         } else {
             ModuleEntity module = importModule(file);
-            included.put(fileName, module);
-            module.include(this, locals);
+            included.put(module.getName(), module);
+
+            Memory result;
+            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "require_once" : "require", null, null);
+            try {
+                result = module.include(this, locals);
+            } finally {
+                popCall();
+            }
+            return result;
         }
+    }
+
+    public Memory __require(String fileName, ArrayMemory locals, TraceInfo trace)
+            throws Throwable {
+        return __require(fileName, locals, trace, false);
+    }
+
+    public Memory __requireOnce(String fileName, ArrayMemory locals, TraceInfo trace)
+            throws Throwable {
+        Context context = new Context(this, new File(fileName));
+        if (included.containsKey(context.getModuleName()))
+            return Memory.TRUE;
+        return __require(fileName, locals, trace, true);
     }
 
     public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)

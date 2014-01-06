@@ -7,4 +7,9 @@ public class IncludeExprToken extends ImportExprToken {
     public IncludeExprToken(TokenMeta meta) {
         super(meta, TokenType.T_INCLUDE);
     }
+
+    @Override
+    public String getCode() {
+        return "include";
+    }
 }

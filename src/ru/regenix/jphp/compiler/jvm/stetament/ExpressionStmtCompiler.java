@@ -1144,13 +1144,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushLocal();
         writePushTraceInfo(include);
 
-        String name = "";
-        if (include instanceof IncludeOnceExprToken)
-            name = "includeOnce";
-        else if (include instanceof IncludeExprToken)
-            name = "include";
-        else
-            unexpectedToken(include);
+        String name = "__" + include.getCode();
 
         writeSysDynamicCall(Environment.class, name, Memory.class,
                 String.class, ArrayMemory.class, TraceInfo.class

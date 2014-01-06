@@ -114,13 +114,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (!(next instanceof AssignExprToken))
                 unexpectedToken(next, "=");
 
-            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
-                    nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
+            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                    nextToken(iterator), iterator, closedBraceKind
             );
-            if (isClosedBrace(iterator.previous(), closedBraceKind) || braceOpened > 0){
-                iterator.next();
-            }
-
             result.setValue(value);
         }
 
@@ -261,13 +257,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected ImportExprToken processImport(Token current, Token next, ListIterator<Token> iterator,
                                               BraceExprToken.Kind closedBrace, int braceOpened){
         ImportExprToken result = (ImportExprToken)current;
-        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
-                nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                nextToken(iterator), iterator, closedBrace
         );
-        if (isClosedBrace(iterator.previous(), closedBrace) || braceOpened > 0){
-            iterator.next();
-        }
-
         result.setValue(value);
 
         if (analyzer.getFunction() != null)
@@ -281,12 +273,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         CallExprToken callExprToken = new CallExprToken(current.getMeta());
         callExprToken.setName((ExprToken)current);
 
-        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
-                nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                nextToken(iterator), iterator, closedBrace
         );
-        if (isClosedBrace(iterator.previous(), closedBrace) || braceOpened > 0){
-            iterator.next();
-        }
+
         if (value == null)
             unexpectedToken(iterator.previous());
 
@@ -811,6 +801,16 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 current, iterator, commaSeparator ? Separator.COMMA : Separator.SEMICOLON, closedBraceKind,
                 null
         );
+    }
+
+    public ExprStmtToken getNextExpression(Token current, ListIterator<Token> iterator, BraceExprToken.Kind closedBraceKind){
+        ExprStmtToken value = getToken(
+                current, iterator, Separator.SEMICOLON, closedBraceKind
+        );
+        if (!(iterator.previous() instanceof SemicolonToken)){
+            iterator.next();
+        }
+        return value;
     }
 
     public ExprStmtToken getToken(Token current, ListIterator<Token> iterator,
