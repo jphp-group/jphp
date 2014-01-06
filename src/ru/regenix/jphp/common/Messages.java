@@ -49,7 +49,7 @@ final public class Messages {
     public final static Item ERR_FATAL_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot make non static method %s static in class %s");
     public final static Item ERR_FATAL_CANNOT_MAKE_STATIC_TO_NON_STATIC = new Item("Cannot make static method %s non static in class %s");
     public final static Item ERR_FATAL_CLASS_MAY_NOT_INHERIT_FINAL_CLASS = new Item("Class %s may not inherit from final class (%s)");
-    public final static Item ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD = new Item("Cannot override final method %s");
+    public final static Item ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD = new Item("Cannot override final method %s with %s");
     public final static Item ERR_FATAL_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY = new Item("Non-abstract method %s must contain body");
     public final static Item ERR_FATAL_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY = new Item("Abstract method %s cannot contain body");
     public final static Item ERR_FATAL_CANNOT_USE_FINAL_ON_ABSTRACT = new Item("Cannot use the final modifier on an abstract class member");

@@ -270,8 +270,6 @@ public class ClassEntity extends Entity {
 
     public MethodsResult addMethod(MethodEntity method){
         String name = method.getLowerName();
-        if (name.equals(lowerName))
-            name = "__construct";
 
         MethodsResult addResult = new MethodsResult();
         if (method.isAbstract && method.isFinal){
@@ -310,6 +308,10 @@ public class ClassEntity extends Entity {
         }
 
         this.methods.put(name, method);
+        if (name.equals(lowerName)){
+            methods.put("__construct", method);
+        }
+
         return addResult;
     }
 
@@ -341,8 +343,9 @@ public class ClassEntity extends Entity {
     public MethodsResult updateParentMethods(){
         MethodsResult result = new MethodsResult();
         if (parent != null){
-            for(MethodEntity method : parent.getMethods().values()){
-                MethodEntity implMethod = findMethod(method.getLowerName());
+            for(Map.Entry<String, MethodEntity> entry : parent.getMethods().entrySet()){
+                MethodEntity implMethod = findMethod(entry.getKey());
+                MethodEntity method = entry.getValue();
                 if (implMethod == method) continue;
 
                 if (implMethod == null){
@@ -1087,13 +1090,26 @@ public class ClassEntity extends Entity {
         }
 
         private void checkItems(Environment env, Collection<ResultItem> items, Messages.Item message){
+            checkItems(env, items, message, false);
+        }
+
+        private void checkItems(Environment env, Collection<ResultItem> items, Messages.Item message, boolean prototype){
             for(ResultItem el : items){
-                ErrorException e = new FatalException(
-                        message.fetch(
-                                el.method.getSignatureString(false)
-                        ),
-                        el.method.getTrace()
-                );
+                ErrorException e;
+                if (prototype)
+                    e = new FatalException(
+                            message.fetch(
+                                    el.method.getPrototype().getSignatureString(false),
+                                    el.method.getSignatureString(false)
+                            ),
+                            el.method.getTrace()
+                    );
+
+                else
+                     e = new FatalException(
+                            message.fetch(el.method.getSignatureString(false)),
+                            el.method.getTrace()
+                    );
                 if (env == null)
                     throw e;
                 else
@@ -1183,7 +1199,7 @@ public class ClassEntity extends Entity {
             }
 
             checkItems(env, finalAbstractMethods, Messages.ERR_FATAL_CANNOT_USE_FINAL_ON_ABSTRACT);
-            checkItems(env, finalMethods, Messages.ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD);
+            checkItems(env, finalMethods, Messages.ERR_FATAL_CANNOT_OVERRIDE_FINAL_METHOD, true);
             checkItems(env, nonAbstract, Messages.ERR_FATAL_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY);
             checkItems(env, nonAbstractable, Messages.ERR_FATAL_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY);
             checkItems(env, invalidAccessInterfaceMethods, Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD);

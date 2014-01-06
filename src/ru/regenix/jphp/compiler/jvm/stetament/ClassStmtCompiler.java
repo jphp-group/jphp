@@ -213,6 +213,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
                 if (value == null) {
                     if (property.getValue() != null){
+                        if (property.isStatic())
+                            compiler.getEnvironment().error(
+                                    property.getVariable().toTraceInfo(compiler.getContext()),
+                                    ErrorType.E_COMPILE_ERROR,
+                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName())
+                            );
+
                         expressionCompiler.writeVarLoad("~class");
                         expressionCompiler.writeVarLoad("~this");
                         expressionCompiler.writePushConstString(prop.getSpecificName());

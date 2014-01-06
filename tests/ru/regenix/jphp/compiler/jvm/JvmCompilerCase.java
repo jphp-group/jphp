@@ -177,6 +177,9 @@ abstract public class JvmCompilerCase {
             Memory result = StringFunctions.sscanf(
                     environment, TraceInfo.valueOf(file.getName(), 0, 0), rtrim(lastOutput), test.getExpectF()
             );
+            if (result.isNull())
+                result = new ArrayMemory();
+
             PrintF printF = new PrintF(environment.getLocale(), test.getExpectF(), ((ArrayMemory)result).values());
             String out = printF.toString();
 

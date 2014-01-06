@@ -76,4 +76,20 @@ public class ClassesTest extends JvmCompilerCase {
     public void testThis(){
         check("zend/classes/this.php", true);
     }
+
+    @Test
+    public void testBugs(){
+        check("zend/classes/bug23951.php");
+        check("zend/classes/bug24399.php");
+    }
+
+    @Test
+    public void testFinal(){
+        check("zend/classes/final.php");
+        check("zend/classes/final_abstract.php", true);
+        check("zend/classes/final_ctor1.php", true);
+        check("zend/classes/final_ctor2.php", true);
+        check("zend/classes/final_ctor3.php", true);
+        check("zend/classes/final_redeclare.php", true);
+    }
 }
