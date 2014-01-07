@@ -30,6 +30,11 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
     @Override
+    public int getArgumentCount() {
+        return method.parameters == null ? 0 : method.parameters.length;
+    }
+
+    @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
         env.pushCall(trace, object, args, method.getName(), method.getClazz().getName(), object.getReflection().getName());
     }

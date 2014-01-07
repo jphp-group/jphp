@@ -105,7 +105,7 @@ abstract public class JvmCompilerCase {
 
         Memory memory = module.includeNoThrow(environment, environment.getGlobals());
         try {
-            environment.clear();
+            environment.doFinal();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
@@ -148,7 +148,6 @@ abstract public class JvmCompilerCase {
             environment.getScope().loadModule(module);
             environment.registerModule(module);
 
-
             Memory memory = module.includeNoThrow(environment, environment.getGlobals());
         } catch (ErrorException e) {
             if (withErrors){
@@ -163,7 +162,7 @@ abstract public class JvmCompilerCase {
         }
 
         try {
-            environment.clear();
+            environment.doFinal();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

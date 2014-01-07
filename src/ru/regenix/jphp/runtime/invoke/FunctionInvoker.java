@@ -18,6 +18,11 @@ public class FunctionInvoker extends Invoker {
         this.env = env;
     }
 
+    @Override
+    public int getArgumentCount() {
+        return entity.parameters == null ? 0 : entity.parameters.length;
+    }
+
     public FunctionEntity getFunction() {
         return entity;
     }

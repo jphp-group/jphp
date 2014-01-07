@@ -18,6 +18,8 @@ abstract public class Invoker {
         this.trace = trace;
     }
 
+    abstract public int getArgumentCount();
+
     abstract public void pushCall(TraceInfo trace, Memory[] args);
 
     abstract public Memory call(Memory... args) throws Throwable;

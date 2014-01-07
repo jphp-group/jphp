@@ -19,6 +19,11 @@ public class StaticMethodInvoker extends Invoker {
         this.calledClass = calledClass;
     }
 
+    @Override
+    public int getArgumentCount() {
+        return method.parameters == null ? 0 : method.parameters.length;
+    }
+
     public MethodEntity getMethod() {
         return method;
     }

@@ -16,16 +16,15 @@ import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.ObjectMemory;
-import ru.regenix.jphp.runtime.memory.ReferenceMemory;
-import ru.regenix.jphp.runtime.memory.StringMemory;
+import ru.regenix.jphp.runtime.lang.UncaughtException;
+import ru.regenix.jphp.runtime.memory.*;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.output.OutputBuffer;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import ru.regenix.jphp.runtime.util.JVMStackTracer;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
@@ -46,28 +45,19 @@ public class Environment {
     private Set<String> includePaths;
     protected SplClassLoader autoLoader = null;
     protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
+    private List<ShutdownHandler> shutdownFunctions = new LinkedList<ShutdownHandler>();
 
-    private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
-        @Override
-        protected Integer initialValue() {
-            return E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
-        }
-    };
+    private int errorFlags = E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
 
-    private ThreadLocal<Stack<Integer>> silentFlags = new ThreadLocal<Stack<Integer>>(){
-        @Override
-        public Stack<Integer> initialValue(){
-            return new Stack<Integer>();
-        }
-    };
-
+    private Stack<Integer> silentFlags = new Stack<Integer>();
     private SystemMessage lastMessage;
 
+    private ErrorReportHandler errorReportHandler;
     private ErrorHandler previousErrorHandler;
-    private ErrorHandler errorReportHandler;
+    private ErrorHandler errorHandler;
 
     private ExceptionHandler previousExceptionHandler;
-    private ExceptionHandler exceptionHandler;
+    private ExceptionHandler exceptionHandler = ExceptionHandler.DEFAULT;
 
     private OutputBuffer defaultBuffer;
     private Stack<OutputBuffer> outputBuffers;
@@ -108,7 +98,26 @@ public class Environment {
     private final ReferenceQueue<IObject> gcObjectRefQueue = new ReferenceQueue<IObject>();
     private final Set<WeakReference<IObject>> gcObjects = new HashSet<WeakReference<IObject>>();
 
-    public void clear() throws Throwable {
+    public void doFinal() throws Throwable {
+        for (ShutdownHandler handler : shutdownFunctions){
+            try {
+                handler.call();
+            } catch (DieException e){
+                finalizeObjects();
+                catchUncaught(e);
+                break;
+            } catch (BaseException e){
+                catchUncaught(e);
+                break;
+            } catch (ErrorException e){
+                catchUncaught(e);
+                break;
+            } catch (Exception e){
+                catchUncaught(e);
+                break;
+            }
+        }
+
         finalizeObjects();
         lastMessage = null;
     }
@@ -160,7 +169,7 @@ public class Environment {
         this.globals = new ArrayMemory();
         this.statics = new HashMap<String, ReferenceMemory>();
         this.included = new LinkedHashMap<String, ModuleEntity>();
-        this.setErrorReportHandler(new ErrorHandler() {
+        this.setErrorReportHandler(new ErrorReportHandler() {
             @Override
             public boolean onError(SystemMessage error) {
                 Environment.this.echo(error.getDebugMessage());
@@ -175,8 +184,8 @@ public class Environment {
                 if (error.getTraceInfo() != null){
                     Environment.this.echo(
                         " in " + error.getTraceInfo().getFileName()
-                        + " on line " + error.getTraceInfo().getStartLine()
-                        + ", position " + error.getTraceInfo().getStartPosition()
+                        + " on line " + (error.getTraceInfo().getStartLine() + 1)
+                        + ", position " + (error.getTraceInfo().getStartPosition() + 1)
                     );
                 }
                 return false;
@@ -470,12 +479,12 @@ public class Environment {
         return statics.get(name);
     }
 
-    public Integer getErrorFlags() {
-        return errorFlags.get();
+    public int getErrorFlags() {
+        return errorFlags;
     }
 
     public void setErrorFlags(int errorFlags) {
-        this.errorFlags.set(errorFlags);
+        this.errorFlags = errorFlags;
     }
 
     public SystemMessage getLastMessage() {
@@ -488,24 +497,27 @@ public class Environment {
 
     public void setExceptionHandler(ExceptionHandler exceptionHandler) {
         this.previousExceptionHandler = this.exceptionHandler;
-        this.exceptionHandler = exceptionHandler;
+        this.exceptionHandler = exceptionHandler == null ? ExceptionHandler.DEFAULT : exceptionHandler;
     }
 
-    public ErrorHandler getErrorReportHandler() {
+    public ErrorReportHandler getErrorReportHandler() {
         return errorReportHandler;
     }
 
-    public void setErrorReportHandler(ErrorHandler errorReportHandler) {
-        this.previousErrorHandler = this.errorReportHandler;
+    public void setErrorReportHandler(ErrorReportHandler errorReportHandler) {
         this.errorReportHandler = errorReportHandler;
+    }
+
+    public ExceptionHandler getPreviousExceptionHandler() {
+        return previousExceptionHandler;
     }
 
     public ErrorHandler getPreviousErrorHandler() {
         return previousErrorHandler;
     }
 
-    public ExceptionHandler getPreviousExceptionHandler() {
-        return previousExceptionHandler;
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
     }
 
     protected void triggerError(ErrorException err){
@@ -514,27 +526,75 @@ public class Environment {
             throw err;
     }
 
+    public boolean catchUncaught(Exception e){
+        if (e instanceof UncaughtException)
+            return catchUncaught((UncaughtException)e);
+        else if (e instanceof DieException){
+            System.exit(((DieException) e).getExitCode());
+            return true;
+        } else if (e instanceof ErrorException) {
+            ErrorException er = (ErrorException)e;
+            echo("\n");
+
+            echo("\n[" + er.getType().name() + "] " + e.getMessage());
+            echo("\n    at line " + (er.getTraceInfo().getStartLine() + 1));
+            echo(", position " + (er.getTraceInfo().getStartPosition() + 1));
+            echo("\n");
+            echo("\n    in '" + er.getTraceInfo().getFileName() + "'");
+
+            JVMStackTracer tracer = scope.getStackTracer(e);
+            for(JVMStackTracer.Item el : tracer){
+                echo("\n\tat " + (el.isInternal() ? "" : "-> ") + el);
+            }
+            return true;
+        } else if (e instanceof BaseException){
+            BaseException be = (BaseException)e;
+            try {
+                ExceptionHandler.DEFAULT.onException(this, be);
+                return true;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        } else {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean catchUncaught(UncaughtException e){
+        if (exceptionHandler != null){
+            try {
+                exceptionHandler.onException(this, e.getException());
+            } catch (DieException _e){
+                catchUncaught(_e);
+            } catch (ErrorException _e){
+                catchUncaught(_e);
+            } catch (BaseException _e){
+                catchUncaught(_e);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+            return true;
+        } else
+            return false;
+    }
+
     public void error(TraceInfo trace, ErrorType type, String message, Object... args){
-        if (type.isFatal())
-            triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), trace));
-        else
-            triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), new Messages.Item(message), args));
+        error(trace, type, new Messages.Item(message), args);
     }
 
     public void error(TraceInfo trace, ErrorType type, Messages.Item message, Object... args){
         if (type.isFatal()) {
-            triggerError(new CustomErrorException(type, message.fetch(args), trace));
+            if (type.isHandled() && errorHandler != null && ErrorType.check(errorHandler.errorHandlerFlags, type)){
+                triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), message, args));
+            } else
+                triggerError(new CustomErrorException(type, message.fetch(args), trace));
         } else {
             triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), message, args));
         }
     }
 
     public void error(ErrorType type, String message, Object... args){
-        if (type.isFatal())
-            triggerError(new CustomErrorException(type, new Messages.Item(message).fetch(args), peekCall(0).trace));
-        else {
-            triggerMessage(new CustomSystemMessage(type, this, new Messages.Item(message), args));
-        }
+        error(peekCall(0).trace, type, message, args);
     }
 
     public void error(TraceInfo trace, String message, Object... args){
@@ -543,32 +603,37 @@ public class Environment {
 
     public void triggerMessage(SystemMessage message){
         lastMessage = message;
+        if (errorHandler != null){
+            if (errorHandler.onError(this, message))
+                return;
+        }
+
         if (errorReportHandler != null && isHandleErrors(message.getType()))
             errorReportHandler.onError(message);
     }
 
     public boolean isHandleErrors(ErrorType type){
-        return ErrorType.check(errorFlags.get(), type);
+        return ErrorType.check(errorFlags, type);
     }
 
     public void warning(String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
+        //if (isHandleErrors(E_WARNING))
+        triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
     }
 
     public void warning(TraceInfo trace, String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
+        //if (isHandleErrors(E_WARNING))
+        triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
     }
 
     public void warning(TraceInfo trace, Messages.Item message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
+        //if (isHandleErrors(E_WARNING))
+        triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
     }
 
     public void notice(String message, Object... args){
-        if (isHandleErrors(E_WARNING))
-            triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
+        //if (isHandleErrors(E_WARNING))
+        triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
     }
 
     public Context createContext(String code){
@@ -817,17 +882,17 @@ public class Environment {
     }
 
     public void __pushSilent(){
-        silentFlags.get().push(errorFlags.get());
+        silentFlags.push(errorFlags);
         setErrorFlags(0);
     }
 
     public void __popSilent(){
-        Integer flags = silentFlags.get().pop();
+        Integer flags = silentFlags.pop();
         setErrorFlags(flags);
     }
 
     public void __clearSilent(){
-        Stack<Integer> silents = silentFlags.get();
+        Stack<Integer> silents = silentFlags;
         Integer flags = 0;
         while (!silents.empty())
             flags = silents.pop();
@@ -963,5 +1028,14 @@ public class Environment {
             }
         }
         return result;
+    }
+
+    public void setErrorHandler(ErrorHandler handler){
+        previousErrorHandler = errorHandler;
+        errorHandler = handler;
+    }
+
+    public void registerShutdownFunction(ShutdownHandler handler){
+        shutdownFunctions.add(handler);
     }
 }

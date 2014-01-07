@@ -737,6 +737,11 @@ public class ClassEntity extends Entity {
         object.getProperties().put(property, value);
     }
 
+    public Memory refOfProperty(ArrayMemory props, String name){
+        PropertyEntity entity = properties.get(name);
+        return props.refOfIndex(entity == null ? name : entity.getSpecificName());
+    }
+
     public Memory setProperty(Environment env, TraceInfo trace,
                               IObject object, String property, Memory memory, SetterCallback callback)
             throws Throwable {

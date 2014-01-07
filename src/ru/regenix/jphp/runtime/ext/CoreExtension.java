@@ -2,6 +2,8 @@ package ru.regenix.jphp.runtime.ext;
 
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.common.Extension;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.ext.core.*;
 
 public class CoreExtension extends Extension {
@@ -28,5 +30,9 @@ public class CoreExtension extends Extension {
         registerConstants(new ArrayConstants());
         registerFunctions(new ArrayFunctions());
         registerFunctions(new OutputFunctions());
+
+        // T_ERROR
+        for (ErrorType el : ErrorType.values())
+            constants.put(el.name(), new CompileConstant(el.name(), el.value));
     }
 }

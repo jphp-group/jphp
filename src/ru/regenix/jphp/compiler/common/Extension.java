@@ -1,7 +1,10 @@
 package ru.regenix.jphp.compiler.common;
 
 import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.compile.*;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
+import ru.regenix.jphp.compiler.common.compile.CompileFunction;
+import ru.regenix.jphp.compiler.common.compile.ConstantsContainer;
+import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
 import java.util.HashMap;
@@ -15,9 +18,9 @@ abstract public class Extension {
         // nop
     }
 
-    private Map<String, CompileConstant> constants = new HashMap<String, CompileConstant>();
-    private Map<String, CompileFunction> functions = new HashMap<String, CompileFunction>();
-    private Map<String, ClassEntity> classes = new HashMap<String, ClassEntity>();
+    protected Map<String, CompileConstant> constants = new HashMap<String, CompileConstant>();
+    protected Map<String, CompileFunction> functions = new HashMap<String, CompileFunction>();
+    protected Map<String, ClassEntity> classes = new HashMap<String, ClassEntity>();
 
     public Map<String, CompileConstant> getConstants() {
         return constants;

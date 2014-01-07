@@ -5,13 +5,10 @@ import ru.regenix.jphp.Information;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.DieException;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.ext.*;
 import ru.regenix.jphp.runtime.reflection.ModuleEntity;
-import ru.regenix.jphp.runtime.util.JVMStackTracer;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -69,9 +66,11 @@ public class CLI {
             environment.registerModule(module);
 
             module.includeNoThrow(environment);
+        } catch (Exception e){
+            environment.catchUncaught(e);
         } finally {
             try {
-                environment.clear();
+                environment.doFinal();
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -80,32 +79,15 @@ public class CLI {
 
     public void process(){
         long t = System.currentTimeMillis();
-        try {
-            if (arguments.showHelp)
-                showHelp();
-            else if (arguments.showVersion){
-                showVersion();
-            } else if (arguments.file != null){
-                executeFile(arguments.file);
-            } else
-                showHelp();
-        } catch (ErrorException e){
-            output.printf("[%s] %s", e.getType().getTypeName(), e.getMessage());
-            output.println();
-            output.printf("    at line %s", (e.getTraceInfo().getStartLine() + 1));
-            output.printf(", position %s", (e.getTraceInfo().getStartPosition() + 1));
-            output.println();
-            output.println("    in '" + e.getTraceInfo().getFileName() + "'");
+        if (arguments.showHelp)
+            showHelp();
+        else if (arguments.showVersion){
+            showVersion();
+        } else if (arguments.file != null){
+            executeFile(arguments.file);
+        } else
+            showHelp();
 
-            System.out.println();
-            JVMStackTracer tracer = compileScope.getStackTracer(e);
-            for(JVMStackTracer.Item el : tracer){
-                System.out.println("\tat " + (el.isInternal() ? "" : "-> ") + el);
-            }
-
-        } catch (DieException e){
-            System.exit(e.getExitCode());
-        }
         if (arguments.showStat){
             output.println();
             output.println("---");

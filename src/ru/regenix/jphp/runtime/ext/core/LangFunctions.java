@@ -7,10 +7,7 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.runtime.env.CallStackItem;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import ru.regenix.jphp.runtime.env.*;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
@@ -86,10 +83,73 @@ public class LangFunctions extends FunctionsContainer {
         return result.toImmutable();
     }
 
+    public static void register_shutdown_function(Environment env, TraceInfo trace, @Runtime.Reference Memory handler,
+                                                 Memory... args){
+        Invoker invoker = expectingCallback(env, trace, 1, handler);
+        if (invoker != null)
+            env.registerShutdownFunction(new ShutdownHandler(invoker, args));
+    }
+
     public static int error_reporting(Environment env, int level){
         int old = env.getErrorFlags();
         env.setErrorFlags(level);
         return old;
+    }
+
+    public static boolean trigger_error(Environment env, TraceInfo trace, String message, int type){
+        ErrorType _type = ErrorType.valueOf(type);
+        if (_type == null)
+            return false;
+
+        env.error(trace, _type, message);
+        return true;
+    }
+
+    public static boolean user_error(Environment env, TraceInfo trace, String message, int type){
+        return trigger_error(env, trace, message, type);
+    }
+
+    public static boolean trigger_error(Environment env, TraceInfo trace, String message){
+        return trigger_error(env, trace, message, ErrorType.E_USER_NOTICE.value);
+    }
+
+    public static boolean user_error(Environment env, TraceInfo trace, String message){
+        return trigger_error(env, trace, message);
+    }
+
+    public static Memory set_error_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler,
+                                           int flags){
+        Invoker invoker = expectingCallback(env, trace, 1, handler);
+        if (invoker != null){
+            ErrorHandler last = env.getErrorHandler();
+            env.setErrorHandler(new ErrorHandler(invoker, handler.toImmutable(), flags));
+            return last == null ? Memory.NULL : last.invokerMemory;
+        } else
+            return Memory.FALSE;
+    }
+
+    public static Memory set_error_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler){
+        return set_error_handler(env, trace, handler, ErrorType.E_ALL.value | ErrorType.E_STRICT.value);
+    }
+
+    public static boolean restore_error_handler(Environment env){
+        env.setErrorHandler(env.getPreviousErrorHandler());
+        return true;
+    }
+
+    public static Memory set_exception_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler){
+        Invoker invoker = expectingCallback(env, trace, 1, handler);
+        if (invoker != null){
+            ExceptionHandler eh = env.getExceptionHandler();
+            env.setExceptionHandler(new ExceptionHandler(invoker, handler.toImmutable()));
+            return eh == null || eh.invoker == null ? Memory.NULL : eh.invokerMemory;
+        } else
+            return Memory.FALSE;
+    }
+
+    public static boolean restore_exception_handler(Environment env){
+        env.setExceptionHandler(env.getPreviousExceptionHandler());
+        return true;
     }
 
     public static Memory get_defined_vars(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals){

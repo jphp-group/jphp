@@ -56,6 +56,18 @@ public enum ErrorType {
         return "Unknown";
     }
 
+    public boolean isHandled(){
+        if (!isFatal())
+            return true;
+
+        switch (this){
+            case E_RECOVERABLE_ERROR:
+                return true;
+        }
+
+        return false;
+    }
+
     public boolean isFatal(){
         switch (this){
             case E_DEPRECATED:

@@ -6,6 +6,7 @@ import ru.regenix.jphp.runtime.env.CallStackItem;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
+import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 
@@ -26,9 +27,9 @@ import static ru.regenix.jphp.runtime.annotation.Reflection.*;
        @Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
 })
 public class BaseException extends RuntimeException implements IObject {
-    protected final ArrayMemory __dynamicProperties__;
-    protected ClassEntity __class__;
-    protected final WeakReference<Environment> __env__;
+    protected final ArrayMemory props;
+    protected ClassEntity clazz;
+    protected final WeakReference<Environment> env;
     protected TraceInfo trace;
     protected CallStackItem[] callStack;
 
@@ -36,9 +37,9 @@ public class BaseException extends RuntimeException implements IObject {
     private boolean isFinalized = false;
 
     public BaseException(Environment env, ClassEntity clazz) {
-        this.__class__ = clazz;
-        this.__dynamicProperties__ = new ArrayMemory();
-        this.__env__ = new WeakReference<Environment>(env);
+        this.clazz = clazz;
+        this.props = new ArrayMemory();
+        this.env = new WeakReference<Environment>(env);
     }
 
     @Signature({
@@ -47,9 +48,10 @@ public class BaseException extends RuntimeException implements IObject {
             @Arg(value = "previous", optional = @Optional(value = "NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
-        __dynamicProperties__.refOfIndex("message").assign(args[0].toString());
-        __dynamicProperties__.refOfIndex("code").assign(args[1].toLong());
-        __dynamicProperties__.refOfIndex("previous").assign(args[2]);
+        clazz.refOfProperty(props, "message").assign(args[0].toString());
+        clazz.refOfProperty(props, "code").assign(args[1].toLong());
+        clazz.refOfProperty(props, "previous").assign(args[2]);
+
         return Memory.NULL;
     }
 
@@ -61,37 +63,55 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Signature
     final public Memory getMessage(Environment env, Memory... args){
-        return getProperties().valueOfIndex("message");
+        return clazz.refOfProperty(getProperties(), "message").toValue();
     }
 
     @Signature
     final public Memory getCode(Environment env, Memory... args){
-        return getProperties().valueOfIndex("code");
+        return clazz.refOfProperty(getProperties(), "code").toValue();
     }
 
     @Signature
     final public Memory getLine(Environment env, Memory... args){
-        return getProperties().valueOfIndex("line");
+        return clazz.refOfProperty(getProperties(), "line").toValue();
     }
 
     @Signature
     final public Memory getPosition(Environment env, Memory... args){
-        return getProperties().valueOfIndex("position");
+        return clazz.refOfProperty(getProperties(), "position").toValue();
     }
 
     @Signature
     final public Memory getFile(Environment env, Memory... args){
-        return getProperties().valueOfIndex("file");
+        return clazz.refOfProperty(getProperties(), "file").toValue();
     }
 
     @Signature
     final public Memory getTrace(Environment env, Memory... args){
-        return getProperties().valueOfIndex("trace");
+        return clazz.refOfProperty(getProperties(), "trace").toValue();
+    }
+
+    @Signature
+    final public Memory getTraceAsString(Environment env, Memory... args){
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        for (CallStackItem e : getCallStack()){
+            if (i != 0)
+                sb.append("\n");
+
+            sb.append("#").append(i).append(" ").append(e.toString(false));
+            i++;
+        }
+        if (i != 0)
+            sb.append("\n");
+
+        sb.append("#").append(i).append(" {main}");
+        return new StringMemory(sb.toString());
     }
 
     @Override
     public ClassEntity getReflection() {
-        return __class__;
+        return clazz;
     }
 
     @Override
@@ -99,19 +119,19 @@ public class BaseException extends RuntimeException implements IObject {
         if (!init){
             init = true;
             if (trace != null){
-                __dynamicProperties__.refOfIndex("file").assign(trace.getFileName());
-                __dynamicProperties__.refOfIndex("line").assign(trace.getStartLine() + 1);
-                __dynamicProperties__.refOfIndex("position").assign(trace.getStartPosition() + 1);
+                clazz.refOfProperty(props, "file").assign(trace.getFileName());
+                clazz.refOfProperty(props, "line").assign(trace.getStartLine() + 1);
+                clazz.refOfProperty(props, "position").assign(trace.getStartPosition() + 1);
 
                 ArrayMemory backTrace = new ArrayMemory();
                 for(CallStackItem el : callStack)
                     backTrace.add(el.toArray());
 
-                __dynamicProperties__.refOfIndex("trace").assign(backTrace);
+                clazz.refOfProperty(props, "trace").assign(backTrace);
             }
         }
 
-        return __dynamicProperties__;
+        return props;
     }
 
     @Override
@@ -121,12 +141,20 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Override
     public boolean isMock() {
-        return __class__ == null;
+        return clazz == null;
     }
 
     @Override
     public void setAsMock() {
-        __class__ = null;
+        clazz = null;
+    }
+
+    public CallStackItem[] getCallStack() {
+        return callStack;
+    }
+
+    public TraceInfo getTrace() {
+        return trace;
     }
 
     /**
@@ -140,7 +168,7 @@ public class BaseException extends RuntimeException implements IObject {
 
     @Override
     public Environment getEnvironment() {
-        return __env__.get();
+        return env.get();
     }
 
     @Override

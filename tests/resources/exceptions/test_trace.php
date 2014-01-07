@@ -8,7 +8,7 @@ try {
     test();
 } catch (Exception $e){
     if ($e->getLine() !== 4)
-        return 'fail_line';
+        return 'fail_line: 4 != ' . $e->getLine();
 
     if ($e->getMessage() !== "foobar")
         return 'fail_message';
