@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.reflection;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.annotation.Reflection;

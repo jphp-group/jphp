@@ -1,6 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
-import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class CharMemory extends StringMemory {

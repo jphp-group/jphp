@@ -1,6 +1,6 @@
 package ru.regenix.jphp.tester;
 
-import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.common.StringUtils;
 
 import java.io.*;
 import java.util.*;

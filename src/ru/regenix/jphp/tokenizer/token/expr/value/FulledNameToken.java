@@ -1,6 +1,6 @@
 package ru.regenix.jphp.tokenizer.token.expr.value;
 
-import org.apache.commons.lang3.StringUtils;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
 

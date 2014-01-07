@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.ext.core;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.annotation.Runtime;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.exceptions.TodoException;
 import ru.regenix.jphp.runtime.env.Environment;

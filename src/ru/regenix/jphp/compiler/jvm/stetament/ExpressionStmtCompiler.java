@@ -1,6 +1,5 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -8,6 +7,7 @@ import ru.regenix.jphp.annotation.Runtime;
 import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.compiler.common.ASMExpression;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;

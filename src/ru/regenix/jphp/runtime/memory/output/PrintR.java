@@ -1,7 +1,7 @@
 package ru.regenix.jphp.runtime.memory.output;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.runtime.lang.Closure;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.*;
