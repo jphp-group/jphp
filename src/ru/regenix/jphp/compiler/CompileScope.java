@@ -75,6 +75,7 @@ public class CompileScope {
 
         registerClass(new ClassEntity(this, Closure.class));
         registerClass(new ClassEntity(this, BaseException.class));
+        registerClass(new ClassEntity(this, ErrorException.class));
         registerClass(stdClassEntity = new ClassEntity(this, StdClass.class));
         registerClass(new ClassEntity(this, ArrayAccess.class));
 

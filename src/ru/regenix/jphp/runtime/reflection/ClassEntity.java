@@ -124,6 +124,39 @@ public class ClassEntity extends Entity {
             }
         }
 
+        if (signature == null || !signature.root()){
+            for (Class<?> interface_ : nativeClazz.getInterfaces()){
+                if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
+
+                String name = interface_.getSimpleName();
+                if (interface_.isAnnotationPresent(Reflection.Name.class)){
+                    name = interface_.getAnnotation(Reflection.Name.class).value();
+                }
+                ClassEntity entity = scope.findUserClass(name);
+                if (entity == null || entity.getType() != Type.INTERFACE)
+                    throw new IllegalArgumentException("Interface '"+name+"' not registered");
+
+                MethodsResult result = addInterface(entity);
+                result.check();
+            }
+
+            if (scope != null){
+                Class<?> extend = nativeClazz.getSuperclass();
+                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
+                    String name = extend.getSimpleName();
+                    if (extend.isAnnotationPresent(Reflection.Name.class)){
+                        name = extend.getAnnotation(Reflection.Name.class).value();
+                    }
+                    ClassEntity entity = scope.findUserClass(name);
+                    if (entity == null || entity.getType() != Type.CLASS)
+                        throw new IllegalArgumentException("Class '"+name+"' not registered");
+
+                    ParentResult result = setParent(entity);
+                    result.check(null);
+                }
+            }
+        }
+
         for (Method method : nativeClazz.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
                 MethodEntity entity = new MethodEntity(extension, method);
@@ -153,39 +186,6 @@ public class ClassEntity extends Entity {
 
                 entity.setParameters(params);
                 addMethod(entity);
-            }
-        }
-
-        if (signature == null || !signature.root()){
-            for (Class<?> interface_ : nativeClazz.getInterfaces()){
-                if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
-
-                String name = interface_.getSimpleName();
-                if (interface_.isAnnotationPresent(Reflection.Name.class)){
-                    name = interface_.getAnnotation(Reflection.Name.class).value();
-                }
-                ClassEntity entity = scope.findUserClass(name);
-                if (entity == null || entity.getType() != Type.INTERFACE)
-                    throw new IllegalArgumentException("Interface '"+name+"' not registered");
-
-                MethodsResult result = addInterface(entity);
-                result.check();
-            }
-
-            if (scope != null){
-                Class<?> extend = nativeClazz.getSuperclass();
-                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
-                    String name = extend.getSimpleName();
-                    if (extend.isAnnotationPresent(Reflection.Name.class)){
-                        name = extend.getAnnotation(Reflection.Name.class).value();
-                    }
-                    ClassEntity entity = scope.findUserClass(name);
-                    if (entity == null || entity.getType() != Type.CLASS)
-                        throw new IllegalArgumentException("Class '"+name+"' not registered");
-
-                    MethodsResult result = addInterface(entity);
-                    result.check();
-                }
             }
         }
 

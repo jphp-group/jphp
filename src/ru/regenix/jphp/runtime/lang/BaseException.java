@@ -92,20 +92,36 @@ public class BaseException extends RuntimeException implements IObject {
     }
 
     @Signature
+    public Memory __toString(Environment env, Memory... args){
+        StringBuilder sb = new StringBuilder();
+        sb.append("exception '")
+                .append(clazz.getName()).append("' with message '")
+                .append(clazz.refOfProperty(getProperties(), "message"))
+                .append("' in ")
+                .append(clazz.refOfProperty(getProperties(), "file"))
+                .append(":").append(clazz.refOfProperty(getProperties(), "line"));
+        sb.append("\nStack Trace:\n");
+        sb.append(getTraceAsString(env));
+        return new StringMemory(sb.toString());
+    }
+
+    @Signature
     final public Memory getTraceAsString(Environment env, Memory... args){
         int i = 0;
         StringBuilder sb = new StringBuilder();
-        for (CallStackItem e : getCallStack()){
+        if (callStack != null){
+            for (CallStackItem e : getCallStack()){
+                if (i != 0)
+                    sb.append("\n");
+
+                sb.append("#").append(i).append(" ").append(e.toString(false));
+                i++;
+            }
             if (i != 0)
                 sb.append("\n");
 
-            sb.append("#").append(i).append(" ").append(e.toString(false));
-            i++;
+            sb.append("#").append(i).append(" {main}");
         }
-        if (i != 0)
-            sb.append("\n");
-
-        sb.append("#").append(i).append(" {main}");
         return new StringMemory(sb.toString());
     }
 
@@ -119,9 +135,18 @@ public class BaseException extends RuntimeException implements IObject {
         if (!init){
             init = true;
             if (trace != null){
-                clazz.refOfProperty(props, "file").assign(trace.getFileName());
-                clazz.refOfProperty(props, "line").assign(trace.getStartLine() + 1);
-                clazz.refOfProperty(props, "position").assign(trace.getStartPosition() + 1);
+                Memory m;
+                m = clazz.refOfProperty(props, "file");
+                if (m.isNull())
+                    m.assign(trace.getFileName());
+
+                m = clazz.refOfProperty(props, "line");
+                if (m.isNull())
+                    m.assign(trace.getStartLine() + 1);
+
+                m = clazz.refOfProperty(props, "position");
+                if (m.isNull())
+                    m.assign(trace.getStartPosition() + 1);
 
                 ArrayMemory backTrace = new ArrayMemory();
                 for(CallStackItem el : callStack)

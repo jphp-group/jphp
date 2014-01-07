@@ -12,10 +12,15 @@ import java.lang.reflect.InvocationTargetException;
 abstract public class Invoker {
     protected final Environment env;
     protected TraceInfo trace;
+    protected boolean pushCallTrace = true;
 
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
         this.trace = trace;
+    }
+
+    public void setPushCallTrace(boolean pushCallTrace) {
+        this.pushCallTrace = pushCallTrace;
     }
 
     abstract public int getArgumentCount();
