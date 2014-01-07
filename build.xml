@@ -1,13 +1,11 @@
 <project name="jphp" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
-
-    <!-- переменные нашего проекта -->
-    <property name="version" value="0.1-SNAPSHOT" />
+    <property name="version" value="0.1-snapshot" />
 
     <property name="lib.dir" value="lib" />
     <property name="build.dir" value="build" />
     <property name="test.dir" value="tests" />
     <property name="src.dir" value="src" />
-    <property name="jar.dir" value="${build.dir}/jar" />
+    <property name="jar.dir" value="${build.dir}/jar/${version}" />
     <property name="jar.file" value="${ant.project.name}.jar" />
 
     <path id="classpath.test">
@@ -49,7 +47,7 @@
                 <attribute name="Main-Class" value="ru.regenix.jphp.cli.CLI"/>
             </manifest>
         </jar>
-        <copyfile src="jphp.sh" dest="${jar.dir}/jphp.sh" />
+        <copyfile src="jphp" dest="${jar.dir}/jphp" />
         <copyfile src="jphp.bat" dest="${jar.dir}/jphp.bat" />
     </target>
 
