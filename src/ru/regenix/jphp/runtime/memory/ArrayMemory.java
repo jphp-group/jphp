@@ -642,6 +642,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public int compare(ArrayMemory otherRef, boolean strict) {
+        return compare(otherRef, strict, null);
+    }
+
+    public int compare(ArrayMemory otherRef, boolean strict, Set<Integer> used) {
         int size1 = size(),
             size2 = otherRef.size();
 
@@ -651,7 +655,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             return 1;
 
         ForeachIterator iterator = this.foreachIterator(false, false);
-        // TODO
+
+        if (used == null)
+            used = new HashSet<Integer>();
+
         while (iterator.next()){
             Memory value1 = iterator.getValue();
             Memory key    = iterator.getMemoryKey();
@@ -660,13 +667,31 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             if (value2 == null)
                 return -2;
 
-            if ((strict && value1.identical(value2)) || (!strict && value1.equal(value2)))
-                continue;
+            if (value1.isArray() && value2.isArray()){
+                ArrayMemory arr1 = value1.toValue(ArrayMemory.class);
+                if (used.add(value2.getPointer())){
+                    int r = arr1.compare(value2.toValue(ArrayMemory.class), strict, used);
+                    if (r == 0) {
+                        used.remove(value2.getPointer());
+                        continue;
+                    }
+                    return r;
+                }
+                used.remove(value2.getPointer());
+            } else if (value1.isObject() && value2.isObject()){
+                ObjectMemory o1 = value1.toValue(ObjectMemory.class);
+                ObjectMemory o2 = value2.toValue(ObjectMemory.class);
 
-            if (value1.smaller(value2))
-                return -1;
-            else
-                return 1;
+                return o1.compare(o2.value, strict, used);
+            } else {
+                if ((strict && value1.identical(value2)) || (!strict && value1.equal(value2)))
+                    continue;
+
+                if (value1.smaller(value2))
+                    return -1;
+                else
+                    return 1;
+            }
         }
         return 0;
     }

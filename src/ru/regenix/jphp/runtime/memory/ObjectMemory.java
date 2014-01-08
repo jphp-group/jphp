@@ -8,10 +8,14 @@ import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
+import ru.regenix.jphp.runtime.lang.support.IComparableObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.PropertyEntity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ObjectMemory extends Memory {
 
@@ -145,34 +149,105 @@ public class ObjectMemory extends Memory {
         return toNumeric().div(memory);
     }
 
+    private static interface Comparator {
+        boolean compare(IObject o1, IObject o2);
+    }
+
+    private boolean compare(Memory other, Comparator comparator){
+        switch (other.type){
+            case OBJECT:
+                ClassEntity otherReflection = ((ObjectMemory)other).getReflection();
+                if (otherReflection.getId() != getReflection().getId())
+                    return false;
+                IObject otherObject = ((ObjectMemory)other).value;
+                return comparator.compare(value, otherObject);
+            case REFERENCE: return equal(other.toValue());
+        }
+        return false;
+    }
+
+    public int compare(IObject other, boolean strict, Set<Integer> used){
+        ClassEntity otherReflection = other.getReflection();
+        if (otherReflection.getId() != getReflection().getId())
+            return -2;
+
+        if (used == null)
+            used = new HashSet<Integer>();
+
+
+        try {
+            if (used.add(other.getPointer()))
+                return value.getProperties().compare(other.getProperties(), strict, used);
+
+            return 0;
+        } finally {
+            used.remove(other.getPointer());
+        }
+    }
+
     @Override
     public boolean equal(Memory memory) {
-        return false;
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__equal(o2);
+
+                return o1.getProperties().equal(o2.getProperties());
+            }
+        });
     }
 
     @Override
     public boolean notEqual(Memory memory) {
-        return false;
+        return !equal(memory);
     }
 
     @Override
     public boolean smaller(Memory memory) {
-        return false;
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__smaller(o2);
+
+                return o1.getProperties().smaller(o2.getProperties());
+            }
+        });
     }
 
     @Override
     public boolean smallerEq(Memory memory) {
-        return false;
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__smallerEq(o2);
+
+                return o1.getProperties().smallerEq(o2.getProperties());
+            }
+        });
     }
 
     @Override
     public boolean greater(Memory memory) {
-        return false;
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__greater(o2);
+
+                return o1.getProperties().greater(o2.getProperties());
+            }
+        });
     }
 
     @Override
     public boolean greaterEq(Memory memory) {
-        return false;
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__greaterEq(o2);
+
+                return o1.getProperties().greaterEq(o2.getProperties());
+            }
+        });
     }
 
     @Override
@@ -182,7 +257,14 @@ public class ObjectMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.OBJECT && getPointer() == memory.getPointer();
+        return compare(memory, new Comparator() {
+            @Override
+            public boolean compare(IObject o1, IObject o2) {
+                if (o1 instanceof IComparableObject) return ((IComparableObject) o1).__identical(o2);
+
+                return o1.getPointer() == o2.getPointer();
+            }
+        });
     }
 
     @Override

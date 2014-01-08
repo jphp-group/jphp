@@ -66,4 +66,9 @@ public class ArraysTest extends JvmCompilerCase {
         Memory memory = includeResource("arrays/complex.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testCompare(){
+        check("arrays/compare.php");
+    }
 }

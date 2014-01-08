@@ -93,4 +93,9 @@ public class ClassesTest extends JvmCompilerCase {
         Memory memory = includeResource("classes/__destruct.php");
         Assert.assertEquals("1111111111", getOutput());
     }
+
+    @Test
+    public void testCompare(){
+        check("classes/compare.php");
+    }
 }
