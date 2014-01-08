@@ -384,6 +384,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setReference(argument.isReference());
                 parameters[i].setName(argument.getName().getName());
 
+                parameters[i].setType(argument.getHintType());
+                if (argument.getHintTypeClass() != null)
+                    parameters[i].setTypeClass(argument.getHintTypeClass().getName());
+
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(compiler);
                 ExprStmtToken value = argument.getValue();
                 if (value != null){

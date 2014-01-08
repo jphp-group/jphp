@@ -1,27 +1,44 @@
 package ru.regenix.jphp.syntax.generators;
 
+import ru.regenix.jphp.common.HintType;
+import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.AmpersandRefToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.AssignExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
     public FunctionGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
     }
+
+    protected final static Set<String> scalarTypeHints = new HashSet<String>(){{
+        add("array");
+        add("callable");
+    }};
+
+    protected final static Set<String> jphp_scalarTypeHints = new HashSet<String>(){{
+        add("scalar");
+        add("number");
+        add("string");
+        add("int");
+        add("integer");
+        add("double");
+        add("float");
+        add("bool");
+        add("boolean");
+    }};
 
     @SuppressWarnings("unchecked")
     protected ArgumentStmtToken processArgument(ListIterator<Token> iterator){
@@ -32,6 +49,24 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         Token next = nextToken(iterator);
         if (next instanceof CommaToken || isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
             return null;
+
+        NameToken hintTypeClass = null;
+        HintType hintType = null;
+
+        if (next instanceof NameToken){
+            String word = ((NameToken) next).getName().toLowerCase();
+            if (scalarTypeHints.contains(word)
+                    || (analyzer.getLangMode() == LangMode.JPHP && jphp_scalarTypeHints.contains(word)))
+                hintType = HintType.of(word);
+            else {
+                hintType = analyzer.getLangMode() == LangMode.PHP && jphp_scalarTypeHints.contains(word)
+                        ? null : HintType.of(word);
+                if (hintType == null)
+                    hintTypeClass = analyzer.getRealName((NameToken)next);
+            }
+
+            next = nextToken(iterator);
+        }
 
         if (next instanceof AmpersandRefToken){
             isReference = true;
@@ -58,6 +93,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         ArgumentStmtToken argument = new ArgumentStmtToken(variable.getMeta());
         argument.setName(variable);
+        argument.setHintType(hintType);
+        argument.setHintTypeClass(hintTypeClass);
         argument.setReference(isReference);
         argument.setValue(value);
 

@@ -1,4 +1,6 @@
 <project name="jphp" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!-- переменные нашего проекта -->
     <property name="version" value="0.1-snapshot" />
 
     <property name="lib.dir" value="lib" />

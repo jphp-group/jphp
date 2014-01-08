@@ -539,7 +539,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushEnv();
                 writePushConstInt(compiler.getModule().getId());
                 writePushConstInt((int)entity.getId());
-                writeSysDynamicCall(Environment.class, "getSingletonClosure", Memory.class, Integer.TYPE, Integer.TYPE);
+                writeSysDynamicCall(Environment.class, "__getSingletonClosure", Memory.class, Integer.TYPE, Integer.TYPE);
             } else {
                 code.add(new TypeInsnNode(NEW, entity.getInternalName()));
                 stackPush(Memory.Type.REFERENCE);
@@ -1237,7 +1237,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushTraceInfo(newToken.getName());
         writePushParameters(newToken.getParameters());
         writeSysDynamicCall(
-                Environment.class, "newObject",
+                Environment.class, "__newObject",
                 Memory.class,
                 String.class, String.class, TraceInfo.class, Memory[].class
         );
@@ -2952,7 +2952,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePopBoxing();
         writePushConstBoolean(token.isValueReference());
         writePushConstBoolean(token.isKeyReference());
-        writeSysDynamicCall(Environment.class, "getIterator", ForeachIterator.class, TraceInfo.class, Memory.class, Boolean.TYPE, Boolean.TYPE);
+        writeSysDynamicCall(Environment.class, "__getIterator", ForeachIterator.class, TraceInfo.class, Memory.class, Boolean.TYPE, Boolean.TYPE);
 
         LocalVariable foreachVariable = method.addLocalVariable(
                 "~foreach~" + method.nextStatementIndex(ForeachIterator.class), l, ForeachIterator.class

@@ -15,17 +15,20 @@ import ru.regenix.jphp.runtime.reflection.*;
 import ru.regenix.jphp.runtime.util.JVMStackTracer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CompileScope {
+    protected RuntimeClassLoader classLoader;
+    public final Set<String> superGlobals;
 
     protected final AtomicInteger moduleCount = new AtomicInteger(0);
     protected final AtomicLong classCount = new AtomicLong(0);
     protected final AtomicLong methodCount = new AtomicLong(0);
 
-    public final Map<String, ModuleEntity> moduleMap;
-    public final Map<Integer, ModuleEntity> moduleIndexMap;
+    public final ConcurrentHashMap<String, ModuleEntity> moduleMap;
+    public final ConcurrentHashMap<Integer, ModuleEntity> moduleIndexMap;
 
     protected final Map<String, ClassEntity> classMap;
     protected final Map<String, FunctionEntity> functionMap;
@@ -36,12 +39,9 @@ public class CompileScope {
     protected Map<String, CompileConstant> compileConstantMap;
     protected Map<String, CompileFunction> compileFunctionMap;
 
-    protected RuntimeClassLoader classLoader;
-
     public Map<String, Memory> configuration;
 
-    public final Set<String> superGlobals;
-
+    // flags
     public boolean debugMode = false;
     public LangMode langMode = LangMode.JPHP;
 
@@ -50,8 +50,8 @@ public class CompileScope {
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
-        moduleMap = new HashMap<String, ModuleEntity>();
-        moduleIndexMap = new HashMap<Integer, ModuleEntity>();
+        moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
+        moduleIndexMap = new ConcurrentHashMap<Integer, ModuleEntity>();
 
         classMap = new HashMap<String, ClassEntity>();
         functionMap = new HashMap<String, FunctionEntity>();
@@ -156,18 +156,6 @@ public class CompileScope {
     }
 
     public void addUserModule(ModuleEntity module){
-        /*for(ClassEntity clazz : module.getClasses()){
-            registerClass(clazz);
-        }*/
-
-        /*for(FunctionEntity function : module.getFunctions()){
-            registerFunction(function);
-        }
-
-        for(ConstantEntity constant : module.getConstants()){
-            registerConstant(constant);
-        }*/
-
         moduleMap.put(module.getName(), module);
         moduleIndexMap.put(module.getId(), module);
     }

@@ -150,7 +150,7 @@ public class SPLFunctions extends FunctionsContainer {
         if (invoker == null)
             return false;
 
-        env.autoloadRegister(new SplClassLoader(invoker, callback), prepend);
+        env.registerAutoloader(new SplClassLoader(invoker, callback), prepend);
         return true;
     }
 
@@ -175,7 +175,7 @@ public class SPLFunctions extends FunctionsContainer {
         if (invoker == null)
             return false;
 
-        return env.autoloadUnregister(new SplClassLoader(invoker, callback));
+        return env.unRegisterAutoloader(new SplClassLoader(invoker, callback));
     }
 
     public static String spl_autoload_extensions(Environment env, String extensions){

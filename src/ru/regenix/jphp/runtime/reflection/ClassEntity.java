@@ -384,15 +384,21 @@ public class ClassEntity extends Entity {
     public ParentResult setParent(ClassEntity parent, boolean updateParentMethods) {
         ParentResult result = new ParentResult(parent);
 
+        if (this.parent != null){
+            throw new RuntimeException("Cannot re-assign parent for classes");
+        }
+
         this.parent = parent;
-        this.methodCounts = parent.methodCounts;
+        if (parent != null){
+            this.methodCounts = parent.methodCounts;
 
-        this.instanceOfList.add(parent.getLowerName());
-        this.instanceOfList.addAll(parent.instanceOfList);
+            this.instanceOfList.add(parent.getLowerName());
+            this.instanceOfList.addAll(parent.instanceOfList);
 
-        this.properties.putAll(parent.properties);
-        this.staticProperties.putAll(parent.staticProperties);
-        this.constants.putAll(parent.constants);
+            this.properties.putAll(parent.properties);
+            this.staticProperties.putAll(parent.staticProperties);
+            this.constants.putAll(parent.constants);
+        }
 
         if (updateParentMethods)
             result.methods = updateParentMethods();

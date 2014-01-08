@@ -64,6 +64,39 @@ final public class InvokeHelper {
         }
     }
 
+    public static void invalidTypeHinting(Environment env,
+                                          TraceInfo trace, ParameterEntity param, int index, Memory passed,
+                                          String originClassName, String originMethodName){
+        String given;
+        if (passed.isObject()){
+            given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
+        } else {
+            given = passed.getRealType().toString();
+        }
+
+        String method = originMethodName == null ? originClassName : originClassName + "::" + originMethodName;
+
+        if (param.getTypeClass() == null){
+            env.error(
+                    trace,
+                    ErrorType.E_RECOVERABLE_ERROR,
+                    "Argument %s passed to %s() must be of the type %s, %s given",
+                    index,
+                    method,
+                    param.getType().toString(), given
+            );
+        } else {
+            env.error(
+                    trace,
+                    ErrorType.E_RECOVERABLE_ERROR,
+                    "Argument %s passed to %s() must be an instance of %s, %s given",
+                    index,
+                    method,
+                    param.getTypeClass(), given
+            );
+        }
+    }
+
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
@@ -83,13 +116,14 @@ final public class InvokeHelper {
         if (passed != null)
         for(ParameterEntity param : parameters){
             Memory arg = passed[i];
-            if (arg == null){
+            if (arg == null) {
                 Memory def = param.getDefaultValue();
                 if (def != null){
                     if (!param.isReference())
                         passed[i] = def.toImmutable(env, trace);
                     else
                         passed[i] = new ReferenceMemory(def.toImmutable(env, trace));
+
                 } else {
                     env.triggerMessage(new WarningMessage(
                             new CallStackItem(trace),
@@ -108,18 +142,8 @@ final public class InvokeHelper {
                     passed[i] = arg.toImmutable();
             }
 
-            switch (param.getType()){
-                case ARRAY: {
-                    if (!passed[i].isArray())
-                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be array", i);
-                } break;
-                case INT:
-                    if (!passed[i].isNumber())
-                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be int or double", i);
-                    break;
-                case STRING:
-                    if (!passed[i].isString())
-                        env.error(trace, ErrorType.E_RECOVERABLE_ERROR, "Argument %s must be string", i);
+            if (!param.checkTypeHinting(env, passed[i], arg == null)){
+                invalidTypeHinting(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
             }
             i++;
         }

@@ -77,15 +77,14 @@ public class FunctionEntity extends AbstractFunctionEntity {
         Memory result = null;
         try {
             result = (Memory)nativeMethod.invoke(null, env, arguments);
+            if (!isReturnReference())
+                return result.toImmutable();
+            else
+                return result;
         } catch (InvocationTargetException e){
             throw e.getTargetException();
         } finally {
             unsetArguments(arguments);
         }
-
-        if (!isReturnReference())
-            return result.toImmutable();
-        else
-            return result;
     }
 }

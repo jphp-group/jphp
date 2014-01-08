@@ -2,6 +2,9 @@ package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.invoke.Invoker;
+import ru.regenix.jphp.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
@@ -13,6 +16,8 @@ public class ParameterEntity extends Entity {
 
     protected boolean isReference;
     protected HintType type = HintType.ANY;
+    protected String typeClass;
+    protected String typeClassLower;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -55,16 +60,70 @@ public class ParameterEntity extends Entity {
         return type;
     }
 
+    public String getTypeClass() {
+        return typeClass;
+    }
+
     public void setType(HintType type) {
-        this.type = type;
+        this.type = type == null ? HintType.ANY : type;
+    }
+
+    public void setTypeClass(String typeClass) {
+        this.typeClass = typeClass;
+        this.typeClassLower = typeClass == null ? null : typeClass.toLowerCase();
+    }
+
+    public void setType(String type){
+        this.type = HintType.of(type);
+        if (this.type == null) {
+            typeClass = type;
+            typeClassLower = type.toLowerCase();
+        } else {
+            typeClass = null;
+            typeClassLower = null;
+        }
+    }
+
+    public boolean checkTypeHinting(Environment env, Memory value, boolean objectsCanNulls){
+        if (type != HintType.ANY && type != null){
+            switch (type){
+                case SCALAR:
+                    switch (value.getRealType()){
+                        case BOOL:
+                        case INT:
+                        case DOUBLE:
+                        case STRING:
+                            return true;
+                    }
+                    return false;
+                case NUMBER: return value.isNumber();
+                case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
+                case INT: return value.getRealType() == Memory.Type.INT;
+                case STRING: return value.isString();
+                case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
+                case ARRAY: return value.isArray();
+                case CALLABLE:
+                    return Invoker.valueOf(env, null, value) != null;
+                default:
+                    return true;
+            }
+        } else if (typeClass != null) {
+            if (objectsCanNulls && value.isNull())
+                return true;
+
+            if (!value.isObject())
+                return false;
+
+            ObjectMemory object = value.toValue(ObjectMemory.class);
+            ClassEntity oEntity = object.getReflection();
+
+            return oEntity.isInstanceOf(typeClass);
+        } else
+            return true;
     }
 
     public boolean isArray(){
         return type == HintType.ARRAY;
-    }
-
-    public boolean isObject(){
-        return type == HintType.OBJECT;
     }
 
     public boolean isCallable(){

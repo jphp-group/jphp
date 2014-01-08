@@ -41,15 +41,17 @@ import java.util.*;
 import static ru.regenix.jphp.exceptions.support.ErrorType.*;
 
 public class Environment {
-    private Locale locale = Locale.getDefault();
+    public final CompileScope scope;
+    public final Map<String, Memory> configuration = new HashMap<String, Memory>();
     private Set<String> includePaths;
+
     protected SplClassLoader autoLoader = null;
     protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
-    private List<ShutdownHandler> shutdownFunctions = new LinkedList<ShutdownHandler>();
 
+    // errors
     private int errorFlags = E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
-
     private Stack<Integer> silentFlags = new Stack<Integer>();
+
     private SystemMessage lastMessage;
 
     private ErrorReportHandler errorReportHandler;
@@ -62,18 +64,19 @@ public class Environment {
     private OutputBuffer defaultBuffer;
     private Stack<OutputBuffer> outputBuffers;
 
-    public final CompileScope scope;
-    public final Map<String, Memory> configuration = new HashMap<String, Memory>();
+    private List<ShutdownHandler> shutdownFunctions = new LinkedList<ShutdownHandler>();
 
+    // charset, locale
+    private Locale locale = Locale.getDefault();
     private Charset defaultCharset = Charset.forName("UTF-8");
 
+    // vars
     private final ArrayMemory globals;
-   // private final ArrayMemory statics;
     private final Map<String, ReferenceMemory> statics;
     private final Map<String, ConstantEntity> constants;
     private final Map<String, ModuleEntity> included;
 
-    //
+    // classes, funcs, consts
     public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
     public final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
     public final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
@@ -803,7 +806,7 @@ public class Environment {
         return __require(fileName, locals, trace, true);
     }
 
-    public Memory newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
+    public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
         ClassEntity entity = classMap.get(lowerName);
         if (entity == null) {
@@ -834,7 +837,7 @@ public class Environment {
         protected boolean prevValue() { return false; }
     };
 
-    public ForeachIterator getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
+    public ForeachIterator __getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
         ForeachIterator iterator = memory.getNewIterator(this, getReferences, getKeyReferences);
         if (iterator == null){
             warning(trace, "Invalid argument supplied for foreach()");
@@ -847,7 +850,7 @@ public class Environment {
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index);
     }
 
-    public Memory getSingletonClosure(int moduleIndex, int index){
+    public Memory __getSingletonClosure(int moduleIndex, int index){
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
     }
 
@@ -1003,7 +1006,7 @@ public class Environment {
         return __getParentClass(trace).getName();
     }
 
-    public void autoloadRegister(SplClassLoader classLoader, boolean prepend){
+    public void registerAutoloader(SplClassLoader classLoader, boolean prepend){
         for (SplClassLoader loader : classLoaders)
             if (loader.equals(classLoader))
                 return;
@@ -1018,7 +1021,7 @@ public class Environment {
         return classLoaders;
     }
 
-    public boolean autoloadUnregister(SplClassLoader classLoader){
+    public boolean unRegisterAutoloader(SplClassLoader classLoader){
         boolean result = false;
         Iterator<SplClassLoader> iterator = classLoaders.iterator();
         while (iterator.hasNext()){

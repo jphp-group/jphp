@@ -107,6 +107,12 @@ public class MethodEntity extends AbstractFunctionEntity {
                 _this = clazz.newMock(environment);
 
             result = isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
+
+            if (!isReturnReference())
+                return result.toImmutable();
+            else
+                return result;
+
         } catch (InvocationTargetException e){
             throw e.getTargetException();
         } finally {
@@ -120,10 +126,6 @@ public class MethodEntity extends AbstractFunctionEntity {
                 }
             }
         }
-        if (!isReturnReference())
-            return result.toImmutable();
-        else
-            return result;
     }
 
     public Memory invokeStatic(Environment environment, Memory... arguments) throws Throwable {
