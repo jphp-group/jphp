@@ -11,10 +11,15 @@ import java.util.Set;
 
 abstract public class Printer {
 
+    protected boolean recursionExists = false;
     protected PrintWriter printer;
 
     public Printer(Writer writer){
         printer = new PrintWriter(writer);
+    }
+
+    public boolean isRecursionExists() {
+        return recursionExists;
     }
 
     abstract protected void printNull();
@@ -70,5 +75,9 @@ abstract public class Printer {
 
     public void print(Memory value){
         print(value, 0, null);
+    }
+
+    public static class UnsupportedValue extends RuntimeException {
+
     }
 }

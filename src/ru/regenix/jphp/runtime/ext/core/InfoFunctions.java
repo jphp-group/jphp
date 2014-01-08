@@ -6,11 +6,13 @@ import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.StringMemory;
 import ru.regenix.jphp.runtime.memory.output.PrintR;
 import ru.regenix.jphp.runtime.memory.output.Printer;
 import ru.regenix.jphp.runtime.memory.output.VarDump;
+import ru.regenix.jphp.runtime.memory.output.VarExport;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
@@ -216,5 +218,26 @@ public class InfoFunctions extends FunctionsContainer {
 
         env.echo(writer.toString());
         return Memory.TRUE;
+    }
+
+    public static Memory var_export(Environment env, TraceInfo trace, @Runtime.Reference Memory value, boolean returned){
+        StringWriter writer = new StringWriter();
+        VarExport printer = new VarExport(writer);
+
+        printer.print(value);
+        if (printer.isRecursionExists()){
+            env.warning(trace, "var_export does not handle circular references");
+        }
+
+        if (returned){
+            return new StringMemory(writer.toString());
+        } else {
+            env.echo(writer.toString());
+            return Memory.TRUE;
+        }
+    }
+
+    public static Memory var_export(Environment env, TraceInfo trace, @Runtime.Reference Memory value){
+        return var_export(env, trace, value, false);
     }
 }
