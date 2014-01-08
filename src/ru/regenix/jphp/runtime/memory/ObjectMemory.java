@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.memory;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
@@ -300,6 +301,11 @@ public class ObjectMemory extends Memory {
     @Override
     public Memory toObject(Environment env) {
         return this;
+    }
+
+    @Override
+    public Memory clone(Environment env, TraceInfo trace) throws Throwable {
+        return new ObjectMemory(value.getReflection().cloneObject(value, env, trace));
     }
 
     @Override

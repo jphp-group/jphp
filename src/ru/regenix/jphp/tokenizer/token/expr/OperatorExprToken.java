@@ -56,4 +56,8 @@ abstract public class OperatorExprToken extends ExprToken {
     public boolean isEnvironmentNeeded(){
         return false;
     }
+
+    public boolean isTraceNeeded(){
+        return false;
+    }
 }

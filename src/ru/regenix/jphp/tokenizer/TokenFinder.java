@@ -75,6 +75,7 @@ public class TokenFinder {
         put("<<=", AssignShiftLeftExprToken.class);
 
         put("new", NewExprToken.class);
+        put("clone", CloneExprToken.class);
         put("instanceof", InstanceofExprToken.class);
         put(".", ConcatExprToken.class);
         put(":", ColonToken.class);

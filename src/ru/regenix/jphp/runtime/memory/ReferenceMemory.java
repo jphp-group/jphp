@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
@@ -902,5 +903,10 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory toObject(Environment env) {
         return value.toObject(env);
+    }
+
+    @Override
+    public Memory clone(Environment env, TraceInfo trace) throws Throwable {
+        return value.clone(env, trace);
     }
 }

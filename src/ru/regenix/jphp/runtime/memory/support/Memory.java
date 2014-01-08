@@ -125,6 +125,11 @@ abstract public class Memory {
         return new ObjectMemory(stdClass);
     }
 
+    public Memory clone(Environment env, TraceInfo trace) throws Throwable {
+        env.error(trace, "__clone method called on non-object");
+        return NULL;
+    }
+
     public Type getRealType(){
         return type;
     }

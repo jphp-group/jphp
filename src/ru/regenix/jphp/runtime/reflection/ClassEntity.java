@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassEntity extends Entity {
+
     // types
     public enum Type { CLASS, INTERFACE, TRAIT }
 
@@ -54,6 +55,7 @@ public class ClassEntity extends Entity {
     public MethodEntity methodMagicCallStatic;
     public MethodEntity methodMagicInvoke;
     public MethodEntity methodMagicToString;
+    public MethodEntity methodMagicClone;
 
     protected MethodEntity constructor;
 
@@ -230,6 +232,7 @@ public class ClassEntity extends Entity {
 
         methodMagicInvoke = methods.get("__invoke");
         methodMagicToString = methods.get("__tostring");
+        methodMagicClone = methods.get("__clone");
     }
 
     public Extension getExtension() {
@@ -562,6 +565,16 @@ public class ClassEntity extends Entity {
         this.module = module;
     }
 
+    public IObject newObjectWithoutConstruct(Environment env) throws Throwable {
+        IObject object;
+        try {
+            object = (IObject) nativeConstructor.newInstance(env, this);
+        } catch (InvocationTargetException e){
+            throw e.getCause();
+        }
+        return object;
+    }
+
     public IObject newMock(Environment env) throws Throwable {
         IObject object = (IObject) nativeConstructor.newInstance(env, this);
         object.setAsMock();
@@ -610,6 +623,16 @@ public class ClassEntity extends Entity {
             ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args);
         }
         return object;
+    }
+
+    public IObject cloneObject(IObject value, Environment env, TraceInfo trace) throws Throwable {
+        IObject copy = this.newObjectWithoutConstruct(env);
+        copy.getProperties().putAll(value.getProperties());
+        if (methodMagicClone != null){
+            ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null);
+        }
+
+        return copy;
     }
 
     public Memory concatProperty(Environment env, TraceInfo trace,

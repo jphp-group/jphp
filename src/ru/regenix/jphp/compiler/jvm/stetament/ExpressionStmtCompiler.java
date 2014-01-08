@@ -2554,9 +2554,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePush(o);
                 writePopBoxing();
 
-                if (operator.isEnvironmentNeeded()) {
+                if (operator.isEnvironmentNeeded() && operator.isTraceNeeded()) {
+                    writePushEnv();
+                    writePushTraceInfo(operator);
+                    writeSysDynamicCall(Memory.class, name, operatorResult, Environment.class, TraceInfo.class);
+                } else if (operator.isEnvironmentNeeded()){
                     writePushEnv();
                     writeSysDynamicCall(Memory.class, name, operatorResult, Environment.class);
+                } else if (operator.isTraceNeeded()){
+                    throw new RuntimeException("Unsupport operator with only trace needed");
                 } else
                     writeSysDynamicCall(Memory.class, name, operatorResult);
 
