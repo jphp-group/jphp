@@ -655,6 +655,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             return 1;
 
         ForeachIterator iterator = this.foreachIterator(false, false);
+        ForeachIterator iterator2 = null;
+        if (strict)
+            iterator2 = otherRef.foreachIterator(false, false);
 
         if (used == null)
             used = new HashSet<Integer>();
@@ -662,7 +665,18 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         while (iterator.next()){
             Memory value1 = iterator.getValue();
             Memory key    = iterator.getMemoryKey();
-            Memory value2 = otherRef.get(key);
+            Memory value2;
+            if (iterator2 == null)
+                value2 = otherRef.get(key);
+            else {
+                if (!iterator2.next())
+                    return -2;
+                Object key2 = iterator2.getKey();
+                if (!iterator.getKey().equals(key2))
+                    return -2;
+
+                value2 = iterator2.getValue();
+            }
 
             if (value2 == null)
                 return -2;
@@ -778,7 +792,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public Memory plus(Memory memory) {
-        return toNumeric().plus(memory);
+        switch (memory.type){
+            case ARRAY:
+                ArrayMemory left  = (ArrayMemory)toImmutable();
+                ArrayMemory other = (ArrayMemory)memory;
+                ForeachIterator iterator = other.foreachIterator(false, false);
+                while (iterator.next()){
+                    Object key = iterator.getKey();
+                    Memory origin = getByScalar(key);
+                    if (origin == null){
+                        left.checkCopied();
+                        left.put(key, iterator.getValue().toImmutable());
+                    }
+                }
+                return left;
+            case REFERENCE: return plus(memory.toValue());
+            default:
+                return toNumeric().plus(memory);
+        }
     }
 
     @Override
@@ -966,7 +997,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.ARRAY; // TODO
+        switch (memory.type){
+            case ARRAY:
+                return compare((ArrayMemory)memory, true) == 0;
+            case REFERENCE: return equal(memory.toValue());
+            default:
+                return false;
+        }
     }
 
     @Override

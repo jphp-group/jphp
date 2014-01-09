@@ -1,17 +1,8 @@
 <?php
 
-function handler($e){
-    echo $e;
-}
+$a = array("a" => "apple", "b" => "banana");
+$b = array("a" => "pear", "b" => "strawberry", "c" => "cherry");
 
-function exception_error_handler($errno, $errstr, $errfile, $errline ) {
-    throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-}
-set_error_handler("exception_error_handler");
-set_exception_handler('handler');
-
-try {
-    foreach($x as $el);
-} catch (ErrorException $e){
-    echo "URA!";
-}
+$c = $a + $b; // Объединение $a и $b
+echo "Union of \$a and \$b: \n";
+var_dump($c);
