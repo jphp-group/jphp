@@ -32,6 +32,7 @@ a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `build/jar` directory to
 PATH env variable and try JPHP, use `jphp` command:
 
     jphp -f <path/to/file.php>
+    jphp -v
 
 
 ### Using with Maven
