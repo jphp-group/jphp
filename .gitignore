@@ -9,3 +9,7 @@
 /lib/
 /out/
 .idea/
+settings.xml
+/target/
+/site/
+/scripts/

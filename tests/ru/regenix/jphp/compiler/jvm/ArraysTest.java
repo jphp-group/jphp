@@ -71,4 +71,9 @@ public class ArraysTest extends JvmCompilerCase {
     public void testCompare(){
         check("arrays/compare.php");
     }
+
+    @Test
+    public void testPlus(){
+        check("arrays/plus.php");
+    }
 }
