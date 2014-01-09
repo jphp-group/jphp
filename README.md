@@ -7,7 +7,7 @@ JPHP is a new implementation for PHP which uses Java VM. It supports many featur
 How it works? JPHP is a compiler like `javac`, it compiles php sources to jvm bytecode and than
 can execute the result on Java VM.
 
-Supports: JDK 1.6+ (OpendJDK, Oracle)
+Supports: JDK 1.6+ (OpenJDK, Oracle)
 
 
 ### Features
@@ -21,14 +21,17 @@ Supports: JDK 1.6+ (OpendJDK, Oracle)
 
 ### How build and run?
 
-Use build.xml for ANT project and install ivy for ANT. 
-Resolve all dependencies and run ru.regenix.jphp.Main class.
+Use build.xml for ANT project and install ivy for ANT.
 
     ant init-ivy
     ant resolve
     ant jar
 
-Then you can find the builded jar file in your `build/jar/` directory.
+Then you can find the builded jar file in your `build/jar/` directory. There are
+a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `build/jar` directory to your 
+PATH env variable and try JPHP, use `jphp` command:
+
+    jphp -f <path/to/file.php>
 
 
 ### Using with Maven
