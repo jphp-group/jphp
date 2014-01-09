@@ -400,7 +400,7 @@ public class LangFunctions extends FunctionsContainer {
         if (memory.isObject() && memory.toValue(ObjectMemory.class).value instanceof Closure)
             return true;
         Invoker invoker = Invoker.valueOf(env, null, memory);
-        return invoker != null && invoker.canAccess(env, false) == 0;
+        return invoker != null && invoker.canAccess(env) == 0;
     }
 
     @Runtime.Immutable
@@ -526,7 +526,7 @@ public class LangFunctions extends FunctionsContainer {
             Memory[] passed = new Memory[]{function, args};
             env.pushCall(trace, null, passed, "call_user_func_array", null, null);
             try {
-                return call_user_func(env, trace, function, ((ArrayMemory) args).values(true));
+                return _call_user_func(env, trace, function, ((ArrayMemory) args).values(true));
             } finally {
                 env.popCall();
             }
@@ -727,7 +727,7 @@ public class LangFunctions extends FunctionsContainer {
         if (object.isObject()){
             ClassEntity classEntity = object.toValue(ObjectMemory.class).getReflection().getParent();
             if (classEntity == null)
-                return Memory.NULL;
+                return Memory.FALSE;
             else
                 return new StringMemory(classEntity.getName());
         } else {

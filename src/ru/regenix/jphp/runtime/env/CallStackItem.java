@@ -21,6 +21,8 @@ public class CallStackItem {
     public ClassEntity classEntity;
     public ClassEntity staticClassEntity;
 
+    public int flags;
+
     public CallStackItem(TraceInfo trace) {
         this.trace = trace;
     }
@@ -58,6 +60,7 @@ public class CallStackItem {
     public void clear(){
         this.object = null;
         this.args = null;
+        this.flags = 0;
     }
 
     @Override

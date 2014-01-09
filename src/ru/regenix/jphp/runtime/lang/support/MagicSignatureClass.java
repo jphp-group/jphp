@@ -23,11 +23,6 @@ public class MagicSignatureClass {
         return Memory.NULL;
     }
 
-    @Reflection.Signature
-    public Memory __clone(Environment env, Memory... args){
-        return Memory.NULL;
-    }
-
     @Reflection.Signature({@Reflection.Arg("name"), @Reflection.Arg("arguments")})
     public static Memory __callStatic(Environment env, Memory... args){
         return Memory.NULL;

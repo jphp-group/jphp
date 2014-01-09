@@ -49,6 +49,16 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testArrayConversionKeys(){
+        check("zend/classes/array_conversion_keys.php");
+    }
+
+    @Test
+    public void testAssignOpProperty(){
+        check("zend/classes/assign_op_property_001.php");
+    }
+
+    @Test
     public void testPrivate(){
         check("zend/classes/private_001.php", true);
         check("zend/classes/private_002.php", true);
@@ -81,6 +91,28 @@ public class ClassesTest extends JvmCompilerCase {
     public void testBugs(){
         check("zend/classes/bug23951.php");
         check("zend/classes/bug24399.php");
+        check("zend/classes/bug24445.php");
+        check("zend/classes/bug27504.php", true);
+        check("zend/classes/bug29446.php", true);
+        check("zend/classes/bug63462.php", true);
+    }
+
+    @Test
+    public void testClass(){
+        check("zend/classes/class_abstract.php", true);
+        check("zend/classes/class_example.php", true);
+        check("zend/classes/class_final.php", true);
+        check("zend/classes/class_stdclass.php", true);
+    }
+
+    @Test
+    public void testClone(){
+        check("zend/classes/clone_001.php");
+        check("zend/classes/clone_002.php");
+        check("zend/classes/clone_003.php");
+        check("zend/classes/clone_004.php");
+        check("zend/classes/clone_005.php", true);
+        check("zend/classes/clone_006.php");
     }
 
     @Test

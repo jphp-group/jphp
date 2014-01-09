@@ -52,8 +52,11 @@ public class VarExport extends Printer {
         for(int i = 0; i < length; i++){
             char ch = v.charAt(i);
             if (ch == '\'')
-                printer.append('\\');
-            printer.append(ch);
+                printer.append("\\'");
+            else if (ch == '\0'){
+                printer.append("' . \"\\0\" . '");
+            } else
+                printer.append(ch);
         }
 
         printer.append('\'');
@@ -61,6 +64,10 @@ public class VarExport extends Printer {
 
     @Override
     protected void printArray(ArrayMemory value, int level, Set<Integer> used) {
+        printArray(value, level, used, false);
+    }
+
+    protected void printArray(ArrayMemory value, int level, Set<Integer> used, boolean stripNulls) {
         if (used.contains(value.getPointer())){
             recursionExists = true;
             printNull();
@@ -81,9 +88,11 @@ public class VarExport extends Printer {
 
                 if (key.isString()){
                     String k = key.toString();
-                    int pos = k.lastIndexOf('\0');
-                    if (pos > -1)
-                        k = k.substring(pos + 1);
+                    if (stripNulls){
+                        int pos = k.lastIndexOf('\0');
+                        if (pos > -1)
+                            k = k.substring(pos + 1);
+                    }
 
                     printString(new StringMemory(k));
                 } else {
@@ -124,7 +133,7 @@ public class VarExport extends Printer {
             printer.write(entity.getName());
             printer.write("::");
             printer.write("__set_state(");
-            printArray(value.value.getProperties(), 0, used);
+            printArray(value.value.getProperties(), 0, used, true);
             printer.write(")");
 
             used.remove(value.getPointer());

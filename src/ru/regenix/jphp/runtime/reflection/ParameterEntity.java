@@ -103,7 +103,8 @@ public class ParameterEntity extends Entity {
                 case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
                 case ARRAY: return value.isArray();
                 case CALLABLE:
-                    return Invoker.valueOf(env, null, value) != null;
+                    Invoker invoker = Invoker.valueOf(env, null, value);
+                    return invoker != null && invoker.canAccess(env) == 0;
                 default:
                     return true;
             }

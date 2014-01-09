@@ -13,6 +13,7 @@ import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.invoke.ObjectInvokeHelper;
+import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.support.MagicSignatureClass;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
@@ -28,6 +29,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassEntity extends Entity {
+
+    private final static int FLAG_GET = 4000;
+    private final static int FLAG_SET = 4001;
+    private final static int FLAG_ISSET = 4002;
 
     // types
     public enum Type { CLASS, INTERFACE, TRAIT }
@@ -609,11 +614,12 @@ public class ClassEntity extends Entity {
         while (tmp != null){
             long otherId = tmp.getId();
             for(PropertyEntity property : tmp.getProperties()) {
-                if (property.getClazz().getId() == otherId && property.defaultValue != null){
-                    props.getByScalarOrCreate(
-                            property.getSpecificName(),
-                            property.defaultValue.toImmutable()
-                    );
+                if (property.getClazz().getId() == otherId && property.defaultValue != null) {
+                    if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
+                        props.getByScalarOrCreate(
+                                property.getSpecificName(),
+                                property.defaultValue.toImmutable()
+                        );
                 }
             }
             tmp = tmp.parent;
@@ -627,7 +633,25 @@ public class ClassEntity extends Entity {
 
     public IObject cloneObject(IObject value, Environment env, TraceInfo trace) throws Throwable {
         IObject copy = this.newObjectWithoutConstruct(env);
-        copy.getProperties().putAll(value.getProperties());
+        ForeachIterator iterator = value.getProperties().foreachIterator(false, false);
+        ArrayMemory props = copy.getProperties();
+        while (iterator.next()){
+            Object key = iterator.getKey();
+            if (key instanceof String) {
+                String name = (String)key;
+                if (name.indexOf('\0') > -1)
+                    name = name.substring(name.lastIndexOf('\0') + 1);
+
+                PropertyEntity entity = properties.get(name);
+                if (entity != null) {
+                    if (props.getByScalar(entity.getSpecificName()) == null)
+                        props.put(entity.getSpecificName(), iterator.getValue().toImmutable());
+                } else
+                    props.put(key, iterator.getValue().toImmutable());
+            } else
+                props.put(key, iterator.getValue().toImmutable());
+        }
+
         if (methodMagicClone != null){
             ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null);
         }
@@ -784,7 +808,12 @@ public class ClassEntity extends Entity {
         value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
 
         if (value == null) {
-            if (methodMagicSet != null) {
+            boolean recursive = false;
+            if (contex != null && methodMagicSet != null && contex.getId() == methodMagicSet.getClazz().getId() ){
+                recursive = env.peekCall(0).flags == FLAG_SET;
+            }
+
+            if (methodMagicSet != null && !recursive) {
                 StringMemory memoryProperty = new StringMemory(property);
 
                 if (callback != null){
@@ -795,6 +824,7 @@ public class ClassEntity extends Entity {
                             env.pushCall(
                                     trace, object, args, methodMagicGet.getName(), methodMagicSet.getClazz().getName(), name
                             );
+                            env.peekCall(0).flags = FLAG_GET;
                             o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
                         } finally {
                             env.popCall();
@@ -806,6 +836,7 @@ public class ClassEntity extends Entity {
                 try {
                     Memory[] args = new Memory[]{memoryProperty, memory};
                     env.pushCall(trace, object, args, methodMagicSet.getName(), methodMagicSet.getClazz().getName(), name);
+                    env.peekCall(0).flags = FLAG_SET;
                     methodMagicSet.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -877,9 +908,17 @@ public class ClassEntity extends Entity {
 
         if (methodMagicIsset != null){
             Memory result;
+            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() ){
+                if (env.peekCall(0).flags == FLAG_ISSET){
+                    return object.getProperties().getByScalar(property) == null ? Memory.TRUE : Memory.NULL;
+                }
+            }
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
-                env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
+                env.pushCall(
+                        trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name
+                );
+                env.peekCall(0).flags = FLAG_ISSET;
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -907,9 +946,16 @@ public class ClassEntity extends Entity {
 
         if (methodMagicIsset != null){
             Memory result;
+
+            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() )
+                if (env.peekCall(0).flags == FLAG_ISSET){
+                    return object.getProperties().getByScalar(property) == null ? Memory.TRUE : Memory.NULL;
+            }
+
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
+                env.peekCall(0).flags = FLAG_ISSET;
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -961,9 +1007,18 @@ public class ClassEntity extends Entity {
 
         if (methodMagicGet != null) {
             Memory result;
+
+            if (context != null && context.getId() == methodMagicGet.getClazz().getId()){
+                if (env.peekCall(0).flags == FLAG_GET) {
+                    env.error(trace, ErrorType.E_NOTICE, Messages.ERR_NOTICE_UNDEFINED_PROPERTY, name, property);
+                    return Memory.NULL;
+                }
+            }
+
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
                 env.pushCall(trace, object, args, methodMagicGet.getName(), methodMagicGet.getClazz().getName(), name);
+                env.peekCall(0).flags = FLAG_GET;
                 result = methodMagicGet.invokeDynamic(object, env, args);
             } finally {
                 env.popCall();

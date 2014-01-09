@@ -38,7 +38,7 @@ public class FunctionInvoker extends Invoker {
     }
 
     @Override
-    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+    public int canAccess(Environment env) {
         return 0;
     }
 

@@ -255,6 +255,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         Memory value = expressionStmtCompiler.writeExpression(constant.getValue(), true, true, false);
         if (value != null && !value.isArray()) {
+            ConstantEntity c = entity.findConstant(constant.getFulledName());
+            if (c != null && c.getClazz().getId() == entity.getId()){
+                compiler.getEnvironment().error(
+                        constant.toTraceInfo(compiler.getContext()),
+                        "Cannot redefine class constant " + entity.getName() + "::" + constant.getFulledName()
+                );
+                return;
+            }
             entity.addConstant(new ConstantEntity(constant.getFulledName(), value, true));
         } else
             throw new CompileException(

@@ -9,8 +9,6 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class DynamicMethodInvoker extends Invoker {
     protected final IObject object;
     protected final MethodEntity method;
@@ -45,7 +43,7 @@ public class DynamicMethodInvoker extends Invoker {
     }
 
     @Override
-    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+    public int canAccess(Environment env) {
         return method.canAccess(env);
     }
 

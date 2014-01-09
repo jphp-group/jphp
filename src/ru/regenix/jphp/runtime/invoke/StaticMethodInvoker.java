@@ -7,8 +7,6 @@ import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class StaticMethodInvoker extends Invoker {
     protected final MethodEntity method;
     protected final String calledClass;
@@ -43,7 +41,7 @@ public class StaticMethodInvoker extends Invoker {
     }
 
     @Override
-    public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException {
+    public int canAccess(Environment env) {
         return method.canAccess(env);
     }
 

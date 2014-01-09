@@ -7,12 +7,12 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
-import java.lang.reflect.InvocationTargetException;
-
 abstract public class Invoker {
+
     protected final Environment env;
     protected TraceInfo trace;
     protected boolean pushCallTrace = true;
+
 
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
@@ -41,7 +41,7 @@ abstract public class Invoker {
         return valueOf(env, env.peekCall(0).trace, method);
     }
 
-    abstract public int canAccess(Environment env, boolean external) throws InvocationTargetException, IllegalAccessException;
+    abstract public int canAccess(Environment env);
 
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toValue();
@@ -60,8 +60,9 @@ abstract public class Invoker {
             }
 
             if (one == null || two == null) {
-                if (trace == null)
+                if (trace == null) {
                     return null;
+                }
                 env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
             }
 

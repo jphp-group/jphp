@@ -155,6 +155,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected IssetExprToken processIsset(Token previous, Token current, ListIterator<Token> iterator){
+        Token next = nextTokenAndPrev(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next, "(");
+
         CallExprToken call = processCall(current, nextToken(iterator), iterator);
 
         for(ExprStmtToken param : call.getParameters()){
@@ -167,6 +171,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             if (last instanceof DynamicAccessExprToken){
                 newToken = new DynamicAccessIssetExprToken((DynamicAccessExprToken)last);
+                if (analyzer.getClazz() != null && !"__isset".equals(analyzer.getFunction().getFulledName())){
+                    ((DynamicAccessIssetExprToken)newToken).setWithMagic(false);
+                }
             }
 
             if (newToken != null)
@@ -179,6 +186,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected UnsetExprToken processUnset(Token previous, Token current, ListIterator<Token> iterator){
+        Token next = nextTokenAndPrev(iterator);
+        if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
+            unexpectedToken(next, "(");
+
         CallExprToken call = processCall(current, nextToken(iterator), iterator);
 
         for(ExprStmtToken param : call.getParameters()){
@@ -287,7 +298,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, Token prev, ListIterator<Token> iterator,
             BraceExprToken.Kind closedBraceKind, int braceOpened){
         DynamicAccessExprToken result = (DynamicAccessExprToken)current;
-        if (next instanceof NameToken){
+        if (next instanceof NameToken || next instanceof VariableExprToken){
             result.setField((ValueExprToken) next);
             iterator.next();
         } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){

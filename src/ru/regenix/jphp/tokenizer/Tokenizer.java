@@ -706,6 +706,7 @@ public class Tokenizer {
 
         TokenMeta meta = buildMeta(startPosition, startLine);
         if (currentPosition != startPosition && GrammarUtils.isDelimiter(ch)){
+            checkNewLine(ch, true);
             currentPosition -= 1;
             relativePosition -= 1;
         }
