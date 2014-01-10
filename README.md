@@ -28,7 +28,7 @@ Use build.xml for ANT project and install ivy for ANT.
     ant jar
 
 Then you can find the builded jar file in your `build/jar/` directory. There are
-a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `build/jar` directory to your 
+a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `build/jar` directory to your
 PATH env variable and try JPHP, use `jphp` command:
 
     jphp -f <path/to/file.php>
@@ -44,14 +44,14 @@ PATH env variable and try JPHP, use `jphp` command:
     <version>0.1-snapshot</version>
 </dependency>
 ```
-    
+
 And add our maven repository:
 
 ```
 <repositories>
   <repository>
       <id>JPHP repository</id>
-      <url>https://raw.github.com/dim-s/jvm-php/mvn-repo/</url>
+      <url>https://raw.github.com/dim-s/jphp-maven/master/</url>
     </repository>
 </repositories>
 ```
