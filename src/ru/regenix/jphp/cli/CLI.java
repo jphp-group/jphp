@@ -68,6 +68,8 @@ public class CLI {
             module.includeNoThrow(environment);
         } catch (Exception e){
             environment.catchUncaught(e);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
         } finally {
             try {
                 environment.doFinal();
