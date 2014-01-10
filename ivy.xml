@@ -1,8 +1,0 @@
-<ivy-module version="2.0">
-    <info organisation="ru.regenix" module="jphp"/>
-    <dependencies>
-        <dependency org="junit" name="junit" rev="4.11" />
-        <dependency org="org.ow2.asm" name="asm-all" rev="4.1" />
-        <dependency org="com.beust" name="jcommander" rev="1.32"/>
-    </dependencies>
-</ivy-module>
