@@ -33,6 +33,7 @@ public class ClassEntity extends Entity {
     private final static int FLAG_GET = 4000;
     private final static int FLAG_SET = 4001;
     private final static int FLAG_ISSET = 4002;
+    private final static int FLAG_UNSET = 4003;
 
     // types
     public enum Type { CLASS, INTERFACE, TRAIT }
@@ -873,9 +874,16 @@ public class ClassEntity extends Entity {
                 || accessFlag != 0
                 || props.removeByScalar(entity == null ? property : entity.specificName) == null ){
             if (methodMagicUnset != null) {
+                if (context != null && context.getId() == methodMagicUnset.getClazz().getId() ){
+                    if (env.peekCall(0).flags == FLAG_UNSET){
+                        return Memory.NULL;
+                    }
+                }
+
                 try {
                     Memory[] args = new Memory[]{new StringMemory(property)};
                     env.pushCall(trace, object, args, methodMagicUnset.getName(), methodMagicUnset.getClazz().getName(), name);
+                    env.peekCall(0).flags = FLAG_UNSET;
                     methodMagicUnset.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
