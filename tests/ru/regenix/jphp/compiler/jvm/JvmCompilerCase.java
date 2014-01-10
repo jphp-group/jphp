@@ -82,7 +82,11 @@ abstract public class JvmCompilerCase {
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
         environment.getScope().loadModule(module);
-        environment.registerModule(module);
+        try {
+            environment.registerModule(module);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
 
         return module.includeNoThrow(environment);
     }
@@ -98,7 +102,11 @@ abstract public class JvmCompilerCase {
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
         environment.getScope().loadModule(module);
-        environment.registerModule(module);
+        try {
+            environment.registerModule(module);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
 
         if (globals != null)
             environment.getGlobals().putAll(globals);
@@ -137,6 +145,8 @@ abstract public class JvmCompilerCase {
     public void check(String name, boolean withErrors){
         File file;
         Environment environment = new Environment(newScope());
+        //environment.setErrorFlags(ErrorType.E_ALL.value);
+
         Test test = new Test(file = new File(
                 Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile()
         ));
@@ -159,6 +169,8 @@ abstract public class JvmCompilerCase {
                         + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
                         e.getTraceInfo());
             }
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
         }
 
         try {

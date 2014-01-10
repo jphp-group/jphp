@@ -136,6 +136,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new VarInsnNode(ALOAD, variable.index));
     }
 
+    protected LabelNode makeLabel(){
+        LabelNode el;
+        code.add(el = new LabelNode());
+        return el;
+    }
+
     protected Memory getMacros(ValueExprToken token){
         if (token instanceof SelfExprToken){
             return new StringMemory(method.clazz.statement.getFulledName());
@@ -1494,16 +1500,28 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (macro instanceof DirMacroToken){
             return new StringMemory(new File(compiler.getSourceFile()).getParent());
         } else if (macro instanceof FunctionMacroToken){
-            return new StringMemory(
-                    method.clazz.getFunctionName().isEmpty()
-                            ? method.clazz.isSystem() ? "" : method.getRealName()
-                            : method.clazz.getFunctionName()
-            );
+
+            if (method.clazz.getFunctionName().isEmpty())
+                return method.clazz.isSystem()
+                    ? Memory.CONST_EMPTY_STRING
+                    : method.getRealName() == null
+                            ? Memory.CONST_EMPTY_STRING : new StringMemory(method.getRealName());
+            else {
+                return method.clazz.getFunctionName() == null
+                    ? Memory.CONST_EMPTY_STRING
+                    : new StringMemory(method.clazz.getFunctionName());
+            }
+
         } else if (macro instanceof MethodMacroToken){
-            return new StringMemory(method.clazz.isSystem()
-                    ? ""
-                    : method.clazz.entity.getName() + "::" + method.getRealName()
-            );
+
+            if (method.clazz.isSystem())
+                return Memory.NULL;
+            else
+                return new StringMemory(
+                    method.clazz.entity.getName()
+                    + (method.getRealName() == null ? "" : "::" + method.getRealName())
+                );
+
         } else if (macro instanceof ClassMacroToken){
             return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
         } else if (macro instanceof NamespaceMacroToken){
@@ -3322,6 +3340,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         );
     }
 
+    void writeClassInitEnvironment(JvmCompiler.ClassInitEnvironment token){
+        writePushEnv();
+        writePushConstString(token.getEntity().getName());
+        writePushConstString(token.getEntity().getLowerName());
+        writePushScalarBoolean(false);
+        writeSysDynamicCall(
+            Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
+        );
+        writePushEnv();
+        writeSysDynamicCall(ClassEntity.class, "initEnvironment", void.class, Environment.class);
+    }
+
     public Memory writeExpression(ExprStmtToken expression, boolean returnValue, boolean returnMemory){
         return writeExpression(expression, returnValue, returnMemory, true);
     }
@@ -3352,6 +3382,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                 if (token instanceof FunctionStmtToken){
                     writeFunction((FunctionStmtToken)token); continue;
+                } else if (token instanceof JvmCompiler.ClassInitEnvironment){
+                    writeClassInitEnvironment((JvmCompiler.ClassInitEnvironment)token);
                 } else if (token instanceof EchoRawToken){   // <? ... ?>
                     writeEchoRaw((EchoRawToken) token); continue;
                 } else if (token instanceof EchoStmtToken){ // echo ...

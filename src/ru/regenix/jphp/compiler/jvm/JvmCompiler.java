@@ -4,10 +4,12 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.*;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.*;
+import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.TokenMeta;
@@ -71,22 +73,27 @@ public class JvmCompiler extends AbstractCompiler {
         return cmp.compile();
     }
 
-    public ConstantEntity compileConstant(ConstStmtToken constant){
-        ConstantEntity constantEntity = new ConstantEntity(getContext());
-        constantEntity.setName(constant.getFulledName());
-        constantEntity.setModule(module);
+    public List<ConstantEntity> compileConstant(ConstStmtToken constant){
+        List<ConstantEntity> result = new ArrayList<ConstantEntity>();
+        for(ConstStmtToken.Item el : constant.items){
+            ConstantEntity constantEntity = new ConstantEntity(getContext());
+            constantEntity.setName(el.getFulledName());
+            constantEntity.setModule(module);
+            constantEntity.setTrace(el.name.toTraceInfo(context));
 
-        ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(this);
-        Memory memory = expressionStmtCompiler.writeExpression(constant.getValue(), true, true, false);
-        if (memory == null){
-            throw new CompileException(
-                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(constant.getFulledName()),
-                    constant.toTraceInfo(context)
-            );
+            ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(this);
+            Memory memory = expressionStmtCompiler.writeExpression(el.value, true, true, false);
+            if (memory == null){
+                throw new CompileException(
+                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(el.getFulledName()),
+                        constant.toTraceInfo(context)
+                );
+            }
+
+            constantEntity.setValue(memory);
+            result.add(constantEntity);
         }
-
-        constantEntity.setValue(memory);
-        return constantEntity;
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -110,17 +117,26 @@ public class JvmCompiler extends AbstractCompiler {
 
         // write constants
         for(ConstStmtToken constant : analyzer.getConstants()){
-            ConstantEntity constantEntity = compileConstant(constant);
+            List<ConstantEntity> items = compileConstant(constant);
 
-            if (!constants.containsKey(constantEntity.getName())){
-                module.addConstant(constantEntity);
+            for(ConstantEntity el : items){
+                if (!constants.containsKey(el.getName())){
+                    module.addConstant(el);
 
-                if (scope.findUserConstant(constantEntity.getName()) != null)
-                    continue; // TODO: add warning!!!
+                    if (scope.findUserConstant(el.getName()) != null){
+                        environment.error(el.getTrace(), ErrorType.E_ERROR,
+                            Messages.ERR_FATAL_CANNOT_REDECLARE_CONSTANT,
+                            el.getName()
+                        );
+                    }
 
-                constants.put(constantEntity.getShortName(), constantEntity);
-            } else {
-                // TODO: add warning
+                    constants.put(el.getShortName(), el);
+                } else {
+                    environment.error(el.getTrace(), ErrorType.E_ERROR,
+                        Messages.ERR_FATAL_CANNOT_REDECLARE_CONSTANT,
+                        el.getName()
+                    );
+                }
             }
         }
 
@@ -142,9 +158,16 @@ public class JvmCompiler extends AbstractCompiler {
             if (token instanceof NamespaceStmtToken){
               setNamespace((NamespaceStmtToken)token);
             } if (token instanceof ClassStmtToken){
-                ClassEntity entity = compileClass((ClassStmtToken)token);
+                ClassStmtCompiler cmp = new ClassStmtCompiler(this, (ClassStmtToken)token);
+                ClassEntity entity = cmp.compile();
                 entity.setStatic(true);
                 module.addClass(entity);
+
+                if (cmp.isInitDynamicExists()){
+                    externalCode.add(new ExprStmtToken(
+                        new ClassInitEnvironment((ClassStmtToken)token, entity)
+                    ));
+                }
             } else if (token instanceof FunctionStmtToken){
                 FunctionEntity entity = compileFunction((FunctionStmtToken)token);
                 entity.setStatic(true);
@@ -212,6 +235,25 @@ public class JvmCompiler extends AbstractCompiler {
             return context.getFile() == null ? null : context.getFile().getCanonicalPath();
         } catch (IOException e) {
             return context.getFile().getAbsolutePath();
+        }
+    }
+
+    public class ClassInitEnvironment extends StmtToken {
+        protected final ClassStmtToken token;
+        protected final ClassEntity entity;
+
+        public ClassInitEnvironment(ClassStmtToken token, ClassEntity clazz) {
+            super(token.getMeta(), TokenType.T_J_CUSTOM);
+            this.token = token;
+            this.entity = clazz;
+        }
+
+        public ClassStmtToken getToken() {
+            return token;
+        }
+
+        public ClassEntity getEntity() {
+            return entity;
         }
     }
 }

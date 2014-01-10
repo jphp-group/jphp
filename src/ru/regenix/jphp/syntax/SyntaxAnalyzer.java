@@ -39,7 +39,7 @@ public class SyntaxAnalyzer {
 
     private Map<String, ClassStmtToken> classes;
     private List<FunctionStmtToken> functions;
-    private Map<String, ConstStmtToken> constants;
+    private List<ConstStmtToken> constants;
     private List<ClosureStmtToken> closures;
 
     private Environment environment;
@@ -84,7 +84,7 @@ public class SyntaxAnalyzer {
         this.function = function;
         classes = new LinkedHashMap<String, ClassStmtToken>();
         functions = new ArrayList<FunctionStmtToken>();
-        constants = new LinkedHashMap<String, ConstStmtToken>();
+        constants = new ArrayList<ConstStmtToken>();
         closures = new ArrayList<ClosureStmtToken>();
         closureStack = new Stack<FunctionStmtToken>();
 
@@ -131,7 +131,7 @@ public class SyntaxAnalyzer {
     }
 
     public void registerConstant(ConstStmtToken constant){
-        constants.put(constant.getFulledName(), constant);
+        constants.add(constant);
     }
 
     public void registerClosure(ClosureStmtToken closure){
@@ -148,7 +148,7 @@ public class SyntaxAnalyzer {
     }
 
     public Collection<ConstStmtToken> getConstants(){
-        return constants.values();
+        return constants;
     }
 
     public Collection<ClosureStmtToken> getClosures(){
@@ -157,10 +157,6 @@ public class SyntaxAnalyzer {
 
     public ClassStmtToken findClass(String name){
         return classes.get(name.toLowerCase());
-    }
-
-    public ConstStmtToken findConstant(String name){
-        return constants.get(name);
     }
 
     protected void process(){

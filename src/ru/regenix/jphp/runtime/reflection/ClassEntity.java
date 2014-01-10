@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassEntity extends Entity {
-
     private final static int FLAG_GET = 4000;
     private final static int FLAG_SET = 4001;
     private final static int FLAG_ISSET = 4002;
@@ -46,7 +45,10 @@ public class ClassEntity extends Entity {
     protected byte[] data;
     protected Extension extension;
     protected Class<?> nativeClazz;
+
     protected Constructor nativeConstructor;
+    protected Method nativeInitEnvironment;
+
     protected ModuleEntity module;
 
     protected final Map<String, MethodEntity> methods;
@@ -489,6 +491,10 @@ public class ClassEntity extends Entity {
         constant.setClazz(this);
     }
 
+    public void addDynamicConstant(Environment env, TraceInfo trace, String name, Memory value){
+        env.getOrCreateStatic("\0" + lowerName + "##" + name, value);
+    }
+
     public void addProperty(PropertyEntity property){
         if (property.isStatic()) {
             PropertyEntity prototype = staticProperties.get(property.getLowerName());
@@ -560,6 +566,15 @@ public class ClassEntity extends Entity {
                 this.nativeConstructor = null;
                 //throw new RuntimeException(e);
             }
+
+            try {
+                this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
+                    "__$initEnvironment", Environment.class
+                );
+                this.nativeInitEnvironment.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                this.nativeInitEnvironment = null;
+            }
         }
     }
 
@@ -569,6 +584,16 @@ public class ClassEntity extends Entity {
 
     public void setModule(ModuleEntity module) {
         this.module = module;
+    }
+
+    public void initEnvironment(Environment env) throws Throwable {
+        if (nativeInitEnvironment != null) {
+            try {
+                nativeInitEnvironment.invoke(null, env);
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
+        }
     }
 
     public IObject newObjectWithoutConstruct(Environment env) throws Throwable {

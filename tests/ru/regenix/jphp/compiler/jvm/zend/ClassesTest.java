@@ -116,6 +116,13 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testConstants(){
+        check("zend/classes/constants_basic_001.php", true);
+        check("zend/classes/constants_basic_002.php", true);
+        //check("zend/classes/constants_basic_003.php", true);
+    }
+
+    @Test
     public void testFinal(){
         check("zend/classes/final.php");
         check("zend/classes/final_abstract.php", true);

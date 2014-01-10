@@ -818,7 +818,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken value = getToken(
                 current, iterator, Separator.SEMICOLON, closedBraceKind
         );
-        if (!(iterator.previous() instanceof SemicolonToken)){
+        if (!isBreak(iterator.previous())){
             iterator.next();
         }
         return value;

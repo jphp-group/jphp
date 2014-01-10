@@ -2,11 +2,9 @@ package ru.regenix.jphp.tokenizer.token.expr;
 
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
+import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
-import ru.regenix.jphp.tokenizer.token.expr.value.BooleanExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.DoubleExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
 
 abstract public class ValueExprToken extends ExprToken {
     public ValueExprToken(TokenMeta meta, TokenType type) {
@@ -104,5 +102,32 @@ abstract public class ValueExprToken extends ExprToken {
             return concat(value);
         else
             return null;
+    }
+
+    public static boolean isConstable(Token token){
+        if (token instanceof NameToken && !(token instanceof FulledNameToken))
+            return true;
+
+        if (token instanceof IntegerExprToken)
+            return true;
+
+        if (token instanceof DoubleExprToken)
+            return true;
+
+        if (token instanceof HexExprValue)
+            return true;
+
+        if (token instanceof StringExprToken){
+            if (((StringExprToken) token).getSegments().isEmpty())
+                return true;
+        }
+
+        if (token instanceof StaticAccessExprToken){
+            if (!((StaticAccessExprToken) token).isGetStaticField()
+                && ((StaticAccessExprToken) token).getClazz() instanceof NameToken)
+                return true;
+        }
+
+        return false;
     }
 }

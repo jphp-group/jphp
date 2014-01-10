@@ -690,7 +690,7 @@ public class Environment {
         outputBuffers.push(defaultBuffer);
     }
 
-    public ModuleEntity importModule(File file) throws IOException {
+    public ModuleEntity importModule(File file) throws Throwable {
         Context context = new Context(this, file);
         ModuleEntity module = scope.findUserModule(context.getModuleName());
         if (module == null){
@@ -706,10 +706,11 @@ public class Environment {
         return module;
     }
 
-    public void registerModule(ModuleEntity module){
+    public void registerModule(ModuleEntity module) throws Throwable {
         for(ClassEntity entity : module.getClasses()) {
-            if (entity.isStatic())
+            if (entity.isStatic()){
                 classMap.put(entity.getLowerName(), entity);
+            }
         }
 
         for(FunctionEntity entity : module.getFunctions()) {

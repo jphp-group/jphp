@@ -7,9 +7,9 @@ import org.objectweb.asm.tree.*;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.jvm.Constants;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
-import ru.regenix.jphp.exceptions.CompileException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
@@ -22,6 +22,7 @@ import ru.regenix.jphp.runtime.reflection.ConstantEntity;
 import ru.regenix.jphp.runtime.reflection.MethodEntity;
 import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
+import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
@@ -44,10 +45,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     private boolean isInterfaceCheck = true;
     private String functionName = "";
 
+    private boolean initDynamicExists = false;
+
+    protected List<ConstStmtToken.Item> dynamicConstants =
+        new ArrayList<ConstStmtToken.Item>();
+
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken statement) {
         super(compiler);
         this.statement = statement;
         this.node = new ClassNodeImpl();
+    }
+
+    public boolean isInitDynamicExists() {
+        return initDynamicExists;
     }
 
     public boolean isClosure(){
@@ -253,22 +263,30 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken)null);
         ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodStmtCompiler, null);
 
-        Memory value = expressionStmtCompiler.writeExpression(constant.getValue(), true, true, false);
-        if (value != null && !value.isArray()) {
-            ConstantEntity c = entity.findConstant(constant.getFulledName());
-            if (c != null && c.getClazz().getId() == entity.getId()){
-                compiler.getEnvironment().error(
+        for(ConstStmtToken.Item el : constant.items){
+            Memory value = expressionStmtCompiler.writeExpression(el.value, true, true, false);
+            if (value != null && !value.isArray()) {
+                ConstantEntity c = entity.findConstant(el.getFulledName());
+                if (c != null && c.getClazz().getId() == entity.getId()){
+                    compiler.getEnvironment().error(
+                            constant.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_ERROR,
+                            Messages.ERR_FATAL_CANNOT_REDEFINE_CLASS_CONSTANT,
+                            entity.getName() + "::" + el.getFulledName()
+                    );
+                    return;
+                }
+                entity.addConstant(new ConstantEntity(el.getFulledName(), value, true));
+            } else {
+                if (ValueExprToken.isConstable(el.value.getSingle())){
+                    dynamicConstants.add(el);
+                } else
+                    compiler.getEnvironment().error(
                         constant.toTraceInfo(compiler.getContext()),
-                        "Cannot redefine class constant " + entity.getName() + "::" + constant.getFulledName()
-                );
-                return;
+                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(el.getFulledName())
+                    );
             }
-            entity.addConstant(new ConstantEntity(constant.getFulledName(), value, true));
-        } else
-            throw new CompileException(
-                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(constant.getFulledName()),
-                    constant.getValue().toTraceInfo(compiler.getContext())
-            );
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -294,6 +312,56 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     null,
                     !functionName.isEmpty() ? functionName : entity.getName()
             ));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void writeInitEnvironment(){
+        if (!dynamicConstants.isEmpty()){
+            initDynamicExists = true;
+            MethodNode node = new MethodNodeImpl();
+            node.access = ACC_STATIC + ACC_PUBLIC;
+            node.name = "__$initEnvironment";
+            node.desc = Type.getMethodDescriptor(
+                Type.getType(void.class), Type.getType(Environment.class)
+            );
+
+            MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, node);
+            ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+            methodCompiler.writeHeader();
+
+            LabelNode l0 = expressionCompiler.makeLabel();
+            methodCompiler.addLocalVariable("~env", l0, Environment.class);
+
+            LocalVariable l_class = methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
+
+            expressionCompiler.writePushEnv();
+            expressionCompiler.writePushConstString(entity.getName());
+            expressionCompiler.writePushConstString(entity.getLowerName());
+            expressionCompiler.writePushConstBoolean(true);
+            expressionCompiler.writeSysDynamicCall(
+                Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
+            );
+            expressionCompiler.writeVarStore(l_class, false, false);
+
+            for(ConstStmtToken.Item el : dynamicConstants){
+                expressionCompiler.writeVarLoad(l_class);
+                expressionCompiler.writePushEnv();
+                expressionCompiler.writePushTraceInfo(el.name);
+                expressionCompiler.writePushConstString(el.getFulledName());
+                expressionCompiler.writeExpression(el.value, true, false, true);
+                expressionCompiler.writePopBoxing(true);
+
+                expressionCompiler.writeSysDynamicCall(
+                    ClassEntity.class, "addDynamicConstant", void.class,
+                    Environment.class, TraceInfo.class, String.class, Memory.class
+                );
+            }
+
+            node.instructions.add(new InsnNode(RETURN));
+            methodCompiler.writeFooter();
+
+            this.node.methods.add(node);
         }
     }
 
@@ -472,8 +540,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (!statement.isInterface()){
             writeDestructor();
-            writeInitStatic();
 
+            if (entity.getType() != ClassEntity.Type.INTERFACE){
+                writeInitEnvironment();
+            }
+
+            writeInitStatic();
             cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
             node.accept(cw);
 

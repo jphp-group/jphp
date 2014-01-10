@@ -249,6 +249,16 @@ final public class ObjectInvokeHelper {
 
         ConstantEntity constantEntity = entity.findConstant(constant);
         if (constantEntity == null){
+            Memory dyn;
+            ClassEntity pr = entity;
+            do {
+                dyn = env.getStatic("\0" + pr.getLowerName() + "##" + constant);
+                pr = pr.getParent();
+            } while (pr != null);
+
+            if (dyn != null)
+                return dyn;
+
             env.error(trace, Messages.ERR_FATAL_UNDEFINED_CLASS_CONSTANT.fetch(constant));
             return Memory.NULL;
         }

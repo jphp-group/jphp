@@ -4,6 +4,8 @@ import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.tokenizer.token.BreakToken;
+import ru.regenix.jphp.tokenizer.token.SemicolonToken;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 
@@ -82,6 +84,10 @@ abstract public class Generator<T extends Token> {
         if (token instanceof BraceExprToken)
             return ((BraceExprToken) token).isClosed(kind);
         return false;
+    }
+
+    protected boolean isBreak(Token token){
+        return token instanceof SemicolonToken || token instanceof BreakToken;
     }
 
     protected boolean isClosedBrace(Token token){

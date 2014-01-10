@@ -66,6 +66,8 @@ final public class Messages {
 
     public final static Item ERR_FATAL_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'%s' operator accepts only positive numbers > 0");
 
+    public final static Item ERR_FATAL_CANNOT_REDEFINE_CLASS_CONSTANT = new Item("Cannot redefine class constant %s");
+
     public static class Item {
         private String message;
         public Item(String message){

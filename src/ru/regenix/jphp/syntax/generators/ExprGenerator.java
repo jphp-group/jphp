@@ -53,7 +53,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.setConditional(conditional);
         } else {
             Token next = nextToken(iterator);
-            if (!(next instanceof SemicolonToken || next instanceof ColonToken))
+            if (!(isBreak(next) || next instanceof ColonToken))
                 unexpectedToken(next);
         }
 
@@ -467,7 +467,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 arguments.add(argument);
 
             Token prev = iterator.previous();
-            if (prev instanceof SemicolonToken || prev instanceof BreakToken){
+            if (isBreak(prev)){
                 iterator.next();
                 break;
             }

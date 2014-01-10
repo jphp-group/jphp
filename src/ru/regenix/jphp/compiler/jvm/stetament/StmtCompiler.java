@@ -39,6 +39,7 @@ abstract public class StmtCompiler<T extends Entity> {
     protected LabelNode writeLabel(MethodNode mv){
         return writeLabel(mv, -1);
     }
+    
 
     /**
      * @throws ParseException

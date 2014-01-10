@@ -25,11 +25,11 @@ public class ConstTest extends AbstractSyntaxTestCase {
 
         ConstStmtToken constant = (ConstStmtToken)tree.get(0);
 
-        Assert.assertEquals("my_CONST", constant.getName().getName());
+        Assert.assertEquals("my_CONST", constant.items.get(0).getFulledName());
         Assert.assertNull(constant.getClazz());
-        Assert.assertNotNull(constant.getValue());
-        Assert.assertTrue(constant.getValue().getTokens().size() == 1);
-        Assert.assertTrue(constant.getValue().getTokens().get(0) instanceof IntegerExprToken);
+        Assert.assertNotNull(constant.items.get(0).value);
+        Assert.assertTrue(constant.items.get(0).value.getTokens().size() == 1);
+        Assert.assertTrue(constant.items.get(0).value.getTokens().get(0) instanceof IntegerExprToken);
     }
 
     @Test(expected = ErrorException.class)
