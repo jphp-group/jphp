@@ -6,6 +6,8 @@ Marco Pivetta <ocramius@gmail.com>
 Bug 63462 is not yet fixed
 --FILE--
 <?php
+error_reporting(E_NOTICE);
+
 class Test {
 	public    $publicProperty;
 	protected $protectedProperty;
@@ -54,13 +56,13 @@ $test->privateProperty   = 'value';
 
 --EXPECTF--
 __get nonExisting
-Notice: Undefined index: nonExisting in %__set__get_006.php on line %d
+Notice: Undefined property: Test::$nonExisting in %s on line %d at pos %d
 __get publicProperty
-Notice: Undefined index: publicProperty in %__set__get_006.php on line %d
+Notice: Undefined property: Test::$publicProperty in %s on line %d at pos %d
 __get protectedProperty
-Notice: Undefined index: protectedProperty in %__set__get_006.php on line %d
+Notice: Undefined property: Test::$protectedProperty in %s on line %d at pos %d
 __get privateProperty
-Notice: Undefined index: privateProperty in %__set__get_006.php on line %d
+Notice: Undefined property: Test::$privateProperty in %s on line %d at pos %d
 __isset nonExisting
 __isset publicProperty
 __isset protectedProperty

@@ -8,12 +8,16 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
+import java.net.URL;
+
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CastTest extends JvmCompilerCase {
 
     @Test
     public void testScalar(){
+       URL src = Thread.currentThread().getContextClassLoader().getResource(".");
+
         Memory memory = includeResource("cast/scalar.php");
         Assert.assertEquals("success", memory.toString());
     }
