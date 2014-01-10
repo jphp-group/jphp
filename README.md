@@ -1,7 +1,7 @@
 PHP Compiler for JVM
 ====================
 
-[![Build Status](https://travis-ci.org/dim-s/jvm-php.png?branch=master)](https://travis-ci.org/dim-s/jvm-php)
+[![Build Status](https://travis-ci.org/dim-s/jphp.png?branch=master)](https://travis-ci.org/dim-s/jphp)
 
 JPHP is a new implementation for PHP which uses Java VM. It supports many features of the PHP language (5.3+).
 How it works? JPHP is a compiler like `javac`, it compiles php sources to jvm bytecode and than
@@ -17,6 +17,7 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 + Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings
++ Using Java libraries with PHP
 
 
 ### How build and run?
