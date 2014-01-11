@@ -40,11 +40,8 @@ public class NamespaceStmtToken extends StmtToken {
         this.tree = tree;
     }
 
-    private static NamespaceStmtToken defaultNamespace =
-            new NamespaceStmtToken(new TokenMeta("namespace", 0, 0, 0, 0))
-            .setName(null);
-
     public static NamespaceStmtToken getDefault(){
-        return defaultNamespace;
+        return new NamespaceStmtToken(TokenMeta.empty())
+                .setName(null);
     }
 }
