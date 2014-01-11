@@ -694,6 +694,14 @@ public class ReferenceMemory extends Memory {
         this.value = UNDEFINED;
     }
 
+    @Override
+    public void manualUnset(Environment env){
+        if (this.value.isObject())
+            this.value.manualUnset(env);
+
+        this.unset();
+    }
+
     public void needArray(){
         Type type = getRealType();
         if (type != Type.STRING && type != Type.ARRAY){

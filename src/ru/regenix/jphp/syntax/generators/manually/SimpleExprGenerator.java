@@ -42,8 +42,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         super(analyzer);
     }
 
-    public void setCanStartByReference(boolean canStartByReference) {
+    public SimpleExprGenerator setCanStartByReference(boolean canStartByReference) {
         this.canStartByReference = canStartByReference;
+        return this;
     }
 
     @Override
@@ -197,7 +198,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             Token last = tokens.get(tokens.size() - 1);
             Token newToken = null;
 
-            if (!(param.getSingle() instanceof VariableValueExprToken))
+            if (param.getSingle() instanceof StaticAccessExprToken && ((StaticAccessExprToken) param.getSingle()).isGetStaticField()) {
+                // allow class::$var
+            } else if (!(param.getSingle() instanceof VariableValueExprToken))
                 unexpectedToken(param);
 
             if (last instanceof VariableExprToken || last instanceof GetVarExprToken){
@@ -209,6 +212,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 newToken = el;
             } else if (last instanceof DynamicAccessExprToken){
                 newToken = new DynamicAccessUnsetExprToken((DynamicAccessExprToken)last);
+            } else if (last instanceof StaticAccessExprToken){
+                newToken = new StaticAccessUnsetExprToken((StaticAccessExprToken)last);
             } else
                 unexpectedToken(last);
 
@@ -314,9 +319,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 DynamicAccessAssignExprToken dResult = new DynamicAccessAssignExprToken(result);
                 dResult.setAssignOperator(next);
 
-                ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
-                        nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
-                );
+                analyzer.generator(SimpleExprGenerator.class);
+                ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
+                        .setCanStartByReference(true).getToken(
+                                nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
+                        );
                 if (closedBraceKind == null || braceOpened < 1)
                     iterator.previous();
                 dResult.setValue(value);

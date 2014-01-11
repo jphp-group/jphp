@@ -1,4 +1,4 @@
 package ru.regenix.jphp.exceptions;
 
-public class TodoException extends RuntimeException {
+public class TodoException extends RuntimeException implements JPHPException {
 }

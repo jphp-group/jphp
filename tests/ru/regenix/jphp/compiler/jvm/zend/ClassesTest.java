@@ -119,7 +119,58 @@ public class ClassesTest extends JvmCompilerCase {
     public void testConstants(){
         check("zend/classes/constants_basic_001.php", true);
         check("zend/classes/constants_basic_002.php", true);
-        //check("zend/classes/constants_basic_003.php", true);
+        check("zend/classes/constants_basic_003.php", true);
+        check("zend/classes/constants_basic_004.php", true);
+        check("zend/classes/constants_basic_005.php", true);
+        // check("zend/classes/constants_basic_006.php", true);
+
+        check("zend/classes/constants_error_001.php", true);
+        check("zend/classes/constants_error_002.php", true);
+        check("zend/classes/constants_error_003.php", true);
+        check("zend/classes/constants_error_004.php", true);
+        check("zend/classes/constants_error_005.php", true);
+        check("zend/classes/constants_error_006.php", true);
+        check("zend/classes/constants_error_007.php", true);
+
+        check("zend/classes/constants_scope_001.php");
+    }
+
+    @Test
+    public void testDereferencing(){
+        check("zend/classes/dereferencing_001.php");
+    }
+
+    @Test
+    public void testCtorDtor(){
+        check("zend/classes/ctor_dtor.php");
+        check("zend/classes/ctor_dtor_inheritance.php");
+        check("zend/classes/ctor_failure.php");
+        check("zend/classes/ctor_in_interface_01.php", true);
+        check("zend/classes/ctor_in_interface_02.php", true);
+        check("zend/classes/ctor_in_interface_03.php", true);
+        check("zend/classes/ctor_in_interface_04.php", true);
+        check("zend/classes/ctor_name_clash.php", true);
+        check("zend/classes/ctor_visibility.php", true);
+    }
+
+    @Test
+    public void testDestructor(){
+        check("zend/classes/destructor_and_echo.php");
+        check("zend/classes/destructor_and_exceptions.php");
+        check("zend/classes/destructor_and_globals.php");
+        check("zend/classes/destructor_and_references.php");
+        check("zend/classes/destructor_inheritance.php");
+    }
+
+    @Test
+    public void testFactory(){
+        check("zend/classes/factory_001.php");
+        check("zend/classes/factory_and_singleton_001.php");
+        check("zend/classes/factory_and_singleton_002.php");
+        check("zend/classes/factory_and_singleton_003.php", true);
+        check("zend/classes/factory_and_singleton_004.php", true);
+        check("zend/classes/factory_and_singleton_007.php", true);
+        check("zend/classes/factory_and_singleton_008.php", true);
     }
 
     @Test

@@ -176,17 +176,27 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPush(o);
         } else if (token instanceof StaticAccessExprToken){
             StaticAccessExprToken access = (StaticAccessExprToken)token;
-            if (access.getField() instanceof NameToken && access.getClazz() instanceof FulledNameToken){
+            if (access.getField() instanceof NameToken){
                 String constant = ((NameToken) access.getField()).getName();
-                String clazz    = ((FulledNameToken) access.getClazz()).getName();
+                String clazz;
+                ClassEntity entity;
+                if (access.getClazz() instanceof FulledNameToken){
+                    clazz    = ((FulledNameToken) access.getClazz()).getName();
+                    entity = compiler.getModule().findClass(clazz);
+                } else if (access.getClazz() instanceof ParentExprToken){
+                    entity = method.clazz.entity.getParent();
+                    if (entity == null)
+                        return;
+                    clazz = entity.getName();
+                } else
+                    return;
 
-                ClassEntity entity = compiler.getModule().findClass(clazz);
                 if (entity == null && clazz.equalsIgnoreCase(method.clazz.entity.getName()))
                     entity = method.clazz.entity;
 
                 if (entity != null){
                     ConstantEntity c = entity.findConstant(constant);
-                    if (c != null){
+                    if (c != null && c.getValue() != null){
                         stackPush(c.getValue());
                         stackPeek().setLevel(-1);
                         return;
@@ -1196,23 +1206,26 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushUnset(UnsetExprToken token, boolean returnValue){
+        method.entity.setImmutable(false);
         for(ExprStmtToken param : token.getParameters()){
             if (param.isSingle() && param.getSingle() instanceof VariableExprToken){
                 VariableExprToken variable = (VariableExprToken)param.getSingle();
                 checkAssignableVar(variable);
                 LocalVariable local = method.getLocalVariable(variable.getName());
 
-                if (local.isReference()){
-                    writeVarLoad(local);
-                    writeSysDynamicCall(Memory.class, "unset", void.class);
-                } else {
+                writeVarLoad(local);
+                writePushEnv();
+                writeSysDynamicCall(Memory.class, "manualUnset", void.class, Environment.class);
+                if (!local.isReference()) {
                     writePushNull();
                     writeVarAssign(local, null, false, false);
                 }
+
                 local.setValue(null);
             } else if (param.isSingle() && param.getSingle() instanceof GetVarExprToken){
                 writePushGetVar((GetVarExprToken)param.getSingle(), true);
-                writeSysDynamicCall(Memory.class, "unset", void.class);
+                writePushEnv();
+                writeSysDynamicCall(Memory.class, "manualUnset", void.class, Environment.class);
             } else {
                 writeExpression(param, false, false, true);
             }
@@ -1223,6 +1236,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushNew(NewExprToken newToken, boolean returnValue){
+        method.entity.setImmutable(false);
+
         writeLineNumber(newToken);
 
         writePushEnv();
@@ -2279,6 +2294,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
                     Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
             );
+            setStackPeekAsImmutable();
         } else {
             if (!(token.getField() instanceof VariableExprToken))
                 unexpectedToken(token.getField());
@@ -2287,7 +2303,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushEnv();
             writePushTraceInfo(token);
 
-            writeSysStaticCall(ObjectInvokeHelper.class, "getStaticProperty",
+            writeSysStaticCall(ObjectInvokeHelper.class,
+                    token instanceof StaticAccessUnsetExprToken ? "unsetStaticProperty" : "getStaticProperty",
                     Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
             );
         }
@@ -2733,7 +2750,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         if (Lt.isConstant() && Rt.isConstant()){
-            if (operator instanceof AssignOperatorExprToken)
+            if (operator instanceof AssignableOperatorToken)
                 unexpectedToken(operator);
 
             writeScalarOperator(o2, Lt, o1, Rt, operator, operatorResult, name);

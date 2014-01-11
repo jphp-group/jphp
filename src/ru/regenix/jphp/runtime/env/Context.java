@@ -8,7 +8,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 public class Context {
-
     protected final Charset charset;
     protected final Environment environment;
     protected final File file;

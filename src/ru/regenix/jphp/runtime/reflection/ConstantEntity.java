@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.reflection;
 
 import ru.regenix.jphp.runtime.env.Context;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
@@ -42,9 +43,25 @@ public class ConstantEntity extends Entity {
         return clazz;
     }
 
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+        updateInternalName();
+    }
+
+    protected void updateInternalName(){
+        if (name != null){
+            if (clazz != null)
+                internalName = "\0" + clazz.getLowerName() + "##" + (caseSensitise ? lowerName : name);
+            else if (module != null)
+                internalName = "\0" + module.getInternalName() + "##" + (caseSensitise ? lowerName : name);
+        }
+    }
+
     public void setClazz(ClassEntity clazz) {
         this.clazz = clazz;
         this.module = clazz == null ? null : clazz.getModule();
+        updateInternalName();
     }
 
     public ModuleEntity getModule() {
@@ -53,10 +70,18 @@ public class ConstantEntity extends Entity {
 
     public void setModule(ModuleEntity module) {
         this.module = module;
+        updateInternalName();
     }
 
     public Memory getValue() {
         return value;
+    }
+
+    public Memory getValue(Environment env){
+        if (value == null)
+            return env.getStatic(internalName).toValue();
+        else
+            return value;
     }
 
     public void setValue(Memory value) {

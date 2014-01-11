@@ -12,4 +12,4 @@ class Test {
 ?>
 --EXPECTF--
 
-Fatal error: Declaration of Test::__get($x, $y) must be compatible with Object::__get($property) in %s on line %d, position %d
+Fatal error: Declaration of Test::__get() must be compatible with Object::__get($property) in %s on line %d, position %d

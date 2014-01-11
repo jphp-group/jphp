@@ -5,6 +5,7 @@ import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
+import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 abstract public class ValueExprToken extends ExprToken {
     public ValueExprToken(TokenMeta meta, TokenType type) {
@@ -104,7 +105,7 @@ abstract public class ValueExprToken extends ExprToken {
             return null;
     }
 
-    public static boolean isConstable(Token token){
+    public static boolean isConstable(Token token, boolean arrays){
         if (token instanceof NameToken && !(token instanceof FulledNameToken))
             return true;
 
@@ -126,6 +127,26 @@ abstract public class ValueExprToken extends ExprToken {
             if (!((StaticAccessExprToken) token).isGetStaticField()
                 && ((StaticAccessExprToken) token).getClazz() instanceof NameToken)
                 return true;
+        }
+
+        if (arrays){
+            if (token instanceof ArrayExprToken){
+                ArrayExprToken array = (ArrayExprToken)token;
+                for(ExprStmtToken e : array.getParameters()){
+                    if (e.isSingle()){
+                        if (!isConstable(e.getSingle(), true))
+                            return false;
+                    } else if (e.getTokens().size() == 3) {
+                        if (e.getTokens().get(1) instanceof KeyValueExprToken){
+                            if (isConstable(e.getSingle(), false) && isConstable(e.getLast(), true))
+                                continue;
+                        }
+                        return false;
+                    } else
+                        return false;
+                }
+                return true;
+            }
         }
 
         return false;

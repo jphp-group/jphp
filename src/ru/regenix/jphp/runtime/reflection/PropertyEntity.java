@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 public class PropertyEntity extends Entity {
     protected ClassEntity clazz;
     protected Modifier modifier = Modifier.PUBLIC;
-    protected Memory defaultValue;
+    private Memory defaultValue;
     protected DocumentComment docComment;
 
     protected boolean isStatic;
@@ -50,8 +50,12 @@ public class PropertyEntity extends Entity {
         this.docComment = docComment;
     }
 
-    public Memory getDefaultValue() {
-        return defaultValue;
+    public Memory getDefaultValue(Environment env) {
+        if (defaultValue == null) {
+            Memory r = env.getStatic(internalName);
+            return r == null ? Memory.NULL : r;
+        } else
+            return defaultValue;
     }
 
     public void setDefaultValue(Memory defaultValue) {
@@ -98,6 +102,9 @@ public class PropertyEntity extends Entity {
 
         if (isStatic && clazz != null)
             specificName = "\0" + clazz.getLowerName() + "#" + specificName;
+
+        if (clazz != null)
+            internalName = "\0" + clazz.getLowerName() + "\0#" + name;
     }
 
     @Override

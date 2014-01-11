@@ -424,6 +424,7 @@ abstract public class Memory {
     public Memory assignBitXorRight(Memory memory) { return memory.assign(memory.bitXor(this)); }
 
     public void unset(){  }
+    public void manualUnset(Environment env) { }
 
     public Memory toImmutable(){
         return this;

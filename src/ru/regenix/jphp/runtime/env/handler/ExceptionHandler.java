@@ -1,6 +1,7 @@
-package ru.regenix.jphp.runtime.env;
+package ru.regenix.jphp.runtime.env.handler;
 
 import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.invoke.Invoker;
 import ru.regenix.jphp.runtime.lang.BaseException;
 import ru.regenix.jphp.runtime.memory.ObjectMemory;

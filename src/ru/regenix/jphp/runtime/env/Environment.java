@@ -8,6 +8,10 @@ import ru.regenix.jphp.exceptions.CustomErrorException;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
+import ru.regenix.jphp.runtime.env.handler.ErrorHandler;
+import ru.regenix.jphp.runtime.env.handler.ErrorReportHandler;
+import ru.regenix.jphp.runtime.env.handler.ExceptionHandler;
+import ru.regenix.jphp.runtime.env.handler.ShutdownHandler;
 import ru.regenix.jphp.runtime.env.message.CustomSystemMessage;
 import ru.regenix.jphp.runtime.env.message.NoticeMessage;
 import ru.regenix.jphp.runtime.env.message.SystemMessage;
@@ -140,7 +144,12 @@ public class Environment {
             if (entity.methodDestruct != null) {
                 if (!o.isFinalized()) {
                     o.doFinalize();
-                    entity.methodDestruct.invokeDynamic(o, this);
+                    pushCall(o, entity.methodDestruct.getName());
+                    try {
+                        entity.methodDestruct.invokeDynamic(o, this);
+                    } finally {
+                        popCall();
+                    }
                 }
             }
         }

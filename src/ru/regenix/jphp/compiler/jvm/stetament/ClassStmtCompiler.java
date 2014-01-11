@@ -15,7 +15,6 @@ import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.BaseObject;
-import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.ConstantEntity;
@@ -24,14 +23,15 @@ import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.SelfExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.StaticAccessExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassVarStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -47,8 +47,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     private boolean initDynamicExists = false;
 
-    protected List<ConstStmtToken.Item> dynamicConstants =
-        new ArrayList<ConstStmtToken.Item>();
+    protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<ConstStmtToken.Item>();
+    protected List<ClassVarStmtToken> dynamicProperties = new ArrayList<ClassVarStmtToken>();
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken statement) {
         super(compiler);
@@ -220,36 +220,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setDefaultValue(value);
 
                 entity.addProperty(prop);
-
-                if (value == null) {
-                    if (property.getValue() != null){
-                        if (property.isStatic())
-                            compiler.getEnvironment().error(
-                                    property.getVariable().toTraceInfo(compiler.getContext()),
-                                    ErrorType.E_COMPILE_ERROR,
-                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName())
-                            );
-
-                        expressionCompiler.writeVarLoad("~class");
-                        expressionCompiler.writeVarLoad("~this");
-                        expressionCompiler.writePushConstString(prop.getSpecificName());
-                        try {
-                            expressionCompiler.writeExpression(property.getValue(), true, false);
-                        } catch (Exception e){
-                            compiler.getEnvironment().error(
-                                    property.getVariable().toTraceInfo(compiler.getContext()),
-                                    ErrorType.E_COMPILE_ERROR,
-                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(property.getVariable().getName())
-                            );
-                        }
-                        expressionCompiler.writePopBoxing(true);
-                        expressionCompiler.writeSysDynamicCall(
-                                ClassEntity.class, "appendProperty", void.class, IObject.class, String.class, Memory.class
+                if (value == null && property.getValue() != null) {
+                    if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true))
+                        dynamicProperties.add(property);
+                    else
+                        compiler.getEnvironment().error(
+                                property.getVariable().toTraceInfo(compiler.getContext()),
+                                ErrorType.E_COMPILE_ERROR,
+                                Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::$" + property.getVariable().getName())
                         );
-                    } else {
-                        prop.setDefaultValue(Memory.NULL);
-                    }
-                    /**/
                 }
             }
         }
@@ -278,12 +257,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 }
                 entity.addConstant(new ConstantEntity(el.getFulledName(), value, true));
             } else {
-                if (ValueExprToken.isConstable(el.value.getSingle())){
+                if (ValueExprToken.isConstable(el.value.getSingle(), false)){
                     dynamicConstants.add(el);
+                    entity.addConstant(new ConstantEntity(el.getFulledName(), null, true));
                 } else
                     compiler.getEnvironment().error(
                         constant.toTraceInfo(compiler.getContext()),
-                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(el.getFulledName())
+                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
                     );
             }
         }
@@ -317,7 +297,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     @SuppressWarnings("unchecked")
     protected void writeInitEnvironment(){
-        if (!dynamicConstants.isEmpty()){
+        if (!dynamicConstants.isEmpty() || !dynamicProperties.isEmpty()){
             initDynamicExists = true;
             MethodNode node = new MethodNodeImpl();
             node.access = ACC_STATIC + ACC_PUBLIC;
@@ -344,17 +324,61 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             );
             expressionCompiler.writeVarStore(l_class, false, false);
 
-            for(ConstStmtToken.Item el : dynamicConstants){
+            // corrects defination of constants
+            final List<ConstStmtToken.Item> first = new ArrayList<ConstStmtToken.Item>();
+            final Set<String> usedNames = new HashSet<String>();
+            final List<ConstStmtToken.Item> other = new ArrayList<ConstStmtToken.Item>();
+            for (ConstStmtToken.Item el : dynamicConstants){
+                Token tk = el.value.getSingle();
+                if (tk instanceof StaticAccessExprToken){
+                    StaticAccessExprToken access = (StaticAccessExprToken)tk;
+                    boolean self = false;
+                    if (access.getClazz() instanceof SelfExprToken)
+                        self = true;
+                    else if (access.getClazz() instanceof FulledNameToken
+                            && ((FulledNameToken) access.getClazz()).getName().equalsIgnoreCase(entity.getName())){
+                        self = true;
+                    }
+                    if (self) {
+                        String name = ((NameToken)access.getField()).getName();
+                        if (usedNames.contains(el.getFulledName()))
+                            first.add(0, el);
+                        else
+                            first.add(el);
+                        usedNames.add(name);
+                        continue;
+                    }
+                }
+                other.add(el);
+            }
+
+            other.addAll(0, first);
+
+            for(ConstStmtToken.Item el : other){
                 expressionCompiler.writeVarLoad(l_class);
                 expressionCompiler.writePushEnv();
-                expressionCompiler.writePushTraceInfo(el.name);
                 expressionCompiler.writePushConstString(el.getFulledName());
                 expressionCompiler.writeExpression(el.value, true, false, true);
                 expressionCompiler.writePopBoxing(true);
 
                 expressionCompiler.writeSysDynamicCall(
                     ClassEntity.class, "addDynamicConstant", void.class,
-                    Environment.class, TraceInfo.class, String.class, Memory.class
+                    Environment.class, String.class, Memory.class
+                );
+            }
+
+            for (ClassVarStmtToken el : dynamicProperties){
+                expressionCompiler.writeVarLoad(l_class);
+                expressionCompiler.writePushEnv();
+                expressionCompiler.writePushConstString(el.getVariable().getName());
+                expressionCompiler.writeExpression(el.getValue(), true, false, true);
+                expressionCompiler.writePopBoxing(true);
+
+                expressionCompiler.writeSysDynamicCall(
+                        ClassEntity.class,
+                        el.isStatic() ? "addDynamicStaticProperty" : "addDynamicProperty",
+                        void.class,
+                        Environment.class, String.class, Memory.class
                 );
             }
 

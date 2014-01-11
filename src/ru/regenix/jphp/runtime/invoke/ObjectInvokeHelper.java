@@ -70,13 +70,12 @@ final public class ObjectInvokeHelper {
             );
         }
 
+        InvokeHelper.checkAccess(env, trace, method);
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
                     env, args, method.parameters, className, methodName, trace
             );
         }
-
-        InvokeHelper.checkAccess(env, trace, method);
 
         Memory result = method.getImmutableResult();
         if (result != null) return result;
@@ -139,13 +138,13 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
+        InvokeHelper.checkAccess(env, trace, method);
         if (passed == null)
             passed = InvokeHelper.makeArguments(
                     env, args, method.parameters, className, methodName, trace
             );
 
         Memory result;
-        InvokeHelper.checkAccess(env, trace, method);
         if (method.isImmutable()){
             method.unsetArguments(passed);
             return method.getResult().toImmutable();
@@ -181,11 +180,10 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
+        InvokeHelper.checkAccess(env, trace, method);
         Memory[] passed = InvokeHelper.makeArguments(
                 env, args, method.parameters, className, method.getName(), trace
         );
-        InvokeHelper.checkAccess(env, trace, method);
-
         Memory result = method.getImmutableResult();
         if (result != null){
             return result;
@@ -239,8 +237,6 @@ final public class ObjectInvokeHelper {
     public static Memory getConstant(String className, String lowerClassName, String constant,
                                      Environment env, TraceInfo trace){
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
-        /*if (entity == null)
-            entity = env.fetchMagicClass(className, lowerClassName);*/
 
         if (entity == null) {
             env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className));
@@ -249,21 +245,16 @@ final public class ObjectInvokeHelper {
 
         ConstantEntity constantEntity = entity.findConstant(constant);
         if (constantEntity == null){
-            Memory dyn;
-            ClassEntity pr = entity;
-            do {
-                dyn = env.getStatic("\0" + pr.getLowerName() + "##" + constant);
-                pr = pr.getParent();
-            } while (pr != null);
-
-            if (dyn != null)
-                return dyn;
-
             env.error(trace, Messages.ERR_FATAL_UNDEFINED_CLASS_CONSTANT.fetch(constant));
             return Memory.NULL;
         }
 
-        return constantEntity.getValue();
+        Memory value = constantEntity.getValue(env);
+        if (value == null){
+            return Memory.NULL;
+        }
+
+        return value;
     }
 
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
@@ -289,6 +280,13 @@ final public class ObjectInvokeHelper {
         }
 
         return entity.getStaticProperty(env, trace, property);
+    }
+
+    public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,
+                                           TraceInfo trace) throws Throwable {
+        Memory get = getStaticProperty(className, lowerClassName, property, env, trace);
+        get.manualUnset(env);
+        return Memory.NULL;
     }
 
     private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){

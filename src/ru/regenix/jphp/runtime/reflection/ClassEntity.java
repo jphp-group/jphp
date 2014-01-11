@@ -226,7 +226,8 @@ public class ClassEntity extends Entity {
 
     public void doneDeclare(){
         methodConstruct  = methods.get("__construct");
-        if (methodConstruct != null)
+        if (methodConstruct != null
+                && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
             methodConstruct.setDynamicSignature(true);
 
         methodDestruct = methods.get("__destruct");
@@ -318,7 +319,9 @@ public class ClassEntity extends Entity {
             }
         }
 
-        this.methods.put(name, method);
+        if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name)))
+            this.methods.put(name, method);
+
         if (name.equals(lowerName)){
             methods.put("__construct", method);
         }
@@ -361,6 +364,13 @@ public class ClassEntity extends Entity {
 
                 if (implMethod == null){
                     MethodsResult addResult = addMethod(method);
+                    if (methodConstruct == null && method.getName().equalsIgnoreCase(parent.getName())){
+                        if (!method.isAbstractable() && !methods.containsKey("__construct")) {
+                            method.setDynamicSignature(true);
+                            methods.put("__construct", method);
+                        }
+                    }
+
                     result.invalidSignature.addAll(addResult.invalidSignature);
                     result.mustStatic.addAll(addResult.mustStatic);
                     result.mustNonStatic.addAll(addResult.mustNonStatic);
@@ -374,8 +384,9 @@ public class ClassEntity extends Entity {
                     if (!isAbstract && method.isAbstract && implMethod.isAbstract)
                         result.nonExists.add(ResultItem.error(implMethod));
 
-                    if (!method.dynamicSignature && !implMethod.equalsBySignature(method)){
-                        result.invalidSignature.add(ResultItem.error(implMethod));
+                    if (!implMethod.equalsBySignature(method)){
+                        if (!method.isDynamicSignature() || method.isAbstractable())
+                            result.invalidSignature.add(ResultItem.error(implMethod));
                     } else if (implMethod.isStatic() && !method.isStatic()){
                         result.mustNonStatic.add(ResultItem.error(implMethod));
                     } else if (!implMethod.isStatic() && method.isStatic()){
@@ -450,7 +461,7 @@ public class ClassEntity extends Entity {
             } else {
                 implMethod.setPrototype(method);
 
-                if (!method.isDynamicSignature() && !implMethod.equalsBySignature(method)){
+                if (/*!method.isDynamicSignature() &&*/ !implMethod.equalsBySignature(method)){ // checking dynamic for only extends
                     result.invalidSignature.add(ResultItem.error(implMethod));
                 } else if (implMethod.isStatic() && !method.isStatic()){
                     result.mustNonStatic.add(ResultItem.error(implMethod));
@@ -491,8 +502,19 @@ public class ClassEntity extends Entity {
         constant.setClazz(this);
     }
 
-    public void addDynamicConstant(Environment env, TraceInfo trace, String name, Memory value){
-        env.getOrCreateStatic("\0" + lowerName + "##" + name, value);
+    public void addDynamicConstant(Environment env, String name, Memory value){
+        ConstantEntity entity = constants.get(name);
+        env.getOrCreateStatic(entity.getInternalName(), value);
+    }
+
+    public void addDynamicStaticProperty(Environment env, String name, Memory value){
+        PropertyEntity prop = staticProperties.get(name);
+        env.getOrCreateStatic(prop.specificName, value);
+    }
+
+    public void addDynamicProperty(Environment env, String name, Memory value){
+        PropertyEntity prop = properties.get(name);
+        env.getOrCreateStatic(prop.getInternalName(), value);
     }
 
     public void addProperty(PropertyEntity property){
@@ -628,10 +650,10 @@ public class ClassEntity extends Entity {
         ArrayMemory props = object.getProperties();
 
         for(PropertyEntity property : getProperties()) {
-            if (id == property.clazz.getId() && property.defaultValue != null){
+            if (id == property.clazz.getId()){
                 props.putAsKeyString(
                         property.getSpecificName(),
-                        property.defaultValue.toImmutable()
+                        property.getDefaultValue(env).toImmutable()
                 );
             }
         }
@@ -640,11 +662,11 @@ public class ClassEntity extends Entity {
         while (tmp != null){
             long otherId = tmp.getId();
             for(PropertyEntity property : tmp.getProperties()) {
-                if (property.getClazz().getId() == otherId && property.defaultValue != null) {
+                if (property.getClazz().getId() == otherId) {
                     if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
                         props.getByScalarOrCreate(
                                 property.getSpecificName(),
-                                property.defaultValue.toImmutable()
+                                property.getDefaultValue(env).toImmutable()
                         );
                 }
             }
@@ -1017,7 +1039,10 @@ public class ClassEntity extends Entity {
             return Memory.NULL;
         }
 
-        return env.getOrCreateStatic(entity.specificName, entity.getDefaultValue().toImmutable());
+        return env.getOrCreateStatic(
+                entity.specificName,
+                entity.getDefaultValue(env).toImmutable()
+        );
     }
 
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
@@ -1273,9 +1298,15 @@ public class ClassEntity extends Entity {
             }
 
             for(ResultItem el : getInvalidSignature()){
+                MethodEntity prototype = el.method.getPrototype();
+                if (!prototype.isAbstractable()) {
+                    while (prototype.prototype != null && prototype.prototype.isAbstractable())
+                        prototype = prototype.prototype;
+                }
+
                 ErrorException e = new FatalException(
                         Messages.ERR_FATAL_INVALID_METHOD_SIGNATURE.fetch(
-                                el.method.getSignatureString(true), el.method.getPrototype().getSignatureString(true)
+                                el.method.getSignatureString(false), prototype.getSignatureString(true)
                         ),
                         el.method.getTrace()
                 );

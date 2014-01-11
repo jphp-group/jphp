@@ -2,7 +2,7 @@
 Ensure class properties and constants can be defined in terms of constants that are not known at compile time.
 --FILE--
 <?php
-  include 'constants_basic_003.inc';
+  include __DIR__ . '/constants_basic_003.inc';
   class B
   {
       public static $a = A::MY_CONST;

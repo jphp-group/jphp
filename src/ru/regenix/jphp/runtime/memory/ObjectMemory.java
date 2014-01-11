@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.exceptions.CriticalException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Environment;
 import ru.regenix.jphp.runtime.env.TraceInfo;
@@ -14,6 +15,7 @@ import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
 import ru.regenix.jphp.runtime.reflection.ClassEntity;
 import ru.regenix.jphp.runtime.reflection.PropertyEntity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -420,5 +422,29 @@ public class ObjectMemory extends Memory {
         }
 
         return result.toConstant();
+    }
+
+    @Override
+    public void manualUnset(Environment env) {
+        ClassEntity entity = value.getReflection();
+        if (entity.methodDestruct != null) {
+            if (!value.isFinalized()) {
+                value.doFinalize();
+                env.pushCall(value, entity.methodDestruct.getName());
+                try {
+                    entity.methodDestruct.invokeDynamic(value, env);
+                } catch (InvocationTargetException e){
+                    Throwable throwable = e.getCause();
+                    if (throwable instanceof RuntimeException)
+                        throw (RuntimeException)throwable;
+                } catch (RuntimeException e){
+                    throw e;
+                } catch (Throwable throwable) {
+                    throw new CriticalException(throwable);
+                } finally {
+                    env.popCall();
+                }
+            }
+        }
     }
 }

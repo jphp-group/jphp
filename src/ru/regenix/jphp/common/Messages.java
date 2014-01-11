@@ -12,7 +12,7 @@ final public class Messages {
 
     public final static Item ERR_COMPILE_CANNOT_JUMP_TO_LEVEL = new Item("Cannot break/continue %s level(s)");
     public final static Item ERR_COMPILE_CANNOT_JUMP = new Item("Cannot break/continue");
-    public final static Item ERR_COMPILE_EXPECTED_CONST_VALUE = new Item("Expecting const value for %s");
+    public final static Item ERR_COMPILE_EXPECTED_CONST_VALUE = new Item("Expecting constant value for %s");
     public final static Item ERR_COMPILE_CANNOT_FETCH_OF_NON_ARRAY = new Item("Cannot fetch an item of non-array");
 
     public final static Item ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
