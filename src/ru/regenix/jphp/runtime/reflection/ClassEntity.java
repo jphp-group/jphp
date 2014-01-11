@@ -195,7 +195,7 @@ public class ClassEntity extends Entity {
                 }
 
                 entity.setParameters(params);
-                addMethod(entity);
+                addMethod(entity, null);
             }
         }
 
@@ -280,8 +280,8 @@ public class ClassEntity extends Entity {
         return methods;
     }
 
-    public MethodsResult addMethod(MethodEntity method){
-        String name = method.getLowerName();
+    public MethodsResult addMethod(MethodEntity method, String realName){
+        String name = realName == null ? method.getLowerName() : realName;
 
         MethodsResult addResult = new MethodsResult();
         if (method.isAbstract && method.isFinal){
@@ -363,7 +363,7 @@ public class ClassEntity extends Entity {
                 if (implMethod == method) continue;
 
                 if (implMethod == null){
-                    MethodsResult addResult = addMethod(method);
+                    MethodsResult addResult = addMethod(method, entry.getKey());
                     if (methodConstruct == null && method.getName().equalsIgnoreCase(parent.getName())){
                         if (!method.isAbstractable() && !methods.containsKey("__construct")) {
                             method.setDynamicSignature(true);
@@ -385,8 +385,21 @@ public class ClassEntity extends Entity {
                         result.nonExists.add(ResultItem.error(implMethod));
 
                     if (!implMethod.equalsBySignature(method)){
-                        if (!method.isDynamicSignature() || method.isAbstractable())
-                            result.invalidSignature.add(ResultItem.error(implMethod));
+                        if (!method.isDynamicSignature() || method.isAbstractable()) {
+                            boolean isStrict = true;
+                            MethodEntity pr = method;
+                            while (pr != null){
+                                if (pr.isAbstractable()){
+                                    isStrict = false;
+                                    break;
+                                }
+                                pr = method.getPrototype();
+                            }
+
+                            result.invalidSignature.add(
+                                    !isStrict ? ResultItem.error(implMethod) : ResultItem.strict(implMethod)
+                            );
+                        }
                     } else if (implMethod.isStatic() && !method.isStatic()){
                         result.mustNonStatic.add(ResultItem.error(implMethod));
                     } else if (!implMethod.isStatic() && method.isStatic()){
@@ -455,7 +468,7 @@ public class ClassEntity extends Entity {
             if (implMethod == method) continue;
 
             if (implMethod == null){
-                addMethod(method);
+                addMethod(method, null);
                 if (type == Type.CLASS && !isAbstract)
                     result.nonExists.add(ResultItem.error(method));
             } else {
@@ -1131,6 +1144,10 @@ public class ClassEntity extends Entity {
 
         public static ResultItem error(MethodEntity method){
             return new ResultItem(method, ErrorType.E_ERROR);
+        }
+
+        public static ResultItem strict(MethodEntity method){
+            return new ResultItem(method, ErrorType.E_STRICT);
         }
 
         @Override

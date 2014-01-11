@@ -37,7 +37,7 @@ public enum ErrorType {
     public String getTypeName(){
         switch (this){
             case E_DEPRECATED: return "Deprecated";
-            case E_STRICT: return "Strict";
+            case E_STRICT: return "Strict Standards";
             case E_NOTICE: return "Notice";
             case E_ALL: return "Message";
             case E_COMPILE_ERROR: return "Compile error";

@@ -182,4 +182,28 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/final_ctor3.php", true);
         check("zend/classes/final_redeclare.php", true);
     }
+
+    @Test
+    public void testIncdecProperty(){
+        check("zend/classes/incdec_property_001.php");
+        check("zend/classes/incdec_property_002.php");
+        check("zend/classes/incdec_property_003.php");
+        check("zend/classes/incdec_property_004.php");
+    }
+
+    @Test
+    public void testInheritance(){
+        check("zend/classes/inheritance.php");
+        check("zend/classes/inheritance_002.php");
+        check("zend/classes/inheritance_003.php", true);
+        check("zend/classes/inheritance_004.php", true);
+        check("zend/classes/inheritance_005.php", true);
+        check("zend/classes/inheritance_006.php", true);
+    }
+
+    @Test
+    public void testInterface(){
+        check("zend/classes/interface_and_extends.php", true);
+        check("zend/classes/interface_class.php", true);
+    }
 }

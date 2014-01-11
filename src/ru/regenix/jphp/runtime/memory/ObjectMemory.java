@@ -363,8 +363,51 @@ public class ObjectMemory extends Memory {
                     return (Memory)currentKey;
                 }
             };
+        } else {
+            return new ForeachIterator(getReferences, getKeyReferences, false) {
+                private ForeachIterator child;
+                private ClassEntity reflection;
+
+                @Override
+                protected boolean init() {
+                    reflection = value.getReflection();
+                    child = value.getProperties().foreachIterator(getReferences, getKeyReferences);
+                    return true;
+                }
+
+                @Override
+                protected boolean nextValue() {
+                    while (true){
+                        if (!child.next())
+                            return false;
+
+                        Object key = child.getKey();
+                        if (key instanceof String){
+                            String keyS = (String)key;
+                            int pos = keyS.lastIndexOf('\0');
+                            if (pos > -1) keyS = keyS.substring(pos + 1);
+
+                            PropertyEntity entity = reflection.properties.get(keyS);
+                            if (entity == null || entity.getModifier() == Modifier.PUBLIC)
+                                break;
+                            else
+                                continue;
+                        }
+                        break;
+                    }
+
+
+                    currentKey = child.getKey();
+                    currentValue = child.getValue();
+                    return true;
+                }
+
+                @Override
+                protected boolean prevValue() {
+                    return false;
+                }
+            };
         }
-        return null;
     }
 
     @Override

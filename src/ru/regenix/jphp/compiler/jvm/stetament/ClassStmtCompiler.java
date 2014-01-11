@@ -550,7 +550,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getMethods() != null){
             for (MethodStmtToken method : statement.getMethods()){
-                ClassEntity.MethodsResult result = entity.addMethod(compiler.compileMethod(this, method, external));
+                ClassEntity.MethodsResult result = entity.addMethod(compiler.compileMethod(this, method, external), null);
                 result.check(compiler.getEnvironment());
             }
         }
