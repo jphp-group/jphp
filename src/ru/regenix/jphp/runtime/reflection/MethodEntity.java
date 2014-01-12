@@ -296,6 +296,7 @@ public class MethodEntity extends AbstractFunctionEntity {
                         return 0;
                     clazz = clazz.parent;
                 } while (clazz != null);
+                return 1;
         }
         return 2;
     }

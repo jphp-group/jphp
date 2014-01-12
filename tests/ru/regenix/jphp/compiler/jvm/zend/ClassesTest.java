@@ -242,4 +242,28 @@ public class ClassesTest extends JvmCompilerCase {
     public void testMethodCallVariation(){
         check("zend/classes/method_call_variation_001.php");
     }
+
+    @Test
+    public void testMethodOverrideOptional(){
+        check("zend/classes/method_override_optional_arg_001.php");
+        check("zend/classes/method_override_optional_arg_002.php");
+    }
+
+    @Test
+    public void testObjectReference(){
+        check("zend/classes/object_reference_001.php");
+    }
+
+    @Test
+    public void testProtected(){
+        check("zend/classes/protected_001.php", true);
+        check("zend/classes/protected_001b.php", true);
+        check("zend/classes/protected_002.php", true);
+    }
+
+    @Test
+    public void testStaticMix(){
+        check("zend/classes/static_mix_1.php", true);
+        check("zend/classes/static_mix_2.php", true);
+    }
 }
