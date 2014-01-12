@@ -29,7 +29,7 @@ public class CompileFunctionEntity extends FunctionEntity {
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
         CompileFunction.Method method = compileFunction.find(arguments.length);
         if (method == null){
-            env.warning(trace, Messages.ERR_WARNING_EXPECT_LEAST_PARAMS.fetch(
+            env.warning(trace, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
                     name, compileFunction.getMinArgs(), arguments.length
             ));
             return Memory.NULL;

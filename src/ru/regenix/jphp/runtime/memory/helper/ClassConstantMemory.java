@@ -28,13 +28,13 @@ public class ClassConstantMemory extends ReferenceMemory {
     public Memory toImmutable(Environment env, TraceInfo trace) {
         ClassEntity classEntity = env.fetchClass(className, classLowerName, true);
         if (classEntity == null) {
-            env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CLASS_NOT_FOUND, className);
+            env.error(trace, ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, className);
             return NULL;
         }
 
         ConstantEntity entity = classEntity.findConstant(name);
         if (entity == null){
-            env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_UNDEFINED_CLASS_CONSTANT, className + "::" + name);
+            env.error(trace, ErrorType.E_ERROR, Messages.ERR_UNDEFINED_CLASS_CONSTANT, className + "::" + name);
             return NULL;
         }
 

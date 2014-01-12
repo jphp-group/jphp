@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.HintType;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.compiler.common.Extension;
@@ -247,7 +248,10 @@ public class MethodEntity extends AbstractFunctionEntity {
         int i = 0;
         if (parameters != null)
         for(ParameterEntity param : parameters){
-            sb.append(param.type).append("|").append(param.isReference ? "&" : "");
+            if (param.getDefaultValue() == null)
+                sb.append(
+                        param.type == null ? HintType.ANY : param.type
+                ).append("|").append(param.isReference ? "&" : "");
         }
         return signature = sb.toString();
     }

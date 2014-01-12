@@ -227,7 +227,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         compiler.getEnvironment().error(
                                 property.getVariable().toTraceInfo(compiler.getContext()),
                                 ErrorType.E_COMPILE_ERROR,
-                                Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::$" + property.getVariable().getName())
+                                Messages.ERR_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::$" + property.getVariable().getName())
                         );
                 }
             }
@@ -244,26 +244,29 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         for(ConstStmtToken.Item el : constant.items){
             Memory value = expressionStmtCompiler.writeExpression(el.value, true, true, false);
+            ConstantEntity constantEntity = new ConstantEntity(el.getFulledName(), value, true);
+            constantEntity.setTrace(el.name.toTraceInfo(compiler.getContext()));
+
             if (value != null && !value.isArray()) {
                 ConstantEntity c = entity.findConstant(el.getFulledName());
                 if (c != null && c.getClazz().getId() == entity.getId()){
                     compiler.getEnvironment().error(
                             constant.toTraceInfo(compiler.getContext()),
                             ErrorType.E_ERROR,
-                            Messages.ERR_FATAL_CANNOT_REDEFINE_CLASS_CONSTANT,
+                            Messages.ERR_CANNOT_REDEFINE_CLASS_CONSTANT,
                             entity.getName() + "::" + el.getFulledName()
                     );
                     return;
                 }
-                entity.addConstant(new ConstantEntity(el.getFulledName(), value, true));
+                entity.addConstant(constantEntity);
             } else {
                 if (ValueExprToken.isConstable(el.value.getSingle(), false)){
                     dynamicConstants.add(el);
-                    entity.addConstant(new ConstantEntity(el.getFulledName(), null, true));
+                    entity.addConstant(constantEntity);
                 } else
                     compiler.getEnvironment().error(
                         constant.toTraceInfo(compiler.getContext()),
-                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
+                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
                     );
             }
         }
@@ -446,7 +449,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         expressionCompiler.writeVarLoad("~env");
         expressionCompiler.writeVarLoad("~args");
 
-        String internalName = entity.findMethod(method.getName()).getInternalName();
+        String internalName = entity.findMethod(method.getLowerName()).getInternalName();
         expressionCompiler.writeSysDynamicCall(null, internalName, Memory.class, Environment.class, Memory[].class);
 
         node.instructions.add(new InsnNode(ARETURN));
@@ -477,19 +480,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 if (implement == null) {
                     env.error(
                             name.toTraceInfo(compiler.getContext()),
-                            Messages.ERR_FATAL_INTERFACE_NOT_FOUND.fetch(name.toName())
+                            Messages.ERR_INTERFACE_NOT_FOUND.fetch(name.toName())
                     );
                 } else {
                     if (implement.getType() != ClassEntity.Type.INTERFACE){
                         env.error(
                                 name.toTraceInfo(compiler.getContext()),
-                                Messages.ERR_FATAL_CANNOT_IMPLEMENT.fetch(entity.getName(), implement.getName())
+                                Messages.ERR_CANNOT_IMPLEMENT.fetch(entity.getName(), implement.getName())
                         );
                     }
                     if (implement.isInternal())
                         node.interfaces.add(implement.getInternalName());
                 }
-                ClassEntity.MethodsResult addResult = entity.addInterface(implement);
+                ClassEntity.SignatureResult addResult = entity.addInterface(implement);
                 addResult.check(env);
 
                 if (implement != null && implement.isInternal())
@@ -524,7 +527,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         if (compiler.getModule().findClass(entity.getLowerName()) != null
               || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){
             throw new FatalException(
-                    Messages.ERR_FATAL_CANNOT_REDECLARE_CLASS.fetch(entity.getName()),
+                    Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()),
                     statement.getName().toTraceInfo(compiler.getContext())
             );
         }
@@ -550,14 +553,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getMethods() != null){
             for (MethodStmtToken method : statement.getMethods()){
-                ClassEntity.MethodsResult result = entity.addMethod(compiler.compileMethod(this, method, external), null);
+                ClassEntity.SignatureResult result = entity.addMethod(compiler.compileMethod(this, method, external), null);
                 result.check(compiler.getEnvironment());
             }
         }
 
-        ClassEntity.MethodsResult result = entity.updateParentMethods();
-        if (isInterfaceCheck)
+        ClassEntity.SignatureResult result = entity.updateParentMethods();
+        if (isInterfaceCheck) {
             result.check(compiler.getEnvironment());
+        }
 
         writeImplements();
         entity.doneDeclare();

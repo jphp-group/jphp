@@ -85,7 +85,7 @@ public class JvmCompiler extends AbstractCompiler {
             Memory memory = expressionStmtCompiler.writeExpression(el.value, true, true, false);
             if (memory == null){
                 throw new CompileException(
-                        Messages.ERR_COMPILE_EXPECTED_CONST_VALUE.fetch(el.getFulledName()),
+                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(el.getFulledName()),
                         constant.toTraceInfo(context)
                 );
             }
@@ -125,7 +125,7 @@ public class JvmCompiler extends AbstractCompiler {
 
                     if (scope.findUserConstant(el.getName()) != null){
                         environment.error(el.getTrace(), ErrorType.E_ERROR,
-                            Messages.ERR_FATAL_CANNOT_REDECLARE_CONSTANT,
+                            Messages.ERR_CANNOT_REDECLARE_CONSTANT,
                             el.getName()
                         );
                     }
@@ -133,7 +133,7 @@ public class JvmCompiler extends AbstractCompiler {
                     constants.put(el.getShortName(), el);
                 } else {
                     environment.error(el.getTrace(), ErrorType.E_ERROR,
-                        Messages.ERR_FATAL_CANNOT_REDECLARE_CONSTANT,
+                        Messages.ERR_CANNOT_REDECLARE_CONSTANT,
                         el.getName()
                     );
                 }

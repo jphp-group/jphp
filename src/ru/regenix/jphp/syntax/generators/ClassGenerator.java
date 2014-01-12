@@ -3,6 +3,7 @@ package ru.regenix.jphp.syntax.generators;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;
@@ -145,7 +146,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             if (next instanceof VariableExprToken){
                 if (!variables.add((VariableExprToken)next))
                     throw new ParseException(
-                            Messages.ERR_PARSE_IDENTIFIER_X_ALREADY_USED.fetch(next.getWord()),
+                            Messages.ERR_IDENTIFIER_X_ALREADY_USED.fetch(next.getWord()),
                             next.toTraceInfo(analyzer.getContext())
                     );
             } else if (next instanceof CommaToken){
@@ -213,6 +214,14 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         }
                         modifiers.add(current);
                     } else if (current instanceof VariableExprToken) {
+                        if (result.isInterface()) {
+                            analyzer.getEnvironment().error(
+                                    result.toTraceInfo(analyzer.getContext()),
+                                    ErrorType.E_ERROR,
+                                    Messages.ERR_INTERFACE_MAY_NOT_INCLUDE_VARS
+                            );
+                        }
+
                         for(Token modifier : modifiers){
                             if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class))
                                 unexpectedToken(modifier);

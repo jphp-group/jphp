@@ -680,7 +680,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         CompileFunction.Method method = compileFunction.find( function.getParameters().size() );
         if (method == null){
             throw new CompileException(
-                    Messages.ERR_FATAL_PASS_INCORRECT_ARGUMENTS_TO_FUNCTION.fetch(function.getName().getWord()),
+                    Messages.ERR_INCORRECT_ARGUMENTS_TO_FUNCTION.fetch(function.getName().getWord()),
                     function.getName().toTraceInfo(compiler.getContext())
             );
         }
@@ -2256,8 +2256,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         writePopBoxing();
         writePushEnv();
-        writePushConstString(instanceOf.getWhat().getName());
-        writePushConstString(instanceOf.getWhat().getName().toLowerCase());
+
+        if (instanceOf.isVariable()){
+            writePushVariable(instanceOf.getWhatVariable());
+            writePopString();
+            writePushDupLowerCase();
+        } else {
+            writePushConstString(instanceOf.getWhat().getName());
+            writePushConstString(instanceOf.getWhat().getName().toLowerCase());
+        }
 
         writeSysDynamicCall(Memory.class, "instanceOf",
                 Boolean.TYPE, Environment.class, String.class, String.class);
@@ -2872,8 +2879,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (jump == null){
             throw new CompileException(
                     level == 1
-                        ? Messages.ERR_COMPILE_CANNOT_JUMP.fetch()
-                        : Messages.ERR_COMPILE_CANNOT_JUMP_TO_LEVEL.fetch(level),
+                        ? Messages.ERR_CANNOT_JUMP.fetch()
+                        : Messages.ERR_CANNOT_JUMP_TO_LEVEL.fetch(level),
                     token.toTraceInfo(getCompiler().getContext())
             );
         }

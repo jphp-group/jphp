@@ -9,6 +9,7 @@ import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
 import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
+import ru.regenix.jphp.runtime.lang.spl.iterator.IteratorAggregate;
 import ru.regenix.jphp.runtime.lang.support.IComparableObject;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.memory.support.MemoryStringUtils;
@@ -291,11 +292,16 @@ public class ObjectMemory extends Memory {
 
     @Override
     public ForeachIterator getNewIterator(final Environment env, boolean getReferences, boolean getKeyReferences) {
-        if (value instanceof Iterator){
+        if (value instanceof IteratorAggregate){
+            return ((IteratorAggregate)value).getIterator(env).getNewIterator(env, getReferences, getKeyReferences);
+        } else if (value instanceof Iterator){
             final Iterator iterator = (Iterator)value;
             final String className = value.getReflection().getName();
 
             return new ForeachIterator(getReferences, getKeyReferences, false) {
+                private boolean keyInit = false;
+                private boolean needNext = false;
+
                 @Override
                 protected boolean init() {
                     env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
@@ -319,23 +325,26 @@ public class ObjectMemory extends Memory {
                 @Override
                 public boolean next() {
                     boolean valid = false;
+                    keyInit = false;
+                    if (needNext){
+                        env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
+                        try {
+                            iterator.next(env);
+                        } finally {
+                            env.popCall();
+                        }
+                    }
 
+                    needNext = true;
                     env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
                     try {
                         valid = iterator.valid(env).toBoolean();
                         if (valid) {
-                            env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
+                            env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
                             try {
-                                currentKey = iterator.key(env).toImmutable();
-
-                                env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
-                                try {
-                                    currentValue = iterator.current(env);
-                                    if (!getReferences)
-                                        currentValue = currentValue.toImmutable();
-                                } finally {
-                                    env.popCall();
-                                }
+                                currentValue = iterator.current(env);
+                                if (!getReferences)
+                                    currentValue = currentValue.toImmutable();
                             } finally {
                                 env.popCall();
                             }
@@ -344,23 +353,27 @@ public class ObjectMemory extends Memory {
                         env.popCall();
                     }
 
-                    env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
-                    try {
-                        iterator.next(env);
-                    } finally {
-                        env.popCall();
-                    }
                     return valid;
                 }
 
                 @Override
                 public Object getKey() {
-                    return currentKey;
+                    return getMemoryKey();
                 }
 
                 @Override
                 public Memory getMemoryKey() {
-                    return (Memory)currentKey;
+                    if (keyInit)
+                        return (Memory)currentKey;
+
+                    env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
+                    try {
+                        currentKey = iterator.key(env).toImmutable();
+                        keyInit = true;
+                        return (Memory)currentKey;
+                    } finally {
+                        env.popCall();
+                    }
                 }
             };
         } else {
@@ -416,7 +429,7 @@ public class ObjectMemory extends Memory {
         ClassEntity what   = env.fetchClass(className, lowerClassName, true);
         if (what == null) {
             /*env.triggerError(new FatalException(
-                    Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className),
+                    Messages.ERR_CLASS_NOT_FOUND.fetch(className),
                     trace
             ));*/
             return false;

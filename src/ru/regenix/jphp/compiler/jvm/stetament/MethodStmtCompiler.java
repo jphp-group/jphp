@@ -411,7 +411,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                         if (parameters[i].getDefaultValue() == null)
                             compiler.getEnvironment().error(
                                     argument.toTraceInfo(compiler.getContext()), ErrorType.E_COMPILE_ERROR,
-                                    Messages.ERR_COMPILE_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
+                                    Messages.ERR_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
                             );
                     } else {
                         parameters[i].setDefaultValue(defaultValue);
@@ -433,13 +433,13 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         if (statement != null && clazz.statement.isInterface()){
             if (!statement.isInterfacable()){
-                compiler.getEnvironment().error(entity.getTrace(), ErrorType.E_COMPILE_ERROR,
-                        Messages.ERR_FATAL_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY.fetch(entity.getSignatureString(false))
+                compiler.getEnvironment().error(entity.getTrace(),
+                        Messages.ERR_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY.fetch(entity.getSignatureString(false))
                 );
             }
             if (statement.isAbstract() || statement.isFinal()){
-                compiler.getEnvironment().error(entity.getTrace(), ErrorType.E_COMPILE_ERROR,
-                        Messages.ERR_FATAL_ACCESS_TYPE_FOR_INTERFACE_METHOD.fetch(entity.getSignatureString(false))
+                compiler.getEnvironment().error(entity.getTrace(),
+                        Messages.ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD.fetch(entity.getSignatureString(false))
                 );
             }
         } else {

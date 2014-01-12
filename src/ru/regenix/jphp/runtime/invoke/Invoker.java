@@ -63,7 +63,7 @@ abstract public class Invoker {
                 if (trace == null) {
                     return null;
                 }
-                env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
             }
 
             assert one != null;

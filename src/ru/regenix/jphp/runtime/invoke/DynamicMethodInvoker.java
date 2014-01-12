@@ -73,7 +73,7 @@ public class DynamicMethodInvoker extends Invoker {
             if (trace == null) {
                 return null;
             }
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::" + methodName));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::" + methodName));
         }
 
         return new DynamicMethodInvoker(env, trace, object, methodEntity);
@@ -88,7 +88,7 @@ public class DynamicMethodInvoker extends Invoker {
         if (methodEntity == null){
             if (trace == null)
                 return null;
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::__invoke"));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(object.getReflection().getName() + "::__invoke"));
         }
 
         return new DynamicMethodInvoker(env, null, object, methodEntity);

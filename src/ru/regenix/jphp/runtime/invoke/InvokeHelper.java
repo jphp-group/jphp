@@ -32,13 +32,13 @@ final public class InvokeHelper {
 
         switch (access){
             case 1: throw new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_PROTECTED_METHOD.fetch(
+                    Messages.ERR_CALL_TO_PROTECTED_METHOD.fetch(
                             method.getClazz().getName() + "::" + method.getName(), context
                     ),
                     trace
             );
             case 2: throw new FatalException(
-                    Messages.ERR_FATAL_CALL_TO_PRIVATE_METHOD.fetch(
+                    Messages.ERR_CALL_TO_PRIVATE_METHOD.fetch(
                             method.getClazz().getName() + "::" + method.getName(), context
                     ),
                     trace
@@ -50,13 +50,13 @@ final public class InvokeHelper {
             throws InvocationTargetException, IllegalAccessException {
         switch (property.canAccess(env)){
             case 1: throw new FatalException(
-                    Messages.ERR_FATAL_ACCESS_TO_PROTECTED_PROPERTY.fetch(
+                    Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY.fetch(
                             property.getClazz().getName(), property.getName()
                     ),
                     trace
             );
             case 2: throw new FatalException(
-                    Messages.ERR_FATAL_ACCESS_TO_PRIVATE_PROPERTY.fetch(
+                    Messages.ERR_ACCESS_TO_PRIVATE_PROPERTY.fetch(
                             property.getClazz().getName(), property.getName()
                     ),
                     trace
@@ -68,7 +68,9 @@ final public class InvokeHelper {
                                           TraceInfo trace, ParameterEntity param, int index, Memory passed,
                                           String originClassName, String originMethodName){
         String given;
-        if (passed.isObject()){
+        if (passed == null){
+            given = "none";
+        } else if (passed.isObject()){
             given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
         } else {
             given = passed.getRealType().toString();
@@ -125,9 +127,12 @@ final public class InvokeHelper {
                         passed[i] = new ReferenceMemory(def.toImmutable(env, trace));
 
                 } else {
+                    if (param.getTypeClass() != null)
+                        invalidTypeHinting(env, trace, param, i + 1, null, originClassName, originMethodName);
+
                     env.triggerMessage(new WarningMessage(
                             new CallStackItem(trace),
-                            Messages.ERR_WARNING_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
+                            Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
                             originMethodName == null ? originClassName : originClassName + "::" + originMethodName
                     ));
                     passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
@@ -167,7 +172,7 @@ final public class InvokeHelper {
             }
 
             if (one == null || two == null) {
-                env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
+                env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(method.toString()));
                 return Memory.NULL;
             }
 
@@ -227,7 +232,7 @@ final public class InvokeHelper {
                               Memory[] args) throws Throwable {
         FunctionEntity function = env.functionMap.get(sign);
         if (function == null) {
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
             return Memory.NULL;
         }
         return call(env, trace, function, args);
@@ -269,14 +274,14 @@ final public class InvokeHelper {
                 };
             } else {
                 if (classEntity == null) {
-                    env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originClassName));
+                    env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(originClassName));
                     return Memory.NULL;
                 }
             }
         }
 
         if (method == null){
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(originClassName + "::" + originMethodName));
             return Memory.NULL;
         }
 
@@ -286,7 +291,7 @@ final public class InvokeHelper {
 
             env.error(trace,
                     ErrorType.E_STRICT,
-                    Messages.ERR_FATAL_NON_STATIC_METHOD_CALLED_DYNAMICALLY,
+                    Messages.ERR_NON_STATIC_METHOD_CALLED_DYNAMICALLY,
                     originClassName, originMethodName
             );
         }
@@ -340,7 +345,7 @@ final public class InvokeHelper {
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace){
         if (memory.isImmutable()){
-            env.warning(trace, Messages.ERR_NOTICE_RETURN_NOT_REFERENCE.fetch());
+            env.warning(trace, Messages.ERR_RETURN_NOT_REFERENCE.fetch());
         }
     }
 }

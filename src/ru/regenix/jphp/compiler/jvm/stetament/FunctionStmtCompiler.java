@@ -39,7 +39,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         /*if (compiler.getModule().findFunction(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedFunction(entity.getLowerName())){
             throw new FatalException(
-                    Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()),
+                    Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()),
                     statement.getName().toTraceInfo(compiler.getContext())
             );
         }*/

@@ -61,7 +61,7 @@ public class StaticMethodInvoker extends Invoker {
             if (trace == null)
                 return null;
 
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName));
             return null;
         }
 

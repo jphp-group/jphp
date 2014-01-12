@@ -377,11 +377,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(next, ":");
 
         iterator.next();
-        ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getToken(
-                    nextToken(iterator), iterator, Separator.SEMICOLON, closedBrace
+        ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                nextToken(iterator), iterator, BraceExprToken.Kind.ANY
         );
-        if (closedBrace == null || braceOpened < 1)
-           iterator.previous();
 
         if (alternative == null)
             unexpectedToken(iterator.next());
@@ -518,10 +516,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof InstanceofExprToken){
-            if (next instanceof NameToken){
+            if (next instanceof NameToken || next instanceof VariableExprToken){
                 nextToken(iterator);
                 InstanceofExprToken instanceOf = (InstanceofExprToken)current;
-                instanceOf.setWhat( analyzer.getRealName((NameToken)next) );
+                if (next instanceof NameToken)
+                    instanceOf.setWhat( analyzer.getRealName((NameToken)next) );
+                else
+                    instanceOf.setWhatVariable( (VariableExprToken)next );
                 return instanceOf;
             } else
                 unexpectedToken(next, TokenType.T_STRING);
@@ -823,7 +824,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprStmtToken getNextExpression(Token current, ListIterator<Token> iterator, BraceExprToken.Kind closedBraceKind){
         ExprStmtToken value = getToken(
-                current, iterator, Separator.SEMICOLON, closedBraceKind
+                current, iterator, Separator.SEMICOLON, BraceExprToken.Kind.ANY
         );
         if (!isBreak(iterator.previous())){
             iterator.next();
@@ -993,6 +994,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     unexpectedToken(current);
                 break;
             } else if (current instanceof BraceExprToken){
+                if (closedBraceKind == BraceExprToken.Kind.ANY && isClosedBrace(current)) {
+                    iterator.previous();
+                    break;
+                }
                 unexpectedToken(current);
             } else if (current instanceof ArrayExprToken){
                 if (needBreak)

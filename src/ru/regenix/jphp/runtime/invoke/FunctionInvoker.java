@@ -6,8 +6,6 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.FunctionEntity;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class FunctionInvoker extends Invoker {
     private final FunctionEntity entity;
     protected final Environment env;
@@ -47,7 +45,7 @@ public class FunctionInvoker extends Invoker {
         if (functionEntity == null){
             if (trace == null)
                 return null;
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch(name));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(name));
         }
 
         return new FunctionInvoker(env, trace, functionEntity);

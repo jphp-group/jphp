@@ -93,4 +93,6 @@ public class ConstantEntity extends Entity {
     public boolean isCaseSensitise() {
         return caseSensitise;
     }
+
+
 }

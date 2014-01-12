@@ -22,7 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 
-public class ExprGenerator extends Generator<ExprStmtToken> {
+public class
+        ExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
@@ -430,7 +431,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             level = ((IntegerExprToken) next).getValue();
             if (level < 1)
                 throw new FatalException(
-                        Messages.ERR_FATAL_OPERATOR_ACCEPTS_ONLY_POSITIVE.fetch(result.getWord()),
+                        Messages.ERR_OPERATOR_ACCEPTS_ONLY_POSITIVE.fetch(result.getWord()),
                         result.toTraceInfo(analyzer.getContext())
                 );
 

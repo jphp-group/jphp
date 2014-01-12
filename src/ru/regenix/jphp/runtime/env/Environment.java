@@ -737,7 +737,7 @@ public class Environment {
         Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
-            error(trace, E_NOTICE, Messages.ERR_NOTICE_USE_UNDEFINED_CONSTANT, name, name);
+            error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
             return StringMemory.valueOf(name);
         }
 
@@ -748,7 +748,7 @@ public class Environment {
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
-            warning(trace, Messages.ERR_WARNING_INCLUDE_FAILED, "include", fileName);
+            warning(trace, Messages.ERR_INCLUDE_FAILED, "include", fileName);
             return Memory.FALSE;
         } else {
             ModuleEntity module = importModule(file);
@@ -786,7 +786,7 @@ public class Environment {
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
-            error(trace, E_ERROR, Messages.ERR_FATAL_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
+            error(trace, E_ERROR, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
             return Memory.NULL;
         } else {
             ModuleEntity module = importModule(file);
@@ -820,7 +820,7 @@ public class Environment {
             throws Throwable {
         ClassEntity entity = classMap.get(lowerName);
         if (entity == null) {
-            error(trace, E_ERROR, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(originName));
+            error(trace, E_ERROR, Messages.ERR_CLASS_NOT_FOUND.fetch(originName));
         }
 
         assert entity != null;
@@ -919,7 +919,7 @@ public class Environment {
 
         if (functionMap.put(function.getLowerName(), function) != null){
             triggerError(new FatalException(
-                    Messages.ERR_FATAL_CANNOT_REDECLARE_FUNCTION.fetch(function.getName()),
+                    Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(function.getName()),
                     trace
             ));
         }

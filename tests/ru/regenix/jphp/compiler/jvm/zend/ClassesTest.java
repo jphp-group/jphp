@@ -205,5 +205,29 @@ public class ClassesTest extends JvmCompilerCase {
     public void testInterface(){
         check("zend/classes/interface_and_extends.php", true);
         check("zend/classes/interface_class.php", true);
+        check("zend/classes/interface_constant_inheritance_001.php", true);
+        check("zend/classes/interface_constant_inheritance_002.php", true);
+        check("zend/classes/interface_constant_inheritance_003.php", true);
+        check("zend/classes/interface_constant_inheritance_004.php", true);
+        check("zend/classes/interface_doubled.php", true);
+        check("zend/classes/interface_implemented.php", true);
+        check("zend/classes/interface_instantiate.php", true);
+        check("zend/classes/interface_member.php", true);
+        check("zend/classes/interface_method.php", true);
+        check("zend/classes/interface_method_final.php", true);
+        check("zend/classes/interface_method_private.php", true);
+        check("zend/classes/interface_must_be_implemented.php", true);
+        check("zend/classes/interface_optional_arg.php", true);
+        check("zend/classes/interface_optional_arg_002.php", true);
+        check("zend/classes/interface_optional_arg_003.php", true);
+
+        check("zend/classes/interfaces_001.php", true);
+        check("zend/classes/interfaces_002.php", true);
+        check("zend/classes/interfaces_003.php", true);
+    }
+
+    @Test
+    public void testIterators(){
+        //check("zend/classes/iterators_001.php", true);
     }
 }

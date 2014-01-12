@@ -64,7 +64,7 @@ final public class ObjectInvokeHelper {
                 methodName = "__invoke";
 
             env.error(trace, ErrorType.E_ERROR,
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(
+                    Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(
                             className + "::" + methodName
                     )
             );
@@ -105,7 +105,7 @@ final public class ObjectInvokeHelper {
         boolean doublePop = false;
 
         if (object.type != Memory.Type.OBJECT)
-            env.error(trace, ErrorType.E_ERROR, Messages.ERR_FATAL_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
+            env.error(trace, ErrorType.E_ERROR, Messages.ERR_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
 
         IObject iObject = ((ObjectMemory)object).value;
         ClassEntity clazz = iObject.getReflection();
@@ -133,7 +133,7 @@ final public class ObjectInvokeHelper {
                 methodName = "__invoke";
 
             env.error(trace, ErrorType.E_ERROR,
-                    Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName)
+                    Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(className + "::" + methodName)
             );
             return Memory.NULL;
         }
@@ -176,7 +176,7 @@ final public class ObjectInvokeHelper {
         String className = clazz.getName();
 
         if (method == null){
-            env.error(trace, Messages.ERR_FATAL_CALL_TO_UNDEFINED_METHOD.fetch(className + "::__invoke"));
+            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(className + "::__invoke"));
             return Memory.NULL;
         }
 
@@ -205,7 +205,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -216,7 +216,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -227,7 +227,7 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -239,13 +239,13 @@ final public class ObjectInvokeHelper {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
 
         if (entity == null) {
-            env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className));
+            env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
         ConstantEntity constantEntity = entity.findConstant(constant);
         if (constantEntity == null){
-            env.error(trace, Messages.ERR_FATAL_UNDEFINED_CLASS_CONSTANT.fetch(constant));
+            env.error(trace, Messages.ERR_UNDEFINED_CLASS_CONSTANT.fetch(constant));
             return Memory.NULL;
         }
 
@@ -262,7 +262,7 @@ final public class ObjectInvokeHelper {
         object = object.toValue();
         if (!object.isObject()){
             env.error(trace,
-                    Messages.ERR_FATAL_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
+                    Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
             );
             return Memory.NULL;
         }
@@ -275,7 +275,7 @@ final public class ObjectInvokeHelper {
                                            TraceInfo trace) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
-            env.error(trace, Messages.ERR_FATAL_CLASS_NOT_FOUND.fetch(className));
+            env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
@@ -292,7 +292,7 @@ final public class ObjectInvokeHelper {
     private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_FATAL_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            env.error(trace, Messages.ERR_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
             return null;
         }
 

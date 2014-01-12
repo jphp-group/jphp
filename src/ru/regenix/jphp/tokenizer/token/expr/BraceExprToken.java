@@ -8,7 +8,9 @@ public class BraceExprToken extends ExprToken {
     public enum Kind {
         SIMPLE,
         ARRAY,
-        BLOCK;
+        BLOCK,
+
+        ANY;
 
         public static String toOpen(Kind kind){
             switch (kind){
