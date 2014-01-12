@@ -25,6 +25,7 @@
     </distributionManagement>
 
     <build>
+        <directory>target/${project.version}</directory>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests</testSourceDirectory>
 
