@@ -301,15 +301,24 @@ public class ObjectMemory extends Memory {
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 private boolean keyInit = false;
                 private boolean needNext = false;
+                private boolean rewind = false;
 
                 @Override
                 protected boolean init() {
-                    env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
-                    try {
-                        return iterator.rewind(env).toBoolean();
-                    } finally {
-                        env.popCall();
+                    return rewind();
+                }
+
+                protected boolean rewind() {
+                    if (!rewind){
+                        env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
+                        try {
+                            return iterator.rewind(env).toValue() != FALSE;
+                        } finally {
+                            rewind = true;
+                            env.popCall();
+                        }
                     }
+                    return true;
                 }
 
                 @Override
@@ -324,6 +333,9 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public boolean next() {
+                    if (!rewind())
+                        return false;
+
                     boolean valid = false;
                     keyInit = false;
                     if (needNext){
@@ -348,6 +360,8 @@ public class ObjectMemory extends Memory {
                             } finally {
                                 env.popCall();
                             }
+                        } else {
+                            rewind = false;
                         }
                     } finally {
                         env.popCall();

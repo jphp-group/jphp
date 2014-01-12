@@ -1,6 +1,5 @@
 package ru.regenix.jphp.runtime.lang;
 
-import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.lib.collections.map.HashedMap;
 import ru.regenix.jphp.runtime.annotation.Reflection;

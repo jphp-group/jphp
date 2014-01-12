@@ -492,7 +492,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     if (implement.isInternal())
                         node.interfaces.add(implement.getInternalName());
                 }
-                ClassEntity.SignatureResult addResult = entity.addInterface(implement);
+                ClassEntity.ImplementsResult addResult = entity.addInterface(implement);
                 addResult.check(env);
 
                 if (implement != null && implement.isInternal())
@@ -517,7 +517,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getExtend() != null) {
             ClassEntity parent = fetchClass(statement.getExtend().getName().getName());
-            ClassEntity.ParentResult result = entity.setParent(parent, false);
+            ClassEntity.ExtendsResult result = entity.setParent(parent, false);
             result.check(compiler.getEnvironment());
         }
 

@@ -11,10 +11,7 @@ import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.CommaToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;
-import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.StaticExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.ArrayList;
@@ -22,8 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 
-public class
-        ExprGenerator extends Generator<ExprStmtToken> {
+public class ExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
@@ -175,9 +171,12 @@ public class
 
             Token single = eValue.getLast();
 
-            if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
-                    || single instanceof DynamicAccessExprToken))
+            if (!(single instanceof VariableExprToken
+                    || single instanceof ArrayGetExprToken
+                    || single instanceof DynamicAccessExprToken
+                    || (single instanceof StaticAccessExprToken && ((StaticAccessExprToken) single).isGetStaticField()))){
                 unexpectedToken(single);
+            }
 
             result.setValue(eValue);
             result.setValueReference(reference);
@@ -189,8 +188,10 @@ public class
 
             Token single = eValue.getLast();
 
-            if (!(single instanceof VariableExprToken || single instanceof ArrayGetExprToken
-                    || single instanceof DynamicAccessExprToken))
+            if (!(single instanceof VariableExprToken
+                    || single instanceof ArrayGetExprToken
+                    || single instanceof DynamicAccessExprToken
+                    || (single instanceof StaticAccessExprToken && ((StaticAccessExprToken) single).isGetStaticField())))
                 unexpectedToken(single);
 
             result.setValue(eValue);

@@ -22,6 +22,11 @@ public @interface Reflection {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE})
+    public @interface NotRuntime {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, TYPE})
     public @interface Signature {
         boolean root() default false;

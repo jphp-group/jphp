@@ -2179,9 +2179,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int i, length = list.getVariables().size();
         for(i = length - 1; i >= 0; i--){ // desc order as in PHP
             ListExprToken.Variable v = list.getVariables().get(i);
-            LocalVariable variable = method.getLocalVariable(v.name);
-
             writePushDup();
+
             if (v.indexes != null){
                 for(int index : v.indexes){
                     writePushConstLong(index);
@@ -2191,7 +2190,31 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushConstLong(v.index);
             writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, stackPeek().type.toClass());
 
-            writeVarAssign(variable, v.var, false, true);
+            if (v.isVariable()){
+                LocalVariable variable = method.getLocalVariable(v.getVariableName());
+                writeVarAssign(variable, (VariableExprToken)v.var.getSingle(), false, true);
+            } else if (v.isArray() || v.isStaticProperty()) {
+                writeExpression(v.var, true, false);
+                if (stackPeek().immutable || stackPeek().isConstant())
+                    unexpectedToken(v.var.getSingle());
+
+                writeSysStaticCall(Memory.class, "assignRight", Memory.class, Memory.class, Memory.class);
+                writePopAll(1);
+            } else if (v.isDynamicProperty()){
+                DynamicAccessExprToken dynamic = (DynamicAccessExprToken)v.var.getLast();
+                ExprStmtToken var = new ExprStmtToken(v.var.getTokens());
+                var.getTokens().remove(var.getTokens().size() - 1);
+
+                writeDynamicAccessInfo(dynamic, false);
+                writeExpression(var, true, false);
+                writePopBoxing(false);
+
+                writeSysStaticCall(ObjectInvokeHelper.class,
+                        "assignPropertyRight", Memory.class,
+                        Memory.class, String.class, Environment.class, TraceInfo.class, Memory.class
+                );
+                writePopAll(1);
+            }
         }
 
         if (!returnValue)
@@ -3002,9 +3025,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushConstBoolean(token.isKeyReference());
         writeSysDynamicCall(Environment.class, "__getIterator", ForeachIterator.class, TraceInfo.class, Memory.class, Boolean.TYPE, Boolean.TYPE);
 
-        LocalVariable foreachVariable = method.addLocalVariable(
+        String name = "~foreach~" + method.nextStatementIndex(ForeachIterator.class);
+        LocalVariable foreachVariable = method.getLocalVariable(name);
+        if (foreachVariable == null)
+            foreachVariable = method.addLocalVariable(name, l, ForeachIterator.class);
+
+        /*LocalVariable foreachVariable = method.addLocalVariable(
                 "~foreach~" + method.nextStatementIndex(ForeachIterator.class), l, ForeachIterator.class
-        );
+        );*/
         foreachVariable.setEndLabel(end);
 
         writeVarStore(foreachVariable, false, false);

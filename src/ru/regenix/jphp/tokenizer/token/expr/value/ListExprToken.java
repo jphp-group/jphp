@@ -3,6 +3,8 @@ package ru.regenix.jphp.tokenizer.token.expr.value;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.ArrayGetExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.DynamicAccessExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
         return variables;
     }
 
-    public Variable addVariable(VariableExprToken v, int index, List<Integer> indexes){
+    public Variable addVariable(ExprStmtToken v, int index, List<Integer> indexes){
         Variable var = new Variable(v, index, indexes);
         variables.add(var);
         return var;
@@ -41,16 +43,36 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
     }
 
     public class Variable {
-        public final VariableExprToken var;
-        public final String name;
+        public final ExprStmtToken var;
+        //public final String name;
         public final int index;
         public final List<Integer> indexes;
 
-        public Variable(VariableExprToken var, int index, List<Integer> indexes) {
+        public Variable(ExprStmtToken var, int index, List<Integer> indexes) {
             this.var = var;
-            this.name = var.getName();
+            //this.name = var.getName();
             this.index = index;
             this.indexes = indexes;
+        }
+
+        public boolean isVariable(){
+            return var.isSingle() && var.getSingle() instanceof VariableExprToken;
+        }
+
+        public boolean isArray(){
+            return var.getLast() instanceof ArrayGetExprToken;
+        }
+
+        public boolean isDynamicProperty(){
+            return var.getLast() instanceof DynamicAccessExprToken;
+        }
+
+        public boolean isStaticProperty(){
+            return var.getLast() instanceof StaticAccessExprToken;
+        }
+
+        public String getVariableName(){
+            return isVariable() ? ((VariableExprToken)var.getSingle()).getName() : null;
         }
     }
 }

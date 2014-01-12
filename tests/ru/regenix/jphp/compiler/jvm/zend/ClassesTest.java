@@ -228,6 +228,11 @@ public class ClassesTest extends JvmCompilerCase {
 
     @Test
     public void testIterators(){
-        //check("zend/classes/iterators_001.php", true);
+        check("zend/classes/iterators_001.php", true);
+        check("zend/classes/iterators_002.php", true);
+        check("zend/classes/iterators_003.php", true);
+        check("zend/classes/iterators_004.php", true);
+        check("zend/classes/iterators_005.php", true);
+        check("zend/classes/iterators_006.php", true);
     }
 }

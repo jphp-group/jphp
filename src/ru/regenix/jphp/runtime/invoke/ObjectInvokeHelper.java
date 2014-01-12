@@ -336,6 +336,11 @@ final public class ObjectInvokeHelper {
         return iObject.getReflection().setProperty(env, trace, iObject, property, value, null);
     }
 
+    public static Memory assignPropertyRight(Memory value, String property, Environment env, TraceInfo trace, Memory object)
+            throws Throwable {
+        return assignProperty(object, value, property, env, trace);
+    }
+
     public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);

@@ -71,6 +71,8 @@ final public class Messages {
 
     public final static Item ERR_INTERFACE_MAY_NOT_INCLUDE_VARS = new Item("Interfaces may not include member variables");
 
+    public final static Item ERR_CANNOT_USE_SYSTEM_CLASS = new Item("Cannot use system class/interface %s for %s");
+
     public static class Item {
         private String message;
         public Item(String message){

@@ -40,6 +40,7 @@ public class ClassEntity extends Entity {
     private long id;
     protected int methodCounts = 0;
     protected boolean isInternal;
+    protected boolean isNotRuntime;
 
     /** byte code */
     protected byte[] data;
@@ -107,6 +108,9 @@ public class ClassEntity extends Entity {
         if (nativeClazz.isInterface())
             type = Type.INTERFACE;
 
+        this.isInternal = true;
+
+        isNotRuntime = nativeClazz.isAnnotationPresent(Reflection.NotRuntime.class);
         if (nativeClazz.isAnnotationPresent(Reflection.Name.class)){
             Reflection.Name name = nativeClazz.getAnnotation(Reflection.Name.class);
             setName(name.value());
@@ -146,8 +150,8 @@ public class ClassEntity extends Entity {
                 if (entity == null || entity.getType() != Type.INTERFACE)
                     throw new IllegalArgumentException("Interface '"+name+"' not registered");
 
-                SignatureResult result = addInterface(entity);
-                result.check();
+                ImplementsResult result = addInterface(entity);
+                result.check(null);
             }
 
             if (scope != null){
@@ -161,7 +165,7 @@ public class ClassEntity extends Entity {
                     if (entity == null || entity.getType() != Type.CLASS)
                         throw new IllegalArgumentException("Class '"+name+"' not registered");
 
-                    ParentResult result = setParent(entity);
+                    ExtendsResult result = setParent(entity);
                     result.check(null);
                 }
             }
@@ -201,7 +205,6 @@ public class ClassEntity extends Entity {
         }
 
         this.setNativeClazz(nativeClazz);
-        this.isInternal = true;
         doneDeclare();
     }
 
@@ -421,12 +424,12 @@ public class ClassEntity extends Entity {
         return result;
     }
 
-    public ParentResult setParent(ClassEntity parent) {
+    public ExtendsResult setParent(ClassEntity parent) {
         return setParent(parent, true);
     }
 
-    public ParentResult setParent(ClassEntity parent, boolean updateParentMethods) {
-        ParentResult result = new ParentResult(parent);
+    public ExtendsResult setParent(ClassEntity parent, boolean updateParentMethods) {
+        ExtendsResult result = new ExtendsResult(parent);
 
         if (this.parent != null){
             throw new RuntimeException("Cannot re-assign parent for classes");
@@ -463,13 +466,13 @@ public class ClassEntity extends Entity {
      * @param _interface
      * @return
      */
-    public SignatureResult addInterface(ClassEntity _interface) {
-        SignatureResult result = new SignatureResult();
+    public ImplementsResult addInterface(ClassEntity _interface) {
+        ImplementsResult result = new ImplementsResult(_interface);
 
         for(ConstantEntity e : _interface.constants.values()){
             ConstantEntity origin = constants.get(e.getName());
             if (origin != null && e.getClazz().getId() == _interface.getId())
-                result.overrideConstants.add(ConstantInvalid.error(origin, e));
+                result.methods.overrideConstants.add(ConstantInvalid.error(origin, e));
         }
 
         this.constants.putAll(_interface.constants);
@@ -485,16 +488,16 @@ public class ClassEntity extends Entity {
             if (implMethod == null){
                 addMethod(method, null);
                 if (type == Type.CLASS && !isAbstract)
-                    result.nonExists.add(MethodInvalid.error(method));
+                    result.methods.nonExists.add(MethodInvalid.error(method));
             } else {
                 implMethod.setPrototype(method);
 
                 if (/*!method.isDynamicSignature() &&*/ !implMethod.equalsBySignature(method)){ // checking dynamic for only extends
-                    result.invalidSignature.add(MethodInvalid.error(implMethod));
+                    result.methods.invalidSignature.add(MethodInvalid.error(implMethod));
                 } else if (implMethod.isStatic() && !method.isStatic()){
-                    result.mustNonStatic.add(MethodInvalid.error(implMethod));
+                    result.methods.mustNonStatic.add(MethodInvalid.error(implMethod));
                 } else if (!implMethod.isStatic() && method.isStatic()){
-                    result.mustStatic.add(MethodInvalid.error(implMethod));
+                    result.methods.mustStatic.add(MethodInvalid.error(implMethod));
                 }
             }
         }
@@ -1216,16 +1219,55 @@ public class ClassEntity extends Entity {
         }
     }
 
-    public class ParentResult {
+    public class ImplementsResult {
         ClassEntity parent;
         SignatureResult methods;
 
-        ParentResult(ClassEntity parent) {
+        ImplementsResult(ClassEntity parent) {
             this.parent = parent;
+            this.methods = new SignatureResult();
         }
 
         public void check(Environment env){
             if (parent != null){
+                if (parent.isNotRuntime && !isInternal()) {
+                    FatalException e = new FatalException(
+                            Messages.ERR_CANNOT_USE_SYSTEM_CLASS.fetch(parent.getName(), getName()),
+                            ClassEntity.this.trace
+                    );
+                    if (env != null)
+                        env.error(e.getTraceInfo(), e.getType(), e.getMessage());
+                    else
+                        throw e;
+                }
+            }
+            if (methods != null)
+                methods.check(env);
+        }
+    }
+
+    public class ExtendsResult {
+        ClassEntity parent;
+        SignatureResult methods;
+
+        ExtendsResult(ClassEntity parent) {
+            this.parent = parent;
+            this.methods = new SignatureResult();
+        }
+
+        public void check(Environment env){
+            if (parent != null){
+                if (parent.isNotRuntime && !isInternal()) {
+                    FatalException e = new FatalException(
+                            Messages.ERR_CANNOT_USE_SYSTEM_CLASS.fetch(parent.getName(), getName()),
+                            ClassEntity.this.trace
+                    );
+                    if (env != null)
+                        env.error(e.getTraceInfo(), e.getType(), e.getMessage());
+                    else
+                        throw e;
+                }
+
                 if (parent.isFinal){
                     FatalException e = new FatalException(
                             Messages.ERR_CLASS_MAY_NOT_INHERIT_FINAL_CLASS.fetch(ClassEntity.this.getName(), parent.getName()),

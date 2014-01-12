@@ -81,7 +81,6 @@ foreach($t as $i => $v) {
 }
 
 print "Done\n";
-exit(0);
 ?>
 --EXPECT--
 ===Array===
