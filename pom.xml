@@ -6,13 +6,14 @@
 
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.1-snapshot</version>
+    <version>0.2-snapshot</version>
 
     <name>JPHP</name>
     <description>PHP Engine for Java VM</description>
-    <url>http://github.com/dim-s/jvm-php</url>
+    <url>http://github.com/dim-s/jphp</url>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.global.server>github</github.global.server>
     </properties>
 
@@ -109,9 +110,11 @@
                             <mainClass>ru.regenix.jphp.cli.CLI</mainClass>
                         </manifest>
                     </archive>
-                  <descriptorRefs>
+                    <descriptorRefs>
                       <descriptorRef>jar-with-dependencies</descriptorRef>
-                  </descriptorRefs>
+                    </descriptorRefs>
+                    <finalName>jphp</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

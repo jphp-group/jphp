@@ -45,6 +45,10 @@ public class LangFunctions extends FunctionsContainer {
         }
     };
 
+    public static void sleep(int sec) throws InterruptedException {
+        Thread.sleep(sec * 1000);
+    }
+
     public static Memory eval(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, String code)
             throws Throwable {
         Context context = new Context(env, code);
