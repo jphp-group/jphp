@@ -2388,7 +2388,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePopAll(1);
         } else {
             writeSysStaticCall(ObjectInvokeHelper.class,
-                    "getProperty", Memory.class,
+                    dynamic instanceof  DynamicAccessGetRefExprToken ? "getRefProperty" : "getProperty",
+                    Memory.class,
                     Memory.class, String.class, Environment.class, TraceInfo.class
             );
         }

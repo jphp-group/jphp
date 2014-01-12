@@ -271,6 +271,20 @@ final public class ObjectInvokeHelper {
         return iObject.getReflection().getProperty(env, trace, iObject, property);
     }
 
+    public static Memory getRefProperty(Memory object, String property, Environment env, TraceInfo trace)
+            throws Throwable {
+        object = object.toValue();
+        if (!object.isObject()){
+            env.error(trace,
+                    Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
+            );
+            return Memory.NULL;
+        }
+
+        IObject iObject = ((ObjectMemory)object).value;
+        return iObject.getReflection().getRefProperty(env, trace, iObject, property);
+    }
+
     public static Memory getStaticProperty(String className, String lowerClassName, String property, Environment env,
                                            TraceInfo trace) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);

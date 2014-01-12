@@ -1076,6 +1076,32 @@ public class ClassEntity extends Entity {
         );
     }
 
+    public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property)
+            throws Throwable {
+        Memory value;
+        ClassEntity contex = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
+        int accessFlag = entity == null ? 0 : entity.canAccess(env);
+
+        ArrayMemory props = object.getProperties();
+        value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
+
+        if (accessFlag != 0)
+            invalidAccessToProperty(env, trace, entity, accessFlag);
+
+        if (value == null){
+            value = props == null ? new ReferenceMemory() : object.getProperties().refOfIndex(property);
+            if (methodMagicGet != null || methodMagicSet != null){
+                env.error(trace,
+                        props == null ? ErrorType.E_ERROR : ErrorType.E_NOTICE,
+                        Messages.ERR_INDIRECT_MODIFICATION_OVERLOADED_PROPERTY, name, property);
+            }
+        }
+
+        return value;
+    }
+
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
         ReferenceMemory value;

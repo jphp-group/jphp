@@ -63,6 +63,7 @@ final public class Messages {
     public final static Item ERR_RETURN_NOT_REFERENCE = new Item("Only variable references should be returned by reference");
     public final static Item ERR_UNDEFINED_PROPERTY = new Item("Undefined property: %s::$%s");
     public final static Item ERR_UNDEFINED_CLASS_CONSTANT = new Item("Undefined class constant '%s'");
+    public final static Item ERR_INDIRECT_MODIFICATION_OVERLOADED_PROPERTY = new Item("Indirect modification of overloaded property %s::$%s has no effect");
 
     public final static Item ERR_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'%s' operator accepts only positive numbers > 0");
 
