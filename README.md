@@ -22,14 +22,12 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 
 ### How build and run?
 
-Use build.xml for ANT project and install ivy for ANT.
+Use maven:
 
-    ant init-ivy
-    ant resolve
-    ant jar
+    mvn package
 
-Then you can find the builded jar file in your `build/jar/` directory. There are
-a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `build/jar` directory to your
+Then you can find the builded jar file in your `target/{version}/` directory. There are
+a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `target/{version}/` directory to your
 PATH env variable and try JPHP, use `jphp` command:
 
     jphp -f <path/to/file.php>
@@ -42,7 +40,7 @@ PATH env variable and try JPHP, use `jphp` command:
 <dependency>
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.1-snapshot</version>
+    <version>0.2-snapshot</version>
 </dependency>
 ```
 
