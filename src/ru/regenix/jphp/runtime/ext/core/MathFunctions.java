@@ -126,11 +126,7 @@ public class MathFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static String base_convert(String number, int fromBase, int toBase){
-        try {
-            return Long.toString(Long.valueOf(number, fromBase), toBase);
-        } catch (NumberFormatException e){
-            return new BigInteger(number, fromBase).toString( toBase);
-        }
+        return new BigInteger(number, fromBase).toString( toBase);
     }
 
     @Runtime.Immutable
