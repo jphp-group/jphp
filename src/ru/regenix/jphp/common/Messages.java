@@ -74,6 +74,12 @@ final public class Messages {
 
     public final static Item ERR_CANNOT_USE_SYSTEM_CLASS = new Item("Cannot use system class/interface %s for %s");
 
+    public final static Item ERR_ACCESS_LEVEL_MUST_BE_PROTECTED_OR_WEAKER = new Item("Access level to %s::$%s must be protected (as in class %s) or weaker");
+    public final static Item ERR_ACCESS_LEVEL_MUST_BE_PUBLIC = new Item("Access level to %s::$%s must be public (as in class %s)");
+    public final static Item ERR_CANNOT_REDECLARE_STATIC_AS_NON_STATIC = new Item("Cannot redeclare static %s::$%s as non static %s::$%s");
+    public final static Item ERR_CANNOT_REDECLARE_NON_STATIC_AS_STATIC = new Item("Cannot redeclare non static %s::$%s as static %s::$%s");
+
+
     public static class Item {
         private String message;
         public Item(String message){

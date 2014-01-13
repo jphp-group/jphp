@@ -255,6 +255,52 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testPropertyOverride(){
+        check("zend/classes/property_override_privateStatic_private.php");
+        check("zend/classes/property_override_privateStatic_privateStatic.php");
+        check("zend/classes/property_override_privateStatic_protected.php");
+        check("zend/classes/property_override_privateStatic_protectedStatic.php");
+        check("zend/classes/property_override_privateStatic_public.php");
+        check("zend/classes/property_override_privateStatic_publicStatic.php");
+        check("zend/classes/property_override_private_private.php");
+        check("zend/classes/property_override_private_privateStatic.php");
+        check("zend/classes/property_override_private_protected.php");
+        check("zend/classes/property_override_private_protectedStatic.php");
+        check("zend/classes/property_override_private_public.php");
+        check("zend/classes/property_override_private_publicStatic.php");
+        check("zend/classes/property_override_protectedStatic_private.php", true);
+        check("zend/classes/property_override_protectedStatic_privateStatic.php", true);
+        check("zend/classes/property_override_protectedStatic_protected.php", true);
+        check("zend/classes/property_override_protectedStatic_protectedStatic.php");
+        check("zend/classes/property_override_protectedStatic_public.php", true);
+        check("zend/classes/property_override_protectedStatic_publicStatic.php");
+        check("zend/classes/property_override_protected_private.php", true);
+        check("zend/classes/property_override_protected_privateStatic.php", true);
+        check("zend/classes/property_override_protected_protected.php");
+        check("zend/classes/property_override_protected_protectedStatic.php", true);
+        check("zend/classes/property_override_protected_public.php");
+        check("zend/classes/property_override_protected_publicStatic.php", true);
+        check("zend/classes/property_override_publicStatic_private.php", true);
+        check("zend/classes/property_override_publicStatic_privateStatic.php", true);
+        check("zend/classes/property_override_publicStatic_protected.php", true);
+        check("zend/classes/property_override_publicStatic_protectedStatic.php", true);
+        check("zend/classes/property_override_publicStatic_public.php", true);
+        check("zend/classes/property_override_publicStatic_publicStatic.php");
+        check("zend/classes/property_override_public_private.php", true);
+        check("zend/classes/property_override_public_privateStatic.php", true);
+        check("zend/classes/property_override_public_protected.php", true);
+        check("zend/classes/property_override_public_protectedStatic.php", true);
+        check("zend/classes/property_override_public_public.php");
+        check("zend/classes/property_override_public_publicStatic.php", true);
+    }
+
+    @Test
+    public void testPropertyRecreate(){
+        check("zend/classes/property_recreate_private.php", true);
+        check("zend/classes/property_recreate_protected.php", true);
+    }
+
+    @Test
     public void testProtected(){
         check("zend/classes/protected_001.php", true);
         check("zend/classes/protected_001b.php", true);

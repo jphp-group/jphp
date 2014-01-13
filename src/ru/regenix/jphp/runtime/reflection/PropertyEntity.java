@@ -66,6 +66,18 @@ public class PropertyEntity extends Entity {
         return modifier;
     }
 
+    public boolean isPrivate(){
+        return modifier == Modifier.PRIVATE;
+    }
+
+    public boolean isProtected(){
+        return modifier == Modifier.PROTECTED;
+    }
+
+    public boolean isPublic(){
+        return modifier == Modifier.PUBLIC;
+    }
+
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
         updateSpecificName();
