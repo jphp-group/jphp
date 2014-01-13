@@ -921,6 +921,18 @@ public class ClassEntity extends Entity {
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
 
+        if (entity == null){
+            PropertyEntity staticEntity = staticProperties.get(property);
+            if (staticEntity != null){
+                invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
+                env.error(trace, ErrorType.E_STRICT,
+                        Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
+                        staticEntity.getClazz().getName(),
+                        staticEntity.getName()
+                );
+            }
+        }
+
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
@@ -1017,6 +1029,13 @@ public class ClassEntity extends Entity {
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
+        if (entity == null){
+            PropertyEntity staticEntity = staticProperties.get(property);
+            if (staticEntity != null){
+                invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
+            }
+        }
+
         ArrayMemory props = object.getProperties();
         if (props == null
                 || accessFlag != 0
@@ -1042,6 +1061,15 @@ public class ClassEntity extends Entity {
 
         if (accessFlag != 0)
             invalidAccessToProperty(env, trace, entity, accessFlag);
+
+        entity = staticProperties.get(property);
+        if (entity != null){
+            env.error(trace, ErrorType.E_STRICT,
+                    Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
+                    entity.getClazz().getName(),
+                    entity.getName()
+            );
+        }
 
         return Memory.NULL;
     }
@@ -1123,14 +1151,15 @@ public class ClassEntity extends Entity {
         return Memory.NULL;
     }
 
-    public Memory getStaticProperty(Environment env, TraceInfo trace, String property)
+    public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists)
             throws Throwable {
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context)
                 ? context.staticProperties.get(property) : staticProperties.get(property);
 
         if (entity == null){
-            env.error(trace, Messages.ERR_ACCESS_TO_UNDECLARED_STATIC_PROPERTY.fetch(name, property));
+            if (errorIfNotExists)
+                env.error(trace, Messages.ERR_ACCESS_TO_UNDECLARED_STATIC_PROPERTY.fetch(name, property));
             return Memory.NULL;
         }
 
@@ -1149,8 +1178,20 @@ public class ClassEntity extends Entity {
     public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
         Memory value;
-        ClassEntity contex = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+        ClassEntity context = env.getLastClassOnStack();
+        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+        if (entity == null){
+            PropertyEntity staticEntity = staticProperties.get(property);
+            if (staticEntity != null){
+                invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
+                env.error(trace, ErrorType.E_STRICT,
+                        Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
+                        staticEntity.getClazz().getName(),
+                        staticEntity.getName()
+                );
+            }
+        }
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -1177,6 +1218,18 @@ public class ClassEntity extends Entity {
         ReferenceMemory value;
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+        if (entity == null){
+            PropertyEntity staticEntity = staticProperties.get(property);
+            if (staticEntity != null){
+                invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
+                env.error(trace, ErrorType.E_STRICT,
+                        Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
+                        staticEntity.getClazz().getName(),
+                        staticEntity.getName()
+                );
+            }
+        }
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 

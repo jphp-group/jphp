@@ -154,14 +154,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(iterator.previous());
 
         assert value != null;
-        if (!(value.getSingle() instanceof VariableValueExprToken))
-            unexpectedToken(value, "$var");
 
         Token last = value.getLast();
         if (last instanceof DynamicAccessExprToken){
             last = new DynamicAccessEmptyExprToken((DynamicAccessExprToken)last);
             value.getTokens().set(value.getTokens().size() - 1, last);
-        }
+        } else if (last instanceof VariableExprToken || last instanceof ArrayGetExprToken){
+            // nop
+        } else if (last instanceof StaticAccessExprToken && ((StaticAccessExprToken) last).isGetStaticField()){
+            last = new StaticAccessIssetExprToken((StaticAccessExprToken)last);
+            value.getTokens().set(value.getTokens().size() - 1, last);
+        } else
+            unexpectedToken(last);
 
         EmptyExprToken result = (EmptyExprToken)current;
         result.setValue(value);
@@ -180,15 +184,17 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             Token last = tokens.get(tokens.size() - 1);
             Token newToken = null;
 
-            if (!(param.getSingle() instanceof VariableValueExprToken))
-                unexpectedToken(param.getSingle());
-
             if (last instanceof DynamicAccessExprToken){
                 newToken = new DynamicAccessIssetExprToken((DynamicAccessExprToken)last);
                 if (analyzer.getClazz() != null && !"__isset".equals(analyzer.getFunction().getFulledName())){
                     ((DynamicAccessIssetExprToken)newToken).setWithMagic(false);
                 }
-            }
+            } else if (last instanceof VariableExprToken || last instanceof ArrayGetExprToken){
+                // nop
+            } else if (last instanceof StaticAccessExprToken && ((StaticAccessExprToken) last).isGetStaticField()){
+                newToken = new StaticAccessIssetExprToken((StaticAccessExprToken)last);
+            } else
+                unexpectedToken(param.getSingle());
 
             if (newToken != null)
                 tokens.set(tokens.size() - 1, newToken);
@@ -927,7 +933,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         DynamicAccessExprToken.class,
                         StringExprToken.class,
                         StringBuilderExprToken.class,
-                        CallOperatorToken.class)){
+                        CallOperatorToken.class) ||
+                        (previous instanceof StaticAccessExprToken && ((StaticAccessExprToken)previous).isGetStaticField())){
                     // array
                     current = processArrayToken(previous, current, iterator);
                     if (previous instanceof DynamicAccessExprToken && current instanceof ArrayGetRefExprToken){

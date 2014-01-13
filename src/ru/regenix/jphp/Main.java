@@ -18,6 +18,7 @@ public class Main {
 
     public static void main(String[] args) throws Throwable {
         CompileScope scope = new CompileScope();
+        scope.setDebugMode(true);
         scope.registerExtension(new CoreExtension());
         scope.registerExtension(new BCMathExtension());
         scope.registerExtension(new CTypeExtension());

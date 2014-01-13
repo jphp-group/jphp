@@ -1,8 +1,11 @@
 package ru.regenix.jphp.runtime.reflection;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.runtime.env.Context;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 import ru.regenix.jphp.runtime.reflection.support.Entity;
 
@@ -155,5 +158,16 @@ public class PropertyEntity extends Entity {
                 } while (clazz != null);
         }
         return 2;
+    }
+
+    public boolean canAccessAsNonStatic(Environment env, TraceInfo trace){
+        if (isStatic){
+            env.error(
+                    trace, ErrorType.E_STRICT, Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
+                    getClazz().getName(), name
+            );
+            return false;
+        }
+        return true;
     }
 }

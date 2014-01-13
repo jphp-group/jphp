@@ -2121,9 +2121,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         switch (peek){
             case STRING: break;
             default:
-                if (peek.isConstant())
-                    writeSysStaticCall(String.class, "valueOf", String.class, peek.toClass());
-                else
+                if (peek.isConstant()) {
+                    if (peek == StackItem.Type.BOOL)
+                        writeSysStaticCall(Memory.class, "boolToString", String.class, peek.toClass());
+                    else
+                        writeSysStaticCall(String.class, "valueOf", String.class, peek.toClass());
+                } else
                     writeSysDynamicCall(Memory.class, "toString", String.class);
         }
     }
@@ -2333,8 +2336,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushEnv();
             writePushTraceInfo(token);
 
+            String name = "get";
+            if (token instanceof StaticAccessUnsetExprToken)
+                name = "unset";
+            else if (token instanceof StaticAccessIssetExprToken)
+                name = "isset";
+
             writeSysStaticCall(ObjectInvokeHelper.class,
-                    token instanceof StaticAccessUnsetExprToken ? "unsetStaticProperty" : "getStaticProperty",
+                    name + "StaticProperty",
                     Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
             );
         }

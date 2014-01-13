@@ -7,6 +7,8 @@ error_reporting=2047
 --FILE--
 <?php
 
+error_reporting(E_ALL ^ E_STRICT);
+
 class MyCloneable {
 	static $id = 0;
 

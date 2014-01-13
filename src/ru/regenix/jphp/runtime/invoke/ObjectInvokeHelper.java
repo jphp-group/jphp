@@ -293,7 +293,18 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property);
+        return entity.getStaticProperty(env, trace, property, true);
+    }
+
+    public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
+                                           TraceInfo trace) throws Throwable {
+        ClassEntity entity = env.fetchClass(className, lowerClassName, true);
+        if (entity == null) {
+            env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
+            return Memory.NULL;
+        }
+
+        return entity.getStaticProperty(env, trace, property, false);
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,

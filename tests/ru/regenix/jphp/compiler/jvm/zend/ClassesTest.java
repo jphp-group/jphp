@@ -312,4 +312,26 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/static_mix_1.php", true);
         check("zend/classes/static_mix_2.php", true);
     }
+
+    @Test
+    public void testStaticProperties(){
+        check("zend/classes/static_properties_001.php");
+        check("zend/classes/static_properties_003.php");
+        check("zend/classes/static_properties_003_error1.php", true);
+        check("zend/classes/static_properties_003_error2.php", true);
+        check("zend/classes/static_properties_003_error3.php", true);
+        check("zend/classes/static_properties_003_error4.php", true);
+        check("zend/classes/static_properties_004.php");
+        check("zend/classes/static_properties_undeclared_assign.php", true);
+        check("zend/classes/static_properties_undeclared_assignInc.php", true);
+        check("zend/classes/static_properties_undeclared_assignRef.php", true);
+        check("zend/classes/static_properties_undeclared_inc.php", true);
+        check("zend/classes/static_properties_undeclared_isset.php");
+        check("zend/classes/static_properties_undeclared_read.php", true);
+    }
+
+    @Test
+    public void testStaticThis(){
+        check("zend/classes/static_this.php", true);
+    }
 }

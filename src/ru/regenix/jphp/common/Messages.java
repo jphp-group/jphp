@@ -79,6 +79,7 @@ final public class Messages {
     public final static Item ERR_CANNOT_REDECLARE_STATIC_AS_NON_STATIC = new Item("Cannot redeclare static %s::$%s as non static %s::$%s");
     public final static Item ERR_CANNOT_REDECLARE_NON_STATIC_AS_STATIC = new Item("Cannot redeclare non static %s::$%s as static %s::$%s");
 
+    public final static Item ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC = new Item("Accessing static property %s::$%s as non static");
 
     public static class Item {
         private String message;
