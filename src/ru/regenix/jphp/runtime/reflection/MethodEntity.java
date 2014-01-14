@@ -97,7 +97,6 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public Memory invokeDynamic(IObject _this,
                                 Environment environment, Memory... arguments) throws Throwable {
-        Memory result = null;
         try {
             if (isAbstract){
                 environment.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
@@ -107,13 +106,7 @@ public class MethodEntity extends AbstractFunctionEntity {
             if (_this == null && !isStatic)
                 _this = clazz.newMock(environment);
 
-            result = isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
-
-            if (!isReturnReference())
-                return result.toImmutable();
-            else
-                return result;
-
+            return isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){
             throw e.getTargetException();
         } finally {

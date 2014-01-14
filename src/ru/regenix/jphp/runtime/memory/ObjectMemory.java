@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory;
 
+import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.exceptions.CriticalException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
@@ -8,6 +9,7 @@ import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.IObject;
 import ru.regenix.jphp.runtime.lang.Resource;
+import ru.regenix.jphp.runtime.lang.spl.ArrayAccess;
 import ru.regenix.jphp.runtime.lang.spl.iterator.Iterator;
 import ru.regenix.jphp.runtime.lang.spl.iterator.IteratorAggregate;
 import ru.regenix.jphp.runtime.lang.support.IComparableObject;
@@ -494,7 +496,7 @@ public class ObjectMemory extends Memory {
                     }
                 }
             } else {
-                result.refOfIndex(iterator.getMemoryKey()).assign(value);
+                result.refOfIndex(null, iterator.getMemoryKey()).assign(value);
             }
         }
 
@@ -522,6 +524,616 @@ public class ObjectMemory extends Memory {
                     env.popCall();
                 }
             }
+        }
+    }
+
+    private void invalidUseAsArray(TraceInfo trace){
+        Environment env = value.getEnvironment();
+        if (env != null){
+            env.error(getReflection().getTrace(), ErrorType.E_ERROR,
+                    Messages.ERR_CANNOT_USE_OBJECT_AS_ARRAY, getReflection().getName()
+            );
+        }
+    }
+
+    @Override
+    public Memory refOfIndex(final TraceInfo trace, final Memory index) {
+        if (value instanceof ArrayAccess){
+            return new ReferenceMemory(){
+                @Override
+                public Memory assign(Memory memory) {
+                    Environment env = ObjectMemory.this.value.getEnvironment();
+                    if (env != null && trace != null){
+                        ArrayAccess array = (ArrayAccess)ObjectMemory.this.value;
+                        Memory[] args = new Memory[]{ index, memory };
+                        env.pushCall(ObjectMemory.this.value, "offsetSet", args);
+                        try {
+                            array.offsetSet(env, args);
+                        } finally {
+                            env.popCall();
+                        }
+                    } else
+                        invalidUseAsArray(trace);
+                    return memory;
+                }
+
+                @Override
+                public Memory assignRef(Memory reference) {
+                    return assign(reference);
+                }
+
+                @Override
+                public Memory assign(long memory) {
+                    return assign(LongMemory.valueOf(memory));
+                }
+
+                @Override
+                public Memory assign(String memory) {
+                    return assign(StringMemory.valueOf(memory));
+                }
+
+                @Override
+                public Memory assign(boolean memory) {
+                    return assign(TrueMemory.valueOf(memory));
+                }
+
+                @Override
+                public Memory assign(double memory) {
+                    return assign(DoubleMemory.valueOf(memory));
+                }
+
+                @Override
+                public Memory assignConcat(Memory memory) {
+                    value = toValue();
+                    return super.assignConcat(memory);
+                }
+
+                @Override
+                public Memory assignConcat(long memory) {
+                    value = toValue();
+                    return super.assignConcat(memory);
+                }
+
+                @Override
+                public Memory assignConcat(double memory) {
+                    value = toValue();
+                    return super.assignConcat(memory);
+                }
+
+                @Override
+                public Memory assignConcat(boolean memory) {
+                    value = toValue();
+                    return super.assignConcat(memory);
+                }
+
+                @Override
+                public Memory assignConcat(String memory) {
+                    value = toValue();
+                    return super.assignConcat(memory);
+                }
+
+                @Override
+                public Memory assignPlus(Memory memory) {
+                    value = toValue();
+                    return super.assignPlus(memory);
+                }
+
+                @Override
+                public Memory assignPlus(long memory) {
+                    value = toValue();
+                    return super.assignPlus(memory);
+                }
+
+                @Override
+                public Memory assignPlus(double memory) {
+                    value = toValue();
+                    return super.assignPlus(memory);
+                }
+
+                @Override
+                public Memory assignPlus(boolean memory) {
+                    value = toValue();
+                    return super.assignPlus(memory);
+                }
+
+                @Override
+                public Memory assignPlus(String memory) {
+                    value = toValue();
+                    return super.assignPlus(memory);
+                }
+
+                @Override
+                public Memory assignPlusRight(Memory memory) {
+                    value = toValue();
+                    return super.assignPlusRight(memory);
+                }
+
+                @Override
+                public Memory assignMinus(Memory memory) {
+                    value = toValue();
+                    return super.assignMinus(memory);
+                }
+
+                @Override
+                public Memory assignMinus(long memory) {
+                    value = toValue();
+                    return super.assignMinus(memory);
+                }
+
+                @Override
+                public Memory assignMinus(double memory) {
+                    value = toValue();
+                    return super.assignMinus(memory);
+                }
+
+                @Override
+                public Memory assignMinus(boolean memory) {
+                    value = toValue();
+                    return super.assignMinus(memory);
+                }
+
+                @Override
+                public Memory assignMinus(String memory) {
+                    value = toValue();
+                    return super.assignMinus(memory);
+                }
+
+                @Override
+                public Memory assignMinusRight(Memory memory) {
+                    value = toValue();
+                    return super.assignMinusRight(memory);
+                }
+
+                @Override
+                public Memory assignMul(Memory memory) {
+                    value = toValue();
+                    return super.assignMul(memory);
+                }
+
+                @Override
+                public Memory assignMul(long memory) {
+                    value = toValue();
+                    return super.assignMul(memory);
+                }
+
+                @Override
+                public Memory assignMul(double memory) {
+                    value = toValue();
+                    return super.assignMul(memory);
+                }
+
+                @Override
+                public Memory assignMul(boolean memory) {
+                    value = toValue();
+                    return super.assignMul(memory);
+                }
+
+                @Override
+                public Memory assignMul(String memory) {
+                    value = toValue();
+                    return super.assignMul(memory);
+                }
+
+                @Override
+                public Memory assignMulRight(Memory memory) {
+                    value = toValue();
+                    return super.assignMulRight(memory);
+                }
+
+                @Override
+                public Memory assignDiv(Memory memory) {
+                    value = toValue();
+                    return super.assignDiv(memory);
+                }
+
+                @Override
+                public Memory assignDiv(long memory) {
+                    value = toValue();
+                    return super.assignDiv(memory);
+                }
+
+                @Override
+                public Memory assignDiv(double memory) {
+                    value = toValue();
+                    return super.assignDiv(memory);
+                }
+
+                @Override
+                public Memory assignDiv(boolean memory) {
+                    value = toValue();
+                    return super.assignDiv(memory);
+                }
+
+                @Override
+                public Memory assignDiv(String memory) {
+                    value = toValue();
+                    return super.assignDiv(memory);
+                }
+
+                @Override
+                public Memory assignDivRight(Memory memory) {
+                    value = toValue();
+                    return super.assignDivRight(memory);
+                }
+
+                @Override
+                public Memory assignMod(Memory memory) {
+                    value = toValue();
+                    return super.assignMod(memory);
+                }
+
+                @Override
+                public Memory assignMod(long memory) {
+                    value = toValue();
+                    return super.assignMod(memory);
+                }
+
+                @Override
+                public Memory assignMod(double memory) {
+                    value = toValue();
+                    return super.assignMod(memory);
+                }
+
+                @Override
+                public Memory assignMod(boolean memory) {
+                    value = toValue();
+                    return super.assignMod(memory);
+                }
+
+                @Override
+                public Memory assignMod(String memory) {
+                    value = toValue();
+                    return super.assignMod(memory);
+                }
+
+                @Override
+                public Memory assignModRight(Memory memory) {
+                    value = toValue();
+                    return super.assignModRight(memory);
+                }
+
+                @Override
+                public Memory assignBitShr(Memory memory) {
+                    value = toValue();
+                    return super.assignBitShr(memory);
+                }
+
+                @Override
+                public Memory assignBitShr(long memory) {
+                    value = toValue();
+                    return super.assignBitShr(memory);
+                }
+
+                @Override
+                public Memory assignBitShr(double memory) {
+                    value = toValue();
+                    return super.assignBitShr(memory);
+                }
+
+                @Override
+                public Memory assignBitShr(boolean memory) {
+                    value = toValue();
+                    return super.assignBitShr(memory);
+                }
+
+                @Override
+                public Memory assignBitShr(String memory) {
+                    value = toValue();
+                    return super.assignBitShr(memory);
+                }
+
+                @Override
+                public Memory assignBitShrRight(Memory memory) {
+                    value = toValue();
+                    return super.assignBitShrRight(memory);
+                }
+
+                @Override
+                public Memory assignBitShl(Memory memory) {
+                    value = toValue();
+                    return super.assignBitShl(memory);
+                }
+
+                @Override
+                public Memory assignBitShl(long memory) {
+                    value = toValue();
+                    return super.assignBitShl(memory);
+                }
+
+                @Override
+                public Memory assignBitShl(double memory) {
+                    value = toValue();
+                    return super.assignBitShl(memory);
+                }
+
+                @Override
+                public Memory assignBitShl(boolean memory) {
+                    value = toValue();
+                    return super.assignBitShl(memory);
+                }
+
+                @Override
+                public Memory assignBitShl(String memory) {
+                    value = toValue();
+                    return super.assignBitShl(memory);
+                }
+
+                @Override
+                public Memory assignBitShlRight(Memory memory) {
+                    value = toValue();
+                    return super.assignBitShlRight(memory);
+                }
+
+                @Override
+                public Memory assignBitAnd(Memory memory) {
+                    value = toValue();
+                    return super.assignBitAnd(memory);
+                }
+
+                @Override
+                public Memory assignBitAnd(long memory) {
+                    value = toValue();
+                    return super.assignBitAnd(memory);
+                }
+
+                @Override
+                public Memory assignBitAnd(double memory) {
+                    value = toValue();
+                    return super.assignBitAnd(memory);
+                }
+
+                @Override
+                public Memory assignBitAnd(boolean memory) {
+                    value = toValue();
+                    return super.assignBitAnd(memory);
+                }
+
+                @Override
+                public Memory assignBitAnd(String memory) {
+                    value = toValue();
+                    return super.assignBitAnd(memory);
+                }
+
+                @Override
+                public Memory assignBitAndRight(Memory memory) {
+                    value = toValue();
+                    return super.assignBitAndRight(memory);
+                }
+
+                @Override
+                public Memory assignBitOr(Memory memory) {
+                    value = toValue();
+                    return super.assignBitOr(memory);
+                }
+
+                @Override
+                public Memory assignBitOr(long memory) {
+                    value = toValue();
+                    return super.assignBitOr(memory);
+                }
+
+                @Override
+                public Memory assignBitOr(double memory) {
+                    value = toValue();
+                    return super.assignBitOr(memory);
+                }
+
+                @Override
+                public Memory assignBitOr(boolean memory) {
+                    value = toValue();
+                    return super.assignBitOr(memory);
+                }
+
+                @Override
+                public Memory assignBitOr(String memory) {
+                    value = toValue();
+                    return super.assignBitOr(memory);
+                }
+
+                @Override
+                public Memory assignBitOrRight(Memory memory) {
+                    value = toValue();
+                    return super.assignBitOrRight(memory);
+                }
+
+                @Override
+                public Memory assignBitXor(Memory memory) {
+                    value = toValue();
+                    return super.assignBitXor(memory);
+                }
+
+                @Override
+                public Memory assignBitXor(long memory) {
+                    value = toValue();
+                    return super.assignBitXor(memory);
+                }
+
+                @Override
+                public Memory assignBitXor(double memory) {
+                    value = toValue();
+                    return super.assignBitXor(memory);
+                }
+
+                @Override
+                public Memory assignBitXor(boolean memory) {
+                    value = toValue();
+                    return super.assignBitXor(memory);
+                }
+
+                @Override
+                public Memory assignBitXor(String memory) {
+                    value = toValue();
+                    return super.assignBitXor(memory);
+                }
+
+                @Override
+                public Memory assignBitXorRight(Memory memory) {
+                    value = toValue();
+                    return super.assignBitXorRight(memory);
+                }
+
+                @Override
+                public Memory toValue() {
+                    return ObjectMemory.this.valueOfIndex(trace, index);
+                }
+
+                @Override
+                public ReferenceMemory getReference() {
+                    Memory ret = toValue();
+                    if (ret instanceof ReferenceMemory)
+                        return (ReferenceMemory)ret;
+                    else
+                        return new ReferenceMemory();
+                }
+
+                @Override
+                public Memory toImmutable() {
+                    return toValue().toImmutable();
+                }
+
+                @Override
+                public Memory inc() {
+                    return toValue().inc();
+                }
+
+                @Override
+                public Memory dec() {
+                    return toValue().dec();
+                }
+            };
+        } else {
+            invalidUseAsArray(trace);
+            return new ReferenceMemory();
+        }
+    }
+
+    @Override
+    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) {
+        return refOfIndex(trace, index);
+    }
+
+    @Override
+    public Memory refOfIndex(TraceInfo trace, long index) {
+        return refOfIndex(trace, LongMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory refOfIndex(TraceInfo trace, double index) {
+        return refOfIndex(trace, DoubleMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory refOfIndex(TraceInfo trace, String index) {
+        return refOfIndex(trace,StringMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory refOfIndex(TraceInfo trace, boolean index) {
+        return refOfIndex(trace, index ? TRUE : FALSE);
+    }
+
+    @Override
+    public Memory refOfPush(TraceInfo trace) {
+        if (value instanceof ArrayAccess){
+            return refOfIndex(trace, NULL);
+        } else {
+            invalidUseAsArray(trace);
+            return new ReferenceMemory();
+        }
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, Memory index) {
+        if (value instanceof ArrayAccess){
+            Environment env = value.getEnvironment();
+            if (env != null && trace != null){
+                Memory[] args = new Memory[] { index };
+                env.pushCall(value, "offsetGet", args);
+                try {
+                    return ((ArrayAccess) value).offsetGet(env, args);
+                } finally {
+                    env.popCall();
+                }
+            } else {
+                invalidUseAsArray(trace);
+                return NULL;
+            }
+        } else {
+            invalidUseAsArray(trace);
+            return NULL;
+        }
+    }
+
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, boolean index) {
+        return valueOfIndex(trace, TrueMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, long index) {
+        return valueOfIndex(trace, LongMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, double index) {
+        return valueOfIndex(trace, DoubleMemory.valueOf(index));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, String index) {
+        return valueOfIndex(trace, StringMemory.valueOf(index));
+    }
+
+    @Override
+    public void unsetOfIndex(TraceInfo trace, Memory index) {
+        if (value instanceof ArrayAccess){
+            Environment env = value.getEnvironment();
+            if (env != null && trace != null){
+                Memory[] args = new Memory[]{index};
+                env.pushCall(value, "offsetUnset", args);
+                try {
+                    ((ArrayAccess) value).offsetUnset(env, args);
+                } finally {
+                    env.popCall();
+                }
+            } else
+                invalidUseAsArray(trace);
+        } else
+            invalidUseAsArray(trace);
+    }
+
+    @Override
+    public Memory emptyOfIndex(TraceInfo trace, Memory index) {
+        return issetOfIndex(trace, index, true);
+    }
+
+    @Override
+    public Memory issetOfIndex(TraceInfo trace, Memory index) {
+        return issetOfIndex(trace, index, false);
+    }
+
+    private Memory issetOfIndex(TraceInfo trace, Memory index, boolean asEmpty) {
+        if (value instanceof ArrayAccess){
+            Environment env = value.getEnvironment();
+            if (env != null && trace != null){
+                Memory[] args = new Memory[]{index};
+                env.pushCall(value, "offsetExists", args);
+                try {
+                    if (((ArrayAccess) value).offsetExists(env, args).toBoolean())
+                        return asEmpty ? valueOfIndex(trace, index) : TRUE;
+                    else
+                        return NULL;
+                } finally {
+                    env.popCall();
+                }
+            } else {
+                invalidUseAsArray(trace);
+                return NULL;
+            }
+        } else {
+            invalidUseAsArray(trace);
+            return NULL;
         }
     }
 }

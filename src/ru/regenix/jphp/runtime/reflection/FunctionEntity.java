@@ -74,13 +74,8 @@ public class FunctionEntity extends AbstractFunctionEntity {
     }
 
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
-        Memory result = null;
         try {
-            result = (Memory)nativeMethod.invoke(null, env, arguments);
-            if (!isReturnReference())
-                return result.toImmutable();
-            else
-                return result;
+            return (Memory)nativeMethod.invoke(null, env, arguments);
         } catch (InvocationTargetException e){
             throw e.getTargetException();
         } finally {

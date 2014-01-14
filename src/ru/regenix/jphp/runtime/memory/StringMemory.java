@@ -1,6 +1,7 @@
 package ru.regenix.jphp.runtime.memory;
 
 import ru.regenix.jphp.runtime.OperatorUtils;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.support.Memory;
 
 public class StringMemory extends Memory {
@@ -467,7 +468,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(Memory index) {
+    public Memory valueOfIndex(TraceInfo trace, Memory index) {
         int _index = -1;
 
         switch (index.type){
@@ -488,7 +489,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(long index) {
+    public Memory valueOfIndex(TraceInfo trace, long index) {
         int _index = (int)index;
         String string = toString();
         if (_index >= 0 && _index < string.length())
@@ -498,7 +499,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(double index) {
+    public Memory valueOfIndex(TraceInfo trace, double index) {
         int _index = (int)index;
         String string = toString();
         if (_index >= 0 && _index < string.length())
@@ -508,7 +509,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(boolean index) {
+    public Memory valueOfIndex(TraceInfo trace, boolean index) {
         int _index = index ? 1 : 0;
         String string = toString();
         if (_index >= 0 && _index < string.length())
@@ -518,7 +519,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(String index) {
+    public Memory valueOfIndex(TraceInfo trace, String index) {
         int _index = -1;
 
         Memory tmp = StringMemory.toLong(index);

@@ -11,10 +11,7 @@ import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.DecExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.DynamicAccessAssignExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.DynamicAccessExprToken;
-import ru.regenix.jphp.tokenizer.token.expr.operator.IncExprToken;
+import ru.regenix.jphp.tokenizer.token.expr.operator.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
@@ -89,13 +86,17 @@ public class ASMExpression {
                 if (!operator.isValidAssociation())
                     unexpectedToken(operator);
 
-                if ((el instanceof IncExprToken || el instanceof DecExprToken)
-                        && prev.getClass() == DynamicAccessExprToken.class){
-                    DynamicAccessAssignExprToken newAssign
-                            = new DynamicAccessAssignExprToken((DynamicAccessExprToken)prev);
-                    newAssign.setAssignOperator(el);
-                    result.set(i - 1, newAssign);
-                    result.set(i, null);
+                if (el instanceof IncExprToken || el instanceof DecExprToken){
+                    if (prev.getClass() == DynamicAccessExprToken.class){
+                        DynamicAccessAssignExprToken newAssign
+                                = new DynamicAccessAssignExprToken((DynamicAccessExprToken)prev);
+                        newAssign.setAssignOperator(el);
+                        result.set(i - 1, newAssign);
+                        result.set(i, null);
+                    } else if (prev.getClass() == ArrayGetExprToken.class){
+                        ArrayGetRefExprToken newAssign = new ArrayGetRefExprToken((ArrayGetExprToken)prev);
+                        result.set(i - 1, newAssign);
+                    }
                 }
 
                 if (operator.isBinary()){

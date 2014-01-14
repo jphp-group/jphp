@@ -83,6 +83,8 @@ final public class Messages {
 
     public final static Item ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC = new Item("Accessing static property %s::$%s as non static");
 
+    public final static Item ERR_CANNOT_USE_OBJECT_AS_ARRAY = new Item("Cannot use object %s as array");
+
     public static class Item {
         private String message;
         public Item(String message){

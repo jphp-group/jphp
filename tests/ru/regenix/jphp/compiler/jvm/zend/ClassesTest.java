@@ -385,4 +385,13 @@ public class ClassesTest extends JvmCompilerCase {
 
         check("zend/classes/visibility_005.php", true);
     }
+
+    @Test
+    public void testArrayAccess(){
+        check("zend/classes/array_access_001.php");
+        check("zend/classes/array_access_002.php");
+        check("zend/classes/array_access_003.php");
+        check("zend/classes/array_access_004.php");
+        //check("zend/classes/array_access_005.php");
+    }
 }

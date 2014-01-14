@@ -168,20 +168,48 @@ abstract public class Memory {
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
     public boolean isReference() { return false; }
     // <value>[index]
-    public Memory valueOfIndex(Memory index) { return NULL; }
-    public Memory valueOfIndex(long index) { return NULL; }
-    public Memory valueOfIndex(double index) { return NULL; }
-    public Memory valueOfIndex(String index) { return NULL; }
-    public Memory valueOfIndex(boolean index) { return NULL; }
 
-    public Memory refOfIndex(Memory index) { return NULL; }
-    public Memory refOfIndexAsShortcut(Memory index) { return refOfIndex(index); }
-    public Memory refOfIndex(long index) { return NULL; }
-    public Memory refOfIndex(double index) { return NULL; }
-    public Memory refOfIndex(String index) { return NULL; }
-    public Memory refOfIndex(boolean index) { return NULL; }
-    public Memory refOfPush() { return new ReferenceMemory(); }
-    public void unsetOfIndex(Memory index) { }
+    final public Memory valueOfIndex(Memory index) { return valueOfIndex(null, index); }
+    public Memory valueOfIndex(TraceInfo trace, Memory index) { return NULL; }
+
+    public Memory valueOfIndex(TraceInfo trace, long index) { return NULL; }
+    final public Memory valueOfIndex(long index) { return valueOfIndex(null, index); }
+
+    public Memory valueOfIndex(TraceInfo trace, double index) { return NULL; }
+    final public Memory valueOfIndex(double index) { return valueOfIndex(null, index); }
+
+    public Memory valueOfIndex(TraceInfo trace, String index) { return NULL; }
+    final public Memory valueOfIndex(String index) { return valueOfIndex(null, index); }
+
+    public Memory valueOfIndex(TraceInfo trace, boolean index) { return NULL; }
+    final public Memory valueOfIndex(boolean index) { return valueOfIndex(null, index); }
+
+    final public Memory refOfIndex(Memory index){
+        return refOfIndex(null, index);
+    }
+
+    public Memory refOfIndex(TraceInfo trace, Memory index) {
+        return NULL;
+    }
+    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) { return refOfIndex(trace, index); }
+
+    public Memory refOfIndex(TraceInfo trace, long index) { return NULL; }
+    final public Memory refOfIndex(long index) { return refOfIndex(null, index); }
+
+    public Memory refOfIndex(TraceInfo trace, double index) { return NULL; }
+    final public Memory refOfIndex(double index) { return refOfIndex(null, index); }
+
+    public Memory refOfIndex(TraceInfo trace, String index) { return NULL; }
+    final public Memory refOfIndex(String index) { return refOfIndex(null, index); }
+
+    public Memory refOfIndex(TraceInfo trace, boolean index) { return NULL; }
+    final public Memory refOfIndex(boolean index) { return refOfIndex(null, index); }
+
+    public Memory refOfPush(TraceInfo trace) { return new ReferenceMemory(); }
+    final public Memory refOfPush() { return refOfPush(null); }
+    public void unsetOfIndex(TraceInfo trace, Memory index) { }
+    public Memory issetOfIndex(TraceInfo trace, Memory index) { return NULL; }
+    public Memory emptyOfIndex(TraceInfo trace, Memory index) { return issetOfIndex(trace, index); }
 
     // INC DEC
     abstract public Memory inc();

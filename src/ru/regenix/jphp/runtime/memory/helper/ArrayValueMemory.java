@@ -1,5 +1,6 @@
 package ru.regenix.jphp.runtime.memory.helper;
 
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.memory.ArrayMemory;
 import ru.regenix.jphp.runtime.memory.ReferenceMemory;
 import ru.regenix.jphp.runtime.memory.support.Memory;
@@ -57,45 +58,45 @@ public class ArrayValueMemory extends ReferenceMemory {
     }
 
     @Override
-    public Memory refOfPush() {
+    public Memory refOfPush(TraceInfo trace) {
         ArrayMemory dup = array.checkCopied();
         if (dup != null) return dup.get(key).refOfPush();
-        return super.refOfPush();
+        return super.refOfPush(trace);
     }
 
     @Override
-    public Memory refOfIndex(Memory index) {
+    public Memory refOfIndex(TraceInfo trace, Memory index) {
         ArrayMemory dup = array.checkCopied();
         if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(index);
+        return super.refOfIndex(trace, index);
     }
 
     @Override
-    public Memory refOfIndex(long index) {
+    public Memory refOfIndex(TraceInfo trace, long index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(index);
+        if (dup != null) return dup.get(key).refOfIndex(trace, index);
+        return super.refOfIndex(trace, index);
     }
 
     @Override
-    public Memory refOfIndex(double index) {
+    public Memory refOfIndex(TraceInfo trace, double index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(index);
+        if (dup != null) return dup.get(key).refOfIndex(trace, index);
+        return super.refOfIndex(trace, index);
     }
 
     @Override
-    public Memory refOfIndex(String index) {
+    public Memory refOfIndex(TraceInfo trace, String index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(index);
+        if (dup != null) return dup.get(key).refOfIndex(trace, index);
+        return super.refOfIndex(trace, index);
     }
 
     @Override
-    public Memory refOfIndex(boolean index) {
+    public Memory refOfIndex(TraceInfo trace, boolean index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(index);
+        if (dup != null) return dup.get(key).refOfIndex(trace, index);
+        return super.refOfIndex(trace, index);
     }
 
     @Override

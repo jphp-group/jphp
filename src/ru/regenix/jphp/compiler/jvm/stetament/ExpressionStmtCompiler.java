@@ -541,7 +541,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writeExpression(getVar.getName(), true, false);
         writePopBoxing();
 
-        writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, Memory.class);
+        writeSysDynamicCall(Memory.class, "refOfIndex", Memory.class, Memory.class);
         if (!returnValue)
             writePopAll(1);
     }
@@ -1371,7 +1371,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (methodStatement.isDynamicLocal()){ // ref-local variables
                 writePushLocal();
                 writePushConstString(value.getName());
-                writeSysDynamicCall(ArrayMemory.class, "refOfIndex", Memory.class, String.class);
+                writeSysDynamicCall(Memory.class, "refOfIndex", Memory.class, String.class);
                 makeVarStore(variable);
                 stackPop();
 
@@ -1476,8 +1476,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
-    void writePushTraceInfo(Token token){
-        writePushTraceInfo(token.getMeta().getStartLine(), token.getMeta().getStartPosition());
+    int writePushTraceInfo(Token token){
+        return writePushTraceInfo(token.getMeta().getStartLine(), token.getMeta().getStartPosition());
     }
 
     void writePushGetFromArray(int index, Class clazz){
@@ -1494,10 +1494,19 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPush(null, StackItem.Type.INT);
     }
 
-    void writePushTraceInfo(int line, int position){
+    int createTraceInfo(Token token){
+        return method.clazz.addTraceInfo(token);
+    }
+
+    int writePushTraceInfo(int line, int position){
         int index = method.clazz.addTraceInfo(line, position);
+        writePushTraceInfo(index);
+        return index;
+    }
+
+    void writePushTraceInfo(int traceIndex){
         writeGetStatic("$TRC", TraceInfo[].class);
-        writePushGetFromArray(index, TraceInfo.class);
+        writePushGetFromArray(traceIndex, TraceInfo.class);
     }
 
     void writePushCreateTraceInfo(int line, int position){
@@ -2421,24 +2430,34 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int i = 0;
         int size = operator.getParameters().size();
 
+        int traceIndex = createTraceInfo(operator);
         for(ExprStmtToken param : operator.getParameters()){
+            writePushTraceInfo(traceIndex); // push dup trace
             writeExpression(param, true, false);
             if (operator instanceof ArrayGetUnsetExprToken && i == size - 1){
                 writePopBoxing();
-                methodName = "unsetOfIndex";
-                writeSysDynamicCall(Memory.class, methodName, void.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, "unsetOfIndex", void.class, TraceInfo.class, stackPeek().type.toClass());
                 if (returnValue)
                     writePushNull();
+            } else if (operator instanceof ArrayGetIssetExprToken && i == size - 1){
+                writePopBoxing();
+                writeSysDynamicCall(Memory.class, "issetOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
+            } else if (operator instanceof ArrayGetEmptyExprToken && i == size - 1){
+                writePopBoxing();
+                writeSysDynamicCall(Memory.class, "emptyOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
             } else {
                 // PHP CMP: $hack = &$arr[0];
+                boolean isMemory = stackPeek().type.toClass() == Memory.class;
+                //if (isMemory)
                 if (compiler.isPhpMode()){
                     if (i == size - 1 && isShortcut){
                         writePopBoxing();
-                        writeSysDynamicCall(Memory.class, methodName + "AsShortcut", Memory.class, Memory.class);
+                        writeSysDynamicCall(Memory.class, methodName + "AsShortcut", Memory.class, TraceInfo.class, Memory.class);
                         continue;
                     }
                 }
-                writeSysDynamicCall(Memory.class, methodName, Memory.class, stackPeek().type.toClass());
+
+                writeSysDynamicCall(Memory.class, methodName, Memory.class, TraceInfo.class, stackPeek().type.toClass());
                 i++;
             }
         }
@@ -3247,7 +3266,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     void.class,
                     Memory.class, Environment.class, TraceInfo.class
             );
-        }
+        } else
+            writePopImmutable();
 
         code.add(new InsnNode(ARETURN));
         //removeStackFrame();
@@ -3378,7 +3398,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNull();
             }
             writePopBoxing(true);
-            writeSysDynamicCall(isClosure ? null : Environment.class, "getOrCreateStatic", Memory.class, String.class, Memory.class);
+            writeSysDynamicCall(isClosure ? null : Environment.class, "getOrCreateStatic",
+                    Memory.class,
+                    String.class, Memory.class);
 
         code.add(end);
         writeVarStore(local, false, false);

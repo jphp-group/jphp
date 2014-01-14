@@ -3,6 +3,7 @@ package ru.regenix.jphp.runtime.memory;
 import ru.regenix.jphp.exceptions.RecursiveException;
 import ru.regenix.jphp.lib.collections.map.LinkedMap;
 import ru.regenix.jphp.runtime.env.Environment;
+import ru.regenix.jphp.runtime.env.TraceInfo;
 import ru.regenix.jphp.runtime.lang.ForeachIterator;
 import ru.regenix.jphp.runtime.lang.StdClass;
 import ru.regenix.jphp.runtime.lang.spl.Traversable;
@@ -918,7 +919,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public Memory valueOfIndex(Memory index) {
+    public Memory valueOfIndex(TraceInfo trace, Memory index) {
         switch (index.getRealType()){
             case OBJECT:
             case ARRAY: return UNDEFINED; // TODO ADD WARNING
@@ -928,43 +929,49 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public Memory valueOfIndex(long index) {
+    public Memory valueOfIndex(TraceInfo trace, long index) {
         Memory e = getByScalar(LongMemory.valueOf(index));
         return e == null ? UNDEFINED : e;
     }
 
     @Override
-    public Memory valueOfIndex(double index) {
+    public Memory valueOfIndex(TraceInfo trace, double index) {
         Memory e = getByScalar(LongMemory.valueOf((long) index));
         return e == null ? UNDEFINED : e;
     }
 
     @Override
-    public Memory valueOfIndex(boolean index) {
+    public Memory valueOfIndex(TraceInfo trace, boolean index) {
         Memory e = getByScalar(index ? CONST_INT_0 : CONST_INT_1);
         return e == null ? UNDEFINED : e;
     }
 
     @Override
-    public Memory valueOfIndex(String index) {
+    public Memory valueOfIndex(TraceInfo trace, String index) {
         Memory e = getByScalar(index);
         return e == null ? UNDEFINED : e;
     }
 
     @Override
-    public void unsetOfIndex(Memory index) {
+    public void unsetOfIndex(TraceInfo trace, Memory index) {
         checkCopied();
         remove(index);
     }
 
     @Override
-    public Memory refOfPush(){
+    public Memory issetOfIndex(TraceInfo trace, Memory index) {
+        Memory value = get(index);
+        return value == null ? NULL : value;
+    }
+
+    @Override
+    public Memory refOfPush(TraceInfo trace){
         checkCopied();
         return add(UNDEFINED);
     }
 
     @Override
-    public Memory refOfIndexAsShortcut(Memory index) {
+    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) {
         switch (index.getRealType()){
             case OBJECT:
             case ARRAY: return new ReferenceMemory(); // TODO ADD WARNING
@@ -974,7 +981,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public Memory refOfIndex(Memory index) {
+    public Memory refOfIndex(TraceInfo trace, Memory index) {
         switch (index.getRealType()){
             case OBJECT:
             case ARRAY: return new ReferenceMemory(); // TODO ADD WARNING
@@ -984,24 +991,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
-    public Memory refOfIndex(long index) {
+    public Memory refOfIndex(TraceInfo trace, long index) {
         checkCopied();
         return getOrCreate(LongMemory.valueOf(index));
     }
 
     @Override
-    public Memory refOfIndex(double index) {
-        return refOfIndex(LongMemory.valueOf((long) index));
+    public Memory refOfIndex(TraceInfo trace, double index) {
+        return refOfIndex(null, LongMemory.valueOf((long) index));
     }
 
     @Override
-    public Memory refOfIndex(boolean index) {
+    public Memory refOfIndex(TraceInfo trace, boolean index) {
         checkCopied();
         return getOrCreate(index ? CONST_INT_1 : CONST_INT_0);
     }
 
     @Override
-    public Memory refOfIndex(String index) {
+    public Memory refOfIndex(TraceInfo trace, String index) {
         checkCopied();
         Memory number = StringMemory.toLong(index);
         return number == null ? getByScalarOrCreate(index) : getByScalarOrCreate(number);
@@ -1214,7 +1221,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         ArrayMemory props = stdClass.getProperties();
         ForeachIterator iterator = getNewIterator(env, false, false);
         while (iterator.next()){
-            props.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+            props.refOfIndex(null, iterator.getMemoryKey()).assign(iterator.getValue());
         }
 
         return new ObjectMemory(stdClass);

@@ -390,7 +390,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         while (next instanceof VariableExprToken){
             VariableExprToken variable = (VariableExprToken)next;
 
-            analyzer.addLocalScope().add(variable);
+            analyzer.getLocalScope().add(variable);
             if (analyzer.getFunction() != null){
                 analyzer.getFunction().getRefLocal().add(variable);
                 analyzer.getFunction().getUnstableLocal().add(variable);
@@ -401,22 +401,17 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.setVariable((VariableExprToken)next);
             next = nextToken(iterator);
             if (next instanceof AssignExprToken){
-                ExprStmtToken initValue = analyzer.generator(SimpleExprGenerator.class).getToken(
+                ExprStmtToken initValue = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                         nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null
                 );
                 result.setInitValue(initValue);
                 list.add(result);
-            } else if (next instanceof SemicolonToken){
+            } else if (isBreak(next)){
                 result.setInitValue(null);
                 list.add(result);
+                break;
             } else
                 unexpectedToken(next);
-
-            next = iterator.previous();
-            if (!(next instanceof CommaToken)) {
-                break;
-            }
-            iterator.next();
 
             next = nextToken(iterator);
         }
