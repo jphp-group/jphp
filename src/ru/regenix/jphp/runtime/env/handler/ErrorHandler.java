@@ -42,7 +42,7 @@ public class ErrorHandler {
             invoker.pushCall(trace, args);
             try {
                 invoker.setTrace(null);
-                return (invoker.call(args).toBoolean());
+                return (invoker.call(args).toValue() != Memory.FALSE);
             } catch (ErrorException e){
                 throw e;
             } catch (BaseException e){

@@ -18,4 +18,4 @@ echo "Done.3\n";
 Done.1
 Done.2
 
-Recoverable error: Argument 1 passed to test() must be of the type number, string given in %s on line %d, position %d
+Recoverable error: Argument 1 passed to test() must be of the type number, string given, called in %s on line %d, position %d and defined in %s on line 5, position %d

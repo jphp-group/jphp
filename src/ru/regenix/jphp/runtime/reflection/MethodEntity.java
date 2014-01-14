@@ -171,6 +171,18 @@ public class MethodEntity extends AbstractFunctionEntity {
         return modifier;
     }
 
+    public boolean isPublic(){
+        return modifier == Modifier.PUBLIC;
+    }
+
+    public boolean isProtected(){
+        return modifier == Modifier.PROTECTED;
+    }
+
+    public boolean isPrivate(){
+        return modifier == Modifier.PRIVATE;
+    }
+
     public void setModifier(Modifier modifier) {
         this.modifier = modifier;
     }
@@ -258,6 +270,28 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public boolean equalsBySignature(MethodEntity method){
         return getSignature().equals(method.getSignature());
+    }
+
+    public boolean equalsByHintTypingSignature(MethodEntity method){
+        if (parameters == null || method.parameters == null)
+            return true;
+
+        int i = 0;
+        for(ParameterEntity param : parameters){
+            if (i >= method.parameters.length)
+                break;
+
+            ParameterEntity other = method.parameters[i];
+            if (param.getTypeClass() != null){
+                if (other.getTypeClass() == null || !other.getTypeClassLower().equals(param.getTypeClassLower()))
+                    return false;
+            } else if (param.getType() != HintType.ANY){
+                if (other.getType() != param.getType())
+                    return false;
+            }
+            i++;
+        }
+        return true;
     }
 
     /**

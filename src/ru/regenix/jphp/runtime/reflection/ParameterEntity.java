@@ -64,6 +64,10 @@ public class ParameterEntity extends Entity {
         return typeClass;
     }
 
+    public String getTypeClassLower() {
+        return typeClassLower;
+    }
+
     public void setType(HintType type) {
         this.type = type == null ? HintType.ANY : type;
     }
@@ -84,7 +88,7 @@ public class ParameterEntity extends Entity {
         }
     }
 
-    public boolean checkTypeHinting(Environment env, Memory value, boolean objectsCanNulls){
+    public boolean checkTypeHinting(Environment env, Memory value){
         if (type != HintType.ANY && type != null){
             switch (type){
                 case SCALAR:
@@ -101,7 +105,10 @@ public class ParameterEntity extends Entity {
                 case INT: return value.getRealType() == Memory.Type.INT;
                 case STRING: return value.isString();
                 case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
-                case ARRAY: return value.isArray();
+                case ARRAY:
+                    if (defaultValue != null && defaultValue.isNull() && value.isNull())
+                        return true;
+                    return value.isArray();
                 case CALLABLE:
                     Invoker invoker = Invoker.valueOf(env, null, value);
                     return invoker != null && invoker.canAccess(env) == 0;
@@ -109,7 +116,7 @@ public class ParameterEntity extends Entity {
                     return true;
             }
         } else if (typeClass != null) {
-            if (objectsCanNulls && value.isNull())
+            if (defaultValue != null && defaultValue.isNull() && value.isNull())
                 return true;
 
             if (!value.isObject())
@@ -148,9 +155,18 @@ public class ParameterEntity extends Entity {
     }
 
     public String getSignatureString(){
-        return (type == HintType.ANY ? "" : type.toString() + " ")
-                + (isReference ? "&" : "")
-                    + ("$" + name);
+        StringBuilder sb = new StringBuilder();
+        if (typeClass != null)
+            sb.append(typeClass).append(" ");
+        else if (type != HintType.ANY){
+            sb.append(type.toString()).append(" ");
+        }
+
+        if (isReference)
+            sb.append("&");
+
+        sb.append("$").append(name);
+        return sb.toString();
     }
 
     @Override

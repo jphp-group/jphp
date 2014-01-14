@@ -100,11 +100,13 @@ public class ObjectMemory extends Memory {
             );
             try {
                 Memory result = entity.methodMagicToString.invokeDynamic(value, env, null);
-                if (!result.isString())
+                if (!result.isString()){
                     env.error(
-                            ErrorType.E_RECOVERABLE_ERROR, "Methods %s must return a string value",
+                            ErrorType.E_RECOVERABLE_ERROR, "Method %s must return a string value",
                             entity.methodMagicToString.getSignatureString(false)
                     );
+                    return "";
+                }
                 return result.toString();
             } catch (RuntimeException e) {
                 throw e;
@@ -394,9 +396,11 @@ public class ObjectMemory extends Memory {
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 private ForeachIterator child;
                 private ClassEntity reflection;
+                private ClassEntity context;
 
                 @Override
                 protected boolean init() {
+                    context = env.getLastClassOnStack();
                     reflection = value.getReflection();
                     child = value.getProperties().foreachIterator(getReferences, getKeyReferences);
                     return true;
@@ -414,17 +418,20 @@ public class ObjectMemory extends Memory {
                             int pos = keyS.lastIndexOf('\0');
                             if (pos > -1) keyS = keyS.substring(pos + 1);
 
-                            PropertyEntity entity = reflection.properties.get(keyS);
-                            if (entity == null || entity.getModifier() == Modifier.PUBLIC)
+                            PropertyEntity entity = reflection.isInstanceOf(context)
+                                    ? context.properties.get(keyS) : reflection.properties.get(keyS);
+
+                            int accessFlag = entity == null ? 0 : entity.canAccess(env);
+                            if (accessFlag == 0){
+                                currentKey = entity == null ? keyS : entity.getName();
                                 break;
-                            else
+                            } else
                                 continue;
                         }
                         break;
                     }
 
-
-                    currentKey = child.getKey();
+                    //currentKey = child.getKey();
                     currentValue = child.getValue();
                     return true;
                 }

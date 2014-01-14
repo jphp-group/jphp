@@ -334,4 +334,55 @@ public class ClassesTest extends JvmCompilerCase {
     public void testStaticThis(){
         check("zend/classes/static_this.php", true);
     }
+
+    @Test
+    public void testToString(){
+        check("zend/classes/tostring_001.php");
+        check("zend/classes/tostring_002.php");
+        check("zend/classes/tostring_003.php");
+        check("zend/classes/tostring_004.php");
+    }
+
+    @Test
+    public void testTypeHinting(){
+        check("zend/classes/type_hinting_001.php", true);
+        check("zend/classes/type_hinting_002.php", true);
+        check("zend/classes/type_hinting_003.php", true);
+        check("zend/classes/type_hinting_004.php", true);
+
+        check("zend/classes/type_hinting_005a.php");
+        check("zend/classes/type_hinting_005b.php");
+        check("zend/classes/type_hinting_005c.php");
+        check("zend/classes/type_hinting_005d.php");
+    }
+
+    @Test
+    public void testUnsetProperties(){
+        check("zend/classes/unset_properties.php");
+    }
+
+    @Test
+    public void testVisibility(){
+        check("zend/classes/visibility_000a.php", true);
+        check("zend/classes/visibility_000b.php", true);
+        check("zend/classes/visibility_000c.php", true);
+
+        check("zend/classes/visibility_001a.php", true);
+        check("zend/classes/visibility_001b.php", true);
+        check("zend/classes/visibility_001c.php", true);
+
+        check("zend/classes/visibility_002a.php", true);
+        check("zend/classes/visibility_002b.php", true);
+        check("zend/classes/visibility_002c.php", true);
+
+        check("zend/classes/visibility_003a.php", true);
+        check("zend/classes/visibility_003b.php", true);
+        check("zend/classes/visibility_003c.php", true);
+
+        check("zend/classes/visibility_004a.php", true);
+        check("zend/classes/visibility_004b.php", true);
+        check("zend/classes/visibility_004c.php", true);
+
+        check("zend/classes/visibility_005.php", true);
+    }
 }

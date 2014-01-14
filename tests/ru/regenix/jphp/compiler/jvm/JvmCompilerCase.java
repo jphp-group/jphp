@@ -175,6 +175,8 @@ abstract public class JvmCompilerCase {
 
         try {
             environment.doFinal();
+        } catch (RuntimeException e){
+            throw e;
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

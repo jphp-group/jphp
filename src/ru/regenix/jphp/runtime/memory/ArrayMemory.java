@@ -919,6 +919,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public Memory valueOfIndex(Memory index) {
+        switch (index.getRealType()){
+            case OBJECT:
+            case ARRAY: return UNDEFINED; // TODO ADD WARNING
+        }
         Memory e = get(index);
         return e == null ? UNDEFINED : e;
     }
@@ -961,12 +965,20 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public Memory refOfIndexAsShortcut(Memory index) {
+        switch (index.getRealType()){
+            case OBJECT:
+            case ARRAY: return new ReferenceMemory(); // TODO ADD WARNING
+        }
         checkCopied();
         return getOrCreateAsShortcut(index);
     }
 
     @Override
     public Memory refOfIndex(Memory index) {
+        switch (index.getRealType()){
+            case OBJECT:
+            case ARRAY: return new ReferenceMemory(); // TODO ADD WARNING
+        }
         checkCopied();
         return getOrCreate(index);
     }

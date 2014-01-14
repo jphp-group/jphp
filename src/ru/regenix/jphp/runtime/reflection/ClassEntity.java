@@ -316,7 +316,7 @@ public class ClassEntity extends Entity {
                     method.setPrototype(systemMethod);
 
                 if (systemMethod.getModifier() == Modifier.PUBLIC && method.getModifier() != Modifier.PUBLIC){
-                    addResult.mustBePublic.add(InvalidMethod.warning(method));
+                    addResult.magicMustBePublic.add(InvalidMethod.warning(method));
                     method.setModifier(Modifier.PUBLIC);
                 }
 
@@ -387,7 +387,7 @@ public class ClassEntity extends Entity {
                     result.mustStatic.addAll(addResult.mustStatic);
                     result.mustNonStatic.addAll(addResult.mustNonStatic);
                     result.nonExists.addAll(addResult.nonExists);
-                    result.mustBePublic.addAll(addResult.mustBePublic);
+                    result.magicMustBePublic.addAll(addResult.magicMustBePublic);
                 } else {
                     implMethod.setPrototype(method);
                     if (method.isFinal)
@@ -417,6 +417,11 @@ public class ClassEntity extends Entity {
                     } else if (!implMethod.isStatic() && method.isStatic()){
                         result.mustStatic.add(InvalidMethod.error(implMethod));
                     }
+
+                    if (method.isPublic() && !implMethod.isPublic())
+                        result.mustBePublic.add(InvalidMethod.error(implMethod));
+                    else if (method.isProtected() && implMethod.isPrivate())
+                        result.mustBeProtected.add(InvalidMethod.error(implMethod));
                 }
             }
             doneDeclare();
@@ -559,9 +564,9 @@ public class ClassEntity extends Entity {
             }
 
             if (prototype == null)
-                prototype = properties.get(property.getLowerName());
+                prototype = properties.get(property.getName());
 
-            staticProperties.put(property.getLowerName(), property);
+            staticProperties.put(property.getName(), property);
         } else {
             prototype = properties.get(property.getLowerName());
             if (prototype != null && prototype.getModifier() != property.getModifier()){
@@ -569,9 +574,9 @@ public class ClassEntity extends Entity {
             }
 
             if (prototype == null)
-                prototype = staticProperties.get(property.getLowerName());
+                prototype = staticProperties.get(property.getName());
 
-            properties.put(property.getLowerName(), property);
+            properties.put(property.getName(), property);
         }
 
         if (prototype != null){
@@ -1094,7 +1099,7 @@ public class ClassEntity extends Entity {
             Memory result;
             if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() ){
                 if (env.peekCall(0).flags == FLAG_ISSET){
-                    return object.getProperties().getByScalar(property) == null ? Memory.TRUE : Memory.NULL;
+                    return object.getProperties().getByScalar(property) != null ? Memory.TRUE : Memory.NULL;
                 }
             }
             try {
@@ -1133,7 +1138,7 @@ public class ClassEntity extends Entity {
 
             if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() )
                 if (env.peekCall(0).flags == FLAG_ISSET){
-                    return object.getProperties().getByScalar(property) == null ? Memory.TRUE : Memory.NULL;
+                    return object.getProperties().getByScalar(property) != null ? Memory.TRUE : Memory.NULL;
             }
 
             try {
@@ -1568,7 +1573,9 @@ public class ClassEntity extends Entity {
         final Set<InvalidMethod> invalidSignature;
         final Set<InvalidMethod> mustStatic;
         final Set<InvalidMethod> mustNonStatic;
+        final Set<InvalidMethod> magicMustBePublic;
         final Set<InvalidMethod> mustBePublic;
+        final Set<InvalidMethod> mustBeProtected;
         final Set<InvalidMethod> finalMethods;
         final Set<InvalidMethod> nonAbstract;
         final Set<InvalidMethod> nonAbstractable;
@@ -1581,7 +1588,7 @@ public class ClassEntity extends Entity {
             this.invalidSignature = new HashSet<InvalidMethod>();
             this.mustStatic = new HashSet<InvalidMethod>();
             this.mustNonStatic = new HashSet<InvalidMethod>();
-            this.mustBePublic = new HashSet<InvalidMethod>();
+            this.magicMustBePublic = new HashSet<InvalidMethod>();
             this.finalMethods = new HashSet<InvalidMethod>();
             this.nonAbstract = new HashSet<InvalidMethod>();
             this.nonAbstractable = new HashSet<InvalidMethod>();
@@ -1589,6 +1596,9 @@ public class ClassEntity extends Entity {
             this.finalAbstractMethods = new HashSet<InvalidMethod>();
 
             this.overrideConstants = new HashSet<InvalidConstant>();
+
+            this.mustBeProtected = new HashSet<InvalidMethod>();
+            this.mustBePublic = new HashSet<InvalidMethod>();
         }
 
         public Collection<InvalidMethod> getNonExists() {
@@ -1733,11 +1743,41 @@ public class ClassEntity extends Entity {
                     env.error(e.getTraceInfo(), el.errorType, e.getMessage());
             }
 
-            for (InvalidMethod el : mustBePublic){
+            for (InvalidMethod el : magicMustBePublic){
                 if (env != null)
                     env.error(el.method.getTrace(), el.errorType,
                             "The magic method %s must have public visibility", el.method.getSignatureString(false)
                     );
+            }
+
+            for (InvalidMethod el : mustBeProtected){
+                ErrorException e = new FatalException(
+                        Messages.ERR_ACCESS_LEVEL_METHOD_MUST_BE_PROTECTED_OR_WEAKER.fetch(
+                                el.method.clazz.getName(),
+                                el.method.getName(),
+                                el.method.getPrototype().getClazz().getName()
+                        ),
+                        el.method.getTrace()
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
+            }
+
+            for (InvalidMethod el : mustBePublic){
+                ErrorException e = new FatalException(
+                        Messages.ERR_ACCESS_LEVEL_METHOD_MUST_BE_PUBLIC.fetch(
+                                el.method.clazz.getName(),
+                                el.method.getName(),
+                                el.method.getPrototype().getClazz().getName()
+                        ),
+                        el.method.getTrace()
+                );
+                if (env == null)
+                    throw e;
+                else
+                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
             }
 
             checkItems(env, finalAbstractMethods, Messages.ERR_CANNOT_USE_FINAL_ON_ABSTRACT);

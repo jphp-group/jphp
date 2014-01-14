@@ -6,15 +6,15 @@ Basic class support - attempting to pass a class constant by reference.
   {
       const myConst = "hello";
   }
-  
+
   function f(&$a)
   {
       $a = "changed";
   }
-  
+
   f(aclass::myConst);
   var_dump(aclass::myConst);
 ?>
 --EXPECTF--
-Warning: Only variables can be passed by reference in %s on line 12 at pos %d
-string(5) "hello"
+
+Fatal error: Only variables can be passed by reference in %s on line 12, position %d

@@ -60,15 +60,15 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.NUMBER);
 
-        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 
     @Test
@@ -76,15 +76,15 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.SCALAR);
 
-        Assert.assertTrue(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertTrue(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertTrue(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertTrue(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 
     @Test
@@ -92,15 +92,15 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.INT);
 
-        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 
     @Test
@@ -108,15 +108,15 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.DOUBLE);
 
-        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 
     @Test
@@ -124,15 +124,15 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.STRING);
 
-        Assert.assertTrue(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertTrue(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 
     @Test
@@ -140,14 +140,14 @@ public class TypeHintingTest extends JvmCompilerCase {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.BOOLEAN);
 
-        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory(""), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory(), false));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL, false));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.FALSE, false));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.TRUE, false));
+        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory("")));
+        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
+        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
+        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
+        Assert.assertTrue(param.checkTypeHinting(null, Memory.FALSE));
+        Assert.assertTrue(param.checkTypeHinting(null, Memory.TRUE));
 
-        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0), false));
-        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0), false));
+        Assert.assertFalse(param.checkTypeHinting(null, new LongMemory(0)));
+        Assert.assertFalse(param.checkTypeHinting(null, new DoubleMemory(0)));
     }
 }

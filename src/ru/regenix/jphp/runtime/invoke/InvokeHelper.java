@@ -70,7 +70,7 @@ final public class InvokeHelper {
         String given;
         if (passed == null){
             given = "none";
-        } else if (passed.isObject()){
+        } else if (passed.isObject()) {
             given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
         } else {
             given = passed.getRealType().toString();
@@ -80,21 +80,38 @@ final public class InvokeHelper {
 
         if (param.getTypeClass() == null){
             env.error(
-                    trace,
+                    param.getMethod().getTrace(),
                     ErrorType.E_RECOVERABLE_ERROR,
-                    "Argument %s passed to %s() must be of the type %s, %s given",
+                    "Argument %s passed to %s() must be of the type %s, %s given, called in %s on line %d, position %d and defined",
                     index,
                     method,
-                    param.getType().toString(), given
+                    param.getType().toString(), given,
+
+                    trace.getFileName(),
+                    trace.getStartLine() + 1,
+                    trace.getStartPosition() + 1
             );
         } else {
+            ClassEntity need = env.fetchClass(param.getTypeClass(), true);
+            String what = "";
+            if (need == null || need.isClass()){
+                what = "be an instance of";
+            } else if (need.isInterface()){
+                what = "implement interface";
+            }
+
+            what = what + " " + param.getTypeClass();
             env.error(
-                    trace,
+                    param.getMethod().getTrace(),
                     ErrorType.E_RECOVERABLE_ERROR,
-                    "Argument %s passed to %s() must be an instance of %s, %s given",
+                    "Argument %s passed to %s() must %s, %s given, called in %s on line %d, position %d and defined",
                     index,
                     method,
-                    param.getTypeClass(), given
+
+                    what, given,
+                    trace.getFileName(),
+                    trace.getStartLine() + 1,
+                    trace.getStartPosition() + 1
             );
         }
     }
@@ -140,14 +157,14 @@ final public class InvokeHelper {
             } else {
                 if (param.isReference()) {
                     if (!arg.isReference() && !arg.isObject()){
-                        env.warning(trace, "Only variables can be passed by reference");
+                        env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
                         passed[i] = new ReferenceMemory(arg);
                     }
                 } else
                     passed[i] = arg.toImmutable();
             }
 
-            if (!param.checkTypeHinting(env, passed[i], arg == null)){
+            if (!param.checkTypeHinting(env, passed[i])){
                 invalidTypeHinting(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
             }
             i++;

@@ -19,4 +19,4 @@ Array
     [2] => 3
 )
 
-Recoverable error: Argument 1 passed to test() must be of the type array, integer given in %s on line %d, position %d
+Recoverable error: Argument 1 passed to test() must be of the type array, integer given, called in %s on line 8, position %d and defined in %s on line 3, position %d

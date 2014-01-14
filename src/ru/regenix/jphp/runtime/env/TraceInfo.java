@@ -48,7 +48,7 @@ public class TraceInfo {
     }
 
     public String getFileName(){
-        return fileName;
+        return fileName == null ? "Unknown" : fileName;
     }
 
     public File getFile(){

@@ -15,4 +15,4 @@ test(null, null);
 --EXPECTF--
 success.
 
-Recoverable error: Argument 1 passed to test() must be an instance of A, NULL given in %s on line %d, position %d
+Fatal error: Only variables can be passed by reference in %s on line 10, position %d
