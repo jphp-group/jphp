@@ -1,25 +1,24 @@
 package ru.regenix.jphp.compiler.jvm;
 
+import php.runtime.Memory;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.reflection.*;
+import php.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.jvm.stetament.*;
-import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.*;
+import ru.regenix.jphp.exceptions.support.ErrorType;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
-import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +30,7 @@ public class JvmCompiler extends AbstractCompiler {
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
 
-    public JvmCompiler(Environment environment, Context context) {
+    public JvmCompiler(Environment environment, Context context) throws IOException {
         this(environment, context, new SyntaxAnalyzer(environment, new Tokenizer(context)));
     }
 
@@ -185,15 +184,15 @@ public class JvmCompiler extends AbstractCompiler {
     @Override
     public ModuleEntity compile(boolean autoRegister) {
         this.classes = new ArrayList<ClassStmtCompiler>();
+        module.setInternalName("$_php_module_" + UUID.randomUUID().toString().replace("-", ""));
 
         List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());
 
-        NamespaceStmtToken namespace = new NamespaceStmtToken( TokenMeta.of(module.getModuleNamespace()) );
-        namespace.setName(new FulledNameToken( TokenMeta.of( module.getModuleNamespace() ), '\\' ));
+        NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
 
         ClassStmtToken token = new ClassStmtToken(TokenMeta.of( module.getName() ));
         token.setFinal(true);
-        token.setName(new NameToken(TokenMeta.of( module.getModuleClassName() )));
+        token.setName(new NameToken(TokenMeta.of( module.getInternalName() )));
         token.setNamespace(namespace);
 
         MethodStmtToken methodToken = new MethodStmtToken( token.getMeta() );

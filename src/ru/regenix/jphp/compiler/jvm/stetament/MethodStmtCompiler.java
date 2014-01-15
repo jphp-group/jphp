@@ -12,13 +12,13 @@ import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.helper.ClassConstantMemory;
-import ru.regenix.jphp.runtime.memory.helper.ConstantMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.reflection.ParameterEntity;
+import php.runtime.env.Environment;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.helper.ClassConstantMemory;
+import php.runtime.memory.helper.ConstantMemory;
+import php.runtime.Memory;
+import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ParameterEntity;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
@@ -380,9 +380,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             int i = 0;
             for(ArgumentStmtToken argument : statement.getArguments()){
                 parameters[i] = new ParameterEntity(compiler.getContext());
-                parameters[i].setMethod(entity);
                 parameters[i].setReference(argument.isReference());
                 parameters[i].setName(argument.getName().getName());
+                parameters[i].setTrace(argument.toTraceInfo(compiler.getContext()));
 
                 parameters[i].setType(argument.getHintType());
                 if (argument.getHintTypeClass() != null)

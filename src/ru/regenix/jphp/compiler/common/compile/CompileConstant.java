@@ -1,7 +1,7 @@
 package ru.regenix.jphp.compiler.common.compile;
 
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
+import php.runtime.Memory;
+import php.runtime.memory.support.MemoryUtils;
 
 public class CompileConstant {
     public final String name;

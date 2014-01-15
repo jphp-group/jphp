@@ -1,7 +1,7 @@
 package ru.regenix.jphp.tokenizer.token.expr.operator.cast;
 
-import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.memory.LongMemory;
+import php.runtime.Memory;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
 

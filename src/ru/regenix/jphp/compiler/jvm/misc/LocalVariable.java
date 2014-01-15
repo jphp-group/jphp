@@ -1,7 +1,7 @@
 package ru.regenix.jphp.compiler.jvm.misc;
 
 import org.objectweb.asm.tree.LabelNode;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.Memory;
 
 import java.util.ArrayList;
 import java.util.List;

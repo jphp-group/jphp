@@ -7,14 +7,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.FunctionStmtToken;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -25,8 +26,8 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     private Environment environment = new Environment();
 
     @Test
-    public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc($x, &$y, $z = 33){  } $x = 10;"));
+    public void testSimple() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("function myFunc($x, &$y, $z = 33){  } $x = 10;"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         ListIterator<Token> iterator = analyzer.getTree().listIterator();
@@ -56,8 +57,8 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     }
 
     @Test
-    public void testNoArguments(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc(){}"));
+    public void testNoArguments() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("function myFunc(){}"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
@@ -67,8 +68,8 @@ public class NamedFunctionTest extends AbstractSyntaxTestCase {
     }
 
     @Test
-    public void testInterfacable(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "function myFunc();"));
+    public void testInterfacable() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("function myFunc();"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);

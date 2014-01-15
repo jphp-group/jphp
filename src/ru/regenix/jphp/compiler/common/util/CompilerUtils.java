@@ -2,10 +2,10 @@ package ru.regenix.jphp.compiler.common.util;
 
 import org.objectweb.asm.Opcodes;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
-import ru.regenix.jphp.runtime.memory.DoubleMemory;
-import ru.regenix.jphp.runtime.memory.LongMemory;
-import ru.regenix.jphp.runtime.memory.StringMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.memory.DoubleMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.StringMemory;
+import php.runtime.Memory;
 import ru.regenix.jphp.tokenizer.token.expr.OperatorExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.operator.*;

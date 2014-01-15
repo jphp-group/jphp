@@ -7,8 +7,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.expr.operator.LogicOperatorExprToken;
@@ -16,6 +16,8 @@ import ru.regenix.jphp.tokenizer.token.expr.operator.MulExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.CallExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
+
+import java.io.IOException;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -25,7 +27,12 @@ public class ASMExpressionTest {
     protected Context context;
 
     private ASMExpression getASMExpression(String expr){
-        Tokenizer tokenizer = new Tokenizer(context = environment.createContext(expr + ";"));
+        Tokenizer tokenizer = null;
+        try {
+            tokenizer = new Tokenizer(context = environment.createContext(expr + ";"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);

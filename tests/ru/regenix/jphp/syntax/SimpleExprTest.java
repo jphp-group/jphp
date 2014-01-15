@@ -6,14 +6,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.operator.MinusExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
 
+import java.io.IOException;
 import java.util.List;
 
 @RunWith(JUnit4.class)
@@ -23,8 +24,8 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
     private Environment environment = new Environment();
 
     @Test
-    public void testSimpleCall(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "myCall(1 * 2, func(3, 2), 4);"));
+    public void testSimpleCall() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("myCall(1 * 2, func(3, 2), 4);"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         List<Token> tokens = analyzer.getTree();

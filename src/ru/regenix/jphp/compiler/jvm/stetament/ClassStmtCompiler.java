@@ -12,14 +12,14 @@ import ru.regenix.jphp.compiler.jvm.node.ClassNodeImpl;
 import ru.regenix.jphp.compiler.jvm.node.MethodNodeImpl;
 import ru.regenix.jphp.exceptions.FatalException;
 import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.lang.BaseObject;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.ConstantEntity;
-import ru.regenix.jphp.runtime.reflection.MethodEntity;
-import ru.regenix.jphp.runtime.reflection.PropertyEntity;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.lang.BaseObject;
+import php.runtime.Memory;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.PropertyEntity;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.FulledNameToken;
@@ -525,7 +525,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
 
         if (!isSystem)
-            entity.setInternalName("$_php_class_" + compiler.getScope().nextClassIndex());
+            entity.setInternalName(
+                    compiler.getModule().getInternalName() + "_class" + compiler.getModule().getClasses().size()
+            );
 
         if (compiler.getModule().findClass(entity.getLowerName()) != null
               || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){

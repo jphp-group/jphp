@@ -1,10 +1,11 @@
 package ru.regenix.jphp.syntax;
 
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 
+import java.io.IOException;
 import java.util.List;
 
 abstract class AbstractSyntaxTestCase {
@@ -12,9 +13,14 @@ abstract class AbstractSyntaxTestCase {
     protected Environment environment = new Environment();
 
     protected List<Token> getSyntaxTree(String code){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, code));
-        SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
+        Tokenizer tokenizer = null;
+        try {
+            tokenizer = new Tokenizer(new Context(code));
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
-        return analyzer.getTree();
+            return analyzer.getTree();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

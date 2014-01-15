@@ -4,7 +4,7 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
 import java.io.PrintWriter;

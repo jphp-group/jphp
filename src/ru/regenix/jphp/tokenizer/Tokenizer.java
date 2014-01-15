@@ -3,13 +3,14 @@ package ru.regenix.jphp.tokenizer;
 import ru.regenix.jphp.common.Directive;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.token.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.StringExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.EchoRawToken;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class Tokenizer {
 
     protected Map<String, Directive> directives = new HashMap<String, Directive>();
 
-    public Tokenizer(Context context){
+    public Tokenizer(Context context) throws IOException {
         this.context = context;
         this.code = context.getContent();
         this.codeLength = code.length();

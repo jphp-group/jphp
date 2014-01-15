@@ -1,10 +1,10 @@
 package ru.regenix.jphp.compiler;
 
 import ru.regenix.jphp.common.LangMode;
-import ru.regenix.jphp.runtime.env.Context;
+import php.runtime.env.Context;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.reflection.ModuleEntity;
+import php.runtime.env.Environment;
+import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 
 import java.util.List;

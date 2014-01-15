@@ -4,7 +4,7 @@ package ru.regenix.jphp.syntax.generators.manually;
 import ru.regenix.jphp.common.Callback;
 import ru.regenix.jphp.common.Separator;
 import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;
 import ru.regenix.jphp.syntax.generators.FunctionGenerator;

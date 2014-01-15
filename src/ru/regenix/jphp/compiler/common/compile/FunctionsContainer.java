@@ -1,10 +1,10 @@
 package ru.regenix.jphp.compiler.common.compile;
 
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.invoke.Invoker;
-import ru.regenix.jphp.runtime.memory.ObjectMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.invoke.Invoker;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.Memory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

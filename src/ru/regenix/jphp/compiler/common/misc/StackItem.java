@@ -1,10 +1,10 @@
 package ru.regenix.jphp.compiler.common.misc;
 
-import ru.regenix.jphp.runtime.memory.KeyValueMemory;
-import ru.regenix.jphp.runtime.memory.ObjectMemory;
+import php.runtime.memory.KeyValueMemory;
+import php.runtime.memory.ObjectMemory;
 import ru.regenix.jphp.tokenizer.token.expr.ValueExprToken;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.Memory;
 
 public class StackItem {
 

@@ -4,15 +4,15 @@ import ru.regenix.jphp.common.LangMode;
 import ru.regenix.jphp.compiler.common.Extension;
 import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.runtime.lang.BaseException;
-import ru.regenix.jphp.runtime.lang.Closure;
-import ru.regenix.jphp.runtime.lang.StdClass;
-import ru.regenix.jphp.runtime.lang.spl.*;
-import ru.regenix.jphp.runtime.lang.spl.iterator.*;
-import ru.regenix.jphp.runtime.loader.RuntimeClassLoader;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.*;
-import ru.regenix.jphp.runtime.util.JVMStackTracer;
+import php.runtime.lang.BaseException;
+import php.runtime.lang.Closure;
+import php.runtime.lang.StdClass;
+import php.runtime.lang.spl.*;
+import php.runtime.lang.spl.iterator.*;
+import php.runtime.loader.RuntimeClassLoader;
+import php.runtime.Memory;
+import php.runtime.reflection.*;
+import php.runtime.util.JVMStackTracer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,7 +81,7 @@ public class CompileScope {
 
         // iterators
         registerClass(new ClassEntity(this, Traversable.class));
-        registerClass(new ClassEntity(this, ru.regenix.jphp.runtime.lang.spl.iterator.Iterator.class));
+        registerClass(new ClassEntity(this, php.runtime.lang.spl.iterator.Iterator.class));
         registerClass(new ClassEntity(this, IteratorAggregate.class));
 
         registerClass(new ClassEntity(this, Serializable.class));
