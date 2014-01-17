@@ -31,8 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public class LangFunctions extends FunctionsContainer {
 
-    protected final static LangConstants constants = new LangConstants();
-
     private static String evalErrorMessage(ErrorException e){
         return e.getMessage() + ", eval()'s code on line " + (e.getTraceInfo().getStartLine() + 1)
                 + ", position " + (e.getTraceInfo().getStartPosition() + 1);
@@ -542,10 +540,10 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory debug_backtrace(Environment env, TraceInfo trace, int options, int limit){
-        boolean provideObject = (options & constants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
-                == constants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
-        boolean ignoreArgs = (options & constants.DEBUG_BACKTRACE_IGNORE_ARGS)
-                == constants.DEBUG_BACKTRACE_IGNORE_ARGS;
+        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
+                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
+        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS)
+                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS;
 
         ArrayMemory result = new ArrayMemory();
         for(int i = 0; i < env.getCallStackTop(); i++){
@@ -565,15 +563,15 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory debug_backtrace(Environment env, TraceInfo trace){
-        return debug_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+        return debug_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
     }
 
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace, int options, int limit){
-        boolean provideObject = (options & constants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
-                == constants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
-        boolean ignoreArgs = (options & constants.DEBUG_BACKTRACE_IGNORE_ARGS)
-                == constants.DEBUG_BACKTRACE_IGNORE_ARGS;
+        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
+                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
+        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS)
+                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS;
 
         StackTracer stackTracer = new StackTracer(env, limit);
         env.echo(stackTracer.toString(!ignoreArgs));
@@ -584,13 +582,31 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace){
-        debug_print_backtrace(env, trace, constants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+        debug_print_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
     }
 
     public static boolean function_exists(Environment env, String name){
         name = name.toLowerCase();
         FunctionEntity function = env.scope.findUserFunction(name);
         return function != null && (function.isInternal() || env.isLoadedFunction(name));
+    }
+
+    public static boolean class_exists(Environment env, String name, boolean autoload){
+        ClassEntity entity = env.fetchClass(name, autoload);
+        return entity != null && entity.isClass();
+    }
+
+    public static boolean class_exists(Environment env, String name){
+        return class_exists(env, name, true);
+    }
+
+    public static boolean interface_exists(Environment env, String name, boolean autoload){
+        ClassEntity entity = env.fetchClass(name, autoload);
+        return entity != null && entity.isInterface();
+    }
+
+    public static boolean interface_exists(Environment env, String name){
+        return interface_exists(env, name, true);
     }
 
     public static boolean method_exists(Environment env, Memory clazz, String method){
@@ -655,6 +671,36 @@ public class LangFunctions extends FunctionsContainer {
 
             return entity != null ? Memory.TRUE : Memory.FALSE;
         }
+    }
+
+    public static Memory is_a(Environment env, TraceInfo trace, Memory object, String className,
+                              boolean allowedString){
+        ClassEntity classEntity = null;
+        ClassEntity parentClass;
+
+        if (allowedString && !object.isObject()){
+            String name = object.toString();
+            String nameL = name.toLowerCase();
+
+            classEntity = env.fetchClass(name, nameL, false);
+            if (classEntity == null)
+                classEntity = env.fetchMagicClass(name, nameL);
+
+        } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
+            classEntity = object.toValue(ObjectMemory.class).getReflection();
+        }
+        if (classEntity == null)
+            return Memory.FALSE;
+
+        parentClass = env.fetchClass(className, false);
+        if (parentClass == null)
+            return Memory.FALSE;
+
+        return classEntity.isInstanceOf(parentClass) ? Memory.TRUE : Memory.FALSE;
+    }
+
+    public static Memory is_a(Environment env, TraceInfo trace, Memory object, String className){
+        return is_a(env, trace, object, className, false);
     }
 
     public static Memory is_subclass_of(Environment env, TraceInfo trace, Memory object, String className,
@@ -728,6 +774,88 @@ public class LangFunctions extends FunctionsContainer {
     public static Memory get_called_class(Environment env){
         String name = env.getLateStatic();
         return name == null || name.isEmpty() ? Memory.FALSE : new StringMemory(name);
+    }
+
+    public static Memory get_class_methods(Environment env, TraceInfo trace, Memory value){
+        ClassEntity entity;
+        if (value.isString()){
+            entity = env.fetchClass(value.toString(), true);
+        } else if (value.isObject()){
+            entity = value.toValue(ObjectMemory.class).getReflection();
+        } else {
+            env.warning(
+                    trace, "get_class_methods(): Argument 1 must be string or object, %s given",
+                    value.getRealType().toString()
+            );
+            return Memory.NULL;
+        }
+
+        if (entity == null)
+            return Memory.NULL;
+
+        ClassEntity context = env.getLastClassOnStack();
+
+        ArrayMemory result = new ArrayMemory();
+        for(MethodEntity el : entity.getMethods().values()){
+            if (el.canAccess(env, context) == 0)
+                result.refOfPush().assign(el.getName());
+        }
+
+        return result.toConstant();
+    }
+
+    public static Memory get_class_vars(Environment env, TraceInfo trace, Memory value){
+        ClassEntity entity;
+        if (value.isString()){
+            entity = env.fetchClass(value.toString(), true);
+        } else if (value.isObject()){
+            entity = value.toValue(ObjectMemory.class).getReflection();
+        } else {
+            env.warning(
+                    trace, "get_class_vars(): Argument 1 must be string or object, %s given",
+                    value.getRealType().toString()
+            );
+            return Memory.NULL;
+        }
+
+        if (entity == null)
+            return Memory.NULL;
+
+        ClassEntity context = env.getLastClassOnStack();
+
+        ArrayMemory result = new ArrayMemory();
+        for(PropertyEntity el : entity.getProperties()){
+            if (el.canAccess(env, context) == 0)
+                result.refOfIndex(el.getName()).assign(el.getDefaultValue(env));
+        }
+
+        for(PropertyEntity el : entity.getStaticProperties()){
+            if (el.canAccess(env, context) == 0)
+                result.refOfIndex(el.getName()).assign(el.getDefaultValue(env));
+        }
+
+        return result.toConstant();
+    }
+
+    public static Memory get_object_vars(Environment env, TraceInfo trace, Memory object){
+        if (expecting(env, trace, 1, object, Memory.Type.OBJECT)){
+            ObjectMemory o = object.toValue(ObjectMemory.class);
+            ArrayMemory props = o.value.getProperties();
+            ClassEntity entity = o.getReflection();
+
+            ClassEntity context = env.getLastClassOnStack();
+            ForeachIterator iterator = props.foreachIterator(false, false);
+
+            ArrayMemory result = new ArrayMemory();
+            while (iterator.next()){
+                PropertyEntity prop = entity.findProperty(iterator.getKey().toString());
+                if (prop == null || prop.canAccess(env, context) == 0)
+                    result.refOfIndex(prop == null ? iterator.getKey().toString() : prop.getName())
+                            .assign(iterator.getValue());
+            }
+            return result.toConstant();
+        } else
+            return Memory.NULL;
     }
 
     public static Memory get_parent_class(Memory object){

@@ -19,6 +19,10 @@ abstract public class Invoker {
         this.trace = trace;
     }
 
+    public Environment getEnvironment() {
+        return env;
+    }
+
     public void setPushCallTrace(boolean pushCallTrace) {
         this.pushCallTrace = pushCallTrace;
     }

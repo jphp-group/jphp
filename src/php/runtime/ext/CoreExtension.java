@@ -21,6 +21,7 @@ public class CoreExtension extends Extension {
     public void onRegister(CompileScope scope) {
         registerConstants(new LangConstants());
         registerFunctions(new LangFunctions());
+        registerConstants(new InfoConstants());
         registerFunctions(new InfoFunctions());
 
         registerConstants(new MathConstants());

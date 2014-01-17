@@ -92,7 +92,7 @@ final public class InvokeHelper {
                     trace.getStartPosition() + 1
             );
         } else {
-            ClassEntity need = env.fetchClass(param.getTypeClass(), true);
+            ClassEntity need = env.fetchClass(param.getTypeClass(), false);
             String what = "";
             if (need == null || need.isClass()){
                 what = "be an instance of";

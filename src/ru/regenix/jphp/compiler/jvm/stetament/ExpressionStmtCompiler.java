@@ -553,18 +553,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (closure.getFunction().getUses().isEmpty() && !thisExists
                     && closure.getFunction().getStaticLocal().isEmpty()){
                 writePushEnv();
-                writePushConstInt(compiler.getModule().getId());
+                writePushConstString(compiler.getModule().getInternalName());
                 writePushConstInt((int)entity.getId());
-                writeSysDynamicCall(Environment.class, "__getSingletonClosure", Memory.class, Integer.TYPE, Integer.TYPE);
+                writeSysDynamicCall(
+                        Environment.class, "__getSingletonClosure", Memory.class, String.class, Integer.TYPE
+                );
             } else {
                 code.add(new TypeInsnNode(NEW, entity.getInternalName()));
                 stackPush(Memory.Type.REFERENCE);
                 writePushDup();
 
                 writePushEnv();
-                writePushConstInt(compiler.getModule().getId());
+                writePushConstString(compiler.getModule().getInternalName());
                 writePushConstInt((int)entity.getId());
-                writeSysDynamicCall(Environment.class, "__getClosure", ClassEntity.class, Integer.TYPE, Integer.TYPE);
+                writeSysDynamicCall(Environment.class, "__getClosure", ClassEntity.class, String.class, Integer.TYPE);
 
                 if (thisExists)
                     writePushThis();

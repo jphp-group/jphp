@@ -28,7 +28,7 @@ public class CompileScope {
     protected final AtomicLong methodCount = new AtomicLong(0);
 
     public final ConcurrentHashMap<String, ModuleEntity> moduleMap;
-    public final ConcurrentHashMap<Integer, ModuleEntity> moduleIndexMap;
+    public final ConcurrentHashMap<String, ModuleEntity> moduleIndexMap;
 
     protected final Map<String, ClassEntity> classMap;
     protected final Map<String, FunctionEntity> functionMap;
@@ -51,7 +51,7 @@ public class CompileScope {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
         moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
-        moduleIndexMap = new ConcurrentHashMap<Integer, ModuleEntity>();
+        moduleIndexMap = new ConcurrentHashMap<String, ModuleEntity>();
 
         classMap = new HashMap<String, ClassEntity>();
         functionMap = new HashMap<String, FunctionEntity>();
@@ -157,7 +157,7 @@ public class CompileScope {
 
     public void addUserModule(ModuleEntity module){
         moduleMap.put(module.getName(), module);
-        moduleIndexMap.put(module.getId(), module);
+        moduleIndexMap.put(module.getInternalName(), module);
     }
 
     public void registerFunction(FunctionEntity function){

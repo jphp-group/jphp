@@ -1,10 +1,6 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.Information;
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;
@@ -13,11 +9,15 @@ import php.runtime.memory.output.PrintR;
 import php.runtime.memory.output.Printer;
 import php.runtime.memory.output.VarDump;
 import php.runtime.memory.output.VarExport;
-import php.runtime.Memory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
+import ru.regenix.jphp.Information;
+import ru.regenix.jphp.annotation.Runtime;
+import ru.regenix.jphp.compiler.common.Extension;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
+import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 
 import java.io.StringWriter;
 import java.util.HashSet;
@@ -239,5 +239,19 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory var_export(Environment env, TraceInfo trace, @Runtime.Reference Memory value){
         return var_export(env, trace, value, false);
+    }
+
+    public static String set_include_path(Environment env, String value){
+        String old = env.getConfigValue("include_path", Memory.CONST_EMPTY_STRING).toString();
+        env.setConfigValue("include_path", new StringMemory(value));
+        return old;
+    }
+
+    public static String get_include_path(Environment env){
+        return env.getConfigValue("include_path", Memory.CONST_EMPTY_STRING).toString();
+    }
+
+    public static void restore_include_path(Environment env){
+        env.restoreConfigValue("include_path");
     }
 }

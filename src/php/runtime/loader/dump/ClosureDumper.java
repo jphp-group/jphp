@@ -45,6 +45,8 @@ public class ClosureDumper extends Dumper<ClosureEntity> {
             for(ParameterEntity param : entity.uses){
                 parameterDumper.save(param, output);
             }
+
+        data.writeRawData(entity.getData(), Integer.MAX_VALUE);
     }
 
     @Override
@@ -77,6 +79,7 @@ public class ClosureDumper extends Dumper<ClosureEntity> {
             entity.uses[i] = param;
         }
 
+        entity.setData(data.readRawData(Integer.MAX_VALUE));
         return entity;
     }
 }

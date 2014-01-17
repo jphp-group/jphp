@@ -1,17 +1,7 @@
 package php.runtime.env;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.CustomErrorException;
-import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
-import php.runtime.env.handler.ErrorHandler;
-import php.runtime.env.handler.ErrorReportHandler;
-import php.runtime.env.handler.ExceptionHandler;
-import php.runtime.env.handler.ShutdownHandler;
+import php.runtime.Memory;
+import php.runtime.env.handler.*;
 import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
 import php.runtime.env.message.SystemMessage;
@@ -21,14 +11,26 @@ import php.runtime.lang.BaseException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.UncaughtException;
-import php.runtime.memory.*;
-import php.runtime.Memory;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.ReferenceMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.JVMStackTracer;
+import ru.regenix.jphp.common.Constants;
+import ru.regenix.jphp.common.Messages;
+import ru.regenix.jphp.common.StringUtils;
+import ru.regenix.jphp.compiler.CompileScope;
+import ru.regenix.jphp.compiler.common.compile.CompileConstant;
+import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.exceptions.CustomErrorException;
+import ru.regenix.jphp.exceptions.FatalException;
+import ru.regenix.jphp.exceptions.support.ErrorException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
@@ -47,9 +49,12 @@ import static ru.regenix.jphp.exceptions.support.ErrorType.*;
 public class Environment {
     public final CompileScope scope;
     public final Map<String, Memory> configuration = new HashMap<String, Memory>();
+    public final static Map<String, ConfigChangeHandler> configurationHandler;
+
     private Set<String> includePaths;
 
-    protected SplClassLoader autoLoader = null;
+    public SplClassLoader __autoload = null;
+    public SplClassLoader defaultAutoLoader = null;
     protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
 
     // errors
@@ -207,14 +212,15 @@ public class Environment {
         this.globals.put("GLOBALS", this.globals);
         this.constants = new HashMap<String, ConstantEntity>();
 
-        Memory splAutoloader = new StringMemory("spl_autoload");
-        Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
-        if (invoker != null)
-            this.autoLoader = new SplClassLoader(invoker, splAutoloader);
-
         classMap.putAll(scope.getClassMap());
         functionMap.putAll(scope.getFunctionMap());
         constantMap.putAll(scope.getConstantMap());
+
+        Memory splAutoloader = new StringMemory("__$jphp_spl_autoload");
+        Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
+        if (invoker != null)
+            this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
+
         environment.set(this);
     }
 
@@ -335,13 +341,14 @@ public class Environment {
         return constantMap.containsKey(lowerName);
     }
 
-    public ClassEntity autoloadCall(String name){
+    public ClassEntity autoloadCall(String name) {
         StringMemory tmp = new StringMemory(name);
         for(SplClassLoader loader : classLoaders)
             loader.load(tmp);
 
-        if (autoLoader != null)
-            autoLoader.load(tmp);
+        if (defaultAutoLoader != null){
+            defaultAutoLoader.load(tmp);
+        }
 
         return fetchClass(name, false);
     }
@@ -467,11 +474,19 @@ public class Environment {
         if (!value.isString())
             value = new StringMemory(value.toString());   // fix capability with zend php
 
+        ConfigChangeHandler handler = configurationHandler.get(name);
+        if (handler != null)
+            handler.onChange(this, value);
+
         return configuration.put(name, value);
     }
 
     public void restoreConfigValue(String name){
         configuration.remove(name);
+
+        ConfigChangeHandler handler = configurationHandler.get(name);
+        if (handler != null)
+            handler.onChange(this, getConfigValue(name));
     }
 
     public Memory getOrCreateGlobal(String name) {
@@ -818,7 +833,7 @@ public class Environment {
 
     public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
-        ClassEntity entity = classMap.get(lowerName);
+        ClassEntity entity = fetchClass(originName, lowerName, true);
         if (entity == null) {
             error(trace, E_ERROR, Messages.ERR_CLASS_NOT_FOUND.fetch(originName));
         }
@@ -856,11 +871,11 @@ public class Environment {
         return iterator;
     }
 
-    public ClassEntity __getClosure(int moduleIndex, int index){
+    public ClassEntity __getClosure(String moduleIndex, int index){
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index);
     }
 
-    public Memory __getSingletonClosure(int moduleIndex, int index){
+    public Memory __getSingletonClosure(String moduleIndex, int index){
         return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
     }
 
@@ -886,9 +901,11 @@ public class Environment {
 
     public Memory __throwCatch(BaseException e, String className, String lowerClassName){
         ClassEntity origin = e.getReflection();
-        ClassEntity cause = fetchClass(className, lowerClassName, true);
+        ClassEntity cause = fetchClass(className, lowerClassName, false);
 
-        if (cause.isInstanceOf(origin))
+        if (cause != null && origin.isInstanceOf(cause))
+            return new ObjectMemory(e);
+        if (origin.isInstanceOfLower(lowerClassName))
             return new ObjectMemory(e);
         else
             return Memory.NULL;
@@ -1050,5 +1067,23 @@ public class Environment {
 
     public void registerShutdownFunction(ShutdownHandler handler){
         shutdownFunctions.add(handler);
+    }
+
+    static {
+        configurationHandler = new HashMap<String, ConfigChangeHandler>();
+        configurationHandler.put("include_path", new ConfigChangeHandler() {
+            @Override
+            public void onChange(Environment env, Memory value) {
+                if (value == null)
+                    env.setIncludePaths(Collections.<String>emptySet());
+                else {
+                    String[] files = StringUtils.split(value.toString(), Constants.PATH_SEPARATOR, 255);
+                    Set<String> paths = new HashSet<String>();
+                    Collections.addAll(paths, files);
+
+                    env.setIncludePaths(paths);
+                }
+            }
+        });
     }
 }

@@ -1,5 +1,7 @@
 package php.runtime.ext.spl;
 
+import php.runtime.memory.StringMemory;
+import ru.regenix.jphp.common.StringUtils;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
 import php.runtime.env.Environment;
 import php.runtime.env.SplClassLoader;
@@ -14,6 +16,9 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
+
+import java.io.File;
+import java.util.Set;
 
 public class SPLFunctions extends FunctionsContainer {
 
@@ -162,11 +167,28 @@ public class SPLFunctions extends FunctionsContainer {
         return spl_autoload_register(env, trace, callback, true, false);
     }
 
+    public static boolean spl_autoload_register(Environment env, TraceInfo trace){
+        return spl_autoload_register(env, trace, new StringMemory("spl_autoload"), true, false);
+    }
+
+    private static final StringMemory __autoloadMethod = new StringMemory("__autoload");
+
     public static Memory spl_autoload_functions(Environment env){
         ArrayMemory result = new ArrayMemory();
         for (SplClassLoader loader : env.getClassLoaders()){
             result.add(loader.getCallback().toImmutable());
         }
+
+        if (result.size() == 0){
+            if (env.__autoload == null){
+                Invoker invoker = Invoker.valueOf(env, null, __autoloadMethod);
+                if (invoker != null) {
+                    env.__autoload = new SplClassLoader(invoker, __autoloadMethod);
+                    result.add(env.__autoload.getCallback().toImmutable());
+                }
+            }
+        }
+
         return result.toConstant();
     }
 
@@ -178,21 +200,48 @@ public class SPLFunctions extends FunctionsContainer {
         return env.unRegisterAutoloader(new SplClassLoader(invoker, callback));
     }
 
+    public static final StringMemory defaultExtensions = new StringMemory(".inc,.php");
+
     public static String spl_autoload_extensions(Environment env, String extensions){
-        env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).assign(extensions);
+        env.getOrCreateStatic("spl$autoload_extensions", defaultExtensions).assign(extensions);
         return extensions;
     }
 
     public static String spl_autoload_extensions(Environment env){
-        return env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).toString();
+        return env.getOrCreateStatic("spl$autoload_extensions", defaultExtensions).toString();
     }
 
-    public static void spl_autoload(Environment env, String className, String fileExtensions){
+    public static void __$jphp_spl_autoload(Environment env, String className, String fileExtensions){
+        if (env.__autoload == null){
+            Invoker invoker = Invoker.valueOf(env, null, __autoloadMethod);
+            if (invoker != null)
+                env.__autoload = new SplClassLoader(invoker, __autoloadMethod);
+        }
 
+        if (env.__autoload != null)
+            env.__autoload.load(new StringMemory(className), new StringMemory(fileExtensions));
     }
 
-    public static void spl_autoload(Environment env, String className){
-        spl_autoload(env, className,
-                env.getOrCreateStatic("spl$autoload_extensions", Memory.CONST_EMPTY_STRING).toString());
+    public static void __$jphp_spl_autoload(Environment env, String className){
+        __$jphp_spl_autoload(env, className, spl_autoload_extensions(env));
+    }
+
+    public static void spl_autoload(Environment env, String className, String fileExtensions) throws Throwable {
+        String[] extensions = StringUtils.split(fileExtensions, ",", 255);
+        Set<String> includePaths = env.getIncludePaths();
+
+        for(String path : includePaths){
+            for(String e : extensions){
+                File file = new File(path, className + e);
+                if (file.exists()){
+                    env.__include(file.getPath());
+                    return;
+                }
+            }
+        }
+    }
+
+    public static void spl_autoload(Environment env, String className) throws Throwable {
+        spl_autoload(env, className, spl_autoload_extensions(env));
     }
 }
