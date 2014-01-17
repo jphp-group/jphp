@@ -37,13 +37,14 @@ public class Main {
             Tokenizer tokenizer = new Tokenizer(context);
             SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
             AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
-            ModuleEntity module = compiler.compile();
+            ModuleEntity module = compiler.compile(false);
 
             ModuleDumper dumper = new ModuleDumper(context, environment, true);
             dumper.save(module, new FileOutputStream("scripts/main.phb"));
             module = dumper.load(new FileInputStream("scripts/main.phb"));
 
             scope.loadModule(module);
+            scope.addUserModule(module);
 
             System.out.println(new ModuleOpcodePrinter(module).toString());
 

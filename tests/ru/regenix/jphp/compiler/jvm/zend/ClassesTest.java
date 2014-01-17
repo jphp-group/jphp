@@ -402,4 +402,19 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/array_access_012.php");
         check("zend/classes/array_access_013.php");
     }
+
+    @Test
+    public void testAutoload(){
+        check("zend/classes/autoload_001.php");
+        check("zend/classes/autoload_002.php");
+        check("zend/classes/autoload_003.php");
+        check("zend/classes/autoload_004.php");
+        check("zend/classes/autoload_005.php");
+        check("zend/classes/autoload_006.php");
+        check("zend/classes/autoload_007.php");
+        check("zend/classes/autoload_008.php");
+        check("zend/classes/autoload_009.php", true);
+        check("zend/classes/autoload_010.php", true);
+        check("zend/classes/autoload_011.php", true);
+    }
 }

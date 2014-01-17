@@ -370,6 +370,15 @@ public class ClassEntity extends Entity {
         return constants.get(name);
     }
 
+    // use can pass specific names
+    public PropertyEntity findProperty(String name){
+        int pos = name.lastIndexOf('\0');
+        if (pos > -1 && pos + 1 < name.length())
+            name = name.substring(pos + 1);
+
+        return properties.get(name);
+    }
+
     public ClassEntity getParent() {
         return parent;
     }
@@ -380,6 +389,10 @@ public class ClassEntity extends Entity {
 
     public boolean isInstanceOf(String name){
         String lowerName = name.toLowerCase();
+        return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
+    }
+
+    public boolean isInstanceOfLower(String lowerName){
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 

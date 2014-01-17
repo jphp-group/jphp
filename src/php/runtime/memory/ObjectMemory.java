@@ -449,16 +449,16 @@ public class ObjectMemory extends Memory {
     @Override
     public boolean instanceOf(Environment env, String className, String lowerClassName) {
         ClassEntity origin = value.getReflection();
-        ClassEntity what   = env.fetchClass(className, lowerClassName, true);
+        /*ClassEntity what   = env.fetchClass(className, lowerClassName, true);
         if (what == null) {
             /*env.triggerError(new FatalException(
                     Messages.ERR_CLASS_NOT_FOUND.fetch(className),
                     trace
             ));*/
-            return false;
-        }
+            //return false;
+        //}
 
-        return origin.isInstanceOf(what);
+        return origin.isInstanceOfLower(lowerClassName);
     }
 
     @Override

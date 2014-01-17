@@ -8,6 +8,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.ext.BCMathExtension;
 import php.runtime.ext.CTypeExtension;
 import php.runtime.ext.CoreExtension;
+import php.runtime.ext.SPLExtension;
 import php.runtime.ext.core.StringFunctions;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
@@ -41,6 +42,7 @@ abstract public class JvmCompilerCase {
         compileScope.registerExtension(new CoreExtension());
         compileScope.registerExtension(new BCMathExtension());
         compileScope.registerExtension(new CTypeExtension());
+        compileScope.registerExtension(new SPLExtension());
 
         return compileScope;
     }

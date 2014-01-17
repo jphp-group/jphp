@@ -543,6 +543,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (statement.getExtend() != null) {
             ClassEntity parent = fetchClass(statement.getExtend().getName().getName());
+            if (parent == null)
+                compiler.getEnvironment().error(
+                        statement.getExtend().toTraceInfo(compiler.getContext()),
+                        Messages.ERR_CLASS_NOT_FOUND.fetch(statement.getExtend().getName().toName())
+                );
+
             ClassEntity.ExtendsResult result = entity.setParent(parent, false);
             result.check(compiler.getEnvironment());
         }

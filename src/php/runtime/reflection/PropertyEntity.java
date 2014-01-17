@@ -139,6 +139,10 @@ public class PropertyEntity extends Entity {
         return clazz.getId() == entity.getId();
     }
 
+    public int canAccess(Environment env) {
+        return canAccess(env, null);
+    }
+
     /**
      * 0 - success
      * 1 - invalid protected
@@ -146,14 +150,14 @@ public class PropertyEntity extends Entity {
      * @param env
      * @return
      */
-    public int canAccess(Environment env) {
+    public int canAccess(Environment env, ClassEntity context) {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:
-                ClassEntity cl = env.getLastClassOnStack();
+                ClassEntity cl = context == null ? env.getLastClassOnStack() : context;
                 return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
             case PROTECTED:
-                ClassEntity clazz = env.getLastClassOnStack();
+                ClassEntity clazz = context == null ? env.getLastClassOnStack() : context;
                 if (clazz == null)
                     return 1;
 
