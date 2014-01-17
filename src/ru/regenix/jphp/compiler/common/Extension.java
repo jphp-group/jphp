@@ -5,7 +5,7 @@ import ru.regenix.jphp.compiler.common.compile.CompileConstant;
 import ru.regenix.jphp.compiler.common.compile.CompileFunction;
 import ru.regenix.jphp.compiler.common.compile.ConstantsContainer;
 import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ClassEntity;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,8 @@
 package ru.regenix.jphp.exceptions;
 
 import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.support.ErrorException;
 
 public class CompileException extends ErrorException {

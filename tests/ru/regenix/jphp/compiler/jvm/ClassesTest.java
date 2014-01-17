@@ -6,9 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.runtime.lang.IObject;
-import ru.regenix.jphp.runtime.memory.ObjectMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.lang.IObject;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.Memory;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

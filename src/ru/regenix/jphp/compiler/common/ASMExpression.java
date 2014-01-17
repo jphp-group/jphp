@@ -2,10 +2,9 @@ package ru.regenix.jphp.compiler.common;
 
 import ru.regenix.jphp.common.Association;
 import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.tokenizer.TokenType;
+import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.BraceExprToken;
 import ru.regenix.jphp.tokenizer.token.expr.ExprToken;
@@ -238,13 +237,11 @@ public class ASMExpression {
      * @param token
      */
     protected void unexpectedToken(Token token){
-        Object unexpected = token.getType();
-        if (token.getType() == TokenType.T_J_CUSTOM)
-            unexpected = token.getWord();
-
-        context.triggerError(new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X.fetch(token.getWord()),
-                token.toTraceInfo(context)
-        ));
+        env.error(
+                token.toTraceInfo(context),
+                ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_X,
+                token.getWord()
+        );
     }
 }

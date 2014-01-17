@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.runtime.memory.*;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ParameterEntity;
+import php.runtime.memory.*;
+import php.runtime.Memory;
+import php.runtime.reflection.ParameterEntity;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

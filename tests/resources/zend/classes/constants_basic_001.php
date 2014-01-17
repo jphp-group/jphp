@@ -58,6 +58,7 @@ Class constant declarations
   echo "\nYou should not see this.";
 ?>
 --EXPECTF--
+Notice: Use of undefined constant UNDEFINED - assumed 'UNDEFINED' in %s on line 9 at pos %s
 
 Attempt to access various kinds of class constants:
 string(9) "UNDEFINED"

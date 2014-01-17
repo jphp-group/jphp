@@ -2,9 +2,9 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 
 import ru.regenix.jphp.common.Modifier;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.runtime.lang.Closure;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.helper.ClosureEntity;
+import php.runtime.lang.Closure;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.helper.ClosureEntity;
 import ru.regenix.jphp.tokenizer.token.expr.value.ClosureStmtToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ClassStmtToken;
@@ -26,7 +26,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
     public ClosureEntity compile() {
         ClosureEntity entity = new ClosureEntity(getCompiler().getContext());
         entity.setReturnReference(statement.getFunction().isReturnReference());
-        entity.setInternalName("$_php_closure_" + compiler.getModule().getId() + "_" + statement.getId());
+        entity.setInternalName(compiler.getModule().getInternalName() + "_closure" + statement.getId());
         entity.setId(statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 

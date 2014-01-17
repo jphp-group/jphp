@@ -1,7 +1,7 @@
 package ru.regenix.jphp.tokenizer.token.expr;
 
 import ru.regenix.jphp.common.Association;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.Memory;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 

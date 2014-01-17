@@ -1,18 +1,21 @@
 package ru.regenix.jphp;
 
+import php.runtime.Memory;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.ext.*;
+import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.opcode.ModuleOpcodePrinter;
+import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.ext.*;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.opcode.ModuleOpcodePrinter;
-import ru.regenix.jphp.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class Main {
 
@@ -36,12 +39,18 @@ public class Main {
             AbstractCompiler compiler = new JvmCompiler(environment, context, analyzer);
             ModuleEntity module = compiler.compile();
 
-            System.out.println(new ModuleOpcodePrinter(module).toString());
+            ModuleDumper dumper = new ModuleDumper(context, environment, true);
+            dumper.save(module, new FileOutputStream("scripts/main.phb"));
+            module = dumper.load(new FileInputStream("scripts/main.phb"));
 
             scope.loadModule(module);
+
+            System.out.println(new ModuleOpcodePrinter(module).toString());
+
             environment.registerModule(module);
 
             long t = System.currentTimeMillis();
+
             Memory result = module.includeNoThrow(environment);
 
             environment.flushAll();
@@ -49,7 +58,7 @@ public class Main {
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
-            System.out.println(result);
+            //System.out.println(result);
 
         } catch (Exception e) {
             environment.catchUncaught(e);

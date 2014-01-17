@@ -5,9 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.exceptions.ParseException;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
@@ -19,6 +19,7 @@ import ru.regenix.jphp.tokenizer.token.expr.value.*;
 import ru.regenix.jphp.tokenizer.token.expr.value.macro.*;
 import ru.regenix.jphp.tokenizer.token.stmt.*;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 import static org.junit.Assert.*;
@@ -30,32 +31,32 @@ public class TokenizerTest {
     private Environment environment = new Environment();
 
     @Test
-    public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, ""));
+    public void testSimple() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context( ""));
 
         assertNull(tokenizer.nextToken());
         assertEquals("", tokenizer.getCode());
 
-        tokenizer = new Tokenizer(new Context(environment, " "));
+        tokenizer = new Tokenizer(new Context( " "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context(environment, "  "));
+        tokenizer = new Tokenizer(new Context( "  "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context(environment, "\t"));
+        tokenizer = new Tokenizer(new Context( "\t"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context(environment, "\n"));
+        tokenizer = new Tokenizer(new Context( "\n"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context(environment, "\r"));
+        tokenizer = new Tokenizer(new Context( "\r"));
         assertNull(tokenizer.nextToken());
     }
 
     @Test
-    public void testScalarTokens(){
+    public void testScalarTokens() throws IOException {
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "10 3.3 'foo' '' \"xyz\" 0xCC true false"));
+        Tokenizer tokenizer = new Tokenizer(new Context( "10 3.3 'foo' '' \"xyz\" 0xCC true false"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -97,9 +98,9 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testStringSlashes(){
+    public void testStringSlashes() throws IOException {
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, " 'foo\\'bar' \"foo\\\"bar\""));
+        Tokenizer tokenizer = new Tokenizer(new Context( " 'foo\\'bar' \"foo\\\"bar\""));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -111,8 +112,8 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testComplexOperators(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "== >= <= === !== != && ||"));
+    public void testComplexOperators() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context( "== >= <= === !== != && ||"));
 
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
         assertTrue(tokenizer.nextToken() instanceof GreaterOrEqualExprToken);
@@ -125,8 +126,8 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testSimpleOperators(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "= + - / * % . and or new && || ! xor"));
+    public void testSimpleOperators() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context( "= + - / * % . and or new && || ! xor"));
 
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
@@ -146,9 +147,9 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testParseError(){
+    public void testParseError() throws IOException {
         Throwable ex = null;
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "  'foobar \n "));
+        Tokenizer tokenizer = new Tokenizer(new Context( "  'foobar \n "));
 
         try {
             tokenizer.nextToken();
@@ -167,8 +168,8 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testComplex(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "0==10==='30';"));
+    public void testComplex() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context( "0==10==='30';"));
 
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
@@ -201,7 +202,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testBraces(){
+    public void testBraces() throws IOException {
         Tokenizer tokenizer = new Tokenizer(environment.createContext(" :: ->foobar('a', 1, 3.0);"));
 
         assertTrue(tokenizer.nextToken() instanceof StaticAccessExprToken);
@@ -218,7 +219,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testVarVar(){
+    public void testVarVar() throws IOException {
         Tokenizer tokenizer = new Tokenizer(environment.createContext("$$foo $ $bar $$$foobar"));
 
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
@@ -237,7 +238,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testMacro(){
+    public void testMacro() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
                 environment.createContext("__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__")
         );
@@ -253,7 +254,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testStmt(){
+    public void testStmt() throws IOException {
         Tokenizer tokenizer = new Tokenizer(environment.createContext(
                 "class function private public protected static final try catch for if foreach switch while " +
                 "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
@@ -299,7 +300,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testSplitNot(){
+    public void testSplitNot() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
                 environment.createContext("!true")
         );
@@ -308,7 +309,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testComments(){
+    public void testComments() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
                 environment.createContext("/** FOO BAR \n\r100500 */")
         );
@@ -350,7 +351,7 @@ public class TokenizerTest {
     }
 
     @Test
-    public void testHeredoc(){
+    public void testHeredoc() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
                 environment.createContext("<<<DOC\n <foobar> \nDOC;\n")
         );

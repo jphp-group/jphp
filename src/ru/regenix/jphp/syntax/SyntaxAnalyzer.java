@@ -2,8 +2,8 @@ package ru.regenix.jphp.syntax;
 
 import ru.regenix.jphp.common.Directive;
 import ru.regenix.jphp.common.LangMode;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import ru.regenix.jphp.syntax.generators.*;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;

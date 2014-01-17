@@ -1,16 +1,16 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodNode;
 import ru.regenix.jphp.common.Messages;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.exceptions.ParseException;
+import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.reflection.support.Entity;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.Token;
-import ru.regenix.jphp.runtime.reflection.support.Entity;
 
 abstract public class StmtCompiler<T extends Entity> {
 
@@ -39,7 +39,7 @@ abstract public class StmtCompiler<T extends Entity> {
     protected LabelNode writeLabel(MethodNode mv){
         return writeLabel(mv, -1);
     }
-    
+
 
     /**
      * @throws ParseException
@@ -50,10 +50,12 @@ abstract public class StmtCompiler<T extends Entity> {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        compiler.getContext().triggerError(new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X.fetch(unexpected),
-                token.toTraceInfo(compiler.getContext())
-        ));
+        compiler.getEnvironment().error(
+                token.toTraceInfo(compiler.getContext()),
+                ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_X,
+                unexpected
+        );
     }
 
     protected void unexpectedToken(Token token, Object expected){
@@ -61,9 +63,11 @@ abstract public class StmtCompiler<T extends Entity> {
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
 
-        compiler.getContext().triggerError(new ParseException(
-                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(unexpected, expected),
-                token.toTraceInfo(compiler.getContext())
-        ));
+        compiler.getEnvironment().error(
+                token.toTraceInfo(compiler.getContext()),
+                ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y,
+                unexpected, expected
+        );
     }
 }

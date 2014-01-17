@@ -7,17 +7,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.runtime.env.Context;
+import php.runtime.env.Context;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
+
+import java.io.IOException;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
 
     @Test
-    public void testSimple(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "foobar;"));
+    public void testSimple() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("foobar;"));
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
         Assert.assertTrue(analyzer.getTree().size() == 1);
@@ -25,8 +27,8 @@ public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
     }
 
     @Test(expected = ErrorException.class)
-    public void testUnexpectedEnd(){
-        Tokenizer tokenizer = new Tokenizer(new Context(environment, "foobar"));
+    public void testUnexpectedEnd() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(new Context("foobar"));
         new SyntaxAnalyzer(environment, tokenizer);
     }
 }

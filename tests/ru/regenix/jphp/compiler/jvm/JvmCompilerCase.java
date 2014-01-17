@@ -1,27 +1,32 @@
 package ru.regenix.jphp.compiler.jvm;
 
 import org.junit.Assert;
+import php.runtime.Memory;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.ext.BCMathExtension;
+import php.runtime.ext.CTypeExtension;
+import php.runtime.ext.CoreExtension;
+import php.runtime.ext.core.StringFunctions;
+import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ModuleEntity;
+import php.runtime.util.PrintF;
 import ru.regenix.jphp.compiler.CompileScope;
 import ru.regenix.jphp.exceptions.CustomErrorException;
 import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.ext.BCMathExtension;
-import ru.regenix.jphp.runtime.ext.CTypeExtension;
-import ru.regenix.jphp.runtime.ext.CoreExtension;
-import ru.regenix.jphp.runtime.ext.core.StringFunctions;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.reflection.ClassEntity;
-import ru.regenix.jphp.runtime.reflection.ModuleEntity;
-import ru.regenix.jphp.runtime.util.PrintF;
+import ru.regenix.jphp.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tester.Test;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 abstract public class JvmCompilerCase {
@@ -41,25 +46,35 @@ abstract public class JvmCompilerCase {
     }
 
     protected List<Token> getSyntaxTree(Context context){
-        Tokenizer tokenizer = new Tokenizer(context);
+        Tokenizer tokenizer = null;
+        try {
+            tokenizer = new Tokenizer(context);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
         return analyzer.getTree();
     }
 
     protected SyntaxAnalyzer getSyntax(Context context){
-        Tokenizer tokenizer = new Tokenizer(context);
+        Tokenizer tokenizer = null;
+        try {
+            tokenizer = new Tokenizer(context);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return new SyntaxAnalyzer(environment, tokenizer);
     }
 
     protected List<Token> getSyntaxTree(String code){
-        return getSyntaxTree(new Context(environment, code));
+        return getSyntaxTree(new Context(code));
     }
 
     protected Memory run(String code, boolean returned){
         runIndex += 1;
         Environment environment = new Environment(newScope());
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
-        Context context = new Context(environment, code);
+        Context context = new Context(code);
 
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
@@ -77,7 +92,7 @@ abstract public class JvmCompilerCase {
         runIndex += 1;
         Environment environment = new Environment(newScope());
         code = (returned ? "return " : "") + code + ";";
-        Context context = new Context(environment, code);
+        Context context = new Context(code);
 
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
@@ -97,7 +112,7 @@ abstract public class JvmCompilerCase {
     protected Memory includeResource(String name, ArrayMemory globals){
         Environment environment = new Environment(newScope());
         File file = new File(Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile());
-        Context context = new Context(environment, file);
+        Context context = new Context(file);
 
         JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
         ModuleEntity module = compiler.compile();
@@ -150,11 +165,20 @@ abstract public class JvmCompilerCase {
         Test test = new Test(file = new File(
                 Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile()
         ));
-        Context context = new Context(environment, test.getFile(), file);
+        Context context = new Context(test.getFile(), file);
 
         try {
             JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
+            environment.setErrorFlags(0);
             ModuleEntity module = compiler.compile();
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ModuleDumper dumper = new ModuleDumper(context, environment, true);
+            dumper.save(module, output);
+
+            environment.setErrorFlags(ErrorType.E_ALL.value);
+            module = dumper.load(new ByteArrayInputStream(output.toByteArray()));
+
             environment.getScope().loadModule(module);
             environment.registerModule(module);
 

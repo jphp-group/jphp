@@ -2,7 +2,7 @@ package ru.regenix.jphp.compiler.jvm;
 
 
 import org.objectweb.asm.Type;
-import ru.regenix.jphp.runtime.memory.support.Memory;
+import php.runtime.Memory;
 
 final public class Constants {
 

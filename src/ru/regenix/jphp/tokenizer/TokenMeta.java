@@ -1,7 +1,7 @@
 package ru.regenix.jphp.tokenizer;
 
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.token.Token;
 
 import java.util.Arrays;

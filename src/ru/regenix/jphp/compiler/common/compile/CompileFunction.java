@@ -2,11 +2,11 @@ package ru.regenix.jphp.compiler.common.compile;
 
 
 import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.runtime.env.Environment;
-import ru.regenix.jphp.runtime.env.TraceInfo;
-import ru.regenix.jphp.runtime.memory.ArrayMemory;
-import ru.regenix.jphp.runtime.memory.support.Memory;
-import ru.regenix.jphp.runtime.memory.support.MemoryUtils;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.Memory;
+import php.runtime.memory.support.MemoryUtils;
 
 import java.lang.annotation.Annotation;
 

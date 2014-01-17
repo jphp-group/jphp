@@ -1,7 +1,7 @@
 package ru.regenix.jphp.exceptions.support;
 
-import ru.regenix.jphp.runtime.env.Context;
-import ru.regenix.jphp.runtime.env.TraceInfo;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
 
 abstract public class UserException extends PhpException {
     public UserException(String message, TraceInfo traceInfo) {
