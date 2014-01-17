@@ -2395,15 +2395,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     "emptyProperty", Memory.class,
                     Memory.class, String.class, Environment.class, TraceInfo.class
             );
-            if (!returnValue)
-                writePopAll(1);
+            /*if (!returnValue)
+                writePopAll(1);*/
         } else if (dynamic instanceof DynamicAccessIssetExprToken){
             writeSysStaticCall(ObjectInvokeHelper.class,
                     "issetProperty", Memory.class,
                     Memory.class, String.class, Environment.class, TraceInfo.class
             );
-            if (!returnValue)
-                writePopAll(1);
+            /*if (!returnValue)
+                writePopAll(1);*/
         } else {
             writeSysStaticCall(ObjectInvokeHelper.class,
                     dynamic instanceof  DynamicAccessGetRefExprToken ? "getRefProperty" : "getProperty",
@@ -2412,8 +2412,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             );
         }
 
-        if (!returnValue)
-            writePopAll(1);
+        /*if (!returnValue)
+            writePopAll(1);*/
     }
 
     void writeArrayGet(ArrayGetExprToken operator, boolean returnValue){
@@ -2656,7 +2656,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writePushEnv();
                     writeSysDynamicCall(Memory.class, name, operatorResult, Environment.class);
                 } else if (operator.isTraceNeeded()){
-                    throw new RuntimeException("Unsupport operator with only trace needed");
+                    writePushTraceInfo(operator);
+                    writeSysDynamicCall(Memory.class, name, operatorResult, TraceInfo.class);
                 } else
                     writeSysDynamicCall(Memory.class, name, operatorResult);
 

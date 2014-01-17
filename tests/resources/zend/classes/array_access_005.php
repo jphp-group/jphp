@@ -68,10 +68,6 @@ array(1) {
   ["name"]=>
   string(6) "JoeFoo"
 }
-
-Notice: Indirect modification of overloaded element of Peoples has no effect in %sarray_access_005.php on line 46
 string(6) "JoeFoo"
-
-Notice: Indirect modification of overloaded element of Peoples has no effect in %sarray_access_005.php on line 48
 string(6) "JoeFoo"
 ===DONE===

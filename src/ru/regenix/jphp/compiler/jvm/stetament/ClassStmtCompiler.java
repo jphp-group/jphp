@@ -466,6 +466,25 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
+    protected Set<ClassEntity> writeInterfaces(ClassEntity _interface){
+        Set<ClassEntity> result = new HashSet<ClassEntity>();
+        writeInterfaces(_interface, result);
+        return result;
+    }
+
+    protected void writeInterfaces(ClassEntity _interface, Set<ClassEntity> used) {
+        if (used.add(_interface)){
+            if (_interface != null && _interface.isInternal())
+                node.interfaces.add(_interface.getInternalName());
+
+            if (_interface != null){
+                for(ClassEntity el : _interface.getInterfaces().values()){
+                    writeInterfaces(el, used);
+                }
+            }
+        }
+    }
+
     protected ClassEntity fetchClass(String name){
         ClassEntity result = compiler.getModule().findClass(name);
         if (result == null)
@@ -480,6 +499,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             Environment env = compiler.getEnvironment();
             for(FulledNameToken name : statement.getImplement()){
                 ClassEntity implement = fetchClass(name.getName());
+                Set<ClassEntity> needWriteInterfaceMethods = new HashSet<ClassEntity>();
                 if (implement == null) {
                     env.error(
                             name.toTraceInfo(compiler.getContext()),
@@ -492,14 +512,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                                 Messages.ERR_CANNOT_IMPLEMENT.fetch(entity.getName(), implement.getName())
                         );
                     }
-                    if (implement.isInternal())
-                        node.interfaces.add(implement.getInternalName());
+                    if (!statement.isInterface())
+                        needWriteInterfaceMethods = writeInterfaces(implement);
                 }
                 ClassEntity.ImplementsResult addResult = entity.addInterface(implement);
                 addResult.check(env);
 
-                if (implement != null && implement.isInternal())
-                    writeInterfaceMethods(implement.getMethods().values());
+                for(ClassEntity el : needWriteInterfaceMethods){
+                    if (el.isInternal()) {
+                        writeInterfaceMethods(el.getMethods().values());
+                    }
+                }
             }
         }
     }

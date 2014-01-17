@@ -29,4 +29,9 @@ public class ArrayPushExprToken extends OperatorExprToken {
     public String getCode() {
         return "refOfPush";
     }
+
+    @Override
+    public boolean isTraceNeeded() {
+        return true;
+    }
 }

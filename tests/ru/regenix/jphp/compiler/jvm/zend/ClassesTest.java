@@ -392,6 +392,14 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/array_access_002.php");
         check("zend/classes/array_access_003.php");
         check("zend/classes/array_access_004.php");
-        //check("zend/classes/array_access_005.php");
+        check("zend/classes/array_access_005.php");
+        check("zend/classes/array_access_006.php");
+        check("zend/classes/array_access_007.php");
+        check("zend/classes/array_access_008.php");
+        check("zend/classes/array_access_009.php");
+        check("zend/classes/array_access_010.php");
+        check("zend/classes/array_access_011.php");
+        check("zend/classes/array_access_012.php");
+        check("zend/classes/array_access_013.php");
     }
 }

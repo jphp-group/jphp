@@ -78,7 +78,7 @@ public class VarDump extends Printer {
             printer.write(value.size() + "");
             printer.write(") {\n");
 
-            level += PRINT_INDENT;
+            level += 1;
 
             used.add(value.getPointer());
             ForeachIterator iterator = value.foreachIterator(false, false);
@@ -86,7 +86,7 @@ public class VarDump extends Printer {
                 Memory el = iterator.getValue();
                 if (el == Memory.UNDEFINED) continue;
 
-                printer.write(StringUtils.repeat(' ', level));
+                printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
                 Memory key = iterator.getMemoryKey();
 
                 printer.write('[');
@@ -99,14 +99,14 @@ public class VarDump extends Printer {
                 }
 
                 printer.write("]=>\n");
-                printer.write(StringUtils.repeat(' ', level));
+                printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
-                print(el, level + 1, used);
+                print(el, level, used);
                 //printer.write('\n');
             }
 
-            level -= PRINT_INDENT;
-            printer.write(StringUtils.repeat(' ', level));
+            level -= 1;
+            printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             printer.write("}\n");
 
             used.remove(value.getPointer());
@@ -194,7 +194,7 @@ public class VarDump extends Printer {
                 printer.write("]=>\n");
                 printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
-                print(iterator.getValue(), level + 1, used);
+                print(iterator.getValue(), level, used);
                 //printer.write('\n');
             }
 

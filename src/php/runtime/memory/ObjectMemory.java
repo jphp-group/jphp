@@ -530,7 +530,7 @@ public class ObjectMemory extends Memory {
     private void invalidUseAsArray(TraceInfo trace){
         Environment env = value.getEnvironment();
         if (env != null){
-            env.error(getReflection().getTrace(), ErrorType.E_ERROR,
+            env.error(trace == null ? getReflection().getTrace() : trace, ErrorType.E_ERROR,
                     Messages.ERR_CANNOT_USE_OBJECT_AS_ARRAY, getReflection().getName()
             );
         }
@@ -584,32 +584,27 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public Memory assignConcat(Memory memory) {
-                    value = toValue();
-                    return super.assignConcat(memory);
+                    return assign(toValue().concat(memory));
                 }
 
                 @Override
                 public Memory assignConcat(long memory) {
-                    value = toValue();
-                    return super.assignConcat(memory);
+                    return assign(toValue().concat(memory));
                 }
 
                 @Override
                 public Memory assignConcat(double memory) {
-                    value = toValue();
-                    return super.assignConcat(memory);
+                    return assign(toValue().concat(memory));
                 }
 
                 @Override
                 public Memory assignConcat(boolean memory) {
-                    value = toValue();
-                    return super.assignConcat(memory);
+                    return assign(toValue().concat(memory));
                 }
 
                 @Override
                 public Memory assignConcat(String memory) {
-                    value = toValue();
-                    return super.assignConcat(memory);
+                    return assign(toValue().concat(memory));
                 }
 
                 @Override
@@ -999,6 +994,81 @@ public class ObjectMemory extends Memory {
                 @Override
                 public Memory dec() {
                     return toValue().dec();
+                }
+
+                @Override
+                public Memory valueOfIndex(TraceInfo trace, Memory index) {
+                    return toValue().valueOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory valueOfIndex(TraceInfo trace, long index) {
+                    return toValue().valueOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory valueOfIndex(TraceInfo trace, double index) {
+                    return toValue().valueOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory valueOfIndex(TraceInfo trace, String index) {
+                    return toValue().valueOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory valueOfIndex(TraceInfo trace, boolean index) {
+                    return toValue().valueOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory refOfPush(TraceInfo trace) {
+                    return toValue().refOfPush(trace);
+                }
+
+                @Override
+                public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) {
+                    return toValue().refOfIndexAsShortcut(trace, index);
+                }
+
+                @Override
+                public Memory refOfIndex(TraceInfo trace, Memory index) {
+                    return toValue().refOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory refOfIndex(TraceInfo trace, long index) {
+                    return toValue().refOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory refOfIndex(TraceInfo trace, double index) {
+                    return toValue().refOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory refOfIndex(TraceInfo trace, String index) {
+                    return toValue().refOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory refOfIndex(TraceInfo trace, boolean index) {
+                    return toValue().refOfIndex(trace, index);
+                }
+
+                @Override
+                public void unsetOfIndex(TraceInfo trace, Memory index) {
+                    toValue().unsetOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory issetOfIndex(TraceInfo trace, Memory index) {
+                    return toValue().issetOfIndex(trace, index);
+                }
+
+                @Override
+                public Memory emptyOfIndex(TraceInfo trace, Memory index) {
+                    return toValue().emptyOfIndex(trace, index);
                 }
             };
         } else {
