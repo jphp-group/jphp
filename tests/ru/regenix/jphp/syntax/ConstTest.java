@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorException;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.value.IntegerExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.ConstStmtToken;

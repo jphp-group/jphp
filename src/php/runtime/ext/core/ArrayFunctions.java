@@ -1,8 +1,8 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
-import ru.regenix.jphp.exceptions.RecursiveException;
+import php.runtime.annotation.Runtime;
+import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.exceptions.RecursiveException;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;

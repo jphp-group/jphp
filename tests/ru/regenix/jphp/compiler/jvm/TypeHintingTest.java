@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.common.HintType;
+import php.runtime.common.HintType;
 import php.runtime.memory.*;
 import php.runtime.Memory;
 import php.runtime.reflection.ParameterEntity;

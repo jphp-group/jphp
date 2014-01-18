@@ -1,8 +1,8 @@
 package ru.regenix.jphp.tokenizer;
 
-import ru.regenix.jphp.common.Directive;
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.ParseException;
+import php.runtime.common.Directive;
+import php.runtime.common.Messages;
+import php.runtime.exceptions.ParseException;
 import php.runtime.env.Context;
 import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.tokenizer.token.*;
@@ -527,7 +527,7 @@ public class Tokenizer {
                             String name = directive.substring(2, p);
                             String value = p + 1 < directive.length() ? directive.substring(p + 1) : "";
                             if (!directives.containsKey(name.toLowerCase()))
-                                directives.put(name.toLowerCase(), new Directive(value, result));
+                                directives.put(name.toLowerCase(), new Directive(value, result.toTraceInfo(context)));
                         }
                     }
                 }

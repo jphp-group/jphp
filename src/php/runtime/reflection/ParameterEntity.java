@@ -1,6 +1,6 @@
 package php.runtime.reflection;
 
-import ru.regenix.jphp.common.HintType;
+import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;

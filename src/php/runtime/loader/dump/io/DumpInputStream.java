@@ -1,8 +1,8 @@
 package php.runtime.loader.dump.io;
 
-import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.common.LangMode;
-import ru.regenix.jphp.common.Modifier;
+import php.runtime.common.HintType;
+import php.runtime.common.LangMode;
+import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;

@@ -1,7 +1,7 @@
 package php.runtime.annotation;
 
-import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.common.Modifier;
+import php.runtime.common.HintType;
+import php.runtime.common.Modifier;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

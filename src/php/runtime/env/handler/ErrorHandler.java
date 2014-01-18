@@ -1,7 +1,7 @@
 package php.runtime.env.handler;
 
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.DieException;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;

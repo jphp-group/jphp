@@ -1,6 +1,6 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.compiler.common.compile.*;
+import php.runtime.ext.support.compile.*;
 
 final public class MathConstants extends ConstantsContainer {
     public double M_PI = Math.PI;

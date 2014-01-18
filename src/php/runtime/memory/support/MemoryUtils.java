@@ -1,7 +1,7 @@
 package php.runtime.memory.support;
 
 import php.runtime.Memory;
-import ru.regenix.jphp.common.HintType;
+import php.runtime.common.HintType;
 import php.runtime.memory.*;
 
 import java.util.*;

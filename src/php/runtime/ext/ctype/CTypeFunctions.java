@@ -1,7 +1,7 @@
 package php.runtime.ext.ctype;
 
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.annotation.Runtime;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.Memory;
 
 /**

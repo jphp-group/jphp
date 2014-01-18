@@ -1,10 +1,10 @@
 package php.runtime.reflection;
 
-import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.common.StringUtils;
-import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.HintType;
+import php.runtime.common.Modifier;
+import php.runtime.common.StringUtils;
+import php.runtime.ext.support.Extension;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;

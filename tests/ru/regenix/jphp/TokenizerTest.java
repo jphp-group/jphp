@@ -8,7 +8,7 @@ import org.junit.runners.MethodSorters;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import ru.regenix.jphp.exceptions.ParseException;
+import php.runtime.exceptions.ParseException;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.CommentToken;
 import ru.regenix.jphp.tokenizer.token.SemicolonToken;

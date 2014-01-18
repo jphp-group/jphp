@@ -1,8 +1,8 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.Separator;
-import ru.regenix.jphp.exceptions.FatalException;
+import php.runtime.common.Messages;
+import php.runtime.common.Separator;
+import php.runtime.exceptions.FatalException;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;

@@ -1,7 +1,7 @@
 package php.runtime.lang;
 
-import ru.regenix.jphp.exceptions.support.ErrorType;
-import ru.regenix.jphp.lib.collections.map.HashedMap;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.common.collections.map.HashedMap;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.memory.ReferenceMemory;

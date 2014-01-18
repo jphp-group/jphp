@@ -1,6 +1,6 @@
 package php.runtime.reflection.support;
 
-import ru.regenix.jphp.common.StringUtils;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Context;
 import php.runtime.env.TraceInfo;
 

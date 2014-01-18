@@ -1,12 +1,12 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.annotation.Runtime;
+import php.runtime.annotation.Runtime;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.*;
 import php.runtime.env.handler.ErrorHandler;
 import php.runtime.env.handler.ExceptionHandler;

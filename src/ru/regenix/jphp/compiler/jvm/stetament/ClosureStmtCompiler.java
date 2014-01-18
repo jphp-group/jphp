@@ -1,6 +1,6 @@
 package ru.regenix.jphp.compiler.jvm.stetament;
 
-import ru.regenix.jphp.common.Modifier;
+import php.runtime.common.Modifier;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import php.runtime.lang.Closure;
 import php.runtime.reflection.ClassEntity;

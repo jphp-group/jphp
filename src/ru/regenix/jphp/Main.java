@@ -8,7 +8,7 @@ import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.CompileScope;
+import php.runtime.env.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;

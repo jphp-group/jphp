@@ -1,6 +1,6 @@
 package php.runtime.ext.bcmath;
 
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.env.Environment;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;

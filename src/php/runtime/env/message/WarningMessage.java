@@ -1,8 +1,8 @@
 package php.runtime.env.message;
 
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 

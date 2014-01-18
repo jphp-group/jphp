@@ -1,9 +1,9 @@
 package php.runtime.ext;
 
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.env.CompileScope;
+import php.runtime.ext.support.Extension;
+import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 
 public class CoreExtension extends Extension {

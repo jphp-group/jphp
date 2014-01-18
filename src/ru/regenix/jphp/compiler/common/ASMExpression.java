@@ -1,8 +1,8 @@
 package ru.regenix.jphp.compiler.common;
 
-import ru.regenix.jphp.common.Association;
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Association;
+import php.runtime.common.Messages;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import ru.regenix.jphp.tokenizer.token.Token;

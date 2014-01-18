@@ -1,7 +1,7 @@
 package ru.regenix.jphp.syntax;
 
-import ru.regenix.jphp.common.Directive;
-import ru.regenix.jphp.common.LangMode;
+import php.runtime.common.Directive;
+import php.runtime.common.LangMode;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import ru.regenix.jphp.syntax.generators.*;
@@ -178,7 +178,7 @@ public class SyntaxAnalyzer {
                 this.langMode = LangMode.valueOf(mode.value.toUpperCase());
             } catch (IllegalArgumentException e){
                 environment.warning(
-                        mode.getTraceInfo(getContext()), "Invalid value '%s' for directive 'mode'", mode.value
+                        mode.trace, "Invalid value '%s' for directive 'mode'", mode.value
                 );
             }
         }

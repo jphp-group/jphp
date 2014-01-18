@@ -1,7 +1,7 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.common.LangMode;
+import php.runtime.common.HintType;
+import php.runtime.common.LangMode;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.BodyGenerator;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;

@@ -1,9 +1,9 @@
 package ru.regenix.jphp.syntax.generators;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.exceptions.ParseException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.common.Modifier;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;

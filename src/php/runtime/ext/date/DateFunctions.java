@@ -1,6 +1,6 @@
 package php.runtime.ext.date;
 
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.DoubleMemory;
 import php.runtime.Memory;
 import php.runtime.memory.StringMemory;

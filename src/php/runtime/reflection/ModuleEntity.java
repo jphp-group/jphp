@@ -1,7 +1,7 @@
 package php.runtime.reflection;
 
-import ru.regenix.jphp.common.LangMode;
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import php.runtime.common.LangMode;
+import php.runtime.exceptions.support.ErrorException;
 import php.runtime.env.Context;
 import php.runtime.env.DieException;
 import php.runtime.env.Environment;

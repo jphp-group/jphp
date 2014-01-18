@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorException;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;

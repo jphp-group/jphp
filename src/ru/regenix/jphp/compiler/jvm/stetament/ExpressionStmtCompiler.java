@@ -3,14 +3,14 @@ package ru.regenix.jphp.compiler.jvm.stetament;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.common.Association;
-import ru.regenix.jphp.common.LangMode;
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.StringUtils;
+import php.runtime.annotation.Runtime;
+import php.runtime.common.Association;
+import php.runtime.common.LangMode;
+import php.runtime.common.Messages;
+import php.runtime.common.StringUtils;
 import ru.regenix.jphp.compiler.common.ASMExpression;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.compiler.common.compile.CompileFunction;
+import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.ext.support.compile.CompileFunction;
 import ru.regenix.jphp.compiler.common.misc.StackItem;
 import ru.regenix.jphp.compiler.common.util.CompilerUtils;
 import ru.regenix.jphp.compiler.jvm.Constants;
@@ -18,8 +18,8 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.compiler.jvm.misc.JumpItem;
 import ru.regenix.jphp.compiler.jvm.misc.LocalVariable;
 import ru.regenix.jphp.compiler.jvm.misc.StackFrame;
-import ru.regenix.jphp.exceptions.CompileException;
-import ru.regenix.jphp.exceptions.FatalException;
+import php.runtime.exceptions.CompileException;
+import php.runtime.exceptions.FatalException;
 import php.runtime.OperatorUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -1539,9 +1539,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
         } else if (macro instanceof MethodMacroToken){
-
             if (method.clazz.isSystem())
-                return Memory.NULL;
+                return method.clazz.getFunctionName() != null
+                        ? new StringMemory(method.clazz.getFunctionName()) : Memory.NULL;
             else
                 return new StringMemory(
                     method.clazz.entity.getName()

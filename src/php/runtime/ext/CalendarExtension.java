@@ -1,6 +1,6 @@
 package php.runtime.ext;
 
-import ru.regenix.jphp.compiler.common.Extension;
+import php.runtime.ext.support.Extension;
 
 public class CalendarExtension extends Extension {
     @Override

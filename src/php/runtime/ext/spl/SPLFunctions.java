@@ -1,8 +1,8 @@
 package php.runtime.ext.spl;
 
 import php.runtime.memory.StringMemory;
-import ru.regenix.jphp.common.StringUtils;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.common.StringUtils;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.env.Environment;
 import php.runtime.env.SplClassLoader;
 import php.runtime.env.TraceInfo;

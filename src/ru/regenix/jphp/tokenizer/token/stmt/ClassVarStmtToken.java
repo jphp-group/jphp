@@ -1,6 +1,6 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
-import ru.regenix.jphp.common.Modifier;
+import php.runtime.common.Modifier;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;

@@ -1,13 +1,13 @@
 package php.runtime.reflection;
 
-import ru.regenix.jphp.common.HintType;
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.HintType;
+import php.runtime.common.Messages;
+import php.runtime.common.Modifier;
+import php.runtime.env.CompileScope;
+import php.runtime.ext.support.Extension;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;

@@ -1,6 +1,6 @@
 package php.runtime.env.handler;
 
-import ru.regenix.jphp.exceptions.FatalException;
+import php.runtime.exceptions.FatalException;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;

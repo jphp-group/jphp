@@ -1,6 +1,6 @@
 package php.runtime.env.handler;
 
-import ru.regenix.jphp.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorException;
 import php.runtime.env.message.SystemMessage;
 
 abstract public class ErrorReportHandler {

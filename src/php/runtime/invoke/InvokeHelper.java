@@ -1,8 +1,8 @@
 package php.runtime.invoke;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;

@@ -1,6 +1,7 @@
 package ru.regenix.jphp.compiler;
 
-import ru.regenix.jphp.common.LangMode;
+import php.runtime.common.LangMode;
+import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
 import ru.regenix.jphp.tokenizer.token.Token;
 import php.runtime.env.Environment;

@@ -8,7 +8,6 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
-import ru.regenix.jphp.compiler.CompileScope;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

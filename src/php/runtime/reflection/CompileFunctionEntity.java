@@ -1,8 +1,8 @@
 package php.runtime.reflection;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.compiler.common.compile.CompileFunction;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.ext.support.compile.CompileFunction;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.Memory;

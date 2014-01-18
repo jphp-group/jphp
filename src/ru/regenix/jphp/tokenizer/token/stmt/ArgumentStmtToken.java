@@ -1,6 +1,6 @@
 package ru.regenix.jphp.tokenizer.token.stmt;
 
-import ru.regenix.jphp.common.HintType;
+import php.runtime.common.HintType;
 import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.TokenType;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;

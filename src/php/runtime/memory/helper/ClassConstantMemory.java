@@ -1,7 +1,7 @@
 package php.runtime.memory.helper;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.ReferenceMemory;

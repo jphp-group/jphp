@@ -1,6 +1,6 @@
 package php.runtime.env;
 
-import ru.regenix.jphp.common.Constants;
+import php.runtime.common.Constants;
 
 import java.io.*;
 import java.nio.charset.Charset;

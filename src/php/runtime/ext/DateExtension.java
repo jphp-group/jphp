@@ -1,7 +1,7 @@
 package php.runtime.ext;
 
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.Extension;
+import php.runtime.env.CompileScope;
+import php.runtime.ext.support.Extension;
 import php.runtime.ext.date.DateFunctions;
 
 public class DateExtension extends Extension {

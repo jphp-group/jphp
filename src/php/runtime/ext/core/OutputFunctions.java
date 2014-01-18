@@ -1,6 +1,6 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 

@@ -1,6 +1,9 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
+import php.runtime.common.Constants;
+import php.runtime.common.Messages;
+import php.runtime.common.StringUtils;
 import php.runtime.env.handler.*;
 import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
@@ -21,17 +24,13 @@ import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.JVMStackTracer;
-import ru.regenix.jphp.common.Constants;
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.StringUtils;
-import ru.regenix.jphp.compiler.CompileScope;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.exceptions.CustomErrorException;
-import ru.regenix.jphp.exceptions.FatalException;
-import ru.regenix.jphp.exceptions.support.ErrorException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.exceptions.CustomErrorException;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
+import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
@@ -44,7 +43,7 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static ru.regenix.jphp.exceptions.support.ErrorType.*;
+import static php.runtime.exceptions.support.ErrorType.*;
 
 public class Environment {
     public final CompileScope scope;
@@ -345,7 +344,7 @@ public class Environment {
 
     public ClassEntity autoloadCall(String name, String lowerName) {
         // detect recursion in autoload
-        if (autoloadLocks.add(lowerName)){
+        if (StringUtils.isValidClassName(name) && autoloadLocks.add(lowerName)){
             StringMemory tmp = new StringMemory(name);
             for(SplClassLoader loader : classLoaders)
                 loader.load(tmp);

@@ -1,7 +1,7 @@
 package php.runtime.ext.core;
 
 
-import ru.regenix.jphp.compiler.common.compile.ConstantsContainer;
+import php.runtime.ext.support.compile.ConstantsContainer;
 
 public class LangConstants extends ConstantsContainer {
     public final static int PHP_INT_SIZE = 8;

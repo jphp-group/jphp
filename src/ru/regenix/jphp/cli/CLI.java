@@ -1,9 +1,9 @@
 package ru.regenix.jphp.cli;
 
 import com.beust.jcommander.JCommander;
-import ru.regenix.jphp.Information;
+import php.runtime.Information;
 import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.CompileScope;
+import php.runtime.env.CompileScope;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;

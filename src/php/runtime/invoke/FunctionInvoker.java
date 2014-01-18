@@ -1,6 +1,6 @@
 package php.runtime.invoke;
 
-import ru.regenix.jphp.common.Messages;
+import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.Memory;

@@ -1,7 +1,7 @@
 package php.runtime.memory;
 
-import ru.regenix.jphp.exceptions.RecursiveException;
-import ru.regenix.jphp.lib.collections.map.LinkedMap;
+import php.runtime.exceptions.RecursiveException;
+import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;

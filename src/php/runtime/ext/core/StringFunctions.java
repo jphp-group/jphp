@@ -1,9 +1,9 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.common.StringUtils;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
-import ru.regenix.jphp.exceptions.TodoException;
+import php.runtime.annotation.Runtime;
+import php.runtime.common.StringUtils;
+import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.exceptions.TodoException;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
@@ -11,7 +11,7 @@ import php.runtime.memory.*;
 import php.runtime.Memory;
 import php.runtime.util.PrintF;
 import php.runtime.util.SScanF;
-import ru.regenix.jphp.util.DigestUtils;
+import php.runtime.common.DigestUtils;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;

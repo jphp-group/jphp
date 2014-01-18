@@ -1,6 +1,6 @@
 package php.runtime.ext.core;
 
-import ru.regenix.jphp.compiler.common.compile.ConstantsContainer;
+import php.runtime.ext.support.compile.ConstantsContainer;
 
 public class StringConstants extends ConstantsContainer {
     public final int STR_PAD_LEFT = 0;

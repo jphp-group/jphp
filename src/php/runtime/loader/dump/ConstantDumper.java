@@ -1,6 +1,6 @@
 package php.runtime.loader.dump;
 
-import ru.regenix.jphp.common.Modifier;
+import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;

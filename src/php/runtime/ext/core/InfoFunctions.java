@@ -13,11 +13,11 @@ import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
-import ru.regenix.jphp.Information;
-import ru.regenix.jphp.annotation.Runtime;
-import ru.regenix.jphp.compiler.common.Extension;
-import ru.regenix.jphp.compiler.common.compile.CompileConstant;
-import ru.regenix.jphp.compiler.common.compile.FunctionsContainer;
+import php.runtime.Information;
+import php.runtime.annotation.Runtime;
+import php.runtime.ext.support.Extension;
+import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.ext.support.compile.FunctionsContainer;
 
 import java.io.StringWriter;
 import java.util.HashSet;

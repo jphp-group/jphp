@@ -416,5 +416,10 @@ public class ClassesTest extends JvmCompilerCase {
         check("zend/classes/autoload_009.php", true);
         check("zend/classes/autoload_010.php", true);
         check("zend/classes/autoload_011.php", true);
+
+        check("zend/classes/autoload_018.php");
+        check("zend/classes/autoload_019.php");
+
+        check("zend/classes/autoload_021.php",true);
     }
 }

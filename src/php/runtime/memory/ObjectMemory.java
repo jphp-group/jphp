@@ -1,9 +1,9 @@
 package php.runtime.memory;
 
-import ru.regenix.jphp.common.Messages;
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.exceptions.CriticalException;
-import ru.regenix.jphp.exceptions.support.ErrorType;
+import php.runtime.common.Messages;
+import php.runtime.common.Modifier;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;

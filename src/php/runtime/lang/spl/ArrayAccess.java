@@ -1,6 +1,6 @@
 package php.runtime.lang.spl;
 
-import ru.regenix.jphp.common.HintType;
+import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.Memory;
 

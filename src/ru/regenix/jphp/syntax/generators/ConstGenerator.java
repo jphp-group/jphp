@@ -1,7 +1,7 @@
 package ru.regenix.jphp.syntax.generators;
 
 
-import ru.regenix.jphp.common.Separator;
+import php.runtime.common.Separator;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.manually.SimpleExprGenerator;
 import ru.regenix.jphp.tokenizer.TokenType;

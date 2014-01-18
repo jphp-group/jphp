@@ -1,9 +1,9 @@
 package ru.regenix.jphp.syntax.generators.manually;
 
 
-import ru.regenix.jphp.common.Callback;
-import ru.regenix.jphp.common.Separator;
-import ru.regenix.jphp.exceptions.ParseException;
+import php.runtime.common.Callback;
+import php.runtime.common.Separator;
+import php.runtime.exceptions.ParseException;
 import php.runtime.env.TraceInfo;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.syntax.generators.ExprGenerator;

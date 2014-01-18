@@ -1,7 +1,7 @@
 package php.runtime.memory.output;
 
-import ru.regenix.jphp.common.Modifier;
-import ru.regenix.jphp.common.StringUtils;
+import php.runtime.common.Modifier;
+import php.runtime.common.StringUtils;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
