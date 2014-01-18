@@ -5,13 +5,9 @@ import php.runtime.invoke.Invoker;
 import php.runtime.invoke.StaticMethodInvoker;
 import php.runtime.memory.ArrayMemory;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class SplClassLoader {
     protected Invoker invoker;
     protected Memory callback;
-    protected Set<String> locks = new HashSet<String>();
 
     public SplClassLoader(Invoker invoker, Memory callback){
         this.invoker = invoker;
@@ -44,9 +40,6 @@ public class SplClassLoader {
 
     public boolean load(Memory... args){
         // recursion
-        String name = args[0].toString().toLowerCase();
-        if (!locks.add(name))
-            return false;
 
         invoker.pushCall(null, new Memory[0]);
         try {
@@ -54,7 +47,6 @@ public class SplClassLoader {
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         } finally {
-            locks.remove(name);
             invoker.popCall();
         }
     }

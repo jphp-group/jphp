@@ -341,16 +341,23 @@ public class Environment {
         return constantMap.containsKey(lowerName);
     }
 
-    public ClassEntity autoloadCall(String name) {
-        StringMemory tmp = new StringMemory(name);
-        for(SplClassLoader loader : classLoaders)
-            loader.load(tmp);
+    private final Set<String> autoloadLocks = new HashSet<String>();
 
-        if (defaultAutoLoader != null){
-            defaultAutoLoader.load(tmp);
-        }
+    public ClassEntity autoloadCall(String name, String lowerName) {
+        // detect recursion in autoload
+        if (autoloadLocks.add(lowerName)){
+            StringMemory tmp = new StringMemory(name);
+            for(SplClassLoader loader : classLoaders)
+                loader.load(tmp);
 
-        return fetchClass(name, false);
+            if (defaultAutoLoader != null){
+                defaultAutoLoader.load(tmp);
+            }
+
+            autoloadLocks.remove(lowerName);
+            return fetchClass(name, false);
+        } else
+            return null;
     }
 
     public ClassEntity fetchClass(String name) {
@@ -386,7 +393,7 @@ public class Environment {
         ClassEntity entity = classMap.get(nameL);
 
         if (entity == null){
-            return autoLoad ? autoloadCall(name) : null;
+            return autoLoad ? autoloadCall(name, nameL) : null;
         } else {
             return entity;/*
             if (isLoadedClass(nameL) || entity.isInternal())
