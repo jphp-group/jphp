@@ -46,6 +46,7 @@ public class CompileScope {
     public LangMode langMode = LangMode.JPHP;
 
     public final ClassEntity stdClassEntity;
+    public final ClassEntity closureEntity;
 
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
@@ -73,7 +74,7 @@ public class CompileScope {
         superGlobals.add("_SESSION");
         superGlobals.add("_COOKIE");
 
-        registerClass(new ClassEntity(this, Closure.class));
+        registerClass(closureEntity = new ClassEntity(this, Closure.class));
         registerClass(new ClassEntity(this, BaseException.class));
         registerClass(new ClassEntity(this, ErrorException.class));
         registerClass(stdClassEntity = new ClassEntity(this, StdClass.class));

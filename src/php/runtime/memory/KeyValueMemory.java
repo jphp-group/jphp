@@ -9,4 +9,8 @@ public class KeyValueMemory extends ReferenceMemory {
         super(value);
         this.key = key;
     }
+
+    public static Memory valueOf(Memory key, Memory value){
+        return new KeyValueMemory(key, value);
+    }
 }

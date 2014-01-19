@@ -33,6 +33,13 @@ public class CompileFunctionEntity extends FunctionEntity {
                     name, compileFunction.getMinArgs(), arguments.length
             ));
             return Memory.NULL;
+        } else {
+            if (arguments.length > method.argsCount && !method.isVarArg()) {
+                env.warning(trace, Messages.ERR_EXPECT_EXACTLY_PARAMS,
+                        name, method.argsCount, arguments.length
+                );
+                return Memory.NULL;
+            }
         }
 
         Class<?>[] types = method.parameterTypes;
@@ -54,7 +61,7 @@ public class CompileFunctionEntity extends FunctionEntity {
             } else if (clazz == TraceInfo.class) {
                 passed[i] = trace;
             } else if (i == types.length - 1 && types[i] == Memory[].class){
-                Memory[] arg = new Memory[types.length - i];
+                Memory[] arg = new Memory[arguments.length - i + 1];
                 if (!isRef){
                     for(int k = 0; k < arg.length; k++)
                         arg[i] = arguments[i].toImmutable();

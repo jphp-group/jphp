@@ -646,7 +646,10 @@ public class Tokenizer {
 
             if (first && (!init || prevToken == null)){
                 // numbers: integers, doubles, hex
-                if (Character.isDigit(ch)){
+                if (Character.isDigit(ch)
+                        || (ch == '.' && prevToken == null
+                                && currentPosition + 1 < codeLength
+                                && Character.isDigit(code.charAt(currentPosition + 1)))){
                     return readNumber(startPosition, startLine);
                 }
 

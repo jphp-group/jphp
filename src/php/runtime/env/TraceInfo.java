@@ -3,6 +3,9 @@ package php.runtime.env;
 import java.io.File;
 
 public class TraceInfo {
+
+    public final static TraceInfo UNKNOWN = new TraceInfo("Unknown", -1, -1);
+
     private Context context;
 
     private int startLine;

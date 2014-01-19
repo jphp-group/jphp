@@ -24,10 +24,7 @@ import ru.regenix.jphp.tester.Test;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 import ru.regenix.jphp.tokenizer.token.Token;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 abstract public class JvmCompilerCase {
@@ -112,7 +109,9 @@ abstract public class JvmCompilerCase {
 
     @SuppressWarnings("unchecked")
     protected Memory includeResource(String name, ArrayMemory globals){
-        Environment environment = new Environment(newScope());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        Environment environment = new Environment(newScope(), output);
         File file = new File(Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile());
         Context context = new Context(file);
 
@@ -134,7 +133,7 @@ abstract public class JvmCompilerCase {
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
-        lastOutput = environment.getDefaultBuffer().getOutputAsString();
+        lastOutput = output.toString();
         return memory;
     }
 
@@ -161,7 +160,8 @@ abstract public class JvmCompilerCase {
 
     public void check(String name, boolean withErrors){
         File file;
-        Environment environment = new Environment(newScope());
+        ByteArrayOutputStream outputR = new ByteArrayOutputStream();
+        Environment environment = new Environment(newScope(), outputR);
         //environment.setErrorFlags(ErrorType.E_ALL.value);
 
         Test test = new Test(file = new File(
@@ -172,7 +172,7 @@ abstract public class JvmCompilerCase {
         try {
             JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
             environment.setErrorFlags(0);
-            ModuleEntity module = compiler.compile();
+            ModuleEntity module = compiler.compile(false);
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ModuleDumper dumper = new ModuleDumper(context, environment, true);
@@ -182,6 +182,7 @@ abstract public class JvmCompilerCase {
             module = dumper.load(new ByteArrayInputStream(output.toByteArray()));
 
             environment.getScope().loadModule(module);
+            environment.getScope().addUserModule(module);
             environment.registerModule(module);
 
             Memory memory = module.includeNoThrow(environment, environment.getGlobals());
@@ -201,12 +202,22 @@ abstract public class JvmCompilerCase {
 
         try {
             environment.doFinal();
+        } catch (ErrorException e){
+            if (withErrors) {
+                environment.getErrorReportHandler().onFatal(e);
+                try {
+                    environment.getDefaultBuffer().flush();
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            } else
+                throw e;
         } catch (RuntimeException e){
             throw e;
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
-        lastOutput = environment.getDefaultBuffer().getOutputAsString();
+        lastOutput = outputR.toString();
 
         if (test.getExpect() != null)
             Assert.assertEquals(test.getTest() + " (" + name + ")", test.getExpect(), rtrim(lastOutput));

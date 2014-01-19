@@ -30,6 +30,7 @@ public class CoreExtension extends Extension {
         registerFunctions(new StringFunctions());
         registerConstants(new ArrayConstants());
         registerFunctions(new ArrayFunctions());
+        registerConstants(new OutputConstants());
         registerFunctions(new OutputFunctions());
 
         // T_ERROR

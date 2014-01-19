@@ -53,7 +53,7 @@ public class CompileFunction {
         if (method.isVarArgs()){
             if (methodVarArgs != null)
                 throw new IllegalArgumentException("Cannot add two var-args methods");
-            methodVarArgs = new Method(method, asImmutable);
+            methodVarArgs = new Method(method, 0, asImmutable);
             int count = 0;
             Class<?>[] types = method.getParameterTypes();
             for(int i = 0; i < types.length; i++){
@@ -119,7 +119,7 @@ public class CompileFunction {
         if (methods[count] != null)
             throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
-        methods[count] = new Method(method, asImmutable);
+        methods[count] = new Method(method, count, asImmutable);
     }
 
     @Override
@@ -160,9 +160,15 @@ public class CompileFunction {
 
         public final boolean[] references;
 
-        public Method(java.lang.reflect.Method method, boolean _asImmutable) {
+        public final int argsCount;
+
+        public Method(java.lang.reflect.Method method, int argsCount, boolean _asImmutable) {
+            this.argsCount = argsCount;
             this.method = method;
             converters = MemoryUtils.getConverters(parameterTypes = method.getParameterTypes());
+            if (method.isVarArgs())
+                converters[converters.length - 1] = null;
+
             parameterAnnotations = method.getParameterAnnotations();
             resultType = method.getReturnType();
             isImmutable = method.isAnnotationPresent(Runtime.Immutable.class) || _asImmutable;
@@ -198,6 +204,10 @@ public class CompileFunction {
                     return true;
 
             return false;
+        }
+
+        public boolean isVarArg(){
+            return method.isVarArgs();
         }
     }
 }
