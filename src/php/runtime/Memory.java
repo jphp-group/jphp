@@ -161,6 +161,12 @@ abstract public class Memory {
     public Memory newKeyValue(boolean memory){ return new KeyValueMemory(this.toValue(), memory ? TRUE : FALSE); }
     public Memory newKeyValue(String memory){ return new KeyValueMemory(this.toValue(), new StringMemory(memory)); }
 
+    public Memory newKeyValueRight(Memory memory){ return new KeyValueMemory(memory, this.toValue()); }
+    public Memory newKeyValueRight(long memory){ return new KeyValueMemory(LongMemory.valueOf(memory), this.toValue()); }
+    public Memory newKeyValueRight(double memory){ return new KeyValueMemory(new DoubleMemory(memory), this.toValue()); }
+    public Memory newKeyValueRight(boolean memory){ return new KeyValueMemory(memory ? TRUE : FALSE, this.toValue()); }
+    public Memory newKeyValueRight(String memory){ return new KeyValueMemory(new StringMemory(memory), this.toValue()); }
+
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isResource() { return false; }
     public boolean isArray(){ return type == Type.ARRAY; }

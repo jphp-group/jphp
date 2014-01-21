@@ -18,6 +18,19 @@ public class StaticMethodInvoker extends Invoker {
     }
 
     @Override
+    public void check(String name, TraceInfo trace) {
+        if (!method.isStatic())
+            env.warning(trace,
+                    name + "(): non-static method "
+                            + method.getSignatureString(false) +" should not be called statically");
+    }
+
+    @Override
+    public String getName() {
+        return calledClass + "::" + method.getName();
+    }
+
+    @Override
     public int getArgumentCount() {
         return method.parameters == null ? 0 : method.parameters.length;
     }
@@ -37,6 +50,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public Memory call(Memory... args) throws Throwable {
+
         return InvokeHelper.callStatic(env, trace, method, args);
     }
 
@@ -52,7 +66,7 @@ public class StaticMethodInvoker extends Invoker {
 
         MethodEntity methodEntity = classEntity == null ? null : classEntity.findMethod(methodName.toLowerCase());
 
-        if (methodEntity == null || !methodEntity.isStatic()){
+        if (methodEntity == null /*|| !methodEntity.isStatic()*/){
             if (classEntity != null && classEntity.methodMagicCallStatic != null){
                 return new MagicStaticMethodInvoker(
                         env, trace, className, classEntity.methodMagicCallStatic, methodName

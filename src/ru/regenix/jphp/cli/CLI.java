@@ -57,6 +57,7 @@ public class CLI {
     protected void executeFile(String filename){
         File file = new File(filename);
         Environment environment = new Environment(compileScope, output);
+        environment.getDefaultBuffer().setImplicitFlush(true);
         try {
             Context context = environment.createContext(file);
 

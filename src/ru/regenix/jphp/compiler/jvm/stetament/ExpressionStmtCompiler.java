@@ -265,6 +265,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writeWarning(Token token, String message){
+        writePushEnv();
+        writePushTraceInfo(token);
+        writePushConstString(message);
+        writePushConstNull();
+        writeSysDynamicCall(Environment.class, "warning", void.class, TraceInfo.class, String.class, Object[].class);
+    }
+
     void writePushBooleanAsMemory(boolean value){
         if (value)
             code.add(new FieldInsnNode(
@@ -297,6 +305,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             /*code.add(new FieldInsnNode(
                     GETSTATIC, Type.getInternalName(Memory.class), "TRUE", Type.getDescriptor(Memory.class)
             ));*/
+        } else if (memory instanceof KeyValueMemory){
+            writePushMemory(((KeyValueMemory) memory).key);
+            writePopBoxing();
+            writePushMemory(((KeyValueMemory) memory).value);
+            writePopBoxing();
+            writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class);
+            setStackPeekAsImmutable();
+            return;
         } else if (memory instanceof ReferenceMemory){
             code.add(new TypeInsnNode(NEW, Type.getInternalName(ReferenceMemory.class)));
             code.add(new InsnNode(DUP));
@@ -681,10 +697,27 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     boolean writeOpcode, PushCallStatistic statistic){
         CompileFunction.Method method = compileFunction.find( function.getParameters().size() );
         if (method == null){
-            throw new CompileException(
-                    Messages.ERR_INCORRECT_ARGUMENTS_TO_FUNCTION.fetch(function.getName().getWord()),
-                    function.getName().toTraceInfo(compiler.getContext())
-            );
+            if (!writeOpcode)
+                return Memory.NULL;
+
+            writeWarning(function, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
+                    compileFunction.name, compileFunction.getMinArgs(), function.getParameters().size()
+            ));
+            if (returnValue)
+                writePushNull();
+
+            return null;
+        } else if (!method.isVarArg() && method.argsCount < function.getParameters().size()){
+            if (!writeOpcode)
+                return Memory.NULL;
+
+            writeWarning(function, Messages.ERR_EXPECT_EXACTLY_PARAMS.fetch(
+                    compileFunction.name, method.argsCount, function.getParameters().size()
+            ));
+            if (returnValue)
+                writePushNull();
+
+            return null;
         }
 
         if (statistic != null)
@@ -1452,11 +1485,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (ret == null)
                     writePushDup();
 
-                Memory result = writeExpression(param, true, returnMemory, ret == null);
+                Memory result = writeExpression(param, true, true, ret == null);
+
                 if (result != null) {
-                    if (ret != null)
+                    if (ret != null) {
                         ret.add(result);
-                    continue;
+                        continue;
+                    } else
+                        writePushMemory(result);
                 } else {
                     if (!writeOpcode)
                         return null;
@@ -2907,16 +2943,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         for(ExprStmtToken argument : token.getArguments()){
             writePushEnv();
             writeExpression(argument, true, false);
-            writePopString();
-            writeSysDynamicCall(Environment.class, "echo", void.class, String.class);
+            writePopBoxing();
+            writeSysDynamicCall(Environment.class, "echo", void.class, Memory.class);
         }
     }
 
     void writeOpenEchoTag(OpenEchoTagToken token){
         writePushEnv();
         writeExpression(token.getValue(), true, false);
-        writePopString();
-        writeSysDynamicCall(Environment.class, "echo", void.class, String.class);
+        writePopBoxing();
+        writeSysDynamicCall(Environment.class, "echo", void.class, Memory.class);
     }
 
     void writeBody(BodyStmtToken body){

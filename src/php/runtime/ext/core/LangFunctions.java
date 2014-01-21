@@ -1,6 +1,7 @@
 package php.runtime.ext.core;
 
 import php.runtime.annotation.Runtime;
+import php.runtime.env.message.SystemMessage;
 import ru.regenix.jphp.compiler.AbstractCompiler;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
@@ -99,6 +100,26 @@ public class LangFunctions extends FunctionsContainer {
         int old = env.getErrorFlags();
         env.setErrorFlags(level);
         return old;
+    }
+
+    public static int error_reporting(Environment env){
+        return env.getErrorFlags();
+    }
+
+    public static Memory error_get_last(Environment env){
+        SystemMessage err = env.getLastMessage();
+        if (err == null)
+            return Memory.NULL;
+
+        ArrayMemory result = new ArrayMemory();
+        result.refOfIndex("type").assign(err.getType().value);
+        result.refOfIndex("message").assign(err.getMessage());
+        if (err.getTrace() != null && err.getTrace().trace != null){
+            result.refOfIndex("file").assign(err.getTrace().trace.getFileName());
+            result.refOfIndex("line").assign(err.getTrace().trace.getStartLine() + 1);
+            result.refOfIndex("position").assign(err.getTrace().trace.getStartPosition() + 1);
+        }
+        return result.toConstant();
     }
 
     public static boolean trigger_error(Environment env, TraceInfo trace, String message, int type){

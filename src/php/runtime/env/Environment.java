@@ -9,6 +9,11 @@ import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.env.message.WarningMessage;
+import php.runtime.exceptions.CustomErrorException;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.ForeachIterator;
@@ -24,18 +29,11 @@ import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.JVMStackTracer;
-import php.runtime.ext.support.compile.CompileConstant;
-import php.runtime.exceptions.CustomErrorException;
-import php.runtime.exceptions.FatalException;
-import php.runtime.exceptions.support.ErrorException;
-import php.runtime.exceptions.support.ErrorType;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -130,6 +128,7 @@ public class Environment {
         }
 
         finalizeObjects();
+        flushAll();
         lastMessage = null;
     }
 
@@ -555,8 +554,12 @@ public class Environment {
 
     protected void triggerError(ErrorException err){
         ErrorType type = err.getType();
-        if (type.isFatal() || isHandleErrors(type))
+        if (type.isFatal() || isHandleErrors(type)) {
+            lastMessage = new CustomSystemMessage(
+                    err.getType(), new CallStackItem(err.getTraceInfo()), new Messages.Item(err.getMessage())
+            );
             throw err;
+        }
     }
 
     public boolean catchUncaught(Exception e){
@@ -656,12 +659,14 @@ public class Environment {
 
     public void warning(TraceInfo trace, String message, Object... args){
         //if (isHandleErrors(E_WARNING))
-        triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
+        error(trace, E_WARNING, message, args);
+       // triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
     }
 
     public void warning(TraceInfo trace, Messages.Item message, Object... args){
         //if (isHandleErrors(E_WARNING))
-        triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
+        error(trace, E_WARNING, message, args);
+        //triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
     }
 
     public void notice(String message, Object... args){
@@ -687,37 +692,62 @@ public class Environment {
 
     public OutputBuffer pushOutputBuffer(Memory callback, int chunkSize, boolean erase){
         OutputBuffer buffer = new OutputBuffer(this, peekOutputBuffer(), callback, chunkSize, erase);
+        buffer.setLevel(outputBuffers.size());
+        buffer.setType(OutputBuffer.Type.USER);
+
         outputBuffers.push(buffer);
         return buffer;
     }
 
-    public OutputBuffer popOutputBuffer(){
-        return outputBuffers.pop();
+    public OutputBuffer popOutputBuffer() throws Throwable {
+        if (outputBuffers.empty()) return null;
+        if (outputBuffers.peek().isRoot()) return null;
+
+        OutputBuffer result = outputBuffers.pop();
+        result.close();
+        return result;
+    }
+
+    public List<OutputBuffer> allOutputBuffers() {
+        List<OutputBuffer> result = new ArrayList<OutputBuffer>();
+        for(OutputBuffer el : outputBuffers)
+            result.add(el);
+
+        return result;
     }
 
     public OutputBuffer peekOutputBuffer(){
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
+    public void echo(Memory value){
+        OutputBuffer buffer = peekOutputBuffer();
+        if (buffer != null)
+            try {
+                buffer.write(value);
+            } catch (RuntimeException e){
+                throw e;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+    }
+
     public void echo(String value){
         OutputBuffer buffer = peekOutputBuffer();
         if (buffer != null)
-            buffer.write(value);
+            try {
+                buffer.write(value);
+            } catch (RuntimeException e){
+                throw e;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
     }
 
-    public void echo(InputStream input) throws IOException {
-        OutputBuffer buffer = peekOutputBuffer();
-        if (buffer != null)
-            buffer.write(input);
-    }
-
-    public void flushAll() throws IOException {
-        OutputBuffer last = null;
-        while (peekOutputBuffer() != null){
-            last = popOutputBuffer();
-            last.flush();
-        }
-        outputBuffers.push(defaultBuffer);
+    public void flushAll() throws Throwable {
+        while (popOutputBuffer() != null);
+        defaultBuffer.close();
+        //outputBuffers.push(defaultBuffer);
     }
 
     public ModuleEntity importModule(File file) throws Throwable {
@@ -882,7 +912,9 @@ public class Environment {
     }
 
     public Memory __getSingletonClosure(String moduleIndex, int index){
-        return scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
+        Memory result = scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
+        assert result != null;
+        return result;
     }
 
     public void __throwException(TraceInfo trace, Memory exception){

@@ -17,6 +17,11 @@ public class FunctionInvoker extends Invoker {
     }
 
     @Override
+    public String getName() {
+        return entity.getName();
+    }
+
+    @Override
     public int getArgumentCount() {
         return entity.parameters == null ? 0 : entity.parameters.length;
     }

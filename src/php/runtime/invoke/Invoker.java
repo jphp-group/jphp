@@ -8,11 +8,9 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.Memory;
 
 abstract public class Invoker {
-
     protected final Environment env;
     protected TraceInfo trace;
     protected boolean pushCallTrace = true;
-
 
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
@@ -26,6 +24,12 @@ abstract public class Invoker {
     public void setPushCallTrace(boolean pushCallTrace) {
         this.pushCallTrace = pushCallTrace;
     }
+
+    public void check(String name, TraceInfo trace){
+
+    }
+
+    abstract public String getName();
 
     abstract public int getArgumentCount();
 
