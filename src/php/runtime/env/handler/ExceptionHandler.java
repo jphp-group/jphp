@@ -17,7 +17,7 @@ public class ExceptionHandler {
         public boolean onException(Environment env, BaseException exception) throws Throwable {
             ClassEntity entity = exception.getReflection();
             env.getErrorReportHandler().onFatal(new FatalException(
-                    "Uncaught exception '" + entity.getName() + "'",
+                    "Uncaught exception '" + entity.getName() + "' with message '" + exception.getMessage(env) + "'" ,
                     exception.getTrace()
             ));
             env.echo("\nStack Trace:\n");

@@ -21,8 +21,5 @@ array (
 )
 Warning: var_export does not handle circular references in %s on line %d at pos %d
 array (
-  'x' =>
-  array (
-    'x' => NULL,
-  ),
+  'x' => NULL,
 )

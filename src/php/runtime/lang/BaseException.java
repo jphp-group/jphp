@@ -49,8 +49,11 @@ public class BaseException extends RuntimeException implements IObject {
     })
     public Memory __construct(Environment env, Memory... args) {
         clazz.refOfProperty(props, "message").assign(args[0].toString());
-        clazz.refOfProperty(props, "code").assign(args[1].toLong());
-        clazz.refOfProperty(props, "previous").assign(args[2]);
+        if (args.length > 1)
+            clazz.refOfProperty(props, "code").assign(args[1].toLong());
+
+        if (args.length > 2)
+            clazz.refOfProperty(props, "previous").assign(args[2]);
 
         return Memory.NULL;
     }

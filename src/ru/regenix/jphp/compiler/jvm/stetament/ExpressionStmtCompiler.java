@@ -2895,7 +2895,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writePushDup();*/
 
                     writePush(o1);
-                    writePopImmutable();
+                    if (!o1.immutable)
+                        writePopImmutable();
                 }
                 if (name != null)
                     writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());

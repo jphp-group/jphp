@@ -648,7 +648,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     public int compare(ArrayMemory otherRef, boolean strict, Set<Integer> used) {
         int size1 = size(),
-            size2 = otherRef.size();
+                size2 = otherRef.size();
 
         if (size1 < size2)
             return -1;

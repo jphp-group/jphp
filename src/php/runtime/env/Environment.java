@@ -241,6 +241,10 @@ public class Environment {
         pushCall(null, self, args, method, self.getReflection().getName(), null);
     }
 
+    public void pushCall(TraceInfo trace, IObject self, String method, Memory... args){
+        pushCall(trace, self, args, method, self.getReflection().getName(), null);
+    }
+
     public void popCall(){
         callStack[--callStackTop].clear(); // clear for GC
     }
@@ -646,6 +650,15 @@ public class Environment {
 
         if (errorReportHandler != null && isHandleErrors(message.getType()))
             errorReportHandler.onError(message);
+    }
+
+    public void exception(TraceInfo trace, String message){
+        BaseException e = new BaseException(this, scope.exceptionEntity);
+        e.__construct(this, new StringMemory(
+                message
+        ));
+        e.setTraceInfo(this, trace);
+        throw e;
     }
 
     public boolean isHandleErrors(ErrorType type){
