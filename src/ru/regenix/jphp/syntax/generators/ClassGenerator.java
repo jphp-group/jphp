@@ -126,7 +126,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                                                       ListIterator<Token> iterator){
         Token next = current;
         Token prev = null;
-        Set<VariableExprToken> variables = new HashSet<VariableExprToken>();
+        Set<VariableExprToken> variables = new LinkedHashSet<VariableExprToken>();
         ExprStmtToken initValue = null;
 
         List<ClassVarStmtToken> result = new ArrayList<ClassVarStmtToken>();

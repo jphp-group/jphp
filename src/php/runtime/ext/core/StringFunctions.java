@@ -1,17 +1,19 @@
 package php.runtime.ext.core;
 
+import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
+import php.runtime.common.DigestUtils;
 import php.runtime.common.StringUtils;
-import php.runtime.ext.support.compile.FunctionsContainer;
-import php.runtime.exceptions.TodoException;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.TodoException;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
-import php.runtime.Memory;
+import php.runtime.memory.output.serialization.Deserializer;
+import php.runtime.memory.output.serialization.Serializer;
 import php.runtime.util.PrintF;
 import php.runtime.util.SScanF;
-import php.runtime.common.DigestUtils;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
@@ -23,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.Arrays;
 import java.util.zip.CRC32;
 
 /**
@@ -1475,6 +1477,18 @@ public class StringFunctions extends FunctionsContainer {
         return str_pad(string, length, " ", constants.STR_PAD_RIGHT);
     }
 
+    public static String serialize(Environment env, TraceInfo trace, Memory value){
+        StringBuilder writer = new StringBuilder();
+        Serializer serializer = new Serializer(env, trace, writer);
+
+        serializer.write(value);
+        return writer.toString();
+    }
+
+    public static Memory unserialize(Environment env, TraceInfo trace, String value){
+        Deserializer deserializer = new Deserializer(env, trace);
+        return deserializer.read(value);
+    }
 
     static {
         DEFAULT_DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols();

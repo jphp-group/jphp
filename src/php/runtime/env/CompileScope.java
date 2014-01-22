@@ -47,6 +47,7 @@ public class CompileScope {
 
     public final ClassEntity stdClassEntity;
     public final ClassEntity closureEntity;
+    public final ClassEntity exceptionEntity;
 
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
@@ -75,7 +76,7 @@ public class CompileScope {
         superGlobals.add("_COOKIE");
 
         registerClass(closureEntity = new ClassEntity(this, Closure.class));
-        registerClass(new ClassEntity(this, BaseException.class));
+        registerClass(exceptionEntity = new ClassEntity(this, BaseException.class));
         registerClass(new ClassEntity(this, ErrorException.class));
         registerClass(stdClassEntity = new ClassEntity(this, StdClass.class));
         registerClass(new ClassEntity(this, ArrayAccess.class));

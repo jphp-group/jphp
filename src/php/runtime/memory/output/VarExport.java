@@ -68,14 +68,13 @@ public class VarExport extends Printer {
     }
 
     protected void printArray(ArrayMemory value, int level, Set<Integer> used, boolean stripNulls) {
-        if (used.contains(value.getPointer())){
+        if (!used.add(value.getPointer())){
             recursionExists = true;
             printNull();
         } else {
             printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
             printer.write("array (\n");
 
-            used.add(value.getPointer());
             ForeachIterator iterator = value.foreachIterator(false, false);
 
             level += 1;
