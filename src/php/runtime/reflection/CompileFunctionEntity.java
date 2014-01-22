@@ -1,6 +1,7 @@
 package php.runtime.reflection;
 
 import php.runtime.common.Messages;
+import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
@@ -14,15 +15,20 @@ public class CompileFunctionEntity extends FunctionEntity {
     private final CompileFunction compileFunction;
     private MemoryUtils.Converter<?> converters[][];
 
-    public CompileFunctionEntity(CompileFunction compileFunction) {
+    public CompileFunctionEntity(Extension extension, CompileFunction compileFunction) {
         super(null);
         this.compileFunction = compileFunction;
         this.setName(compileFunction.name);
+        this.setExtension(extension);
     }
 
     @Override
     public boolean isInternal() {
         return true;
+    }
+
+    public CompileFunction getCompileFunction() {
+        return compileFunction;
     }
 
     @Override

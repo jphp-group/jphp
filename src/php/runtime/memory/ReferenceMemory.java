@@ -927,4 +927,9 @@ public class ReferenceMemory extends Memory {
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
         return value.clone(env, trace);
     }
+
+    @Override
+    public boolean isClosure() {
+        return value.isClosure();
+    }
 }

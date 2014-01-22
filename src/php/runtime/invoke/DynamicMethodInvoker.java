@@ -8,6 +8,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ParameterEntity;
 
 public class DynamicMethodInvoker extends Invoker {
     protected final IObject object;
@@ -17,6 +18,11 @@ public class DynamicMethodInvoker extends Invoker {
         super(env, trace);
         this.object = object;
         this.method = method;
+    }
+
+    @Override
+    public ParameterEntity[] getParameters() {
+        return method.parameters;
     }
 
     @Override

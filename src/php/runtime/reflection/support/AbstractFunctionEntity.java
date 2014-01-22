@@ -3,6 +3,9 @@ package php.runtime.reflection.support;
 
 import php.runtime.env.Context;
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.ext.support.Extension;
+import php.runtime.lang.Closure;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.ParameterEntity;
 
@@ -16,8 +19,32 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected Memory result;
     protected boolean abstractable = false;
 
+    protected Extension extension;
+    protected boolean deprecated;
+
     protected AbstractFunctionEntity(Context context) {
         super(context);
+        docComment = new DocumentComment();
+    }
+
+    public Closure getClosure(Environment env){
+        return null;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
+    public Extension getExtension() {
+        return extension;
+    }
+
+    public void setExtension(Extension extension) {
+        this.extension = extension;
     }
 
     public Memory getResult() {

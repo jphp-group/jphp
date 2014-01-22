@@ -24,6 +24,7 @@ import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -98,6 +99,10 @@ public class ClassEntity extends Entity {
         this.isInternal = false;
     }
 
+    public void setExtension(Extension extension) {
+        this.extension = extension;
+    }
+
     public ClassEntity(CompileScope scope, Class<?> nativeClazz){
         this(null, scope, nativeClazz);
     }
@@ -121,6 +126,17 @@ public class ClassEntity extends Entity {
         }
         setInternalName(nativeClazz.getName().replace('.', '/'));
 
+        for(Field field : nativeClazz.getDeclaredFields()){
+            int mod = field.getModifiers();
+            if (java.lang.reflect.Modifier.isFinal(mod) && java.lang.reflect.Modifier.isStatic(mod)){
+                try {
+                    addConstant(new ConstantEntity(field.getName(), MemoryUtils.valueOf(field.get(null)), true));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
         Reflection.Signature signature = nativeClazz.getAnnotation(Reflection.Signature.class);
         if (signature != null){
             for(Reflection.Arg arg : signature.value()){
@@ -141,6 +157,23 @@ public class ClassEntity extends Entity {
         }
 
         if (signature == null || !signature.root()){
+            if (scope != null){
+                Class<?> extend = nativeClazz.getSuperclass();
+                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
+                    String name = extend.getSimpleName();
+                    if (extend.isAnnotationPresent(Reflection.Name.class)){
+                        name = extend.getAnnotation(Reflection.Name.class).value();
+                    }
+                    ClassEntity entity = scope.findUserClass(name);
+                    if (entity == null || entity.getType() != Type.CLASS)
+                        throw new IllegalArgumentException("Class '"+name+"' not registered");
+
+                    ExtendsResult result = setParent(entity, false);
+                    result.check(null);
+                    updateParentMethods();
+                }
+            }
+
             for (Class<?> interface_ : nativeClazz.getInterfaces()){
                 if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
 
@@ -154,22 +187,6 @@ public class ClassEntity extends Entity {
 
                 ImplementsResult result = addInterface(entity);
                 result.check(null);
-            }
-
-            if (scope != null){
-                Class<?> extend = nativeClazz.getSuperclass();
-                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
-                    String name = extend.getSimpleName();
-                    if (extend.isAnnotationPresent(Reflection.Name.class)){
-                        name = extend.getAnnotation(Reflection.Name.class).value();
-                    }
-                    ClassEntity entity = scope.findUserClass(name);
-                    if (entity == null || entity.getType() != Type.CLASS)
-                        throw new IllegalArgumentException("Class '"+name+"' not registered");
-
-                    ExtendsResult result = setParent(entity);
-                    result.check(null);
-                }
             }
         }
 
@@ -742,7 +759,7 @@ public class ClassEntity extends Entity {
         return object;
     }
 
-    public IObject newObject(Environment env, TraceInfo trace, Memory[] args)
+    public IObject newObject(Environment env, TraceInfo trace, Memory... args)
             throws Throwable {
         if (isAbstract){
             env.error(trace, "Cannot instantiate abstract class %s", name);

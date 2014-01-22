@@ -5,6 +5,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.Memory;
 import php.runtime.reflection.FunctionEntity;
+import php.runtime.reflection.ParameterEntity;
 
 public class FunctionInvoker extends Invoker {
     private final FunctionEntity entity;
@@ -14,6 +15,11 @@ public class FunctionInvoker extends Invoker {
         super(env, trace);
         entity = function;
         this.env = env;
+    }
+
+    @Override
+    public ParameterEntity[] getParameters() {
+        return entity.parameters;
     }
 
     @Override

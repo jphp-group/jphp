@@ -1,5 +1,6 @@
 package php.runtime.ext.support;
 
+import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -7,20 +8,36 @@ import php.runtime.ext.support.compile.ConstantsContainer;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.reflection.ClassEntity;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 abstract public class Extension {
     abstract public String getName();
     abstract public String getVersion();
 
+    public String[] getRequiredExtensions(){
+        return new String[0];
+    }
+
+    public String[] getOptionalExtensions(){
+        return new String[0];
+    }
+
+    public String[] getConflictExtensions(){
+        return new String[0];
+    }
+
+    public Map<String, String> getINIEntries(){
+        return new HashedMap<String, String>();
+    }
+
     public void onRegister(CompileScope scope){
         // nop
     }
 
-    protected Map<String, CompileConstant> constants = new HashMap<String, CompileConstant>();
-    protected Map<String, CompileFunction> functions = new HashMap<String, CompileFunction>();
-    protected Map<String, ClassEntity> classes = new HashMap<String, ClassEntity>();
+    protected Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
+    protected Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
+    protected Map<String, ClassEntity> classes = new LinkedHashMap<String, ClassEntity>();
 
     public Map<String, CompileConstant> getConstants() {
         return constants;
@@ -36,6 +53,7 @@ abstract public class Extension {
 
     public void registerNativeClass(CompileScope scope, Class<?> clazz){
         ClassEntity classEntity = new ClassEntity(this, scope, clazz);
+        scope.registerClass(classEntity);
         classes.put(classEntity.getLowerName(), classEntity);
     }
 

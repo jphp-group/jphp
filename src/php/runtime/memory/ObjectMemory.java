@@ -6,6 +6,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.Resource;
@@ -1205,5 +1206,10 @@ public class ObjectMemory extends Memory {
             invalidUseAsArray(trace);
             return NULL;
         }
+    }
+
+    @Override
+    public boolean isClosure() {
+        return value instanceof Closure;
     }
 }

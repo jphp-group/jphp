@@ -135,18 +135,21 @@ public class CompileScope {
         compileFunctionMap.putAll(extension.getFunctions());
 
         for(ClassEntity clazz : extension.getClasses().values()){
-            registerClass(clazz);
+            if (!clazz.isInternal()){
+                registerClass(clazz);
+                clazz.setExtension(extension);
+            }
         }
 
         for(CompileFunction function : extension.getFunctions().values()){
-            functionMap.put(function.name.toLowerCase(), new CompileFunctionEntity(function));
+            functionMap.put(function.name.toLowerCase(), new CompileFunctionEntity(extension, function));
         }
 
-        extensions.put(extension.getName(), extension);
+        extensions.put(extension.getName().toLowerCase(), extension);
     }
 
     public Extension getExtension(String name){
-        return extensions.get(name);
+        return extensions.get(name.toLowerCase());
     }
 
     public Set<String> getExtensions(){

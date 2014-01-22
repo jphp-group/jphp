@@ -6,6 +6,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.Memory;
+import php.runtime.reflection.ParameterEntity;
 
 abstract public class Invoker {
     protected final Environment env;
@@ -28,6 +29,8 @@ abstract public class Invoker {
     public void check(String name, TraceInfo trace){
 
     }
+
+    abstract public ParameterEntity[] getParameters();
 
     abstract public String getName();
 

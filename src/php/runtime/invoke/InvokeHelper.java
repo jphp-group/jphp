@@ -1,18 +1,16 @@
 package php.runtime.invoke;
 
+import php.runtime.Memory;
 import php.runtime.common.Messages;
-import php.runtime.exceptions.FatalException;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.env.message.WarningMessage;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -147,11 +145,10 @@ final public class InvokeHelper {
                     if (param.getTypeClass() != null)
                         invalidTypeHinting(env, trace, param, i + 1, null, originClassName, originMethodName);
 
-                    env.triggerMessage(new WarningMessage(
-                            new CallStackItem(trace),
+                    env.error(trace, ErrorType.E_ERROR,
                             Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
                             originMethodName == null ? originClassName : originClassName + "::" + originMethodName
-                    ));
+                    );
                     passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
                 }
             } else {

@@ -35,8 +35,18 @@ public class MethodEntity extends AbstractFunctionEntity {
         super(context);
     }
 
+    public MethodEntity(FunctionEntity entity){
+        super(entity.getContext());
+        setParameters(entity.parameters);
+        setReturnReference(entity.isReturnReference());
+        setDeprecated(entity.isDeprecated());
+        setAbstract(false);
+        setAbstractable(false);
+        setModifier(Modifier.PUBLIC);
+    }
+
     public MethodEntity(Extension extension, Method method){
-        this(null);
+        this((Context)null);
         this.extension = extension;
 
         Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
@@ -111,6 +121,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         } finally {
             if (arguments != null){
                 int x = 0;
+                if (this.parameters != null)
                 for(ParameterEntity argument : this.parameters){
                     if (!argument.isReference) {
                         arguments[x].unset();

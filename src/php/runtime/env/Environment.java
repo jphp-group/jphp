@@ -257,6 +257,10 @@ public class Environment {
         }
     }
 
+    public TraceInfo trace(){
+        return peekCall(0).trace;
+    }
+
     public int getCallStackTop(){
         return callStackTop;
     }
@@ -653,6 +657,7 @@ public class Environment {
     }
 
     public void exception(TraceInfo trace, String message){
+        __clearSilent();
         BaseException e = new BaseException(this, scope.exceptionEntity);
         e.__construct(this, new StringMemory(
                 message
@@ -928,6 +933,12 @@ public class Environment {
         Memory result = scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
         assert result != null;
         return result;
+    }
+
+    public void __throwException(BaseException e){
+        __clearSilent();
+        e.setTraceInfo(this, peekCall(0).trace);
+        throw e;
     }
 
     public void __throwException(TraceInfo trace, Memory exception){

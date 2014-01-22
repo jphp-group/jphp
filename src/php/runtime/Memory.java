@@ -168,6 +168,7 @@ abstract public class Memory {
     public Memory newKeyValueRight(String memory){ return new KeyValueMemory(new StringMemory(memory), this.toValue()); }
 
     public boolean isObject() { return type == Type.OBJECT; }
+    public boolean isClosure() { return false; }
     public boolean isResource() { return false; }
     public boolean isArray(){ return type == Type.ARRAY; }
     public boolean isString() { return type == Type.STRING; }

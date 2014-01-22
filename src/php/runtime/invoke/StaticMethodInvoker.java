@@ -6,6 +6,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ParameterEntity;
 
 public class StaticMethodInvoker extends Invoker {
     protected final MethodEntity method;
@@ -15,6 +16,11 @@ public class StaticMethodInvoker extends Invoker {
         super(env, trace);
         this.method = method;
         this.calledClass = calledClass;
+    }
+
+    @Override
+    public ParameterEntity[] getParameters() {
+        return method.parameters;
     }
 
     @Override

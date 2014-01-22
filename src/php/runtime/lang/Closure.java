@@ -58,6 +58,14 @@ public abstract class Closure extends BaseObject implements IStaticVariables {
         return statics.get(name);
     }
 
+    public String getScope() {
+        return scope;
+    }
+
+    public Memory getSelf() {
+        return self;
+    }
+
     public Memory getOrCreateStatic(String name, Memory initValue){
         if (statics == null)
             statics = new HashedMap<String, ReferenceMemory>();

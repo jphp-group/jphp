@@ -41,6 +41,7 @@ public @interface Reflection {
         HintType type() default HintType.ANY;
         Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;
+        boolean readOnly() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
