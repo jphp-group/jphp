@@ -392,30 +392,38 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 ExprStmtToken value = argument.getValue();
                 if (value != null){
                     Memory defaultValue = expressionStmtCompiler.writeExpression(value, true, true, false);
-                    if (defaultValue == null){
-                        // try detect constant
-                        if (value.isSingle()) {
-                            if (value.getSingle() instanceof NameToken){
-                                parameters[i].setDefaultValue(new ConstantMemory(((NameToken) value.getSingle()).getName()));
-                            } else if (value.getSingle() instanceof StaticAccessExprToken){
-                                StaticAccessExprToken access = (StaticAccessExprToken)value.getSingle();
-                                if (access.getClazz() instanceof NameToken && access.getField() instanceof NameToken){
-                                    parameters[i].setDefaultValue(new ClassConstantMemory(
+
+                    // try detect constant
+                    if (value.isSingle()) {
+                        if (value.getSingle() instanceof NameToken){
+                            parameters[i].setDefaultValueConstName(((NameToken) value.getSingle()).getName());
+                            if (defaultValue == null)
+                                defaultValue = (new ConstantMemory(((NameToken) value.getSingle()).getName()));
+                        } else if (value.getSingle() instanceof StaticAccessExprToken){
+                            StaticAccessExprToken access = (StaticAccessExprToken)value.getSingle();
+
+                            if (access.getClazz() instanceof NameToken && access.getField() instanceof NameToken){
+                                if (defaultValue == null)
+                                    defaultValue = (new ClassConstantMemory(
                                             ((NameToken) access.getClazz()).getName(),
                                             ((NameToken) access.getField()).getName()
                                     ));
-                                }
+
+                                parameters[i].setDefaultValueConstName(
+                                        ((NameToken) access.getClazz()).getName() + "::" +
+                                        ((NameToken) access.getField()).getName()
+                                );
                             }
                         }
-
-                        if (parameters[i].getDefaultValue() == null)
-                            compiler.getEnvironment().error(
-                                    argument.toTraceInfo(compiler.getContext()), ErrorType.E_COMPILE_ERROR,
-                                    Messages.ERR_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
-                            );
-                    } else {
-                        parameters[i].setDefaultValue(defaultValue);
                     }
+
+                    if (defaultValue == null)
+                        compiler.getEnvironment().error(
+                                argument.toTraceInfo(compiler.getContext()), ErrorType.E_COMPILE_ERROR,
+                                Messages.ERR_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
+                        );
+
+                    parameters[i].setDefaultValue(defaultValue);
                 }
 
                 /*if (argument.getValue() != null){

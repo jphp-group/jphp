@@ -203,6 +203,8 @@ public class MemoryUtils {
                     return LongMemory.valueOf(Long.parseLong(value));
                 }
             }
+            case ARRAY:
+                return new ArrayMemory();
             case BOOLEAN:
                 return new StringMemory(value).toBoolean() ? Memory.TRUE : Memory.FALSE;
             case CALLABLE:

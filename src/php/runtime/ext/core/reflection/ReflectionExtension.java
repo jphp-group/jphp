@@ -23,6 +23,11 @@ public class ReflectionExtension extends Reflection {
         super(env, clazz);
     }
 
+    public void setExtension(Extension extension) {
+        this.extension = extension;
+        getProperties().put("name", new StringMemory(extension.getName()));
+    }
+
     @Signature(@Arg("name"))
     public Memory __construct(Environment env, Memory... args){
         String name = args[0].toString();
@@ -30,7 +35,7 @@ public class ReflectionExtension extends Reflection {
         if (extension == null){
             exception(env, "Extension %s does not exist", name);
         }
-        getProperties().put("name", new StringMemory(name));
+        setExtension(extension);
         return Memory.NULL;
     }
 

@@ -1,6 +1,7 @@
 package php.runtime.env;
 
 import php.runtime.common.LangMode;
+import php.runtime.ext.CoreExtension;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -75,18 +76,22 @@ public class CompileScope {
         superGlobals.add("_SESSION");
         superGlobals.add("_COOKIE");
 
-        registerClass(closureEntity = new ClassEntity(this, Closure.class));
-        registerClass(exceptionEntity = new ClassEntity(this, BaseException.class));
-        registerClass(new ClassEntity(this, ErrorException.class));
-        registerClass(stdClassEntity = new ClassEntity(this, StdClass.class));
-        registerClass(new ClassEntity(this, ArrayAccess.class));
+        CoreExtension extension = new CoreExtension();
+
+        registerClass(closureEntity = new ClassEntity(extension, this, Closure.class));
+        registerClass(exceptionEntity = new ClassEntity(extension, this, BaseException.class));
+        registerClass(new ClassEntity(extension, this, ErrorException.class));
+        registerClass(stdClassEntity = new ClassEntity(extension, this, StdClass.class));
+        registerClass(new ClassEntity(extension, this, ArrayAccess.class));
 
         // iterators
-        registerClass(new ClassEntity(this, Traversable.class));
-        registerClass(new ClassEntity(this, php.runtime.lang.spl.iterator.Iterator.class));
-        registerClass(new ClassEntity(this, IteratorAggregate.class));
+        registerClass(new ClassEntity(extension, this, Traversable.class));
+        registerClass(new ClassEntity(extension, this, php.runtime.lang.spl.iterator.Iterator.class));
+        registerClass(new ClassEntity(extension, this, IteratorAggregate.class));
 
-        registerClass(new ClassEntity(this, Serializable.class));
+        registerClass(new ClassEntity(extension, this, Serializable.class));
+
+        registerExtension(extension);
     }
 
     public LangMode getLangMode() {

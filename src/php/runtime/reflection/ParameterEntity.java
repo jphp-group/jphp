@@ -12,6 +12,7 @@ public class ParameterEntity extends Entity {
 
     protected ClassEntity clazz;
     protected Memory defaultValue;
+    protected String defaultValueConstName;
 
     protected boolean isReference;
     protected HintType type = HintType.ANY;
@@ -20,6 +21,14 @@ public class ParameterEntity extends Entity {
 
     public ParameterEntity(Context context) {
         super(context);
+    }
+
+    public String getDefaultValueConstName() {
+        return defaultValueConstName;
+    }
+
+    public void setDefaultValueConstName(String defaultValueConstName) {
+        this.defaultValueConstName = defaultValueConstName;
     }
 
     public Memory getDefaultValue() {

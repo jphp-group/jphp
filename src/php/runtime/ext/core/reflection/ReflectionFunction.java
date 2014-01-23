@@ -83,7 +83,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
         if (functionEntity instanceof CompileFunctionEntity)
             return LongMemory.valueOf(((CompileFunctionEntity) functionEntity).getCompileFunction().getMinArgs());
         else
-            return super.getNumberOfParameters(env, args);
+            return super.getNumberOfRequiredParameters(env, args);
     }
 
     @Signature

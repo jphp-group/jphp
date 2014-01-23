@@ -39,6 +39,7 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
 
         // memory
         print.writeMemory(entity.getDefaultValue());
+        print.writeName(entity.getDefaultValueConstName());
 
         // raw
         print.writeRawData(null);
@@ -56,6 +57,7 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
         entity.setTrace(data.readTrace(context));
 
         entity.setDefaultValue(data.readMemory());
+        entity.setDefaultValueConstName(data.readName());
 
         byte[] raw = data.readRawData();
         return entity;

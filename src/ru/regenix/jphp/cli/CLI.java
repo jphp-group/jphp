@@ -21,7 +21,6 @@ public class CLI {
     private final JCommander commander;
 
     {
-        compileScope.registerExtension(new CoreExtension());
         compileScope.registerExtension(new BCMathExtension());
         compileScope.registerExtension(new CTypeExtension());
         compileScope.registerExtension(new DateExtension());

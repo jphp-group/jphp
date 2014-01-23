@@ -73,4 +73,8 @@ public class TraceInfo {
     public int getEndPosition() {
         return endPosition;
     }
+
+    public boolean isUnknown(){
+        return this == UNKNOWN;
+    }
 }

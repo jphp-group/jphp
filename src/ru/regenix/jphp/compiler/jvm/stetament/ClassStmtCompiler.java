@@ -355,7 +355,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         continue;
                     }
                 }
-                other.add(el);
+
+                if (usedNames.contains(el.getFulledName()))
+                    first.add(0, el);
+                else
+                    other.add(el);
             }
 
             other.addAll(0, first);

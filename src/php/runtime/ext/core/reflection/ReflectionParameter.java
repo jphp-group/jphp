@@ -44,12 +44,26 @@ public class ReflectionParameter extends Reflection implements Reflector {
             }
             parameters = invoker.getParameters();
         } else {
-            FunctionEntity tmp = functionEntity = env.functionMap.get(args[0].toString());
-            if (tmp == null){
-                exception(env, "Function %s does not exist", args[0].toString());
-                return Memory.NULL;
+            String name = args[0].toString();
+            if (name.contains("::")){
+                Invoker invoker = Invoker.valueOf(env, null, args[0]);
+                if (invoker == null){
+                    exception(env, "%s does not exists", args[0].toString());
+                    return Memory.NULL;
+                }
+                parameters = invoker.getParameters();
+            } else {
+                FunctionEntity tmp = functionEntity = env.functionMap.get(name);
+                if (tmp == null){
+                    exception(env, "Function %s does not exist", args[0].toString());
+                    return Memory.NULL;
+                }
+                if (tmp.isInternal()){
+                    exception(env, "cos(): ReflectionParameter does not support internal functions", tmp.getName());
+                    return Memory.NULL;
+                }
+                parameters = tmp.parameters;
             }
-            parameters = tmp.parameters;
         }
         entity = null;
 
@@ -117,17 +131,10 @@ public class ReflectionParameter extends Reflection implements Reflector {
 
     @Signature
     public Memory getDefaultValueConstantName(Environment env, Memory... args){
-        Memory value = entity.getDefaultValue();
-        if (value instanceof ConstantMemory)
-            return new StringMemory(((ConstantMemory) value).getName());
-        else if (value instanceof ClassConstantMemory){
-            return new StringMemory(
-                    ((ClassConstantMemory) value).getClassName()
-                            + "::" +
-                    ((ClassConstantMemory) value).getName()
-            );
-        } else
-            return Memory.NULL;
+        if (entity.getDefaultValueConstName() == null)
+            return Memory.FALSE;
+        else
+            return new StringMemory(entity.getDefaultValueConstName());
     }
 
     @Signature

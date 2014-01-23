@@ -501,6 +501,7 @@ public class ClassEntity extends Entity {
 
             this.instanceOfList.add(parent.getLowerName());
             this.instanceOfList.addAll(parent.instanceOfList);
+            this.interfaces.putAll(parent.interfaces);
 
             this.properties.putAll(parent.properties);
             this.staticProperties.putAll(parent.staticProperties);
@@ -523,7 +524,8 @@ public class ClassEntity extends Entity {
 
         for(ConstantEntity e : _interface.constants.values()){
             ConstantEntity origin = constants.get(e.getName());
-            if (origin != null && e.getClazz().getId() == _interface.getId())
+            if (origin != null && e.getClazz().getId() == _interface.getId() &&
+                    (parent == null || parent.constants.get(e.getName()) == null))
                 result.signature.addConstant(InvalidConstant.error(origin, e));
         }
 

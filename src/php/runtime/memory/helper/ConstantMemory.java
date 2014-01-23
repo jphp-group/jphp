@@ -23,4 +23,9 @@ public class ConstantMemory extends ReferenceMemory {
     public String getName() {
         return name;
     }
+
+    @Override
+    public Memory toValue() {
+        return this;
+    }
 }

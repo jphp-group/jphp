@@ -5,7 +5,6 @@ import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
-import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -72,7 +71,7 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
             return Memory.NULL;
         else {
             ReflectionExtension ext = new ReflectionExtension(env, env.fetchClass("ReflectionExtension"));
-            ext.__construct(env, new StringMemory(extension.getName()));
+            ext.setExtension(extension);
             return new ObjectMemory(ext);
         }
     }
@@ -80,11 +79,11 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
     @Signature
     public Memory getExtensionName(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return Memory.NULL;
+            return Memory.FALSE;
 
         Extension extension = getEntity().getExtension();
         if (extension == null)
-            return Memory.NULL;
+            return Memory.FALSE;
         else
             return new StringMemory(extension.getName());
     }
@@ -99,21 +98,21 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
     @Signature
     public Memory getName(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return Memory.NULL;
+            return Memory.FALSE;
         return new StringMemory(getEntity().getName());
     }
 
     @Signature
     public Memory getNamespaceName(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return Memory.NULL;
+            return Memory.FALSE;
         return new StringMemory(getEntity().getNamespaceName());
     }
 
     @Signature
     public Memory getNumberOfParameters(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return LongMemory.valueOf(getEntity().parameters.length);
+            return LongMemory.valueOf(getClosureEntity().parameters.length);
         return LongMemory.valueOf(getEntity().parameters.length);
     }
 
@@ -140,20 +139,20 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
     @Signature
     public Memory getStartLine(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return LongMemory.valueOf(getClosureEntity().getTrace().getStartLine());
-        return LongMemory.valueOf(getEntity().getTrace().getStartLine());
+            return LongMemory.valueOf(getClosureEntity().getTrace().getStartLine() + 1);
+        return LongMemory.valueOf(getEntity().getTrace().getStartLine() + 1);
     }
 
     @Signature
     public Memory getPosition(Environment env, Memory... args){
         if (getClosureEntity() != null)
-            return LongMemory.valueOf(getClosureEntity().getTrace().getStartPosition());
-        return LongMemory.valueOf(getEntity().getTrace().getStartPosition());
+            return LongMemory.valueOf(getClosureEntity().getTrace().getStartPosition() + 1);
+        return LongMemory.valueOf(getEntity().getTrace().getStartPosition() + 1);
     }
 
     @Signature
     public Memory getStaticVariables(Environment env, Memory... args) {
-        return new ArrayMemory();
+        return Memory.FALSE;
     }
 
     @Signature
