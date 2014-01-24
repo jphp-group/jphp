@@ -2,6 +2,7 @@ package ru.regenix.jphp.syntax.generators;
 
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
+import php.runtime.common.Separator;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
@@ -156,7 +157,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 if (!(prev instanceof VariableExprToken))
                     unexpectedToken(next);
 
-                initValue = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator, null, null);
+                initValue = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null);
                 break;
             } else if (next instanceof SemicolonToken){
                 if (!(prev instanceof VariableExprToken))

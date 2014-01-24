@@ -50,5 +50,23 @@ public class ReflectionTest extends JvmCompilerCase {
         check("ext/reflection/ReflectionClass_014.php");
         check("ext/reflection/ReflectionClass_015.php");
         check("ext/reflection/ReflectionClass_016.php");
+        check("ext/reflection/ReflectionClass_017.php");
+        check("ext/reflection/ReflectionClass_018.php");
+        check("ext/reflection/ReflectionClass_019.php");
+        check("ext/reflection/ReflectionClass_020.php");
+        check("ext/reflection/ReflectionClass_021.php", true);
+        check("ext/reflection/ReflectionClass_022.php");
+        check("ext/reflection/ReflectionClass_023.php");
+        check("ext/reflection/ReflectionClass_024.php");
+        check("ext/reflection/ReflectionClass_025.php");
+    }
+
+    @Test
+    public void testProperty(){
+        check("ext/reflection/ReflectionProperty_001.php");
+        check("ext/reflection/ReflectionProperty_002.php");
+        check("ext/reflection/ReflectionProperty_003.php");
+        check("ext/reflection/ReflectionProperty_004.php");
+        check("ext/reflection/ReflectionProperty_005.php");
     }
 }

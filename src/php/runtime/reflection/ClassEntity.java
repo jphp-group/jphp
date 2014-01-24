@@ -401,6 +401,10 @@ public class ClassEntity extends Entity {
         return properties.get(name);
     }
 
+    public PropertyEntity findStaticProperty(String name){
+        return staticProperties.get(name);
+    }
+
     public ClassEntity getParent() {
         return parent;
     }
@@ -761,7 +765,7 @@ public class ClassEntity extends Entity {
         return object;
     }
 
-    public IObject newObject(Environment env, TraceInfo trace, Memory... args)
+    public IObject newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
             throws Throwable {
         if (isAbstract){
             env.error(trace, "Cannot instantiate abstract class %s", name);
@@ -800,7 +804,7 @@ public class ClassEntity extends Entity {
             tmp = tmp.parent;
         }
 
-        if (methodConstruct != null){
+        if (doConstruct && methodConstruct != null){
             ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args);
         }
         return object;
@@ -1207,7 +1211,8 @@ public class ClassEntity extends Entity {
         return Memory.NULL;
     }
 
-    public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists)
+    public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
+                                    boolean checkAccess)
             throws Throwable {
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context)
@@ -1219,10 +1224,12 @@ public class ClassEntity extends Entity {
             return Memory.NULL;
         }
 
-        int accessFlag = entity.canAccess(env);
-        if (accessFlag != 0) {
-            invalidAccessToProperty(env, trace, entity, accessFlag);
-            return Memory.NULL;
+        if (checkAccess){
+            int accessFlag = entity.canAccess(env);
+            if (accessFlag != 0) {
+                invalidAccessToProperty(env, trace, entity, accessFlag);
+                return Memory.NULL;
+            }
         }
 
         return env.getOrCreateStatic(

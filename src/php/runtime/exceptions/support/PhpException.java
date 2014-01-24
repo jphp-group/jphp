@@ -19,7 +19,7 @@ abstract public class PhpException extends RuntimeException implements JPHPExcep
     }
 
     public TraceInfo getTraceInfo() {
-        return traceInfo;
+        return traceInfo == null ? TraceInfo.UNKNOWN : traceInfo;
     }
 
     public void setTraceInfo(TraceInfo traceInfo) {

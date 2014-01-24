@@ -218,6 +218,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setModifier(property.getModifier());
                 prop.setStatic(property.isStatic());
                 prop.setDefaultValue(value);
+                prop.setDefault(property.getValue() != null);
                 prop.setTrace(property.toTraceInfo(compiler.getContext()));
 
                 ClassEntity.PropertyResult result = entity.addProperty(prop);

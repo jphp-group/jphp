@@ -36,6 +36,9 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
         // trace
         print.writeTrace(debugInformation ? entity.getTrace() : null);
 
+        // def
+        print.writeBoolean(entity.isDefault());
+
         // def value
         print.writeMemory(entity.getDefaultValue());
 
@@ -52,6 +55,7 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
         property.setModifier(data.readModifier());
         property.setName(data.readName());
         property.setTrace(data.readTrace(context));
+        property.setDefault(data.readBoolean());
         property.setDefaultValue(data.readMemory());
 
         byte[] raw = data.readRawData();

@@ -22,6 +22,7 @@ public class PropertyEntity extends Entity {
 
     protected String specificName;
     protected PropertyEntity prototype;
+    protected boolean isDefault;
 
     public PropertyEntity(Context context) {
         super(context);
@@ -33,6 +34,14 @@ public class PropertyEntity extends Entity {
 
     public void setPrototype(PropertyEntity prototype) {
         this.prototype = prototype;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 
     public Field getField() {
@@ -58,7 +67,7 @@ public class PropertyEntity extends Entity {
 
     public Memory getDefaultValue(Environment env) {
         if (defaultValue == null) {
-            Memory r = env.getStatic(internalName);
+            Memory r = env.getStatic(isStatic ? specificName : internalName);
             return r == null ? Memory.NULL : r;
         } else
             return defaultValue;

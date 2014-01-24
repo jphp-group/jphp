@@ -893,7 +893,7 @@ public class Environment {
         }
 
         assert entity != null;
-        IObject object = entity.newObject(this, trace, args);
+        IObject object = entity.newObject(this, trace, true, args);
 
         if (entity.methodDestruct != null) {
             cleanGcObjects();

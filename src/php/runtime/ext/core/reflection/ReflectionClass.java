@@ -177,6 +177,94 @@ public class ReflectionClass extends Reflection {
         return entity.isNamespace() ? Memory.TRUE : Memory.FALSE;
     }
 
+    private boolean checkModifiers(PropertyEntity prop, int mod){
+        boolean add = mod == -1;
+        if (!add){
+            switch (prop.getModifier()){
+                case PRIVATE:
+                    add = (mod & ReflectionProperty.IS_PRIVATE) == ReflectionProperty.IS_PRIVATE;
+                    break;
+                case PROTECTED:
+                    add = (mod & ReflectionProperty.IS_PROTECTED) == ReflectionProperty.IS_PROTECTED;
+                    break;
+                case PUBLIC:
+                    add = (mod & ReflectionProperty.IS_PUBLIC) == ReflectionProperty.IS_PUBLIC;
+                    break;
+            }
+        }
+        return add;
+    }
+
+    @Signature(@Arg("name"))
+    public Memory getProperty(Environment env, Memory... args){
+        String name = args[0].toString();
+        PropertyEntity e = entity.findProperty(name);
+        if (e == null)
+            e = entity.findStaticProperty(name);
+
+        if (e == null)
+            return Memory.NULL;
+
+        ClassEntity classEntity = env.fetchClass("ReflectionProperty");
+        ReflectionProperty prop = new ReflectionProperty(env, classEntity);
+        prop.setEntity(e);
+        return new ObjectMemory(prop);
+    }
+
+    @Signature
+    public Memory getStaticProperties(Environment env, Memory... args){
+        ArrayMemory result = new ArrayMemory();
+        ClassEntity classEntity = env.fetchClass("ReflectionProperty");
+        for(PropertyEntity e : entity.getStaticProperties()){
+            ReflectionProperty prop = new ReflectionProperty(env, classEntity);
+            prop.setEntity(e);
+            result.add(new ObjectMemory(prop));
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature(@Arg("name"))
+    public Memory getStaticPropertyValue(Environment env, Memory... args){
+        String name = args[0].toString();
+        PropertyEntity e = entity.findStaticProperty(name);
+        if (e == null){
+            exception(env, Messages.ERR_UNDEFINED_PROPERTY.fetch(entity.getName(), name));
+            return Memory.NULL;
+        }
+
+        if(!e.isDefault())
+            return Memory.FALSE;
+
+        return e.getDefaultValue(env).toImmutable();
+    }
+
+    @Signature(@Arg(value = "filter", optional = @Optional("NULL")))
+    public Memory getProperties(Environment env, Memory... args){
+        int mod = args[0].isNull() ? -1 : args[0].toInteger();
+
+        ArrayMemory result = new ArrayMemory();
+        ClassEntity classEntity = env.fetchClass("ReflectionProperty");
+
+        if (mod == -1 || (mod & ReflectionProperty.IS_STATIC) == ReflectionProperty.IS_STATIC){
+            for(PropertyEntity e : entity.getStaticProperties()){
+                ReflectionProperty prop = new ReflectionProperty(env, classEntity);
+                prop.setEntity(e);
+                result.add(new ObjectMemory(prop));
+            }
+        }
+
+        for(PropertyEntity e : entity.getProperties()){
+            if (checkModifiers(e, mod)){
+                ReflectionProperty prop = new ReflectionProperty(env, classEntity);
+                prop.setEntity(e);
+                result.add(new ObjectMemory(prop));
+            }
+        }
+
+        return result.toConstant();
+    }
+
     @Signature
     public Memory getParentClass(Environment env, Memory... args){
         if (entity.getParent() == null)
@@ -260,7 +348,7 @@ public class ReflectionClass extends Reflection {
     @Signature(@Arg("object"))
     public Memory isInstance(Environment env, Memory... args){
         if (args[0].isObject()){
-            return entity.isInstanceOf(args[0].toValue(ObjectMemory.class).getReflection())
+            return args[0].toValue(ObjectMemory.class).getReflection().isInstanceOf(entity)
                     ? Memory.TRUE : Memory.FALSE;
         } else
             return Memory.FALSE;
@@ -286,7 +374,7 @@ public class ReflectionClass extends Reflection {
 
     @Signature
     public Memory isIterable(Environment env, Memory... args){
-        return entity.isInstanceOfLower("iterable") ? Memory.TRUE : Memory.FALSE;
+        return entity.isInstanceOfLower("iterator") ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("class"))
@@ -302,7 +390,7 @@ public class ReflectionClass extends Reflection {
 
     @Signature
     public Memory newInstance(Environment env, Memory... args) throws Throwable {
-        return new ObjectMemory(entity.newObject(env, env.trace(), args));
+        return new ObjectMemory(entity.newObject(env, env.trace(), true, args));
     }
 
     @Signature(@Arg(value = "args", type = HintType.ARRAY, optional = @Optional(type = HintType.ARRAY)))
@@ -315,7 +403,7 @@ public class ReflectionClass extends Reflection {
 
     @Signature
     public Memory newInstanceWithoutConstructor(Environment env, Memory... args) throws Throwable {
-        return new ObjectMemory(entity.newObjectWithoutConstruct(env));
+        return new ObjectMemory(entity.newObject(env, env.trace(), false, args));
     }
 
     @Signature({

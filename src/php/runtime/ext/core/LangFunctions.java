@@ -749,15 +749,9 @@ public class LangFunctions extends FunctionsContainer {
         } else {
             if (object.isObject() && object.toValue(ObjectMemory.class).value instanceof Closure)
                 return Memory.FALSE;
-            do {
-                classEntity = classEntity.getParent();
-                if (classEntity == null)
-                    break;
-                if (classEntity.equals(parentClass))
-                    return Memory.TRUE;
 
-            } while (true);
-            return Memory.FALSE;
+            return classEntity.isInstanceOf(parentClass)
+                    && !classEntity.equals(parentClass) ? Memory.TRUE : Memory.FALSE;
         }
     }
 

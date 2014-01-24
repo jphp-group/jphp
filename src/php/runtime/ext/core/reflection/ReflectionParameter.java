@@ -228,7 +228,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
 
         return cachedFunction = new ObjectMemory(
                 env.fetchClass("ReflectionFunction").newObject(
-                        env, env.trace(), new StringMemory(functionEntity.getName())
+                        env, env.trace(), true, new StringMemory(functionEntity.getName())
                 )
         );
     }

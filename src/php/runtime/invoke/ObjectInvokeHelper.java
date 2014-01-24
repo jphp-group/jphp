@@ -294,7 +294,7 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, true);
+        return entity.getStaticProperty(env, trace, property, true, true);
     }
 
     public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
@@ -305,7 +305,7 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, false);
+        return entity.getStaticProperty(env, trace, property, false, true);
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,
