@@ -13,6 +13,7 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.support.AbstractFunctionEntity;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -22,7 +23,7 @@ import static php.runtime.annotation.Reflection.*;
 )
 public class ReflectionParameter extends Reflection implements Reflector {
     private ParameterEntity entity;
-    private FunctionEntity functionEntity;
+    private AbstractFunctionEntity functionEntity;
     private ObjectMemory cachedFunction;
     private int position;
 
@@ -53,7 +54,8 @@ public class ReflectionParameter extends Reflection implements Reflector {
                 }
                 parameters = invoker.getParameters();
             } else {
-                FunctionEntity tmp = functionEntity = env.functionMap.get(name);
+                FunctionEntity tmp = env.functionMap.get(name);
+                functionEntity = tmp;
                 if (tmp == null){
                     exception(env, "Function %s does not exist", args[0].toString());
                     return Memory.NULL;
@@ -98,7 +100,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
         this.entity = entity;
     }
 
-    public void setFunctionEntity(FunctionEntity functionEntity) {
+    public void setFunctionEntity(AbstractFunctionEntity functionEntity) {
         this.functionEntity = functionEntity;
     }
 

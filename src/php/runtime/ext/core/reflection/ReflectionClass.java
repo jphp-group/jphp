@@ -149,6 +149,21 @@ public class ReflectionClass extends Reflection {
         return result.toConstant();
     }
 
+    @Signature(@Arg("name"))
+    public Memory getMethod(Environment env, Memory... args){
+        MethodEntity m = entity.findMethod(args[0].toString().toLowerCase());
+        if (m == null){
+            exception(env, Messages.ERR_METHOD_NOT_FOUND.fetch(entity.getName(), args[0]));
+            return Memory.NULL;
+        }
+
+        ClassEntity classEntity = env.fetchClass("ReflectionMethod");
+        ReflectionMethod r = new ReflectionMethod(env, classEntity);
+        r.setEntity(m);
+
+        return new ObjectMemory(r);
+    }
+
     @Signature
     public Memory getModifiers(Environment env, Memory... args){
         int mod = 0;

@@ -46,6 +46,8 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ReflectionFunction.class);
         registerNativeClass(scope, ReflectionParameter.class);
         registerNativeClass(scope, ReflectionProperty.class);
+        registerNativeClass(scope, ReflectionMethod.class);
         registerNativeClass(scope, ReflectionClass.class);
+        registerNativeClass(scope, ReflectionObject.class);
     }
 }

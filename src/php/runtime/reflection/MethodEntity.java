@@ -8,8 +8,11 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.Memory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,12 +33,23 @@ public class MethodEntity extends AbstractFunctionEntity {
     private String key;
 
     protected String signature;
+    protected Closure cachedClosure;
 
     public MethodEntity(Context context) {
         super(context);
     }
 
     public MethodEntity(FunctionEntity entity){
+        super(entity.getContext());
+        setParameters(entity.parameters);
+        setReturnReference(entity.isReturnReference());
+        setDeprecated(entity.isDeprecated());
+        setAbstract(false);
+        setAbstractable(false);
+        setModifier(Modifier.PUBLIC);
+    }
+
+    public MethodEntity(MethodEntity entity){
         super(entity.getContext());
         setParameters(entity.parameters);
         setReturnReference(entity.isReturnReference());
@@ -81,6 +95,56 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         nativeMethod = method;
+    }
+
+    public Closure getClosure(Environment env, final IObject object) {
+        if (cachedClosure != null)
+            return cachedClosure;
+
+        final MethodEntity bind = this;
+        final ClosureEntity closureEntity1 = new ClosureEntity(this.getContext());
+        closureEntity1.setParent(env.scope.closureEntity);
+        closureEntity1.parameters = this.parameters;
+        closureEntity1.setReturnReference(this.isReturnReference());
+
+        MethodEntity m = new MethodEntity(this);
+        m.setClazz(closureEntity1);
+        m.setName("__invoke");
+        closureEntity1.addMethod(m, null);
+        closureEntity1.doneDeclare();
+
+        Closure tmp = new Closure(closureEntity1, new ObjectMemory(env.getLateObject()), new Memory[0]){
+            @Override
+            public Memory __invoke(Environment e, Memory... args) {
+                try {
+                    if (object == null)
+                        return bind.invokeStatic(e, args);
+                    else
+                        return bind.invokeDynamic(object, e, args);
+                } catch (RuntimeException e1){
+                    throw e1;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            }
+
+            @Override
+            public Memory getOrCreateStatic(String name) {
+                return Memory.NULL;
+            }
+
+            @Override
+            public ClassEntity getReflection() {
+                return closureEntity1;
+            }
+        };
+
+        try {
+            m.setNativeMethod(tmp.getClass().getDeclaredMethod("__invoke", Environment.class, Memory[].class));
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        return cachedClosure = tmp;
     }
 
     public boolean isDynamicSignature() {
