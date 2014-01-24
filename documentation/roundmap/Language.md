@@ -90,14 +90,14 @@
 + Traits
 + **Overloading** `__set`, `__get`, `__callStatic`, etc.
 + **Object Iteration**
-+ Magic Methods **(partly, __set, __get, __call, __callStatic, __destruct, __construct, __isset, __unset)**
++ **Magic Methods**
 + **Final Keyword**
-+ Object Cloning
-+ Comparing Objects
-+ Type Hinting **(partly)**
++ **Object Cloning**
++ **Comparing Objects**
++ **Type Hinting**
 + **Late Static Bindings**
 + **Objects and references**
-+ Object Serialization
++ **Object Serialization**
 
 ---
 
@@ -136,16 +136,16 @@
 
 ### Predefined Exceptions
 + **Exception**
-+ ErrorException
++ **ErrorException**
 
 ---
 
 ### Predefined Interfaces and Classes
 + **Traversable** — The Traversable interface
-+ **Iterator** — The Iterator interface (_todo improve and check_)
++ **Iterator** — The Iterator interface
 + **IteratorAggregate** — The IteratorAggregate interface
-+ ArrayAccess — The ArrayAccess interface
-+ Serializable — The Serializable interface
++ **ArrayAccess** — The ArrayAccess interface
++ **Serializable** — The Serializable interface
 + **Closure** — The Closure class
 + Generator — The Generator class
 
