@@ -164,6 +164,49 @@ public class ReflectionClass extends Reflection {
         return new ObjectMemory(r);
     }
 
+    private boolean checkModifiers(MethodEntity e, int mod){
+        if (mod == -1)
+            return true;
+
+        if (e.isStatic() && (mod & ReflectionMethod.IS_STATIC) == ReflectionMethod.IS_STATIC)
+            return true;
+
+        if (e.isFinal() && (mod & ReflectionMethod.IS_FINAL) == ReflectionMethod.IS_FINAL)
+            return true;
+
+        if (e.isAbstract() && (mod & ReflectionMethod.IS_ABSTRACT) == ReflectionMethod.IS_ABSTRACT)
+            return true;
+
+        switch (e.getModifier()){
+            case PRIVATE:
+                return (mod & ReflectionMethod.IS_PRIVATE) == ReflectionMethod.IS_PRIVATE;
+            case PROTECTED:
+                return (mod & ReflectionMethod.IS_PROTECTED) == ReflectionMethod.IS_PROTECTED;
+            case PUBLIC:
+                return (mod & ReflectionMethod.IS_PUBLIC) == ReflectionMethod.IS_PUBLIC;
+        }
+
+        return false;
+    }
+
+    @Signature(@Arg(value = "filter", optional = @Optional("NULL")))
+    public Memory getMethods(Environment env, Memory... args){
+        int mod = args[0].isNull() ? -1 : args[0].toInteger();
+
+        ArrayMemory result = new ArrayMemory();
+        ClassEntity classEntity = env.fetchClass("ReflectionMethod");
+
+        for(MethodEntity e : entity.getMethods().values()){
+            if (checkModifiers(e, mod)){
+                ReflectionMethod method = new ReflectionMethod(env, classEntity);
+                method.setEntity(e);
+                result.add(new ObjectMemory(method));
+            }
+        }
+
+        return result.toConstant();
+    }
+
     @Signature
     public Memory getModifiers(Environment env, Memory... args){
         int mod = 0;

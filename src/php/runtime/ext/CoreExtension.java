@@ -22,15 +22,19 @@ public class CoreExtension extends Extension {
     public void onRegister(CompileScope scope) {
         registerConstants(new LangConstants());
         registerFunctions(new LangFunctions());
+
         registerConstants(new InfoConstants());
         registerFunctions(new InfoFunctions());
 
         registerConstants(new MathConstants());
         registerFunctions(new MathFunctions());
+
         registerConstants(new StringConstants());
         registerFunctions(new StringFunctions());
+
         registerConstants(new ArrayConstants());
         registerFunctions(new ArrayFunctions());
+
         registerConstants(new OutputConstants());
         registerFunctions(new OutputFunctions());
 

@@ -11,6 +11,7 @@ import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
+import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
@@ -92,12 +93,13 @@ public class ReflectionParameter extends Reflection implements Reflector {
         if (entity == null)
             exception(env, "Parameter %s does not exist", name);
 
-        getProperties().put("name", new StringMemory(entity.getName()));
+        setEntity(entity);
         return Memory.NULL;
     }
 
     public void setEntity(ParameterEntity entity) {
         this.entity = entity;
+        getProperties().put("name", new StringMemory(entity.getName()));
     }
 
     public void setFunctionEntity(AbstractFunctionEntity functionEntity) {
@@ -221,6 +223,40 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
+    @Name("getClass")
+    public Memory _getClass(Environment env, Memory... args){
+        if (entity.getTypeClass() == null)
+            return Memory.NULL;
+
+        ClassEntity entity = env.fetchClass(this.entity.getTypeClass(), this.entity.getTypeClassLower(), true);
+        if (entity == null)
+            return Memory.NULL;
+
+        ClassEntity classEntity = env.fetchClass("ReflectionClass");
+        ReflectionClass r = new ReflectionClass(env, classEntity);
+        r.setEntity(entity);
+
+        return new ObjectMemory(r);
+    }
+
+    @Signature
+    public Memory getDeclaringClass(Environment env, Memory... args){
+        if (functionEntity == null)
+            return Memory.NULL;
+
+        if (functionEntity instanceof FunctionEntity)
+            return Memory.NULL;
+
+        MethodEntity method = (MethodEntity)functionEntity;
+
+        ClassEntity classEntity = env.fetchClass("ReflectionClass");
+        ReflectionClass r = new ReflectionClass(env, classEntity);
+        r.setEntity(method.getClazz());
+
+        return new ObjectMemory(r);
+    }
+
+    @Signature
     public Memory getDeclaringFunction(Environment env, Memory... args) throws Throwable {
         if (cachedFunction != null)
             return cachedFunction;
@@ -228,10 +264,16 @@ public class ReflectionParameter extends Reflection implements Reflector {
         if (functionEntity == null)
             return Memory.NULL;
 
-        return cachedFunction = new ObjectMemory(
-                env.fetchClass("ReflectionFunction").newObject(
-                        env, env.trace(), true, new StringMemory(functionEntity.getName())
-                )
-        );
+        if (functionEntity instanceof FunctionEntity){
+            ClassEntity classEntity = env.fetchClass("ReflectionFunction");
+            ReflectionFunction e = new ReflectionFunction(env, classEntity);
+            e.setFunctionEntity((FunctionEntity)functionEntity);
+            return cachedFunction = new ObjectMemory(e);
+        } else {
+            ClassEntity classEntity = env.fetchClass("ReflectionMethod");
+            ReflectionMethod e = new ReflectionMethod(env, classEntity);
+            e.setEntity((MethodEntity) functionEntity);
+            return cachedFunction = new ObjectMemory(e);
+        }
     }
 }

@@ -75,7 +75,8 @@ abstract public class FunctionsContainer {
         Map<String, CompileFunction> result = new HashMap<String, CompileFunction>();
 
         for(Method method : getClass().getDeclaredMethods()){
-            if (Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())){
+            int mod = method.getModifiers();
+            if (Modifier.isStatic(mod) && Modifier.isPublic(mod)){
                 CompileFunction function = result.get(method.getName());
                 if (function == null)
                     result.put(method.getName(), function = new CompileFunction(method.getName()));

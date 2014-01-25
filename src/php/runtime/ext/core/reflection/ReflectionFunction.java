@@ -36,6 +36,11 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
         super(env, clazz);
     }
 
+    public void setFunctionEntity(FunctionEntity functionEntity) {
+        this.functionEntity = functionEntity;
+        getProperties().put("name", new StringMemory(functionEntity.getName()));
+    }
+
     @Signature(@Arg(value = "name"))
     public Memory __construct(Environment env, Memory... args){
         Memory name = args[0].toValue();
@@ -47,7 +52,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
             if (functionEntity == null)
                 exception(env, "Function %s does not exist", name.toString());
 
-            getProperties().put("name", new StringMemory(functionEntity.getName()));
+            setFunctionEntity(functionEntity);
         }
 
         return Memory.NULL;

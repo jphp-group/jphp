@@ -22,6 +22,7 @@ public class Main {
     public static void main(String[] args) throws Throwable {
         CompileScope scope = new CompileScope();
         scope.setDebugMode(true);
+
         scope.registerExtension(new BCMathExtension());
         scope.registerExtension(new CTypeExtension());
         scope.registerExtension(new CalendarExtension());
@@ -29,6 +30,7 @@ public class Main {
         scope.registerExtension(new SPLExtension());
 
         Environment environment = new Environment(scope, System.out);
+
         try {
             Context context = environment.createContext(new File("scripts/main.php"));
 

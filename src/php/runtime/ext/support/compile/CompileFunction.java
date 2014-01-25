@@ -105,6 +105,7 @@ public class CompileFunction {
 
             if (!ignore) count++;
         }
+
         if (count < minArgs)
             minArgs = count;
         if (count > maxArgs)

@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public class CompileFunctionEntity extends FunctionEntity {
     private final CompileFunction compileFunction;
-    private MemoryUtils.Converter<?> converters[][];
 
     public CompileFunctionEntity(Extension extension, CompileFunction compileFunction) {
         super(null);

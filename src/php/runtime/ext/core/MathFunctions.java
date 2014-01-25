@@ -20,11 +20,11 @@ public class MathFunctions extends FunctionsContainer {
     public static Random MERSENNE_TWISTER = new Random();
     public static Random RANDOM = new Random();
 
-    private final static double[] COS_CACHE = new double[Short.MAX_VALUE * 5];
-    private final static double[] SIN_CACHE = new double[Short.MAX_VALUE * 5];
+    private final static double[] COS_CACHE = new double[Byte.MAX_VALUE];
+    private final static double[] SIN_CACHE = new double[Byte.MAX_VALUE];
 
-    private final static int MAX_COS_NEG = COS_CACHE.length / 7;
-    private final static int MAX_SIN_NEG = SIN_CACHE.length / 7;
+    private final static int MAX_COS_NEG = COS_CACHE.length;
+    private final static int MAX_SIN_NEG = SIN_CACHE.length;
 
     private final static int MAX_COS = COS_CACHE.length - MAX_COS_NEG;
     private final static int MAX_SIN = SIN_CACHE.length - MAX_SIN_NEG;
