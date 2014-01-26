@@ -13,8 +13,10 @@ import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.invoke.Invoker;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -81,6 +83,7 @@ public class Environment {
     private final Map<String, ReferenceMemory> statics;
     private final Map<String, ConstantEntity> constants;
     private final Map<String, ModuleEntity> included;
+    private final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
     public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
@@ -219,6 +222,9 @@ public class Environment {
         if (invoker != null)
             this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
 
+        for(Extension e: scope.extensions.values())
+            e.onLoad(this);
+
         environment.set(this);
     }
 
@@ -258,6 +264,8 @@ public class Environment {
     }
 
     public TraceInfo trace(){
+        if (callStackTop == 0)
+            return TraceInfo.UNKNOWN;
         return peekCall(0).trace;
     }
 
@@ -297,6 +305,17 @@ public class Environment {
 
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public String findInIncludePaths(String path){
+        if (new File(path).exists())
+            return path;
+
+        for(String e : includePaths)
+            if (new File(e, path).exists())
+                return e + path;
+
+        return null;
     }
 
     public Map<String, ModuleEntity> getIncluded() {
@@ -517,6 +536,19 @@ public class Environment {
 
     public Memory getStatic(String name){
         return statics.get(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getUserValue(String name, Class<T> clazz){
+        return (T) userValues.get(name);
+    }
+
+    public void setUserValue(String name, Object value){
+        userValues.put(name, value);
+    }
+
+    public boolean removeUserValue(String name){
+        return userValues.remove(name) != null;
     }
 
     public int getErrorFlags() {
@@ -1012,6 +1044,22 @@ public class Environment {
             throw new DieException(value);
         } else
             throw new DieException(Memory.NULL);
+    }
+
+    public Memory invokeMethod(TraceInfo trace, IObject object, String name, Memory... args) throws Throwable {
+        return ObjectInvokeHelper.invokeMethod(new ObjectMemory(object), name, name.toLowerCase(), this, trace, args);
+    }
+
+    public Memory invokeMethod(IObject object, String name, Memory... args) throws Throwable {
+        return ObjectInvokeHelper.invokeMethod(new ObjectMemory(object), name, name.toLowerCase(), this, trace(), args);
+    }
+
+    public Memory invokeMethod(TraceInfo trace, Memory object, String name, Memory... args) throws Throwable {
+        return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace, args);
+    }
+
+    public Memory invokeMethod(Memory object, String name, Memory... args) throws Throwable {
+        return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace(), args);
     }
 
     public String getLateStatic(){

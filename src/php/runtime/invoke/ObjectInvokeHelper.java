@@ -97,6 +97,17 @@ final public class ObjectInvokeHelper {
         return result;
     }
 
+    public static Memory invokeMethod(Memory object, String methodName,
+                                      Environment env, TraceInfo trace, Memory... args)
+            throws Throwable {
+        return invokeMethod(object, methodName, methodName.toLowerCase(), env, trace, args);
+    }
+
+    public static Memory invokeMethod(Memory object, String methodName, Environment env,  Memory... args)
+            throws Throwable {
+        return invokeMethod(object, methodName, methodName.toLowerCase(), env, env.trace(), args);
+    }
+
     public static Memory invokeMethod(Memory object, String methodName, String methodLowerName,
                                       Environment env, TraceInfo trace, Memory[] args)
             throws Throwable {

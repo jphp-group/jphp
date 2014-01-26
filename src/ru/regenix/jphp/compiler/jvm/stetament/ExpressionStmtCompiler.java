@@ -2328,7 +2328,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             unexpectedToken(instanceOf);
 
         writePopBoxing();
-        writePushEnv();
 
         if (instanceOf.isVariable()){
             writePushVariable(instanceOf.getWhatVariable());
@@ -2340,7 +2339,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         writeSysDynamicCall(Memory.class, "instanceOf",
-                Boolean.TYPE, Environment.class, String.class, String.class);
+                Boolean.TYPE, String.class, String.class);
 
         if (!returnValue)
             writePopAll(1);

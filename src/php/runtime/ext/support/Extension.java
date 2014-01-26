@@ -2,6 +2,7 @@ package php.runtime.ext.support;
 
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
+import php.runtime.env.Environment;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.ext.support.compile.ConstantsContainer;
@@ -32,6 +33,10 @@ abstract public class Extension {
     }
 
     public void onRegister(CompileScope scope){
+        // nop
+    }
+
+    public void onLoad(Environment env){
         // nop
     }
 

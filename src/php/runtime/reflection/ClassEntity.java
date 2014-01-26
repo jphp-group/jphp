@@ -128,8 +128,13 @@ public class ClassEntity extends Entity {
 
         for(Field field : nativeClazz.getDeclaredFields()){
             int mod = field.getModifiers();
-            if (java.lang.reflect.Modifier.isFinal(mod) && java.lang.reflect.Modifier.isStatic(mod)){
+            if (field.isAnnotationPresent(Reflection.Ignore.class))
+                continue;
+
+            if (java.lang.reflect.Modifier.isFinal(mod) && java.lang.reflect.Modifier.isStatic(mod)
+                    && !java.lang.reflect.Modifier.isPrivate(mod)){
                 try {
+                    field.setAccessible(true);
                     addConstant(new ConstantEntity(field.getName(), MemoryUtils.valueOf(field.get(null)), true));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
@@ -1335,6 +1340,14 @@ public class ClassEntity extends Entity {
 
         env.error(trace, ErrorType.E_NOTICE, Messages.ERR_UNDEFINED_PROPERTY, name, property);
         return Memory.NULL;
+    }
+
+    public void setProperty(IObject object, String name, Memory value){
+        PropertyEntity prop = findProperty(name);
+        if (prop == null)
+            throw new RuntimeException("Property '" + name + "' not found");
+
+        object.getProperties().put(prop.specificName, value == null ? Memory.NULL : value);
     }
 
     private static interface SetterCallback {

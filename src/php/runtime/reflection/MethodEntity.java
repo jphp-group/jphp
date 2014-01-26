@@ -89,6 +89,9 @@ public class MethodEntity extends AbstractFunctionEntity {
         for(Reflection.Arg arg : signature.value()){
             ParameterEntity param = new ParameterEntity(context);
             param.setType(arg.type());
+            if (!arg.typeClass().isEmpty())
+                param.setTypeClass(arg.typeClass());
+
             param.setReference(arg.reference());
             param.setName(arg.value().isEmpty() ? "arg_" + i : arg.value());
             i++;

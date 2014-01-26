@@ -1,7 +1,12 @@
 package php.runtime.ext;
 
 import php.runtime.env.CompileScope;
+import php.runtime.env.Environment;
 import php.runtime.ext.core.reflection.*;
+import php.runtime.ext.core.stream.FileObject;
+import php.runtime.ext.core.stream.FileStream;
+import php.runtime.ext.core.stream.PHP_IOException;
+import php.runtime.ext.core.stream.Stream;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.exceptions.support.ErrorType;
@@ -38,6 +43,9 @@ public class CoreExtension extends Extension {
         registerConstants(new OutputConstants());
         registerFunctions(new OutputFunctions());
 
+        registerConstants(new FileConstants());
+        registerFunctions(new FileFunctions());
+
         // T_ERROR
         for (ErrorType el : ErrorType.values())
             constants.put(el.name(), new CompileConstant(el.name(), el.value));
@@ -53,5 +61,16 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ReflectionMethod.class);
         registerNativeClass(scope, ReflectionClass.class);
         registerNativeClass(scope, ReflectionObject.class);
+
+        // stream
+        registerNativeClass(scope, PHP_IOException.class);
+        registerNativeClass(scope, FileObject.class);
+        registerNativeClass(scope, Stream.class);
+        registerNativeClass(scope, FileStream.class);
+    }
+
+    @Override
+    public void onLoad(Environment env) {
+        Stream.initEnvironment(env);
     }
 }

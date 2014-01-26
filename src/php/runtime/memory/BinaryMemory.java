@@ -1,5 +1,10 @@
 package php.runtime.memory;
 
+import php.runtime.Memory;
+import php.runtime.env.TraceInfo;
+
+import java.nio.charset.Charset;
+
 public class BinaryMemory extends StringMemory {
     private byte[] bytes;
 
@@ -30,11 +35,54 @@ public class BinaryMemory extends StringMemory {
 
     @Override
     public String toString() {
-        char[] tmp = new char[bytes.length];
-        int length = bytes.length;
-        for(int i = 0; i < length; i++){
-            tmp[i] = (char)(bytes[i] & 0xFF);
-        }
-        return new String(tmp);
+        return new String(bytes, Charset.forName("UTF-8"));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, Memory index) {
+        int i = index.toInteger();
+        if (i < 0 || i >= bytes.length)
+            return FALSE;
+
+        return new StringMemory((char)(bytes[i] & 0xFF));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, long index) {
+        int i = (int)index;
+        if (i < 0 || i >= bytes.length)
+            return FALSE;
+
+        return new StringMemory((char)(bytes[i] & 0xFF));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, double index) {
+        int i = (int)index;
+        if (i < 0 || i >= bytes.length)
+            return FALSE;
+
+        return new StringMemory((char)(bytes[i]  & 0xFF));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, boolean index) {
+        int i = index ? 1 : 0;
+        if (i < 0 || i >= bytes.length)
+            return FALSE;
+
+        return new StringMemory((char)(bytes[i] & 0xFF));
+    }
+
+    @Override
+    public Memory valueOfIndex(TraceInfo trace, String index) {
+        Memory i = StringMemory.toLong(index);
+        if (i == null)
+            return FALSE;
+
+        if (i.toInteger() < 0 || i.toInteger() >= bytes.length)
+            return FALSE;
+
+        return new StringMemory((char)(bytes[i.toInteger()] & 0xFF));
     }
 }

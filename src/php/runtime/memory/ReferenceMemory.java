@@ -909,8 +909,13 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public boolean instanceOf(Environment env, String className, String lowerClassName) {
-        return value.instanceOf(env, className, lowerClassName);
+    public boolean instanceOf(String className, String lowerClassName) {
+        return value.instanceOf(className, lowerClassName);
+    }
+
+    @Override
+    public boolean instanceOf(String name) {
+        return value.instanceOf(name);
     }
 
     @Override

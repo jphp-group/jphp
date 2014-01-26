@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.*;
 public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({TYPE, METHOD})
+    @Target({TYPE, METHOD, FIELD})
     public @interface Ignore {}
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -39,6 +39,7 @@ public @interface Reflection {
         String value() default "";
         Optional optional() default @Optional(exists = false);
         HintType type() default HintType.ANY;
+        String typeClass() default "";
         Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;
         boolean readOnly() default false;
