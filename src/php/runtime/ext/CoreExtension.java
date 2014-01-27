@@ -3,10 +3,7 @@ package php.runtime.ext;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.reflection.*;
-import php.runtime.ext.core.stream.FileObject;
-import php.runtime.ext.core.stream.FileStream;
-import php.runtime.ext.core.stream.PHP_IOException;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.stream.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.exceptions.support.ErrorType;
@@ -67,6 +64,7 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, FileObject.class);
         registerNativeClass(scope, Stream.class);
         registerNativeClass(scope, FileStream.class);
+        registerNativeClass(scope, SystemStream.class);
     }
 
     @Override
