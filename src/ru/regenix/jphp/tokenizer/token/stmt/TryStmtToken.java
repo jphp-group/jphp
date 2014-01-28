@@ -11,6 +11,7 @@ public class TryStmtToken extends StmtToken {
     private BodyStmtToken body;
     private Set<VariableExprToken> local;
     private List<CatchStmtToken> catches;
+    private BodyStmtToken _finally;
 
     public TryStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_TRY);
@@ -38,5 +39,13 @@ public class TryStmtToken extends StmtToken {
 
     public void setCatches(List<CatchStmtToken> catches) {
         this.catches = catches;
+    }
+
+    public BodyStmtToken getFinally() {
+        return _finally;
+    }
+
+    public void setFinally(BodyStmtToken _finally) {
+        this._finally = _finally;
     }
 }

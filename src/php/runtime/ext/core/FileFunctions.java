@@ -7,9 +7,11 @@ import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.stream.PHP_IOException;
 import php.runtime.ext.core.stream.Stream;
 import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.StringMemory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +20,7 @@ import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 import static php.runtime.annotation.Runtime.Immutable;
+import static php.runtime.ext.core.FileConstants.*;
 
 public class FileFunctions extends FunctionsContainer {
 
@@ -274,4 +277,254 @@ public class FileFunctions extends FunctionsContainer {
     public static boolean is_file(String path){
         return new File(path).isFile();
     }
+
+    public static boolean is_link(String path){
+        try {
+            File file = new File(path);
+
+            File canon;
+            if (file.getParent() == null) {
+                canon = file;
+            } else {
+                File canonDir = file.getParentFile().getCanonicalFile();
+                canon = new File(canonDir, file.getName());
+            }
+            return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+        } catch (IOException e){
+            return false;
+        }
+    }
+
+    public static boolean is_executable(String path){
+        return new File(path).canExecute();
+    }
+
+    public static boolean is_readable(String path){
+        return new File(path).canRead();
+    }
+
+    public static boolean is_writable(String path){
+        return new File(path).canWrite();
+    }
+
+    public static boolean is_writeable(String path){
+        return new File(path).canWrite();
+    }
+
+    public static boolean mkdir(String path, int mode, boolean recursive){
+        if (recursive)
+            return new File(path).mkdirs();
+        else
+            return new File(path).mkdir();
+    }
+
+    public static boolean mkdir(String path, int mode){
+        return mkdir(path, mode, false);
+    }
+
+    public static boolean mkdir(String path){
+        return mkdir(path, 777, false);
+    }
+
+    public static Memory filemtime(String path){
+        if (!file_exists(path))
+            return Memory.FALSE;
+
+        try {
+            return LongMemory.valueOf(new File(path).lastModified());
+        } catch (Exception e){
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory fileatime(String path){
+        return Memory.FALSE;
+    }
+
+    public static Memory filectime(String path){
+        return Memory.FALSE;
+    }
+
+    public static Memory filesize(Environment env, TraceInfo trace, String path){
+        try {
+            return LongMemory.valueOf(new File(path).length());
+        } catch (Exception e){
+            env.warning(trace, "filesize(): file not found - %s", path);
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory filetype(Environment env, TraceInfo trace, String path){
+        File file = new File(path);
+        if (file.isFile())
+            return new StringMemory("file");
+        else if (file.isDirectory())
+            return new StringMemory("dir");
+        else
+            return new StringMemory("unknown");
+    }
+
+
+    public static Memory pathinfo(String path, int options){
+        File file = new File(path);
+        ArrayMemory result = new ArrayMemory();
+        String basename = file.getName();
+
+        int pos = basename.lastIndexOf('.');
+        String ext = null;
+        if (pos > -1)
+            ext = basename.substring(pos + 1);
+
+        if ((options & PATHINFO_DIRNAME) == PATHINFO_DIRNAME)
+            result.refOfIndex("dirname").assign(file.getParent());
+
+        if ((options & PATHINFO_DIRNAME) == PATHINFO_DIRNAME)
+            result.refOfIndex("basename").assign(file.getName());
+
+        if (ext != null && (options & PATHINFO_EXTENSION) == PATHINFO_EXTENSION)
+            result.refOfIndex("extension").assign(ext);
+
+        if ((options & PATHINFO_FILENAME) == PATHINFO_FILENAME)
+            result.refOfIndex("filename").assign(pos > -1 ? basename.substring(0, pos) : basename);
+
+        return result.toConstant();
+    }
+
+    public static Memory pathinfo(String path){
+        return pathinfo(path, PATHINFO_BASENAME | PATHINFO_DIRNAME | PATHINFO_EXTENSION | PATHINFO_FILENAME);
+    }
+
+    public static boolean rename(String oldname, String newname){
+        try {
+            return new File(oldname).renameTo(new File(newname));
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    public static boolean rmdir(String path){
+        File file = new File(path);
+        if (file.isDirectory()) {
+            try {
+                return file.delete();
+            } catch (Exception e) {
+                return false;
+            }
+        } else
+            return false;
+    }
+
+    public static boolean unlink(String path){
+        File file = new File(path);
+        if (file.isDirectory())
+            return false;
+
+        try {
+            return file.delete();
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    public static boolean touch(Environment env, TraceInfo trace, String path, long time, long atime){
+        File file = new File(path);
+        if (!file.exists())
+            try {
+                if (!file.createNewFile())
+                    return false;
+            } catch (IOException e) {
+                env.warning(trace, e.getMessage());
+                return false;
+            }
+
+        return file.setLastModified(time * 1000);
+    }
+
+    public static boolean touch(Environment env, TraceInfo trace, String path, long time){
+        return touch(env, trace, path, time, 0);
+    }
+
+    public static boolean touch(Environment env, TraceInfo trace, String path){
+        return touch(env, trace, path, System.currentTimeMillis() / 1000, 0);
+    }
+
+    public static Memory tempnam(String dir, String prefix){
+        try {
+            return new StringMemory(File.createTempFile(prefix, "", new File(dir)).getPath());
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory realpath(String path){
+        try {
+            return new StringMemory(new File(path).getCanonicalPath());
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory readfile(Environment env, TraceInfo trace, String path, boolean useIncludePaths,
+                                  Memory stream) throws Throwable {
+        File file = new File(path);
+        if (useIncludePaths && !file.exists()){
+            path = env.findInIncludePaths(path);
+            if (path == null)
+                return Memory.FALSE;
+
+            file = new File(path);
+        }
+
+        try {
+            RandomAccessFile accessFile = new RandomAccessFile(file, "r");
+            try {
+                if (!stream.isNull()){
+                    if (!stream.instanceOf(Stream.CLASS_NAME)){
+                        env.warning(trace, "readfile(): Argument 3 must be stream, %s given", stream.getRealType().toString());
+                        return Memory.FALSE;
+                    }
+
+                    byte[] buff = new byte[4096];
+                    int len = 0;
+                    int read = 0;
+                    while ((len = accessFile.read(buff)) != -1){
+                        read += len;
+                        ObjectInvokeHelper.invokeMethod(
+                                stream, "write", env, trace, new BinaryMemory(buff), LongMemory.valueOf(len)
+                        );
+                    }
+                    return LongMemory.valueOf(read);
+                } else {
+                    byte[] buff = new byte[4096];
+                    int len = 0;
+                    int read = 0;
+                    while ((len = accessFile.read(buff)) != -1){
+                        read += len;
+                        env.echo(buff, len);
+                    }
+                    return LongMemory.valueOf(read);
+                }
+            } finally {
+                accessFile.close();
+            }
+        } catch (FileNotFoundException e) {
+            env.warning(trace, "readfile(): File not found - %s", path);
+            return Memory.FALSE;
+        } catch (IOException e) {
+            env.warning(trace, "readfile(): %s", e.getMessage());
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory readfile(Environment env, TraceInfo trace, String path, boolean useIncludePaths)
+            throws Throwable {
+        return readfile(env, trace, path, useIncludePaths, Memory.NULL);
+    }
+
+    public static Memory readfile(Environment env, TraceInfo trace, String path)
+            throws Throwable {
+        return readfile(env, trace, path, false, Memory.NULL);
+    }
+
+    //public static Memory glob()
 }

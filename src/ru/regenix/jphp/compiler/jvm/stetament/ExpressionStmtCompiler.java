@@ -3332,12 +3332,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         LabelNode catchStart = new LabelNode();
         LabelNode catchEnd = new LabelNode();
 
+        LabelNode finallyStart = new LabelNode();
+        LabelNode finallyEnd   = new LabelNode();
+
         method.node.tryCatchBlocks.add(
                 new TryCatchBlockNode(tryStart, tryEnd, catchStart, Type.getInternalName(BaseException.class))
         );
 
+       /* if (tryCatch.getFinally() != null){
+            method.node.tryCatchBlocks.add(
+                    new TryCatchBlockNode(tryStart, tryEnd, finallyStart, null)
+            );
+        }*/
+
         writeBody(tryCatch.getBody());
         code.add(tryEnd);
+
         code.add(new JumpInsnNode(GOTO, catchEnd));
         code.add(catchStart);
 
@@ -3352,6 +3362,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int i = 0, size = tryCatch.getCatches().size();
         LocalVariable local = null;
         LabelNode catchFail = new LabelNode();
+
+
         for(CatchStmtToken _catch : tryCatch.getCatches()) {
             if (nextCatch != null) {
                 code.add(nextCatch);
@@ -3383,10 +3395,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
         code.add(catchFail);
 
+        if (tryCatch.getFinally() != null){
+            writeBody(tryCatch.getFinally());
+        }
+
         makeVarLoad(exception);
         code.add(new InsnNode(ATHROW));
-
         code.add(catchEnd);
+
+        if (tryCatch.getFinally() != null){
+            writeBody(tryCatch.getFinally());
+        }
 
         writeUndefineVariables(tryCatch.getLocal());
         method.prevStatementIndex(BaseException.class);

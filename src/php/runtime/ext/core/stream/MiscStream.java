@@ -11,17 +11,17 @@ import java.util.Arrays;
 
 import static php.runtime.annotation.Reflection.*;
 
-@Name("php\\io\\SystemStream")
-public class SystemStream extends Stream {
+@Name("php\\io\\MiscStream")
+public class MiscStream extends Stream {
     protected boolean canRead = true;
     protected int position = 0;
 
     protected boolean eof = true;
-    protected boolean memory = false;
+    protected MemoryStream memoryStream;
     protected InputStream inputStream;
     protected OutputStream outputStream;
 
-    public SystemStream(Environment env, ClassEntity clazz) {
+    public MiscStream(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
@@ -36,9 +36,7 @@ public class SystemStream extends Stream {
 
         String path = getPath();
         if ("memory".equals(path)){
-            memory = true;
-            outputStream = new ByteArrayOutputStream(15);
-            inputStream = new ByteArrayInputStream(new byte[0]);
+            memoryStream = new MemoryStream();
         } else if ("stdout".endsWith(path)){
             outputStream = System.out;
         } else if ("stdin".equals(path)) {
@@ -60,7 +58,10 @@ public class SystemStream extends Stream {
         try {
             eof = false;
             len = len == 0 || len > bytes.length ? bytes.length : len;
-            if (outputStream != null) {
+            if (memoryStream != null){
+                memoryStream.write(bytes, 0, len);
+                return LongMemory.valueOf(len);
+            } else if (outputStream != null) {
                 outputStream.write(bytes, 0, len);
                 this.position += len;
                 inputStream = null;
@@ -87,16 +88,13 @@ public class SystemStream extends Stream {
         if (len <= 0)
             return Memory.FALSE;
 
-        if (inputStream == null && memory) {
-            ByteArrayOutputStream byteOutput = (ByteArrayOutputStream)outputStream;
-            byte[] bytes = byteOutput.toByteArray();
-            if (position > bytes.length)
-                position = bytes.length;
+        if (memoryStream != null){
+            byte[] result = memoryStream.read(len);
+            if (result == null)
+                return Memory.FALSE;
 
-            inputStream = new ByteArrayInputStream(bytes, position, bytes.length - position);
-        }
-
-        if (inputStream != null){
+            return new BinaryMemory(result);
+        } else if (inputStream != null){
             byte[] buf = new byte[len];
             try {
                 int read;
@@ -118,18 +116,30 @@ public class SystemStream extends Stream {
 
     @Signature
     public Memory readFully(Environment env, Memory... args){
+        if (memoryStream != null){
+            byte[] result = memoryStream.readFully();
+            if (result != null)
+                return new BinaryMemory(result);
+            else
+                return Memory.FALSE;
+        }
         return Memory.NULL;
     }
 
     @Signature
     public Memory eof(Environment env, Memory... args){
+        if (memoryStream != null)
+            return memoryStream.eof() ? Memory.TRUE : Memory.FALSE;
+
         return eof ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
     public Memory close(Environment env, Memory... args){
         try {
-            if (inputStream != null)
+            if (memoryStream != null){
+              memoryStream.close();
+            } if (inputStream != null)
                 inputStream.close();
             else if (outputStream != null)
                 outputStream.close();
@@ -141,17 +151,30 @@ public class SystemStream extends Stream {
 
     @Signature
     public Memory getPosition(Environment env, Memory... args){
+        if (memoryStream != null)
+            return LongMemory.valueOf(position);
         return LongMemory.valueOf(position);
     }
 
     @Signature(@Arg("position"))
     public Memory seek(Environment env, Memory... args){
-        if (memory){
-            inputStream = null;
+        if (memoryStream != null){
+            if (!memoryStream.seek(args[0].toInteger()))
+                exception(env, "Cannot seek to %s", args[0].toInteger());
+
             this.position = args[0].toInteger();
         } else {
             exception(env, "Cannot seek in input/output stream");
         }
+        return Memory.NULL;
+    }
+
+    @Signature
+    public Memory length(Environment env, Memory... args){
+        if (memoryStream != null)
+            return LongMemory.valueOf(memoryStream.length);
+        else
+            exception(env, "Unsupported method for this type stream");
         return Memory.NULL;
     }
 }

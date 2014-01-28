@@ -19,7 +19,7 @@ public class MemoryStream {
     }
 
     public void write(byte[] buff, int offset, int length){
-        if (position == length){
+        if (position == this.length){
             // append
             this.length += length - offset;
             byte[] tmp = new byte[this.length];
@@ -29,19 +29,20 @@ public class MemoryStream {
         } else {
             // insert
             int newLen = position + length - offset;
-            if (newLen > length){
+            if (newLen > this.length){
                 this.length = newLen;
                 byte[] tmp = new byte[this.length];
                 System.arraycopy(data, 0, tmp, 0, position);
-                System.arraycopy(buff, 0, tmp, data.length, tmp.length - position);
+                System.arraycopy(buff, 0, tmp, position, tmp.length - position);
                 this.data = tmp;
             } else {
-                byte[] tmp = new byte[this.length];
-                System.arraycopy(data, 0, tmp, 0, position);
-                System.arraycopy(buff, 0, tmp, offset, length);
-                // todo
+                int j = 0;
+                for(int i = position; i < position + length - offset; i++, j++){
+                    data[i] = buff[j];
+                }
             }
         }
+        this.position += length - offset;
     }
 
     public void write(byte[] buff){
@@ -53,8 +54,8 @@ public class MemoryStream {
             return null;
 
         int to = position + length;
-        if (to > length)
-            to = length;
+        if (to > this.length)
+            to = this.length;
 
         if (position == to)
             return null;
@@ -75,5 +76,13 @@ public class MemoryStream {
 
         this.position = position;
         return true;
+    }
+
+    public boolean eof(){
+        return position >= length;
+    }
+
+    public void close(){
+        data = new byte[0];
     }
 }

@@ -177,9 +177,9 @@ abstract public class Stream extends BaseObject implements Resource {
 
         env.setUserValue(Stream.class.getName() + "#file", classEntity);
 
-        classEntity = env.fetchClass("php\\io\\SystemStream");
+        classEntity = env.fetchClass("php\\io\\MiscStream");
         if (classEntity == null)
-            throw new CriticalException("php\\io\\SystemStream not found");
+            throw new CriticalException("php\\io\\MiscStream not found");
 
         env.setUserValue(Stream.class.getName() + "#php", classEntity);
     }
@@ -187,5 +187,11 @@ abstract public class Stream extends BaseObject implements Resource {
     @Override
     public String getResourceType() {
         return "stream";
+    }
+
+    @Signature
+    public Memory __destruct(Environment env, Memory... args){
+        close(env, args);
+        return Memory.NULL;
     }
 }

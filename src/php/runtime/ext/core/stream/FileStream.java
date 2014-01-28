@@ -184,4 +184,34 @@ public class FileStream extends Stream {
         }
         return Memory.NULL;
     }
+
+    @Signature
+    public Memory getFilePointer(Environment env, Memory... args){
+        try {
+            return LongMemory.valueOf(accessFile.getFilePointer());
+        } catch (IOException e) {
+            exception(env, e.getMessage());
+        }
+        return Memory.FALSE;
+    }
+
+    @Signature
+    public Memory length(Environment env, Memory... args){
+        try {
+            return LongMemory.valueOf(accessFile.length());
+        } catch (IOException e){
+            exception(env, e.getMessage());
+        }
+        return Memory.FALSE;
+    }
+
+    @Signature(@Arg("size"))
+    public Memory truncate(Environment env, Memory... args){
+        try {
+            accessFile.setLength(args[0].toLong());
+        } catch (IOException e){
+            exception(env, e.getMessage());
+        }
+        return Memory.NULL;
+    }
 }

@@ -64,7 +64,8 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, FileObject.class);
         registerNativeClass(scope, Stream.class);
         registerNativeClass(scope, FileStream.class);
-        registerNativeClass(scope, SystemStream.class);
+        registerNativeClass(scope, MiscStream.class);
+        registerNativeClass(scope, MemoryMiscStream.class);
     }
 
     @Override

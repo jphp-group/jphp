@@ -230,38 +230,46 @@ public class OutputBuffer {
     }
 
     protected void _write(byte[] bytes) throws Throwable {
+        _write(bytes, bytes.length);
+    }
+
+    protected void _write(byte[] bytes, int length) throws Throwable {
         if (isLock()) return;
 
-        boolean needFlush = implicitFlush || (chunkSize > 0 && bytes.length + buffer.size() >= chunkSize);
+        boolean needFlush = implicitFlush || (chunkSize > 0 && length + buffer.size() >= chunkSize);
 
         if (needFlush){
             if (chunkSize > 0){
-                int cutLength = (bytes.length + buffer.size()) - chunkSize;
+                int cutLength = (length + buffer.size()) - chunkSize;
                 if (cutLength > 0){
-                    buffer.write(bytes/*, 0, bytes.length - cutLength*/);
+                    buffer.write(bytes, 0, length);
                     doFlush(true);
 
                     /*byte[] tmp = new byte[cutLength];
                     System.arraycopy(bytes, bytes.length - cutLength, tmp, 0, cutLength);
                     _write(tmp);*/
                 } else {
-                    buffer.write(bytes);
+                    buffer.write(bytes, 0, length);
                     doFlush(true);
                 }
             } else {
-                buffer.write(bytes);
+                buffer.write(bytes, 0, length);
                 doFlush(true);
             }
         } else {
-            buffer.write(bytes);
+            buffer.write(bytes, 0, length);
+        }
+    }
+
+    public void write(byte[] bytes, int length) throws Throwable {
+        if (!isLock()){
+            binaryInBuffer = true;
+            _write(bytes, length);
         }
     }
 
     public void write(byte[] bytes) throws Throwable {
-        if (!isLock()){
-            binaryInBuffer = true;
-            _write(bytes);
-        }
+        write(bytes, bytes.length);
     }
 
     public void flush() throws Throwable {

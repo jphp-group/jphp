@@ -770,6 +770,18 @@ public class Environment {
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
+    public void echo(byte[] bytes, int length){
+        OutputBuffer buffer = peekOutputBuffer();
+        if (buffer != null)
+            try {
+                buffer.write(bytes, length);
+            } catch (RuntimeException e){
+                throw e;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+    }
+
     public void echo(Memory value){
         OutputBuffer buffer = peekOutputBuffer();
         if (buffer != null)

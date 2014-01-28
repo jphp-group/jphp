@@ -185,7 +185,11 @@ public class FileObject extends BaseObject {
 
     @Signature
     public Memory length(Environment env, Memory... args){
-        return LongMemory.valueOf(file.length());
+        try {
+            return LongMemory.valueOf(file.length());
+        } catch (Exception e){
+            return Memory.FALSE;
+        }
     }
 
     @Signature(@Arg("newName"))

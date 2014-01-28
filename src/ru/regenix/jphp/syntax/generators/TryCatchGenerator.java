@@ -10,6 +10,7 @@ import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.VariableExprToken;
 import ru.regenix.jphp.tokenizer.token.stmt.BodyStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.CatchStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.FinallyStmtToken;
 import ru.regenix.jphp.tokenizer.token.stmt.TryStmtToken;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
 
             List<CatchStmtToken> catches = new ArrayList<CatchStmtToken>();
             Token next = nextToken(iterator);
+
             if (next instanceof CatchStmtToken){
                 do {
                     CatchStmtToken _catch = (CatchStmtToken) next;
@@ -76,10 +78,32 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
 
                     next = iterator.next();
                     if (!(next instanceof CatchStmtToken)){
-                        iterator.previous();
-                        break;
+                        if (next instanceof FinallyStmtToken){
+                            if (result.getFinally() != null)
+                                unexpectedToken(next);
+
+                            result.setFinally(
+                                    analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator)
+                            );
+                            if (!iterator.hasNext())
+                                break;
+
+                            next = iterator.next();
+                        }
+
+                        if(!(next instanceof CatchStmtToken)){
+                            iterator.previous();
+                            break;
+                        }
                     }
                 } while (true);
+            } else if (next instanceof FinallyStmtToken){
+                if (result.getFinally() != null)
+                    unexpectedToken(next);
+
+                result.setFinally(
+                    analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator)
+                );
             } else
                 unexpectedToken(next, TokenType.T_CATCH);
 
