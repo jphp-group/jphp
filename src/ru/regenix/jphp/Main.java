@@ -60,7 +60,7 @@ public class Main {
             System.out.println();
             System.out.println(System.currentTimeMillis() - t);
             System.out.println("--------------------");
-            //System.out.println(result);
+            System.out.println(result);
 
         } catch (Exception e) {
             environment.catchUncaught(e);

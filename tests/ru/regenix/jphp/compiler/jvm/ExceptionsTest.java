@@ -29,4 +29,22 @@ public class ExceptionsTest extends JvmCompilerCase {
     public void testUncaught(){
         includeResource("exceptions/uncaught.php");
     }
+
+    @Test
+    public void testFinallyReturn(){
+        check("exceptions/finally_return.php");
+        check("exceptions/finally_return2.php");
+    }
+
+    @Test
+    public void testFinallyCatch(){
+        check("exceptions/finally_catch.php");
+        check("exceptions/finally_catch2.php");
+        check("exceptions/finally_catch3.php");
+    }
+
+    @Test
+    public void testFinallyMisc(){
+        check("exceptions/finally_misc.php");
+    }
 }

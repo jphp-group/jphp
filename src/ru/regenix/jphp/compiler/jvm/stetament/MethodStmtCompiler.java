@@ -23,10 +23,7 @@ import ru.regenix.jphp.tokenizer.TokenMeta;
 import ru.regenix.jphp.tokenizer.token.Token;
 import ru.regenix.jphp.tokenizer.token.expr.value.NameToken;
 import ru.regenix.jphp.tokenizer.token.expr.value.StaticAccessExprToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ArgumentStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ExprStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.MethodStmtToken;
-import ru.regenix.jphp.tokenizer.token.stmt.ReturnStmtToken;
+import ru.regenix.jphp.tokenizer.token.stmt.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,6 +37,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     private Stack<StackItem> stack = new Stack<StackItem>();
     private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
+    final Stack<TryCatchItem> tryStack = new Stack<TryCatchItem>();
+    final List<BodyStmtToken> finallyBlocks = new ArrayList<BodyStmtToken>();
 
     private int stackLevel = 0;
     private int stackSize = 0;
@@ -470,4 +469,28 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return entity;
     }
 
+
+    public static class TryCatchItem {
+        private final TryStmtToken token;
+        private final LabelNode catchStart;
+        private final LabelNode catchEnd;
+
+        public TryCatchItem(TryStmtToken token, LabelNode catchStart, LabelNode catchEnd) {
+            this.token = token;
+            this.catchStart = catchStart;
+            this.catchEnd = catchEnd;
+        }
+
+        public TryStmtToken getToken() {
+            return token;
+        }
+
+        public LabelNode getCatchStart() {
+            return catchStart;
+        }
+
+        public LabelNode getCatchEnd() {
+            return catchEnd;
+        }
+    }
 }

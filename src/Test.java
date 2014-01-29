@@ -6,15 +6,14 @@ public class Test {
 
     public static int test(){
         try {
-            System.out.print("0");
-
-            return 0;
-        } catch (RuntimeException e){
-            int y = 30;
-            return 0;
-        } finally {
-            int x = 20;
-            System.out.print("Test");
+            try {
+                System.gc();
+            } catch (RuntimeException e){
+                System.out.print("done");
+            }
+        } catch (NullPointerException e){
+            System.out.print("nothing");
         }
+        return 0;
     }
 }

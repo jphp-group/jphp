@@ -55,6 +55,47 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         result.setBody(body);
     }
 
+    protected void processFinally(TryStmtToken result, Token current, ListIterator<Token> iterator){
+        if (result.getFinally() != null)
+            unexpectedToken(current);
+
+        result.setFinally(
+                analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator)
+        );
+        if (!iterator.hasNext())
+            return;
+
+        current = iterator.next();
+        if (current instanceof CatchStmtToken)
+            processCatches(result, current, iterator);
+        else
+            iterator.previous();
+    }
+
+    protected void processCatches(TryStmtToken result, Token current, ListIterator<Token> iterator){
+        List<CatchStmtToken> catches = result.getCatches();
+
+        do {
+            CatchStmtToken _catch = (CatchStmtToken) current;
+            processCatch(_catch, iterator);
+            catches.add(_catch);
+
+            if (!iterator.hasNext())
+                break;
+
+            current = iterator.next();
+            if (!(current instanceof CatchStmtToken)){
+                if (current instanceof FinallyStmtToken){
+                    processFinally(result, current, iterator);
+                    break;
+                }
+
+                iterator.previous();
+                break;
+            }
+        } while (true);
+    }
+
     @Override
     public TryStmtToken getToken(Token current, ListIterator<Token> iterator) {
         if (current instanceof TryStmtToken){
@@ -64,50 +105,16 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
             BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
             result.setBody(body);
 
-            List<CatchStmtToken> catches = new ArrayList<CatchStmtToken>();
             Token next = nextToken(iterator);
+            result.setCatches(new ArrayList<CatchStmtToken>());
 
             if (next instanceof CatchStmtToken){
-                do {
-                    CatchStmtToken _catch = (CatchStmtToken) next;
-                    processCatch(_catch, iterator);
-                    catches.add(_catch);
-
-                    if (!iterator.hasNext())
-                        break;
-
-                    next = iterator.next();
-                    if (!(next instanceof CatchStmtToken)){
-                        if (next instanceof FinallyStmtToken){
-                            if (result.getFinally() != null)
-                                unexpectedToken(next);
-
-                            result.setFinally(
-                                    analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator)
-                            );
-                            if (!iterator.hasNext())
-                                break;
-
-                            next = iterator.next();
-                        }
-
-                        if(!(next instanceof CatchStmtToken)){
-                            iterator.previous();
-                            break;
-                        }
-                    }
-                } while (true);
+                processCatches(result, next, iterator);
             } else if (next instanceof FinallyStmtToken){
-                if (result.getFinally() != null)
-                    unexpectedToken(next);
-
-                result.setFinally(
-                    analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator)
-                );
+                processFinally(result, next, iterator);
             } else
                 unexpectedToken(next, TokenType.T_CATCH);
 
-            result.setCatches(catches);
             result.setLocal(analyzer.removeLocalScope());
             return result;
         }
