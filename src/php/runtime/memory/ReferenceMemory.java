@@ -937,4 +937,9 @@ public class ReferenceMemory extends Memory {
     public boolean isClosure() {
         return value.isClosure();
     }
+
+    @Override
+    public String toASCIIString() {
+        return value.toASCIIString();
+    }
 }

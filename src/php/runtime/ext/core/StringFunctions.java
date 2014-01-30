@@ -337,7 +337,8 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static String bin2hex(String value){
+    public static String bin2hex(Memory _value){
+        String value = _value.toASCIIString();
         StringBuilder sb = new StringBuilder();
 
         int ch;

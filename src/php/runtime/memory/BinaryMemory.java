@@ -39,6 +39,15 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
+    public String toASCIIString(){
+        StringBuilder sb = new StringBuilder(bytes.length);
+        for(byte e : bytes){
+            sb.append((char)(e & 0xFF));
+        }
+        return sb.toString();
+    }
+
+    @Override
     public Memory valueOfIndex(TraceInfo trace, Memory index) {
         int i = index.toInteger();
         if (i < 0 || i >= bytes.length)

@@ -112,6 +112,9 @@ abstract public class Memory {
     abstract public Memory toNumeric();
     abstract public String toString();
     public Memory toUnset() { return NULL; }
+    public String toASCIIString(){
+        return toString();
+    }
 
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
