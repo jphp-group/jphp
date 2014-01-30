@@ -364,7 +364,8 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static String hex2bin(String s) {
+    public static String hex2bin(Memory _s) {
+        String s = _s.toASCIIString();
         StringBuilder sb = new StringBuilder();
 
         int len = s.length();
