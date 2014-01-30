@@ -338,7 +338,7 @@ public class StringFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static String bin2hex(Memory _value){
-        String value = _value.toASCIIString();
+        String value = _value.toBinaryString();
         StringBuilder sb = new StringBuilder();
 
         int ch;
@@ -365,7 +365,7 @@ public class StringFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static String hex2bin(Memory _s) {
-        String s = _s.toASCIIString();
+        String s = _s.toBinaryString();
         StringBuilder sb = new StringBuilder();
 
         int len = s.length();

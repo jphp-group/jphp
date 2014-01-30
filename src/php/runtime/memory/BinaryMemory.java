@@ -39,7 +39,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public String toASCIIString(){
+    public String toBinaryString(){
         StringBuilder sb = new StringBuilder(bytes.length);
         for(byte e : bytes){
             sb.append((char)(e & 0xFF));

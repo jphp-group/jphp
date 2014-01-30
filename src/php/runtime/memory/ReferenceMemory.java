@@ -939,7 +939,7 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public String toASCIIString() {
-        return value.toASCIIString();
+    public String toBinaryString() {
+        return value.toBinaryString();
     }
 }

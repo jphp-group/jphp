@@ -112,7 +112,7 @@ abstract public class Memory {
     abstract public Memory toNumeric();
     abstract public String toString();
     public Memory toUnset() { return NULL; }
-    public String toASCIIString(){
+    public String toBinaryString(){
         return toString();
     }
 
