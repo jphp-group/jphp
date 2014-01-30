@@ -3270,24 +3270,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writeReturn(ReturnStmtToken token){
-        LocalVariable tmpVar = null;
-        List<BodyStmtToken> finals = null;
-
-        if (!method.tryStack.empty()){
-            finals = new ArrayList<BodyStmtToken>();
-            for (MethodStmtCompiler.TryCatchItem stmtToken : method.tryStack){
-                if (stmtToken.getToken().getFinally() != null){
-                    finals.add(0, stmtToken.getToken().getFinally());
-                }
-            }
-
-            if (!finals.isEmpty()){
-                tmpVar = method.addLocalVariable(
-                        "~ret~" + method.nextStatementIndex(Memory.class), null, Memory.class
-                );
-            }
-        }
-
         Memory result = Memory.NULL;
         boolean isImmutable = method.entity.isImmutable();
         if (token.getValue() != null)
@@ -3321,20 +3303,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else
             writePopImmutable();
 
-        if (finals != null){
-            writeVarStore(tmpVar, false, false);
-            for(BodyStmtToken el : finals)
-                writeBody(el);
+        if (!method.tryStack.empty()){
+            LocalVariable variable = method.getLocalVariable("~result~");
+            if (variable == null)
+                variable = method.addLocalVariable("~result~", null, Memory.class);
 
-            writeVarLoad(tmpVar);
+            writeVarStore(variable, false, false);
+            code.add(new JumpInsnNode(GOTO, method.tryStack.peek().getReturnLabel()));
+        } else {
+            code.add(new InsnNode(ARETURN));
+            //removeStackFrame();
+            stackPop();
         }
-
-        code.add(new InsnNode(ARETURN));
-        //removeStackFrame();
-        stackPop();
-
-        if (tmpVar != null)
-            method.prevStatementIndex(Memory.class);
     }
 
     void writeThrow(ThrowStmtToken throwStmt){
@@ -3358,14 +3338,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         LabelNode tryEnd   = new LabelNode();
         LabelNode catchStart = new LabelNode();
         LabelNode catchEnd = new LabelNode();
+        LabelNode returnLabel = new LabelNode();
 
         method.node.tryCatchBlocks.add(0,
                 new TryCatchBlockNode(tryStart, tryEnd, catchStart, Type.getInternalName(BaseException.class))
         );
 
-        method.tryStack.push(new MethodStmtCompiler.TryCatchItem(tryCatch, catchStart, catchEnd));
+        if (tryCatch.getFinally() != null) {
+            method.tryStack.push(new MethodStmtCompiler.TryCatchItem(tryCatch, returnLabel));
+        }
         writeBody(tryCatch.getBody());
-        method.tryStack.pop();
+
+        if (tryCatch.getFinally() != null) {
+            method.tryStack.pop();
+        }
 
         code.add(tryEnd);
 
@@ -3427,6 +3413,25 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(catchEnd);
 
         if (tryCatch.getFinally() != null){
+            LabelNode skip = new LabelNode();
+            code.add(new JumpInsnNode(GOTO, skip));
+
+            // finally for return
+            code.add(returnLabel);
+            writeBody(tryCatch.getFinally());
+            if (method.tryStack.empty()){
+                // all finally blocks are done
+                LocalVariable retVar = method.getOrAddLocalVariable("~result~", null, Memory.class);
+                writeVarLoad(retVar);
+                code.add(new InsnNode(ARETURN));
+                stackPop();
+            } else {
+                // goto next finally block
+                code.add(new JumpInsnNode(GOTO, method.tryStack.peek().getReturnLabel()));
+            }
+
+            code.add(skip);
+            // other finally
             writeBody(tryCatch.getFinally());
         }
 

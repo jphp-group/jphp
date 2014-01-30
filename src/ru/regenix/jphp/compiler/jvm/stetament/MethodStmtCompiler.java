@@ -203,6 +203,19 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return result;
     }
 
+    LocalVariable getOrAddLocalVariable(String variable, LabelNode label, Class clazz){
+        LocalVariable local = getLocalVariable(variable);
+        if (local == null){
+            local = addLocalVariable(variable, label, clazz);
+        } else {
+            if (local.getClazz() != clazz)
+                throw new RuntimeException(
+                        "Invalid class for " + variable + " variable, " + local.getClazz() + " != " + clazz.getClass()
+                );
+        }
+        return local;
+    }
+
     LocalVariable addLocalVariable(String variable, LabelNode label){
         return addLocalVariable(variable, label, Memory.class);
     }
@@ -472,25 +485,19 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public static class TryCatchItem {
         private final TryStmtToken token;
-        private final LabelNode catchStart;
-        private final LabelNode catchEnd;
+        private final LabelNode returnLabel;
 
-        public TryCatchItem(TryStmtToken token, LabelNode catchStart, LabelNode catchEnd) {
+        public TryCatchItem(TryStmtToken token, LabelNode returnLabel) {
             this.token = token;
-            this.catchStart = catchStart;
-            this.catchEnd = catchEnd;
+            this.returnLabel = returnLabel;
         }
 
         public TryStmtToken getToken() {
             return token;
         }
 
-        public LabelNode getCatchStart() {
-            return catchStart;
-        }
-
-        public LabelNode getCatchEnd() {
-            return catchEnd;
+        public LabelNode getReturnLabel() {
+            return returnLabel;
         }
     }
 }
