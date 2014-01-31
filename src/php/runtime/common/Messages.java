@@ -4,6 +4,8 @@ final public class Messages {
 
     private Messages(){}
 
+    public final static Item ERR_FILE_NOT_FOUND = new Item("File not found - %s");
+
     public final static Item ERR_PARSE_UNEXPECTED_END_OF_FILE = new Item("Syntax error, unexpected end");
     public final static Item ERR_PARSE_UNEXPECTED_END_OF_STRING = new Item("Syntax error, unexpected end of string");
     public final static Item ERR_PARSE_UNEXPECTED_X_EXPECTED_Y = new Item("Syntax error, unexpected '%s', expecting '%s'");
