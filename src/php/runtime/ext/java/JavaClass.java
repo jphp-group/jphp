@@ -284,11 +284,6 @@ final public class JavaClass extends JavaReflection {
         return new StringMemory(url.getFile());
     }
 
-    @Signature
-    public Memory toGenericString(Environment env, Memory... args){
-        return clazz.isLocalClass() ? Memory.TRUE : Memory.FALSE;
-    }
-
     public static JavaClass of(Environment env, Class<?> clazz){
         JavaClass javaClass = new JavaClass(env, env.fetchClass("php\\lang\\JavaClass"));
         javaClass.setClazz(clazz);

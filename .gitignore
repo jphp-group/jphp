@@ -9,6 +9,7 @@
 /lib/
 /out/
 .idea/
+sdk/.idea/
 settings.xml
 /target/
 /site/
