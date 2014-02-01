@@ -94,6 +94,10 @@ public class CompileScope {
         registerExtension(extension);
     }
 
+    public RuntimeClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     public LangMode getLangMode() {
         return langMode;
     }
