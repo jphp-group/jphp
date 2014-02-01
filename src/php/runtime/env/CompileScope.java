@@ -2,6 +2,7 @@ package php.runtime.env;
 
 import php.runtime.common.LangMode;
 import php.runtime.ext.CoreExtension;
+import php.runtime.ext.JavaExtension;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -92,6 +93,7 @@ public class CompileScope {
         registerClass(new ClassEntity(extension, this, Serializable.class));
 
         registerExtension(extension);
+        registerExtension(new JavaExtension());
     }
 
     public RuntimeClassLoader getClassLoader() {

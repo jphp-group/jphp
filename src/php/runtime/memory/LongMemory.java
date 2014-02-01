@@ -39,7 +39,7 @@ public class LongMemory extends Memory {
     }
 
     public static Memory valueOf(int value){
-        if (value >= -MAX_NEG_CACHE && value <= MAX_POS_CACHE)
+        if (value >= -MAX_NEG_CACHE && value <= MAX_NEG_CACHE)
             return CACHE[value + MAX_NEG_CACHE];
         else
             return new LongMemory(value);

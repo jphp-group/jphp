@@ -6,7 +6,7 @@
 
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.2-snapshot</version>
+    <version>0.3-snapshot</version>
 
     <name>JPHP</name>
     <description>PHP Engine for Java VM</description>
