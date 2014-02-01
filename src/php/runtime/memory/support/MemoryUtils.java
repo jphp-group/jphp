@@ -284,7 +284,7 @@ public class MemoryUtils {
                 if (value instanceof Collection){
                     ArrayMemory result = new ArrayMemory();
                     for (Object el : (Collection)value)
-                        result.add(valueOf(value));
+                        result.add(valueOf(el));
 
                     return result;
                 } else if (value instanceof Map){
@@ -296,7 +296,7 @@ public class MemoryUtils {
                 } else if (value.getClass().isArray()){
                     ArrayMemory result = new ArrayMemory();
                     for (Object el : (Object[])value)
-                        result.add(valueOf(value));
+                        result.add(valueOf(el));
 
                     return result;
                 }
