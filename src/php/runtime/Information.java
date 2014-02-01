@@ -2,7 +2,7 @@ package php.runtime;
 
 final public class Information {
     public static final String NAME = "JPHP";
-    public static final String CORE_VERSION = "0.2-snapshot";
+    public static final String CORE_VERSION = "0.3-snapshot";
     public static final String LIKE_PHP_VERSION = "5.3.2";
     public static final String LIKE_ZEND_VERSION = "2.2";
 
