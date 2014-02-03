@@ -828,7 +828,7 @@ public class Environment {
         return module;
     }
 
-    public void registerModule(ModuleEntity module) throws Throwable {
+    public void registerModule(ModuleEntity module) {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
                 classMap.put(entity.getLowerName(), entity);

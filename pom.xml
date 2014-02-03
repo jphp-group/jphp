@@ -28,6 +28,11 @@
     <build>
         <directory>target/${project.version}</directory>
         <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/resources</directory>
+            </resource>
+        </resources>
         <testSourceDirectory>tests</testSourceDirectory>
 
         <testResources>

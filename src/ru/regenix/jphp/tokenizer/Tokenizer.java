@@ -40,7 +40,7 @@ public class Tokenizer {
         this.context = context;
         this.code = context.getContent();
         this.codeLength = code.length();
-        this.rawMode = context.isFile();
+        this.rawMode = context.isLikeFile();
         reset();
     }
 
