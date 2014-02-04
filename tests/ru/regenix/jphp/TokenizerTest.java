@@ -160,7 +160,7 @@ public class TokenizerTest {
         assertTrue(ex instanceof ParseException);
         TraceInfo traceInfo = ((ParseException) ex).getTraceInfo();
         assertNotNull(traceInfo);
-        assertNull(traceInfo.getContext().getFile());
+        assertNull(traceInfo.getContext().getFileName());
         assertEquals(1, traceInfo.getStartLine());
         assertEquals(1, traceInfo.getEndLine());
         assertEquals(1, traceInfo.getStartPosition());
