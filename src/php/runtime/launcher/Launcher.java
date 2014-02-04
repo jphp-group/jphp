@@ -1,6 +1,7 @@
 package php.runtime.launcher;
 
 import php.runtime.Information;
+import php.runtime.Memory;
 import php.runtime.common.StringUtils;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
@@ -11,7 +12,11 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class Launcher {
@@ -94,12 +99,15 @@ public class Launcher {
 
     protected void readConfig(){
         this.config = new Properties();
+        this.compileScope.configuration = new HashMap<String, Memory>();
+
         InputStream resource;
 
         resource = getResource(pathToConf);
         if (resource != null) {
             try {
                 this.config.load(resource);
+
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }

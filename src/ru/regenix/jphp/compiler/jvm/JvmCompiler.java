@@ -230,11 +230,7 @@ public class JvmCompiler extends AbstractCompiler {
     }
 
     public String getSourceFile() {
-        try {
-            return context.getFile() == null ? null : context.getFile().getCanonicalPath();
-        } catch (IOException e) {
-            return context.getFile().getAbsolutePath();
-        }
+        return context.getFileName();
     }
 
     public class ClassInitEnvironment extends StmtToken {

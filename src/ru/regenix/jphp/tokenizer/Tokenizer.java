@@ -741,8 +741,4 @@ public class Tokenizer {
     public Context getContext() {
         return context;
     }
-
-    public File getFile(){
-        return context.getFile();
-    }
 }

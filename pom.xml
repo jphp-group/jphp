@@ -21,7 +21,7 @@
     <distributionManagement>
         <repository>
             <id>Local</id>
-            <url>file://${project.build.directory}/mvn-repo</url>
+            <url>file://${java.io.tmpdir}/mvn-repo</url>
         </repository>
     </distributionManagement>
 

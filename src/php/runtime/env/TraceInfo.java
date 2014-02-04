@@ -23,7 +23,7 @@ public class TraceInfo {
     }
 
     public TraceInfo(Context context, int startLine, int endLine, int startPosition, int endPosition) {
-        this.fileName = context.getFile() == null ? null : context.getFile().getPath();
+        this.fileName = !context.isLikeFile() ? null : context.getFileName();
         this.context = context;
         this.startLine = startLine;
         this.endLine = endLine;

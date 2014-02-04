@@ -21,6 +21,7 @@ public class Context {
 
     public Context(File file, Charset charset) {
         this.file = file;
+        this.moduleName = file.getPath();
         this.charset = charset;
     }
 
@@ -49,7 +50,7 @@ public class Context {
         this.content = result.toString();
     }
 
-    public File getFile() {
+    public File getFile2() {
         return file;
     }
 
@@ -57,8 +58,12 @@ public class Context {
         return file != null || inputStream != null;
     }
 
+    public String getFileName(){
+        return file != null ? file.getPath() : moduleName;
+    }
+
     public String getModuleName() throws IOException {
-        if (moduleName != null)
+        if (moduleName != null && file == null)
             return moduleName;
 
         if (file == null)
