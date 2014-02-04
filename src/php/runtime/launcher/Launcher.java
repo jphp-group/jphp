@@ -7,13 +7,11 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class Launcher {
@@ -21,13 +19,23 @@ public class Launcher {
     protected CompileScope compileScope;
     protected Environment environment;
     protected Properties config;
+    protected String pathToConf;
 
     protected OutputStream out;
 
-    public Launcher(String[] args) {
+    public Launcher(String pathToConf, String[] args) {
         this.args = args;
         this.out = System.out != null ? System.out : new ByteArrayOutputStream();
         this.compileScope = new CompileScope();
+        this.pathToConf = pathToConf == null ? "JPHP-INF/launcher.conf" : pathToConf;
+    }
+
+    public Launcher(String[] args) {
+        this(null, args);
+    }
+
+    public Launcher() {
+        this(new String[0]);
     }
 
     protected InputStream getResource(String name){
@@ -86,15 +94,20 @@ public class Launcher {
 
     protected void readConfig(){
         this.config = new Properties();
-        InputStream resource = getResource("JPHP-INF/launcher.conf");
-        if (resource == null)
-            throw new LaunchException("Cannot find JPHP-INF/launcher.conf");
+        InputStream resource;
 
-        try {
-            this.config.load(resource);
-
-        } catch (IOException e) {
-            throw new LaunchException(e.getMessage());
+        resource = getResource(pathToConf);
+        if (resource != null) {
+            try {
+                this.config.load(resource);
+                for (String name : config.stringPropertyNames()){
+                    compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
+                }
+            } catch (IOException e) {
+                throw new LaunchException(e.getMessage());
+            }
+        } else {
+            throw new LaunchException("Cannot find configuration: " + pathToConf);
         }
     }
 
@@ -123,21 +136,27 @@ public class Launcher {
         readConfig();
         initExtensions();
 
-        String file;
-        ModuleEntity bootstrap = loadFrom(file = config.getProperty("bootstrap.file", "JPHP-INF/bootstrap.php"));
-        if (bootstrap == null)
-            throw new LaunchException("Cannot find '" + file + "' resource");
+        String file = config.getProperty("bootstrap.file", null);
+        if (file != null){
+            ModuleEntity bootstrap = loadFrom(file);
+            if (bootstrap == null)
+                throw new LaunchException("Cannot find '" + file + "' resource");
 
-        initModule(bootstrap);
-        try {
-            bootstrap.include(environment);
-        } catch (Exception e){
-            environment.catchUncaught(e);
+            initModule(bootstrap);
+            try {
+                bootstrap.include(environment);
+            } catch (Exception e){
+                environment.catchUncaught(e);
+            }
         }
     }
 
     public OutputStream getOut(){
         return out;
+    }
+
+    public CompileScope getCompileScope() {
+        return compileScope;
     }
 
     public static void main(String[] args) throws Throwable {
