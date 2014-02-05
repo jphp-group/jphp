@@ -5,6 +5,7 @@ import php.runtime.common.Modifier;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;

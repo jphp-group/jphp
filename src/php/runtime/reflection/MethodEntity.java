@@ -1,6 +1,7 @@
 package php.runtime.reflection;
 
 import php.runtime.common.HintType;
+import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
 import php.runtime.ext.support.Extension;
@@ -179,8 +180,13 @@ public class MethodEntity extends AbstractFunctionEntity {
                 return Memory.NULL;
             }
 
-            if (_this == null && !isStatic)
+            if (_this == null && !isStatic){
                 _this = clazz.newMock(environment);
+                if (_this == null)
+                    environment.error(ErrorType.E_ERROR, Messages.ERR_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(
+                            getClazz().getName() + "::" + getName())
+                    );
+            }
 
             return isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){

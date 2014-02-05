@@ -1,11 +1,11 @@
 package php.runtime.env;
 
+import php.runtime.Memory;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.output.PlainPrinter;
-import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.StringWriter;
@@ -108,7 +108,9 @@ public class CallStackItem {
 
     public String toString(boolean withArgs) {
         StringBuilder sb = new StringBuilder();
-        if (clazz != null){
+        if (object instanceof Closure)
+            sb.append("{closure}");
+        else if (clazz != null){
             sb.append(clazz);
             if (object == null)
                 sb.append("::");
@@ -118,8 +120,6 @@ public class CallStackItem {
             sb.append(function);
         } else if (function != null){
             sb.append(function);
-        } else if (object instanceof Closure){
-            sb.append("{closure}");
         } else
             sb.append("<internal>");
 

@@ -1,6 +1,7 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.Constants;
 import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
@@ -385,6 +386,14 @@ public class Environment {
             return null;
     }
 
+    public ClassEntity fetchClass(Class<?> clazz){
+        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
+        if (name != null)
+            return fetchClass(name.value(), false);
+        else
+            return fetchClass(clazz.getSimpleName(), false);
+    }
+
     public ClassEntity fetchClass(String name) {
         return fetchClass(name, false);
     }
@@ -670,7 +679,7 @@ public class Environment {
     }
 
     public void error(ErrorType type, String message, Object... args){
-        error(peekCall(0).trace, type, message, args);
+        error(trace(), type, message, args);
     }
 
     public void error(TraceInfo trace, String message, Object... args){

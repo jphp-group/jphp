@@ -56,10 +56,11 @@ abstract public class Extension {
         return classes;
     }
 
-    public void registerNativeClass(CompileScope scope, Class<?> clazz){
+    public ClassEntity registerNativeClass(CompileScope scope, Class<?> clazz){
         ClassEntity classEntity = new ClassEntity(this, scope, clazz);
         scope.registerClass(classEntity);
         classes.put(classEntity.getLowerName(), classEntity);
+        return classEntity;
     }
 
     public void registerConstants(ConstantsContainer container){

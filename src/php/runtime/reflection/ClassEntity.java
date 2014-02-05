@@ -765,9 +765,15 @@ public class ClassEntity extends Entity {
     }
 
     public IObject newMock(Environment env) throws Throwable {
-        IObject object = (IObject) nativeConstructor.newInstance(env, this);
-        object.setAsMock();
-        return object;
+        if (nativeConstructor == null)
+            return null;
+        try {
+            IObject object = (IObject) nativeConstructor.newInstance(env, this);
+            object.setAsMock();
+            return object;
+        } catch (InstantiationException e){
+            return null;
+        }
     }
 
     public IObject newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
