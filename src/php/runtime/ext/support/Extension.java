@@ -59,7 +59,11 @@ abstract public class Extension {
     public ClassEntity registerNativeClass(CompileScope scope, Class<?> clazz){
         ClassEntity classEntity = new ClassEntity(this, scope, clazz);
         scope.registerClass(classEntity);
-        classes.put(classEntity.getLowerName(), classEntity);
+        if (classEntity.getId() == 0)
+            classEntity.setId(scope.nextClassIndex());
+
+        if (classes.put(classEntity.getLowerName(), classEntity) != null)
+            throw new RuntimeException("Class already registered - " + clazz.getName());
         return classEntity;
     }
 

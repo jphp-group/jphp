@@ -6,7 +6,6 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -301,7 +300,7 @@ final public class InvokeHelper {
         }
 
         if (!method.isStatic()) {
-            if (maybeObject != null && !(maybeObject instanceof Closure)
+            if (maybeObject != null
                     && maybeObject.getReflection().isInstanceOf(classEntity))
                 return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args);
 

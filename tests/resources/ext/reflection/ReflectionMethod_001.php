@@ -12,13 +12,13 @@ var_dump(new ReflectionMethod(new Foo, 'test'));
 
 try {
     var_dump(new ReflectionMethod('Foo', 'unknown'));
-} catch (ReflectionClass $e){
+} catch (ReflectionException $e){
     var_dump($e->getMessage());
 }
 
 try {
     var_dump(new ReflectionMethod('Unknown', 'unknown'));
-} catch (ReflectionClass $e){
+} catch (ReflectionException $e){
     var_dump($e->getMessage());
 }
 

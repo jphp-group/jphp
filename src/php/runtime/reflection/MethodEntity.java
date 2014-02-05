@@ -403,7 +403,7 @@ public class MethodEntity extends AbstractFunctionEntity {
                 }
                 return 2;
             case PROTECTED:
-                ClassEntity clazz = context == null ? env.getLastClassOnStack() : context;
+                ClassEntity clazz = context == null ? env.getLateStaticClass() : context;
                 if (clazz == null)
                     return 1;
 
