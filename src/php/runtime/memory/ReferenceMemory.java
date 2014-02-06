@@ -4,6 +4,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.Memory;
+import php.runtime.lang.IObject;
 
 public class ReferenceMemory extends Memory {
 
@@ -941,5 +942,15 @@ public class ReferenceMemory extends Memory {
     @Override
     public String toBinaryString() {
         return value.toBinaryString();
+    }
+
+    @Override
+    public boolean instanceOf(Class<? extends IObject> clazz) {
+        return value.instanceOf(clazz);
+    }
+
+    @Override
+    public <T extends IObject> T toObject(Class<T> clazz) {
+        return value.toObject(clazz);
     }
 }

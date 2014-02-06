@@ -40,6 +40,16 @@ abstract public class Invoker {
 
     abstract public Memory call(Memory... args) throws Throwable;
 
+    public Memory callNoThrow(Memory... args){
+        try {
+            return call(args);
+        } catch (RuntimeException e){
+            throw e;
+        } catch (Throwable e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public void popCall(){
         env.popCall();
     }

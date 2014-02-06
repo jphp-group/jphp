@@ -313,12 +313,10 @@ public class MemoryUtils {
         switch (type){
             case STRING: return new StringMemory(value);
             case ANY: return value.equals("NULL") ? Memory.NULL : new StringMemory(value);
+            case DOUBLE:
+                return new DoubleMemory(Double.parseDouble(value));
             case INT: {
-                try {
-                    return new DoubleMemory(Double.parseDouble(value));
-                } catch (NumberFormatException e){
-                    return LongMemory.valueOf(Long.parseLong(value));
-                }
+                return LongMemory.valueOf(Long.parseLong(value));
             }
             case ARRAY:
                 return new ArrayMemory();

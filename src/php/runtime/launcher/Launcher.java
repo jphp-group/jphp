@@ -28,6 +28,8 @@ public class Launcher {
 
     protected OutputStream out;
 
+    private static Launcher current;
+
     public Launcher(String pathToConf, String[] args) {
         this.args = args;
         this.out = System.out != null ? System.out : new ByteArrayOutputStream();
@@ -55,13 +57,13 @@ public class Launcher {
             return null;
     }
 
-    protected void initModule(ModuleEntity moduleEntity){
+    public void initModule(ModuleEntity moduleEntity){
         compileScope.loadModule(moduleEntity);
         compileScope.addUserModule(moduleEntity);
         environment.registerModule(moduleEntity);
     }
 
-    protected ModuleEntity loadFromCompiled(String file){
+    public ModuleEntity loadFromCompiled(String file){
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
@@ -76,7 +78,7 @@ public class Launcher {
         }
     }
 
-    protected ModuleEntity loadFromFile(String file){
+    public ModuleEntity loadFromFile(String file){
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
@@ -90,7 +92,7 @@ public class Launcher {
         }
     }
 
-    protected ModuleEntity loadFrom(String file){
+    public ModuleEntity loadFrom(String file){
         if (file.endsWith(".phb"))
             return loadFromCompiled(file);
         else
@@ -167,8 +169,13 @@ public class Launcher {
         return compileScope;
     }
 
+    public static Launcher current() {
+        return current;
+    }
+
     public static void main(String[] args) throws Throwable {
         Launcher launcher = new Launcher(args);
+        Launcher.current = launcher;
         launcher.run();
     }
 }

@@ -1,8 +1,10 @@
 package php.runtime;
 
+import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
@@ -116,6 +118,8 @@ abstract public class Memory {
         return toString();
     }
 
+    public float toFloat(){ return (float)toDouble(); }
+
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
         result.add(toImmutable());
@@ -126,6 +130,11 @@ abstract public class Memory {
         StdClass stdClass = new StdClass(env);
         stdClass.getProperties().refOfIndex("scalar").assign(toImmutable());
         return new ObjectMemory(stdClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T toObject(Class<T> clazz){
+        return (T) toValue(ObjectMemory.class).value;
     }
 
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
@@ -637,6 +646,14 @@ abstract public class Memory {
 
     public boolean instanceOf(String className, String lowerClassName){
         return false;
+    }
+
+    public boolean instanceOf(Class<? extends IObject> clazz){
+        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
+        if (name == null)
+            return instanceOf(clazz.getSimpleName());
+        else
+            return instanceOf(name.value());
     }
 
     public boolean instanceOf(String name){
