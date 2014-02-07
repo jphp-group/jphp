@@ -13,14 +13,11 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.*;
 
-import java.lang.reflect.InvocationTargetException;
-
 final public class InvokeHelper {
 
     private InvokeHelper() { }
 
-    public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method)
-            throws InvocationTargetException, IllegalAccessException {
+    public static void checkAccess(Environment env, TraceInfo trace, MethodEntity method) {
         int access = method.canAccess(env);
         if (access == 0)
             return;
@@ -44,8 +41,7 @@ final public class InvokeHelper {
         }
     }
 
-    public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property)
-            throws InvocationTargetException, IllegalAccessException {
+    public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property) {
         switch (property.canAccess(env)){
             case 1: throw new FatalException(
                     Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY.fetch(

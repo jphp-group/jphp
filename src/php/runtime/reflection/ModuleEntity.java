@@ -68,7 +68,7 @@ public class ModuleEntity extends Entity {
         try {
             return (Memory) nativeMethod.invoke(null, env, argsMock, locals);
         } catch (InvocationTargetException e){
-            throw e.getTargetException();
+            return env.__throwException(e);
         }
     }
 
@@ -76,7 +76,7 @@ public class ModuleEntity extends Entity {
         try {
             return (Memory) nativeMethod.invoke(null, env, argsMock, env.getGlobals());
         } catch (InvocationTargetException e){
-            throw e.getTargetException();
+            return env.__throwException(e);
         }
     }
 

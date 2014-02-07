@@ -11,7 +11,7 @@ abstract public class JavaReflection extends BaseObject {
         super(env, clazz);
     }
 
-    protected static void exception(Environment env, Throwable e){
+    public static void exception(Environment env, Throwable e){
         JavaException exception = new JavaException(env, env.fetchClass("php\\lang\\JavaException"));
         exception.setThrowable(e);
         env.__throwException(exception);

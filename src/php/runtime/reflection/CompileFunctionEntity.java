@@ -1,12 +1,12 @@
 package php.runtime.reflection;
 
+import php.runtime.Memory;
 import php.runtime.common.Messages;
-import php.runtime.ext.support.Extension;
-import php.runtime.ext.support.compile.CompileFunction;
-import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.Memory;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.Extension;
+import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.memory.support.MemoryUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -31,7 +31,7 @@ public class CompileFunctionEntity extends FunctionEntity {
     }
 
     @Override
-    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws IllegalAccessException, InvocationTargetException {
+    public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
         CompileFunction.Method method = compileFunction.find(arguments.length);
         if (method == null){
             env.warning(trace, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
@@ -82,10 +82,14 @@ public class CompileFunctionEntity extends FunctionEntity {
             i++;
         }
 
-        if (method.resultType == void.class){
-            method.method.invoke(null, passed);
-            return Memory.NULL;
-        } else
-            return MemoryUtils.valueOf(method.method.invoke(null, passed));
+        try {
+            if (method.resultType == void.class){
+                method.method.invoke(null, passed);
+                return Memory.NULL;
+            } else
+                return MemoryUtils.valueOf(method.method.invoke(null, passed));
+        } catch (InvocationTargetException e){
+            return env.__throwException(e);
+        }
     }
 }

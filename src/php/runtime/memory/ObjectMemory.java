@@ -510,9 +510,7 @@ public class ObjectMemory extends Memory {
                 try {
                     entity.methodDestruct.invokeDynamic(value, env);
                 } catch (InvocationTargetException e){
-                    Throwable throwable = e.getCause();
-                    if (throwable instanceof RuntimeException)
-                        throw (RuntimeException)throwable;
+                    env.__throwException(e);
                 } catch (RuntimeException e){
                     throw e;
                 } catch (Throwable throwable) {

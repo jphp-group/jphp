@@ -421,7 +421,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static boolean is_callable(Environment env, TraceInfo trace, @Runtime.Reference Memory memory)
-            throws InvocationTargetException, IllegalAccessException {
+            throws Throwable {
         // optimize
         if (memory.isObject() && memory.toValue(ObjectMemory.class).value instanceof Closure)
             return true;

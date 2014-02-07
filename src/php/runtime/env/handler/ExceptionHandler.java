@@ -2,11 +2,13 @@ package php.runtime.env.handler;
 
 import php.runtime.exceptions.FatalException;
 import php.runtime.env.Environment;
+import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.util.JVMStackTracer;
 
 public class ExceptionHandler {
     public final Invoker invoker;
@@ -27,6 +29,15 @@ public class ExceptionHandler {
                     + " on line " + (exception.getTrace().getStartLine() + 1) + "\n"
             );
 
+            if (exception instanceof JavaException){
+                env.echo("\nJVM Stack trace:\n");
+                JVMStackTracer tracer = new JVMStackTracer(
+                        env.scope.getClassLoader(), ((JavaException) exception).getThrowable().getStackTrace()
+                );
+                for(JVMStackTracer.Item el : tracer){
+                    env.echo("        " + el.toString() + "\n");
+                }
+            }
             return false;
         }
     };

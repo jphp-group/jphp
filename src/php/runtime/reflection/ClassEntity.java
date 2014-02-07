@@ -4,6 +4,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.CompileScope;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.support.Extension;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorException;
@@ -414,6 +415,14 @@ public class ClassEntity extends Entity {
         return parent;
     }
 
+    public boolean isInstanceOf(Class<? extends IObject> clazz){
+        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
+        if (name == null)
+            return isInstanceOf(clazz.getSimpleName());
+        else
+            return isInstanceOf(name.value());
+    }
+
     public boolean isInstanceOf(ClassEntity what){
         return what != null && (id == what.id || instanceOfList.contains(what.lowerName));
     }
@@ -749,17 +758,22 @@ public class ClassEntity extends Entity {
             try {
                 nativeInitEnvironment.invoke(null, env);
             } catch (InvocationTargetException e) {
-                throw e.getCause();
+                env.__throwException(e);
             }
         }
     }
 
-    public IObject newObjectWithoutConstruct(Environment env) throws Throwable {
+    public IObject newObjectWithoutConstruct(Environment env) {
         IObject object;
         try {
             object = (IObject) nativeConstructor.newInstance(env, this);
         } catch (InvocationTargetException e){
-            throw e.getCause();
+            env.__throwException(e);
+            return null;
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
         }
         return object;
     }
@@ -787,7 +801,8 @@ public class ClassEntity extends Entity {
         try {
             object = (IObject) nativeConstructor.newInstance(env, this);
         } catch (InvocationTargetException e){
-            throw e.getCause();
+            env.__throwException(e);
+            return null;
         }
         ArrayMemory props = object.getProperties();
 

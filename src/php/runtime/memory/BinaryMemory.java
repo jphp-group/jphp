@@ -18,7 +18,7 @@ public class BinaryMemory extends StringMemory {
         bytes = String.valueOf(ch).getBytes();
     }
 
-    public BinaryMemory(byte[] bytes){
+    public BinaryMemory(byte... bytes){
         super(null);
         this.bytes = bytes;
     }

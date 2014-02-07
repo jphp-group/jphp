@@ -72,7 +72,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
         try {
             return (Memory)nativeMethod.invoke(null, env, arguments);
         } catch (InvocationTargetException e){
-            throw e.getTargetException();
+            return env.__throwException(e);
         } finally {
             unsetArguments(arguments);
         }

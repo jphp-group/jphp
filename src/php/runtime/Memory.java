@@ -3,6 +3,7 @@ package php.runtime;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.ext.swing.classes.components.UIElement;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
@@ -10,6 +11,8 @@ import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 
 abstract public class Memory {
+
+
     public enum Type {
         NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, KEY_VALUE;
 

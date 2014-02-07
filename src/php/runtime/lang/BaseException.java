@@ -5,6 +5,7 @@ import php.runtime.common.Modifier;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.JPHPException;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.Memory;
@@ -26,7 +27,7 @@ import static php.runtime.annotation.Reflection.*;
        @Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
        @Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
 })
-public class BaseException extends RuntimeException implements IObject {
+public class BaseException extends RuntimeException implements IObject, JPHPException {
     protected final ArrayMemory props;
     protected ClassEntity clazz;
     protected final WeakReference<Environment> env;
@@ -35,6 +36,11 @@ public class BaseException extends RuntimeException implements IObject {
 
     private boolean init = true;
     private boolean isFinalized = false;
+
+    public BaseException(Environment env){
+        this(env, null);
+        clazz = env.fetchClass(getClass());
+    }
 
     public BaseException(Environment env, ClassEntity clazz) {
         this.clazz = clazz;

@@ -1,17 +1,17 @@
 package php.runtime.reflection;
 
+import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
-import php.runtime.ext.support.Extension;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.annotation.Reflection;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.Extension;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
-import php.runtime.Memory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
@@ -71,7 +71,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         Class<?>[] types = method.getParameterTypes();
         if (types.length != 2 || types[0] != Environment.class || types[1] != Memory[].class){
             throw new IllegalArgumentException(
-                    "Invalid method signature: " + StringUtils.join(method.getTypeParameters(), ", ")
+                    "Invalid method signature - " + method.toGenericString()
             );
         }
 
@@ -190,7 +190,7 @@ public class MethodEntity extends AbstractFunctionEntity {
 
             return isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){
-            throw e.getTargetException();
+            return environment.__throwException(e);
         } finally {
             if (arguments != null){
                 int x = 0;

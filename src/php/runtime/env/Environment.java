@@ -10,10 +10,13 @@ import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.env.message.WarningMessage;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.JPHPException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.invoke.Invoker;
@@ -41,6 +44,7 @@ import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -388,10 +392,16 @@ public class Environment {
 
     public ClassEntity fetchClass(Class<?> clazz){
         Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
+        ClassEntity result;
         if (name != null)
-            return fetchClass(name.value(), false);
+            result = fetchClass(name.value(), false);
         else
-            return fetchClass(clazz.getSimpleName(), false);
+            result = fetchClass(clazz.getSimpleName(), false);
+
+        if (result == null)
+            throw new CriticalException("Native class is not registered - " + clazz.getName());
+
+        return result;
     }
 
     public ClassEntity fetchClass(String name) {
@@ -697,14 +707,36 @@ public class Environment {
             errorReportHandler.onError(message);
     }
 
-    public void exception(TraceInfo trace, String message){
-        __clearSilent();
+    public void exception(TraceInfo trace, String message, Object... args){
         BaseException e = new BaseException(this, scope.exceptionEntity);
-        e.__construct(this, new StringMemory(
-                message
-        ));
+        exception(trace, e, message, args);
+    }
+
+    public void exception(String message, Object... args){
+        exception(trace(), message);
+    }
+
+    public void exception(TraceInfo trace, BaseException e, String message, Object... args){
+        __clearSilent();
+        if (args == null || args.length == 0)
+            e.__construct(this, new StringMemory(
+                    message
+            ));
+        else
+            e.__construct(this, new StringMemory(
+                    String.format(message, args)
+            ));
         e.setTraceInfo(this, trace);
         throw e;
+    }
+
+    public void exception(BaseException e, String message, Object... args){
+        exception(trace(), e, message, args);
+    }
+
+    public void exception(Class<? extends BaseException> e, String message, Object... args){
+        ClassEntity entity = fetchClass(e);
+        exception((BaseException)entity.newObjectWithoutConstruct(this), message, args);
     }
 
     public boolean isHandleErrors(ErrorType type){
@@ -988,9 +1020,19 @@ public class Environment {
         return result;
     }
 
+    public Memory __throwException(InvocationTargetException e) {
+        Throwable throwable = e.getTargetException();
+        if (throwable instanceof JPHPException)
+            throw (RuntimeException)throwable;
+        else
+            JavaReflection.exception(this, throwable);
+
+        return Memory.NULL;
+    }
+
     public void __throwException(BaseException e){
         __clearSilent();
-        e.setTraceInfo(this, peekCall(0).trace);
+        e.setTraceInfo(this, trace());
         throw e;
     }
 

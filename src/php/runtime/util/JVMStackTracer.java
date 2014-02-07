@@ -1,6 +1,7 @@
 package php.runtime.util;
 
 
+import php.runtime.lang.Closure;
 import php.runtime.loader.RuntimeClassLoader;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
@@ -92,6 +93,8 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
                 result = function.getName();
             else if (clazz != null && method == null)
                 result = clazz.getName() + ".<init>";
+            else if (clazz != null && clazz.isInstanceOf(Closure.class))
+                result = "<Closure>";
             else if (clazz != null)
                 result = clazz.getName() + "." + method.getName();
             else if (module != null)

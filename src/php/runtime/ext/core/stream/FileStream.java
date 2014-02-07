@@ -119,6 +119,9 @@ public class FileStream extends Stream {
         byte[] buff = new byte[len];
         try {
             int read = accessFile.read(buff, 0, len);
+            if (read == -1)
+                return Memory.NULL;
+
             position += read;
             if (read != buff.length){
                 buff = Arrays.copyOf(buff, len);

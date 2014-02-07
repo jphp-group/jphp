@@ -139,7 +139,7 @@ public class CallStackItem {
             sb.append(writer.toString());
         }
         sb.append(")");
-        if (trace != null) {
+        if (trace != null && trace != TraceInfo.UNKNOWN) {
             sb.append(" called at [");
             sb.append(trace.getFileName());
             sb.append(":");

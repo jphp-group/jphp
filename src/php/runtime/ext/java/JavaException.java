@@ -6,6 +6,7 @@ import php.runtime.lang.BaseException;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.util.JVMStackTracer;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -13,8 +14,17 @@ import static php.runtime.annotation.Reflection.*;
 public class JavaException extends BaseException {
     protected Throwable throwable;
 
+    public JavaException(Environment env, Throwable throwable) {
+        super(env);
+        setThrowable(throwable);
+    }
+
     public JavaException(Environment env, ClassEntity clazz) {
         super(env, clazz);
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
     }
 
     public void setThrowable(Throwable throwable) {
@@ -23,7 +33,43 @@ public class JavaException extends BaseException {
     }
 
     @Signature
-    public Memory getJavaException(Environment env, Memory... args){
+    public Memory isIllegalArgumentException(Environment env, Memory... args){
+        return throwable instanceof IllegalArgumentException ? Memory.TRUE :Memory.FALSE;
+    }
+
+    @Signature
+    public Memory isRuntimeException(Environment env, Memory... args){
+        return throwable instanceof RuntimeException ? Memory.TRUE :Memory.FALSE;
+    }
+
+    @Signature
+    public Memory isNullPointerException(Environment env, Memory... args){
+        return throwable instanceof NullPointerException ? Memory.TRUE :Memory.FALSE;
+    }
+
+    @Signature
+    public Memory isNumberFormatException(Environment env, Memory... args){
+        return throwable instanceof NumberFormatException ? Memory.TRUE :Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getJavaException(Environment env, Memory... args) {
         return new ObjectMemory(JavaObject.of(env, throwable));
+    }
+
+    @Signature
+    public Memory getExceptionClass(Environment env, Memory... args){
+        return new ObjectMemory(JavaClass.of(env, throwable.getClass()));
+    }
+
+    @Signature
+    public Memory printJVMStackTrace(Environment env, Memory... args) {
+        JVMStackTracer tracer = new JVMStackTracer(
+                env.scope.getClassLoader(), throwable.getStackTrace()
+        );
+        for(JVMStackTracer.Item el : tracer){
+            env.echo(el.toString() + "\n");
+        }
+        return Memory.NULL;
     }
 }

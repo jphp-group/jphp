@@ -9,9 +9,13 @@ import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
+import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+
+import java.io.*;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -193,5 +197,105 @@ abstract public class Stream extends BaseObject implements Resource {
     public Memory __destruct(Environment env, Memory... args){
         close(env, args);
         return Memory.NULL;
+    }
+
+    public static OutputStream getOutputStream(Environment env, Memory arg){
+        try {
+            if (arg.instanceOf(FileObject.class)){
+                return new FileOutputStream(arg.toObject(FileObject.class).file);
+            } else if (arg.instanceOf(Stream.class)){
+                return new StreamOutputStream(env, arg.toObject(Stream.class));
+            } else {
+                return new FileOutputStream(arg.toString());
+            }
+        } catch (IOException e){
+            exception(env, e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * @param arg - File path or Stream object
+     * @return
+     */
+    public static InputStream getInputStream(Environment env, Memory arg){
+        try {
+            if (arg.instanceOf(FileObject.class)){
+                return new FileInputStream(arg.toObject(FileObject.class).file);
+            } else if (arg.instanceOf(Stream.class)){
+                return new StreamInputStream(env, arg.toObject(Stream.class));
+            } else {
+                return new FileInputStream(arg.toString());
+            }
+        } catch (IOException e){
+            exception(env, e.getMessage());
+        }
+        return null;
+    }
+
+    public static void closeStream(Environment env, InputStream inputStream){
+        if (inputStream instanceof FileInputStream)
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Stream.exception(env, e.getMessage());
+            }
+    }
+
+    public static void closeStream(Environment env, OutputStream outputStream){
+        if (outputStream instanceof FileOutputStream)
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                Stream.exception(env, e.getMessage());
+            }
+    }
+
+    public static class StreamOutputStream extends OutputStream {
+        protected final Stream stream;
+        protected final Environment env;
+
+        public StreamOutputStream(Environment env, Stream stream) {
+            this.stream = stream;
+            this.env = env;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            stream.write(env, new BinaryMemory((byte)b), Memory.NULL);
+        }
+    }
+
+    public static class StreamInputStream extends InputStream {
+        protected final Stream stream;
+        protected final Environment env;
+
+        public StreamInputStream(Environment env, Stream stream) {
+            this.stream = stream;
+            this.env = env;
+        }
+
+        @Override
+        public int read() throws IOException {
+            Memory result = stream.read(env, Memory.CONST_INT_1);
+            return result.isNull() ? -1 : 1;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            Memory result = stream.read(env, LongMemory.valueOf(len - off));
+            if (result == Memory.NULL)
+                return -1;
+
+            byte[] copy = result.getBinaryBytes();
+            System.arraycopy(copy, 0, b, off, copy.length);
+
+            return copy.length;
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            return super.skip(n);    //To change body of overridden methods use File | Settings | File Templates.
+        }
     }
 }
