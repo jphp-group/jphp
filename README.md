@@ -40,7 +40,7 @@ PATH env variable and try JPHP, use `jphp` command:
 <dependency>
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.2-snapshot</version>
+    <version>0.3-snapshot</version>
 </dependency>
 ```
 
