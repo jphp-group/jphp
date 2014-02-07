@@ -3,7 +3,6 @@ package php.runtime;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.ext.swing.classes.components.UIElement;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
