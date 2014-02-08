@@ -2,6 +2,7 @@ package php.runtime.ext;
 
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.WrapEnvironment;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.core.stream.*;
 import php.runtime.ext.support.Extension;
@@ -46,6 +47,8 @@ public class CoreExtension extends Extension {
         // T_ERROR
         for (ErrorType el : ErrorType.values())
             constants.put(el.name(), new CompileConstant(el.name(), el.value));
+
+        registerNativeClass(scope, WrapEnvironment.class);
 
         registerNativeClass(scope, Reflector.class);
         registerNativeClass(scope, Reflection.class);

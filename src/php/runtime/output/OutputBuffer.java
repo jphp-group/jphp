@@ -111,6 +111,10 @@ public class OutputBuffer {
         this.output = output;
     }
 
+    public OutputStream getOutput() {
+        return output;
+    }
+
     public void setCallback(Memory callback) {
         this.callback = callback;
     }

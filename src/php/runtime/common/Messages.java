@@ -57,6 +57,8 @@ final public class Messages {
     public final static Item ERR_CANNOT_USE_FINAL_ON_ABSTRACT = new Item("Cannot use the final modifier on an abstract class member");
 
     public final static Item ERR_CLASS_NOT_FOUND = new Item("Class '%s' not found");
+    public final static Item ERR_FUNCTION_NOT_FOUND = new Item("Function '%s' not found");
+    public final static Item ERR_CONSTANT_NOT_FOUND = new Item("Constant '%s' not found");
     public final static Item ERR_METHOD_NOT_FOUND = new Item("Method %s::%s() not found");
     public final static Item ERR_MISSING_ARGUMENT = new Item("Missing argument %s for %s()");
     public final static Item ERR_EXPECT_LEAST_PARAMS = new Item("%s() expects at least %s parameter(s), %s given");

@@ -178,6 +178,27 @@ public class Environment {
         }
     }
 
+    public Environment(Environment parent) {
+        this(parent.scope, parent.defaultBuffer.getOutput());
+
+        configuration.putAll(parent.configuration);
+        constants.putAll(parent.constants);
+
+        classMap.putAll(parent.classMap);
+        for(ClassEntity e : classMap.values()) {
+            try {
+                e.initEnvironment(this);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+
+        functionMap.putAll(parent.functionMap);
+        constantMap.putAll(parent.constantMap);
+
+        this.included.putAll(parent.included);
+    }
+
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
         this.outputBuffers = new Stack<OutputBuffer>();
@@ -736,7 +757,7 @@ public class Environment {
 
     public void exception(Class<? extends BaseException> e, String message, Object... args){
         ClassEntity entity = fetchClass(e);
-        exception((BaseException)entity.newObjectWithoutConstruct(this), message, args);
+        exception((BaseException) entity.newObjectWithoutConstruct(this), message, args);
     }
 
     public boolean isHandleErrors(ErrorType type){

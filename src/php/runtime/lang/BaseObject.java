@@ -15,6 +15,11 @@ abstract public class BaseObject implements IObject {
 
     private boolean isFinalized;
 
+    public BaseObject(Environment env){
+        this(env, null);
+        __class__ = env.fetchClass(getClass());
+    }
+
     protected BaseObject(ClassEntity entity) {
         this.__class__ = entity;
         this.__dynamicProperties__ = null;
