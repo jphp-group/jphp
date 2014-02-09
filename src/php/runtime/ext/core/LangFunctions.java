@@ -1,17 +1,19 @@
 package php.runtime.ext.core;
 
+import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
-import php.runtime.env.message.SystemMessage;
-import ru.regenix.jphp.compiler.AbstractCompiler;
-import php.runtime.ext.support.compile.FunctionsContainer;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import php.runtime.exceptions.ParseException;
-import php.runtime.exceptions.support.ErrorException;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.env.*;
+import php.runtime.env.CallStackItem;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.env.handler.ErrorHandler;
 import php.runtime.env.handler.ExceptionHandler;
 import php.runtime.env.handler.ShutdownHandler;
+import php.runtime.env.message.SystemMessage;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
@@ -21,14 +23,13 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
+import ru.regenix.jphp.compiler.AbstractCompiler;
+import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.GrammarUtils;
 import ru.regenix.jphp.tokenizer.Tokenizer;
-
-import java.lang.reflect.InvocationTargetException;
 
 public class LangFunctions extends FunctionsContainer {
 
@@ -608,8 +609,8 @@ public class LangFunctions extends FunctionsContainer {
 
     public static boolean function_exists(Environment env, String name){
         name = name.toLowerCase();
-        FunctionEntity function = env.scope.findUserFunction(name);
-        return function != null && (function.isInternal() || env.isLoadedFunction(name));
+        FunctionEntity function = env.functionMap.get(name);
+        return function != null;
     }
 
     public static boolean class_exists(Environment env, String name, boolean autoload){

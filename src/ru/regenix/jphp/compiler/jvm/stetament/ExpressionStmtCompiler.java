@@ -769,7 +769,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                 return null;
 
                             if (!arrCreated) {
-                                if (immutable){
+                                if (immutable) {
                                     for(int n = 0; n < i /*j*/; n++) {
                                         if (arguments[n] instanceof TraceInfo){
                                             writePushTraceInfo(function);
@@ -796,8 +796,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                     next, true, false, writeOpcode
                             );
 
-                            if (!isRef)
-                                writePopBoxing(true);
+                            //if (!isRef)  BUGFIX - array is memory[] and so we need to convert value to memory
+                            writePopBoxing(!isRef);
 
                             code.add(new InsnNode(AASTORE));
                             stackPop(); stackPop(); stackPop();

@@ -17,5 +17,7 @@ public class EnvironmentTest extends JvmCompilerCase {
         check("ext/core/Environment_002.php");
         check("ext/core/Environment_003.php");
         check("ext/core/Environment_004.php");
+        check("ext/core/Environment_005.php");
+        check("ext/core/Environment_006.php");
     }
 }
