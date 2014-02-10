@@ -55,4 +55,9 @@ class MiscStream extends Stream {
      * @return int
      */
     public function length() { }
+
+    /**
+     * @throws IOException
+     */
+    public function flush() { }
 }

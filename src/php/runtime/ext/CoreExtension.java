@@ -2,15 +2,13 @@ package php.runtime.ext;
 
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.classes.WrapEnvironment;
-import php.runtime.ext.core.classes.WrapThread;
-import php.runtime.ext.core.classes.WrapThreadGroup;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.*;
+import php.runtime.ext.core.classes.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.core.stream.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.*;
 
 public class CoreExtension extends Extension {
     @Override
@@ -73,6 +71,11 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, FileStream.class);
         registerNativeClass(scope, MiscStream.class);
         registerNativeClass(scope, MemoryMiscStream.class);
+
+        // net
+        registerNativeClass(scope, WrapSocket.class);
+        registerNativeClass(scope, WrapServerSocket.class);
+        registerNativeClass(scope, WrapExecutorService.class);
     }
 
     @Override

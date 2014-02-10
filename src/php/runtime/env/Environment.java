@@ -98,9 +98,29 @@ public class Environment {
     // call stack
     private final static int CALL_STACK_INIT_SIZE = 255;
 
-    private int callStackTop = 0;
-    private int maxCallStackTop = -1;
-    private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
+    //private int callStackTop = 0;
+    private ThreadLocal<Integer> callStackTop = new ThreadLocal<Integer>(){
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
+
+    //private int maxCallStackTop = -1;
+    private ThreadLocal<Integer> maxCallStackTop = new ThreadLocal<Integer>(){
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
+
+    private ThreadLocal<CallStackItem[]> callStack = new ThreadLocal<CallStackItem[]>(){
+        @Override
+        protected CallStackItem[] initialValue() {
+            return new CallStackItem[CALL_STACK_INIT_SIZE];
+        }
+    };
+   // private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
 
     protected static final ThreadLocal<Environment> environment = new ThreadLocal<Environment>();
 
@@ -255,18 +275,21 @@ public class Environment {
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
-        if (callStackTop >= callStack.length){
-            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
-            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
-            callStack = newCallStack;
+        CallStackItem[] cs = callStack.get();
+        int top = callStackTop.get();
+        if (top >= cs.length){
+            CallStackItem[] newCallStack = new CallStackItem[cs.length * 2];
+            System.arraycopy(cs, 0, newCallStack, 0, cs.length);
+            callStack.set(cs = newCallStack);
         }
 
-        if (callStackTop < maxCallStackTop)
-            callStack[callStackTop++].setParameters(trace, self, args, function, clazz, staticClazz);
+        if (top < maxCallStackTop.get())
+            cs[top++].setParameters(trace, self, args, function, clazz, staticClazz);
         else
-            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
+            cs[top++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
 
-        maxCallStackTop = callStackTop;
+        maxCallStackTop.set(top);
+        callStackTop.set(top);
     }
 
     public void pushCall(IObject self, String method, Memory... args){
@@ -278,32 +301,35 @@ public class Environment {
     }
 
     public void popCall(){
-        callStack[--callStackTop].clear(); // clear for GC
+        int top = callStackTop.get();
+        callStack.get()[--top].clear(); // clear for GC
+        callStackTop.set(top);
     }
 
     public CallStackItem peekCall(int depth){
-        if (callStackTop - depth > 0) {
-            return callStack[callStackTop - depth - 1];
+        if (callStackTop.get() - depth > 0) {
+            return callStack.get()[callStackTop.get() - depth - 1];
         } else {
             return null;
         }
     }
 
     public TraceInfo trace(){
-        if (callStackTop == 0)
+        if (callStackTop.get() == 0)
             return TraceInfo.UNKNOWN;
         return peekCall(0).trace;
     }
 
     public int getCallStackTop(){
-        return callStackTop;
+        return callStackTop.get();
     }
 
     public CallStackItem[] getCallStackSnapshot(){
-        CallStackItem[] result = new CallStackItem[callStackTop];
+        int top = callStackTop.get();
+        CallStackItem[] result = new CallStackItem[top];
         int i = 0;
-        for(CallStackItem el : callStack){
-            if (i == callStackTop)
+        for(CallStackItem el : callStack.get()){
+            if (i == top)
                 break;
 
             result[i] = new CallStackItem(el);

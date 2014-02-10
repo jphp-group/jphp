@@ -21,6 +21,16 @@ public class MiscStream extends Stream {
     protected InputStream inputStream;
     protected OutputStream outputStream;
 
+    public MiscStream(Environment env, InputStream inputStream) {
+        super(env);
+        this.inputStream = inputStream;
+    }
+
+    public MiscStream(Environment env, OutputStream outputStream) {
+        super(env);
+        this.outputStream = outputStream;
+    }
+
     public MiscStream(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -175,6 +185,19 @@ public class MiscStream extends Stream {
             return LongMemory.valueOf(memoryStream.length);
         else
             exception(env, "Unsupported method for this type stream");
+        return Memory.NULL;
+    }
+
+    @Signature
+    public Memory flush(Environment env, Memory... args){
+        if (outputStream == null)
+            exception(env, "Only output stream support flush()");
+
+        try {
+            outputStream.flush();
+        } catch (IOException e) {
+            exception(env, e.getMessage());
+        }
         return Memory.NULL;
     }
 }

@@ -25,13 +25,20 @@ import static php.runtime.annotation.Reflection.*;
         @Arg(value = "mode", modifier = Modifier.PRIVATE, readOnly = true)
 })
 abstract public class Stream extends BaseObject implements Resource {
-
     @Ignore
     public final static String CLASS_NAME = "php\\io\\Stream";
 
     private String path;
     private String mode;
     private Memory context = Memory.NULL;
+
+    public Stream(ClassEntity entity) {
+        super(entity);
+    }
+
+    public Stream(Environment env) {
+        super(env);
+    }
 
     public Stream(Environment env, ClassEntity clazz) {
         super(env, clazz);
