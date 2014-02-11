@@ -4,7 +4,7 @@ import php.runtime.Memory;
 import php.runtime.common.Constants;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.ext.core.stream.PHP_IOException;
+import php.runtime.ext.core.stream.WrapIOException;
 import php.runtime.ext.core.stream.Stream;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.ObjectInvokeHelper;
@@ -167,7 +167,7 @@ public class FileFunctions extends FunctionsContainer {
             }
 
             return result.toConstant();
-        } catch (PHP_IOException e){
+        } catch (WrapIOException e){
             if (stream == null && (flags & FileConstants.FILE_USE_INCLUDE_PATH) == FileConstants.FILE_USE_INCLUDE_PATH){
                 path = env.findInIncludePaths(path);
                 if (path != null)
@@ -199,7 +199,7 @@ public class FileFunctions extends FunctionsContainer {
                 return stream.readFully(env);
             else
                 return stream.read(env, maxLength);
-        } catch (PHP_IOException e){
+        } catch (WrapIOException e){
             if (stream == null && useIncludePaths){
                 path = env.findInIncludePaths(path);
                 if (path != null)
@@ -251,7 +251,7 @@ public class FileFunctions extends FunctionsContainer {
             }
 
             return stream.write(env, data, Memory.NULL);
-        } catch (PHP_IOException e){
+        } catch (WrapIOException e){
             env.warning(trace, "file_put_contents(): " + e.getMessage());
             return Memory.FALSE;
         } finally {

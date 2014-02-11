@@ -32,7 +32,7 @@ public class FileObject extends BaseObject {
     }
 
     protected void exception(Environment env, String message, Object... args){
-        PHP_IOException exception = new PHP_IOException(env, env.fetchClass("php\\io\\IOException"));
+        WrapIOException exception = new WrapIOException(env, env.fetchClass("php\\io\\IOException"));
         exception.__construct(env, new StringMemory(String.format(message, args)));
         env.__throwException(exception);
     }

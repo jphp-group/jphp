@@ -93,4 +93,13 @@ public class Context {
         }
         return content;
     }
+
+    public InputStream getInputStream(Charset charset) throws IOException {
+        if (inputStream != null)
+            return inputStream;
+        else if (file != null)
+            return new FileInputStream(file);
+        else
+            return new ByteArrayInputStream(content.getBytes(charset));
+    }
 }

@@ -3,6 +3,7 @@ package php.runtime.env;
 import php.runtime.common.LangMode;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.JavaExtension;
+import php.runtime.ext.java.JavaException;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -35,6 +36,7 @@ public class CompileScope {
     protected final Map<String, ClassEntity> classMap;
     protected final Map<String, FunctionEntity> functionMap;
     protected final Map<String, ConstantEntity> constantMap;
+    protected final Map<Class<? extends Throwable>, Class<? extends JavaException>> exceptionMap;
 
     protected Map<String, Extension> extensions;
 
@@ -51,6 +53,43 @@ public class CompileScope {
     public final ClassEntity closureEntity;
     public final ClassEntity exceptionEntity;
 
+    public CompileScope(CompileScope parent) {
+        classLoader = parent.classLoader;
+
+        moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
+        moduleIndexMap = new ConcurrentHashMap<String, ModuleEntity>();
+
+        classMap = new HashMap<String, ClassEntity>();
+        functionMap = new HashMap<String, FunctionEntity>();
+        constantMap = new HashMap<String, ConstantEntity>();
+        exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
+
+        extensions = new LinkedHashMap<String, Extension>();
+        compileConstantMap = new HashMap<String, CompileConstant>();
+        compileFunctionMap = new HashMap<String, CompileFunction>();
+
+        superGlobals = new HashSet<String>();
+        superGlobals.addAll(parent.superGlobals);
+
+        classMap.putAll(parent.classMap);
+        functionMap.putAll(parent.functionMap);
+        constantMap.putAll(parent.constantMap);
+        exceptionMap.putAll(parent.exceptionMap);
+
+        moduleMap.putAll(parent.moduleMap);
+        moduleIndexMap.putAll(parent.moduleIndexMap);
+
+        classCount.set(parent.classCount.longValue());
+        moduleCount.set(parent.moduleCount.intValue());
+        methodCount.set(parent.methodCount.longValue());
+
+        extensions.putAll(parent.extensions);
+
+        closureEntity   = parent.closureEntity;
+        exceptionEntity = parent.exceptionEntity;
+        stdClassEntity  = parent.stdClassEntity;
+    }
+
     public CompileScope() {
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
@@ -64,6 +103,7 @@ public class CompileScope {
         extensions = new LinkedHashMap<String, Extension>();
         compileConstantMap = new HashMap<String, CompileConstant>();
         compileFunctionMap = new HashMap<String, CompileFunction>();
+        exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
 
         superGlobals = new HashSet<String>();
 
@@ -92,8 +132,8 @@ public class CompileScope {
 
         registerClass(new ClassEntity(extension, this, Serializable.class));
 
-        registerExtension(extension);
         registerExtension(new JavaExtension());
+        registerExtension(extension);
     }
 
     public RuntimeClassLoader getClassLoader() {
@@ -167,6 +207,10 @@ public class CompileScope {
         return extensions.keySet();
     }
 
+    public void registerJavaException(Class<? extends JavaException> clazz, Class<? extends Throwable> throwClazz) {
+        exceptionMap.put(throwClazz, clazz);
+    }
+
     public void registerClass(ClassEntity clazz){
         classMap.put(clazz.getLowerName(), clazz);
     }
@@ -210,6 +254,10 @@ public class CompileScope {
 
     public CompileFunction findCompileFunction(String name){
         return compileFunctionMap.get(name.toLowerCase());
+    }
+
+    public Class<? extends JavaException> findJavaException(Class<? extends Throwable> clazz) {
+        return exceptionMap.get(clazz);
     }
 
     public ModuleEntity loadModule(String name){

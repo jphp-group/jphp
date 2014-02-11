@@ -6,11 +6,14 @@ namespace php\lang;
  * @package php\lang
  */
 class Environment {
+    const CONCURRENT = 1; // experimental - for use in multi-threading
+    const HOT_RELOAD = 2; // for hot-reload working (like classical PHP)
+
     /**
      * @param Environment $parent
-     * @param bool $concurrent - for using in multi-threading
+     * @param int $flags - HOT_RELOAD, CONCURRENT
      */
-    public function __construct(Environment $parent = NULL, $concurrent = false){ }
+    public function __construct(Environment $parent = NULL, $flags = 0){ }
 
     /**
      * @param callable $runnable - in new environment

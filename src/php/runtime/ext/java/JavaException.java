@@ -54,16 +54,23 @@ public class JavaException extends BaseException {
 
     @Signature
     public Memory getJavaException(Environment env, Memory... args) {
+        if (throwable == null)
+            return Memory.NULL;
         return new ObjectMemory(JavaObject.of(env, throwable));
     }
 
     @Signature
     public Memory getExceptionClass(Environment env, Memory... args){
+        if (throwable == null)
+            return Memory.NULL;
         return new ObjectMemory(JavaClass.of(env, throwable.getClass()));
     }
 
     @Signature
     public Memory printJVMStackTrace(Environment env, Memory... args) {
+        if (throwable == null)
+            return Memory.NULL;
+
         JVMStackTracer tracer = new JVMStackTracer(
                 env.scope.getClassLoader(), throwable.getStackTrace()
         );

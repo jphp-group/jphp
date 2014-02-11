@@ -78,7 +78,9 @@ public class ConcurrentEnvironment extends Environment {
                 outputBuffers = new ThreadLocal<Stack<OutputBuffer>>(){
                     @Override
                     protected Stack<OutputBuffer> initialValue() {
-                        return new Stack<OutputBuffer>();
+                        Stack stack = new Stack<OutputBuffer>();
+                        stack.push(getDefaultBuffer());
+                        return stack;
                     }
                 };
             }
@@ -238,6 +240,20 @@ public class ConcurrentEnvironment extends Environment {
     public void registerModule(ModuleEntity module) {
         synchronized (this) {
             super.registerModule(module);
+        }
+    }
+
+    @Override
+    public ModuleEntity importCompiledModule(Context context, boolean debugInformation) throws Throwable {
+        synchronized (this) {
+            return super.importCompiledModule(context, debugInformation);
+        }
+    }
+
+    @Override
+    public ModuleEntity importModule(Context context) throws Throwable {
+        synchronized (this) {
+            return super.importModule(context);
         }
     }
 

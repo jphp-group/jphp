@@ -3,6 +3,7 @@ package php.runtime.ext.support;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.ext.java.JavaException;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.ext.support.compile.ConstantsContainer;
@@ -65,6 +66,14 @@ abstract public class Extension {
         if (classes.put(classEntity.getLowerName(), classEntity) != null)
             throw new RuntimeException("Class already registered - " + clazz.getName());
         return classEntity;
+    }
+
+    public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
+                                      Class<? extends Throwable>... classes) {
+        ClassEntity classEntity = registerNativeClass(scope, javaClass);
+        if (classes != null)
+        for(Class<? extends Throwable> el : classes)
+            scope.registerJavaException(javaClass, el);
     }
 
     public void registerConstants(ConstantsContainer container){

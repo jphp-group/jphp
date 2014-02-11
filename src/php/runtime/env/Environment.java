@@ -25,6 +25,7 @@ import php.runtime.lang.BaseException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.UncaughtException;
+import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -36,8 +37,6 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.JVMStackTracer;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.tokenizer.Tokenizer;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -864,19 +863,30 @@ public class Environment {
     public void flushAll() throws Throwable {
         while (popOutputBuffer() != null);
         defaultBuffer.close();
-        //outputBuffers.push(defaultBuffer);
     }
 
-    public ModuleEntity importModule(File file) throws Throwable {
-        Context context = new Context(file, defaultCharset);
+    public ModuleEntity importCompiledModule(Context context, boolean debugInformation) throws Throwable {
+        ModuleEntity module = scope.findUserModule(context.getModuleName());
+        if (module == null) {
+            ModuleDumper moduleDumper = new ModuleDumper(context, this, debugInformation);
+            module = moduleDumper.load(context.getInputStream(getDefaultCharset()));
+            synchronized (scope) {
+                scope.loadModule(module);
+            }
+        }
+
+        registerModule(module);
+        return module;
+    }
+
+    public ModuleEntity importModule(Context context) throws Throwable {
         ModuleEntity module = scope.findUserModule(context.getModuleName());
         if (module == null){
-            Tokenizer tokenizer = new Tokenizer(context);
-            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(this, tokenizer);
-            JvmCompiler compiler = new JvmCompiler(this, context, analyzer);
-
+            JvmCompiler compiler = new JvmCompiler(this, context);
             module = compiler.compile(true);
-            scope.loadModule(module);
+            synchronized (scope) {
+                scope.loadModule(module);
+            }
         }
 
         registerModule(module);
@@ -919,7 +929,7 @@ public class Environment {
             warning(trace, Messages.ERR_INCLUDE_FAILED, "include", fileName);
             return Memory.FALSE;
         } else {
-            ModuleEntity module = importModule(file);
+            ModuleEntity module = importModule(new Context(file, getDefaultCharset()));
             included.put(module.getName(), module);
 
             Memory result;
@@ -957,7 +967,7 @@ public class Environment {
             error(trace, E_ERROR, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
             return Memory.NULL;
         } else {
-            ModuleEntity module = importModule(file);
+            ModuleEntity module = importModule(new Context(file, getDefaultCharset()));
             included.put(module.getName(), module);
 
             Memory result;
@@ -1038,8 +1048,9 @@ public class Environment {
         Throwable throwable = e.getTargetException();
         if (throwable instanceof JPHPException)
             throw (RuntimeException)throwable;
-        else
+        else {
             JavaReflection.exception(this, throwable);
+        }
 
         return Memory.NULL;
     }

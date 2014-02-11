@@ -1,6 +1,12 @@
 <?php
 namespace php\io;
 
-class IOException extends \Exception {
+use php\lang\JavaException;
+
+/**
+ * Class IOException
+ * @package php\io
+ */
+class IOException extends JavaException {
 
 }

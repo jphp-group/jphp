@@ -5,10 +5,16 @@ import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
+import php.runtime.ext.core.classes.net.WrapServerSocket;
+import php.runtime.ext.core.classes.net.WrapSocket;
+import php.runtime.ext.core.classes.net.WrapSocketException;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.core.stream.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
+
+import java.io.IOException;
+import java.net.SocketException;
 
 public class CoreExtension extends Extension {
     @Override
@@ -65,7 +71,7 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ReflectionObject.class);
 
         // stream
-        registerNativeClass(scope, PHP_IOException.class);
+        registerJavaException(scope, WrapIOException.class, IOException.class);
         registerNativeClass(scope, FileObject.class);
         registerNativeClass(scope, Stream.class);
         registerNativeClass(scope, FileStream.class);
@@ -75,7 +81,10 @@ public class CoreExtension extends Extension {
         // net
         registerNativeClass(scope, WrapSocket.class);
         registerNativeClass(scope, WrapServerSocket.class);
+        registerJavaException(scope, WrapSocketException.class, SocketException.class);
+
         registerNativeClass(scope, WrapExecutorService.class);
+        registerNativeClass(scope, WrapFuture.class);
     }
 
     @Override
