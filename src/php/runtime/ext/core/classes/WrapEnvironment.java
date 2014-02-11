@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
@@ -34,12 +35,22 @@ public class WrapEnvironment extends BaseObject {
         this.environment = environment;
     }
 
-    @Signature({@Arg(value = "parent", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))})
+    @Signature({
+            @Arg(value = "parent", typeClass = "php\\lang\\Environment", optional = @Optional("NULL")),
+            @Arg(value = "concurrent", optional = @Optional(value = "", type = HintType.BOOLEAN))
+    })
     public Memory __construct(Environment env, Memory... args){
-        if (args[0].isNull())
-            setEnvironment(new Environment(env.scope, env.getDefaultBuffer().getOutput()));
-        else
-            setEnvironment(new Environment(args[0].toObject(WrapEnvironment.class).getEnvironment()));
+        if (args[0].isNull()) {
+            if (args[1].toBoolean())
+                setEnvironment(new ConcurrentEnvironment(env.scope, env.getDefaultBuffer().getOutput()));
+            else
+                setEnvironment(new Environment(env.scope, env.getDefaultBuffer().getOutput()));
+        } else {
+            if (args[1].toBoolean())
+                setEnvironment(new ConcurrentEnvironment(args[0].toObject(WrapEnvironment.class).getEnvironment()));
+            else
+                setEnvironment(new Environment(args[0].toObject(WrapEnvironment.class).getEnvironment()));
+        }
 
         return Memory.NULL;
     }

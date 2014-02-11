@@ -8,8 +8,9 @@ namespace php\lang;
 class Environment {
     /**
      * @param Environment $parent
+     * @param bool $concurrent - for using in multi-threading
      */
-    public function __construct(Environment $parent = NULL){ }
+    public function __construct(Environment $parent = NULL, $concurrent = false){ }
 
     /**
      * @param callable $runnable - in new environment

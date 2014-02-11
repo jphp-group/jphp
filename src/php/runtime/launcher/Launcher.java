@@ -4,6 +4,7 @@ import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.StringUtils;
 import php.runtime.env.CompileScope;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
@@ -138,7 +139,10 @@ public class Launcher {
             }
         }
 
-        this.environment = new Environment(compileScope, out);
+        this.environment = "on".equals(config.getProperty("env.concurrent", "off"))
+                ? new ConcurrentEnvironment(compileScope, out)
+                : new Environment(compileScope, out);
+
         environment.getDefaultBuffer().setImplicitFlush(true);
     }
 

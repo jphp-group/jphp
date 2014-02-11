@@ -51,7 +51,7 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory eval(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, String code)
             throws Throwable {
-        Context context = env.createContext(code);
+        Context context = new Context(code);
         try {
             Tokenizer tokenizer = new Tokenizer(context);
             SyntaxAnalyzer analyzer = syntaxAnalyzer.get();

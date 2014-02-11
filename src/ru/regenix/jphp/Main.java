@@ -1,6 +1,7 @@
 package ru.regenix.jphp;
 
 import php.runtime.Memory;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.*;
@@ -29,10 +30,10 @@ public class Main {
         scope.registerExtension(new DateExtension());
         scope.registerExtension(new SPLExtension());
 
-        Environment environment = new Environment(scope, System.out);
+        Environment environment = new ConcurrentEnvironment(scope, System.out);
 
         try {
-            Context context = environment.createContext(new File("scripts/main.php"));
+            Context context = new Context(new File("scripts/main.php"));
 
             // compile
             Tokenizer tokenizer = new Tokenizer(context);

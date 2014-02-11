@@ -178,7 +178,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof StringExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(environment.createContext("F =; 20;"));
+        tokenizer = new Tokenizer(new Context("F =; 20;"));
 
         Token token;
         assertTrue((token = tokenizer.nextToken()) instanceof NameToken);
@@ -188,7 +188,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
 
-        tokenizer = new Tokenizer(environment.createContext("123foobar MAX_64Bit"));
+        tokenizer = new Tokenizer(new Context("123foobar MAX_64Bit"));
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
 
@@ -203,7 +203,7 @@ public class TokenizerTest {
 
     @Test
     public void testBraces() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(environment.createContext(" :: ->foobar('a', 1, 3.0);"));
+        Tokenizer tokenizer = new Tokenizer(new Context(" :: ->foobar('a', 1, 3.0);"));
 
         assertTrue(tokenizer.nextToken() instanceof StaticAccessExprToken);
         assertTrue(tokenizer.nextToken() instanceof DynamicAccessExprToken);
@@ -220,7 +220,7 @@ public class TokenizerTest {
 
     @Test
     public void testVarVar() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(environment.createContext("$$foo $ $bar $$$foobar"));
+        Tokenizer tokenizer = new Tokenizer(new Context("$$foo $ $bar $$$foobar"));
 
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
@@ -230,7 +230,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
 
-        tokenizer = new Tokenizer(environment.createContext("${'foo;6bar'}"));
+        tokenizer = new Tokenizer(new Context("${'foo;6bar'}"));
         assertTrue(tokenizer.nextToken() instanceof DollarExprToken);
         assertTrue(tokenizer.nextToken() instanceof BraceExprToken);
         assertTrue(tokenizer.nextToken() instanceof StringExprToken);
@@ -240,7 +240,7 @@ public class TokenizerTest {
     @Test
     public void testMacro() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
-                environment.createContext("__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__")
+                new Context("__LINE__ __FILE__ __DIR__ __METHOD__ __FUNCTION__ __CLASS__ __NAMESPACE__ __TRAIT__")
         );
 
         assertTrue(tokenizer.nextToken() instanceof LineMacroToken);
@@ -255,7 +255,7 @@ public class TokenizerTest {
 
     @Test
     public void testStmt() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(environment.createContext(
+        Tokenizer tokenizer = new Tokenizer(new Context(
                 "class function private public protected static final try catch for if foreach switch while " +
                 "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
                 "abstract use namespace finally extends implements global"
@@ -302,7 +302,7 @@ public class TokenizerTest {
     @Test
     public void testSplitNot() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
-                environment.createContext("!true")
+                new Context("!true")
         );
         assertTrue(tokenizer.nextToken() instanceof BooleanNotExprToken);
         assertTrue(tokenizer.nextToken() instanceof BooleanExprToken);
@@ -311,7 +311,7 @@ public class TokenizerTest {
     @Test
     public void testComments() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
-                environment.createContext("/** FOO BAR \n\r100500 */")
+                new Context("/** FOO BAR \n\r100500 */")
         );
         Token token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
@@ -320,7 +320,7 @@ public class TokenizerTest {
 
         // simple
         tokenizer = new Tokenizer(
-                environment.createContext("// foobar \n $x")
+                new Context("// foobar \n $x")
         );
         token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
@@ -331,7 +331,7 @@ public class TokenizerTest {
         assertNull(tokenizer.nextToken());
 
         tokenizer = new Tokenizer(
-                environment.createContext("# // foobar \n $x")
+                new Context("# // foobar \n $x")
         );
         token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
@@ -343,7 +343,7 @@ public class TokenizerTest {
 
         // block
         tokenizer = new Tokenizer(
-                environment.createContext("/* foobar \n */")
+                new Context("/* foobar \n */")
         );
         token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
@@ -353,7 +353,7 @@ public class TokenizerTest {
     @Test
     public void testHeredoc() throws IOException {
         Tokenizer tokenizer = new Tokenizer(
-                environment.createContext("<<<DOC\n <foobar> \nDOC;\n")
+                new Context("<<<DOC\n <foobar> \nDOC;\n")
         );
         Token token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -361,7 +361,7 @@ public class TokenizerTest {
         assertEquals(" <foobar> ", ((StringExprToken) token).getValue());
 
         tokenizer = new Tokenizer(
-                environment.createContext("<<<\"DOC\"\n \\n<foobar> \nDOC;\n")
+                new Context("<<<\"DOC\"\n \\n<foobar> \nDOC;\n")
         );
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -370,7 +370,7 @@ public class TokenizerTest {
 
 
         tokenizer = new Tokenizer(
-                environment.createContext("<<<'DOC'\n \\n<foobar> \nDOC;\n")
+                new Context("<<<'DOC'\n \\n<foobar> \nDOC;\n")
         );
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);

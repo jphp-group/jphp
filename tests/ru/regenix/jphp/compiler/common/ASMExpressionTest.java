@@ -29,7 +29,7 @@ public class ASMExpressionTest {
     private ASMExpression getASMExpression(String expr){
         Tokenizer tokenizer = null;
         try {
-            tokenizer = new Tokenizer(context = environment.createContext(expr + ";"));
+            tokenizer = new Tokenizer(context = new Context(expr + ";"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

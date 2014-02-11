@@ -59,7 +59,7 @@ public class Environment {
 
     public SplClassLoader __autoload = null;
     public SplClassLoader defaultAutoLoader = null;
-    protected List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
+    protected final List<SplClassLoader> classLoaders = new LinkedList<SplClassLoader>();
 
     // errors
     private int errorFlags = E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
@@ -84,11 +84,11 @@ public class Environment {
     private Charset defaultCharset = Charset.forName("UTF-8");
 
     // vars
-    private final ArrayMemory globals;
-    private final Map<String, ReferenceMemory> statics;
-    private final Map<String, ConstantEntity> constants;
-    private final Map<String, ModuleEntity> included;
-    private final Map<String, Object> userValues = new HashMap<String, Object>();
+    protected final ArrayMemory globals;
+    protected final Map<String, ReferenceMemory> statics;
+    protected final Map<String, ConstantEntity> constants;
+    protected final Map<String, ModuleEntity> included;
+    protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
     public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
@@ -96,31 +96,11 @@ public class Environment {
     public final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
     // call stack
-    private final static int CALL_STACK_INIT_SIZE = 255;
+    protected final static int CALL_STACK_INIT_SIZE = 255;
 
-    //private int callStackTop = 0;
-    private ThreadLocal<Integer> callStackTop = new ThreadLocal<Integer>(){
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
-
-    //private int maxCallStackTop = -1;
-    private ThreadLocal<Integer> maxCallStackTop = new ThreadLocal<Integer>(){
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
-
-    private ThreadLocal<CallStackItem[]> callStack = new ThreadLocal<CallStackItem[]>(){
-        @Override
-        protected CallStackItem[] initialValue() {
-            return new CallStackItem[CALL_STACK_INIT_SIZE];
-        }
-    };
-   // private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
+    private int callStackTop = 0;
+    private int maxCallStackTop = -1;
+    private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
 
     protected static final ThreadLocal<Environment> environment = new ThreadLocal<Environment>();
 
@@ -225,10 +205,9 @@ public class Environment {
 
         this.defaultBuffer = new OutputBuffer(this, null);
         this.defaultBuffer.setOutput(output);
-        this.outputBuffers.push(defaultBuffer);
+        this.getOutputBuffers().push(defaultBuffer);
 
         this.includePaths = new HashSet<String>();
-        this.setErrorFlags(E_ALL.value ^ (E_NOTICE.value /*| E_STRICT.value | E_DEPRECATED.value*/));
 
         this.globals = new ArrayMemory();
         this.statics = new HashMap<String, ReferenceMemory>();
@@ -275,21 +254,18 @@ public class Environment {
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
-        CallStackItem[] cs = callStack.get();
-        int top = callStackTop.get();
-        if (top >= cs.length){
-            CallStackItem[] newCallStack = new CallStackItem[cs.length * 2];
-            System.arraycopy(cs, 0, newCallStack, 0, cs.length);
-            callStack.set(cs = newCallStack);
+        if (callStackTop >= callStack.length){
+            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
+            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
+            callStack = newCallStack;
         }
 
-        if (top < maxCallStackTop.get())
-            cs[top++].setParameters(trace, self, args, function, clazz, staticClazz);
+        if (callStackTop < maxCallStackTop)
+            callStack[callStackTop++].setParameters(trace, self, args, function, clazz, staticClazz);
         else
-            cs[top++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
+            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
 
-        maxCallStackTop.set(top);
-        callStackTop.set(top);
+        maxCallStackTop = callStackTop;
     }
 
     public void pushCall(IObject self, String method, Memory... args){
@@ -301,35 +277,32 @@ public class Environment {
     }
 
     public void popCall(){
-        int top = callStackTop.get();
-        callStack.get()[--top].clear(); // clear for GC
-        callStackTop.set(top);
+        callStack[--callStackTop].clear(); // clear for GC
     }
 
     public CallStackItem peekCall(int depth){
-        if (callStackTop.get() - depth > 0) {
-            return callStack.get()[callStackTop.get() - depth - 1];
+        if (callStackTop - depth > 0) {
+            return callStack[callStackTop - depth - 1];
         } else {
             return null;
         }
     }
 
     public TraceInfo trace(){
-        if (callStackTop.get() == 0)
+        if (callStackTop == 0)
             return TraceInfo.UNKNOWN;
         return peekCall(0).trace;
     }
 
     public int getCallStackTop(){
-        return callStackTop.get();
+        return callStackTop;
     }
 
     public CallStackItem[] getCallStackSnapshot(){
-        int top = callStackTop.get();
-        CallStackItem[] result = new CallStackItem[top];
+        CallStackItem[] result = new CallStackItem[callStackTop];
         int i = 0;
-        for(CallStackItem el : callStack.get()){
-            if (i == top)
+        for(CallStackItem el : callStack){
+            if (i == callStackTop)
                 break;
 
             result[i] = new CallStackItem(el);
@@ -349,6 +322,10 @@ public class Environment {
 
     public Environment(){
         this((OutputStream) null);
+    }
+
+    public Stack<OutputBuffer> getOutputBuffers() {
+        return outputBuffers;
     }
 
     public Locale getLocale() {
@@ -791,37 +768,19 @@ public class Environment {
     }
 
     public void warning(String message, Object... args){
-        //if (isHandleErrors(E_WARNING))
         triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
     }
 
     public void warning(TraceInfo trace, String message, Object... args){
-        //if (isHandleErrors(E_WARNING))
         error(trace, E_WARNING, message, args);
-       // triggerMessage(new WarningMessage(new CallStackItem(trace), new Messages.Item(message), args));
     }
 
     public void warning(TraceInfo trace, Messages.Item message, Object... args){
-        //if (isHandleErrors(E_WARNING))
         error(trace, E_WARNING, message, args);
-        //triggerMessage(new WarningMessage(new CallStackItem(trace), message, args));
     }
 
     public void notice(String message, Object... args){
-        //if (isHandleErrors(E_WARNING))
         triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
-    }
-
-    public Context createContext(String code){
-        return new Context(code);
-    }
-
-    public Context createContext(File file){
-        return new Context(file, defaultCharset);
-    }
-
-    public Context createContext(File file, Charset charset){
-        return new Context(file, charset);
     }
 
     public OutputBuffer getDefaultBuffer() {
@@ -829,6 +788,8 @@ public class Environment {
     }
 
     public OutputBuffer pushOutputBuffer(Memory callback, int chunkSize, boolean erase){
+        Stack<OutputBuffer> outputBuffers = getOutputBuffers();
+
         OutputBuffer buffer = new OutputBuffer(this, peekOutputBuffer(), callback, chunkSize, erase);
         buffer.setLevel(outputBuffers.size());
         buffer.setType(OutputBuffer.Type.USER);
@@ -838,6 +799,8 @@ public class Environment {
     }
 
     public OutputBuffer popOutputBuffer() throws Throwable {
+        Stack<OutputBuffer> outputBuffers = getOutputBuffers();
+
         if (outputBuffers.empty()) return null;
         if (outputBuffers.peek().isRoot()) return null;
 
@@ -847,6 +810,8 @@ public class Environment {
     }
 
     public List<OutputBuffer> allOutputBuffers() {
+        Stack<OutputBuffer> outputBuffers = getOutputBuffers();
+
         List<OutputBuffer> result = new ArrayList<OutputBuffer>();
         for(OutputBuffer el : outputBuffers)
             result.add(el);
@@ -855,6 +820,8 @@ public class Environment {
     }
 
     public OutputBuffer peekOutputBuffer(){
+        Stack<OutputBuffer> outputBuffers = getOutputBuffers();
+
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
