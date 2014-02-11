@@ -13,10 +13,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ModuleEntity;
 import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -47,7 +44,15 @@ public class Launcher {
     }
 
     protected InputStream getResource(String name){
-        return Launcher.class.getClassLoader().getResourceAsStream(name);
+        InputStream stream = Launcher.class.getClassLoader().getResourceAsStream(name);
+        if (stream == null) {
+            try {
+                return new FileInputStream(name);
+            } catch (FileNotFoundException e) {
+                return null;
+            }
+        }
+        return stream;
     }
 
     protected Context getContext(String file){
@@ -87,6 +92,7 @@ public class Launcher {
 
         try {
             JvmCompiler compiler = new JvmCompiler(environment, context);
+
             return compiler.compile(false);
         } catch (IOException e) {
             throw new RuntimeException(e);

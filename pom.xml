@@ -8,6 +8,12 @@
     <artifactId>jphp</artifactId>
     <version>0.3-snapshot</version>
 
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>jphp-cli</module>
+    </modules>
+
     <name>JPHP</name>
     <description>PHP Engine for Java VM</description>
     <url>http://github.com/dim-s/jphp</url>
@@ -48,7 +54,6 @@
         </testResources>
 
         <plugins>
-
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
