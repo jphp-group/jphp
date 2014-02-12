@@ -192,7 +192,7 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory print_r(Environment env, @Runtime.Reference Memory value, boolean returned){
         StringWriter writer = new StringWriter();
-        Printer printer = new PrintR(writer);
+        Printer printer = new PrintR(env, writer);
         printer.print(value);
 
         if (returned){
@@ -209,7 +209,7 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory var_dump(Environment env, @Runtime.Reference Memory value, @Runtime.Reference Memory... values){
         StringWriter writer = new StringWriter();
-        VarDump printer = new VarDump(writer);
+        VarDump printer = new VarDump(env, writer);
 
         printer.print(value);
         if (values != null)
@@ -222,7 +222,7 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory var_export(Environment env, TraceInfo trace, @Runtime.Reference Memory value, boolean returned){
         StringWriter writer = new StringWriter();
-        VarExport printer = new VarExport(writer);
+        VarExport printer = new VarExport(env, writer);
 
         printer.print(value);
         if (printer.isRecursionExists()){

@@ -1,5 +1,6 @@
 package php.runtime.memory.output;
 
+import php.runtime.env.Environment;
 import php.runtime.lang.Closure;
 import php.runtime.memory.*;
 import php.runtime.Memory;
@@ -13,9 +14,11 @@ abstract public class Printer {
 
     protected boolean recursionExists = false;
     protected PrintWriter printer;
+    protected final Environment env;
 
-    public Printer(Writer writer){
+    public Printer(Environment env, Writer writer){
         printer = new PrintWriter(writer);
+        this.env = env;
     }
 
     public boolean isRecursionExists() {

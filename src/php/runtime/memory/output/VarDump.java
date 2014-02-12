@@ -1,11 +1,12 @@
 package php.runtime.memory.output;
 
+import php.runtime.Memory;
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
+import php.runtime.env.Environment;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
-import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.Writer;
@@ -15,8 +16,8 @@ public class VarDump extends Printer {
 
     private final static int PRINT_INDENT = 2;
 
-    public VarDump(Writer writer) {
-        super(writer);
+    public VarDump(Environment env, Writer writer) {
+        super(env, writer);
     }
 
     @Override
@@ -144,7 +145,21 @@ public class VarDump extends Printer {
         if (used.contains(value.getPointer())){
             printer.write("*RECURSION*\n");
         } else {
-            ArrayMemory arr = value.getProperties();
+            ArrayMemory arr;
+            if (classEntity.methodMagicDebugInfo != null) {
+                try {
+                    Memory tmp = classEntity.methodMagicDebugInfo.invokeDynamic(value.value, env);
+                    if (tmp.isArray())
+                        arr = tmp.toValue(ArrayMemory.class);
+                    else
+                        arr = new ArrayMemory();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            } else
+                arr = value.getProperties();
 
             printer.write("object(");
             printer.write(classEntity.getName());

@@ -126,7 +126,7 @@ public class CallStackItem {
         sb.append("(");
         if (withArgs) {
             StringWriter writer = new StringWriter();
-            PlainPrinter printer = new PlainPrinter(writer);
+            PlainPrinter printer = new PlainPrinter(null, writer);
             int i = 0;
             if (args != null)
             for(Memory arg : args){

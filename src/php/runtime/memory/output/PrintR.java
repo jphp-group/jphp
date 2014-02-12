@@ -2,6 +2,7 @@ package php.runtime.memory.output;
 
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
+import php.runtime.env.Environment;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
@@ -15,8 +16,8 @@ public class PrintR extends Printer {
 
     protected int PRINT_INDENT = 4;
 
-    public PrintR(Writer writer) {
-        super(writer);
+    public PrintR(Environment env, Writer writer) {
+        super(env, writer);
     }
 
     @Override
@@ -147,7 +148,22 @@ public class PrintR extends Printer {
 
             used.add(value.getPointer());
 
-            ArrayMemory props = value.getProperties();
+            ArrayMemory props;
+            if (env != null && classEntity.methodMagicDebugInfo != null) {
+                try {
+                    Memory tmp = classEntity.methodMagicDebugInfo.invokeDynamic(value.value, env);
+                    if (tmp.isArray())
+                        props = tmp.toValue(ArrayMemory.class);
+                    else
+                        props = new ArrayMemory();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            } else
+                props = value.getProperties();
+
             if (props != null){
                 ForeachIterator iterator = props.foreachIterator(false, false);
                 int i = 0;

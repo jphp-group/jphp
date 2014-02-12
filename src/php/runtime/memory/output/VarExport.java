@@ -1,6 +1,7 @@
 package php.runtime.memory.output;
 
 import php.runtime.common.StringUtils;
+import php.runtime.env.Environment;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
@@ -14,8 +15,8 @@ public class VarExport extends Printer {
 
     private final static int PRINT_INDENT = 2;
 
-    public VarExport(Writer writer) {
-        super(writer);
+    public VarExport(Environment env, Writer writer) {
+        super(env, writer);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package php.runtime.memory.output;
 
+import php.runtime.env.Environment;
+
 import java.io.Writer;
 
 public class PlainPrinter extends PrintR {
 
-    public PlainPrinter(Writer writer) {
-        super(writer);
+    public PlainPrinter(Environment env, Writer writer) {
+        super(env, writer);
         PRINT_INDENT = 0;
     }
 

@@ -422,4 +422,9 @@ public class ClassesTest extends JvmCompilerCase {
 
         check("zend/classes/autoload_021.php",true);
     }
+
+    @Test
+    public void testDebugInfo() {
+        check("zend/classes/__debug_info_001.php");
+    }
 }

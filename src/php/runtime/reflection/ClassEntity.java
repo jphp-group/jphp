@@ -67,6 +67,7 @@ public class ClassEntity extends Entity {
     public MethodEntity methodMagicClone;
     public MethodEntity methodMagicSleep;
     public MethodEntity methodMagicWakeup;
+    public MethodEntity methodMagicDebugInfo;
 
     protected MethodEntity constructor;
 
@@ -282,6 +283,8 @@ public class ClassEntity extends Entity {
 
         methodMagicSleep = methods.get("__sleep");
         methodMagicWakeup = methods.get("__wakeup");
+
+        methodMagicDebugInfo = methods.get("__debuginfo");
     }
 
     public Extension getExtension() {
