@@ -25,8 +25,10 @@ public class Launcher {
     protected String pathToConf;
 
     protected OutputStream out;
+    protected boolean isDebug;
 
     private static Launcher current;
+
 
     public Launcher(String pathToConf, String[] args) {
         this.args = args;
@@ -41,6 +43,22 @@ public class Launcher {
 
     public Launcher() {
         this(new String[0]);
+    }
+
+    public Memory getConfigValue(String key) {
+        return getConfigValue(key, Memory.NULL);
+    }
+
+    public Memory getConfigValue(String key, Memory def) {
+        String result = config.getProperty(key);
+        if (result == null)
+            return def;
+
+        return new StringMemory(result);
+    }
+
+    public Memory getConfigValue(String key, String def) {
+        return getConfigValue(key, new StringMemory(def));
     }
 
     protected InputStream getResource(String name){
@@ -120,6 +138,7 @@ public class Launcher {
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
+                this.isDebug = getConfigValue("scope.debug").toBoolean();
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }
@@ -129,7 +148,7 @@ public class Launcher {
     }
 
     protected void initExtensions(){
-        String tmp = this.config.getProperty("extensions", "bcmath, ctype, calendar, date, spl");
+        String tmp = getConfigValue("scope.extensions", "bcmath, ctype, calendar, date, spl").toString();
         String[] extensions = StringUtils.split(tmp, ",");
 
         for(String ext : extensions){
@@ -145,7 +164,7 @@ public class Launcher {
             }
         }
 
-        this.environment = "on".equals(config.getProperty("env.concurrent", "off"))
+        this.environment = getConfigValue("env.concurrent").toBoolean()
                 ? new ConcurrentEnvironment(compileScope, out)
                 : new Environment(compileScope, out);
 
@@ -171,6 +190,10 @@ public class Launcher {
         }
     }
 
+    public boolean isDebug() {
+        return isDebug;
+    }
+
     public OutputStream getOut(){
         return out;
     }
@@ -184,8 +207,14 @@ public class Launcher {
     }
 
     public static void main(String[] args) throws Throwable {
+        long t = System.currentTimeMillis();
         Launcher launcher = new Launcher(args);
         Launcher.current = launcher;
         launcher.run();
+
+        if (launcher.isDebug()){
+            t = System.currentTimeMillis() - t;
+            System.out.println("Starting delay = " + t + " millis");
+        }
     }
 }
