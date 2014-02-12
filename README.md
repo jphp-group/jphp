@@ -19,21 +19,6 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 + Unicode for strings
 + Using Java libraries with PHP
 
-
-### How build and run?
-
-Use maven:
-
-    mvn package
-
-Then you can find the builded jar file in your `target/{version}/` directory. There are
-a few files: `jphp.jar`, `jphp.bat` and `jphp`. Add the `target/{version}/` directory to your
-PATH env variable and try JPHP, use `jphp` command:
-
-    jphp -f <path/to/file.php>
-    jphp -v
-
-
 ### Using with Maven
 
 ```
@@ -50,7 +35,20 @@ And add our maven repository:
 <repositories>
   <repository>
       <id>JPHP repository</id>
-      <url>https://raw.github.com/dim-s/jphp-maven/master/</url>
+      <url>http://dl.bintray.com/dim-s/maven/</url>
     </repository>
 </repositories>
 ```
+
+### Building JAR with JPHP
+
+Use `php.runtime.launch.Launcher` class as the Main class for your jar. By default, the launcher
+loads `JPHP-INF/launcher.con` configuration from a resource directory, inside this file you can
+specify the name of a bootstrap php file:
+
+```
+bootstrap = bootstrap.php
+```
+
+More information here: https://github.com/dim-s/jphp-swing-demo, there you can find a simple example project
+with JPHP.

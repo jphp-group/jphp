@@ -8,12 +8,6 @@
     <artifactId>jphp</artifactId>
     <version>0.3-snapshot</version>
 
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>jphp-cli</module>
-    </modules>
-
     <name>JPHP</name>
     <description>PHP Engine for Java VM</description>
     <url>http://github.com/dim-s/jphp</url>
@@ -26,8 +20,9 @@
 
     <distributionManagement>
         <repository>
-            <id>Local</id>
-            <url>file://${project.build.directory}/mvn-repo</url>
+            <id>bintray-dim-s-maven-ru.regenix.jphp</id>
+            <name>dim-s-maven-ru.regenix.jphp</name>
+            <url>https://api.bintray.com/maven/dim-s/maven/ru.regenix.jphp</url>
         </repository>
     </distributionManagement>
 
@@ -60,42 +55,6 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <version>0.9</version>
-                <configuration>
-                    <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
-                    <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
-                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory> <!-- matches distribution management repository url above -->
-                    <branch>refs/heads/master</branch>                       <!-- remote branch name -->
-                    <merge>true</merge>
-                    <includes>
-                        <include>**/*</include>
-                    </includes>
-                    <repositoryName>jphp-maven</repositoryName>      <!-- github repo name -->
-                    <repositoryOwner>dim-s</repositoryOwner>    <!-- github username  -->
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>site</goal>
-                        </goals>
-                        <phase>deploy</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <outputDirectory>
-                        site/
-                    </outputDirectory>
                 </configuration>
             </plugin>
 
