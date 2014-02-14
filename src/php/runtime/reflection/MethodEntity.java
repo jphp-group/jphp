@@ -5,9 +5,9 @@ import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import php.runtime.common.StringUtils;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.lang.Closure;
@@ -65,6 +65,19 @@ public class MethodEntity extends AbstractFunctionEntity {
         this.extension = extension;
 
         Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
+        do {
+            if (signature != null)
+                break;
+            try {
+                Class<?> cls = method.getDeclaringClass().getSuperclass();
+                if (cls == null)
+                    break;
+                signature = cls.getMethod(method.getName(), method.getParameterTypes()).getAnnotation(Reflection.Signature.class);
+            } catch (Exception e) {
+                throw new CriticalException(e);
+            }
+        } while (true);
+
         if (signature == null)
             throw new IllegalArgumentException("Method is not annotated with @Reflection.Signature");
 

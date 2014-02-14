@@ -6,7 +6,6 @@ import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
 import php.runtime.memory.BinaryMemory;
@@ -88,25 +87,25 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
-    abstract public Memory write(Environment env, Memory... args);
+    abstract public Memory write(Environment env, Memory... args) throws IOException;
 
     @Signature({@Arg(value = "length")})
-    abstract public Memory read(Environment env, Memory... args);
+    abstract public Memory read(Environment env, Memory... args) throws IOException;
 
     @Signature
-    abstract public Memory readFully(Environment env, Memory... args);
+    abstract public Memory readFully(Environment env, Memory... args) throws IOException;
 
     @Signature
     abstract public Memory eof(Environment env, Memory... args);
 
     @Signature(@Arg("position"))
-    abstract public Memory seek(Environment env, Memory... args);
+    abstract public Memory seek(Environment env, Memory... args) throws IOException;
 
     @Signature
     abstract public Memory getPosition(Environment env, Memory... args);
 
     @Signature
-    abstract public Memory close(Environment env, Memory... args);
+    abstract public Memory close(Environment env, Memory... args) throws IOException;
 
     public static Stream create(Environment env, TraceInfo trace, String path, String mode) throws Throwable {
         String protocol = "file";
@@ -182,17 +181,14 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     public static void initEnvironment(Environment env){
-        ClassEntity classEntity = env.fetchClass("php\\io\\FileStream");
-        if (classEntity == null)
-            throw new CriticalException("php\\io\\FileStream not found");
-
+        ClassEntity classEntity = env.fetchClass(FileStream.class);
         env.setUserValue(Stream.class.getName() + "#file", classEntity);
 
-        classEntity = env.fetchClass("php\\io\\MiscStream");
-        if (classEntity == null)
-            throw new CriticalException("php\\io\\MiscStream not found");
-
+        classEntity = env.fetchClass(MiscStream.class);
         env.setUserValue(Stream.class.getName() + "#php", classEntity);
+
+        classEntity = env.fetchClass(ResourceStream.class);
+        env.setUserValue(Stream.class.getName() + "#res", classEntity);
     }
 
     @Override
@@ -201,7 +197,7 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     @Signature
-    public Memory __destruct(Environment env, Memory... args){
+    public Memory __destruct(Environment env, Memory... args) throws IOException {
         close(env, args);
         return Memory.NULL;
     }
@@ -285,24 +281,19 @@ abstract public class Stream extends BaseObject implements Resource {
         @Override
         public int read() throws IOException {
             Memory result = stream.read(env, Memory.CONST_INT_1);
-            return result.isNull() ? -1 : 1;
+            return result.isString() ? result.getBinaryBytes()[0] : -1;
         }
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             Memory result = stream.read(env, LongMemory.valueOf(len - off));
-            if (result == Memory.NULL)
+            if (!result.isString())
                 return -1;
 
             byte[] copy = result.getBinaryBytes();
             System.arraycopy(copy, 0, b, off, copy.length);
 
             return copy.length;
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            return super.skip(n);    //To change body of overridden methods use File | Settings | File Templates.
         }
     }
 }

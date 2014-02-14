@@ -29,7 +29,7 @@ public class ExceptionHandler {
                     + " on line " + (exception.getTrace().getStartLine() + 1) + "\n"
             );
 
-            if (exception instanceof JavaException){
+            if (exception instanceof JavaException && ((JavaException) exception).getThrowable() != null){
                 env.echo("\nJVM Stack trace:\n");
                 JVMStackTracer tracer = new JVMStackTracer(
                         env.scope.getClassLoader(), ((JavaException) exception).getThrowable().getStackTrace()

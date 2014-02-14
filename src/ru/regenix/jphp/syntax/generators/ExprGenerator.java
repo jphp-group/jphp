@@ -614,6 +614,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ClassStmtToken){
                 unexpectedToken(current);
+            } else if (current instanceof CommentToken) {
+                tokens.add(current);
+                break;
+                // nop
             } else {
                 if (!tokens.isEmpty())
                     unexpectedToken(current);

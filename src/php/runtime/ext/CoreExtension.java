@@ -57,6 +57,7 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, WrapEnvironment.class);
         registerNativeClass(scope, WrapThreadGroup.class);
         registerNativeClass(scope, WrapThread.class);
+        registerNativeClass(scope, WrapSystem.class);
 
         registerNativeClass(scope, Reflector.class);
         registerNativeClass(scope, Reflection.class);
@@ -77,6 +78,7 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, FileStream.class);
         registerNativeClass(scope, MiscStream.class);
         registerNativeClass(scope, MemoryMiscStream.class);
+        registerNativeClass(scope, ResourceStream.class);
 
         // net
         registerNativeClass(scope, WrapSocket.class);

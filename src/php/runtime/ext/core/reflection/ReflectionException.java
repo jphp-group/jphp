@@ -7,6 +7,10 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("ReflectionException")
 public class ReflectionException extends BaseException {
+    public ReflectionException(Environment env) {
+        super(env);
+    }
+
     public ReflectionException(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }

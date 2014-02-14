@@ -45,6 +45,9 @@ public class StringMemory extends Memory {
 
     public static Memory toLong(String value){
         int len = value.length();
+        if (len == 0)
+            return null;
+
         int i = 0;
         int start = i;
         for(; i < len; i++){

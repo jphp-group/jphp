@@ -61,7 +61,7 @@ public class Launcher {
         return getConfigValue(key, new StringMemory(def));
     }
 
-    protected InputStream getResource(String name){
+    public InputStream getResource(String name){
         InputStream stream = Launcher.class.getClassLoader().getResourceAsStream(name);
         if (stream == null) {
             try {
