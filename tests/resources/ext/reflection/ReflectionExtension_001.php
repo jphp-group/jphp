@@ -12,7 +12,7 @@ try {
 } catch (ReflectionException $e){
     var_dump($e->getMessage());
 }
-
+?>
 --EXPECTF--
 string(4) "Core"
 string(%d) "%d.%s

@@ -18,7 +18,7 @@ class Foo extends Bar {
 
 $reflectionClass = new ReflectionClass('Foo');
 var_dump($reflectionClass->getDefaultProperties());
-
+?>
 --EXPECT--
 array(6) {
   ["staticProperty"]=>

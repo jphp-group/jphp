@@ -6,7 +6,7 @@
 
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.4-snapshot</version>
+    <version>0.4-SNAPSHOT</version>
 
     <name>JPHP</name>
     <description>PHP Engine for Java VM</description>
@@ -20,10 +20,15 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-dim-s-maven-ru.regenix.jphp</id>
-            <name>dim-s-maven-ru.regenix.jphp</name>
-            <url>https://api.bintray.com/maven/dim-s/maven/ru.regenix.jphp</url>
+            <id>archiva.internal</id>
+            <name>Internal Release Repository</name>
+            <url>http://maven.develnext.org/repository/internal/</url>
         </repository>
+        <snapshotRepository>
+            <id>archiva.snapshots</id>
+            <name>Internal Snapshot Repository</name>
+            <url>http://maven.develnext.org/repository/snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <build>
@@ -49,6 +54,17 @@
         </testResources>
 
         <plugins>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>deploy</phase>
+                        <goals><goal>jar-no-fork</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>

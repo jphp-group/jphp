@@ -25,19 +25,20 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 <dependency>
     <groupId>ru.regenix</groupId>
     <artifactId>jphp</artifactId>
-    <version>0.3-snapshot</version>
+    <version>0.4-SNAPSHOT</version>
 </dependency>
 ```
 
 And add our maven repository:
 
 ```
-<repositories>
-  <repository>
-      <id>JPHP repository</id>
-      <url>http://dl.bintray.com/dim-s/maven/</url>
-    </repository>
-</repositories>
+<repository>
+    <id>DevelNext Repo</id>
+    <url>http://maven.develnext.org/repository/internal/</url>
+    <snapshots>
+        <enabled>true</enabled>
+    </snapshots>
+</repository>
 ```
 
 ### Building JAR with JPHP
