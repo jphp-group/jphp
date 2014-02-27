@@ -29,7 +29,6 @@ public class Launcher {
 
     private static Launcher current;
 
-
     public Launcher(String pathToConf, String[] args) {
         this.args = args;
         this.out = System.out != null ? System.out : new ByteArrayOutputStream();
@@ -187,7 +186,8 @@ public class Launcher {
             } catch (Exception e){
                 environment.catchUncaught(e);
             }
-        }
+        } else
+            throw new LaunchException("Please set value of the `bootstrap.file` option in the launcher.conf file");
     }
 
     public boolean isDebug() {

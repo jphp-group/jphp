@@ -123,7 +123,7 @@ abstract public class Stream extends BaseObject implements Resource {
         return (Stream)classEntity.newObject(env, trace, true, new StringMemory(path), new StringMemory(mode));
     }
 
-    @Signature({@Arg("path"), @Arg("mode")})
+    @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
     public static Memory create(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();
 
@@ -151,19 +151,16 @@ abstract public class Stream extends BaseObject implements Resource {
         String className = args[1].toString();
 
         if (protocol.isEmpty()) {
-            exception(env, "Argument 1 (protocol) must be not empty");
-            return Memory.FALSE;
+            throw new IllegalArgumentException("Argument 1 (protocol) must be not empty");
         }
 
         if (!protocol.matches("^[A-Za-z0-9]+$")) {
-            exception(env, "Invalid Argument 1 (protocol)");
-            return Memory.FALSE;
+            throw new IllegalArgumentException("Invalid Argument 1 (protocol)");
         }
 
         ClassEntity classEntity = env.fetchClass(className, true);
         if (classEntity == null){
-            exception(env, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
-            return Memory.FALSE;
+            throw new IllegalArgumentException(Messages.ERR_CLASS_NOT_FOUND.fetch(className));
         }
 
         env.setUserValue(Stream.class.getName() + "#" + protocol, classEntity);

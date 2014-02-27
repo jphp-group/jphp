@@ -78,8 +78,9 @@ abstract class Stream {
      * @param string $path
      * @param string $mode
      * @return Stream
+     * @throws IOException
      */
-    public static function create($path, $mode) { }
+    public static function create($path, $mode = 'r') { }
 
     /**
      * @param string $protocol

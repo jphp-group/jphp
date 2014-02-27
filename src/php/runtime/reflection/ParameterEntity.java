@@ -89,6 +89,9 @@ public class ParameterEntity extends Entity {
 
     public boolean checkTypeHinting(Environment env, Memory value){
         if (type != HintType.ANY && type != null){
+            if (defaultValue != null && defaultValue.isNull() && value.isNull())
+                return true;
+
             switch (type){
                 case SCALAR:
                     switch (value.getRealType()){
@@ -105,8 +108,6 @@ public class ParameterEntity extends Entity {
                 case STRING: return value.isString();
                 case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
                 case ARRAY:
-                    if (defaultValue != null && defaultValue.isNull() && value.isNull())
-                        return true;
                     return value.isArray();
                 case CALLABLE:
                     Invoker invoker = Invoker.valueOf(env, null, value);
