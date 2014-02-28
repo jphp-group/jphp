@@ -17,7 +17,8 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 + Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings
-+ Using Java libraries with PHP
++ Threading, Sockets
++ Environment architecture (like sandbox objects in runkit zend extension).
 
 ### Using with Maven
 
@@ -50,3 +51,19 @@ bootstrap = bootstrap.php
 
 More information here: https://github.com/dim-s/jphp-swing-demo, there you can find a simple example project
 with JPHP.
+
+---
+
+JPHP - альтернативный движок для PHP
+
+Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это тоже самое, только для PHP язык. Поддерживаются все фичи PHP 5.3+ и некоторые из PHP 5.4 и PHP 5.5.
+
+Основное отличие от PHP это отказ от использования несогласованных runtime библиотек и расширений. Язык тот же, а библиотеки для него другие, с использованием ООП и т.д.
+
+
+Больше информации о разработке вы найдете по следующим ссылка:
+
+- http://develnet.ru/tag/jphp/
+- http://community.develstudio.ru/showthread.php/9411-JPHP-Блог-разработки
+
+На данный момент вы можете собрать JAR файл с исходниками php, который будет выполняться с помощью JPHP. Пример такого проекта можно найти здесь: https://github.com/dim-s/jphp-swing-demo
