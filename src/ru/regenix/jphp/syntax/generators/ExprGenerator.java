@@ -290,7 +290,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
             nextToken(iterator), iterator, EndforStmtToken.class
         );
-        if (body.isAlternativeSyntax())
+        if (body != null && body.isAlternativeSyntax())
             iterator.next();
 
         result.setInitExpr(inits);
@@ -310,7 +310,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
                 nextToken(iterator), iterator, EndwhileStmtToken.class
         );
-        if (body.isAlternativeSyntax())
+        if (body != null && body.isAlternativeSyntax())
             iterator.next();
 
         result.setCondition(condition);

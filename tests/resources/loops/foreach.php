@@ -72,4 +72,6 @@ foreach($hash as $el->prop){
 if ($sum !== 5)
     return "fail_8: $sum != 5";
 
+foreach(array() as $x);
+
 return 'success';

@@ -15,6 +15,8 @@ while($i < 200){
     $x += 1;
 }
 
+while (false);
+
 if ($x === 200 && $y === 200)
     return 'success';
 else
