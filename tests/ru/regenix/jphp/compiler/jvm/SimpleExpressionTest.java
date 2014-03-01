@@ -190,7 +190,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(true, memory.toBoolean());
 
         memory = runDynamic("$z = $x || 22; return $z", false);
-        Assert.assertEquals(22, memory.toLong());
+        Assert.assertEquals(Memory.TRUE, memory.toValue());
     }
 
     @Test

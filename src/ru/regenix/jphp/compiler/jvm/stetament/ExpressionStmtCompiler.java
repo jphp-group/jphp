@@ -2188,6 +2188,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writePopBooleanAsObject() {
+        StackItem.Type peek = stackPeek().type;
+        writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, peek.toClass());
+        setStackPeekAsImmutable();
+    }
+
     void writePopBoolean(){
         StackItem.Type peek = stackPeek().type;
         switch (peek){
@@ -2738,8 +2744,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         code.add(next);
         writeExpression(operator.getRightValue(), returnValue, false);
-        if (returnValue)
-            writePopBoxing();
+        if (returnValue) {
+            if (operator.getLast() instanceof ValueIfElseToken)
+                writePopBoxing();
+            else
+                writePopBooleanAsObject();
+        }
 
         code.add(end);
         return null;
