@@ -12,6 +12,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -19,11 +20,19 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\File")
 public class FileObject extends BaseObject {
+    public final static int FILES_ONLY = JFileChooser.FILES_ONLY;
+    public final static int DIRECTORIES_ONLY = JFileChooser.DIRECTORIES_ONLY;
+    public final static int FILES_AND_DIRECTORIES = JFileChooser.FILES_AND_DIRECTORIES;
 
     protected File file;
 
     public FileObject(Environment env, ClassEntity clazz) {
         super(env, clazz);
+    }
+
+    public FileObject(Environment env, File file) {
+        super(env);
+        this.file = file;
     }
 
     public FileObject(Environment env, ClassEntity clazz, File file) {
@@ -35,6 +44,10 @@ public class FileObject extends BaseObject {
         WrapIOException exception = new WrapIOException(env, env.fetchClass("php\\io\\IOException"));
         exception.__construct(env, new StringMemory(String.format(message, args)));
         env.__throwException(exception);
+    }
+
+    public File getFile() {
+        return file;
     }
 
     @Signature({@Arg("path"), @Arg(value = "child", optional = @Optional("NULL"))})
@@ -317,5 +330,17 @@ public class FileObject extends BaseObject {
         }
 
         return arr.toConstant();
+    }
+
+    @Signature
+    public Memory __toString(Environment env, Memory... args) {
+        return new StringMemory(file.getPath());
+    }
+
+    public static File valueOf(Memory arg) {
+        if (arg.instanceOf(FileObject.class))
+            return arg.toObject(FileObject.class).getFile();
+        else
+            return new File(arg.toString());
     }
 }

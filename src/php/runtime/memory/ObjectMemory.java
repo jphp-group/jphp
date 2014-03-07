@@ -37,6 +37,8 @@ public class ObjectMemory extends Memory {
     }
 
     public static Memory valueOf(IObject object){
+        if (object == null)
+            return NULL;
         return new ObjectMemory(object);
     }
 
