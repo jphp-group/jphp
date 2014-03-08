@@ -912,11 +912,43 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     @Name("import")
+    public static Memory _import(Environment env, Memory file, Memory moduleName) {
+        ModuleEntity module = null;
+        if (!moduleName.isNull()) {
+            module = env.scope.findUserModule(moduleName.toString());
+        }
+
+        if (module == null) {
+            InputStream inputStream = Stream.getInputStream(env, file);
+            try {
+                module = env.importModule(new Context(
+                        inputStream, moduleName == Memory.NULL ? null : moduleName.toString(), env.getDefaultCharset()
+                ));
+            } catch (Exception throwable) {
+                env.catchUncaught(throwable);
+                return Memory.NULL;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            } finally {
+                Stream.closeStream(env, inputStream);
+            }
+        }
+
+        return module != null ? module.includeNoThrow(env) : Memory.NULL;
+    }
+
+    @Name("import")
     public static Memory _import(Environment env, Memory file) {
+        return _import(env, file, Memory.NULL);
+    }
+
+    public static Memory import_compiled(Environment env, Memory file, Memory moduleName, boolean debugInformation) {
         InputStream inputStream = Stream.getInputStream(env, file);
 
         try {
-            ModuleEntity module = env.importModule(new Context(inputStream, null, env.getDefaultCharset()));
+            ModuleEntity module = env.importCompiledModule(new Context(
+                    inputStream, moduleName == Memory.NULL ? null : moduleName.toString(), env.getDefaultCharset()
+            ), debugInformation);
             return module.include(env);
         } catch (Exception throwable) {
             env.catchUncaught(throwable);
@@ -928,23 +960,11 @@ public class LangFunctions extends FunctionsContainer {
         return Memory.NULL;
     }
 
-    public static Memory import_compiled(Environment env, Memory file, boolean debugInformation) {
-        InputStream inputStream = Stream.getInputStream(env, file);
-
-        try {
-            ModuleEntity module = env.importCompiledModule(new Context(inputStream, null, env.getDefaultCharset()), debugInformation);
-            return module.include(env);
-        } catch (Exception throwable) {
-            env.catchUncaught(throwable);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        } finally {
-            Stream.closeStream(env, inputStream);
-        }
-        return Memory.NULL;
+    public static Memory import_compiled(Environment env, Memory file, Memory moduleName) {
+        return import_compiled(env, file, moduleName, false);
     }
 
     public static Memory import_compiled(Environment env, Memory file) {
-        return import_compiled(env, file, false);
+        return import_compiled(env, file, Memory.NULL, false);
     }
 }

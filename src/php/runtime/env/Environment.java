@@ -225,9 +225,9 @@ public class Environment {
                 Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
                 if (error.getTraceInfo() != null){
                     Environment.this.echo(
-                        " in " + error.getTraceInfo().getFileName()
-                        + " on line " + (error.getTraceInfo().getStartLine() + 1)
-                        + ", position " + (error.getTraceInfo().getStartPosition() + 1)
+                            " in " + error.getTraceInfo().getFileName()
+                                    + " on line " + (error.getTraceInfo().getStartLine() + 1)
+                                    + ", position " + (error.getTraceInfo().getStartPosition() + 1)
                     );
                 }
                 return false;
@@ -525,14 +525,14 @@ public class Environment {
 
         ArrayMemory result = new ArrayMemory();
         if (includingGlobal)
-        if (scope.configuration != null){
-            for(Map.Entry<String, Memory> entry : scope.configuration.entrySet()){
-                String key = entry.getKey();
-                if (prefix != null && !key.startsWith(prefix)) continue;
+            if (scope.configuration != null){
+                for(Map.Entry<String, Memory> entry : scope.configuration.entrySet()){
+                    String key = entry.getKey();
+                    if (prefix != null && !key.startsWith(prefix)) continue;
 
-                result.put(key, entry.getValue().toImmutable());
+                    result.put(key, entry.getValue().toImmutable());
+                }
             }
-        }
 
         for(Map.Entry<String, Memory> entry : configuration.entrySet()){
             String key = entry.getKey();

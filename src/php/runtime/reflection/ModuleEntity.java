@@ -89,6 +89,9 @@ public class ModuleEntity extends Entity {
             throw e;
         } catch (BaseException e){
             throw new UncaughtException(e);
+        } catch (Exception e) {
+            env.catchUncaught(e);
+            return Memory.NULL;
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
