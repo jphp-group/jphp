@@ -13,6 +13,7 @@ import php.runtime.env.message.SystemMessage;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.stream.Stream;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;
@@ -30,6 +31,10 @@ import ru.regenix.jphp.compiler.jvm.JvmCompiler;
 import ru.regenix.jphp.syntax.SyntaxAnalyzer;
 import ru.regenix.jphp.tokenizer.GrammarUtils;
 import ru.regenix.jphp.tokenizer.Tokenizer;
+
+import java.io.InputStream;
+
+import static php.runtime.annotation.Reflection.Name;
 
 public class LangFunctions extends FunctionsContainer {
 
@@ -904,5 +909,42 @@ public class LangFunctions extends FunctionsContainer {
             }
         }
         return Memory.FALSE;
+    }
+
+    @Name("import")
+    public static Memory _import(Environment env, Memory file) {
+        InputStream inputStream = Stream.getInputStream(env, file);
+
+        try {
+            ModuleEntity module = env.importModule(new Context(inputStream, null, env.getDefaultCharset()));
+            return module.include(env);
+        } catch (Exception throwable) {
+            env.catchUncaught(throwable);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        } finally {
+            Stream.closeStream(env, inputStream);
+        }
+        return Memory.NULL;
+    }
+
+    public static Memory import_compiled(Environment env, Memory file, boolean debugInformation) {
+        InputStream inputStream = Stream.getInputStream(env, file);
+
+        try {
+            ModuleEntity module = env.importCompiledModule(new Context(inputStream, null, env.getDefaultCharset()), debugInformation);
+            return module.include(env);
+        } catch (Exception throwable) {
+            env.catchUncaught(throwable);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        } finally {
+            Stream.closeStream(env, inputStream);
+        }
+        return Memory.NULL;
+    }
+
+    public static Memory import_compiled(Environment env, Memory file) {
+        return import_compiled(env, file, false);
     }
 }

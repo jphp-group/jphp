@@ -866,7 +866,8 @@ public class Environment {
     }
 
     public ModuleEntity importCompiledModule(Context context, boolean debugInformation) throws Throwable {
-        ModuleEntity module = scope.findUserModule(context.getModuleName());
+        String moduleName = context.getModuleName();
+        ModuleEntity module = moduleName == null ? null : scope.findUserModule(moduleName);
         if (module == null) {
             ModuleDumper moduleDumper = new ModuleDumper(context, this, debugInformation);
             module = moduleDumper.load(context.getInputStream(getDefaultCharset()));
@@ -880,7 +881,8 @@ public class Environment {
     }
 
     public ModuleEntity importModule(Context context) throws Throwable {
-        ModuleEntity module = scope.findUserModule(context.getModuleName());
+        String moduleName = context.getModuleName();
+        ModuleEntity module = moduleName == null ? null : scope.findUserModule(moduleName);
         if (module == null){
             JvmCompiler compiler = new JvmCompiler(this, context);
             module = compiler.compile(true);

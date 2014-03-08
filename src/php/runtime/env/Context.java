@@ -66,9 +66,11 @@ public class Context {
         if (moduleName != null && file == null)
             return moduleName;
 
-        if (file == null)
+        if (file == null) {
+            if (content == null)
+                return null;
             return String.valueOf(content.hashCode()) + "~" + content.length();
-        else {
+        } else {
             String name = file.getCanonicalPath();
             if (Constants.PATH_NAME_CASE_INSENSITIVE)
                 name = name.toLowerCase();

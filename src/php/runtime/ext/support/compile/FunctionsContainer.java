@@ -1,5 +1,6 @@
 package php.runtime.ext.support.compile;
 
+import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;
@@ -77,9 +78,14 @@ abstract public class FunctionsContainer {
         for(Method method : getClass().getDeclaredMethods()){
             int mod = method.getModifiers();
             if (Modifier.isStatic(mod) && Modifier.isPublic(mod)){
-                CompileFunction function = result.get(method.getName());
+                String name = method.getName();
+                Reflection.Name altName = method.getAnnotation(Reflection.Name.class);
+                if (altName != null)
+                    name = altName.value();
+
+                CompileFunction function = result.get(name);
                 if (function == null)
-                    result.put(method.getName(), function = new CompileFunction(method.getName()));
+                    result.put(name, function = new CompileFunction(name));
 
                 function.addMethod(method);
             }
