@@ -1,0 +1,9 @@
+group = 'org.develnext'
+
+sourceSets {
+    main.java.srcDirs = ['src']
+}
+
+dependencies {
+    compile project(':jphp-core')
+}

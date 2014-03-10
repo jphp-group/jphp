@@ -1,0 +1,32 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'idea'
+
+    compileJava.options.encoding = 'UTF-8'
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    group = 'ru.regenix'
+    version = '0.4-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+configure(subprojects.findAll {it.name != 'jphp-cli'}) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: 'http://maven.develnext.org/repository/internal') {
+                    authentication(userName: 'admin', password: mavenDevelnextPassword);
+                }
+                snapshotRepository(url: 'http://maven.develnext.org/repository/snapshots') {
+                    authentication(userName: 'admin', password: mavenDevelnextPassword);
+                }
+            }
+        }
+    }
+}

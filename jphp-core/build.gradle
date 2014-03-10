@@ -1,0 +1,11 @@
+sourceSets {
+    main.java.srcDirs = ['src']
+    test.java.srcDirs = ["tests"]
+    test.resources.srcDirs = ["tests"]
+}
+
+dependencies {
+    compile group: 'org.ow2.asm', name: 'asm-all', version:'4.1'
+
+    testCompile 'junit:junit:4.+'
+}

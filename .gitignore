@@ -15,3 +15,8 @@ settings.xml
 /site/
 /scripts/
 /jphp-cli/target
+
+/.gradle/
+build/
+
+gradle.properties

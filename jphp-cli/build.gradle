@@ -1,0 +1,13 @@
+sourceSets {
+    main.java.srcDirs = ['src']
+}
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest { attributes 'Main-Class': 'ru.regenix.jphp.cli.CLI' }
+}
+
+dependencies {
+    compile project(':jphp-core')
+    compile 'com.beust:jcommander:1.32'
+}

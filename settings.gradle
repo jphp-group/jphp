@@ -1,0 +1,2 @@
+
+include 'jphp-core', 'jphp-cli', 'jphp-swing'
