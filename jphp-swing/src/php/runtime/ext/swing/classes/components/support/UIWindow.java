@@ -13,6 +13,8 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -77,7 +79,17 @@ abstract public class UIWindow extends UIContainer {
 
     @Signature(@Arg("value"))
     protected Memory __setOpacity(Environment env, Memory... args) {
-        getRootWindow().setOpacity(args[0].toFloat());
+        Window window = getWindow();
+        try {
+            Method m = window.getClass().getMethod("setOpacity", Float.class);
+            m.invoke(window, args[0].toFloat());
+        } catch (NoSuchMethodException e) {
+            return Memory.NULL;
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         return Memory.NULL;
     }
 
@@ -94,7 +106,17 @@ abstract public class UIWindow extends UIContainer {
 
     @Signature
     protected Memory __getOpacity(Environment env, Memory... args) {
-        return new DoubleMemory(getRootWindow().getOpacity());
+        Window window = getWindow();
+        try {
+            Method m = window.getClass().getMethod("getOpacity");
+            return new DoubleMemory((Float)m.invoke(window));
+        } catch (NoSuchMethodException e) {
+            return new DoubleMemory(1);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Signature

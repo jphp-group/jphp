@@ -49,7 +49,7 @@ public class JComboboxPropertyReaders extends PropertyReaders<JComboBox> {
     public final static PropertyReader<JComboBox> ITEMS = new PropertyReader<JComboBox>() {
         @Override
         public void read(JComboBox component, Value value) {
-            component.setModel(new DefaultComboBoxModel<String>(value.asArray(false)));
+            component.setModel(new DefaultComboBoxModel(value.asArray(false)));
         }
     };
 }

@@ -23,7 +23,7 @@ public class UIListboxTag extends BaseTag<JListbox> {
     @Override
     public void addUnknown(JListbox component, Node node) {
         if (node.getNodeName().equalsIgnoreCase("item")) {
-            DefaultListModel<String> model = (DefaultListModel<String>) component.getModel();
+            DefaultListModel model = (DefaultListModel) component.getModel();
             model.addElement(node.getTextContent());
             Node selected = node.getAttributes().getNamedItem("selected");
             if (selected != null && "1".equals(selected.getNodeValue())){

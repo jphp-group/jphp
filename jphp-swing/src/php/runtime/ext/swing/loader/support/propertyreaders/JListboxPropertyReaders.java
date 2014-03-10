@@ -28,7 +28,7 @@ public class JListboxPropertyReaders extends PropertyReaders<JListbox> {
     public final static PropertyReader<JListbox> ITEMS = new PropertyReader<JListbox>() {
         @Override
         public void read(JListbox component, Value value) {
-            DefaultListModel<String> model = (DefaultListModel<String>) component.getModel();
+            DefaultListModel model = (DefaultListModel) component.getModel();
             model.clear();
             for(String el : value.asArray(false)) {
                 model.addElement(el);

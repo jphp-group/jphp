@@ -11,7 +11,7 @@ import javax.swing.*;
 public class UIComboboxTag extends BaseTag<JComboBox> {
     @Override
     public JComboBox create(ElementItem element, UIReader uiReader) {
-        return new JComboBox(new DefaultComboBoxModel<String>());
+        return new JComboBox(new DefaultComboBoxModel());
     }
 
     @Override
@@ -22,7 +22,7 @@ public class UIComboboxTag extends BaseTag<JComboBox> {
     @Override
     public void addUnknown(JComboBox component, Node node) {
         if (node.getNodeName().equalsIgnoreCase("item")) {
-            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) component.getModel();
+            DefaultComboBoxModel model = (DefaultComboBoxModel) component.getModel();
             model.addElement(node.getTextContent());
         }
     }

@@ -17,7 +17,6 @@ public class WindowPropertyReaders extends PropertyReaders<Window> {
         put("title", TITLE);
         put("default-close-operation", DEFAULT_CLOSE_OPERATION);
         put("icon", ICON);
-        put("type", TYPE);
     }};
 
     @Override
@@ -78,13 +77,6 @@ public class WindowPropertyReaders extends PropertyReaders<Window> {
         @Override
         public void read(Window component, Value value) {
             component.setIconImage(value.asIcon().getImage());
-        }
-    };
-
-    public final static PropertyReader<Window> TYPE = new PropertyReader<Window>() {
-        @Override
-        public void read(Window component, Value value) {
-            component.setType(Window.Type.valueOf(value.asString().toUpperCase()));
         }
     };
 }
