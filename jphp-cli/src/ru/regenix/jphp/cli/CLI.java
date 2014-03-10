@@ -45,7 +45,7 @@ public class CLI {
 
     protected void executeFile(String filename) throws Throwable {
         Launcher launcher = new Launcher("jphp.conf", args);
-        launcher.run();
+        launcher.run(false);
 
         File file = new File(filename);
         Environment environment = new Environment(launcher.getCompileScope(), output);

@@ -171,6 +171,10 @@ public class Launcher {
     }
 
     public void run() throws Throwable {
+        run(true);
+    }
+
+    public void run(boolean mustBootstrap) throws Throwable {
         readConfig();
         initExtensions();
 
@@ -186,7 +190,7 @@ public class Launcher {
             } catch (Exception e){
                 environment.catchUncaught(e);
             }
-        } else
+        } else if (mustBootstrap)
             throw new LaunchException("Please set value of the `bootstrap.file` option in the launcher.conf file");
     }
 

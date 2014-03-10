@@ -3,8 +3,19 @@ sourceSets {
 }
 
 jar {
+    archiveName = 'jphp-cli.jar'
+    duplicatesStrategy = 'exclude'
+
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest { attributes 'Main-Class': 'ru.regenix.jphp.cli.CLI' }
+
+    copy {
+        from 'shell/jphp'
+        from 'shell/jphp.bat'
+        from 'shell/jphp.conf'
+
+        into "$buildDir/libs/"
+    }
 }
 
 dependencies {
