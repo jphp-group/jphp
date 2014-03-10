@@ -54,7 +54,7 @@ public class JListbox extends JScrollableComponent<JList> {
         return component.getMinSelectionIndex();
     }
 
-    public ListModel<String> getModel() {
+    public ListModel getModel() {
         return component.getModel();
     }
 

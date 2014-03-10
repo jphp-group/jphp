@@ -69,9 +69,9 @@ final public class BorderUtils {
 
             if (color == null) {
                 if (t == BevelBorder.RAISED) {
-                    return BorderFactory.createRaisedSoftBevelBorder();
+                    return new SoftBevelBorder(BevelBorder.RAISED);
                 }
-                return BorderFactory.createLoweredSoftBevelBorder();
+                return new SoftBevelBorder(BevelBorder.LOWERED);
             } else {
                 Color shadowColor = color;
                 if (args.containsKey("shadow-color"))

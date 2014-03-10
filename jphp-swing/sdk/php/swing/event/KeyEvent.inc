@@ -22,4 +22,16 @@ class KeyEvent extends ComponentEvent {
      * @var int
      */
     public $keyCode;
+
+    /**
+     * @readonly
+     * @var int
+     */
+    public $keyLocation;
+
+    /**
+     * @readonly
+     * @var bool
+     */
+    public $actionKey;
 }

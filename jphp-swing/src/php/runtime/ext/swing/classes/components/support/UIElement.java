@@ -543,7 +543,7 @@ abstract public class UIElement extends RootObject {
 
     @Signature
     public Memory revalidate(Environment env, Memory... args){
-        getComponent().revalidate();
+        getJComponent().revalidate();
         return Memory.NULL;
     }
 
