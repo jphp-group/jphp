@@ -18,7 +18,7 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name(SwingExtension.NAMESPACE + "UICombobox")
 public class UICombobox extends UIContainer {
-    protected JComboBox<String> component;
+    protected JComboBox component;
 
     public UICombobox(Environment env, JComboBox component) {
         super(env);
@@ -112,7 +112,7 @@ public class UICombobox extends UIContainer {
 
     @Signature(@Arg("value"))
     public Memory getItem(Environment env, Memory... args) {
-        String v = component.getItemAt(args[0].toInteger());
+        String v = (String)component.getItemAt(args[0].toInteger());
         return v == null ? Memory.NULL : new StringMemory(v);
     }
 

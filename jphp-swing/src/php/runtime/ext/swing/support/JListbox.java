@@ -3,11 +3,11 @@ package php.runtime.ext.swing.support;
 import javax.swing.*;
 import java.awt.*;
 
-public class JListbox extends JScrollableComponent<JList<String>> {
+public class JListbox extends JScrollableComponent<JList> {
 
     @Override
-    protected JList<String> newComponent() {
-        JList l = new JList<String>(new DefaultListModel<String>());
+    protected JList newComponent() {
+        JList l = new JList(new DefaultListModel());
         l.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         return l;
     }

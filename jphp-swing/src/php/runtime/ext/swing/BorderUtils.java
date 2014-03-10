@@ -3,9 +3,7 @@ package php.runtime.ext.swing;
 import php.runtime.common.StringUtils;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
+import javax.swing.border.*;
 import java.awt.*;
 import java.util.*;
 
@@ -41,7 +39,7 @@ final public class BorderUtils {
         if (type == null || type.equals("empty")) {
             return BorderFactory.createEmptyBorder();
         } else if (type.equals("line")) {
-            return BorderFactory.createLineBorder(color == null ? Color.GRAY : color, size, args.containsKey("rounded"));
+            return new LineBorder(color == null ? Color.GRAY : color, size, args.containsKey("rounded"));
         } else if (type.equals("bevel") || type.equals("bevel-lowered") || type.equals("bevel-raised")) {
             int t = BevelBorder.LOWERED;
             if (type.endsWith("-raised"))
@@ -69,14 +67,17 @@ final public class BorderUtils {
             if (type.endsWith("-raised"))
                 t = BevelBorder.RAISED;
 
-            if (color == null)
-                return BorderFactory.createSoftBevelBorder(t);
-            else {
+            if (color == null) {
+                if (t == BevelBorder.RAISED) {
+                    return BorderFactory.createRaisedSoftBevelBorder();
+                }
+                return BorderFactory.createLoweredSoftBevelBorder();
+            } else {
                 Color shadowColor = color;
                 if (args.containsKey("shadow-color"))
                     shadowColor = Color.decode(args.get("shadow-color"));
 
-                return BorderFactory.createSoftBevelBorder(t, color, shadowColor);
+                return new SoftBevelBorder(t, color, shadowColor);
             }
         } else
             return BorderFactory.createEmptyBorder();
