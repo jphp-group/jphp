@@ -147,7 +147,7 @@ public class UICombobox extends UIContainer {
             i++;
         }
 
-        component.setModel(new DefaultComboBoxModel<String>(items));
+        component.setModel(new DefaultComboBoxModel(items));
         return Memory.NULL;
     }
 }

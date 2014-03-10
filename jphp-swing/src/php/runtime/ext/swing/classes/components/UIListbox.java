@@ -93,41 +93,41 @@ public class UIListbox extends UIContainer {
 
     @Signature(@Arg("item"))
     public Memory addItem(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
         listModel.addElement(args[0].toString());
         return Memory.NULL;
     }
 
     @Signature({@Arg("index"), @Arg("item")})
     public Memory insertItem(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
         listModel.insertElementAt(args[1].toString(), args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature({@Arg("index")})
     public Memory getItem(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
-        return new StringMemory(listModel.getElementAt(args[0].toInteger()));
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
+        return new StringMemory((String)listModel.getElementAt(args[0].toInteger()));
     }
 
     @Signature({@Arg("index")})
     public Memory removeItem(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
         listModel.removeElementAt(args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature
     public Memory removeAllItems(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
         listModel.removeAllElements();
         return Memory.NULL;
     }
 
     @Signature(@Arg(value = "items", type = HintType.ARRAY))
     public Memory setItems(Environment env, Memory... args) {
-        DefaultListModel<String> listModel = (DefaultListModel<String>)component.getModel();
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
         listModel.clear();
 
         ArrayMemory arr = args[0].toValue(ArrayMemory.class);

@@ -77,7 +77,7 @@ abstract public class UIWindow extends UIContainer {
 
     @Signature(@Arg("value"))
     protected Memory __setOpacity(Environment env, Memory... args) {
-        getWindow().setOpacity(args[0].toFloat());
+        getRootWindow().setOpacity(args[0].toFloat());
         return Memory.NULL;
     }
 
@@ -94,7 +94,7 @@ abstract public class UIWindow extends UIContainer {
 
     @Signature
     protected Memory __getOpacity(Environment env, Memory... args) {
-        return new DoubleMemory(getWindow().getOpacity());
+        return new DoubleMemory(getRootWindow().getOpacity());
     }
 
     @Signature

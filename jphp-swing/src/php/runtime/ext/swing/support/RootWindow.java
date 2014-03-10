@@ -18,4 +18,7 @@ public interface RootWindow {
     int getDefaultCloseOperation();
 
     Container getContentPane();
+
+    void setOpacity(float value);
+    float getOpacity();
 }
