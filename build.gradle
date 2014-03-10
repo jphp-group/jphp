@@ -17,16 +17,26 @@ allprojects {
 }
 
 configure(subprojects.findAll {it.name != 'jphp-cli'}) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: 'http://maven.develnext.org/repository/internal') {
-                    authentication(userName: 'admin', password: mavenDevelnextPassword);
-                }
-                snapshotRepository(url: 'http://maven.develnext.org/repository/snapshots') {
-                    authentication(userName: 'admin', password: mavenDevelnextPassword);
+
+    task deploy << {
+        ext {
+            username = System.console().readLine("\nusername: ")
+            password = System.console().readPassword("password: ").toString()
+        }
+
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: 'http://maven.develnext.org/repository/internal') {
+                        authentication(userName: deploy.username, password: deploy.password);
+                    }
+                    snapshotRepository(url: 'http://maven.develnext.org/repository/snapshots') {
+                        authentication(userName: deploy.username, password: deploy.password);
+                    }
                 }
             }
         }
+        uploadArchives.execute();
     }
+
 }
