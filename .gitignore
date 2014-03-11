@@ -5,6 +5,9 @@
 *.war
 *.ear
 *.iml
+*.ipr
+*.iws
+/classes/
 /build/
 /lib/
 /out/

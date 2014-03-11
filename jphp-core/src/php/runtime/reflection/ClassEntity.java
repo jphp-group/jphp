@@ -171,7 +171,7 @@ public class ClassEntity extends Entity {
                     if (extend.isAnnotationPresent(Reflection.Name.class)){
                         name = extend.getAnnotation(Reflection.Name.class).value();
                     }
-                    ClassEntity entity = scope.findUserClass(name);
+                    ClassEntity entity = scope.fetchUserClass(name);
                     if (entity == null || entity.getType() != Type.CLASS)
                         throw new IllegalArgumentException("Class '"+name+"' not registered");
 
@@ -188,7 +188,7 @@ public class ClassEntity extends Entity {
                 if (interface_.isAnnotationPresent(Reflection.Name.class)){
                     name = interface_.getAnnotation(Reflection.Name.class).value();
                 }
-                ClassEntity entity = scope.findUserClass(name);
+                ClassEntity entity = scope.fetchUserClass(name);
                 if (entity == null || entity.getType() != Type.INTERFACE)
                     throw new IllegalArgumentException("Interface '"+name+"' not registered");
 
@@ -732,7 +732,8 @@ public class ClassEntity extends Entity {
                 this.nativeConstructor.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 this.nativeConstructor = null;
-                //throw new RuntimeException(e);
+                //if (IObject.class.isAssignableFrom(getNativeClazz().getClass()))
+                  //  throw new CriticalException(e);
             }
 
             if (!this.isInternal){

@@ -2,6 +2,7 @@ package php.runtime.loader.dump;
 
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.lang.Closure;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
@@ -57,7 +58,7 @@ public class ClosureDumper extends Dumper<ClosureEntity> {
     public ClosureEntity load(InputStream input) throws IOException {
         DumpInputStream data = new DumpInputStream(input);
         ClosureEntity entity = new ClosureEntity(context);
-        entity.setParent(env.scope.closureEntity);
+        entity.setParent(env.scope.fetchUserClass(Closure.class));
 
         entity.setInternalName(data.readName());
         entity.setReturnReference(data.readBoolean());

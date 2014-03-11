@@ -2,6 +2,7 @@
 namespace {
 
     use php\lang\System;
+    use php\lang\Thread;
     use php\swing\SwingUtilities;
     use php\swing\UIForm;
     use php\swing\UIManager;

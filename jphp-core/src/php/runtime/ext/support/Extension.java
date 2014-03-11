@@ -8,7 +8,6 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.ext.support.compile.ConstantsContainer;
 import php.runtime.ext.support.compile.FunctionsContainer;
-import php.runtime.reflection.ClassEntity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,7 +42,7 @@ abstract public class Extension {
 
     protected Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
     protected Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
-    protected Map<String, ClassEntity> classes = new LinkedHashMap<String, ClassEntity>();
+    protected Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
 
     public Map<String, CompileConstant> getConstants() {
         return constants;
@@ -53,24 +52,18 @@ abstract public class Extension {
         return functions;
     }
 
-    public Map<String, ClassEntity> getClasses() {
+    public Map<String, Class<?>> getClasses() {
         return classes;
     }
 
-    public ClassEntity registerNativeClass(CompileScope scope, Class<?> clazz){
-        ClassEntity classEntity = new ClassEntity(this, scope, clazz);
-        scope.registerClass(classEntity);
-        if (classEntity.getId() == 0)
-            classEntity.setId(scope.nextClassIndex());
-
-        if (classes.put(classEntity.getLowerName(), classEntity) != null)
+    public void registerNativeClass(CompileScope scope, Class<?> clazz) {
+        if (classes.put(clazz.getName(), clazz) != null)
             throw new RuntimeException("Class already registered - " + clazz.getName());
-        return classEntity;
     }
 
     public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
                                       Class<? extends Throwable>... classes) {
-        ClassEntity classEntity = registerNativeClass(scope, javaClass);
+        registerNativeClass(scope, javaClass);
         if (classes != null)
         for(Class<? extends Throwable> el : classes)
             scope.registerJavaException(javaClass, el);

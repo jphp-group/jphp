@@ -85,7 +85,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
         final FunctionEntity bind = this;
         final ClosureEntity closureEntity1 = new ClosureEntity(this.getContext());
-        closureEntity1.setParent(env.scope.closureEntity);
+        closureEntity1.setParent(env.scope.fetchUserClass(Closure.class));
         closureEntity1.parameters = this.parameters;
         closureEntity1.setReturnReference(this.isReturnReference());
 

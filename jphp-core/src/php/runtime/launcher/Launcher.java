@@ -29,7 +29,11 @@ public class Launcher {
 
     private static Launcher current;
 
+    private long startTime = System.currentTimeMillis();
+
     public Launcher(String pathToConf, String[] args) {
+        current = this;
+
         this.args = args;
         this.out = System.out != null ? System.out : new ByteArrayOutputStream();
         this.compileScope = new CompileScope();
@@ -174,9 +178,21 @@ public class Launcher {
         run(true);
     }
 
+    public void printTrace(String name) {
+        long t = System.currentTimeMillis() - startTime;
+        System.out.printf("[%s] = " + t + " millis\n", name);
+        startTime = System.currentTimeMillis();
+    }
+
     public void run(boolean mustBootstrap) throws Throwable {
         readConfig();
         initExtensions();
+
+        if (isDebug()){
+            long t = System.currentTimeMillis() - startTime;
+            System.out.println("Starting delay = " + t + " millis");
+        }
+
 
         String file = config.getProperty("bootstrap.file", null);
         if (file != null){
@@ -211,14 +227,8 @@ public class Launcher {
     }
 
     public static void main(String[] args) throws Throwable {
-        long t = System.currentTimeMillis();
         Launcher launcher = new Launcher(args);
         Launcher.current = launcher;
         launcher.run();
-
-        if (launcher.isDebug()){
-            t = System.currentTimeMillis() - t;
-            System.out.println("Starting delay = " + t + " millis");
-        }
     }
 }

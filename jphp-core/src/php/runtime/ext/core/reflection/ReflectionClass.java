@@ -103,7 +103,7 @@ public class ReflectionClass extends Reflection {
         if (entity.getExtension() == null)
             return Memory.NULL;
 
-        ReflectionExtension extension = new ReflectionExtension(env, env.fetchClass("ReflectionExtension"));
+        ReflectionExtension extension = new ReflectionExtension(env);
         extension.setExtension(entity.getExtension());
 
         return new ObjectMemory(extension);

@@ -1,19 +1,25 @@
 package php.runtime.env;
 
+import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.LangMode;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.JavaExtension;
 import php.runtime.ext.java.JavaException;
 import php.runtime.ext.support.Extension;
+import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.Closure;
+import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
-import php.runtime.lang.spl.*;
-import php.runtime.lang.spl.iterator.*;
+import php.runtime.lang.spl.ArrayAccess;
+import php.runtime.lang.spl.ErrorException;
+import php.runtime.lang.spl.Serializable;
+import php.runtime.lang.spl.Traversable;
+import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.loader.RuntimeClassLoader;
-import php.runtime.Memory;
 import php.runtime.reflection.*;
 import php.runtime.util.JVMStackTracer;
 
@@ -42,16 +48,13 @@ public class CompileScope {
 
     protected Map<String, CompileConstant> compileConstantMap;
     protected Map<String, CompileFunction> compileFunctionMap;
+    protected Map<String, CompileClass> compileClassMap;
 
     public Map<String, Memory> configuration;
 
     // flags
     public boolean debugMode = false;
     public LangMode langMode = LangMode.JPHP;
-
-    public final ClassEntity stdClassEntity;
-    public final ClassEntity closureEntity;
-    public final ClassEntity exceptionEntity;
 
     public CompileScope(CompileScope parent) {
         classLoader = parent.classLoader;
@@ -65,8 +68,10 @@ public class CompileScope {
         exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
 
         extensions = new LinkedHashMap<String, Extension>();
+
         compileConstantMap = new HashMap<String, CompileConstant>();
         compileFunctionMap = new HashMap<String, CompileFunction>();
+        compileClassMap    = new HashMap<String, CompileClass>();
 
         superGlobals = new HashSet<String>();
         superGlobals.addAll(parent.superGlobals);
@@ -84,10 +89,6 @@ public class CompileScope {
         methodCount.set(parent.methodCount.longValue());
 
         extensions.putAll(parent.extensions);
-
-        closureEntity   = parent.closureEntity;
-        exceptionEntity = parent.exceptionEntity;
-        stdClassEntity  = parent.stdClassEntity;
     }
 
     public CompileScope() {
@@ -103,6 +104,7 @@ public class CompileScope {
         extensions = new LinkedHashMap<String, Extension>();
         compileConstantMap = new HashMap<String, CompileConstant>();
         compileFunctionMap = new HashMap<String, CompileFunction>();
+        compileClassMap    = new HashMap<String, CompileClass>();
         exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
 
         superGlobals = new HashSet<String>();
@@ -119,18 +121,28 @@ public class CompileScope {
 
         CoreExtension extension = new CoreExtension();
 
-        registerClass(closureEntity = new ClassEntity(extension, this, Closure.class));
-        registerClass(exceptionEntity = new ClassEntity(extension, this, BaseException.class));
-        registerClass(new ClassEntity(extension, this, ErrorException.class));
-        registerClass(stdClassEntity = new ClassEntity(extension, this, StdClass.class));
-        registerClass(new ClassEntity(extension, this, ArrayAccess.class));
+        //registerClass(closureEntity = new ClassEntity(extension, this, Closure.class));
+        //registerClass(stdClassEntity = new ClassEntity(extension, this, StdClass.class));
+
+        registerLazyClass(extension, Closure.class);
+        registerLazyClass(extension, StdClass.class);
+        registerLazyClass(extension, BaseException.class);
+        registerLazyClass(extension, ErrorException.class);
+        registerLazyClass(extension, ArrayAccess.class);
+
+        //registerClass(new ClassEntity(extension, this, ErrorException.class));
+        //registerClass(new ClassEntity(extension, this, ArrayAccess.class));
 
         // iterators
-        registerClass(new ClassEntity(extension, this, Traversable.class));
+        registerLazyClass(extension, Traversable.class);
+        registerLazyClass(extension, php.runtime.lang.spl.iterator.Iterator.class);
+        registerLazyClass(extension, IteratorAggregate.class);
+        registerLazyClass(extension, Serializable.class);
+
+        /*registerClass(new ClassEntity(extension, this, Traversable.class));
         registerClass(new ClassEntity(extension, this, php.runtime.lang.spl.iterator.Iterator.class));
         registerClass(new ClassEntity(extension, this, IteratorAggregate.class));
-
-        registerClass(new ClassEntity(extension, this, Serializable.class));
+        registerClass(new ClassEntity(extension, this, Serializable.class)); */
 
         registerExtension(new JavaExtension());
         registerExtension(extension);
@@ -180,16 +192,18 @@ public class CompileScope {
         return methodCount.incrementAndGet();
     }
 
+    public void registerLazyClass(Extension extension, Class<?> clazz) {
+        CompileClass el = new CompileClass(extension, clazz);
+        compileClassMap.put(el.getLowerName(), el);
+    }
+
     public void registerExtension(Extension extension){
         extension.onRegister(this);
         compileConstantMap.putAll(extension.getConstants());
         compileFunctionMap.putAll(extension.getFunctions());
 
-        for(ClassEntity clazz : extension.getClasses().values()){
-            if (!clazz.isInternal()){
-                registerClass(clazz);
-                clazz.setExtension(extension);
-            }
+        for(Class<?> clazz : extension.getClasses().values()){
+            registerLazyClass(extension, clazz);
         }
 
         for(CompileFunction function : extension.getFunctions().values()){
@@ -232,8 +246,26 @@ public class CompileScope {
         return moduleMap.get(name);
     }
 
-    public ClassEntity findUserClass(String name){
-        return classMap.get(name.toLowerCase());
+    public ClassEntity fetchUserClass(Class<? extends IObject> clazz) {
+        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
+        return fetchUserClass(name == null ? clazz.getSimpleName() : name.value());
+    }
+
+    public ClassEntity fetchUserClass(String name) {
+        name = name.toLowerCase();
+        ClassEntity entity = classMap.get(name);
+        if (entity != null)
+            return entity;
+
+        CompileClass compileClass = compileClassMap.get(name);
+        if (compileClass == null)
+            return null;
+
+        entity = new ClassEntity(compileClass.getExtension(), this, compileClass.getNativeClass());
+        synchronized (classMap) {
+            classMap.put(name, entity);
+        }
+        return entity;
     }
 
     public FunctionEntity findUserFunction(String name){
@@ -254,6 +286,10 @@ public class CompileScope {
 
     public CompileFunction findCompileFunction(String name){
         return compileFunctionMap.get(name.toLowerCase());
+    }
+
+    public CompileClass findCompileClass(String name) {
+        return compileClassMap.get(name.toLowerCase());
     }
 
     public Class<? extends JavaException> findJavaException(Class<? extends Throwable> clazz) {

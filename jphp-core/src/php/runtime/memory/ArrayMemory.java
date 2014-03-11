@@ -1217,7 +1217,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
 
     @Override
     public Memory toObject(Environment env) {
-        StdClass stdClass = new StdClass(env, env.scope.stdClassEntity);
+        StdClass stdClass = new StdClass(env);
         ArrayMemory props = stdClass.getProperties();
         ForeachIterator iterator = getNewIterator(env, false, false);
         while (iterator.next()){

@@ -237,7 +237,7 @@ public class Environment {
         this.globals.put("GLOBALS", this.globals);
         this.constants = new HashMap<String, ConstantEntity>();
 
-        classMap.putAll(scope.getClassMap());
+        //classMap.putAll(scope.getClassMap());
         functionMap.putAll(scope.getFunctionMap());
         constantMap.putAll(scope.getConstantMap());
 
@@ -460,6 +460,17 @@ public class Environment {
         ClassEntity entity = classMap.get(nameL);
 
         if (entity == null){
+            entity = scope.fetchUserClass(nameL);
+            if (entity != null) {
+                try {
+                    entity.initEnvironment(this);
+                } catch (Throwable throwable) {
+                    throw new CriticalException(throwable);
+                }
+                classMap.put(entity.getLowerName(), entity);
+                return entity;
+            }
+
             return autoLoad ? autoloadCall(name, nameL) : null;
         } else {
             return entity;/*
@@ -731,7 +742,7 @@ public class Environment {
     }
 
     public void exception(TraceInfo trace, String message, Object... args){
-        BaseException e = new BaseException(this, scope.exceptionEntity);
+        BaseException e = new BaseException(this);
         exception(trace, e, message, args);
     }
 

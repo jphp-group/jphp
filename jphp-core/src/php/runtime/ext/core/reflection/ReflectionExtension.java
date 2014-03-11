@@ -23,6 +23,10 @@ public class ReflectionExtension extends Reflection {
         super(env, clazz);
     }
 
+    public ReflectionExtension(Environment env) {
+        super(env);
+    }
+
     public void setExtension(Extension extension) {
         this.extension = extension;
         getProperties().put("name", new StringMemory(extension.getName()));
@@ -56,8 +60,9 @@ public class ReflectionExtension extends Reflection {
     @Signature
     public Memory getClassNames(Environment env, Memory... args){
         ArrayMemory result = new ArrayMemory();
-        for(ClassEntity e : extension.getClasses().values()){
-            result.add(new StringMemory(e.getName()));
+        for(Class<?> e : extension.getClasses().values()){
+            Name name = e.getAnnotation(Name.class);
+            result.add(new StringMemory(name == null ? e.getSimpleName() : name.value()));
         }
         return result.toConstant();
     }
