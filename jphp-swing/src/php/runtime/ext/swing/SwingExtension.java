@@ -68,7 +68,7 @@ public class SwingExtension extends Extension {
         eventProviders.put(eventProvider.getComponentClass(), eventProvider);
     }
 
-    public void registerNativeClass(CompileScope scope, Class<? extends php.runtime.ext.swing.classes.components.support.UIElement> clazz, Class<?> swingClazz) {
+    public void registerNativeClass(CompileScope scope, Class<? extends UIElement> clazz, Class<?> swingClazz) {
         super.registerNativeClass(scope, clazz);
         swingClasses.put(swingClazz, clazz);
     }
