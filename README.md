@@ -42,15 +42,16 @@ And add our maven repository:
 ### Building JAR with JPHP
 
 Use `php.runtime.launch.Launcher` class as the Main class for your jar. By default, the launcher
-loads `JPHP-INF/launcher.con` configuration from a resource directory, inside this file you can
-specify the name of a bootstrap php file:
+loads `JPHP-INF/launcher.conf` configuration from a resource directory, inside this file you can
+specify the name of a bootstrap php file (which will be loaded from a resource directory and executed):
 
 ```
-bootstrap = bootstrap.php
+bootstrap.file = bootstrap.php
 ```
 
-More information here: https://github.com/dim-s/jphp-swing-demo, there you can find a simple example project
-with JPHP.
+We have created an example project which is located in the `jphp-example-project` directory. To try it, you should
+use Gradle build system and several tasks: `exampleStart` or `jar` to build the project to a jar file which you can
+execute by using Java VM. By default, all jar files will be created in `build/libs/`.
 
 ---
 
@@ -66,4 +67,10 @@ with JPHP.
 - http://develnet.ru/tag/jphp/
 - http://community.develstudio.ru/showthread.php/9411-JPHP-Блог-разработки
 
-На данный момент вы можете собрать JAR файл с исходниками php, который будет выполняться с помощью JPHP. Пример такого проекта можно найти здесь: https://github.com/dim-s/jphp-swing-demo (gui)
+На данный момент вы можете собрать JAR файл с исходниками php, который будет выполняться с помощью JPHP. Загляните
+в папку `jphp-example-project`, этот проект можно собрать в выполняемый jar файл, который можно запустить по двойному клику в Windows
+если у вас установлена Java. Для этого вам нужен Gradle, чтобы собрать программу используйте стандартную команду `gradle jar`
+или если хотите сразу посмотреть результат `jphp-example-project` выполните `gradle exampleStart`.
+
+К тому же проект для примера настраивается через файл `resources/JPHP-INF/launcher.conf`, где можно поменять `bootstrap.file`
+на другой файл (например `bootstrap_gui.php`, `bootstrap_server.php` - это различные независимые примеры программ на JPHP).
