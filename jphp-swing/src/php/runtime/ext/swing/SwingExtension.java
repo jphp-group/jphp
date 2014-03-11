@@ -47,7 +47,7 @@ public class SwingExtension extends Extension {
 
     @Override
     public String getVersion() {
-        return "0.4-SNAPSHOT";
+        return "~";
     }
 
     @SuppressWarnings("unchecked")
@@ -165,6 +165,7 @@ public class SwingExtension extends Extension {
         registerReaderTag(new UIMenuBarTag());
         registerReaderTag(new UIPopupMenuTag());
         registerReaderTag(new UIToolBarTag());
+        registerReaderTag(new UIProgressTag());
 
         registerPropertyReaders(new ComponentPropertyReaders());
         registerPropertyReaders(new JComponentPropertyReaders());
@@ -181,6 +182,7 @@ public class SwingExtension extends Extension {
         registerPropertyReaders(new JSliderPropertyReaders());
         registerPropertyReaders(new JEditorPaneXPropertyReaders());
         registerPropertyReaders(new JToolBarPropertyReaders());
+        registerPropertyReaders(new JProgressBarPropertyReaders());
     }
 
     @Override

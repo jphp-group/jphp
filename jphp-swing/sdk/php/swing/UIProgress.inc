@@ -1,15 +1,38 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: DIM-S
- * Date: 27.02.14
- * Time: 13:41
- * To change this template use File | Settings | File Templates.
- */
-
 namespace php\swing;
 
+/**
+ * Class UIProgress
+ * @package php\swing
+ */
+class UIProgress extends UIContainer {
+    /**
+     * @var int
+     */
+    public $value;
 
-class UIProgress {
+    /**
+     * @var int
+     */
+    public $max;
 
+    /**
+     * @var int
+     */
+    public $min;
+
+    /**
+     * @var string
+     */
+    public $text;
+
+    /**
+     * @var bool
+     */
+    public $textPainted;
+
+    /**
+     * @var bool
+     */
+    public $borderPainted;
 }

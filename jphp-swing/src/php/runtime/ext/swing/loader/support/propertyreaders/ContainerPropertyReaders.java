@@ -4,7 +4,6 @@ import php.runtime.ext.swing.XYLayout;
 import php.runtime.ext.swing.loader.support.PropertyReader;
 import php.runtime.ext.swing.loader.support.Value;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,6 @@ public class ContainerPropertyReaders extends PropertyReaders<Container> {
     public Class<Container> getRegisterClass() {
         return Container.class;
     }
-
 
     public final static PropertyReader<Container> INNER_SIZE = new PropertyReader<Container>() {
         @Override

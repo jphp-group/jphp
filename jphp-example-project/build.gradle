@@ -1,0 +1,27 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+            srcDir 'src/main/php'
+        }
+    }
+}
+
+dependencies {
+    compile project(':jphp-core')
+    compile project(':jphp-swing')
+}
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest { attributes 'Main-Class': 'php.runtime.launcher.Launcher' }
+}
+
+task(start, dependsOn: "classes", type: JavaExec) {
+    description = "Main start"
+    main = "php.runtime.launcher.Launcher"
+    classpath = sourceSets.main.runtimeClasspath
+}

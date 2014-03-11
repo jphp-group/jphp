@@ -22,3 +22,4 @@ dependencies {
     compile project(':jphp-core')
     compile 'com.beust:jcommander:1.32'
 }
+
