@@ -16,7 +16,7 @@ allprojects {
     }
 }
 
-configure(subprojects.findAll {it.name == 'jphp-core' || it.name == 'jphp-swing'}) {
+configure([project(':jphp-core'), project(':jphp-swing')]) {
 
     task deploy << {
         ext {
