@@ -46,7 +46,7 @@ abstract class UIContainer extends UIElement {
      * @param string $group
      * @return UIElement|NULL
      */
-    public function getComponentByGroup($group) { }
+    public function getComponentByGroup($group) { return 1; }
 
     /**
      * Find all components in group

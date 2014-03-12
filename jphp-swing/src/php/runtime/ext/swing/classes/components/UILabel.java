@@ -19,6 +19,11 @@ import static php.runtime.annotation.Reflection.*;
 public class UILabel extends UIContainer {
     protected JLabel component;
 
+    public UILabel(Environment env, JLabel component) {
+        super(env);
+        this.component = component;
+    }
+
     public UILabel(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }

@@ -9,6 +9,9 @@ import php.runtime.ext.swing.classes.*;
 import php.runtime.ext.swing.classes.components.*;
 import php.runtime.ext.swing.classes.components.support.*;
 import php.runtime.ext.swing.classes.components.support.UIElement;
+import php.runtime.ext.swing.classes.components.tree.UITree;
+import php.runtime.ext.swing.classes.components.tree.WrapTreeModel;
+import php.runtime.ext.swing.classes.components.tree.WrapTreeNode;
 import php.runtime.ext.swing.classes.events.*;
 import php.runtime.ext.swing.classes.events.WrapKeyEvent;
 import php.runtime.ext.swing.classes.events.WrapMouseEvent;
@@ -133,6 +136,10 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIColorChooser.class, JColorChooser.class);
         registerNativeClass(scope, UIToolBar.class, JToolBar.class);
 
+        registerNativeClass(scope, UITree.class, JTree.class);
+        registerNativeClass(scope, WrapTreeNode.class);
+        registerNativeClass(scope, WrapTreeModel.class);
+
         registerNativeClass(scope, WrapUIReader.class);
 
         registerEventProvider(new ComponentEventProvider());
@@ -167,6 +174,7 @@ public class SwingExtension extends Extension {
         registerReaderTag(new UIPopupMenuTag());
         registerReaderTag(new UIToolBarTag());
         registerReaderTag(new UIProgressTag());
+        registerReaderTag(new UITreeTag());
 
         registerPropertyReaders(new ComponentPropertyReaders());
         registerPropertyReaders(new JComponentPropertyReaders());

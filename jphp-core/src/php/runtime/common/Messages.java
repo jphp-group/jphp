@@ -91,6 +91,8 @@ final public class Messages {
 
     public final static Item ERR_CANNOT_USE_OBJECT_AS_ARRAY = new Item("Cannot use object %s as array");
 
+    public final static Item ERR_INVALID_ARRAY_ELEMENT_TYPE = new Item("All array elements must be instances of %s class, %s given");
+
     public static class Item {
         private String message;
         public Item(String message){

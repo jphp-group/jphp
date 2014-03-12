@@ -1,10 +1,13 @@
 package php.runtime.memory;
 
+import php.runtime.annotation.Reflection;
+import php.runtime.common.Messages;
 import php.runtime.exceptions.RecursiveException;
 import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.helper.ArrayKeyMemory;
@@ -1227,5 +1230,81 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         return new ObjectMemory(stdClass);
     }
 
-    public static class UncomparableArrayException extends Exception {}
+    public int[] toIntArray() {
+        int[] r = new int[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toInteger();
+            i++;
+        }
+        return r;
+    }
+
+    public long[] toLongArray() {
+        long[] r = new long[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toLong();
+            i++;
+        }
+        return r;
+    }
+
+    public String[] toStringArray() {
+        String[] r = new String[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toString();
+            i++;
+        }
+        return r;
+    }
+
+    public float[] toFloatArray() {
+        float[] r = new float[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toFloat();
+            i++;
+        }
+        return r;
+    }
+
+    public double[] toDoubleArray() {
+        double[] r = new double[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toDouble();
+            i++;
+        }
+        return r;
+    }
+
+    public boolean[] toBoolArray() {
+        boolean[] r = new boolean[size];
+        int i = 0;
+        for (Memory e : this) {
+            r[i] = e.toBoolean();
+            i++;
+        }
+        return r;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T[] toObjectArray(Class<T> clazz) {
+        T[] list = (T[]) new IObject[size];
+
+        int i = 0;
+        for(Memory e : this) {
+            if (e.instanceOf(clazz))
+                list[i] = e.toObject(clazz);
+            else {
+                throw new IllegalArgumentException(Messages.ERR_INVALID_ARRAY_ELEMENT_TYPE.fetch(
+                    Reflection.getClassName(clazz), Reflection.getGivenName(e)
+                ));
+            }
+        }
+
+        return list;
+    }
 }
