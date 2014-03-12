@@ -130,6 +130,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIPopupMenu.class, JPopupMenu.class);
 
         registerNativeClass(scope, UIFileChooser.class, JFileChooser.class);
+        registerNativeClass(scope, UIColorChooser.class, JColorChooser.class);
         registerNativeClass(scope, UIToolBar.class, JToolBar.class);
 
         registerNativeClass(scope, WrapUIReader.class);
