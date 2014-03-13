@@ -74,6 +74,8 @@ public class WrapUIReader extends RootObject {
                     ).toString());
                 }
             };
+
+            reader.setTranslateHandler(handler);
         }
         return Memory.NULL;
     }
