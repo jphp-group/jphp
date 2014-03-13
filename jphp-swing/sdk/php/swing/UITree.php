@@ -7,12 +7,24 @@ use php\swing\tree\TreeNode;
 /**
  * Class UITree
  * @package php\swing
+ *
+ * @events
+ *      - expanded  (UITree $tree, TreeNode $node)
+ *      - willExpand  (UITree $tree, TreeNode $node)
+ *      - collapsed  (UITree $tree, TreeNode $node)
+ *      - willCollapse  (UITree $tree, TreeNode $node)
+ *      - selected  (UITree $tree, TreeNode $node = null, TreeNode $oldNode = null, bool $isAdded)
  */
 class UITree extends UIContainer {
     /**
      * @var TreeModel
      */
     public $model;
+
+    /**
+     * @var TreeNode
+     */
+    public $root;
 
     /**
      * @var bool
@@ -100,6 +112,22 @@ class UITree extends UIContainer {
     public $selectedNodes;
 
     /**
+     * @readonly
+     * @var TreeNode
+     */
+    public $editingNode;
+
+    /**
+     * @var string - ALWAYS, HIDDEN, AUTO
+     */
+    public $horScrollPolicy;
+
+    /**
+     * @var string - ALWAYS, HIDDEN, AUTO
+     */
+    public $verScrollPolicy;
+
+    /**
      * @param callable $renderer
      *      (
      *          TreeNode $node,
@@ -116,10 +144,113 @@ class UITree extends UIContainer {
     /**
      * @param TreeNode $node
      */
+    public function addSelectionNode(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function removeSelectionNode(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
     public function expandNode(TreeNode $node) { }
+
+    /**
+     * @param int $row
+     */
+    public function expandRow($row) { }
 
     /**
      * @param TreeNode $node
      */
     public function collapseNode(TreeNode $node) { }
+
+    /**
+     * @param int $row
+     */
+    public function collapseRow($row) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function expandNodeAll(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function collapseNodeAll(TreeNode $node) { }
+
+    /**
+     * @param int $row
+     * @return bool
+     */
+    public function isExpandedRow($row) { }
+
+    /**
+     * @param TreeNode $node
+     * @return bool
+     */
+    public function isExpandedNode(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @return bool
+     */
+    public function isNodeSelected(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @return bool
+     */
+    public function isNodeEditable(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @return bool
+     */
+    public function isVisible(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @return bool
+     */
+    public function hasBeenExpanded(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function fireTreeExpanded(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function fireTreeCollapsed(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @throws
+     */
+    public function fireTreeWillExpand(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     * @throws
+     */
+    public function fireTreeWillCollapse(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
+    public function makeVisible(TreeNode $node) { }
+
+    /**
+     * ...
+     */
+    public function cancelEditing() { }
+
+    /**
+     * ...
+     */
+    public function clearSelection() { }
 }

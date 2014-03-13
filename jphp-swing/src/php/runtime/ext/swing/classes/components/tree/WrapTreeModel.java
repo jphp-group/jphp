@@ -69,6 +69,12 @@ public class WrapTreeModel extends RootObject {
         return Memory.NULL;
     }
 
+    @Signature(@Arg(value = "node", typeClass = WrapTreeNode.NAME))
+    public Memory removeNodeFromParent(Environment env, Memory... args) {
+        model.removeNodeFromParent(args[0].toObject(WrapTreeNode.class).getNode());
+        return Memory.NULL;
+    }
+
     @Signature(@Arg(value = "node", typeClass = WrapTreeNode.NAME, optional = @Optional("NULL")))
     public Memory reload(Environment env, Memory... args) {
         if (args[0].isNull())

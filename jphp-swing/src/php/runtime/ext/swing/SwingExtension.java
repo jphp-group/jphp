@@ -136,7 +136,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIColorChooser.class, JColorChooser.class);
         registerNativeClass(scope, UIToolBar.class, JToolBar.class);
 
-        registerNativeClass(scope, UITree.class, JTree.class);
+        registerNativeClass(scope, UITree.class, JTreeX.class);
         registerNativeClass(scope, WrapTreeNode.class);
         registerNativeClass(scope, WrapTreeModel.class);
 
@@ -149,6 +149,7 @@ public class SwingExtension extends Extension {
         registerEventProvider(new JComboBoxEventProvider());
         registerEventProvider(new JSliderEventProvider());
         registerEventProvider(new JEditorPaneXEventProvider());
+        registerEventProvider(new JTreeXEventProvider());
 
         registerReaderTag(new IncludeTag());
         registerReaderTag(new UIFormTag());
@@ -192,6 +193,7 @@ public class SwingExtension extends Extension {
         registerPropertyReaders(new JEditorPaneXPropertyReaders());
         registerPropertyReaders(new JToolBarPropertyReaders());
         registerPropertyReaders(new JProgressBarPropertyReaders());
+        registerPropertyReaders(new JTreeXPropertyReaders());
     }
 
     @Override

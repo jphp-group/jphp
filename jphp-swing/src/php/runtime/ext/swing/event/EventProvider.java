@@ -1,5 +1,7 @@
 package php.runtime.ext.swing.event;
 
+import php.runtime.Memory;
+import php.runtime.common.Function;
 import php.runtime.env.Environment;
 import php.runtime.ext.swing.ComponentProperties;
 import php.runtime.ext.swing.classes.events.*;
@@ -17,6 +19,12 @@ abstract public class EventProvider<T extends Component> {
 
     abstract public void register(final Environment env, T component, ComponentProperties properties);
     abstract public boolean isAllowedEventType(Component component, String code);
+
+    public static void trigger(Environment env, ComponentProperties properties, String name, Function<Memory[]> getArgs){
+        EventList list = properties.eventContainer.get(name);
+        if (list != null && !list.isEmpty())
+            properties.triggerEvent(name, getArgs.call());
+    }
 
     public static void triggerSimple(Environment env, ComponentProperties properties, String name, EventObject e){
         EventList list = properties.eventContainer.get(name);
@@ -65,4 +73,5 @@ abstract public class EventProvider<T extends Component> {
         if (list != null && !list.isEmpty())
             properties.triggerEvent(name, new ObjectMemory(new WrapItemEvent(env, e)));
     }
+
 }

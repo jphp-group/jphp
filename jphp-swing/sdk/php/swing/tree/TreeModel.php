@@ -30,5 +30,10 @@ class TreeModel {
     /**
      * @param TreeNode $node
      */
+    public function removeNodeFromParent(TreeNode $node) { }
+
+    /**
+     * @param TreeNode $node
+     */
     public function reload(TreeNode $node = null) { }
 }

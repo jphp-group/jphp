@@ -1291,13 +1291,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends IObject> T[] toObjectArray(Class<T> clazz) {
-        T[] list = (T[]) new IObject[size];
+    public <T extends IObject> List<T> toObjectArray(Class<T> clazz) {
+        List<T> r = new ArrayList<T>();
 
         int i = 0;
         for(Memory e : this) {
             if (e.instanceOf(clazz))
-                list[i] = e.toObject(clazz);
+                r.add(e.toObject(clazz));
             else {
                 throw new IllegalArgumentException(Messages.ERR_INVALID_ARRAY_ELEMENT_TYPE.fetch(
                     Reflection.getClassName(clazz), Reflection.getGivenName(e)
@@ -1305,6 +1305,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             }
         }
 
-        return list;
+        return r;
     }
 }

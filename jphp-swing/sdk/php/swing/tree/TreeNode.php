@@ -10,6 +10,12 @@ class TreeNode {
      * @readonly
      * @var int
      */
+    public $index;
+
+    /**
+     * @readonly
+     * @var int
+     */
     public $depth;
 
     /**
@@ -117,7 +123,7 @@ class TreeNode {
     /**
      * @return TreeNode|null
      */
-    public function getFirstNode() { }
+    public function getFirstChild() { }
 
     /**
      * @return TreeNode|null
@@ -127,7 +133,7 @@ class TreeNode {
     /**
      * @return TreeNode|null
      */
-    public function getLastNode() { }
+    public function getLastChild() { }
 
     /**
      * @return TreeNode|null
@@ -178,6 +184,17 @@ class TreeNode {
      * @return int
      */
     public function getIndex(TreeNode $node) { }
+
+    /**
+     * @param int $index
+     * @return TreeNode|null
+     */
+    public function getChild($index) { }
+
+    /**
+     * @return int
+     */
+    public function getChildCount() { }
 
     /**
      * @return TreeNode

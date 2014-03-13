@@ -17,7 +17,9 @@ abstract public class BaseTag<T extends Component> {
     }};
 
     abstract public T create(ElementItem element, UIReader uiReader);
-    abstract public void read(ElementItem element, T component, Node node);
+
+    public void read(ElementItem element, T component, Node node) { }
+    public void afterRead(ElementItem element, T component, Node node) { }
 
     public void addChildren(T component, Component child) {
         if (component instanceof Container)
@@ -26,6 +28,10 @@ abstract public class BaseTag<T extends Component> {
 
     public void addUnknown(T component, Node node) {
 
+    }
+
+    public boolean isAllowsChildren() {
+        return true;
     }
 
     public boolean isNeedRegister() {

@@ -48,6 +48,14 @@ public class WrapTreeNode extends RootObject {
     }
 
     @Signature
+    protected Memory __getIndex(Environment env, Memory... args) {
+        if (node.getParent() == null)
+            return Memory.CONST_INT_M1;
+
+        return LongMemory.valueOf(node.getParent().getIndex(node));
+    }
+
+    @Signature
     protected Memory __getDepth(Environment env, Memory... args) {
         return LongMemory.valueOf(node.getDepth());
     }
@@ -271,6 +279,20 @@ public class WrapTreeNode extends RootObject {
     @Signature(@Arg(value = "value", typeClass = NAME))
     public Memory getIndex(Environment env, Memory... args) {
         return LongMemory.valueOf(node.getIndex(args[0].toObject(WrapTreeNode.class).getNode()));
+    }
+
+    @Signature(@Arg("index"))
+    public Memory getChild(Environment env, Memory... args) {
+        try {
+            return new ObjectMemory(new WrapTreeNode(env, (DefaultMutableTreeNode)node.getChildAt(args[0].toInteger())));
+        } catch (ArrayIndexOutOfBoundsException e){
+            return Memory.NULL;
+        }
+    }
+
+    @Signature
+    public Memory getChildCount(Environment env, Memory... args) {
+        return LongMemory.valueOf(node.getChildCount());
     }
 
     @Signature

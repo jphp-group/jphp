@@ -95,12 +95,13 @@ public class UIReader {
                     reader.read(tag.applyProperty(attr.getNodeName(), component), value);
                 }
             }
+            tag.afterRead(item, component, element);
 
             if (readHandler != null && var != null) {
                 readHandler.onRead(component, var);
             }
 
-            if (component instanceof Container) {
+            if (tag.isAllowsChildren() && component instanceof Container) {
                 NodeList list = element.getChildNodes();
                 if (list != null)
                 for(int i = 0; i < list.getLength(); i++) {

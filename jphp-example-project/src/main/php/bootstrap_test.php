@@ -2,16 +2,12 @@
 namespace {
 
     use php\lang\System;
-    use php\lang\Thread;
-    use php\swing\Border;
     use php\swing\Image;
     use php\swing\SwingUtilities;
     use php\swing\tree\TreeNode;
+    use php\swing\UIDialog;
     use php\swing\UIForm;
-    use php\swing\UILabel;
     use php\swing\UIManager;
-    use php\swing\UIPanel;
-    use php\swing\UIProgress;
     use php\swing\UITree;
 
     UIManager::setLookAndFeel(UIManager::getSystemLookAndFeel());
@@ -27,16 +23,29 @@ namespace {
         $p->position = [100, 100];
         $p->rootVisible = false;
 
-        $p->model->root->add(new TreeNode("One"));
-        $p->model->root->add(new TreeNode("Two5765765"));
+        $p->root->add($one = new TreeNode("One"));
+            $one->add(new TreeNode("USA"));
+            $one->add(new TreeNode("RUSSIA"));
+
+        $p->root->add(new TreeNode("Two"));
+        $p->root->add(new TreeNode("Three"));
+        $p->root->add(new TreeNode("Four"));
+        $p->root->add(new TreeNode("Five"));
+        $p->root->add(new TreeNode("Six"));
+        $p->root->add(new TreeNode("Seven"));
+        $p->root->add(new TreeNode("Eight"));
+
         $p->rowHeight = 20;
-
-        $p->expandNode($p->model->root);
-        $p->onCellRender(function(TreeNode $node, UILabel $template){
-            return $template;
-        });
-
         $form->add($p);
+        $p->makeVisible($one->getFirstChild());
+
+
+        $p->on('selected', function(UITree $tree, TreeNode $node = null, TreeNode $oldNode = null){
+            if ($node != null) {
+                $tree->model->removeNodeFromParent($node);
+            }
+            //$tree->model->reload();
+        });
 
         $form->on('windowClosing', function(){
             System::halt(0);

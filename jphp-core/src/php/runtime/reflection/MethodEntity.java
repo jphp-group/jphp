@@ -107,7 +107,7 @@ public class MethodEntity extends AbstractFunctionEntity {
                 param.setTypeClass(arg.typeClass());
 
             param.setReference(arg.reference());
-            param.setName(arg.value().isEmpty() ? "arg_" + i : arg.value());
+            param.setName(arg.value().isEmpty() ? "arg" + i : arg.value());
             i++;
         }
 
