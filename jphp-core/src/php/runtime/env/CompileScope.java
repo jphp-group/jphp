@@ -3,6 +3,7 @@ package php.runtime.env;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.LangMode;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.JavaExtension;
 import php.runtime.ext.java.JavaException;
@@ -198,6 +199,19 @@ public class CompileScope {
     }
 
     public void registerExtension(Extension extension){
+        for(String dep : extension.getRequiredExtensions()){
+            try {
+                Extension el = (Extension) Class.forName(dep).newInstance();
+                registerExtension(el);
+            } catch (InstantiationException e) {
+                throw new CriticalException(e);
+            } catch (IllegalAccessException e) {
+                throw new CriticalException(e);
+            } catch (ClassNotFoundException e) {
+                throw new CriticalException(e);
+            }
+        }
+
         extension.onRegister(this);
         compileConstantMap.putAll(extension.getConstants());
         compileFunctionMap.putAll(extension.getFunctions());
