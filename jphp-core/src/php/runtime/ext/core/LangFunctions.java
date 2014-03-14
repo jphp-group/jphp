@@ -26,11 +26,11 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
-import ru.regenix.jphp.compiler.AbstractCompiler;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
-import ru.regenix.jphp.syntax.SyntaxAnalyzer;
-import ru.regenix.jphp.tokenizer.GrammarUtils;
-import ru.regenix.jphp.tokenizer.Tokenizer;
+import org.develnext.jphp.core.compiler.AbstractCompiler;
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
+import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
+import org.develnext.jphp.core.tokenizer.GrammarUtils;
+import org.develnext.jphp.core.tokenizer.Tokenizer;
 
 import java.io.InputStream;
 

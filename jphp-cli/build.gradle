@@ -7,7 +7,7 @@ jar {
     duplicatesStrategy = 'exclude'
 
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    manifest { attributes 'Main-Class': 'ru.regenix.jphp.cli.CLI' }
+    manifest { attributes 'Main-Class': 'org.develnext.jphp.cli.CLI' }
 
     copy {
         from 'shell/jphp'

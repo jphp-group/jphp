@@ -16,6 +16,7 @@ import php.runtime.memory.helper.ShortcutMemory;
 import php.runtime.Memory;
 import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.memory.support.MemoryUtils;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.*;
 
@@ -1300,7 +1301,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                 r.add(e.toObject(clazz));
             else {
                 throw new IllegalArgumentException(Messages.ERR_INVALID_ARRAY_ELEMENT_TYPE.fetch(
-                    Reflection.getClassName(clazz), Reflection.getGivenName(e)
+                    ReflectionUtils.getClassName(clazz), ReflectionUtils.getGivenName(e)
                 ));
             }
         }

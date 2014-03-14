@@ -36,7 +36,7 @@ import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.JVMStackTracer;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
 import java.io.File;
 import java.io.OutputStream;

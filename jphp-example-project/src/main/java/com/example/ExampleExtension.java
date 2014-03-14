@@ -2,7 +2,7 @@ package com.example;
 
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
-import php.runtime.ext.swing.SwingExtension;
+import org.develnext.jphp.swing.SwingExtension;
 
 public class ExampleExtension extends Extension {
     @Override

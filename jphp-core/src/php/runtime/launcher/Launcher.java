@@ -11,7 +11,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ModuleEntity;
-import ru.regenix.jphp.compiler.jvm.JvmCompiler;
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
 import java.io.*;
 import java.util.HashMap;
