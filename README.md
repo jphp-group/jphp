@@ -12,13 +12,14 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 
 ### Features
 
-+ JIT
-+ Speed up performance of PHP (2x - 10x faster)
++ JIT (2x - 10x faster PHP 5.4)
 + Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings
 + Threading, Sockets
 + Environment architecture (like sandbox objects in runkit zend extension).
++ GUI (based on Swing, improved - more flexible layouts)
++ Embedded cache system for classes and functions
 
 ### Using with Maven
 
