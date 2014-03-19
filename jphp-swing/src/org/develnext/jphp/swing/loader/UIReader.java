@@ -15,7 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.*;
 
 public class UIReader {
     protected final DocumentBuilderFactory builderFactory;
@@ -55,6 +55,7 @@ public class UIReader {
         String name = element.getNodeName();
         BaseTag tag = tags.get(name);
         if (tag != null) {
+            java.util.List<Object[]> postRead = new ArrayList<Object[]>();
             Component component = tag.create(new ElementItem(element), this);
             if (tag.isNeedRegister())
                 SwingExtension.registerComponent(component);
@@ -89,10 +90,25 @@ public class UIReader {
                 if (reader != null){
                     Value value = new Value(attr.getNodeValue());
                     if (reader.isTranslatable() && translateHandler != null) {
-                        value = translateHandler.onTranslate(component, value);
+                        if (reader.isArrayed()) {
+                            StringBuilder sb = new StringBuilder();
+                            int x = 0;
+                            for(String el : value.asArray(reader.isTrimArrayed())) {
+                                if (x != 0)
+                                    sb.append(",");
+
+                                sb.append(translateHandler.onTranslate(component, new Value(el)).asString());
+                                x++;
+                            }
+                            value = new Value(sb.toString());
+                        } else
+                            value = translateHandler.onTranslate(component, value);
                     }
 
-                    reader.read(tag.applyProperty(attr.getNodeName(), component), value);
+                    if (reader.isPostRead())
+                        postRead.add(new Object[]{ reader, attr.getNodeName(), value });
+                    else
+                        reader.read(tag.applyProperty(attr.getNodeName(), component), value);
                 }
             }
             tag.afterRead(item, component, element);
@@ -114,6 +130,14 @@ public class UIReader {
                         tag.addUnknown(component, node);
                     }
                 }
+            }
+
+            for(Object[] el : postRead) {
+                PropertyReader reader = (PropertyReader) el[0];
+                String property = (String) el[1];
+                Value value = (Value) el[2];
+
+                reader.read(tag.applyProperty(property, component), value);
             }
 
             return component;

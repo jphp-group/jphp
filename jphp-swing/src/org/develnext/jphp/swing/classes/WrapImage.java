@@ -12,6 +12,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -55,6 +56,10 @@ public class WrapImage extends RootObject {
 
     public BufferedImage getImage() {
         return image;
+    }
+
+    public ImageIcon getImageIcon() {
+        return new ImageIcon(image);
     }
 
     @Signature({

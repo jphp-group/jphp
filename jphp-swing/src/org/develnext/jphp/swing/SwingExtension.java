@@ -140,6 +140,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, WrapTreeNode.class);
         registerNativeClass(scope, WrapTreeModel.class);
         registerNativeClass(scope, UITable.class, JTableX.class);
+        registerNativeClass(scope, UITabs.class, JTabbedPane.class);
 
         registerNativeClass(scope, WrapUIReader.class);
 
@@ -178,6 +179,7 @@ public class SwingExtension extends Extension {
         registerReaderTag(new UIProgressTag());
         registerReaderTag(new UITreeTag());
         registerReaderTag(new UITableTag());
+        registerReaderTag(new UITabsTag());
 
         registerPropertyReaders(new ComponentPropertyReaders());
         registerPropertyReaders(new JComponentPropertyReaders());
@@ -196,6 +198,7 @@ public class SwingExtension extends Extension {
         registerPropertyReaders(new JToolBarPropertyReaders());
         registerPropertyReaders(new JProgressBarPropertyReaders());
         registerPropertyReaders(new JTreeXPropertyReaders());
+        registerPropertyReaders(new JTabbedPanePropertyReaders());
     }
 
     @Override
