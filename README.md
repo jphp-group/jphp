@@ -20,6 +20,8 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 + Environment architecture (like sandbox objects in runkit zend extension).
 + GUI (based on Swing, improved - more flexible layouts)
 + Embedded cache system for classes and functions
++ Optional Hot Reloading for classes and functions
+
 
 ### Using with Maven
 
@@ -53,6 +55,49 @@ bootstrap.file = bootstrap.php
 We have created an example project which is located in the `jphp-example-project` directory. To try it, you should
 use Gradle build system and several tasks: `exampleStart` or `jar` to build the project to a jar file which you can
 execute by using Java VM. By default, all jar files will be created in `build/libs/`.
+
+---
+
+### GUI for JPHP
+
+You can use our extension `jphp-swing` to write GUI programs for Linux/Windows/MacOS. There is an example of GUI usage in `jphp-example-project`. To try it you should change the value of the `bootstrap.file` option in `JPHP-INF/launcher.conf`:
+
+    bootstrap.file = bootstrap_gui.php
+
+It means that at first the Launcher will load the `bootstrap_gui.php` file from a resource path. In our case, it will be the `jphp-example-project/src/main/php/bootstrap_gui.php`, source of this file is simple and clear:
+
+```
+<?php
+namespace {
+
+    use php\lang\System;
+    use php\lang\Thread;
+    use php\swing\SwingUtilities;
+    use php\swing\UIForm;
+    use php\swing\UIManager;
+    use php\swing\UIProgress;
+
+    UIManager::setLookAndFeel(UIManager::getSystemLookAndFeel());
+
+    SwingUtilities::invokeLater(function(){
+        $form = new UIForm();
+        $form->size = [500, 500];
+        $form->moveToCenter();
+        $form->visible = true;
+
+        $p = new UIProgress();
+        $p->size = [300, 40];
+        $p->position = [100, 100];
+        $p->value = 50;
+        $form->add($p);
+
+        $form->on('windowClosing', function(){
+            System::halt(0);
+        });
+    });
+}
+```
+
 
 ---
 
