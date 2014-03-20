@@ -1,4 +1,3 @@
-group = 'org.develnext'
 
 sourceSets {
     main.java.srcDirs = ['src']

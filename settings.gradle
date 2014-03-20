@@ -1,2 +1,2 @@
 
-include 'jphp-core', 'jphp-cli', 'jphp-swing', 'jphp-example-project'
+include 'jphp-core', 'jphp-cli', 'jphp-swing', 'jphp-json', 'jphp-example-project'

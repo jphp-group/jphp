@@ -19,6 +19,14 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    sourceSets {
+        main.java.srcDirs = ['src/main/java']
+        main.resources.srcDirs = ['src/main/resources']
+
+        test.java.srcDirs = ["src/main/tests"]
+        test.resources.srcDirs = ["src/main/tests"]
+    }
 }
 
 configure([project(':jphp-core'), project(':jphp-swing')]) {

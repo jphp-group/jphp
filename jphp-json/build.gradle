@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':jphp-core')
+    compile 'com.google.code.gson:gson:2.2+'
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-core').sourceSets.test.output
+}

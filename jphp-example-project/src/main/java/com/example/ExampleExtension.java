@@ -1,5 +1,6 @@
 package com.example;
 
+import org.develnext.jphp.json.JsonExtension;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
 import org.develnext.jphp.swing.SwingExtension;
@@ -18,7 +19,8 @@ public class ExampleExtension extends Extension {
     @Override
     public String[] getRequiredExtensions() {
         return new String[]{
-                SwingExtension.class.getName()
+                SwingExtension.class.getName(),
+                JsonExtension.class.getName()
         };
     }
 
