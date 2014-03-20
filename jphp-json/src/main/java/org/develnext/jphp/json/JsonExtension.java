@@ -26,6 +26,7 @@ public class JsonExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+        registerConstants(new JsonConstants());
         registerFunctions(new JsonFunctions());
         registerNativeClass(scope, JsonSerializable.class);
     }
