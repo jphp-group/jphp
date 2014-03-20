@@ -28,7 +28,7 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 ```
 <dependency>
     <groupId>ru.regenix</groupId>
-    <artifactId>jphp</artifactId>
+    <artifactId>jphp-core</artifactId>
     <version>0.4{-SNAPSHOT}</version>
 </dependency>
 ```
@@ -41,6 +41,8 @@ And add our maven repository:
     <url>http://maven.develnext.org/repository/{internal or snapshots}/</url>
 </repository>
 ```
+
+> **(!)** At present we recomend you to use snapshot versions because the stable version is updated rarely.
 
 ### Building JAR with JPHP
 
