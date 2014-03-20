@@ -3,8 +3,7 @@ sourceSets {
 }
 
 jar {
-    archiveName = 'jphp-cli.jar'
-    duplicatesStrategy = 'exclude'
+    jar.archiveName = 'jphp-cli.jar'
 
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest { attributes 'Main-Class': 'org.develnext.jphp.cli.CLI' }
@@ -14,7 +13,7 @@ jar {
         from 'shell/jphp.bat'
         from 'shell/jphp.conf'
 
-        into "$buildDir/libs/"
+        into "$libsDir"
     }
 }
 

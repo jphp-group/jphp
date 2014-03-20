@@ -12,8 +12,8 @@ sourceSets {
 
 dependencies {
     compile project(':jphp-core')
-    compile project(':jphp-swing')
-    compile project(':jphp-json')
+    compile project(':jphp-swing-ext')
+    compile project(':jphp-json-ext')
 }
 
 jar {

@@ -1,3 +1,5 @@
+ext.isExtension = true;
+
 dependencies {
     compile project(':jphp-core')
     compile 'com.google.code.gson:gson:2.2+'

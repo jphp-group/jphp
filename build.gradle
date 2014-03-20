@@ -8,11 +8,11 @@ allprojects {
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
 
-    group = 'org.develnext'
-    version = '0.4'
-    isSnapshot = true;
+    project.group = 'org.develnext'
+    project.version = '0.4'
+    project.ext.isSnapshot = true;
 
-    if (isSnapshot) {
+    if (project.ext.isSnapshot) {
         version += '-SNAPSHOT'
     }
 
@@ -29,9 +29,26 @@ allprojects {
     }
 }
 
-configure([project(':jphp-core'), project(':jphp-swing')]) {
+// extensions
+configure(subprojects.findAll { it.name.endsWith("-ext") }) {
+    task extensionJar(type: Jar, dependsOn: "classes") {
+        extensionJar.archiveName = project.name + ".jar"
 
-    if (!project.isSnapshot) {
+        from {
+            configurations.compile.findAll {
+                !it.toString().contains("jphp-") && !it.toString().contains("asm-")
+            }.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+        from sourceSets.main.output.classesDir
+    }
+}
+
+// for deploy
+configure([project(':jphp-core'), project(':jphp-swing-ext')]) {
+
+    if (!project.ext.isSnapshot) {
         task sourcesJar(type: Jar, dependsOn: 'classes') {
             classifier = 'sources'
             from sourceSets.main.allSource
