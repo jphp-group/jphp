@@ -98,4 +98,9 @@ public class ClassesTest extends JvmCompilerCase {
     public void testCompare(){
         check("classes/compare.php");
     }
+
+    @Test
+    public void testClassNameConstant(){
+        check("classes/class_name_constant.php");
+    }
 }

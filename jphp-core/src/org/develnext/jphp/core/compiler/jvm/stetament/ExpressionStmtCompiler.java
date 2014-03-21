@@ -1,16 +1,6 @@
 package org.develnext.jphp.core.compiler.jvm.stetament;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
-import php.runtime.annotation.Runtime;
-import php.runtime.common.Association;
-import php.runtime.common.LangMode;
-import php.runtime.common.Messages;
-import php.runtime.common.StringUtils;
 import org.develnext.jphp.core.compiler.common.ASMExpression;
-import php.runtime.ext.support.compile.CompileConstant;
-import php.runtime.ext.support.compile.CompileFunction;
 import org.develnext.jphp.core.compiler.common.misc.StackItem;
 import org.develnext.jphp.core.compiler.common.util.CompilerUtils;
 import org.develnext.jphp.core.compiler.jvm.Constants;
@@ -18,37 +8,51 @@ import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.compiler.jvm.misc.JumpItem;
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.misc.StackFrame;
-import php.runtime.exceptions.CompileException;
-import php.runtime.exceptions.FatalException;
-import php.runtime.OperatorUtils;
-import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
-import php.runtime.invoke.InvokeHelper;
-import php.runtime.invoke.ObjectInvokeHelper;
-import php.runtime.lang.BaseException;
-import php.runtime.lang.ForeachIterator;
-import php.runtime.lang.IObject;
-import php.runtime.memory.*;
-import php.runtime.Memory;
-import php.runtime.memory.support.MemoryUtils;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.helper.ClosureEntity;
-import php.runtime.reflection.support.Entity;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.OpenEchoTagToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
+import org.develnext.jphp.core.tokenizer.token.expr.ClassExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.OperatorExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+import php.runtime.Memory;
+import php.runtime.OperatorUtils;
+import php.runtime.annotation.Runtime;
+import php.runtime.common.Association;
+import php.runtime.common.LangMode;
+import php.runtime.common.Messages;
+import php.runtime.common.StringUtils;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CompileException;
+import php.runtime.exceptions.FatalException;
+import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.ext.support.compile.CompileFunction;
+import php.runtime.invoke.InvokeHelper;
+import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.lang.BaseException;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
+import php.runtime.memory.*;
+import php.runtime.memory.support.MemoryUtils;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.support.Entity;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -175,20 +179,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             StaticAccessExprToken access = (StaticAccessExprToken)token;
             if (access.getField() instanceof NameToken){
                 String constant = ((NameToken) access.getField()).getName();
-                String clazz;
-                ClassEntity entity;
+                String clazz = null;
+                ClassEntity entity = null;
                 if (access.getClazz() instanceof FulledNameToken){
                     clazz    = ((FulledNameToken) access.getClazz()).getName();
                     entity = compiler.getModule().findClass(clazz);
                 } else if (access.getClazz() instanceof ParentExprToken){
                     entity = method.clazz.entity.getParent();
-                    if (entity == null)
-                        return;
-                    clazz = entity.getName();
-                } else
-                    return;
+                    if (entity != null)
+                        clazz = entity.getName();
+                }
 
-                if (entity == null && clazz.equalsIgnoreCase(method.clazz.entity.getName()))
+                if (entity == null && method.clazz.entity != null && method.clazz.entity.getName().equalsIgnoreCase(clazz))
                     entity = method.clazz.entity;
 
                 if (entity != null){
@@ -615,6 +617,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushStatic(){
         writePushEnv();
         writeSysDynamicCall(Environment.class, "getLateStatic", String.class);
+    }
+
+    void writePushParent(Token token){
+        writePushEnv();
+        writePushTraceInfo(token);
+        writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
     }
 
     void writePushLocal(){
@@ -1092,6 +1100,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (field instanceof NameToken){
                     writePushString(((NameToken) field).getName());
                     writePushString(((NameToken) field).getName().toLowerCase());
+                } else if (field instanceof ClassExprToken) {
+                    unexpectedToken(field);
                 } else {
                     writePush(access.getField(), true, false);
                     writePopString();
@@ -2353,48 +2363,56 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (token.getField() == null)
             unexpectedToken(token.getFieldExpr().getSingle());
 
-        ValueExprToken clazz = token.getClazz();
-        if (clazz instanceof NameToken){
-            writePushConstString(((NameToken)clazz).getName());
-            writePushConstString(((NameToken)clazz).getName().toLowerCase());
-        } else {
-            if (clazz instanceof ParentExprToken){
-                writePushEnv();
-                writePushTraceInfo(clazz);
-                writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+        if (token.getField() instanceof ClassExprToken) {
+            if (token.getClazz() instanceof ParentExprToken) {
+                writePushParent(token.getClazz());
+            } else if (token.getClazz() instanceof StaticExprToken) {
+                writePushStatic();
             } else
-                writePush(clazz, true, false);
-            writePopString();
-            writePushDupLowerCase();
-        }
-
-        if (isConstant){
-            writePushConstString(((NameToken)token.getField()).getName());
-            writePushEnv();
-            writePushTraceInfo(token);
-
-            writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
-                    Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
-            );
-            setStackPeekAsImmutable();
+                unexpectedToken(token);
         } else {
-            if (!(token.getField() instanceof VariableExprToken))
-                unexpectedToken(token.getField());
+            ValueExprToken clazz = token.getClazz();
+            if (clazz instanceof NameToken){
+                writePushConstString(((NameToken)clazz).getName());
+                writePushConstString(((NameToken)clazz).getName().toLowerCase());
+            } else {
+                if (clazz instanceof ParentExprToken){
+                    writePushParent(clazz);
+                } else
+                    writePush(clazz, true, false);
+                writePopString();
+                writePushDupLowerCase();
+            }
 
-            writePushConstString(((VariableExprToken)token.getField()).getName());
-            writePushEnv();
-            writePushTraceInfo(token);
+            if (isConstant){
+                writePushConstString(((NameToken)token.getField()).getName());
+                writePushEnv();
+                writePushTraceInfo(token);
 
-            String name = "get";
-            if (token instanceof StaticAccessUnsetExprToken)
-                name = "unset";
-            else if (token instanceof StaticAccessIssetExprToken)
-                name = "isset";
+                writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
+                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+                );
+                setStackPeekAsImmutable();
+            } else {
+                if (!(token.getField() instanceof VariableExprToken))
+                    unexpectedToken(token.getField());
 
-            writeSysStaticCall(ObjectInvokeHelper.class,
-                    name + "StaticProperty",
-                    Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
-            );
+                writePushConstString(((VariableExprToken)token.getField()).getName());
+                writePushEnv();
+                writePushTraceInfo(token);
+
+                String name = "get";
+                if (token instanceof StaticAccessUnsetExprToken)
+                    name = "unset";
+                else if (token instanceof StaticAccessIssetExprToken)
+                    name = "isset";
+
+                writeSysStaticCall(ObjectInvokeHelper.class,
+                        name + "StaticProperty",
+                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+                );
+            }
+
         }
 
         if (!returnValue)
