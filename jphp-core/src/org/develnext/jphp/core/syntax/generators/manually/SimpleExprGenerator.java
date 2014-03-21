@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.syntax.generators.manually;
 
 
+import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import php.runtime.common.Callback;
 import php.runtime.common.Separator;
 import php.runtime.exceptions.ParseException;
@@ -723,6 +724,17 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     nextAndExpected(iterator, BraceExprToken.class);
                 } else if (next instanceof NameToken || next instanceof VariableExprToken){
                     result.setField((ValueExprToken)next);
+                } else if (next instanceof ClassStmtToken) { // PHP 5.5 ::class
+                    if (clazz instanceof NameToken) {
+                        StringExprToken r = new StringExprToken(
+                                TokenMeta.of(((NameToken) clazz).getName(), clazz),
+                                StringExprToken.Quote.SINGLE
+                        );
+                        return r;
+                    } else if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
+                        result.setField(new ClassExprToken(next.getMeta()));
+                    } else
+                        unexpectedToken(next);
                 } else
                     unexpectedToken(next);
 

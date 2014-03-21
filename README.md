@@ -54,13 +54,13 @@ JPHP is not a replacement for Zend PHP engine or Facebook HHVM. We don't plan to
 + Constants can be declared outside a class using the const keyword. (PHP 5.3)
 + Dynamic access to static methods (PHP 5.3)
 + Exceptions can be nested (PHP 5.3)
++ `::class` system constant (php 5.5)
 
 **What does not yet support?**
 
 + Traits (php 5.4)
 + Generators (php 5.5)
 + Goto (php 5.3)
-+ `::class` system constant (php 5.5)
 + list() in foreach (php 5.5)
 + Binary number format, e.g. 0b001001101 (php 5.4)
 
