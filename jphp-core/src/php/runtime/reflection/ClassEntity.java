@@ -1,5 +1,7 @@
 package php.runtime.reflection;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
@@ -24,6 +26,7 @@ import php.runtime.Memory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.Entity;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +43,8 @@ public class ClassEntity extends Entity {
     public enum Type { CLASS, INTERFACE, TRAIT }
 
     private long id;
+    private ClassNode cachedClassNode;
+
     protected int methodCounts = 0;
     protected boolean isInternal;
     protected boolean isNotRuntime;
@@ -262,6 +267,10 @@ public class ClassEntity extends Entity {
         return isInternal;
     }
 
+    public boolean isTrait() {
+        return type == Type.TRAIT;
+    }
+
     public void doneDeclare(){
         methodConstruct  = methods.get("__construct");
         if (methodConstruct != null
@@ -285,6 +294,31 @@ public class ClassEntity extends Entity {
         methodMagicWakeup = methods.get("__wakeup");
 
         methodMagicDebugInfo = methods.get("__debuginfo");
+    }
+
+    public ClassNode getClassNode() {
+        if (cachedClassNode != null)
+            return cachedClassNode;
+
+        synchronized (this) {
+            if (cachedClassNode != null)
+                return cachedClassNode;
+
+            ClassReader classReader;
+            if (data != null)
+                classReader = new ClassReader(data);
+            else {
+                try {
+                    classReader = new ClassReader(nativeClazz.getName());
+                } catch (IOException e) {
+                    throw new CriticalException(e);
+                }
+            }
+            ClassNode classNode = new ClassNode();
+            classReader.accept(classNode, 0);
+
+            return cachedClassNode = classNode;
+        }
     }
 
     public Extension getExtension() {
@@ -350,7 +384,7 @@ public class ClassEntity extends Entity {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACT, method));
         } else if (method.isAbstract && !method.isAbstractable()){
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACTABLE, method));
-        } else if (method.isAbstract && !this.isAbstract){
+        } else if (method.isAbstract && !(this.isAbstract || isTrait())){
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, method));
         } else if (type == Type.INTERFACE &&
                 (method.modifier != Modifier.PUBLIC || method.isFinal)){
@@ -457,11 +491,6 @@ public class ClassEntity extends Entity {
                     }
 
                     result.methods.addAll(addResult.methods);
-                    /*result.invalidSignature.addAll(addResult.invalidSignature);
-                    result.mustStatic.addAll(addResult.mustStatic);
-                    result.mustNonStatic.addAll(addResult.mustNonStatic);
-                    result.nonExists.addAll(addResult.nonExists);
-                    result.magicMustBePublic.addAll(addResult.magicMustBePublic);*/
                 } else {
                     implMethod.setPrototype(method);
                     if (method.isFinal)
@@ -800,6 +829,8 @@ public class ClassEntity extends Entity {
             env.error(trace, "Cannot instantiate abstract class %s", name);
         } else if (type == Type.INTERFACE)
             env.error(trace, "Cannot instantiate interface %s", name);
+        else if (type == Type.TRAIT)
+            env.error(trace, "Cannot instantiate trait %s", name);
 
         IObject object;
         try {

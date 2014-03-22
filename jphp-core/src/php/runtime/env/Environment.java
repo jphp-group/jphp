@@ -288,7 +288,7 @@ public class Environment {
     }
 
     public TraceInfo trace(){
-        if (callStackTop == 0)
+        if (callStackTop <= 0)
             return TraceInfo.UNKNOWN;
         return peekCall(0).trace;
     }

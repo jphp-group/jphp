@@ -31,6 +31,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CompileException;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -987,8 +988,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (dynamic.getField() != null){
             if (dynamic.getField() instanceof NameToken){
                 String name = ((NameToken) dynamic.getField()).getName();
-                writePushString(name);
-                writePushString(name.toLowerCase());
+                writePushConstString(name);
+                writePushConstString(name.toLowerCase());
             } else {
                 writePush(dynamic.getField(), true, false);
                 writePopString();
@@ -1368,20 +1369,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNull();
                 writeVarStore(variable, false, false);
             } else {
-                writeSysDynamicCall(null, "isMock", Boolean.TYPE);
+                if (!method.clazz.entity.isTrait()) {
+                    writeSysDynamicCall(null, "isMock", Boolean.TYPE);
 
-                code.add(new JumpInsnNode(IFEQ, elseLabel));
-                stackPop();
+                    code.add(new JumpInsnNode(IFEQ, elseLabel));
+                    stackPop();
 
-                if (variable.isReference()){
-                    writePushNewObject(ReferenceMemory.class);
-                } else {
-                    writePushNull();
+                    if (variable.isReference()) {
+                        writePushNewObject(ReferenceMemory.class);
+                    } else {
+                        writePushNull();
+                    }
+                    writeVarStore(variable, false, false);
+
+                    code.add(new JumpInsnNode(GOTO, endLabel));
+                    code.add(elseLabel);
                 }
-                writeVarStore(variable, false, false);
-
-                code.add(new JumpInsnNode(GOTO, endLabel));
-                code.add(elseLabel);
 
                 writeVarLoad("~this");
                 writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
@@ -1837,6 +1840,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         String owner = clazz == null ? this.method.clazz.node.name : Type.getInternalName(clazz);
+        if (clazz == null && this.method.clazz.entity.isTrait())
+            throw new CriticalException("[Compiler Error] Cannot use current classname in Trait");
+
         code.add(new MethodInsnNode(
                 INVOKE_TYPE, owner, method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
         ));

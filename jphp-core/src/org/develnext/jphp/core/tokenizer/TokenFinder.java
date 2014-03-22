@@ -130,6 +130,7 @@ public class TokenFinder {
 
         put("class", ClassStmtToken.class);
         put("interface", InterfaceStmtToken.class);
+        put("trait", TraitStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);
         put("namespace", NamespaceStmtToken.class);

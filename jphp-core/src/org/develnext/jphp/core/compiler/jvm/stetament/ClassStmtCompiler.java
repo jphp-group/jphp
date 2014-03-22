@@ -499,7 +499,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeImplements(){
+    protected void writeImplements() {
         if (statement.getImplement() != null){
             Environment env = compiler.getEnvironment();
             for(FulledNameToken name : statement.getImplement()){
@@ -532,6 +532,68 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
+    protected void writeCopiedMethod(MethodEntity methodEntity, ClassEntity trait, NameToken nameToken) {
+        MethodEntity origin = entity.findMethod(methodEntity.getName());
+        if (origin != null){
+            if (origin.getClazz() == entity) {
+                if (origin.getTrait() != null) {
+                    compiler.getEnvironment().error(
+                            nameToken.toTraceInfo(compiler.getContext()),
+                            Messages.ERR_TRAIT_METHOD_COLLISION.fetch(
+                                    methodEntity.getName(), trait.getName(), origin.getTrait().getName(), entity.getName()
+                            )
+                    );
+                }
+                return;
+            }
+        }
+
+        MethodEntity dup = methodEntity.duplicateForInject();
+        dup.setClazz(entity);
+        dup.setTrait(trait);
+
+        MethodNode methodNode = methodEntity.getMethodNode();
+        if (origin != null) {
+            dup.setPrototype(origin);
+            dup.setInternalName(dup.getName() + "$" + entity.nextMethodIndex());
+            methodNode.name = dup.getInternalName();
+        }
+
+        ClassEntity.SignatureResult result = entity.addMethod(dup, null);
+        result.check(compiler.getEnvironment());
+
+        node.methods.add(methodNode);
+    }
+
+    protected void writeTrait(ClassEntity trait, NameToken nameToken) {
+        for(MethodEntity methodEntity : trait.getMethods().values()) {
+            writeCopiedMethod(methodEntity, trait, nameToken);
+        }
+    }
+
+    protected void writeTraits() {
+        for(NameToken one : statement.getUses()) {
+            ClassEntity trait = fetchClass(one.getName());
+            if (trait == null) {
+                compiler.getEnvironment().error(
+                        one.toTraceInfo(compiler.getContext()),
+                        Messages.ERR_TRAIT_NOT_FOUND.fetch(one.getName())
+                );
+                return;
+            }
+
+            if (!trait.isTrait()) {
+                compiler.getEnvironment().error(
+                        one.toTraceInfo(compiler.getContext()),
+                        Messages.ERR_CANNOT_USE_NON_TRAIT.fetch(
+                                entity.getName(), one.getName()
+                        )
+                );
+            } else
+                writeTrait(trait, one);
+        }
+    }
+
     @Override
     public ClassEntity compile() {
         entity = new ClassEntity(compiler.getContext());
@@ -539,12 +601,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         entity.setFinal(statement.isFinal());
         entity.setAbstract(statement.isAbstract());
-        entity.setType(ClassEntity.Type.CLASS);
         entity.setName(statement.getFulledName());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
-        if (statement.isInterface()){
-            entity.setType(ClassEntity.Type.INTERFACE);
-        }
+        entity.setType(statement.getClassType());
 
         if (statement.getExtend() != null) {
             ClassEntity parent = fetchClass(statement.getExtend().getName().getName());
@@ -601,6 +660,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         if (isInterfaceCheck) {
             result.check(compiler.getEnvironment());
         }
+
+        writeTraits();
 
         writeImplements();
         entity.doneDeclare();

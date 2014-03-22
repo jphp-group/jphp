@@ -1,5 +1,7 @@
 package php.runtime.reflection;
 
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
@@ -21,6 +23,8 @@ import java.lang.reflect.Method;
 
 public class MethodEntity extends AbstractFunctionEntity {
     protected ClassEntity clazz;
+    protected ClassEntity trait;
+    protected MethodNode cachedMethodNode;
     protected Extension extension;
     protected MethodEntity prototype;
 
@@ -112,6 +116,25 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         nativeMethod = method;
+    }
+
+    public MethodNode getMethodNode() {
+        if (cachedMethodNode != null)
+            return cachedMethodNode;
+
+        synchronized (this) {
+            if (cachedMethodNode != null)
+                return cachedMethodNode;
+
+            ClassNode classNode = clazz.getClassNode();
+            for(Object m : classNode.methods) {
+                MethodNode method = (MethodNode) m;
+                if (method.name.equals(getInternalName()) ){
+                    return cachedMethodNode = method;
+                }
+            }
+        }
+        throw new CriticalException("Cannot find MethodNode for method - " + name + "(" + getSignature() + ")");
     }
 
     public Closure getClosure(Environment env, final IObject object) {
@@ -429,5 +452,34 @@ public class MethodEntity extends AbstractFunctionEntity {
                 return 1;
         }
         return 2;
+    }
+
+    public ClassEntity getTrait() {
+        return trait;
+    }
+
+    public void setTrait(ClassEntity trait) {
+        this.trait = trait;
+    }
+
+    public MethodEntity duplicateForInject() {
+        MethodEntity methodEntity = new MethodEntity(this.context);
+        methodEntity.setExtension(getExtension());
+        methodEntity.setAbstract(isAbstract);
+        methodEntity.setFinal(isFinal);
+        methodEntity.setDynamicSignature(isDynamicSignature());
+        methodEntity.setModifier(modifier);
+        methodEntity.setName(name);
+        methodEntity.setStatic(isStatic);
+        methodEntity.setAbstractable(isAbstractable());
+        methodEntity.setDocComment(getDocComment());
+        methodEntity.setParameters(parameters);
+        methodEntity.setReturnReference(isReturnReference());
+        methodEntity.setEmpty(isEmpty);
+        methodEntity.setImmutable(isImmutable);
+        methodEntity.setDeprecated(isDeprecated());
+        methodEntity.setInternalName(getInternalName());
+
+        return methodEntity;
     }
 }

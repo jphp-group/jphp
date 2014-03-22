@@ -90,37 +90,27 @@ public class Launcher {
         environment.registerModule(moduleEntity);
     }
 
-    public ModuleEntity loadFromCompiled(String file){
+    public ModuleEntity loadFromCompiled(String file) throws IOException {
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
         Context context = new Context(inputStream, file, environment.getDefaultCharset());
 
         ModuleDumper moduleDumper = new ModuleDumper(context, environment, true);
-        try {
-            return moduleDumper.load(inputStream);
-        } catch (IOException e) {
-            environment.catchUncaught(e);
-            return null;
-        }
+        return moduleDumper.load(inputStream);
     }
 
-    public ModuleEntity loadFromFile(String file){
+    public ModuleEntity loadFromFile(String file) throws IOException {
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
         Context context = new Context(inputStream, file, environment.getDefaultCharset());
 
-        try {
-            JvmCompiler compiler = new JvmCompiler(environment, context);
-
-            return compiler.compile(false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        JvmCompiler compiler = new JvmCompiler(environment, context);
+        return compiler.compile(false);
     }
 
-    public ModuleEntity loadFrom(String file){
+    public ModuleEntity loadFrom(String file) throws IOException {
         if (file.endsWith(".phb"))
             return loadFromCompiled(file);
         else
@@ -193,17 +183,20 @@ public class Launcher {
             System.out.println("Starting delay = " + t + " millis");
         }
 
-
         String file = config.getProperty("bootstrap.file", null);
         if (file != null){
-            ModuleEntity bootstrap = loadFrom(file);
-            if (bootstrap == null)
-                throw new LaunchException("Cannot find '" + file + "' resource");
-
-            initModule(bootstrap);
             try {
-                bootstrap.include(environment);
-            } catch (Exception e){
+                ModuleEntity bootstrap = loadFrom(file);
+                initModule(bootstrap);
+                try {
+                    bootstrap.include(environment);
+                } catch (Exception e){
+                    environment.catchUncaught(e);
+                }
+
+            } catch (IOException e) {
+                throw new LaunchException("Cannot find '" + file + "' resource");
+            } catch (Exception e) {
                 environment.catchUncaught(e);
             }
         } else if (mustBootstrap)

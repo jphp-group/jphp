@@ -1,9 +1,10 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
-import php.runtime.common.Modifier;
+import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.TokenMeta;
+import php.runtime.common.Modifier;
+import php.runtime.reflection.ClassEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +23,38 @@ public class ClassStmtToken extends StmtToken {
     private List<ConstStmtToken> constants;
     private List<ClassVarStmtToken> properties;
     private List<MethodStmtToken> methods;
+    private List<NameToken> uses;
 
-    private boolean isInterface = false;
+    private ClassEntity.Type classType = ClassEntity.Type.CLASS;
 
-    public ClassStmtToken(TokenMeta meta) {
-        super(meta, TokenType.T_CLASS);
+    protected ClassStmtToken(TokenMeta meta, TokenType type) {
+        super(meta, type);
         properties = new ArrayList<ClassVarStmtToken>();
         constants = new ArrayList<ConstStmtToken>();
         methods = new ArrayList<MethodStmtToken>();
+        uses = new ArrayList<NameToken>();
+    }
+
+    public ClassStmtToken(TokenMeta meta) {
+        this(meta, TokenType.T_CLASS);
     }
 
     public boolean isInterface() {
-        return isInterface;
+        return classType == ClassEntity.Type.INTERFACE;
     }
 
     public void setInterface(boolean anInterface) {
-        isInterface = anInterface;
+        classType = anInterface ? ClassEntity.Type.INTERFACE : classType;
+    }
+
+    public boolean isTrait() { return classType == ClassEntity.Type.TRAIT; }
+
+    public ClassEntity.Type getClassType() {
+        return classType;
+    }
+
+    public void setClassType(ClassEntity.Type classType) {
+        this.classType = classType;
     }
 
     public NameToken getName() {
@@ -136,5 +153,13 @@ public class ClassStmtToken extends StmtToken {
 
     public String getFulledName(){
         return getFulledName('\\');
+    }
+
+    public List<NameToken> getUses() {
+        return uses;
+    }
+
+    public void setUses(List<NameToken> uses) {
+        this.uses = uses;
     }
 }
