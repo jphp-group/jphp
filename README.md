@@ -66,7 +66,7 @@ JPHP is not a replacement for Zend PHP engine or Facebook HHVM. We don't plan to
 
 **What non-php features does JPHP support?**
 
-+ In `__toString` method you can use exeptions
++ In `__toString` method you can use exceptions
 + Type hinting for scalars - int, double, number, string, bool, mixed, scalar (in JPHP mode)
 
 
