@@ -1,0 +1,53 @@
+namespace php\lang
+{
+	public class Environment
+	{
+		const CONCURRENT = 1
+
+		const HOT_RELOAD = 2
+
+		public function __construct(php\lang\Environment $parent = NULL, $flags = 0)
+		{
+		}
+
+		public function execute($runnable)
+		{
+		}
+
+		public function exportClass($className)
+		{
+		}
+
+		public function importClass($className)
+		{
+		}
+
+		public function importFunction($functionName)
+		{
+		}
+
+		public function exportFunction($functionName)
+		{
+		}
+
+		public function defineConstant($name, $value, $caseSensitive = true)
+		{
+		}
+
+		public function onMessage($callback)
+		{
+		}
+
+		public function sendMessage($message)
+		{
+		}
+
+		public function __destruct()
+		{
+		}
+
+		public function current()
+		{
+		}
+	}
+}

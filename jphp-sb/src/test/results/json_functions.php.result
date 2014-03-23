@@ -1,0 +1,21 @@
+public function json_decode()
+{
+}
+public function json_decode()
+{
+}
+public function json_last_error()
+{
+}
+public function json_last_error_msg()
+{
+}
+public function json_decode()
+{
+}
+public function json_encode()
+{
+}
+public function json_encode()
+{
+}
