@@ -13,7 +13,7 @@ Supports: JDK 1.6+ (OpenJDK, Oracle)
 
 JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP. Our project started October 2013. There was a few reasons for that:
 
-1. Ability to use java libraries in PHP scripts
+1. Ability to use java libraries in PHP
 2. Upgrading performance via JIT and JVM
 3. Replacing the ugly runtime library of Zend PHP with a better runtime library.
 4. Using the PHP language not only on the web
