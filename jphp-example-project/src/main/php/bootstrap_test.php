@@ -1,14 +1,9 @@
 <?php
 
-trait one {
-    function test() { echo "ura"; }
-}
-
 trait two {
-    use one;
 
-    function test() {
-        echo "ura2";
+    public function test(){
+        $this->x = 20;
     }
 }
 
@@ -17,5 +12,6 @@ class MyCls {
     use two;
 }
 
-$x = new MyCls();
-$x->test();
+$c = new MyCls();
+$c->test();
+var_dump($c->x);

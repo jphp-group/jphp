@@ -1369,22 +1369,20 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNull();
                 writeVarStore(variable, false, false);
             } else {
-                if (!method.clazz.entity.isTrait()) {
-                    writeSysDynamicCall(null, "isMock", Boolean.TYPE);
+                writeSysDynamicCall(IObject.class, "isMock", Boolean.TYPE);
 
-                    code.add(new JumpInsnNode(IFEQ, elseLabel));
-                    stackPop();
+                code.add(new JumpInsnNode(IFEQ, elseLabel));
+                stackPop();
 
-                    if (variable.isReference()) {
-                        writePushNewObject(ReferenceMemory.class);
-                    } else {
-                        writePushNull();
-                    }
-                    writeVarStore(variable, false, false);
-
-                    code.add(new JumpInsnNode(GOTO, endLabel));
-                    code.add(elseLabel);
+                if (variable.isReference()) {
+                    writePushNewObject(ReferenceMemory.class);
+                } else {
+                    writePushNull();
                 }
+                writeVarStore(variable, false, false);
+
+                code.add(new JumpInsnNode(GOTO, endLabel));
+                code.add(elseLabel);
 
                 writeVarLoad("~this");
                 writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
