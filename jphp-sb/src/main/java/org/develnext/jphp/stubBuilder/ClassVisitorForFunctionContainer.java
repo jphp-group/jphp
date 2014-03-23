@@ -2,7 +2,9 @@ package org.develnext.jphp.stubBuilder;
 
 import org.develnext.jphp.stubBuilder.tree.StubPhpFile;
 import org.develnext.jphp.stubBuilder.tree.StubPhpFunction;
+import org.develnext.jphp.stubBuilder.tree.StubPhpVariable;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
@@ -35,12 +37,13 @@ class ClassVisitorForFunctionContainer extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if(!accepted) {
+        if (!accepted) {
             return null;
         }
         if ((access & Opcodes.ACC_STATIC) != 0) {
-            StubPhpFunction f = new StubPhpFunction(name);
+            final StubPhpFunction f = new StubPhpFunction(name);
 
+            final int[] parameters = new int[1];
             SignatureReader signatureReader = new SignatureReader(desc);
             signatureReader.accept(new SignatureVisitor(Opcodes.ASM4) {
                 @Override
@@ -48,13 +51,31 @@ class ClassVisitorForFunctionContainer extends ClassVisitor {
                     return new SignatureVisitor(Opcodes.ASM4) {
                         @Override
                         public void visitBaseType(char descriptor) {
-                            super.visitBaseType(descriptor);
+                            parameters[0]++;
+                        }
+
+                        @Override
+                        public void visitClassType(String name) {
+                            parameters[0]++;
                         }
                     };
                 }
             });
 
             file.add(f);
+            return new MethodVisitor(Opcodes.ASM4) {
+                @Override
+                public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                    if(index == 0) {
+                        return;
+                    }
+                    if(index > parameters[0]) {
+                        return;
+                    }
+                    StubPhpVariable variable = new StubPhpVariable(name);
+                    f.addParameter(variable);
+                }
+            };
         }
         return null;
     }

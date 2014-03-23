@@ -28,7 +28,7 @@ public class StubBuilder {
 
         reader.accept(new ClassVisitorFromClassApi(file, targetToCollectRef), ClassReader.SKIP_CODE);
 
-        reader.accept(new ClassVisitorForFunctionContainer(file), ClassReader.SKIP_CODE);
+        reader.accept(new ClassVisitorForFunctionContainer(file), 0);
 
         reader.accept(new ClassVisitorForConstantContainer(file), ClassReader.SKIP_CODE);
 
