@@ -159,6 +159,7 @@ namespace {
 
 Больше информации о разработке вы найдете по следующим ссылкам:
 
+- http://habrahabr.ru/post/216651/
 - http://develnet.ru/tag/jphp/
 - http://community.develstudio.ru/showthread.php/9411-JPHP-Блог-разработки
 
