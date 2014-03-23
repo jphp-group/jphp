@@ -3,20 +3,20 @@ PHP Compiler for JVM
 
 [![Build Status](https://travis-ci.org/dim-s/jphp.png?branch=master)](https://travis-ci.org/dim-s/jphp)
 
-JPHP is a new implementation for PHP which uses Java VM. It supports many features of the PHP language (5.3+).
-How it works? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and than
-can execute the result on Java VM.
+JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.3+).
+How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and than
+can execute the result on the Java VM.
 
 Supports: JDK 1.6+ (OpenJDK, Oracle)
 
 ### Goals
 
-JPHP is not a replacement for Zend PHP engine or Facebook HHVM. We don't plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP. Our project has been started at October 2013 year. There was a few reasons for that:
+JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP. Our project started October 2013. There was a few reasons for that:
 
 1. Using the all java libraries in PHP.
 2. Upgrading performance via JIT and JVM
-3. Replacing the ugly runtime library of Zend PHP on better runtime library.
-4. Using the PHP language not only in WEB
+3. Replacing the ugly runtime library of Zend PHP with a better runtime library.
+4. Using the PHP language not only on the web
 5. Also: unicode for strings and threads
 
 
@@ -66,7 +66,7 @@ JPHP is not a replacement for Zend PHP engine or Facebook HHVM. We don't plan to
 
 **What non-php features does JPHP support?**
 
-+ In `__toString` method you can use exceptions
++ In the `__toString` method you can use exceptions
 + Type hinting for scalars - int, double, number, string, bool, mixed, scalar (in JPHP mode)
 
 
@@ -93,8 +93,8 @@ And add our maven repository:
 
 ### Building JAR with JPHP
 
-Use `php.runtime.launch.Launcher` class as the Main class for your jar. By default, the launcher
-loads `JPHP-INF/launcher.conf` configuration from a resource directory, inside this file you can
+Use the `php.runtime.launch.Launcher` class as the Main class for your jar. By default, the launcher
+loads the `JPHP-INF/launcher.conf` configuration from a resource directory, inside this file you can
 specify the name of a bootstrap php file (which will be loaded from a resource directory and executed):
 
 ```
