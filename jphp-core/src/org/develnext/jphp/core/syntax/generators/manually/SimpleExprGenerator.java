@@ -619,10 +619,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     unexpectedToken(token);
 
             } else {
-                if (next instanceof ValueExprToken)
-                    return new AndExprToken(current.getMeta());
-                else
-                    unexpectedToken(current);
+                return new AndExprToken(current.getMeta());
             }
 
             return current;

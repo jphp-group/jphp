@@ -210,6 +210,12 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testBitwise() {
+        Memory memory = runDynamic("0x0f & ~0xf0");
+        Assert.assertEquals(15, memory.toLong());
+    }
+
+    @Test
     public void testCallNativeFunc(){
         Memory memory = runDynamic("$i = 1; return cos($i);", false);
         Assert.assertTrue(memory.toDouble() > 0.54);
