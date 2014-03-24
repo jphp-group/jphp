@@ -28,9 +28,13 @@ public class StubBuilder {
 
         reader.accept(new ClassVisitorFromClassApi(file, targetToCollectRef), ClassReader.SKIP_CODE);
 
-        reader.accept(new ClassVisitorForFunctionContainer(file), 0);
+        if(file.getName() == null) {
+            reader.accept(new ClassVisitorForFunctionContainer(file), 0);
+        }
 
-        reader.accept(new ClassVisitorForConstantContainer(file), ClassReader.SKIP_CODE);
+        if(file.getName()== null) {
+            reader.accept(new ClassVisitorForConstantContainer(file), ClassReader.SKIP_CODE);
+        }
 
         if (file.getName() == null) {
             return null;
