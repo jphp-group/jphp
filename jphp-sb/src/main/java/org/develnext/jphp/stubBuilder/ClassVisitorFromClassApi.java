@@ -40,7 +40,7 @@ class ClassVisitorFromClassApi extends ClassVisitor {
 
                         targetToCollectRef[0] = phpClass;
 
-                        file.setName(qName + ".php");
+                        file.setName(qName.replace("\\", "/") + ".php");
                         accepted = true;
                     }
                 }
