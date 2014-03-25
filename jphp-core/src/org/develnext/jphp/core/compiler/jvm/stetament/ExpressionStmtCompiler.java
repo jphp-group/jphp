@@ -1597,12 +1597,26 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 );
 
         } else if (macro instanceof ClassMacroToken){
-            return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
-        } else if (macro instanceof NamespaceMacroToken){
+            if (method.clazz.entity.isTrait()) {
+                if (writeOpcode) {
+                    writePushEnv();
+                    writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+                }
+                return null;
+            } else {
+                return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+            }
+        } else if (macro instanceof NamespaceMacroToken) {
             return new StringMemory(
                     compiler.getNamespace() == null || compiler.getNamespace().getName() == null
                             ? ""
-                            : compiler.getNamespace().getName().getName());
+                            : compiler.getNamespace().getName().getName()
+            );
+        } else if (macro instanceof TraitMacroToken) {
+            if (method.clazz.entity.isTrait())
+                return new StringMemory(method.clazz.entity.getName());
+            else
+                return Memory.CONST_EMPTY_STRING;
         } else
             throw new IllegalArgumentException("Unsupported macro value: " + macro.getWord());
     }

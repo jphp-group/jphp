@@ -31,10 +31,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.FunctionEntity;
-import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.*;
 import php.runtime.util.JVMStackTracer;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
@@ -1123,6 +1120,24 @@ public class Environment {
             flags = silents.pop();
 
         setErrorFlags(flags);
+    }
+
+    public Memory __getMacroClass() {
+        CallStackItem item = peekCall(0);
+        if (item.clazz != null){
+            if (item.classEntity == null)
+                item.classEntity = fetchClass(item.clazz, false);
+
+            if (item.classEntity == null)
+                return Memory.CONST_EMPTY_STRING;
+            else {
+                MethodEntity method = item.classEntity.findMethod(item.function);
+                if (method == null)
+                    return Memory.CONST_EMPTY_STRING;
+                return new StringMemory(method.getClazz().getName());
+            }
+        } else
+            return Memory.CONST_EMPTY_STRING;
     }
 
     public void __defineFunction(TraceInfo trace, int moduleIndex, int index){
