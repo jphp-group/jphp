@@ -127,8 +127,11 @@ abstract public class ValueExprToken extends ExprToken {
         }
 
         if (token instanceof StaticAccessExprToken){
-            if (!((StaticAccessExprToken) token).isGetStaticField()
-                && ((StaticAccessExprToken) token).getClazz() instanceof NameToken)
+            StaticAccessExprToken sa = (StaticAccessExprToken) token;
+            if (!sa.isGetStaticField()
+                    && (sa.getClazz() instanceof NameToken
+                        || sa.getClazz() instanceof SelfExprToken
+                        || sa.getClazz() instanceof ParentExprToken))
                 return true;
         }
 

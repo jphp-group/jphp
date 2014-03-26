@@ -1,16 +1,21 @@
 <?php
 
 trait two {
-
-    public function test(){
-        echo __TRAIT__;
-    }
+    public $x = parent::X;
 }
 
+trait one {
+}
 
-class MyCls {
-    use two;
+class P {
+    const X = 10;
+}
+
+class MyCls extends P {
+    use two, one;
+
+    const X = 20;
 }
 
 $c = new MyCls();
-$c->test();
+var_dump($c);

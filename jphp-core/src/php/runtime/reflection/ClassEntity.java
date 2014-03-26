@@ -613,6 +613,9 @@ public class ClassEntity extends Entity {
     }
 
     public void addTrait(ClassEntity trait) {
+        if (!trait.isTrait())
+            throw new IllegalArgumentException("'" + trait.getName() + "' is not a trait");
+
         this.traits.put(trait.getLowerName(), trait);
     }
 
@@ -767,9 +770,15 @@ public class ClassEntity extends Entity {
 
             if (!this.isInternal){
                 try {
-                    this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
-                        "__$initEnvironment", Environment.class
-                    );
+                    if (isTrait()) {
+                        this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
+                                "__$initEnvironment", Environment.class, String.class
+                        );
+                    } else {
+                        this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
+                                "__$initEnvironment", Environment.class
+                        );
+                    }
                     this.nativeInitEnvironment.setAccessible(true);
                 } catch (NoSuchMethodException e) {
                     this.nativeInitEnvironment = null;
@@ -786,12 +795,42 @@ public class ClassEntity extends Entity {
         this.module = module;
     }
 
-    public void initEnvironment(Environment env) throws Throwable {
-        if (nativeInitEnvironment != null) {
+    public void initEnvironment(Environment env) {
+        if (isClass() && nativeInitEnvironment != null) {
             try {
                 nativeInitEnvironment.invoke(null, env);
             } catch (InvocationTargetException e) {
                 env.__throwException(e);
+            } catch (IllegalAccessException e) {
+                throw new CriticalException(e);
+            }
+        }
+
+        if (!traits.isEmpty()) {
+            Set<ClassEntity> used = new HashSet<ClassEntity>();
+            try {
+                for (ClassEntity trait : traits.values()) {
+                    trait.initTraitEnvironment(env, this, used);
+                }
+            } catch (Exception e) {
+                env.catchUncaught(e);
+            } catch (Throwable e) {
+                throw new CriticalException(e);
+            }
+        }
+    }
+
+    protected void initTraitEnvironment(Environment env, ClassEntity originClass, Set<ClassEntity> used) throws Throwable {
+        if (nativeInitEnvironment != null) {
+            try {
+                nativeInitEnvironment.invoke(null, env, originClass.getName());
+            } catch (InvocationTargetException e) {
+                env.__throwException(e);
+            }
+        }
+        for(ClassEntity trait : traits.values()) {
+            if (used.add(trait)) {
+                trait.initTraitEnvironment(env, originClass, used);
             }
         }
     }

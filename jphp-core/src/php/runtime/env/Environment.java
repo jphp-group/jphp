@@ -907,6 +907,7 @@ public class Environment {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
                 classMap.put(entity.getLowerName(), entity);
+                //entity.initEnvironment(this);  TODO : check and fix for traits
             }
         }
 
@@ -1124,7 +1125,7 @@ public class Environment {
 
     public Memory __getMacroClass() {
         CallStackItem item = peekCall(0);
-        if (item.clazz != null){
+        if (item != null && item.clazz != null){
             if (item.classEntity == null)
                 item.classEntity = fetchClass(item.clazz, false);
 
@@ -1257,6 +1258,21 @@ public class Environment {
 
     public String __getParent(TraceInfo trace){
         return __getParentClass(trace).getName();
+    }
+
+    public String __getParent(TraceInfo trace, String className){
+        ClassEntity o = fetchClass(className, true);
+        if (o == null) {
+            error(trace, ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, className);
+            return null;
+        }
+
+        if (o.getParent() == null) {
+            error(trace, "Cannot access parent:: when current class scope has no parent");
+            return null;
+        }
+
+        return o.getParent().getName();
     }
 
     public void registerAutoloader(SplClassLoader classLoader, boolean prepend){

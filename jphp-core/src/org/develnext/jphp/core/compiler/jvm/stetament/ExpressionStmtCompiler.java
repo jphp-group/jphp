@@ -146,7 +146,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     protected Memory getMacros(ValueExprToken token){
         if (token instanceof SelfExprToken){
-            return new StringMemory(method.clazz.statement.getFulledName());
+            if (method.clazz.entity.isTrait()) {
+                throw new IllegalArgumentException("Cannot use this in Traits");
+            } else {
+                return new StringMemory(method.clazz.statement.getFulledName());
+            }
         }
 
         return null;
@@ -612,11 +616,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writePushSelf(boolean toLower){
-        writePushString(toLower ?
-                method.clazz.statement.getFulledName().toLowerCase()
-                : method.clazz.statement.getFulledName()
-        );
+    void writePushSelf(boolean withLower) {
+        if (method.clazz.entity.isTrait()) {
+            if (method.getLocalVariable("~class_name") != null) {
+                writeVarLoad("~class_name");
+            } else {
+                writePushEnv();
+                writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+            }
+            writePopString();
+            if (withLower)
+                writePushDupLowerCase();
+        } else {
+            writePushConstString(method.clazz.statement.getFulledName());
+            if (withLower)
+                writePushConstString(method.clazz.statement.getFulledName().toLowerCase());
+        }
     }
 
     void writePushStatic(){
@@ -627,7 +642,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushParent(Token token){
         writePushEnv();
         writePushTraceInfo(token);
-        writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+
+        if (method.getLocalVariable("~class_name") != null) {
+            writeVarLoad("~class_name");
+            writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class, String.class);
+        } else {
+            writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+        }
     }
 
     void writePushLocal(){
@@ -1060,7 +1081,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         String methodName = null;
 
         ValueExprToken clazz = access.getClazz();
-        if ((clazz instanceof NameToken || clazz instanceof SelfExprToken)
+        if ((clazz instanceof NameToken || (clazz instanceof SelfExprToken && !method.clazz.entity.isTrait()))
                 && access.getField() instanceof NameToken){
             String className;
             if (clazz instanceof SelfExprToken)
@@ -1068,9 +1089,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             else
                 className = ((NameToken)clazz).getName();
 
-            methodName = ((NameToken) access.getField()).getName();
-
             writePushString(className.toLowerCase());
+
+            methodName = ((NameToken) access.getField()).getName();
             writePushString(methodName.toLowerCase());
 
             writePushString(className);
@@ -1089,7 +1110,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushString(((NameToken) clazz).getName());
                 writePushDupLowerCase();
             } else if (clazz instanceof SelfExprToken){
-                writePushSelf(false);
                 writePushSelf(true);
             } else if (clazz instanceof StaticExprToken){
                 writePushStatic();
@@ -1785,8 +1805,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof ClosureStmtToken){
                 writePushClosure((ClosureStmtToken)value, returnValue);
                 return null;
-            } else if (value instanceof GetVarExprToken){
-                writePushGetVar((GetVarExprToken)value, returnValue);
+            } else if (value instanceof GetVarExprToken) {
+                writePushGetVar((GetVarExprToken) value, returnValue);
+                return null;
+            } else if (value instanceof SelfExprToken) {
+                writePushSelf(false);
                 return null;
             } else if (value instanceof StaticAccessExprToken){
                 writePushStaticAccess((StaticAccessExprToken)value, returnValue);
@@ -1931,7 +1954,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writeVarLoad(LocalVariable variable){
-        stackPush(Memory.Type.REFERENCE);
+        stackPush(Memory.Type.valueOf(variable.getClazz()));
         makeVarLoad(variable);
     }
 
@@ -2393,6 +2416,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushParent(token.getClazz());
             } else if (token.getClazz() instanceof StaticExprToken) {
                 writePushStatic();
+            } else if (token.getClazz() instanceof SelfExprToken) {
+                writePushSelf(false);
             } else
                 unexpectedToken(token);
         } else {

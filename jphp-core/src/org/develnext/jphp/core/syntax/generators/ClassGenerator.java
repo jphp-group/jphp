@@ -263,8 +263,6 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         for(Token modifier : modifiers){
                             if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class))
                                 unexpectedToken(modifier);
-                            if (result.isTrait() && isTokenClass(modifier, StaticExprToken.class))
-                                unexpectedToken(modifier);
                         }
                         properties.addAll(processProperty((VariableExprToken)current, modifiers, iterator));
                         modifiers.clear();

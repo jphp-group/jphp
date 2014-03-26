@@ -303,7 +303,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeInitEnvironment(){
+    protected void writeInitEnvironment() {
         if (!dynamicConstants.isEmpty() || !dynamicProperties.isEmpty()){
             initDynamicExists = true;
             MethodNode node = new MethodNodeImpl();
@@ -312,6 +312,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             node.desc = Type.getMethodDescriptor(
                 Type.getType(void.class), Type.getType(Environment.class)
             );
+            if (entity.isTrait()) {
+                node.desc = Type.getMethodDescriptor(
+                    Type.getType(void.class), Type.getType(Environment.class), Type.getType(String.class)
+                );
+            }
 
             MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, node);
             ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
@@ -319,12 +324,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             LabelNode l0 = expressionCompiler.makeLabel();
             methodCompiler.addLocalVariable("~env", l0, Environment.class);
+            if (entity.isTrait())
+                methodCompiler.addLocalVariable("~class_name", l0, String.class);
 
             LocalVariable l_class = methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
 
             expressionCompiler.writePushEnv();
-            expressionCompiler.writePushConstString(entity.getName());
-            expressionCompiler.writePushConstString(entity.getLowerName());
+            if (entity.isTrait()) {
+                expressionCompiler.writeVarLoad("~class_name");
+                expressionCompiler.writePushDupLowerCase();
+            } else {
+                expressionCompiler.writePushConstString(entity.getName());
+                expressionCompiler.writePushConstString(entity.getLowerName());
+            }
             expressionCompiler.writePushConstBoolean(true);
             expressionCompiler.writeSysDynamicCall(
                 Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
@@ -565,7 +577,56 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.methods.add(methodNode);
     }
 
+    protected void writeTraitProperties(ClassEntity trait, Collection<PropertyEntity> props, NameToken nameToken) {
+        for(PropertyEntity el : props){
+            PropertyEntity origin = entity.properties.get(el.getLowerName());
+
+            if (origin != null){
+                Environment env = compiler.getEnvironment();
+                if(origin.getTrait() != null) {
+                    env.error(
+                            nameToken.toTraceInfo(compiler.getContext()),
+                            Messages.ERR_TRAIT_SAME_PROPERTY.fetch(
+                                    origin.getTrait().getName(), trait.getName(), el.getName(), entity.getName()
+                            )
+                    );
+                } else if (origin.getModifier() != el.getModifier()) {
+                    env.error(
+                            nameToken.toTraceInfo(compiler.getContext()),
+                            Messages.ERR_TRAIT_SAME_PROPERTY.fetch(
+                                    origin.getClazz().getName(), trait.getName(), el.getName(), entity.getName()
+                            )
+                    );
+                } else {
+                    env.error(
+                            nameToken.toTraceInfo(compiler.getContext()), ErrorType.E_STRICT,
+                            Messages.ERR_TRAIT_SAME_PROPERTY_STRICT.fetch(
+                                    origin.getClazz().getName(), trait.getName(), el.getName(), entity.getName()
+                            )
+                    );
+                }
+            }
+
+            if (origin != null && origin.getClazz().getId() == entity.getId())
+                continue;
+
+            PropertyEntity p = el.duplicate();
+            p.setClazz(entity);
+            p.setTrait(trait);
+            ClassEntity.PropertyResult r = entity.addProperty(p);
+            r.check(compiler.getEnvironment());
+        }
+    }
+
+    protected void writeTraitProperties(ClassEntity trait, NameToken nameToken) {
+        writeTraitProperties(trait, trait.getProperties(), nameToken);
+        writeTraitProperties(trait, trait.getStaticProperties(), nameToken);
+    }
+
     protected void writeTrait(ClassEntity trait, NameToken nameToken) {
+        entity.addTrait(trait);
+
+        writeTraitProperties(trait, nameToken);
         for(MethodEntity methodEntity : trait.getMethods().values()) {
             writeCopiedMethod(methodEntity, trait, nameToken);
         }

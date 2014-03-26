@@ -24,6 +24,10 @@ public class NewExprToken extends ValueExprToken implements CallableExprToken {
         this.name = name;
     }
 
+    public void setName(SelfExprToken name) {
+        this.name = name;
+    }
+
     public void setName(VariableExprToken name){
         this.name = name;
     }

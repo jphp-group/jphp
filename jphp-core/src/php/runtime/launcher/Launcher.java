@@ -7,6 +7,7 @@ import php.runtime.env.CompileScope;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
@@ -161,6 +162,7 @@ public class Launcher {
                 ? new ConcurrentEnvironment(compileScope, out)
                 : new Environment(compileScope, out);
 
+        environment.setErrorFlags(ErrorType.E_ALL.value ^ ErrorType.E_NOTICE.value);
         environment.getDefaultBuffer().setImplicitFlush(true);
     }
 
