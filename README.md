@@ -76,7 +76,7 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 <dependency>
     <groupId>ru.regenix</groupId>
     <artifactId>jphp-core</artifactId>
-    <version>0.4{-SNAPSHOT}</version>
+    <version>0.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -85,11 +85,35 @@ And add our maven repository:
 ```
 <repository>
     <id>DevelNext Repo</id>
-    <url>http://maven.develnext.org/repository/{internal or snapshots}/</url>
+    <url>http://maven.develnext.org/repository/snapshots/</url>
 </repository>
 ```
 
 > **(!)** At present we recomend you to use snapshot versions because the stable version is updated rarely.
+
+### Build Requirements
+
++ Java 1.6+ (OpenJDK or Oracle)
++ Gradle 1.4+ ([http://www.gradle.org/](http://www.gradle.org/))
+
+
+### Using with CLI
+
+Before using with CLI, you should build the CLI version of the JPHP engine. To do that, use the `gradle jar` command:
+
+```
+cd /path/to/jphp_sources/jphp-cli
+gradle jar
+
+cd build/libs
+jphp -v // must show version of JPHP
+```
+
+
+The result of building will be located at `jphp-cli/build/libs`. There will appeare a few files - `jphp-cli.jar`, `jphp.bat`, `jphp` and you can use the `jphp` command in your console like this:
+
+    jphp -f /path/to/script.php
+
 
 ### Building JAR with JPHP
 
