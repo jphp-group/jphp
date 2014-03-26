@@ -110,7 +110,7 @@ jphp -v // must show version of JPHP
 ```
 
 
-The result of building will be located at `jphp-cli/build/libs`. There will appeare a few files - `jphp-cli.jar`, `jphp.bat`, `jphp` and you can use the `jphp` command in your console like this:
+The result of building will be located at `jphp-cli/build/libs`. There will appear a few files - `jphp-cli.jar`, `jphp.bat`, `jphp` and you can use the `jphp` command in your console like this:
 
     jphp -f /path/to/script.php
 
