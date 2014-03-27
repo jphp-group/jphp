@@ -625,6 +625,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     protected void writeTrait(ClassEntity trait, NameToken nameToken) {
         entity.addTrait(trait);
+        initDynamicExists = true;
 
         writeTraitProperties(trait, nameToken);
         for(MethodEntity methodEntity : trait.getMethods().values()) {

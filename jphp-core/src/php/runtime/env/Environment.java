@@ -907,7 +907,7 @@ public class Environment {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
                 classMap.put(entity.getLowerName(), entity);
-                //entity.initEnvironment(this);  TODO : check and fix for traits
+                //entity.initEnvironment(this); // TODO : check and fix for traits
             }
         }
 

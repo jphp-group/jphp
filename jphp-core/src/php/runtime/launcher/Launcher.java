@@ -1,5 +1,6 @@
 package php.runtime.launcher;
 
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.StringUtils;
@@ -11,8 +12,8 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
+import php.runtime.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ModuleEntity;
-import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
 import java.io.*;
 import java.util.HashMap;
@@ -190,6 +191,10 @@ public class Launcher {
             try {
                 ModuleEntity bootstrap = loadFrom(file);
                 initModule(bootstrap);
+                if (new StringMemory(config.getProperty("bootstrap.showBytecode", "")).toBoolean()) {
+                    ModuleOpcodePrinter moduleOpcodePrinter = new ModuleOpcodePrinter(bootstrap);
+                    System.out.println(moduleOpcodePrinter.toString());
+                }
                 try {
                     bootstrap.include(environment);
                 } catch (Exception e){
