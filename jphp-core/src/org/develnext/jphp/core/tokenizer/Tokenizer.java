@@ -544,20 +544,20 @@ public class Tokenizer {
         boolean e_char = false;
 
         i = currentPosition;
-        boolean is_hex = code.charAt(i) == '0'
+        boolean isHex = code.charAt(i) == '0'
                 && (i < codeLength && Character.toLowerCase(code.charAt(i + 1)) == 'x');
-
-        if (is_hex)
+        boolean isBinary = code.charAt(i) == '0' && (i < codeLength && code.charAt(i + 1) == 'b');
+        if (isHex || isBinary)
             i += 2;
 
         for(; i < codeLength; i++){
             char ch = code.charAt(i);
 
-            if (!is_hex && GrammarUtils.isFloatDot(ch)){
+            if (!isHex && GrammarUtils.isFloatDot(ch)){
                 if (dot)
                     break;
                 dot = true;
-            } else if (!is_hex && (ch == 'e' || ch == 'E')){
+            } else if (!isHex && (ch == 'e' || ch == 'E')){
                 if (e_char)
                     break;
 
@@ -571,7 +571,9 @@ public class Tokenizer {
                         i++;
                 }
                 e_char = true;
-            } else if (is_hex && ((ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))){
+            } else if (isHex && ((ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
+                // nop
+            } else if (isBinary && (ch == '0' || ch == '1')) {
                 // nop
             } else if (!Character.isDigit(ch))
                 break;

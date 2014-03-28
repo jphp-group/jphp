@@ -180,6 +180,7 @@ public class TokenFinder {
 
         boolean isVar = false;
         boolean isHex = false;
+        boolean isBinary = false;
         boolean isInt = true;
         boolean isFloat = false;
         boolean isName = true;
@@ -225,6 +226,23 @@ public class TokenFinder {
                             ch = word.charAt(j);
                             if (!(ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch))){
                                 isHex = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        isInt = false;
+                    }
+                    break;
+                case 'b':
+                    if (i == 1 && word.charAt(i - 1) == '0') {
+                        isBinary = true;
+                        isFloat = false;
+                        isInt = true;
+
+                        for(int j = i + 1; j < length; j++){
+                            ch = word.charAt(j);
+                            if (ch != '0' && ch != '1'){
+                                isBinary = false;
                                 break;
                             }
                         }
@@ -295,6 +313,9 @@ public class TokenFinder {
 
         if (isHex)
             return HexExprValue.class;
+
+        if (isBinary)
+            return BinaryExprValue.class;
 
         if (isInt && isFloat)
             return DoubleExprToken.class;

@@ -447,6 +447,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushInt(new IntegerExprToken(TokenMeta.of(value.getValue() + "", value)));
     }
 
+    void writePushBinary(BinaryExprValue value) {
+        writePushInt(new IntegerExprToken(TokenMeta.of(value.getValue() + "", value)));
+    }
+
     void _writePushBoolean(boolean value){
         writePushMemory(value ? Memory.TRUE : Memory.FALSE);
     }
@@ -1703,7 +1707,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     StackItem.Type tryGetType(ValueExprToken value){
-        if (value instanceof IntegerExprToken || value instanceof HexExprValue)
+        if (value instanceof IntegerExprToken || value instanceof HexExprValue
+                || value instanceof BinaryExprValue)
             return StackItem.Type.LONG;
         else if (value instanceof DoubleExprToken)
             return StackItem.Type.DOUBLE;
@@ -1729,8 +1734,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (writeOpcode)
             if (value instanceof IntegerExprToken){
                 writePushInt((IntegerExprToken)value);
-            } else if (value instanceof HexExprValue){
-                writePushHex((HexExprValue)value);
+            } else if (value instanceof HexExprValue) {
+                writePushHex((HexExprValue) value);
+            } else if (value instanceof BinaryExprValue) {
+                writePushBinary((BinaryExprValue) value);
             } else if (value instanceof BooleanExprToken){
                 writePushBoolean((BooleanExprToken) value);
             } else if (value instanceof NullExprToken){
