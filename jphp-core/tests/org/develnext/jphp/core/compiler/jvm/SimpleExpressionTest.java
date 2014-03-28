@@ -325,4 +325,11 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         memory = runDynamic("$x = 100500; return \"foo $x bar\";", false);
         Assert.assertEquals("foo 100500 bar", memory.toString());
     }
+
+    @Test
+    public void testBinaryIntegers() {
+        Memory memory = runDynamic("0b11111111");
+        Assert.assertEquals(255, memory.toLong());
+        Assert.assertEquals(Memory.Type.INT, memory.type);
+    }
 }
