@@ -1,0 +1,21 @@
+public function json_decode($json, $assoc, $depth, $gsonBuilder)
+{
+}
+public function json_decode($json, $assoc)
+{
+}
+public function json_last_error($error)
+{
+}
+public function json_last_error_msg()
+{
+}
+public function json_decode($json)
+{
+}
+public function json_encode($builder, $options, $builder)
+{
+}
+public function json_encode()
+{
+}

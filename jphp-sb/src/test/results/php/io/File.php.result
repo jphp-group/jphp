@@ -1,0 +1,147 @@
+namespace php\io
+{
+	public class File
+	{
+		const FILES_ONLY = 0
+
+		const DIRECTORIES_ONLY = 1
+
+		const FILES_AND_DIRECTORIES = 2
+
+		public function __construct($path, $child = NULL)
+		{
+		}
+
+		public function exists()
+		{
+		}
+
+		public function canExecute()
+		{
+		}
+
+		public function canRead()
+		{
+		}
+
+		public function canWrite()
+		{
+		}
+
+		public function getName()
+		{
+		}
+
+		public function getAbsolutePath()
+		{
+		}
+
+		public function getCanonicalPath()
+		{
+		}
+
+		public function getParent()
+		{
+		}
+
+		public function getPath()
+		{
+		}
+
+		public function getAbsoluteFile()
+		{
+		}
+
+		public function getCanonicalFile()
+		{
+		}
+
+		public function getParentFile()
+		{
+		}
+
+		public function mkdir()
+		{
+		}
+
+		public function mkdirs()
+		{
+		}
+
+		public function isFile()
+		{
+		}
+
+		public function isDirectory()
+		{
+		}
+
+		public function isAbsolute()
+		{
+		}
+
+		public function isHidden()
+		{
+		}
+
+		public function delete()
+		{
+		}
+
+		public function deleteOnExit()
+		{
+		}
+
+		public function createNewFile()
+		{
+		}
+
+		public function lastModified()
+		{
+		}
+
+		public function length()
+		{
+		}
+
+		public function renameTo($newName)
+		{
+		}
+
+		public function setExecutable($value, $ownerOnly = 1)
+		{
+		}
+
+		public function setReadable($value, $ownerOnly = 1)
+		{
+		}
+
+		public function setWritable($value, $ownerOnly = 1)
+		{
+		}
+
+		public function setReadOnly()
+		{
+		}
+
+		public function setLastModified($time)
+		{
+		}
+
+		public function compareTo($file)
+		{
+		}
+
+		public function find($filter = NULL)
+		{
+		}
+
+		public function findFiles($filter = NULL)
+		{
+		}
+
+		public function __toString()
+		{
+		}
+	}
+}
