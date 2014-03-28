@@ -56,7 +56,7 @@ public class TokenizerTest {
     @Test
     public void testScalarTokens() throws IOException {
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context( "10 3.3 'foo' '' \"xyz\" 0xCC true false"));
+        Tokenizer tokenizer = new Tokenizer(new Context( "10 3.3 'foo' '' \"xyz\" 0xCC 0b0011 true false"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -84,6 +84,10 @@ public class TokenizerTest {
         token = tokenizer.nextToken();
         assertTrue(token instanceof HexExprValue);
         assertEquals(new BigInteger("CC", 16).longValue(), ((HexExprValue) token).getValue());
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof BinaryExprValue);
+        assertEquals(new BigInteger("0011", 2).longValue(), ((BinaryExprValue) token).getValue());
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof BooleanExprToken);
