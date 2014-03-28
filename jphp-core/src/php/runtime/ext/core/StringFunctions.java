@@ -658,6 +658,16 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
+    public static int strncmp(String value1, String value2, int len){
+        int len1 = value1.length();
+        int len2 = value2.length();
+        String _value1 = len1 <= len ? value1 : value1.substring(0, len);
+        String _value2 = len2 <= len ? value2 : value2.substring(0, len);
+
+        return _value1.compareTo(_value2);
+    }
+
+    @Runtime.Immutable
     public static int strcasecmp(String value1, String value2){
         int aLen = value1.length();
         int bLen = value1.length();
