@@ -99,6 +99,9 @@ final public class Messages {
     public final static Item ERR_TRAIT_SAME_PROPERTY_STRICT = new Item("'%s' and '%s' define the same property($%s) in the composition of %s. " +
             "This might be incompatible, to improve maintainability consider using accessor methods in traits instead. Class was composed");
 
+    public final static Item ERR_TRAIT_MULTIPLE_RULE =
+            new Item("Failed to evaluate a trait precedence (%s). Method of trait '%s' was defined to be excluded multiple times");
+
     public static class Item {
         private String message;
         public Item(String message){

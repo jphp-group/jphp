@@ -6,8 +6,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import php.runtime.common.Modifier;
 import php.runtime.reflection.ClassEntity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ClassStmtToken extends StmtToken {
     private Modifier modifier;
@@ -24,6 +23,9 @@ public class ClassStmtToken extends StmtToken {
     private List<ClassVarStmtToken> properties;
     private List<MethodStmtToken> methods;
     private List<NameToken> uses;
+
+    private Map<MethodName, List<Alias>> aliases;
+    private Map<String, Replacement> replacements;
 
     private ClassEntity.Type classType = ClassEntity.Type.CLASS;
 
@@ -161,5 +163,123 @@ public class ClassStmtToken extends StmtToken {
 
     public void setUses(List<NameToken> uses) {
         this.uses = uses;
+    }
+
+    public void addAlias(String className, String methodName, Modifier modifier, String name) {
+        if (aliases == null)
+            aliases = new LinkedHashMap<MethodName, List<Alias>>();
+
+        MethodName m = new MethodName(className, methodName);
+        List<Alias> l = aliases.get(m);
+        if (l == null) {
+            aliases.put(m, l = new ArrayList<Alias>());
+        }
+
+        l.add(new Alias(modifier, name));
+    }
+
+    public List<Alias> findAliases(String className, String methodName) {
+        return aliases == null ? null : aliases.get(new MethodName(className, methodName));
+    }
+
+    public boolean addReplacement(String className, String methodName, Set<String> classes) {
+        if (classes == null || classes.isEmpty())
+            throw new IllegalArgumentException("classes must not be null or empty");
+
+        Set<String> tmp = new HashSet<String>();
+        for(String e : classes)
+            tmp.add(e.toLowerCase());
+
+        if (replacements == null)
+            replacements = new LinkedHashMap<String, Replacement>();
+
+        Replacement replacement = replacements.get(methodName.toLowerCase());
+        if (replacement == null) {
+            replacement = new Replacement(className, tmp);
+            replacements.put(methodName.toLowerCase(), replacement);
+            return true;
+        } else {
+            for(String e : tmp) {
+                if (replacement.hasTrait(e))
+                    return false;
+            }
+
+            replacement.traits.addAll(tmp);
+            return true;
+        }
+    }
+
+    public Replacement findReplacement(String methodName) {
+        return replacements == null ? null : replacements.get(methodName.toLowerCase());
+    }
+
+    protected static class MethodName {
+        protected final String className;
+        protected final String name;
+
+        public MethodName(String className, String name) {
+            this.className = className;
+            this.name = name;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof MethodName)) return false;
+
+            MethodName that = (MethodName) o;
+
+            if (!className.equalsIgnoreCase(that.className)) return false;
+            if (!name.equalsIgnoreCase(that.name)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = className.toLowerCase().hashCode();
+            result = 31 * result + name.toLowerCase().hashCode();
+            return result;
+        }
+    }
+
+    public static class Replacement {
+        public String origin;
+        public Set<String> traits;
+
+        public Replacement(String origin, Set<String> traits) {
+            this.origin = origin;
+            this.traits = traits;
+        }
+
+        public boolean hasTrait(String name) {
+            return traits.contains(name.toLowerCase());
+        }
+    }
+
+    public static class Alias {
+        protected final Modifier modifier;
+        protected final String name;
+
+        public Alias(Modifier modifier, String name) {
+            this.modifier = modifier;
+            this.name = name;
+        }
+
+        public Modifier getModifier() {
+            return modifier;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

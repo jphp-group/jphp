@@ -1,10 +1,5 @@
 package org.develnext.jphp.core.syntax.generators;
 
-import php.runtime.common.Messages;
-import php.runtime.common.Modifier;
-import php.runtime.common.Separator;
-import php.runtime.exceptions.ParseException;
-import php.runtime.exceptions.support.ErrorType;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.TokenType;
@@ -14,11 +9,13 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.StaticExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.common.Messages;
+import php.runtime.common.Modifier;
+import php.runtime.common.Separator;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.*;
@@ -205,7 +202,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             } else if (token instanceof SemicolonToken) {
                 break;
             } else if (isOpenedBrace(token, BraceExprToken.Kind.BLOCK)){
-                iterator.previous();
+                processBlock(result, iterator);
                 break;
             } else
                 unexpectedToken(token);
@@ -214,6 +211,81 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         } while (true);
 
         result.getUses().addAll(uses);
+    }
+
+    protected void processBlock(ClassStmtToken result, ListIterator<Token> iterator) {
+        if (result.isInterface())
+            unexpectedToken(iterator.previous());
+
+        while (true) {
+            NameToken className = nextAndExpected(iterator, NameToken.class);
+            className = analyzer.getRealName(className);
+
+            nextAndExpected(iterator, StaticAccessExprToken.class);
+
+            NameToken methodName = nextAndExpected(iterator, NameToken.class);
+
+            Token what = nextToken(iterator);
+            if (what instanceof AsStmtToken) {
+                Token one = nextToken(iterator);
+                if (one instanceof NameToken) {
+                    result.addAlias(className.getName(), methodName.getName(), null, ((NameToken) one).getName());
+                } else if (isTokenClass(one, PrivateStmtToken.class, ProtectedStmtToken.class, PublicStmtToken.class)) {
+                    Modifier modifier = Modifier.PRIVATE;
+                    if (one instanceof ProtectedStmtToken)
+                        modifier = Modifier.PROTECTED;
+                    else if (one instanceof PublicStmtToken)
+                        modifier = Modifier.PUBLIC;
+
+                    NameToken two = nextAndExpected(iterator, NameToken.class);
+                    if (two.getClass() != NameToken.class)
+                        unexpectedToken(two);
+
+                    result.addAlias(className.getName(), methodName.getName(), modifier, two.getName());
+                } else
+                    unexpectedToken(what);
+
+                nextAndExpected(iterator, SemicolonToken.class);
+            } else if (what instanceof InsteadofStmtToken) {
+                Set<String> names = new HashSet<String>();
+                NameToken cls;
+                while (true) {
+                    cls = nextAndExpected(iterator, NameToken.class);
+                    cls = analyzer.getRealName(cls);
+
+                    if (!names.add(cls.getName().toLowerCase())) {
+                        analyzer.getEnvironment().error(
+                                iterator.previous().toTraceInfo(analyzer.getContext()),
+                                ErrorType.E_ERROR,
+                                Messages.ERR_TRAIT_MULTIPLE_RULE,
+                                methodName.getName(),
+                                cls.getName()
+                        );
+                    }
+
+                    Token next = nextToken(iterator);
+
+                    if (next instanceof CommaToken) continue;
+                    if (next instanceof SemicolonToken) break;
+                }
+
+                if (!result.addReplacement(className.getName(), methodName.getName(), names)){
+                    analyzer.getEnvironment().error(
+                            iterator.previous().toTraceInfo(analyzer.getContext()),
+                            ErrorType.E_ERROR,
+                            Messages.ERR_TRAIT_MULTIPLE_RULE,
+                            methodName.getName(),
+                            cls.getName()
+                    );
+                }
+            } else
+                unexpectedToken(what);
+
+            if (isClosedBrace(nextTokenAndPrev(iterator), BraceExprToken.Kind.BLOCK)) {
+                iterator.next();
+                break;
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -302,7 +374,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         modifiers.clear();
                     } else if (current instanceof NamespaceUseStmtToken) {
                         processUse(result, iterator);
-                    } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                    } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)) {
                         break;
                     } else if (current instanceof CommentToken){
                         // todo comment process

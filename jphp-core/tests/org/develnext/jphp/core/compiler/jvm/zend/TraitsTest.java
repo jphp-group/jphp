@@ -15,5 +15,7 @@ public class TraitsTest extends JvmCompilerCase {
     public void testLanguage() {
         check("zend/traits/language001.php");
         check("zend/traits/language002.php");
+        check("zend/traits/language006.php");
+        check("zend/traits/language007.php");
     }
 }

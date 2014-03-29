@@ -1,21 +1,25 @@
 <?php
 
-trait two {
-    public $x = parent::X;
-}
-
 trait one {
+    function foobar() { echo "A"; }
 }
 
-class P {
-    const X = 10;
+trait two {
+    function foobar() { echo "B"; }
 }
 
-class MyCls extends P {
-    use two, one;
-
-    const X = 20;
+trait three {
+    function foobar() { echo "C"; }
 }
 
-$c = new MyCls();
-var_dump($c);
+class A {
+    use one, two, three
+
+    {
+        two::foobar insteadof one;
+        one::foobar insteadof three;
+    }
+}
+
+$x = new A;
+$x->foobar();
