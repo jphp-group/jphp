@@ -17,7 +17,7 @@ import java.io.OutputStream;
 
 public class ModuleDumper extends Dumper<ModuleEntity> {
     public final static int DUMP_STAMP = 479873682;
-    public final static int DUMP_VERSION = 20140116;
+    public final static int DUMP_VERSION = 20140330;
 
     protected ConstantDumper constantDumper = new ConstantDumper(context, env, debugInformation);
     protected ClosureDumper closureDumper = new ClosureDumper(context, env, debugInformation);
