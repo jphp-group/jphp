@@ -39,8 +39,8 @@ final public class Messages {
     public final static Item ERR_CANNOT_REDECLARE_CONSTANT = new Item("Cannot redeclare constant %s");
     public final static Item ERR_CANNOT_IMPLEMENT = new Item("%s cannot implement %s - it is not an interface");
     public final static Item ERR_CANNOT_EXTENDS = new Item("%s cannot extend from %s - it is not an class");
+    public final static Item ERR_CANNOT_USE_NON_TRAIT = new Item("%s cannot use %s - it is not a trait");
     public final static Item ERR_INTERFACE_NOT_FOUND = new Item("Interface '%s' not found");
-    public final static Item ERR_TRAIT_NOT_FOUND = new Item("Trait '%s' not found");
 
     public final static Item ERR_IMPLEMENT_METHOD =
             new Item("Class %s contains %s abstract method(s) and must therefore be declared abstract or implement the remaining methods (%s)");
@@ -57,6 +57,7 @@ final public class Messages {
     public final static Item ERR_CANNOT_USE_FINAL_ON_ABSTRACT = new Item("Cannot use the final modifier on an abstract class member");
 
     public final static Item ERR_CLASS_NOT_FOUND = new Item("Class '%s' not found");
+    public final static Item ERR_TRAIT_NOT_FOUND = new Item("Trait '%s' not found");
     public final static Item ERR_FUNCTION_NOT_FOUND = new Item("Function '%s' not found");
     public final static Item ERR_CONSTANT_NOT_FOUND = new Item("Constant '%s' not found");
     public final static Item ERR_METHOD_NOT_FOUND = new Item("Method %s::%s() not found");
@@ -92,6 +93,16 @@ final public class Messages {
     public final static Item ERR_CANNOT_USE_OBJECT_AS_ARRAY = new Item("Cannot use object %s as array");
 
     public final static Item ERR_INVALID_ARRAY_ELEMENT_TYPE = new Item("All array elements must be instances of %s class, %s given");
+
+    public final static Item ERR_TRAIT_METHOD_COLLISION = new Item("Trait method '%s' has not been applied, because there are collision in '%s' and '%s' traits on %s");
+    public final static Item ERR_TRAIT_SAME_PROPERTY = new Item("'%s' and '%s' define the same property ($%s) in the composition of %s");
+    public final static Item ERR_TRAIT_SAME_PROPERTY_STRICT = new Item("'%s' and '%s' define the same property ($%s) in the composition of %s. " +
+            "This might be incompatible, to improve maintainability consider using accessor methods in traits instead. Class was composed");
+
+    public final static Item ERR_TRAIT_MULTIPLE_RULE =
+            new Item("Failed to evaluate a trait precedence (%s). Method of trait '%s' was defined to be excluded multiple times");
+
+    public final static Item ERR_TRAIT_WAS_NOT_ADDED = new Item("Required Trait '%s' wasn't added to '%s'");
 
     public static class Item {
         private String message;

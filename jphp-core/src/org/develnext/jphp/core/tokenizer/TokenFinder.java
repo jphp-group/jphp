@@ -77,6 +77,7 @@ public class TokenFinder {
         put("new", NewExprToken.class);
         put("clone", CloneExprToken.class);
         put("instanceof", InstanceofExprToken.class);
+        put("insteadof", InsteadofStmtToken.class);
         put(".", ConcatExprToken.class);
         put(":", ColonToken.class);
         put("true", BooleanExprToken.class);
@@ -130,6 +131,7 @@ public class TokenFinder {
 
         put("class", ClassStmtToken.class);
         put("interface", InterfaceStmtToken.class);
+        put("trait", TraitStmtToken.class);
         put("function", FunctionStmtToken.class);
         put("const", ConstStmtToken.class);
         put("namespace", NamespaceStmtToken.class);

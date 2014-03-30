@@ -74,12 +74,11 @@ public class ClassDumperTest {
             setDefaultValue(Memory.CONST_INT_5);
         }});
 
-        entity.addMethod(new MethodEntity(context){{
+        entity.addMethod(new MethodEntity(context) {{
             setName("method1");
             setModifier(Modifier.PUBLIC);
             setClazz(entity);
         }}, null);
-
 
         dumper.save(entity, output);
 

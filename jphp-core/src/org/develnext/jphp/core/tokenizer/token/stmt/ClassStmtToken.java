@@ -1,12 +1,12 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
-import php.runtime.common.Modifier;
+import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.TokenMeta;
+import php.runtime.common.Modifier;
+import php.runtime.reflection.ClassEntity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ClassStmtToken extends StmtToken {
     private Modifier modifier;
@@ -22,22 +22,41 @@ public class ClassStmtToken extends StmtToken {
     private List<ConstStmtToken> constants;
     private List<ClassVarStmtToken> properties;
     private List<MethodStmtToken> methods;
+    private List<NameToken> uses;
 
-    private boolean isInterface = false;
+    private Map<String, List<Alias>> aliases;
+    private Map<String, Replacement> replacements;
 
-    public ClassStmtToken(TokenMeta meta) {
-        super(meta, TokenType.T_CLASS);
+    private ClassEntity.Type classType = ClassEntity.Type.CLASS;
+
+    protected ClassStmtToken(TokenMeta meta, TokenType type) {
+        super(meta, type);
         properties = new ArrayList<ClassVarStmtToken>();
         constants = new ArrayList<ConstStmtToken>();
         methods = new ArrayList<MethodStmtToken>();
+        uses = new ArrayList<NameToken>();
+    }
+
+    public ClassStmtToken(TokenMeta meta) {
+        this(meta, TokenType.T_CLASS);
     }
 
     public boolean isInterface() {
-        return isInterface;
+        return classType == ClassEntity.Type.INTERFACE;
     }
 
     public void setInterface(boolean anInterface) {
-        isInterface = anInterface;
+        classType = anInterface ? ClassEntity.Type.INTERFACE : classType;
+    }
+
+    public boolean isTrait() { return classType == ClassEntity.Type.TRAIT; }
+
+    public ClassEntity.Type getClassType() {
+        return classType;
+    }
+
+    public void setClassType(ClassEntity.Type classType) {
+        this.classType = classType;
     }
 
     public NameToken getName() {
@@ -136,5 +155,159 @@ public class ClassStmtToken extends StmtToken {
 
     public String getFulledName(){
         return getFulledName('\\');
+    }
+
+    public List<NameToken> getUses() {
+        return uses;
+    }
+
+    public void setUses(List<NameToken> uses) {
+        this.uses = uses;
+    }
+
+    public void addAlias(String className, String methodName, Modifier modifier, String name) {
+        if (aliases == null)
+            aliases = new LinkedHashMap<String, List<Alias>>();
+
+        List<Alias> l = aliases.get(methodName);
+        if (l == null) {
+            aliases.put(methodName.toLowerCase(), l = new ArrayList<Alias>());
+        }
+
+        l.add(new Alias(className, modifier, name));
+    }
+
+    public List<Alias> findAliases(String methodName) {
+        return aliases == null ? null : aliases.get(methodName.toLowerCase());
+    }
+
+    public Map<String, List<Alias>> getAliases() {
+        return aliases;
+    }
+
+    public Map<String, Replacement> getReplacements() {
+        return replacements;
+    }
+
+    public boolean addReplacement(String className, String methodName, Set<String> classes) {
+        if (classes == null || classes.isEmpty())
+            throw new IllegalArgumentException("classes must not be null or empty");
+
+        if (replacements == null)
+            replacements = new LinkedHashMap<String, Replacement>();
+
+        Replacement replacement = replacements.get(methodName.toLowerCase());
+        if (replacement == null) {
+            replacement = new Replacement(className, classes);
+            replacements.put(methodName.toLowerCase(), replacement);
+            return true;
+        } else {
+            for(String e : classes) {
+                if (replacement.hasTrait(e))
+                    return false;
+            }
+
+            replacement.addTraits(classes);
+            return true;
+        }
+    }
+
+    public Replacement findReplacement(String methodName) {
+        return replacements == null ? null : replacements.get(methodName.toLowerCase());
+    }
+
+    protected static class MethodName {
+        protected final String className;
+        protected final String name;
+
+        public MethodName(String className, String name) {
+            this.className = className;
+            this.name = name;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof MethodName)) return false;
+
+            MethodName that = (MethodName) o;
+
+            if (!className.equalsIgnoreCase(that.className)) return false;
+            if (!name.equalsIgnoreCase(that.name)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = className.toLowerCase().hashCode();
+            result = 31 * result + name.toLowerCase().hashCode();
+            return result;
+        }
+    }
+
+    public static class Replacement {
+        private final String origin;
+        private final Set<String> traitsLower;
+        private final Set<String> traits;
+
+        public Replacement(String origin, Set<String> traits) {
+            this.origin = origin;
+            this.traits = traits;
+
+            traitsLower = new HashSet<String>();
+            for(String e : traits)
+                traitsLower.add(e.toLowerCase());
+        }
+
+        public boolean hasTrait(String name) {
+            return traitsLower.contains(name.toLowerCase());
+        }
+
+        public String getOrigin() {
+            return origin;
+        }
+
+        public Set<String> getTraits() {
+            return traits;
+        }
+
+        public void addTraits(Collection<String> list) {
+            traits.addAll(list);
+            for(String e : list)
+                traitsLower.add(e.toLowerCase());
+        }
+    }
+
+    public static class Alias {
+        protected final String trait;
+        protected final Modifier modifier;
+        protected final String name;
+
+        public Alias(String trait, Modifier modifier, String name) {
+            this.trait = trait;
+            this.modifier = modifier;
+            this.name = name;
+        }
+
+        public Modifier getModifier() {
+            return modifier;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getTrait() {
+            return trait;
+        }
     }
 }

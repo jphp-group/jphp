@@ -1,5 +1,6 @@
 package php.runtime.launcher;
 
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.StringUtils;
@@ -7,11 +8,12 @@ import php.runtime.env.CompileScope;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
+import php.runtime.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ModuleEntity;
-import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
 import java.io.*;
 import java.util.HashMap;
@@ -90,37 +92,27 @@ public class Launcher {
         environment.registerModule(moduleEntity);
     }
 
-    public ModuleEntity loadFromCompiled(String file){
+    public ModuleEntity loadFromCompiled(String file) throws IOException {
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
         Context context = new Context(inputStream, file, environment.getDefaultCharset());
 
         ModuleDumper moduleDumper = new ModuleDumper(context, environment, true);
-        try {
-            return moduleDumper.load(inputStream);
-        } catch (IOException e) {
-            environment.catchUncaught(e);
-            return null;
-        }
+        return moduleDumper.load(inputStream);
     }
 
-    public ModuleEntity loadFromFile(String file){
+    public ModuleEntity loadFromFile(String file) throws IOException {
         InputStream inputStream = getResource(file);
         if (inputStream == null)
             return null;
         Context context = new Context(inputStream, file, environment.getDefaultCharset());
 
-        try {
-            JvmCompiler compiler = new JvmCompiler(environment, context);
-
-            return compiler.compile(false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        JvmCompiler compiler = new JvmCompiler(environment, context);
+        return compiler.compile(false);
     }
 
-    public ModuleEntity loadFrom(String file){
+    public ModuleEntity loadFrom(String file) throws IOException {
         if (file.endsWith(".phb"))
             return loadFromCompiled(file);
         else
@@ -171,6 +163,7 @@ public class Launcher {
                 ? new ConcurrentEnvironment(compileScope, out)
                 : new Environment(compileScope, out);
 
+        environment.setErrorFlags(ErrorType.E_ALL.value ^ ErrorType.E_NOTICE.value);
         environment.getDefaultBuffer().setImplicitFlush(true);
     }
 
@@ -193,17 +186,24 @@ public class Launcher {
             System.out.println("Starting delay = " + t + " millis");
         }
 
-
         String file = config.getProperty("bootstrap.file", null);
         if (file != null){
-            ModuleEntity bootstrap = loadFrom(file);
-            if (bootstrap == null)
-                throw new LaunchException("Cannot find '" + file + "' resource");
-
-            initModule(bootstrap);
             try {
-                bootstrap.include(environment);
-            } catch (Exception e){
+                ModuleEntity bootstrap = loadFrom(file);
+                initModule(bootstrap);
+                if (new StringMemory(config.getProperty("bootstrap.showBytecode", "")).toBoolean()) {
+                    ModuleOpcodePrinter moduleOpcodePrinter = new ModuleOpcodePrinter(bootstrap);
+                    System.out.println(moduleOpcodePrinter.toString());
+                }
+                try {
+                    bootstrap.include(environment);
+                } catch (Exception e){
+                    environment.catchUncaught(e);
+                }
+
+            } catch (IOException e) {
+                throw new LaunchException("Cannot find '" + file + "' resource");
+            } catch (Exception e) {
                 environment.catchUncaught(e);
             }
         } else if (mustBootstrap)

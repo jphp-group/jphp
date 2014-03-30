@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 
 public class PropertyEntity extends Entity {
     protected ClassEntity clazz;
+    protected ClassEntity trait;
     protected Modifier modifier = Modifier.PUBLIC;
     private Memory defaultValue;
     protected DocumentComment docComment;
@@ -144,6 +145,14 @@ public class PropertyEntity extends Entity {
         return specificName;
     }
 
+    public ClassEntity getTrait() {
+        return trait;
+    }
+
+    public void setTrait(ClassEntity trait) {
+        this.trait = trait;
+    }
+
     public boolean isOwned(ClassEntity entity){
         return clazz.getId() == entity.getId();
     }
@@ -189,5 +198,18 @@ public class PropertyEntity extends Entity {
             return false;
         }
         return true;
+    }
+
+    public PropertyEntity duplicate() {
+        PropertyEntity propertyEntity = new PropertyEntity(context);
+        propertyEntity.setStatic(isStatic);
+        propertyEntity.setDocComment(docComment);
+        propertyEntity.setName(name);
+        propertyEntity.setDefault(isDefault);
+        propertyEntity.setDefaultValue(defaultValue);
+        propertyEntity.setModifier(modifier);
+        propertyEntity.setPrototype(propertyEntity);
+        propertyEntity.setTrace(trace);
+        return propertyEntity;
     }
 }

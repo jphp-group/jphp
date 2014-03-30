@@ -1,11 +1,7 @@
 package org.develnext.jphp.core.compiler.jvm.stetament;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.*;
+import org.objectweb.asm.tree.*;
 import php.runtime.common.Messages;
 import org.develnext.jphp.core.compiler.common.misc.StackItem;
 import org.develnext.jphp.core.compiler.jvm.misc.JumpItem;
@@ -364,6 +360,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     variable.index
             ));
         }
+
         //node.maxStack = this.stackMaxSize;  !!! we don't need this, see: ClassWriter.COMPUTE_FRAMES
         //node.maxLocals = this.localVariables.size();
     }

@@ -437,11 +437,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (analyzer.getClazz() == null)
                 unexpectedToken(next);
 
-            result.setName(new FulledNameToken(next.getMeta(), new ArrayList<Token>(){{
-                if (analyzer.getClazz().getNamespace().getName() != null)
-                    addAll(analyzer.getClazz().getNamespace().getName().getNames());
-                add(analyzer.getClazz().getName());
-            }}));
+            if (analyzer.getClazz().isTrait()) {
+                result.setName((SelfExprToken)next);
+            } else {
+                result.setName(new FulledNameToken(next.getMeta(), new ArrayList<Token>() {{
+                    if (analyzer.getClazz().getNamespace().getName() != null)
+                        addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                    add(analyzer.getClazz().getName());
+                }}));
+            }
 
         } else
             unexpectedToken(next);
@@ -704,11 +708,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     if (analyzer.getClazz() == null)
                         unexpectedToken(clazz);
 
-                    clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>(){{
-                        if (analyzer.getClazz().getNamespace().getName() != null)
-                            addAll(analyzer.getClazz().getNamespace().getName().getNames());
-                        add(analyzer.getClazz().getName());
-                    }});
+                    if (!analyzer.getClazz().isTrait()) {
+                        clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>() {{
+                            if (analyzer.getClazz().getNamespace().getName() != null)
+                                addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                            add(analyzer.getClazz().getName());
+                        }});
+                    }
                 }
 
                 result.setClazz(clazz);

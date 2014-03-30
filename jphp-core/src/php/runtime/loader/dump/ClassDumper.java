@@ -1,7 +1,9 @@
 package php.runtime.loader.dump;
 
+import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.reflection.*;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
@@ -98,6 +100,12 @@ public class ClassDumper extends Dumper<ClassEntity> {
             printer.writeName(el.getName());
         }
 
+        // traits
+        printer.writeInt(entity.getTraits().size());
+        for(ClassEntity el : entity.getTraits().values()){
+            printer.writeName(el.getName());
+        }
+
         printer.writeRawData(entity.getData(), Integer.MAX_VALUE);
 
         // addition raw data
@@ -125,6 +133,10 @@ public class ClassDumper extends Dumper<ClassEntity> {
             ClassEntity parentEntity = module == null ? null : module.findClass(parent);
             if (parentEntity == null)
                 parentEntity = env.fetchClass(parent, true);
+
+            if (parentEntity == null)
+                env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, parent);
+
             ClassEntity.ExtendsResult result = entity.setParent(parentEntity, false);
             result.check(env);
         }
@@ -166,8 +178,27 @@ public class ClassDumper extends Dumper<ClassEntity> {
             if (interfaceEntity == null)
                 interfaceEntity = env.fetchClass(name, true);
 
+            if (interfaceEntity == null)
+                env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_INTERFACE_NOT_FOUND, name);
+
             ClassEntity.ImplementsResult result = entity.addInterface(interfaceEntity);
             result.check(env);
+        }
+
+        int traitCount = data.readInt();
+        for(int i = 0; i < traitCount; i++) {
+            String name = data.readName();
+
+            ClassEntity traitEntity = module == null ? null : module.findClass(name);
+            if (traitEntity == null)
+                traitEntity = env.fetchClass(name, true);
+
+            if (traitEntity == null)
+                env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_TRAIT_NOT_FOUND, name);
+            else if (!traitEntity.isTrait())
+                env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_CANNOT_USE_NON_TRAIT, name);
+
+            entity.addTrait(traitEntity);
         }
 
         entity.setData(data.readRawData(Integer.MAX_VALUE));

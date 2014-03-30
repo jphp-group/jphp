@@ -23,6 +23,13 @@ public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE})
+    public @interface Trait {
+        String value();
+        Class<?>[] uses();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE})
     public @interface NotRuntime {
     }
 

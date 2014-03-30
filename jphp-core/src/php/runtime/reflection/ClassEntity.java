@@ -1,5 +1,7 @@
 package php.runtime.reflection;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
@@ -24,6 +26,7 @@ import php.runtime.Memory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.Entity;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +43,8 @@ public class ClassEntity extends Entity {
     public enum Type { CLASS, INTERFACE, TRAIT }
 
     private long id;
+    private ClassNode cachedClassNode;
+
     protected int methodCounts = 0;
     protected boolean isInternal;
     protected boolean isNotRuntime;
@@ -128,6 +133,11 @@ public class ClassEntity extends Entity {
         }
         setInternalName(nativeClazz.getName().replace('.', '/'));
 
+        if (nativeClazz.isAnnotationPresent(Reflection.Trait.class)) {
+            setType(Type.TRAIT);
+        }
+
+        if (!isTrait())
         for(Field field : nativeClazz.getDeclaredFields()){
             int mod = field.getModifiers();
             if (field.isAnnotationPresent(Reflection.Ignore.class))
@@ -262,29 +272,60 @@ public class ClassEntity extends Entity {
         return isInternal;
     }
 
+    public boolean isTrait() {
+        return type == Type.TRAIT;
+    }
+
     public void doneDeclare(){
-        methodConstruct  = methods.get("__construct");
-        if (methodConstruct != null
-                && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
-            methodConstruct.setDynamicSignature(true);
+        if (isClass()) {
+            methodConstruct = methods.get("__construct");
+            if (methodConstruct != null
+                    && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
+                methodConstruct.setDynamicSignature(true);
 
-        methodDestruct = methods.get("__destruct");
+            methodDestruct = methods.get("__destruct");
 
-        methodMagicSet   = methods.get("__set");
-        methodMagicGet   = methods.get("__get");
-        methodMagicUnset = methods.get("__unset");
-        methodMagicIsset = methods.get("__isset");
-        methodMagicCall  = methods.get("__call");
-        methodMagicCallStatic = methods.get("__callstatic");
+            methodMagicSet = methods.get("__set");
+            methodMagicGet = methods.get("__get");
+            methodMagicUnset = methods.get("__unset");
+            methodMagicIsset = methods.get("__isset");
+            methodMagicCall = methods.get("__call");
+            methodMagicCallStatic = methods.get("__callstatic");
 
-        methodMagicInvoke = methods.get("__invoke");
-        methodMagicToString = methods.get("__tostring");
-        methodMagicClone = methods.get("__clone");
+            methodMagicInvoke = methods.get("__invoke");
+            methodMagicToString = methods.get("__tostring");
+            methodMagicClone = methods.get("__clone");
 
-        methodMagicSleep = methods.get("__sleep");
-        methodMagicWakeup = methods.get("__wakeup");
+            methodMagicSleep = methods.get("__sleep");
+            methodMagicWakeup = methods.get("__wakeup");
 
-        methodMagicDebugInfo = methods.get("__debuginfo");
+            methodMagicDebugInfo = methods.get("__debuginfo");
+        }
+    }
+
+    public ClassNode getClassNode() {
+        if (cachedClassNode != null)
+            return cachedClassNode;
+
+        synchronized (this) {
+            if (cachedClassNode != null)
+                return cachedClassNode;
+
+            ClassReader classReader;
+            if (data != null)
+                classReader = new ClassReader(data);
+            else {
+                try {
+                    classReader = new ClassReader(nativeClazz.getName());
+                } catch (IOException e) {
+                    throw new CriticalException(e);
+                }
+            }
+            ClassNode classNode = new ClassNode();
+            classReader.accept(classNode, 0);
+
+            return cachedClassNode = classNode;
+        }
     }
 
     public Extension getExtension() {
@@ -350,7 +391,7 @@ public class ClassEntity extends Entity {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACT, method));
         } else if (method.isAbstract && !method.isAbstractable()){
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACTABLE, method));
-        } else if (method.isAbstract && !this.isAbstract){
+        } else if (method.isAbstract && !(this.isAbstract || isTrait())){
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, method));
         } else if (type == Type.INTERFACE &&
                 (method.modifier != Modifier.PUBLIC || method.isFinal)){
@@ -382,7 +423,7 @@ public class ClassEntity extends Entity {
         if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name)))
             this.methods.put(name, method);
 
-        if (name.equals(lowerName)){
+        if (name.equals(lowerName) && !isTrait()){
             methods.put("__construct", method);
         }
 
@@ -449,7 +490,7 @@ public class ClassEntity extends Entity {
 
                 if (implMethod == null){
                     SignatureResult addResult = addMethod(method, entry.getKey());
-                    if (methodConstruct == null && method.getName().equalsIgnoreCase(parent.getName())){
+                    if (methodConstruct == null && !isTrait() && method.getName().equalsIgnoreCase(parent.getName())){
                         if (!method.isAbstractable() && !methods.containsKey("__construct")) {
                             method.setDynamicSignature(true);
                             methods.put("__construct", method);
@@ -457,11 +498,6 @@ public class ClassEntity extends Entity {
                     }
 
                     result.methods.addAll(addResult.methods);
-                    /*result.invalidSignature.addAll(addResult.invalidSignature);
-                    result.mustStatic.addAll(addResult.mustStatic);
-                    result.mustNonStatic.addAll(addResult.mustNonStatic);
-                    result.nonExists.addAll(addResult.nonExists);
-                    result.magicMustBePublic.addAll(addResult.magicMustBePublic);*/
                 } else {
                     implMethod.setPrototype(method);
                     if (method.isFinal)
@@ -584,7 +620,14 @@ public class ClassEntity extends Entity {
     }
 
     public void addTrait(ClassEntity trait) {
+        if (!trait.isTrait())
+            throw new IllegalArgumentException("'" + trait.getName() + "' is not a trait");
+
         this.traits.put(trait.getLowerName(), trait);
+    }
+
+    public boolean hasTrait(String traitLowerName) {
+        return this.traits.containsKey(traitLowerName);
     }
 
     public Map<String, ClassEntity> getTraits() {
@@ -738,9 +781,15 @@ public class ClassEntity extends Entity {
 
             if (!this.isInternal){
                 try {
-                    this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
-                        "__$initEnvironment", Environment.class
-                    );
+                    if (isTrait()) {
+                        this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
+                                "__$initEnvironment", Environment.class, String.class
+                        );
+                    } else {
+                        this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
+                                "__$initEnvironment", Environment.class
+                        );
+                    }
                     this.nativeInitEnvironment.setAccessible(true);
                 } catch (NoSuchMethodException e) {
                     this.nativeInitEnvironment = null;
@@ -757,12 +806,42 @@ public class ClassEntity extends Entity {
         this.module = module;
     }
 
-    public void initEnvironment(Environment env) throws Throwable {
-        if (nativeInitEnvironment != null) {
+    public void initEnvironment(Environment env) {
+        if (isClass() && nativeInitEnvironment != null) {
             try {
                 nativeInitEnvironment.invoke(null, env);
             } catch (InvocationTargetException e) {
                 env.__throwException(e);
+            } catch (IllegalAccessException e) {
+                throw new CriticalException(e);
+            }
+        }
+
+        if (!traits.isEmpty()) {
+            Set<ClassEntity> used = new HashSet<ClassEntity>();
+            try {
+                for (ClassEntity trait : traits.values()) {
+                    trait.initTraitEnvironment(env, this, used);
+                }
+            } catch (Exception e) {
+                env.catchUncaught(e);
+            } catch (Throwable e) {
+                throw new CriticalException(e);
+            }
+        }
+    }
+
+    protected void initTraitEnvironment(Environment env, ClassEntity originClass, Set<ClassEntity> used) throws Throwable {
+        if (nativeInitEnvironment != null) {
+            try {
+                nativeInitEnvironment.invoke(null, env, originClass.getName());
+            } catch (InvocationTargetException e) {
+                env.__throwException(e);
+            }
+        }
+        for(ClassEntity trait : traits.values()) {
+            if (used.add(trait)) {
+                trait.initTraitEnvironment(env, originClass, used);
             }
         }
     }
@@ -800,6 +879,8 @@ public class ClassEntity extends Entity {
             env.error(trace, "Cannot instantiate abstract class %s", name);
         } else if (type == Type.INTERFACE)
             env.error(trace, "Cannot instantiate interface %s", name);
+        else if (type == Type.TRAIT)
+            env.error(trace, "Cannot instantiate trait %s", name);
 
         IObject object;
         try {
@@ -1242,9 +1323,9 @@ public class ClassEntity extends Entity {
     }
 
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
-                                    boolean checkAccess)
+                                    boolean checkAccess, ClassEntity context)
             throws Throwable {
-        ClassEntity context = env.getLastClassOnStack();
+        context = context == null ? env.getLastClassOnStack() : context;
         PropertyEntity entity = isInstanceOf(context)
                 ? context.staticProperties.get(property) : staticProperties.get(property);
 
@@ -1255,7 +1336,7 @@ public class ClassEntity extends Entity {
         }
 
         if (checkAccess){
-            int accessFlag = entity.canAccess(env);
+            int accessFlag = entity.canAccess(env, context);
             if (accessFlag != 0) {
                 invalidAccessToProperty(env, trace, entity, accessFlag);
                 return Memory.NULL;

@@ -31,10 +31,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.FunctionEntity;
-import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.*;
 import php.runtime.util.JVMStackTracer;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
@@ -288,7 +285,7 @@ public class Environment {
     }
 
     public TraceInfo trace(){
-        if (callStackTop == 0)
+        if (callStackTop <= 0)
             return TraceInfo.UNKNOWN;
         return peekCall(0).trace;
     }
@@ -910,6 +907,7 @@ public class Environment {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
                 classMap.put(entity.getLowerName(), entity);
+                //entity.initEnvironment(this); // TODO : check and fix for traits
             }
         }
 
@@ -1125,6 +1123,24 @@ public class Environment {
         setErrorFlags(flags);
     }
 
+    public Memory __getMacroClass() {
+        CallStackItem item = peekCall(0);
+        if (item != null && item.clazz != null){
+            if (item.classEntity == null)
+                item.classEntity = fetchClass(item.clazz, false);
+
+            if (item.classEntity == null)
+                return Memory.CONST_EMPTY_STRING;
+            else {
+                MethodEntity method = item.classEntity.findMethod(item.function);
+                if (method == null)
+                    return Memory.CONST_EMPTY_STRING;
+                return new StringMemory(method.getClazz().getName());
+            }
+        } else
+            return Memory.CONST_EMPTY_STRING;
+    }
+
     public void __defineFunction(TraceInfo trace, int moduleIndex, int index){
         ModuleEntity module = scope.moduleIndexMap.get(moduleIndex);
         FunctionEntity function = module.findFunction(index);
@@ -1242,6 +1258,21 @@ public class Environment {
 
     public String __getParent(TraceInfo trace){
         return __getParentClass(trace).getName();
+    }
+
+    public String __getParent(TraceInfo trace, String className){
+        ClassEntity o = fetchClass(className, true);
+        if (o == null) {
+            error(trace, ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, className);
+            return null;
+        }
+
+        if (o.getParent() == null) {
+            error(trace, "Cannot access parent:: when current class scope has no parent");
+            return null;
+        }
+
+        return o.getParent().getName();
     }
 
     public void registerAutoloader(SplClassLoader classLoader, boolean prepend){

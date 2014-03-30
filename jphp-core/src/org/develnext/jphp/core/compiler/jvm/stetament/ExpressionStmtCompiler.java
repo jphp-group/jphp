@@ -31,6 +31,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CompileException;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -145,7 +146,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     protected Memory getMacros(ValueExprToken token){
         if (token instanceof SelfExprToken){
-            return new StringMemory(method.clazz.statement.getFulledName());
+            if (method.clazz.entity.isTrait()) {
+                throw new IllegalArgumentException("Cannot use this in Traits");
+            } else {
+                return new StringMemory(method.clazz.statement.getFulledName());
+            }
         }
 
         return null;
@@ -611,11 +616,22 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    void writePushSelf(boolean toLower){
-        writePushString(toLower ?
-                method.clazz.statement.getFulledName().toLowerCase()
-                : method.clazz.statement.getFulledName()
-        );
+    void writePushSelf(boolean withLower) {
+        if (method.clazz.entity.isTrait()) {
+            if (method.getLocalVariable("~class_name") != null) {
+                writeVarLoad("~class_name");
+            } else {
+                writePushEnv();
+                writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+            }
+            writePopString();
+            if (withLower)
+                writePushDupLowerCase();
+        } else {
+            writePushConstString(method.clazz.statement.getFulledName());
+            if (withLower)
+                writePushConstString(method.clazz.statement.getFulledName().toLowerCase());
+        }
     }
 
     void writePushStatic(){
@@ -626,7 +642,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     void writePushParent(Token token){
         writePushEnv();
         writePushTraceInfo(token);
-        writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+
+        if (method.getLocalVariable("~class_name") != null) {
+            writeVarLoad("~class_name");
+            writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class, String.class);
+        } else {
+            writeSysDynamicCall(Environment.class, "__getParent", String.class, TraceInfo.class);
+        }
     }
 
     void writePushLocal(){
@@ -987,8 +1009,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (dynamic.getField() != null){
             if (dynamic.getField() instanceof NameToken){
                 String name = ((NameToken) dynamic.getField()).getName();
-                writePushString(name);
-                writePushString(name.toLowerCase());
+                writePushConstString(name);
+                writePushConstString(name.toLowerCase());
             } else {
                 writePush(dynamic.getField(), true, false);
                 writePopString();
@@ -1059,7 +1081,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         String methodName = null;
 
         ValueExprToken clazz = access.getClazz();
-        if ((clazz instanceof NameToken || clazz instanceof SelfExprToken)
+        if ((clazz instanceof NameToken || (clazz instanceof SelfExprToken && !method.clazz.entity.isTrait()))
                 && access.getField() instanceof NameToken){
             String className;
             if (clazz instanceof SelfExprToken)
@@ -1067,9 +1089,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             else
                 className = ((NameToken)clazz).getName();
 
-            methodName = ((NameToken) access.getField()).getName();
-
             writePushString(className.toLowerCase());
+
+            methodName = ((NameToken) access.getField()).getName();
             writePushString(methodName.toLowerCase());
 
             writePushString(className);
@@ -1088,7 +1110,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushString(((NameToken) clazz).getName());
                 writePushDupLowerCase();
             } else if (clazz instanceof SelfExprToken){
-                writePushSelf(false);
                 writePushSelf(true);
             } else if (clazz instanceof StaticExprToken){
                 writePushStatic();
@@ -1368,12 +1389,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushNull();
                 writeVarStore(variable, false, false);
             } else {
-                writeSysDynamicCall(null, "isMock", Boolean.TYPE);
+                writeSysDynamicCall(IObject.class, "isMock", Boolean.TYPE);
 
                 code.add(new JumpInsnNode(IFEQ, elseLabel));
                 stackPop();
 
-                if (variable.isReference()){
+                if (variable.isReference()) {
                     writePushNewObject(ReferenceMemory.class);
                 } else {
                     writePushNull();
@@ -1596,12 +1617,26 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 );
 
         } else if (macro instanceof ClassMacroToken){
-            return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
-        } else if (macro instanceof NamespaceMacroToken){
+            if (method.clazz.entity.isTrait()) {
+                if (writeOpcode) {
+                    writePushEnv();
+                    writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+                }
+                return null;
+            } else {
+                return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+            }
+        } else if (macro instanceof NamespaceMacroToken) {
             return new StringMemory(
                     compiler.getNamespace() == null || compiler.getNamespace().getName() == null
                             ? ""
-                            : compiler.getNamespace().getName().getName());
+                            : compiler.getNamespace().getName().getName()
+            );
+        } else if (macro instanceof TraitMacroToken) {
+            if (method.clazz.entity.isTrait())
+                return new StringMemory(method.clazz.entity.getName());
+            else
+                return Memory.CONST_EMPTY_STRING;
         } else
             throw new IllegalArgumentException("Unsupported macro value: " + macro.getWord());
     }
@@ -1770,8 +1805,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else if (value instanceof ClosureStmtToken){
                 writePushClosure((ClosureStmtToken)value, returnValue);
                 return null;
-            } else if (value instanceof GetVarExprToken){
-                writePushGetVar((GetVarExprToken)value, returnValue);
+            } else if (value instanceof GetVarExprToken) {
+                writePushGetVar((GetVarExprToken) value, returnValue);
+                return null;
+            } else if (value instanceof SelfExprToken) {
+                writePushSelf(false);
                 return null;
             } else if (value instanceof StaticAccessExprToken){
                 writePushStaticAccess((StaticAccessExprToken)value, returnValue);
@@ -1837,6 +1875,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         String owner = clazz == null ? this.method.clazz.node.name : Type.getInternalName(clazz);
+        if (clazz == null && this.method.clazz.entity.isTrait())
+            throw new CriticalException("[Compiler Error] Cannot use current classname in Trait");
+
         code.add(new MethodInsnNode(
                 INVOKE_TYPE, owner, method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
         ));
@@ -1913,7 +1954,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writeVarLoad(LocalVariable variable){
-        stackPush(Memory.Type.REFERENCE);
+        stackPush(Memory.Type.valueOf(variable.getClazz()));
         makeVarLoad(variable);
     }
 
@@ -2375,6 +2416,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushParent(token.getClazz());
             } else if (token.getClazz() instanceof StaticExprToken) {
                 writePushStatic();
+            } else if (token.getClazz() instanceof SelfExprToken) {
+                writePushSelf(false);
             } else
                 unexpectedToken(token);
         } else {
@@ -2385,6 +2428,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 if (clazz instanceof ParentExprToken){
                     writePushParent(clazz);
+                } else if (clazz instanceof StaticExprToken){
+                    writePushStatic();
                 } else
                     writePush(clazz, true, false);
                 writePopString();
@@ -3486,20 +3531,34 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writePushNameForStaticVariable(LocalVariable local) {
+        String name = method.clazz.isClosure() ? local.name :
+                method.entity.getClazz().getInternalName() + "\0" + local.name + "\0" + method.getMethodId();
+        if (method.entity.getClazz().isTrait()) {
+            writePushSelf(false);
+            writePushConstString(name);
+            writeSysDynamicCall(String.class, "concat", String.class, String.class);
+        } else {
+            writePushConstString(name);
+        }
+    }
+
     void writeStatic(StaticStmtToken static_){
         LocalVariable local = method.getLocalVariable(static_.getVariable().getName());
         assert local != null;
 
         LabelNode end = new LabelNode();
         boolean isClosure = method.clazz.isClosure();
-        String name = isClosure ? local.name : local.name + "\0" + method.getMethodId();
+
 
         if (isClosure)
             writeVarLoad("~this");
         else
             writePushEnv();
 
-        writePushConstString(name);
+        //writePushConstString(name);
+        writePushNameForStaticVariable(local);
+
         writeSysDynamicCall(isClosure ? null : Environment.class, "getStatic", Memory.class, String.class);
         writePushDup();
 
@@ -3512,7 +3571,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             else
                 writePushEnv();
 
-            writePushConstString(name);
+            writePushNameForStaticVariable(local);
+            //writePushConstString(name);
+
             if (static_.getInitValue() != null){
                 writeExpression(static_.getInitValue(), true, false, true);
             } else {
