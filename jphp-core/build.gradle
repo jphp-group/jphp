@@ -5,7 +5,7 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'org.ow2.asm', name: 'asm-all', version:'4.1'
+    compile group: 'org.ow2.asm', name: 'asm-all', version:'5.0+'
 
     testCompile 'junit:junit:4.+'
 }

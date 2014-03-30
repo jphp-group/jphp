@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.compiler.jvm.node;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 public class MethodNodeImpl extends MethodNode {
 
     public MethodNodeImpl() {
-        super();
+        super(Opcodes.ASM5);
         exceptions = new ArrayList();
         tryCatchBlocks = new ArrayList();
         localVariables = new ArrayList();
@@ -15,7 +16,7 @@ public class MethodNodeImpl extends MethodNode {
     }
 
     public MethodNodeImpl(MethodNode node) {
-        super();
+        super(Opcodes.ASM5);
         this.name = node.name;
         this.desc = node.desc;
         this.access = node.access;

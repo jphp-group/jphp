@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ClassNodeImpl extends ClassNode {
 
     public ClassNodeImpl() {
-        super();
+        super(Opcodes.ASM5);
         version = Opcodes.V1_6; // todo: available to switch this value
         this.interfaces = new ArrayList();
     }
