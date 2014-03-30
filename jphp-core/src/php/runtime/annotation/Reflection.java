@@ -30,12 +30,6 @@ public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE})
-    public @interface TraitUses {
-        Class<?>[] value();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({TYPE})
     public @interface NotRuntime {
     }
 

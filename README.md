@@ -56,10 +56,10 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 + Exceptions can be nested (PHP 5.3)
 + `::class` system constant (php 5.5)
 + Binary number format, e.g. 0b001001101 (php 5.4)
++ Traits (php 5.4)
 
 **What does not yet support?**
 
-+ Traits (php 5.4)
 + Generators (php 5.5)
 + Goto (php 5.3)
 + list() in foreach (php 5.5)

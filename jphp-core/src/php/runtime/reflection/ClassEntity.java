@@ -133,6 +133,11 @@ public class ClassEntity extends Entity {
         }
         setInternalName(nativeClazz.getName().replace('.', '/'));
 
+        if (nativeClazz.isAnnotationPresent(Reflection.Trait.class)) {
+            setType(Type.TRAIT);
+        }
+
+        if (!isTrait())
         for(Field field : nativeClazz.getDeclaredFields()){
             int mod = field.getModifiers();
             if (field.isAnnotationPresent(Reflection.Ignore.class))
