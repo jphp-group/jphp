@@ -51,6 +51,13 @@ public class TraitsTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testFlattening() {
+        check("zend/traits/flattening001.php", ErrorType.E_ALL.value);
+        check("zend/traits/flattening002.php", ErrorType.E_ALL.value);
+        check("zend/traits/flattening003.php", ErrorType.E_ALL.value);
+    }
+
+    @Test
     public void testMethods() {
         check("zend/traits/methods_001.php");
         check("zend/traits/methods_002.php", true);
@@ -91,5 +98,12 @@ public class TraitsTest extends JvmCompilerCase {
     public void testTraitConstant() {
         check("zend/traits/trait_constant_001.php");
         check("zend/traits/trait_constant_002.php");
+    }
+
+    @Test
+    public void testConflict() {
+        check("zend/traits/conflict001.php", true);
+        check("zend/traits/conflict002.php", ErrorType.E_ALL.value);
+        check("zend/traits/conflict003.php", true);
     }
 }
