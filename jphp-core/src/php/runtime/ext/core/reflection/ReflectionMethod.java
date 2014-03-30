@@ -143,6 +143,16 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
     }
 
     @Signature
+    public Memory isConstructor(Environment env, Memory... args) {
+        return methodEntity.getClazz().methodConstruct == methodEntity ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory isDestruct(Environment env, Memory... args) {
+        return methodEntity.getClazz().methodDestruct == methodEntity ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
     public Memory isAbstract(Environment env, Memory... args){
         return methodEntity.isAbstract() ? Memory.TRUE : Memory.FALSE;
     }

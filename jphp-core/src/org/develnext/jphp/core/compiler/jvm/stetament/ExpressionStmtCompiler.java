@@ -2428,6 +2428,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             } else {
                 if (clazz instanceof ParentExprToken){
                     writePushParent(clazz);
+                } else if (clazz instanceof StaticExprToken){
+                    writePushStatic();
                 } else
                     writePush(clazz, true, false);
                 writePopString();

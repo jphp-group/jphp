@@ -1318,9 +1318,9 @@ public class ClassEntity extends Entity {
     }
 
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
-                                    boolean checkAccess)
+                                    boolean checkAccess, ClassEntity context)
             throws Throwable {
-        ClassEntity context = env.getLastClassOnStack();
+        context = context == null ? env.getLastClassOnStack() : context;
         PropertyEntity entity = isInstanceOf(context)
                 ? context.staticProperties.get(property) : staticProperties.get(property);
 
@@ -1331,7 +1331,7 @@ public class ClassEntity extends Entity {
         }
 
         if (checkAccess){
-            int accessFlag = entity.canAccess(env);
+            int accessFlag = entity.canAccess(env, context);
             if (accessFlag != 0) {
                 invalidAccessToProperty(env, trace, entity, accessFlag);
                 return Memory.NULL;

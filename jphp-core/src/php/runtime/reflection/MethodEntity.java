@@ -9,6 +9,7 @@ import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
@@ -347,7 +348,11 @@ public class MethodEntity extends AbstractFunctionEntity {
     }
 
     public String getSignatureString(boolean withArgs){
-        StringBuilder sb = new StringBuilder(getClazz().getName() + "::" + getName() + "(");
+        String ownerName = getClazz().getName();
+        if (getTrait() != null)
+            ownerName = getTrait().getName();
+
+        StringBuilder sb = new StringBuilder(ownerName + "::" + getName() + "(");
 
         int i = 0;
         if (parameters != null && withArgs)
@@ -477,8 +482,13 @@ public class MethodEntity extends AbstractFunctionEntity {
         methodEntity.setReturnReference(isReturnReference());
         methodEntity.setEmpty(isEmpty);
         methodEntity.setImmutable(isImmutable);
+        methodEntity.setResult(result);
         methodEntity.setDeprecated(isDeprecated());
         methodEntity.setInternalName(getInternalName());
+        if (trace == null || trace == TraceInfo.UNKNOWN)
+            methodEntity.setTrace(getClazz().getTrace());
+        else
+            methodEntity.setTrace(trace);
 
         return methodEntity;
     }

@@ -1,17 +1,16 @@
 package php.runtime.invoke;
 
+import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.lang.Closure;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.MethodEntity;
@@ -306,7 +305,7 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, true, true);
+        return entity.getStaticProperty(env, trace, property, true, true, entity);
     }
 
     public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
@@ -317,7 +316,7 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, false, true);
+        return entity.getStaticProperty(env, trace, property, false, true, entity);
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,

@@ -581,6 +581,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     entity.getTrace(),
                     Messages.ERR_METHOD_NOT_FOUND.fetch(alias.getTrait(), methodName)
             );
+            return;
         }
 
         MethodEntity dup = methodEntity.duplicateForInject();
@@ -645,29 +646,44 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         for(PropertyEntity el : props){
             PropertyEntity origin = entity.properties.get(el.getLowerName());
 
-            if (origin != null){
-                Environment env = compiler.getEnvironment();
-                if(origin.getTrait() != null) {
-                    env.error(
-                            entity.getTrace(),
-                            Messages.ERR_TRAIT_SAME_PROPERTY.fetch(
-                                    origin.getTrait().getName(), trait.getName(), el.getName(), entity.getName()
-                            )
-                    );
-                } else if (origin.getModifier() != el.getModifier()) {
-                    env.error(
-                            entity.getTrace(),
-                            Messages.ERR_TRAIT_SAME_PROPERTY.fetch(
-                                    origin.getClazz().getName(), trait.getName(), el.getName(), entity.getName()
-                            )
-                    );
-                } else {
-                    env.error(
-                            entity.getTrace(), ErrorType.E_STRICT,
-                            Messages.ERR_TRAIT_SAME_PROPERTY_STRICT.fetch(
-                                    origin.getClazz().getName(), trait.getName(), el.getName(), entity.getName()
-                            )
-                    );
+            if (origin != null) {
+                // doesn't work with parent private properties of non-traits  (see: the traits/property006.php test)
+                boolean isSkip = origin.getTrait() == null && !origin.getClazz().equals(entity) && origin.isPrivate();
+                if (origin.getTrait() != null && origin.getTrait().equals(trait))
+                    isSkip = true;
+
+                if (!isSkip) {
+                    Environment env = compiler.getEnvironment();
+                    String ownerName = origin.getClazz().getName();
+                    if (origin.getTrait() != null)
+                        ownerName = origin.getTrait().getName();
+
+                    boolean isFatal = origin.getModifier() != el.getModifier();
+                    if (origin.getDefaultValue() != null && el.getDefaultValue() == null)
+                        isFatal = true;
+                    else if (origin.getDefaultValue() == null && el.getDefaultValue() != null)
+                        isFatal = true;
+                    else if (origin.getDefaultValue() == null) {
+                        // nop
+                    } else if (!origin.getDefaultValue().identical(el.getDefaultValue()))
+                        isFatal = true;
+
+                    if (isFatal) {
+                        env.error(
+                                entity.getTrace(),
+                                Messages.ERR_TRAIT_SAME_PROPERTY.fetch(
+                                        ownerName,
+                                        trait.getName(), el.getName(), entity.getName()
+                                )
+                        );
+                    } else {
+                        env.error(
+                                entity.getTrace(), ErrorType.E_STRICT,
+                                Messages.ERR_TRAIT_SAME_PROPERTY_STRICT.fetch(
+                                        ownerName, trait.getName(), el.getName(), entity.getName()
+                                )
+                        );
+                    }
                 }
             }
 

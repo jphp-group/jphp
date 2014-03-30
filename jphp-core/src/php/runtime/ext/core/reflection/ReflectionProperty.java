@@ -126,7 +126,7 @@ public class ReflectionProperty extends Reflection implements Reflector {
                 exception(env, "Dynamic property %s::$%s cannot get a property value statically",
                         entity.getClazz().getName(), entity.getName());
 
-            return entity.getClazz().getStaticProperty(env, env.trace(), entity.getName(), true, false);
+            return entity.getClazz().getStaticProperty(env, env.trace(), entity.getName(), true, false, null);
         } else {
             if (arg.isObject()){
                 if (entity.isStatic())
@@ -187,7 +187,7 @@ public class ReflectionProperty extends Reflection implements Reflector {
                 exception(env, "Static property %s::$%s cannot get a property value dynamically",
                         entity.getClazz().getName(), entity.getName());
 
-            entity.getClazz().getStaticProperty(env, env.trace(), entity.getName(), true, false).assign(args[1]);
+            entity.getClazz().getStaticProperty(env, env.trace(), entity.getName(), true, false, null).assign(args[1]);
         } else {
             if (arg.isObject()){
                 arg.toValue(ObjectMemory.class).getProperties().refOfIndex(entity.getSpecificName()).assign(args[1]);

@@ -156,10 +156,18 @@ abstract public class JvmCompilerCase {
     }
 
     public void check(String name){
-        check(name, false);
+        check(name, false, -1);
     }
 
-    public void check(String name, boolean withErrors){
+    public void check(String name, boolean withErrors) {
+        check(name, withErrors, -1);
+    }
+
+    public void check(String name, int errorFlags) {
+        check(name, false, errorFlags);
+    }
+
+    public void check(String name, boolean withErrors, int errorFlags){
         File file;
         ByteArrayOutputStream outputR = new ByteArrayOutputStream();
         Environment environment = new Environment(newScope(), outputR);
@@ -173,6 +181,9 @@ abstract public class JvmCompilerCase {
         try {
             JvmCompiler compiler = new JvmCompiler(environment, context, getSyntax(context));
             environment.setErrorFlags(0);
+            if (errorFlags != -1)
+                environment.setErrorFlags(errorFlags);
+
             ModuleEntity module = compiler.compile(false);
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
