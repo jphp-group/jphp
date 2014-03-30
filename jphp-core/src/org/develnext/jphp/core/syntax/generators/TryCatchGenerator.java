@@ -45,7 +45,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         if (analyzer.getFunction() != null){
             analyzer.getFunction().getUnstableLocal().add(variable);
         }
-        analyzer.getLocalScope().add(variable);
+        analyzer.getScope().addVariable(variable);
 
         next = nextToken(iterator);
         if (!isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
@@ -101,7 +101,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         if (current instanceof TryStmtToken){
             TryStmtToken result = (TryStmtToken)current;
 
-            analyzer.addLocalScope(false);
+            analyzer.addScope(false);
             BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
             result.setBody(body);
 
@@ -115,7 +115,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
             } else
                 unexpectedToken(next, TokenType.T_CATCH);
 
-            result.setLocal(analyzer.removeLocalScope());
+            result.setLocal(analyzer.removeScope().getVariables());
             return result;
         }
         return null;

@@ -320,7 +320,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (memory instanceof ReferenceMemory){
             code.add(new TypeInsnNode(NEW, Type.getInternalName(ReferenceMemory.class)));
             code.add(new InsnNode(DUP));
-            code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V"));
+            code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V", false));
         } else if (memory instanceof ArrayMemory) {
             writePushNewObject(ArrayMemory.class);
             ArrayMemory array = (ArrayMemory)memory;
@@ -603,7 +603,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         Type.getMethodDescriptor(
                                 Type.getType(void.class),
                                 Type.getType(ClassEntity.class), Type.getType(Memory.class), Type.getType(Memory[].class)
-                        )
+                        ),
+                        false
                 ));
                 stackPop();
                 stackPop();
@@ -1879,7 +1880,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             throw new CriticalException("[Compiler Error] Cannot use current classname in Trait");
 
         code.add(new MethodInsnNode(
-                INVOKE_TYPE, owner, method, Type.getMethodDescriptor(Type.getType(returnClazz), args)
+                INVOKE_TYPE, owner, method, Type.getMethodDescriptor(Type.getType(returnClazz), args),
+                clazz != null && clazz.isInterface()
         ));
 
         if (returnClazz != void.class){
@@ -3040,6 +3042,28 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writeGotoLabel(LabelStmtToken token) {
+        if (method.getJump(1) != null)
+            compiler.getEnvironment().error(
+                    token.toTraceInfo(compiler.getContext()),
+                    "'goto' into loop or switch statement is disallowed", token.getName()
+            );
+
+        LabelNode labelNode = method.getOrCreateGotoLabel(token.getName());
+        code.add(labelNode);
+    }
+
+    void writeGoto(GotoStmtToken token) {
+        LabelNode labelNode = method.getOrCreateGotoLabel(token.getLabel().getName());
+        if (method.statement.findLabel(token.getLabel().getName()) == null)
+            compiler.getEnvironment().error(
+                    token.getLabel().toTraceInfo(compiler.getContext()),
+                    "Goto label '%s' doesn't exist", token.getLabel().getName()
+            );
+
+        code.add(new JumpInsnNode(GOTO, labelNode));
+    }
+
     void writeJump(JumpStmtToken token){
         int level = token.getLevel();
         JumpItem jump = method.getJump(level);
@@ -3676,8 +3700,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeTryCatch((TryStmtToken)token); continue;
                 } else if (token instanceof ThrowStmtToken){
                     writeThrow((ThrowStmtToken)token); continue;
-                } else if (token instanceof JumpStmtToken){  // break, continue
+                } else if (token instanceof JumpStmtToken) {  // break, continue
                     writeJump((JumpStmtToken)token); continue;
+                } else if (token instanceof GotoStmtToken) {
+                    writeGoto((GotoStmtToken)token); continue; // goto
+                } else if (token instanceof LabelStmtToken) {
+                    writeGotoLabel((LabelStmtToken)token); continue;
                 } else if (token instanceof GlobalStmtToken){
                     writeGlobal((GlobalStmtToken) token); continue;
                 } else if (token instanceof StaticStmtToken){

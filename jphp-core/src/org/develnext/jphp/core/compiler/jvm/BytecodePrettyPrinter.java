@@ -294,7 +294,8 @@ public class BytecodePrettyPrinter {
             final int opcode,
             final String owner,
             final String name,
-            final String desc)
+            final String desc,
+            final boolean ift)
         {
         }
 

@@ -6,9 +6,7 @@ import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class FunctionStmtToken extends StmtToken {
     protected Modifier modifier;
@@ -20,6 +18,8 @@ public class FunctionStmtToken extends StmtToken {
     protected List<ArgumentStmtToken> uses;
     protected BodyStmtToken body;
     protected boolean interfacable;
+
+    protected Map<String, LabelStmtToken> labels;
 
     protected Set<VariableExprToken> local;
     protected Set<VariableExprToken> passedLocal;
@@ -159,6 +159,10 @@ public class FunctionStmtToken extends StmtToken {
         this.thisExists = local.contains(thisVariable);
     }
 
+    public void setLabels(Map<String, LabelStmtToken> labels) {
+        this.labels = labels;
+    }
+
     public Set<VariableExprToken> getPassedLocal() {
         return passedLocal;
     }
@@ -236,5 +240,19 @@ public class FunctionStmtToken extends StmtToken {
 
     public int getId() {
         return id;
+    }
+
+    public boolean addLabel(LabelStmtToken labelStmtToken) {
+        if (labels == null)
+            labels = new LinkedHashMap<String, LabelStmtToken>();
+
+        return labels.put(labelStmtToken.getName().toLowerCase(), labelStmtToken) == null;
+    }
+
+    public LabelStmtToken findLabel(String name) {
+        if (labels == null)
+            return null;
+
+        return labels.get(name.toLowerCase());
     }
 }

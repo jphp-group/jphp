@@ -177,7 +177,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 /*if (analyzer.getFunction() != null)
                     unexpectedToken(current);*/
 
-                analyzer.addLocalScope(true);
+                analyzer.addScope(true);
                 analyzer.setFunction(result);
                 BraceExprToken brace = nextAndExpected(iterator, BraceExprToken.class);
                 if (!brace.isSimpleOpened())
@@ -188,7 +188,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 processArguments(result, iterator);
                 processBody(result, iterator);
 
-                result.setLocal(analyzer.removeLocalScope());
+                result.setLabels(analyzer.getScope().getLabels());
+                result.setLocal(analyzer.removeScope().getVariables());
 
                 analyzer.setFunction(null);
                 return result;
@@ -198,12 +199,13 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                     if (closureAllowed){
                         analyzer.pushClosure(result);
 
-                        analyzer.addLocalScope(true);
+                        analyzer.addScope(true);
                         processArguments(result, iterator);
                         processUses(result, iterator);
                         processBody(result, iterator);
                         //boolean thisExists = result.isThisExists();
-                        result.setLocal(analyzer.removeLocalScope());
+                        result.setLabels(analyzer.getScope().getLabels());
+                        result.setLocal(analyzer.removeScope().getVariables());
                         //result.setThisExists(thisExists);
 
                         analyzer.popClosure();
@@ -211,7 +213,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         FunctionStmtToken prevClosure = analyzer.peekClosure();
                         if (prevClosure != null){
                             if (result.isThisExists()) {
-                                analyzer.getLocalScope().add(FunctionStmtToken.thisVariable);
+                                analyzer.getScope().addVariable(FunctionStmtToken.thisVariable);
                                 //prevClosure.setThisExists(true);
                             }
                         }
@@ -226,7 +228,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                             uses.add(argument.getName());
                         }
 
-                        analyzer.getLocalScope().addAll( uses );
+                        analyzer.getScope().addVariables( uses );
                         return result;
                     }
 

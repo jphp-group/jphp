@@ -1,25 +1,9 @@
 <?php
 
-trait one {
-    function foobar() { echo "A"; }
-}
+goto label;
 
-trait two {
-    function foobar() { echo "B"; }
-}
+echo "aaa";
 
-trait three {
-    function foobar() { echo "C"; }
-}
+label:
 
-class A {
-    use one, two, three
 
-    {
-        two::foobar insteadof one;
-        one::foobar insteadof three;
-    }
-}
-
-$x = new A;
-$x->foobar();

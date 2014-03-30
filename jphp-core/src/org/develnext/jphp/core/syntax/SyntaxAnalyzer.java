@@ -1,9 +1,5 @@
 package org.develnext.jphp.core.syntax;
 
-import php.runtime.common.Directive;
-import php.runtime.common.LangMode;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
 import org.develnext.jphp.core.syntax.generators.*;
 import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
@@ -14,8 +10,11 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.common.Directive;
+import php.runtime.common.LangMode;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -34,8 +33,11 @@ public class SyntaxAnalyzer {
     private FunctionStmtToken function;
     private Stack<FunctionStmtToken> closureStack;
 
-    private Stack<Set<VariableExprToken>> localStack;
-    private Stack<Set<VariableExprToken>> rootLocalStack = new Stack<Set<VariableExprToken>>();
+    private Stack<Scope> scopeStack;
+    private Stack<Scope> rootScopeStack = new Stack<Scope>();
+
+    //private Stack<Set<VariableExprToken>> localStack;
+    //private Stack<Set<VariableExprToken>> rootLocalStack = new Stack<Set<VariableExprToken>>();
 
     private Map<String, ClassStmtToken> classes;
     private List<FunctionStmtToken> functions;
@@ -54,7 +56,8 @@ public class SyntaxAnalyzer {
     }
 
     public void reset(Environment environment, Tokenizer tokenizer){
-        removeLocalScope();
+        removeScope();
+        //removeLocalScope();
 
         tokenizer.reset();
         this.environment = environment;
@@ -69,9 +72,12 @@ public class SyntaxAnalyzer {
 
         tokens.clear();
         tree.clear();
-        localStack.clear();
+        //localStack.clear();
 
-        addLocalScope(true);
+        scopeStack.clear();
+
+        addScope(true);
+        //addLocalScope(true);
         process();
     }
 
@@ -90,7 +96,9 @@ public class SyntaxAnalyzer {
 
         tokens = new LinkedList<Token>();
         tree = new ArrayList<Token>();
-        localStack = new Stack<Set<VariableExprToken>>();
+        //localStack = new Stack<Set<VariableExprToken>>();
+        scopeStack = new Stack<Scope>();
+
         generators = new ArrayList<Generator>(50);
 
         generators.add(new NamespaceGenerator(this));
@@ -110,7 +118,8 @@ public class SyntaxAnalyzer {
         for (Generator generator : generators)
             map.put(generator.getClass(), generator);
 
-        addLocalScope(true);
+        addScope(true);
+        //addLocalScope(true);
         if (tokenizer != null)
             process();
     }
@@ -225,6 +234,33 @@ public class SyntaxAnalyzer {
         return (gen == null ? current : gen);
     }
 
+    public Scope addScope(boolean isRoot) {
+        Scope scope = new Scope();
+        scopeStack.push(scope);
+        if (isRoot)
+            rootScopeStack.push(scope);
+        return scope;
+    }
+
+    public Scope addScope(){
+        return addScope(false);
+    }
+
+    public Scope removeScope() {
+        Scope scope = getScope();
+        if (rootScopeStack.peek() == scope)
+            rootScopeStack.pop();
+        else
+            rootScopeStack.peek().appendScope(scope);
+
+        return scopeStack.pop();
+    }
+
+    public Scope getScope() {
+        return scopeStack.peek();
+    }
+
+    /*
     public Set<VariableExprToken> addLocalScope(){
         return addLocalScope(false);
     }
@@ -248,7 +284,7 @@ public class SyntaxAnalyzer {
 
     public Set<VariableExprToken> getLocalScope(){
         return localStack.peek();
-    }
+    }  */
 
     @SuppressWarnings("unchecked")
     public <T extends Generator> T generator(Class<T> clazz){

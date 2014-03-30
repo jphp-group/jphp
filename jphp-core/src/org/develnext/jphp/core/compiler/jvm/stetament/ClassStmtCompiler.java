@@ -187,7 +187,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     INVOKESPECIAL,
                     node.superName,
                     Constants.INIT_METHOD,
-                    constructor.desc
+                    constructor.desc,
+                    false
             ));
         } else {
             constructor.desc = Type.getMethodDescriptor(
@@ -203,7 +204,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     INVOKESPECIAL,
                     node.superName,
                     Constants.INIT_METHOD,
-                    constructor.desc
+                    constructor.desc,
+                    false
             ));
 
             // PROPERTIES

@@ -203,7 +203,9 @@ public class JvmCompiler extends AbstractCompiler {
         methodToken.setDynamicLocal(true);
         methodToken.setName((NameToken) Token.of("__include"));
         methodToken.setArguments(new ArrayList<ArgumentStmtToken>());
-        methodToken.setLocal(analyzer.getLocalScope());
+        methodToken.setLocal(analyzer.getScope().getVariables());
+        methodToken.setLabels(analyzer.getScope().getLabels());
+
         methodToken.setBody(BodyStmtToken.of(externalCode));
 
         token.setMethods(Arrays.asList(methodToken));

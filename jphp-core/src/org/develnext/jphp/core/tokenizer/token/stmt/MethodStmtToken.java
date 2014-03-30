@@ -32,6 +32,7 @@ public class MethodStmtToken extends FunctionStmtToken {
         setRefLocal(token.refLocal);
         setUnstableLocal(token.unstableLocal);
         setUses(token.uses);
+        labels = token.labels;
     }
 
     public boolean isAbstract() {

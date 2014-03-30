@@ -62,7 +62,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processSwitch(SwitchStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope(false);
+        analyzer.addScope(false);
         result.setValue(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
         if (result.getValue() == null)
             unexpectedToken(iterator);
@@ -91,11 +91,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             iterator.next();
 
         result.setCases(cases);
-        result.setLocal(analyzer.removeLocalScope());
+        result.setLocal(analyzer.removeScope().getVariables());
     }
 
     protected void processIf(IfStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope(false);
+        analyzer.addScope(false);
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         if (condition == null)
@@ -131,11 +131,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setCondition(condition);
         result.setBody(body);
 
-        result.setLocal(analyzer.removeLocalScope());
+        result.setLocal(analyzer.removeScope().getVariables());
     }
 
     protected void processForeach(ForeachStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope(false);
+        analyzer.addScope(false);
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
@@ -232,13 +232,13 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (result.getKey() != null)
-            analyzer.getLocalScope().add(result.getKey());
+            analyzer.getScope().addVariable(result.getKey());
 
-        result.setLocal(analyzer.removeLocalScope());
+        result.setLocal(analyzer.removeScope().getVariables());
     }
 
     protected void processFor(ForStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addScope();
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
@@ -260,8 +260,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             iterator.next();
         } while (true);
 
-        result.setInitLocal(analyzer.removeLocalScope());
-        analyzer.addLocalScope();
+        result.setInitLocal(analyzer.removeScope().getVariables());
+        analyzer.addScope();
 
         ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
@@ -284,7 +284,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             iterator.next();
         } while (true);
 
-        result.setIterationLocal(new HashSet<VariableExprToken>(analyzer.getLocalScope()));
+        result.setIterationLocal(new HashSet<VariableExprToken>(analyzer.getScope().getVariables()));
 
         nextAndExpected(iterator, BraceExprToken.class);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(
@@ -297,11 +297,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setCondition(condition);
         result.setIterationExpr(iterations);
         result.setBody(body);
-        result.setLocal(analyzer.removeLocalScope());
+        result.setLocal(analyzer.removeScope().getVariables());
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addScope();
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         if (condition == null)
@@ -316,7 +316,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setCondition(condition);
         result.setBody(body);
 
-        result.setLocal(analyzer.removeLocalScope());
+        result.setLocal(analyzer.removeScope().getVariables());
     }
 
     protected void processReturn(ReturnStmtToken result, ListIterator<Token> iterator){
@@ -331,7 +331,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
-        analyzer.addLocalScope();
+        analyzer.addScope();
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setBody(body);
 
@@ -342,7 +342,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(iterator);
 
             next = nextToken(iterator);
-            result.setLocal(analyzer.removeLocalScope());
+            result.setLocal(analyzer.removeScope().getVariables());
             if (next instanceof SemicolonToken)
                 return;
         }
@@ -356,7 +356,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         do {
             if (next instanceof VariableExprToken) {
                 VariableExprToken variable = (VariableExprToken)next;
-                analyzer.getLocalScope().add(variable);
+                analyzer.getScope().addVariable(variable);
                 if (analyzer.getFunction() != null) {
                     analyzer.getFunction().getRefLocal().add(variable);
                     analyzer.getFunction().getUnstableLocal().add(variable);
@@ -390,7 +390,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         while (next instanceof VariableExprToken){
             VariableExprToken variable = (VariableExprToken)next;
 
-            analyzer.getLocalScope().add(variable);
+            analyzer.getScope().addVariable(variable);
             if (analyzer.getFunction() != null){
                 analyzer.getFunction().getRefLocal().add(variable);
                 analyzer.getFunction().getUnstableLocal().add(variable);
@@ -418,6 +418,14 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
         //unexpectedToken(next); TODO: check it!
         return list;
+    }
+
+    protected void processGoto(GotoStmtToken result, ListIterator<Token> iterator) {
+        NameToken token = nextAndExpected(iterator, NameToken.class);
+        if (token.getClass() != NameToken.class)
+            unexpectedToken(token);
+
+        result.setLabel(token);
     }
 
     protected void processJump(JumpStmtToken result, ListIterator<Token> iterator){
@@ -573,6 +581,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof BreakToken){
                 tokens.add(current);
                 break;
+            } else if (current instanceof GotoStmtToken){
+                processGoto((GotoStmtToken)current, iterator);
+                tokens.add(current);
+                break;
             } else if (current instanceof SemicolonToken){
                 tokens.add(current);
                 break;
@@ -600,6 +612,18 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                         tokens.addAll(result);
                         break;
                     }
+                }
+
+                // check label
+                if (current.getClass() == NameToken.class
+                        && iterator.hasNext() && nextTokenAndPrev(iterator) instanceof ColonToken) {
+
+                    LabelStmtToken labelStmtToken = new LabelStmtToken(current.getMeta());
+                    tokens.add(labelStmtToken);
+                    iterator.next();
+
+                    analyzer.getScope().addLabel(labelStmtToken);
+                    break;
                 }
 
                 if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)){

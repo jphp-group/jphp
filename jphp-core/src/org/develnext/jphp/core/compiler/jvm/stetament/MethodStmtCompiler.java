@@ -40,6 +40,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private int stackSize = 0;
     private int stackMaxSize = 0;
 
+    private Map<String, LabelNode> gotoLabels;
     private Map<String, LocalVariable> localVariables;
     protected String realName;
 
@@ -188,6 +189,22 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     StackItem peek(){
         return stack.peek();
+    }
+
+    LabelNode getGotoLabel(String name) {
+        return gotoLabels == null ? null : gotoLabels.get(name.toLowerCase());
+    }
+
+    LabelNode getOrCreateGotoLabel(String name) {
+        name = name.toLowerCase();
+        if (gotoLabels == null)
+            gotoLabels = new HashMap<String, LabelNode>();
+
+        LabelNode label = gotoLabels.get(name);
+        if (label == null)
+            gotoLabels.put(name, label = new LabelNode());
+
+        return label;
     }
 
     LocalVariable addLocalVariable(String variable, LabelNode label, Class clazz){
