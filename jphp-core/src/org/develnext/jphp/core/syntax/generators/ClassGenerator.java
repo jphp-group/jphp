@@ -202,7 +202,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             } else if (token instanceof SemicolonToken) {
                 break;
             } else if (isOpenedBrace(token, BraceExprToken.Kind.BLOCK)){
-                processBlock(result, iterator);
+                processBlock(result, uses.get(0), iterator);
                 break;
             } else
                 unexpectedToken(token);
@@ -213,23 +213,36 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         result.getUses().addAll(uses);
     }
 
-    protected void processBlock(ClassStmtToken result, ListIterator<Token> iterator) {
+    protected void processBlock(ClassStmtToken result, NameToken firstTraitName, ListIterator<Token> iterator) {
         if (result.isInterface())
             unexpectedToken(iterator.previous());
 
         while (true) {
             NameToken className = nextAndExpected(iterator, NameToken.class);
-            className = analyzer.getRealName(className);
+            NameToken methodName;
 
-            nextAndExpected(iterator, StaticAccessExprToken.class);
+            Token token = nextToken(iterator);
+            if (token instanceof StaticAccessExprToken) {
+                className = analyzer.getRealName(className);
+                methodName = nextAndExpected(iterator, NameToken.class);
+            } else {
+                iterator.previous();
+                methodName = className;
+                if (className.getClass() != NameToken.class)
+                    unexpectedToken(className);
 
-            NameToken methodName = nextAndExpected(iterator, NameToken.class);
+                className = firstTraitName;
+            }
 
             Token what = nextToken(iterator);
             if (what instanceof AsStmtToken) {
                 Token one = nextToken(iterator);
                 if (one instanceof NameToken) {
-                    result.addAlias(className.getName(), methodName.getName(), null, ((NameToken) one).getName());
+                    result.addAlias(
+                            className.getName(),
+                            methodName.getName(), null,
+                            ((NameToken) one).getName()
+                    );
                 } else if (isTokenClass(one, PrivateStmtToken.class, ProtectedStmtToken.class, PublicStmtToken.class)) {
                     Modifier modifier = Modifier.PRIVATE;
                     if (one instanceof ProtectedStmtToken)
@@ -237,23 +250,34 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                     else if (one instanceof PublicStmtToken)
                         modifier = Modifier.PUBLIC;
 
-                    NameToken two = nextAndExpected(iterator, NameToken.class);
-                    if (two.getClass() != NameToken.class)
-                        unexpectedToken(two);
+                    token = nextToken(iterator);
+                    String name = null;
+                    if (token instanceof NameToken) {
+                        NameToken two = (NameToken)token;
+                        if (two.getClass() != NameToken.class)
+                            unexpectedToken(two);
 
-                    result.addAlias(className.getName(), methodName.getName(), modifier, two.getName());
+                        name = two.getName();
+                    } else if (token instanceof SemicolonToken) {
+                        iterator.previous();
+                        // nop
+                    } else
+                        unexpectedToken(token);
+
+                    result.addAlias(className.getName(), methodName.getName(), modifier, name);
                 } else
-                    unexpectedToken(what);
+                    unexpectedToken(one);
 
                 nextAndExpected(iterator, SemicolonToken.class);
             } else if (what instanceof InsteadofStmtToken) {
                 Set<String> names = new HashSet<String>();
+                Set<String> namesLower = new HashSet<String>();
                 NameToken cls;
                 while (true) {
                     cls = nextAndExpected(iterator, NameToken.class);
                     cls = analyzer.getRealName(cls);
 
-                    if (!names.add(cls.getName().toLowerCase())) {
+                    if (!namesLower.add(cls.getName().toLowerCase())) {
                         analyzer.getEnvironment().error(
                                 iterator.previous().toTraceInfo(analyzer.getContext()),
                                 ErrorType.E_ERROR,
@@ -263,6 +287,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         );
                     }
 
+                    names.add(cls.getName());
                     Token next = nextToken(iterator);
 
                     if (next instanceof CommaToken) continue;

@@ -272,28 +272,30 @@ public class ClassEntity extends Entity {
     }
 
     public void doneDeclare(){
-        methodConstruct  = methods.get("__construct");
-        if (methodConstruct != null
-                && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
-            methodConstruct.setDynamicSignature(true);
+        if (isClass()) {
+            methodConstruct = methods.get("__construct");
+            if (methodConstruct != null
+                    && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
+                methodConstruct.setDynamicSignature(true);
 
-        methodDestruct = methods.get("__destruct");
+            methodDestruct = methods.get("__destruct");
 
-        methodMagicSet   = methods.get("__set");
-        methodMagicGet   = methods.get("__get");
-        methodMagicUnset = methods.get("__unset");
-        methodMagicIsset = methods.get("__isset");
-        methodMagicCall  = methods.get("__call");
-        methodMagicCallStatic = methods.get("__callstatic");
+            methodMagicSet = methods.get("__set");
+            methodMagicGet = methods.get("__get");
+            methodMagicUnset = methods.get("__unset");
+            methodMagicIsset = methods.get("__isset");
+            methodMagicCall = methods.get("__call");
+            methodMagicCallStatic = methods.get("__callstatic");
 
-        methodMagicInvoke = methods.get("__invoke");
-        methodMagicToString = methods.get("__tostring");
-        methodMagicClone = methods.get("__clone");
+            methodMagicInvoke = methods.get("__invoke");
+            methodMagicToString = methods.get("__tostring");
+            methodMagicClone = methods.get("__clone");
 
-        methodMagicSleep = methods.get("__sleep");
-        methodMagicWakeup = methods.get("__wakeup");
+            methodMagicSleep = methods.get("__sleep");
+            methodMagicWakeup = methods.get("__wakeup");
 
-        methodMagicDebugInfo = methods.get("__debuginfo");
+            methodMagicDebugInfo = methods.get("__debuginfo");
+        }
     }
 
     public ClassNode getClassNode() {
@@ -416,7 +418,7 @@ public class ClassEntity extends Entity {
         if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name)))
             this.methods.put(name, method);
 
-        if (name.equals(lowerName)){
+        if (name.equals(lowerName) && !isTrait()){
             methods.put("__construct", method);
         }
 
@@ -483,7 +485,7 @@ public class ClassEntity extends Entity {
 
                 if (implMethod == null){
                     SignatureResult addResult = addMethod(method, entry.getKey());
-                    if (methodConstruct == null && method.getName().equalsIgnoreCase(parent.getName())){
+                    if (methodConstruct == null && !isTrait() && method.getName().equalsIgnoreCase(parent.getName())){
                         if (!method.isAbstractable() && !methods.containsKey("__construct")) {
                             method.setDynamicSignature(true);
                             methods.put("__construct", method);
@@ -617,6 +619,10 @@ public class ClassEntity extends Entity {
             throw new IllegalArgumentException("'" + trait.getName() + "' is not a trait");
 
         this.traits.put(trait.getLowerName(), trait);
+    }
+
+    public boolean hasTrait(String traitLowerName) {
+        return this.traits.containsKey(traitLowerName);
     }
 
     public Map<String, ClassEntity> getTraits() {

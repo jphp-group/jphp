@@ -24,7 +24,7 @@ public class ClassStmtToken extends StmtToken {
     private List<MethodStmtToken> methods;
     private List<NameToken> uses;
 
-    private Map<MethodName, List<Alias>> aliases;
+    private Map<String, List<Alias>> aliases;
     private Map<String, Replacement> replacements;
 
     private ClassEntity.Type classType = ClassEntity.Type.CLASS;
@@ -167,44 +167,47 @@ public class ClassStmtToken extends StmtToken {
 
     public void addAlias(String className, String methodName, Modifier modifier, String name) {
         if (aliases == null)
-            aliases = new LinkedHashMap<MethodName, List<Alias>>();
+            aliases = new LinkedHashMap<String, List<Alias>>();
 
-        MethodName m = new MethodName(className, methodName);
-        List<Alias> l = aliases.get(m);
+        List<Alias> l = aliases.get(methodName);
         if (l == null) {
-            aliases.put(m, l = new ArrayList<Alias>());
+            aliases.put(methodName.toLowerCase(), l = new ArrayList<Alias>());
         }
 
-        l.add(new Alias(modifier, name));
+        l.add(new Alias(className, modifier, name));
     }
 
-    public List<Alias> findAliases(String className, String methodName) {
-        return aliases == null ? null : aliases.get(new MethodName(className, methodName));
+    public List<Alias> findAliases(String methodName) {
+        return aliases == null ? null : aliases.get(methodName.toLowerCase());
+    }
+
+    public Map<String, List<Alias>> getAliases() {
+        return aliases;
+    }
+
+    public Map<String, Replacement> getReplacements() {
+        return replacements;
     }
 
     public boolean addReplacement(String className, String methodName, Set<String> classes) {
         if (classes == null || classes.isEmpty())
             throw new IllegalArgumentException("classes must not be null or empty");
 
-        Set<String> tmp = new HashSet<String>();
-        for(String e : classes)
-            tmp.add(e.toLowerCase());
-
         if (replacements == null)
             replacements = new LinkedHashMap<String, Replacement>();
 
         Replacement replacement = replacements.get(methodName.toLowerCase());
         if (replacement == null) {
-            replacement = new Replacement(className, tmp);
+            replacement = new Replacement(className, classes);
             replacements.put(methodName.toLowerCase(), replacement);
             return true;
         } else {
-            for(String e : tmp) {
+            for(String e : classes) {
                 if (replacement.hasTrait(e))
                     return false;
             }
 
-            replacement.traits.addAll(tmp);
+            replacement.addTraits(classes);
             return true;
         }
     }
@@ -252,24 +255,45 @@ public class ClassStmtToken extends StmtToken {
     }
 
     public static class Replacement {
-        public String origin;
-        public Set<String> traits;
+        private final String origin;
+        private final Set<String> traitsLower;
+        private final Set<String> traits;
 
         public Replacement(String origin, Set<String> traits) {
             this.origin = origin;
             this.traits = traits;
+
+            traitsLower = new HashSet<String>();
+            for(String e : traits)
+                traitsLower.add(e.toLowerCase());
         }
 
         public boolean hasTrait(String name) {
-            return traits.contains(name.toLowerCase());
+            return traitsLower.contains(name.toLowerCase());
+        }
+
+        public String getOrigin() {
+            return origin;
+        }
+
+        public Set<String> getTraits() {
+            return traits;
+        }
+
+        public void addTraits(Collection<String> list) {
+            traits.addAll(list);
+            for(String e : list)
+                traitsLower.add(e.toLowerCase());
         }
     }
 
     public static class Alias {
+        protected final String trait;
         protected final Modifier modifier;
         protected final String name;
 
-        public Alias(Modifier modifier, String name) {
+        public Alias(String trait, Modifier modifier, String name) {
+            this.trait = trait;
             this.modifier = modifier;
             this.name = name;
         }
@@ -280,6 +304,10 @@ public class ClassStmtToken extends StmtToken {
 
         public String getName() {
             return name;
+        }
+
+        public String getTrait() {
+            return trait;
         }
     }
 }

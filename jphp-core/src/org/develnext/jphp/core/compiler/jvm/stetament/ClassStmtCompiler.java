@@ -1,25 +1,10 @@
 package org.develnext.jphp.core.compiler.jvm.stetament;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
-import php.runtime.common.Messages;
 import org.develnext.jphp.core.compiler.jvm.Constants;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.node.ClassNodeImpl;
 import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
-import php.runtime.exceptions.FatalException;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
-import php.runtime.lang.BaseObject;
-import php.runtime.Memory;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.MethodEntity;
-import php.runtime.reflection.PropertyEntity;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
@@ -30,6 +15,21 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+import php.runtime.Memory;
+import php.runtime.common.Messages;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.BaseObject;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.PropertyEntity;
 
 import java.util.*;
 
@@ -510,6 +510,16 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         return result;
     }
 
+    protected ClassEntity fetchClassAndCheck(String name) {
+        ClassEntity r = fetchClass(name);
+        if (r == null)
+            compiler.getEnvironment().error(
+                    entity.getTrace(),
+                    Messages.ERR_CLASS_NOT_FOUND.fetch(name)
+            );
+        return r;
+    }
+
     @SuppressWarnings("unchecked")
     protected void writeImplements() {
         if (statement.getImplement() != null){
@@ -544,50 +554,90 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
-    protected void writeCopiedMethod(MethodEntity methodEntity, ClassEntity trait) {
-        ClassStmtToken.Replacement replacement = statement.findReplacement(methodEntity.getName());
-        if (replacement != null && replacement.hasTrait(trait.getName()))
-            return;
+    protected void writeCopiedMethod(ClassStmtToken.Alias alias, String methodName, ClassEntity trait) {
+        MethodEntity methodEntity = fetchClassAndCheck(alias.getTrait()).findMethod(methodName.toLowerCase());
 
-        List<ClassStmtToken.Alias> aliases = statement.findAliases(methodEntity.getClazzName(), methodEntity.getName());
-        if (aliases == null)
-            aliases = Arrays.asList(new ClassStmtToken.Alias(null, methodEntity.getName()));
+        String name = alias.getName();
+        if (name == null)
+            name = methodName;
 
-        for(ClassStmtToken.Alias alias : aliases) {
-            MethodEntity origin = entity.findMethod(alias.getName().toLowerCase());
-            if (origin != null) {
-                if (origin.getClazz() == entity) {
-                    if (origin.getTrait() != null) {
-                        compiler.getEnvironment().error(
-                                entity.getTrace(),
-                                Messages.ERR_TRAIT_METHOD_COLLISION.fetch(
-                                        alias.getName(), trait.getName(), origin.getTrait().getName(), entity.getName()
-                                )
-                        );
-                    }
-                    return;
+        MethodEntity origin = entity.findMethod(name.toLowerCase());
+        if (origin != null) {
+            if (origin.getClazz() == entity) {
+                if (origin.getTrait() != null) {
+                    compiler.getEnvironment().error(
+                            entity.getTrace(),
+                            Messages.ERR_TRAIT_METHOD_COLLISION.fetch(
+                                    alias.getName(), trait.getName(), origin.getTrait().getName(), entity.getName()
+                            )
+                    );
                 }
+                return;
             }
+        }
 
-            MethodEntity dup = methodEntity.duplicateForInject();
-            dup.setClazz(entity);
-            dup.setTrait(trait);
+        if (methodEntity == null) {
+            compiler.getEnvironment().error(
+                    entity.getTrace(),
+                    Messages.ERR_METHOD_NOT_FOUND.fetch(alias.getTrait(), methodName)
+            );
+        }
+
+        MethodEntity dup = methodEntity.duplicateForInject();
+        dup.setClazz(entity);
+        dup.setTrait(trait);
+        if (alias.getName() != null)
             dup.setName(alias.getName());
 
-            if (alias.getModifier() != null)
-                dup.setModifier(alias.getModifier());
+        if (alias.getModifier() != null)
+            dup.setModifier(alias.getModifier());
 
-            MethodNode methodNode = methodEntity.getMethodNode();
-            if (origin != null) {
-                dup.setPrototype(origin);
+        MethodNode methodNode = new MethodNodeImpl(methodEntity.getMethodNode());
+
+        if (origin != null) {
+            dup.setPrototype(origin);
+        }
+        dup.setInternalName(dup.getName() + "$" + entity.nextMethodIndex());
+        methodNode.name = dup.getInternalName();
+
+        ClassEntity.SignatureResult result = entity.addMethod(dup, null);
+        result.check(compiler.getEnvironment());
+
+        node.methods.add(methodNode);
+    }
+
+    protected void writeCopiedMethod(MethodEntity methodEntity, ClassEntity trait) {
+        ClassStmtToken.Replacement replacement = statement.findReplacement(methodEntity.getName());
+        if (replacement != null && replacement.hasTrait(trait.getName())) {
+            return;
+        }
+
+        List<ClassStmtToken.Alias> aliases = statement.findAliases(methodEntity.getName());
+        if (aliases == null)
+            aliases = Arrays.asList(new ClassStmtToken.Alias(trait.getName(), null, methodEntity.getName()));
+        else {
+            boolean replaceExists = false;
+            boolean replaceAlias = false;
+
+            for(ClassStmtToken.Alias alias : aliases) {
+                if (replacement != null && alias.getTrait().equalsIgnoreCase(replacement.getOrigin())) {
+                    replaceExists = true;
+                    break;
+                }
+                if ((alias.getModifier() == null || alias.getModifier() == methodEntity.getModifier())
+                        || alias.getName() == null)
+                    replaceAlias = true;
             }
-            dup.setInternalName(dup.getName() + "$" + entity.nextMethodIndex());
-            methodNode.name = dup.getInternalName();
 
-            ClassEntity.SignatureResult result = entity.addMethod(dup, null);
-            result.check(compiler.getEnvironment());
+            if (replacement != null && !replaceExists)
+                aliases.add(new ClassStmtToken.Alias(replacement.getOrigin(), null, methodEntity.getName()));
 
-            node.methods.add(methodNode);
+            if (!replaceAlias)
+                aliases.add(new ClassStmtToken.Alias(trait.getName(), null, methodEntity.getName()));
+        }
+
+        for(ClassStmtToken.Alias alias : aliases) {
+            writeCopiedMethod(alias, methodEntity.getName(), trait);
         }
     }
 
@@ -647,6 +697,31 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
+    protected void checkRequiredTrait(String trait) {
+        if (!entity.hasTrait(trait.toLowerCase())) {
+            compiler.getEnvironment().error(
+                    entity.getTrace(),
+                    Messages.ERR_TRAIT_WAS_NOT_ADDED.fetch(trait, entity.getName())
+            );
+        }
+    }
+
+    protected void checkAliasAndReplacementsTraits() {
+        if (statement.getAliases() != null)
+        for(List<ClassStmtToken.Alias> aliases : statement.getAliases().values()) {
+            for(ClassStmtToken.Alias alias : aliases) {
+                checkRequiredTrait(alias.getTrait());
+            }
+        }
+
+        if (statement.getReplacements() != null)
+        for(ClassStmtToken.Replacement replacement : statement.getReplacements().values()) {
+            checkRequiredTrait(replacement.getOrigin());
+            for(String e : replacement.getTraits())
+                checkRequiredTrait(e);
+        }
+    }
+
     protected List<ClassEntity> fetchTraits() {
         List<ClassEntity> r = new ArrayList<ClassEntity>();
         for(NameToken one : statement.getUses()) {
@@ -692,6 +767,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         List<ClassEntity> traits = fetchTraits();
         for (ClassEntity e : traits)
             entity.addTrait(e);
+
+        checkAliasAndReplacementsTraits();
 
         if (statement.getExtend() != null) {
             ClassEntity parent = fetchClass(statement.getExtend().getName().getName());

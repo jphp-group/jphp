@@ -102,6 +102,8 @@ final public class Messages {
     public final static Item ERR_TRAIT_MULTIPLE_RULE =
             new Item("Failed to evaluate a trait precedence (%s). Method of trait '%s' was defined to be excluded multiple times");
 
+    public final static Item ERR_TRAIT_WAS_NOT_ADDED = new Item("Required Trait '%s' wasn't added to '%s'");
+
     public static class Item {
         private String message;
         public Item(String message){

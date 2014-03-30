@@ -3529,20 +3529,34 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    void writePushNameForStaticVariable(LocalVariable local) {
+        String name = method.clazz.isClosure() ? local.name :
+                method.entity.getClazz().getInternalName() + "\0" + local.name + "\0" + method.getMethodId();
+        if (method.entity.getClazz().isTrait()) {
+            writePushSelf(false);
+            writePushConstString(name);
+            writeSysDynamicCall(String.class, "concat", String.class, String.class);
+        } else {
+            writePushConstString(name);
+        }
+    }
+
     void writeStatic(StaticStmtToken static_){
         LocalVariable local = method.getLocalVariable(static_.getVariable().getName());
         assert local != null;
 
         LabelNode end = new LabelNode();
         boolean isClosure = method.clazz.isClosure();
-        String name = isClosure ? local.name : local.name + "\0" + method.getMethodId();
+
 
         if (isClosure)
             writeVarLoad("~this");
         else
             writePushEnv();
 
-        writePushConstString(name);
+        //writePushConstString(name);
+        writePushNameForStaticVariable(local);
+
         writeSysDynamicCall(isClosure ? null : Environment.class, "getStatic", Memory.class, String.class);
         writePushDup();
 
@@ -3555,7 +3569,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             else
                 writePushEnv();
 
-            writePushConstString(name);
+            writePushNameForStaticVariable(local);
+            //writePushConstString(name);
+
             if (static_.getInitValue() != null){
                 writeExpression(static_.getInitValue(), true, false, true);
             } else {

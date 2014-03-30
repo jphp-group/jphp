@@ -50,14 +50,14 @@ abstract public class Generator<T extends Token> {
 
 
     @SuppressWarnings("unchecked")
-    protected <T extends Token> T nextAndExpected(ListIterator<Token> iterator, Class<T> clazz){
+    protected <K extends Token> K nextAndExpected(ListIterator<Token> iterator, Class<K> clazz){
         checkUnexpectedEnd(iterator);
 
         Token next = iterator.next();
         if (!isTokenClass(next, clazz))
             unexpectedToken(next);
 
-        return (T) next;
+        return (K) next;
     }
 
     protected boolean isTokenClass(Token token, Class<? extends Token>... classes){
