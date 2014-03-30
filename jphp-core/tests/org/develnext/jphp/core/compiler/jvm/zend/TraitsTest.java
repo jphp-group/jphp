@@ -106,4 +106,24 @@ public class TraitsTest extends JvmCompilerCase {
         check("zend/traits/conflict002.php", ErrorType.E_ALL.value);
         check("zend/traits/conflict003.php", true);
     }
+
+    @Test
+    public void testError() {
+        check("zend/traits/error_001.php", true);
+        check("zend/traits/error_002.php", true);
+        check("zend/traits/error_003.php", true);
+        check("zend/traits/error_004.php", true);
+        check("zend/traits/error_005.php", true);
+        check("zend/traits/error_006.php", true);
+        check("zend/traits/error_007.php", true);
+        check("zend/traits/error_008.php", true);
+        check("zend/traits/error_009.php", true);
+        check("zend/traits/error_010.php", true);
+        check("zend/traits/error_011.php", true);
+        check("zend/traits/error_012.php", true);
+        check("zend/traits/error_013.php", true);
+        check("zend/traits/error_014.php", true);
+        check("zend/traits/error_015.php", true);
+        check("zend/traits/error_016.php", true);
+    }
 }

@@ -28,4 +28,4 @@ $o->sayWorld();
 ?>
 --EXPECTF--
 
-Fatal error: Trait method 'sayWorld' has not been applied, because there are collision in 'World' and 'Hello' traits on MyClass in %s on line %d, position %d
+Fatal error: Trait method 'sayHello' has not been applied, because there are collision in 'World' and 'Hello' traits on MyClass in %s on line %d, position %d

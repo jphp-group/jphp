@@ -568,7 +568,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     compiler.getEnvironment().error(
                             entity.getTrace(),
                             Messages.ERR_TRAIT_METHOD_COLLISION.fetch(
-                                    alias.getName(), trait.getName(), origin.getTrait().getName(), entity.getName()
+                                    methodName, trait.getName(), origin.getTrait().getName(), entity.getName()
                             )
                     );
                 }
