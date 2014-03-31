@@ -36,32 +36,22 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 ### Language Features
 > (without zend runtime libraries)
 
-+ PHP 5.2+ fully support (with OOP)
-+ Closures (PHP 5.3), auto-binding `$this` in closures (PHP 5.4)
-+ Namespaces fully support (PHP 5.3)
-+ Spl autoloading for classes (PHP 5.3)
++ PHP 5.4+ (with OOP)
++ Spl autoloading for classes
 + Iterators, ArrayAccess, Serializable
-+ Type hinting for classes, arrays, callable (PHP 5.4)
-+ Array short syntax (PHP 5.4)
-+ Ternary short cut "?:", NOWDOC, `__callStatic`, `__invoke` (PHP 5.3)
 + Late static binding (PHP 5.3)
-+ GC for cyclic references (PHP 5.3)
-+ `Class::{expr}()`, `(new Foo)->bar()` (PHP 5.4)
 + Try finally (PHP 5.5)
 + Array and string literal dereferencing (PHP 5.5)
 + `__debugInfo` for var_dump (PHP 5.6)
-+ Function array dereferencing has been added, e.g. `foo()[0]` (PHP 5.4)
-+ Constants can be declared outside a class using the const keyword. (PHP 5.3)
-+ Dynamic access to static methods (PHP 5.3)
 + Exceptions can be nested (PHP 5.3)
 + `::class` system constant (php 5.5)
-+ Binary number format, e.g. 0b001001101 (php 5.4)
-+ Traits (php 5.4)
++ Traits (php 5.4) 
++ Goto (php 5.3)
 
 **What does not yet support?**
 
++ Backtick operator (via shell_execute)
 + Generators (php 5.5)
-+ Goto (php 5.3)
 + list() in foreach (php 5.5)
 
 **What non-php features does JPHP support?**
