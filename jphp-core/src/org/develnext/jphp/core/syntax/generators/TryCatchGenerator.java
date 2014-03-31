@@ -110,8 +110,10 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
 
             if (next instanceof CatchStmtToken){
                 processCatches(result, next, iterator);
-            } else if (next instanceof FinallyStmtToken){
+            } else if (next instanceof FinallyStmtToken) {
+                analyzer.getScope().setLevelForGoto(true);
                 processFinally(result, next, iterator);
+                analyzer.getScope().setLevelForGoto(false);
             } else
                 unexpectedToken(next, TokenType.T_CATCH);
 

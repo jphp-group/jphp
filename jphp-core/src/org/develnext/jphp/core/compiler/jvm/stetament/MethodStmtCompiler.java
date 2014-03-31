@@ -108,11 +108,15 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.external = external;
     }
 
+    public Stack<TryCatchItem> getTryStack() {
+        return tryStack;
+    }
+
     public Map<String, LocalVariable> getLocalVariables() {
         return localVariables;
     }
 
-    int nextStatementIndex(Class<?> clazz){
+    public int nextStatementIndex(Class<?> clazz){
         AtomicInteger atomic = statementIndexes.get(clazz);
         if (atomic == null)
             statementIndexes.put(clazz, atomic = new AtomicInteger());
@@ -120,7 +124,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return atomic.getAndIncrement();
     }
 
-    int prevStatementIndex(Class<?> clazz){
+    public int prevStatementIndex(Class<?> clazz){
         AtomicInteger atomic = statementIndexes.get(clazz);
         if (atomic == null)
             statementIndexes.put(clazz, atomic = new AtomicInteger());
@@ -128,15 +132,15 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return atomic.getAndDecrement();
     }
 
-    void pushJump(LabelNode breakLabel, LabelNode continueLabel, int stackSize){
+    public void pushJump(LabelNode breakLabel, LabelNode continueLabel, int stackSize){
         jumpStack.add(new JumpItem(breakLabel, continueLabel, stackSize));
     }
 
-    void pushJump(LabelNode breakLabel, LabelNode continueLabel){
+    public void pushJump(LabelNode breakLabel, LabelNode continueLabel){
         pushJump(breakLabel, continueLabel, 0);
     }
 
-    JumpItem getJump(int level){
+    public JumpItem getJump(int level){
         if (jumpStack.size() - level < 0)
             return null;
         if (jumpStack.size() - level >= jumpStack.size())
@@ -145,7 +149,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return jumpStack.get(jumpStack.size() - level);
     }
 
-    int getJumpStackSize(int level){
+    public int getJumpStackSize(int level){
         int size = 0;
         for(int i = jumpStack.size(); i >= 0 && jumpStack.size() - i < level; i--){
             JumpItem item = getJump(i);
@@ -154,7 +158,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return size;
     }
 
-    void popJump(){
+    public void popJump(){
         jumpStack.remove(jumpStack.size() - 1);
     }
 
@@ -191,11 +195,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return stack.peek();
     }
 
-    LabelNode getGotoLabel(String name) {
+    public LabelNode getGotoLabel(String name) {
         return gotoLabels == null ? null : gotoLabels.get(name.toLowerCase());
     }
 
-    LabelNode getOrCreateGotoLabel(String name) {
+    public LabelNode getOrCreateGotoLabel(String name) {
         name = name.toLowerCase();
         if (gotoLabels == null)
             gotoLabels = new HashMap<String, LabelNode>();
@@ -207,7 +211,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return label;
     }
 
-    LocalVariable addLocalVariable(String variable, LabelNode label, Class clazz){
+    public LocalVariable addLocalVariable(String variable, LabelNode label, Class clazz){
         LocalVariable result;
         localVariables.put(
                 variable,
@@ -216,7 +220,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return result;
     }
 
-    LocalVariable getOrAddLocalVariable(String variable, LabelNode label, Class clazz){
+    public LocalVariable getOrAddLocalVariable(String variable, LabelNode label, Class clazz){
         LocalVariable local = getLocalVariable(variable);
         if (local == null){
             local = addLocalVariable(variable, label, clazz);
@@ -229,11 +233,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return local;
     }
 
-    LocalVariable addLocalVariable(String variable, LabelNode label){
+    public LocalVariable addLocalVariable(String variable, LabelNode label){
         return addLocalVariable(variable, label, Memory.class);
     }
 
-    LocalVariable getLocalVariable(String variable){
+    public LocalVariable getLocalVariable(String variable){
         return localVariables.get(variable);
     }
 

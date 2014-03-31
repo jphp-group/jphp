@@ -235,7 +235,8 @@ public class SyntaxAnalyzer {
     }
 
     public Scope addScope(boolean isRoot) {
-        Scope scope = new Scope();
+        Scope scope = new Scope(scopeStack.empty() ? null : scopeStack.peek());
+
         scopeStack.push(scope);
         if (isRoot)
             rootScopeStack.push(scope);

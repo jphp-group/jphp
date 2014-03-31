@@ -1,5 +1,7 @@
+--TEST--
+jump 08: goto inside switch in constructor
+--FILE--
 <?php
-
 class foobar {
     public function __construct() {
         switch (1) {
@@ -17,3 +19,8 @@ class foobar {
 }
 
 new foobar;
+?>
+--EXPECT--
+ok!
+ok!
+ok!

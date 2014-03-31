@@ -62,7 +62,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processSwitch(SwitchStmtToken result, ListIterator<Token> iterator){
-        analyzer.addScope(false);
+        analyzer.addScope(false).setLevelForGoto(true);
+
         result.setValue(getInBraces(BraceExprToken.Kind.SIMPLE, iterator));
         if (result.getValue() == null)
             unexpectedToken(iterator);
@@ -135,7 +136,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processForeach(ForeachStmtToken result, ListIterator<Token> iterator){
-        analyzer.addScope(false);
+        analyzer.addScope(false).setLevelForGoto(true);
+
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
@@ -239,6 +241,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
     protected void processFor(ForStmtToken result, ListIterator<Token> iterator){
         analyzer.addScope();
+
         Token next = nextToken(iterator);
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
@@ -261,7 +264,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         } while (true);
 
         result.setInitLocal(analyzer.removeScope().getVariables());
-        analyzer.addScope();
+        analyzer.addScope().setLevelForGoto(true);
 
         ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
@@ -301,7 +304,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processWhile(WhileStmtToken result, ListIterator<Token> iterator){
-        analyzer.addScope();
+        analyzer.addScope().setLevelForGoto(true);
 
         ExprStmtToken condition = getInBraces(BraceExprToken.Kind.SIMPLE, iterator);
         if (condition == null)
@@ -331,7 +334,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processDo(DoStmtToken result, ListIterator<Token> iterator){
-        analyzer.addScope();
+        analyzer.addScope().setLevelForGoto(true);
         BodyStmtToken body = analyzer.generator(BodyGenerator.class).getToken(nextToken(iterator), iterator);
         result.setBody(body);
 
@@ -425,6 +428,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (token.getClass() != NameToken.class)
             unexpectedToken(token);
 
+        nextAndExpected(iterator, SemicolonToken.class);
+
+        result.setLevel(analyzer.getScope().getGotoLevel());
         result.setLabel(token);
     }
 

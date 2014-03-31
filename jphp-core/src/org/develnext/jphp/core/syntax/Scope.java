@@ -8,8 +8,12 @@ import java.util.*;
 public class Scope {
     protected Set<VariableExprToken> variables;
     protected Map<String, LabelStmtToken> labels;
+    protected final Scope parent;
+    protected boolean levelForGoto = false;
+    protected int cachedGotoLevel = -1;
 
-    public Scope() {
+    public Scope(Scope parent) {
+        this.parent = parent;
         variables = new HashSet<VariableExprToken>();
         labels = new HashMap<String, LabelStmtToken>();
     }
@@ -32,10 +36,34 @@ public class Scope {
     }
 
     public void addLabel(LabelStmtToken labelStmtToken) {
+        labelStmtToken.setLevel(getGotoLevel());
         labels.put(labelStmtToken.getName().toLowerCase(), labelStmtToken);
     }
 
     public Map<String, LabelStmtToken> getLabels() {
         return labels;
+    }
+
+    public boolean isLevelForGoto() {
+        return levelForGoto;
+    }
+
+    public Scope setLevelForGoto(boolean applyGoto) {
+        this.levelForGoto = applyGoto;
+        this.cachedGotoLevel = -1;
+        return this;
+    }
+
+    public int getGotoLevel() {
+        if (cachedGotoLevel > -1)
+            return cachedGotoLevel;
+
+        int level = isLevelForGoto() ? 1 : 0;
+        Scope pr = parent;
+        while (pr != null) {
+            level += pr.isLevelForGoto() ? 1 : 0;
+            pr = pr.parent;
+        }
+        return cachedGotoLevel = level;
     }
 }
