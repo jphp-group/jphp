@@ -45,8 +45,6 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 + `__debugInfo` for var_dump (PHP 5.6)
 + Exceptions can be nested (PHP 5.3)
 + `::class` system constant (php 5.5)
-+ Traits (php 5.4) 
-+ Goto (php 5.3)
 
 **What does not yet support?**
 
