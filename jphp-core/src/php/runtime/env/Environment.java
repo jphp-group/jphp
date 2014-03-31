@@ -66,6 +66,7 @@ public class Environment {
     private ErrorReportHandler errorReportHandler;
     private ErrorHandler previousErrorHandler;
     private ErrorHandler errorHandler;
+    private ShellExecHandler shellExecHandler = ShellExecHandler.DEFAULT;
 
     private ExceptionHandler previousExceptionHandler;
     private ExceptionHandler exceptionHandler = ExceptionHandler.DEFAULT;
@@ -613,6 +614,14 @@ public class Environment {
         return lastMessage;
     }
 
+    public ShellExecHandler getShellExecHandler() {
+        return shellExecHandler;
+    }
+
+    public void setShellExecHandler(ShellExecHandler shellExecHandler) {
+        this.shellExecHandler = shellExecHandler;
+    }
+
     public ExceptionHandler getExceptionHandler() {
         return exceptionHandler;
     }
@@ -1151,6 +1160,12 @@ public class Environment {
                     trace
             ));
         }
+    }
+
+    public String __shellExecute(String s) {
+        if (shellExecHandler != null)
+            return shellExecHandler.onExecute(s);
+        return "";
     }
 
     public void die(Memory value) {

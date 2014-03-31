@@ -102,6 +102,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         compilerRules.put(NullExprToken.class, NullValueCompiler.class);
         compilerRules.put(DoubleExprToken.class, DoubleValueCompiler.class);
         compilerRules.put(StringExprToken.class, StringValueCompiler.class);
+        compilerRules.put(ShellExecExprToken.class, ShellExecValueCompiler.class);
 
         compilerRules.put(IncludeExprToken.class, ImportCompiler.class);
         compilerRules.put(IncludeOnceExprToken.class, ImportCompiler.class);
