@@ -37,8 +37,8 @@ public class GrammarUtils {
             return StringExprToken.Quote.SINGLE;
         else if (ch == '"')
             return StringExprToken.Quote.DOUBLE;
-        /*else if (ch == '`')
-            return StringExprToken.Quote.SHELL;*/
+        else if (ch == '`')
+            return StringExprToken.Quote.SHELL;
 
         return null;
     }

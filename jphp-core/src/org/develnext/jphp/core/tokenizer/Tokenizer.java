@@ -1,5 +1,7 @@
 package org.develnext.jphp.core.tokenizer;
 
+import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.ShellExecExprToken;
 import php.runtime.common.Directive;
 import php.runtime.common.Messages;
 import php.runtime.exceptions.ParseException;
@@ -192,7 +194,7 @@ public class Tokenizer {
         return checkNewLine(ch, false);
     }
 
-    protected StringExprToken readString(StringExprToken.Quote quote, int startPosition, int startLine){
+    protected ValueExprToken readString(StringExprToken.Quote quote, int startPosition, int startLine){
         int i = currentPosition + 1, pos = relativePosition + 1;
         StringExprToken.Quote ch_quote = null;
         boolean slash = false;
@@ -478,6 +480,9 @@ public class Tokenizer {
         meta.setWord(sb.toString());
 
         StringExprToken expr = new StringExprToken(meta, quote);
+        if (expr.getQuote() == StringExprToken.Quote.SHELL)
+            return new ShellExecExprToken(meta);
+
         expr.setSegments(segments);
         return expr;
     }
