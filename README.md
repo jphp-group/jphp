@@ -43,7 +43,6 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 + Try finally (PHP 5.5)
 + Array and string literal dereferencing (PHP 5.5)
 + `__debugInfo` for var_dump (PHP 5.6)
-+ Exceptions can be nested (PHP 5.3)
 + `::class` system constant (php 5.5)
 
 **What does not yet support?**
