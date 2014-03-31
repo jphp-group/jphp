@@ -504,7 +504,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             try {
                 SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(analyzer.getEnvironment(), tokenizer, analyzer.getFunction());
                 List<Token> tree = syntaxAnalyzer.getTree();
-                analyzer.getLocalScope().addAll(syntaxAnalyzer.getLocalScope());
+                analyzer.getScope().addVariables(syntaxAnalyzer.getScope().getVariables());
 
                 assert tree.size() > 0;
 
@@ -582,7 +582,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof VariableExprToken){
-            analyzer.getLocalScope().add((VariableExprToken) current);
+            analyzer.getScope().addVariable((VariableExprToken) current);
             if (analyzer.getFunction() != null)
                 analyzer.getFunction().setVarsExists(true);
         }

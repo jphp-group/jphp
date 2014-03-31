@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BodyStmtToken extends StmtToken {
-
+    private Boolean constantly;
     private boolean alternativeSyntax = false;
     private List<ExprStmtToken> instructions;
 
@@ -21,6 +21,7 @@ public class BodyStmtToken extends StmtToken {
 
     public void setInstructions(List<ExprStmtToken> instructions) {
         this.instructions = instructions;
+        this.constantly = null;
     }
 
     public static BodyStmtToken of(ExprStmtToken... instructions){
@@ -42,4 +43,15 @@ public class BodyStmtToken extends StmtToken {
     public void setAlternativeSyntax(boolean alternativeSyntax) {
         this.alternativeSyntax = alternativeSyntax;
     }
+
+    public boolean isConstantly() {
+        if (constantly != null)
+            return constantly;
+
+        for(ExprStmtToken e : instructions)
+            if (!e.isConstantly())
+                return constantly = false;
+        return constantly = true;
+    }
+
 }

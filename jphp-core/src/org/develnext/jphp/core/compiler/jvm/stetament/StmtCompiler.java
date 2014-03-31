@@ -27,7 +27,7 @@ abstract public class StmtCompiler<T extends Entity> {
         return compiler;
     }
 
-    protected LabelNode writeLabel(MethodNode mv, int lineNumber){
+    public LabelNode writeLabel(MethodNode mv, int lineNumber){
         LabelNode node = new LabelNode(new Label());
         mv.instructions.add(node);
         if (lineNumber != -1)
@@ -36,16 +36,19 @@ abstract public class StmtCompiler<T extends Entity> {
         return node;
     }
 
-    protected LabelNode writeLabel(MethodNode mv){
+    public LabelNode writeLabel(MethodNode mv){
         return writeLabel(mv, -1);
     }
 
+    public T getEntity() {
+        return entity;
+    }
 
     /**
      * @throws ParseException
      * @param token
      */
-    protected void unexpectedToken(Token token){
+    public void unexpectedToken(Token token){
         Object unexpected = token.getWord();
         if (token.getType() == TokenType.T_J_CUSTOM)
             unexpected = token.getWord();
