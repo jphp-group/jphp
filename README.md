@@ -47,7 +47,6 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 
 **What does not yet support?**
 
-+ Backtick operator (via shell_execute)
 + Generators (php 5.5)
 + list() in foreach (php 5.5)
 
