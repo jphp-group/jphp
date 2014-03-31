@@ -1745,6 +1745,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return item.type;
     }
 
+    boolean tryIsImmutable(StackItem item) {
+        if (item.getToken() != null) {
+            return tryIsImmutable(item.getToken());
+        } else if (item.getMemory() != null)
+            return true;
+        else
+            return item.type.isConstant();
+    }
+
     Memory tryWritePush(StackItem item){
         return tryWritePush(item, true, true, true);
     }
@@ -1779,6 +1788,33 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushMemory(memory);
         }
         writePop(castType.toClass(), true, true);
+    }
+
+    boolean tryIsImmutable(ValueExprToken value) {
+        if (value instanceof IntegerExprToken || value instanceof HexExprValue
+                || value instanceof BinaryExprValue)
+            return true;
+        else if (value instanceof DoubleExprToken)
+            return true;
+        else if (value instanceof StringExprToken)
+            return true;
+        else if (value instanceof LineMacroToken)
+            return true;
+        else if (value instanceof MacroToken)
+            return true;
+        else if (value instanceof ArrayExprToken)
+            return true;
+        else if (value instanceof StringBuilderExprToken)
+            return true;
+        else if (value instanceof NameToken)
+            return true;
+        else if (value instanceof CallExprToken) {
+            PushCallStatistic statistic = new PushCallStatistic();
+            writePushCall((CallExprToken)value, true, false, statistic);
+            return statistic.returnType.isConstant();
+        }
+
+        return false;
     }
 
     StackItem.Type tryGetType(ValueExprToken value){
@@ -2963,6 +2999,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     sideOperator = false;
             }
         }
+
+        if (operator instanceof AssignableOperatorToken && tryIsImmutable(o2))
+            unexpectedToken(operator);
 
         if (Lt.isConstant() && Rt.isConstant()){
             if (operator instanceof AssignableOperatorToken)
