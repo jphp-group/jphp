@@ -38,8 +38,8 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 
 + PHP 5.4+ (with OOP)
 + Spl autoloading for classes
-+ Iterators, ArrayAccess, Serializable
-+ Late static binding (PHP 5.3)
++ Iterators, ArrayAccess, Serializable, etc.
++ Reflection classes
 + Try finally (PHP 5.5)
 + Array and string literal dereferencing (PHP 5.5)
 + `__debugInfo` for var_dump (PHP 5.6)
