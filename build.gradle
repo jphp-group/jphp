@@ -46,7 +46,12 @@ configure(subprojects.findAll { it.name.endsWith("-ext") }) {
 }
 
 // for deploy
-configure([project(':jphp-core'), project(':jphp-swing-ext')]) {
+configure([
+        project(':jphp-core'),
+        project(':jphp-swing-ext'),
+        project(':jphp-zend-ext'),
+        project(':jphp-json-ext')
+]) {
 
     if (!project.ext.isSnapshot) {
         task sourcesJar(type: Jar, dependsOn: 'classes') {

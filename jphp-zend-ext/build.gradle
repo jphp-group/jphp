@@ -1,0 +1,13 @@
+ext.isExtension = true;
+
+sourceSets {
+    test.resources.srcDirs = ["src/main/tests"]
+}
+
+dependencies {
+    compile project(':jphp-core')
+    compile project(':jphp-json-ext')
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-core').sourceSets.test.output
+}

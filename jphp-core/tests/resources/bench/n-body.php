@@ -67,7 +67,7 @@ function test(){
 
     $n = 2;
 
-    printf("%0.9f\n", energy($bodies));
+    // printf("%0.9f\n", energy($bodies));
 
     $i=0;
     do {

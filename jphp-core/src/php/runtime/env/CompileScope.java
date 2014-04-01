@@ -3,6 +3,7 @@ package php.runtime.env;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.LangMode;
+import php.runtime.exceptions.ConflictException;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.JavaExtension;
@@ -198,18 +199,38 @@ public class CompileScope {
         compileClassMap.put(el.getLowerName(), el);
     }
 
-    public void registerExtension(Extension extension){
+    public void registerExtension(Extension extension) {
+        if (extensions.containsKey(extension.getName()))
+            return;
+
+        // required
         for(String dep : extension.getRequiredExtensions()){
             try {
                 Extension el = (Extension) Class.forName(dep).newInstance();
                 registerExtension(el);
-            } catch (InstantiationException e) {
-                throw new CriticalException(e);
-            } catch (IllegalAccessException e) {
-                throw new CriticalException(e);
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new CriticalException(e);
             }
+        }
+
+        // optional
+        for (String dep : extension.getOptionalExtensions()) {
+            try {
+                Extension el = (Extension) Class.forName(dep).newInstance();
+                registerExtension(el);
+            } catch (ClassNotFoundException e) {
+                // do nothing ...
+            } catch (Exception e) {
+                throw new CriticalException(e);
+            }
+        }
+
+        // conflicts
+        for(String dep : extension.getConflictExtensions()) {
+            if (extensions.containsKey(dep))
+                throw new ConflictException(
+                        "'" + dep + "' extension conflicts with '" + extension.getClass().getName() + "'"
+                );
         }
 
         extension.onRegister(this);

@@ -19,6 +19,7 @@ jar {
 
 dependencies {
     compile project(':jphp-core')
+    compile project(':jphp-zend-ext')
     compile 'com.beust:jcommander:1.32'
 }
 
