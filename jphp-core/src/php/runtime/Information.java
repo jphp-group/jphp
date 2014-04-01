@@ -18,10 +18,6 @@ final public class Information {
     public static final Map<String, String> EXTENSIONS = new HashMap<String, String>();
 
     static {
-        EXTENSIONS.put("bcmath", BCMathExtension.class.getName());
-        EXTENSIONS.put("ctype", CTypeExtension.class.getName());
-        EXTENSIONS.put("calendar", CalendarExtension.class.getName());
-        EXTENSIONS.put("date", DateExtension.class.getName());
         EXTENSIONS.put("spl", SPLExtension.class.getName());
     }
 }

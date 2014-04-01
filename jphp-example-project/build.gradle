@@ -13,7 +13,7 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-swing-ext')
-    compile project(':jphp-json-ext')
+    compile project(':jphp-zend-ext')
 }
 
 jar {

@@ -13,7 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 abstract public class Extension {
-    abstract public String getName();
+    public String getName() {
+        return getClass().getName();
+    }
+
     abstract public String getVersion();
 
     public String[] getRequiredExtensions(){

@@ -38,7 +38,6 @@ public class CoreExtension extends Extension {
         registerConstants(new MathConstants());
         registerFunctions(new MathFunctions());
 
-        registerConstants(new StringConstants());
         registerFunctions(new StringFunctions());
 
         registerConstants(new ArrayConstants());
@@ -46,9 +45,6 @@ public class CoreExtension extends Extension {
 
         registerConstants(new OutputConstants());
         registerFunctions(new OutputFunctions());
-
-        registerConstants(new FileConstants());
-        registerFunctions(new FileFunctions());
 
         // T_ERROR
         for (ErrorType el : ErrorType.values())
