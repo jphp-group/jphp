@@ -24,4 +24,9 @@ public class ExtendsStmtToken extends StmtToken {
         result.setName(FulledNameToken.valueOf(fulledName));
         return result;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

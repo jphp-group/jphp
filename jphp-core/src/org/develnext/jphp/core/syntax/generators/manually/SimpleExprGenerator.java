@@ -547,6 +547,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (current instanceof DynamicAccessExprToken){
+            if (next != null && next.isNamedToken() && !(next instanceof NameToken))
+                next = new NameToken(next.getMeta());
+
             return processDynamicAccess(current, next, previous, iterator, closedBraceKind, braceOpened);
         }
 

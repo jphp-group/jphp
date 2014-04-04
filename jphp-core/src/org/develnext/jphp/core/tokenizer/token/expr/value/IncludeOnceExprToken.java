@@ -12,4 +12,9 @@ public class IncludeOnceExprToken extends ImportExprToken {
     public String getCode() {
         return "includeOnce";
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

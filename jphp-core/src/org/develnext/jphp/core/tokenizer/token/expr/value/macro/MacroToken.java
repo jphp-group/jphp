@@ -8,4 +8,9 @@ abstract public class MacroToken extends ValueExprToken {
     public MacroToken(TokenMeta meta, TokenType type) {
         super(meta, type);
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

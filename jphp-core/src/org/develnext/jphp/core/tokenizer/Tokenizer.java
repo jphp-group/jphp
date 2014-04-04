@@ -619,7 +619,6 @@ public class Tokenizer {
 
             checkNewLine(ch);
 
-
             if (rawMode){
                 if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
                     TokenMeta meta = new TokenMeta(

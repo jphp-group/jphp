@@ -19,4 +19,9 @@ public class EmptyExprToken extends ValueExprToken implements CallableExprToken 
     public void setValue(ExprStmtToken value) {
         this.value = value;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

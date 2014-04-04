@@ -28,4 +28,9 @@ public class ImplementsStmtToken extends ExprToken implements Iterable<FulledNam
     public Iterator<FulledNameToken> iterator() {
         return names.iterator();
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

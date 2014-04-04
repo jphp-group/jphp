@@ -8,4 +8,9 @@ public class ParentExprToken extends ValueExprToken {
     public ParentExprToken(TokenMeta meta) {
         super(meta, TokenType.T_STRING);
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

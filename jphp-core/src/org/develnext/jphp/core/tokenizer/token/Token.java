@@ -38,6 +38,10 @@ public class Token {
         return getMeta().getWord();
     }
 
+    public boolean isNamedToken() {
+        return type == TokenType.T_STRING;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

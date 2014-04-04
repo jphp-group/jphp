@@ -47,4 +47,9 @@ public class NewExprToken extends ValueExprToken implements CallableExprToken {
     public void setParameters(List<ExprStmtToken> parameters) {
         this.parameters = parameters;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

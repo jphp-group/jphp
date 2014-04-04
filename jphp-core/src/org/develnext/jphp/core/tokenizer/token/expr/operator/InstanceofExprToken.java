@@ -44,4 +44,9 @@ public class InstanceofExprToken extends OperatorExprToken {
     public void setWhatVariable(VariableExprToken what){
         this.what = what;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

@@ -44,4 +44,9 @@ public class CloneExprToken extends OperatorExprToken {
     public boolean isTraceNeeded() {
         return true;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

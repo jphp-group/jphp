@@ -8,4 +8,9 @@ public class StaticExprToken extends ValueExprToken {
     public StaticExprToken(TokenMeta meta) {
         super(meta, TokenType.T_STATIC);
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

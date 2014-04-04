@@ -12,4 +12,9 @@ public class RequireExprToken extends ImportExprToken {
     public String getCode() {
         return "require";
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

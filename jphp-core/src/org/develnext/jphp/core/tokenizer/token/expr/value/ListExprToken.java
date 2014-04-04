@@ -42,6 +42,11 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
             variables.add(v);
     }
 
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
+
     public class Variable {
         public final ExprStmtToken var;
         //public final String name;

@@ -7,4 +7,9 @@ public class IssetExprToken extends CallExprToken {
     public IssetExprToken(TokenMeta meta) {
         super(meta, TokenType.T_ISSET);
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

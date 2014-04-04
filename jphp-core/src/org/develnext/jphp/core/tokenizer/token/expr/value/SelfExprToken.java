@@ -8,4 +8,9 @@ public class SelfExprToken extends ValueExprToken {
     public SelfExprToken(TokenMeta meta) {
         super(meta, TokenType.T_STRING);
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }
