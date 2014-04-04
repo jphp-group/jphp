@@ -4,18 +4,17 @@ Test dirname() function : basic functionality
 <?php
 
 $paths = array(
-			'/usr',
-			'/usr/',
-			'/usr/bin/',
-			'/usr/bin/env'
+			'usr',
+			'usr/',
+			'usr/bin/'
 			);
 
 foreach ($paths as $path) {
+    echo $path . '=';
 	echo dirname($path) . "\n";
 }
-
+?>
 --EXPECTF--
-/
-/
-/usr
-/usr/bin
+usr=
+usr/=
+usr/bin/=usr
