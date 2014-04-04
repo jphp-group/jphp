@@ -103,7 +103,7 @@ public class FileFunctions extends FunctionsContainer {
 
     @Immutable
     public static String dirname(String path){
-        return new File(path).getPath();
+        return new File(path).getParent();
     }
 
     public static Memory disk_free_space(String path){
