@@ -74,4 +74,25 @@ if ($sum !== 5)
 
 foreach(array() as $x);
 
+//////
+$arr = [1];
+foreach ($arr as $i) {
+    echo $i, "\n";
+    $arr[] = ++$i;
+    if (count($arr) > 2)
+        return "fail_9: infinity loop";
+}
+
+/////
+$sum = 0;
+$arr = [1, 2];
+foreach ($arr as $i) {
+    echo $i, "\n";
+    unset($arr[1]);
+    $sum += $i;
+}
+
+if ($sum !== 1)
+    return "fail_10: unset with list array";
+
 return 'success';

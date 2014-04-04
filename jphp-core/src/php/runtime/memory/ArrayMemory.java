@@ -1,11 +1,11 @@
 package php.runtime.memory;
 
-import php.runtime.annotation.Reflection;
+import php.runtime.Memory;
 import php.runtime.common.Messages;
-import php.runtime.exceptions.RecursiveException;
 import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.RecursiveException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
@@ -13,7 +13,6 @@ import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
 import php.runtime.memory.helper.ShortcutMemory;
-import php.runtime.Memory;
 import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
@@ -1064,6 +1063,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     public ForeachIterator foreachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious) {
         return new ForeachIterator(getReferences, getKeyReferences, withPrevious){
             protected int cursor = 0;
+            protected int listMax;
             protected Iterator<Object> keys;
 
             @Override
@@ -1076,6 +1076,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
                     else
                         keys = new ArrayList<Object>(map.keySet()).iterator();
+                } else {
+                    listMax = list.size();
                 }
                 return true;
             }
@@ -1148,7 +1150,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     return false;
 
                 if (ArrayMemory.this.list != null) {
-                    if (cursor >= size) {
+                    if (cursor >= listMax || size < listMax) {
                         currentKey = null;
                         currentValue = null;
                         return false;
