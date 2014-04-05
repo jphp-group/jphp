@@ -407,6 +407,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 ExprStmtToken initValue = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                         nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null
                 );
+                if (nextTokenAndPrev(iterator) instanceof CommaToken)
+                    iterator.next();
+
                 result.setInitValue(initValue);
                 list.add(result);
             } else if (isBreak(next)){

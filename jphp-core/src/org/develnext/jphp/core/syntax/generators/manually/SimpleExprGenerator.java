@@ -1,11 +1,6 @@
 package org.develnext.jphp.core.syntax.generators.manually;
 
 
-import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
-import php.runtime.common.Callback;
-import php.runtime.common.Separator;
-import php.runtime.exceptions.ParseException;
-import php.runtime.env.TraceInfo;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.ExprGenerator;
 import org.develnext.jphp.core.syntax.generators.FunctionGenerator;
@@ -23,8 +18,13 @@ import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.CastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.AsStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
+import php.runtime.common.Callback;
+import php.runtime.common.Separator;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.ParseException;
 
 import java.util.*;
 
@@ -876,7 +876,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprStmtToken getNextExpression(Token current, ListIterator<Token> iterator,
                                            BraceExprToken.Kind closedBraceKind){
-        return getNextExpression(current, iterator, Separator.SEMICOLON, closedBraceKind);
+        return getNextExpression(current, iterator, Separator.COMMA_OR_SEMICOLON, closedBraceKind);
     }
 
     public ExprStmtToken getNextExpression(Token current, ListIterator<Token> iterator,
@@ -885,7 +885,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ExprStmtToken value = getToken(
                 current, iterator, separator, closedBraceKind
         );
-        if (!isBreak(iterator.previous())){
+        Token tk = iterator.previous();
+        if (!isBreak(tk) && (separator == null || !isTokenClass(tk, separator.getTokenClass()))){
             iterator.next();
         }
         return value;

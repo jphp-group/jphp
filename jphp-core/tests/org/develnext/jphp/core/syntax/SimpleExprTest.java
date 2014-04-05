@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax;
 
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ValueIfElseToken;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -119,5 +120,25 @@ public class SimpleExprTest extends AbstractSyntaxTestCase {
         name = ((GetVarExprToken) tokens.get(0)).getName();
         Assert.assertTrue(name.getTokens().size() == 3);
         Assert.assertTrue(name.getTokens().get(0) instanceof StringExprToken);
+    }
+
+    @Test
+    public void testIfElse() {
+        List<Token> tokens = getSyntaxTree("call(1, true ? 1 : 2, 'foobar');");
+
+        Assert.assertEquals(1, tokens.size());
+        Assert.assertTrue(tokens.get(0) instanceof ExprStmtToken);
+        Assert.assertTrue(((ExprStmtToken) tokens.get(0)).getLast() instanceof CallExprToken);
+
+        CallExprToken call = (CallExprToken)((ExprStmtToken) tokens.get(0)).getLast();
+        Assert.assertEquals(3, call.getParameters().size());
+        Assert.assertTrue(call.getParameters().get(0).getSingle() instanceof IntegerExprToken);
+
+        Assert.assertTrue(call.getParameters().get(1).getTokens().get(1) instanceof ValueIfElseToken);
+        ValueIfElseToken ifElse = (ValueIfElseToken)call.getParameters().get(1).getTokens().get(1);
+        Assert.assertTrue(ifElse.getValue().getSingle() instanceof IntegerExprToken);
+        Assert.assertTrue(ifElse.getAlternative().getSingle() instanceof IntegerExprToken);
+
+        Assert.assertTrue(call.getParameters().get(2).getSingle() instanceof StringExprToken);
     }
 }
