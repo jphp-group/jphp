@@ -118,6 +118,10 @@ public class MemoryTest {
 
         Assert.assertEquals(memory, memory.toImmutable());
         Assert.assertTrue(memory.isImmutable());
+
+        Assert.assertNull(StringMemory.toLong("-"));
+        Assert.assertEquals(-1, StringMemory.toLong("-1").toLong());
+        Assert.assertEquals(32, StringMemory.toLong("32").toLong());
     }
 
     @Test

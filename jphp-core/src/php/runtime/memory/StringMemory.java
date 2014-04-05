@@ -50,16 +50,22 @@ public class StringMemory extends Memory {
 
         int i = 0;
         int start = i;
+        boolean neg = false;
         for(; i < len; i++){
             char ch = value.charAt(i);
             if (!('9' >= ch && ch >= '0')){
                 if (ch == '-'){
-                    if (i == start)
+                    if (i == start) {
+                        neg = true;
                         continue;
+                    }
                 }
                 return null;
             }
+            neg = false;
         }
+        if (neg)
+            return null;
 
         return LongMemory.valueOf(Long.parseLong(value));
     }
