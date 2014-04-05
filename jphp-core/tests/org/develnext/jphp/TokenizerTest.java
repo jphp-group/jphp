@@ -116,6 +116,21 @@ public class TokenizerTest {
     }
 
     @Test
+    public void testMagicString() throws IOException {
+        Token token;
+        Tokenizer tokenizer = new Tokenizer(new Context("\"\\.{$foo}\""));
+
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(".{$foo}", ((StringExprToken) token).getValue());
+        assertEquals(1, ((StringExprToken) token).getSegments().size());
+
+        StringExprToken.Segment segment =((StringExprToken) token).getSegments().get(0);
+        assertEquals(1, segment.from);
+        assertEquals(7, segment.to);
+    }
+
+    @Test
     public void testComplexOperators() throws IOException {
         Tokenizer tokenizer = new Tokenizer(new Context( "== >= <= === !== != && ||"));
 

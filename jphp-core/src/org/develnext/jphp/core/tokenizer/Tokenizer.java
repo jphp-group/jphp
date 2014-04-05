@@ -327,8 +327,11 @@ public class Tokenizer {
 
                         String sub = code.substring(i, j + 1);
                         segments.add(new StringExprToken.Segment(
-                                i - currentPosition - 1, j - currentPosition, dynamic == 2
+                                sb.length(), sb.length() + sub.length(), dynamic == 2
                         ));
+                        /*segments.add(new StringExprToken.Segment(
+                                i - currentPosition - 1, j - currentPosition, dynamic == 2
+                        ));*/
                         sb.append(sub);
                         i = j;
                         continue;
