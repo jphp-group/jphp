@@ -103,4 +103,10 @@ public class ClassesTest extends JvmCompilerCase {
     public void testClassNameConstant(){
         check("classes/class_name_constant.php");
     }
+
+    @Test
+    public void testNew() {
+        Memory memory = includeResource("classes/new.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

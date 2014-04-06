@@ -5,7 +5,6 @@ import org.develnext.jphp.core.compiler.jvm.stetament.expr.BaseExprCompiler;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NewExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StaticExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -22,9 +21,15 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
 
         expr.writePushEnv();
         if (token.isDynamic()){
-            expr.writePushVariable((VariableExprToken) token.getName());
-            expr.writePopString();
-            expr.writePushDupLowerCase();
+            Memory className = expr.writeExpression(token.getExprName(), true, true, false);
+            if (className != null) {
+                expr.writePushConstString(className.toString());
+                expr.writePushConstString(className.toString().toLowerCase());
+            } else {
+                expr.writeExpression(token.getExprName(), true, false);
+                expr.writePopString();
+                expr.writePushDupLowerCase();
+            }
         } else {
             if (token.getName() instanceof StaticExprToken){
                 expr.writePushStatic();
@@ -35,7 +40,7 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
                 expr.writePushString(name.getName().toLowerCase());
             }
         }
-        expr.writePushTraceInfo(token.getName());
+        expr.writePushTraceInfo(token);
         expr.writePushParameters(token.getParameters());
         expr.writeSysDynamicCall(
                 Environment.class, "__newObject",
