@@ -327,6 +327,26 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testStringCharAt() {
+        Memory memory;
+
+        memory = runDynamic("$x = 'foobar'; return $x[3];", false);
+        Assert.assertEquals("b", memory.toString());
+
+        memory = runDynamic("$x = 'foobar'; $x[3] = 'B'; return $x;", false);
+        Assert.assertEquals("fooBar", memory.toString());
+
+        memory = runDynamic("$x = 'foobar'; $x[6] = '1'; return $x;", false);
+        Assert.assertEquals("foobar1", memory.toString());
+
+        memory = runDynamic("$x = 'foobar'; $x[7] = '1'; $x[7] = '2'; return $x;", false);
+        Assert.assertEquals("foobar\32" + "2", memory.toString());
+
+        memory = runDynamic("$x = 'foobar'; $x[3] = ''; return $x;", false);
+        Assert.assertEquals("foo"+ '\0' + "ar", memory.toString());
+    }
+
+    @Test
     public void testBinaryIntegers() {
         Memory memory = runDynamic("0b11111111");
         Assert.assertEquals(255, memory.toLong());
