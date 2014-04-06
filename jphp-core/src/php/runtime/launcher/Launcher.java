@@ -143,7 +143,7 @@ public class Launcher {
     }
 
     protected void initExtensions(){
-        String tmp = getConfigValue("env.extensions", "spl, org.develnext.jphp.zend.ext.ZendExtension").toString();
+        String tmp = getConfigValue("env.extensions", "spl").toString();
         String[] extensions = StringUtils.split(tmp, ",");
 
         for(String ext : extensions){
