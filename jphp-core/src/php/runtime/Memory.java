@@ -395,6 +395,7 @@ abstract public class Memory {
     public Memory assign(String value){ throw new RuntimeException("Invalid assign `string` to " + type); }
     public Memory assignRef(Memory memory){ throw new RuntimeException("Invalid assignRef `memory` to " + type); }
 
+    public Memory assignRight(Memory memory) { return memory.assign(this); }
     public Memory assignRefRight(Memory memory) { return memory.assignRef(this); }
 
     public Memory assignConcat(Memory memory) { return assign(concat(memory)); }
