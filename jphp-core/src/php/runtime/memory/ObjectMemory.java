@@ -164,7 +164,7 @@ public class ObjectMemory extends Memory {
     }
 
     private boolean compare(Memory other, Comparator comparator){
-        switch (other.getRealType()){
+        switch (other.type){
             case OBJECT:
                 ClassEntity otherReflection = ((ObjectMemory)other).getReflection();
                 if (otherReflection.getId() != getReflection().getId())
