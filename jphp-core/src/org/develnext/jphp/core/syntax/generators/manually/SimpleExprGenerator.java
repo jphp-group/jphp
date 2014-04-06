@@ -617,6 +617,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     token = iterator.previous();
                     if (token instanceof VariableExprToken && analyzer.getFunction() != null){
                         analyzer.getFunction().getRefLocal().add((VariableExprToken)token);
+                        analyzer.getFunction().getMutableLocal().add((VariableExprToken)token);
                        // analyzer.getFunction().getUnstableLocal().add((VariableExprToken)token); TODO: check is needed?
                     }
 
