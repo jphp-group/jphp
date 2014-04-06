@@ -76,4 +76,14 @@ public class ArraysTest extends JvmCompilerCase {
     public void testPlus(){
         check("arrays/plus.php");
     }
+
+    @Test
+    public void testArrayReturn() {
+        Memory memory = runDynamic("$baseDir = 'foobar_'; return array(" +
+                "    'a' => $baseDir . 'bla',);", false);
+
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals("foobar_bla", memory.valueOfIndex("a").toString());
+        Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
+    }
 }

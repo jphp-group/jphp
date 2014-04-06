@@ -1942,6 +1942,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         if (isInvert){
+            stackPush(R);
             writePopBoxing();
             writePush(L);
             if (operator.isSide())
