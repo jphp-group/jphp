@@ -282,7 +282,7 @@ public class StringMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.STRING && toString().equals(memory.toString());
+        return memory.getRealType() == Type.STRING && toString().equals(memory.toString());
     }
 
     @Override

@@ -212,7 +212,7 @@ public class TrueMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory == TRUE;
+        return memory.toValue() == TRUE;
     }
 
     @Override

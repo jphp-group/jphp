@@ -327,6 +327,13 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testStringIdentical() {
+        Memory memory = runDynamic("$a = 'foo';\n" +
+                "return ($a === 'foo' ? 1 : 0) . ('foo' === $a ? 1 : 0);", false);
+        Assert.assertEquals("11", memory.toString());
+    }
+
+    @Test
     public void testStringCharAt() {
         Memory memory;
 

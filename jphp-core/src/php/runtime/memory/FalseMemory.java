@@ -56,7 +56,7 @@ public class FalseMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory == FALSE;
+        return memory.toValue() == FALSE;
     }
 
     @Override

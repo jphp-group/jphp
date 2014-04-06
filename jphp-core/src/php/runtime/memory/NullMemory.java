@@ -19,7 +19,7 @@ public class NullMemory extends FalseMemory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.type == Type.NULL;
+        return memory.getRealType() == Type.NULL;
     }
 
     @Override
