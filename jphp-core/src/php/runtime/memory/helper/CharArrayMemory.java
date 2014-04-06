@@ -47,7 +47,7 @@ public class CharArrayMemory extends StringMemory {
         }
 
         if (_index < buffer.length() && _index >= 0)
-            return new StringMemory(buffer.charAt(_index));
+            return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -57,7 +57,7 @@ public class CharArrayMemory extends StringMemory {
     public Memory valueOfIndex(TraceInfo trace, long index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length())
-            return new StringMemory(buffer.charAt(_index));
+            return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -66,7 +66,7 @@ public class CharArrayMemory extends StringMemory {
     public Memory valueOfIndex(TraceInfo trace, double index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length())
-            return new StringMemory(buffer.charAt(_index));
+            return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -75,7 +75,7 @@ public class CharArrayMemory extends StringMemory {
     public Memory valueOfIndex(TraceInfo trace, boolean index) {
         int _index = index ? 1 : 0;
         if (_index >= 0 && _index < buffer.length())
-            return new StringMemory(buffer.charAt(_index));
+            return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -89,7 +89,7 @@ public class CharArrayMemory extends StringMemory {
             _index = tmp.toInteger();
 
         if (_index >= 0 && _index < buffer.length())
-            return new StringMemory(buffer.charAt(_index));
+            return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }

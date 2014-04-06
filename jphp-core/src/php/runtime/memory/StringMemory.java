@@ -7,6 +7,8 @@ import php.runtime.Memory;
 public class StringMemory extends Memory {
     String value = "";
 
+    protected final static StringMemory[] CACHED_CHARS;
+
     public StringMemory(String value) {
         super(Type.STRING);
         this.value = value;
@@ -19,6 +21,10 @@ public class StringMemory extends Memory {
     public static Memory valueOf(String value){
         if (value.isEmpty())
             return Memory.CONST_EMPTY_STRING;
+
+        if (value.length() == 1) {
+            return getChar(value.charAt(0));
+        }
 
         return new StringMemory(value);
     }
@@ -492,7 +498,7 @@ public class StringMemory extends Memory {
         }
 
         if (_index < toString().length() && _index >= 0)
-            return new StringMemory(value.charAt(_index));
+            return getChar(value.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -502,7 +508,7 @@ public class StringMemory extends Memory {
         int _index = (int)index;
         String string = toString();
         if (_index >= 0 && _index < string.length())
-            return new StringMemory(string.charAt(_index));
+            return getChar(string.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -512,7 +518,7 @@ public class StringMemory extends Memory {
         int _index = (int)index;
         String string = toString();
         if (_index >= 0 && _index < string.length())
-            return new StringMemory(string.charAt(_index));
+            return getChar(string.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -522,7 +528,7 @@ public class StringMemory extends Memory {
         int _index = index ? 1 : 0;
         String string = toString();
         if (_index >= 0 && _index < string.length())
-            return new StringMemory(string.charAt(_index));
+            return getChar(string.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -537,7 +543,7 @@ public class StringMemory extends Memory {
 
         String string = toString();
         if (_index >= 0 && _index < string.length())
-            return new StringMemory(string.charAt(_index));
+            return getChar(string.charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -560,5 +566,20 @@ public class StringMemory extends Memory {
     @Override
     public boolean identical(boolean value) {
         return false;
+    }
+
+    protected static StringMemory getChar(char ch) {
+        int i = (int)ch;
+        if (i >= CACHED_CHARS.length)
+            return new StringMemory(ch);
+        else
+            return CACHED_CHARS[i];
+    }
+
+    static {
+        CACHED_CHARS = new StringMemory[256];
+        for(int i = 0; i < CACHED_CHARS.length; i++) {
+            CACHED_CHARS[i] = new StringMemory((char)i);
+        }
     }
 }
