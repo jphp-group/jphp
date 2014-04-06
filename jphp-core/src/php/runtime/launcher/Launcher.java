@@ -133,7 +133,7 @@ public class Launcher {
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
-                this.isDebug = getConfigValue("scope.debug").toBoolean();
+                this.isDebug = getConfigValue("env.debug").toBoolean();
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }
@@ -143,7 +143,7 @@ public class Launcher {
     }
 
     protected void initExtensions(){
-        String tmp = getConfigValue("scope.extensions", "bcmath, ctype, calendar, date, spl").toString();
+        String tmp = getConfigValue("env.extensions", "spl").toString();
         String[] extensions = StringUtils.split(tmp, ",");
 
         for(String ext : extensions){
