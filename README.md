@@ -8,6 +8,7 @@ How does it work? JPHP is a compiler like `javac`, it compiles php sources to JV
 can execute the result on the Java VM.
 
 Supports: JDK 1.6+ (OpenJDK, Oracle)
+Support Forum: https://groups.google.com/forum/#!forum/jphp-compiler
 
 ### Goals
 
