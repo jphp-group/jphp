@@ -59,7 +59,7 @@ abstract public class AbstractFunctionEntity extends Entity {
         if (arguments != null){
             int x = 0;
             for(ParameterEntity argument : this.parameters) {
-                if (argument.isArray()) {
+                if (argument.isMutable() && argument.isArray()) {
                     arguments[x].unset();
                 }
                 x++;

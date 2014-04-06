@@ -558,7 +558,7 @@ public class LangFunctions extends FunctionsContainer {
             Memory[] passed = new Memory[]{function, args};
             env.pushCall(trace, null, passed, "call_user_func_array", null, null);
             try {
-                return _call_user_func(env, trace, function, ((ArrayMemory) args).values(true));
+                return _call_user_func(env, trace, function, ((ArrayMemory) args).values(false));
             } finally {
                 env.popCall();
             }

@@ -132,10 +132,10 @@ final public class InvokeHelper {
             if (arg == null) {
                 Memory def = param.getDefaultValue();
                 if (def != null){
-                    if (!param.isReference())
-                        passed[i] = def.toImmutable(env, trace);
-                    else
-                        passed[i] = new ReferenceMemory(def.toImmutable(env, trace));
+                    if (!param.isReference()) {
+                        passed[i] = param.isMutable() ? def.toImmutable(env, trace) : def;
+                    } else
+                        passed[i] = new ReferenceMemory(param.isMutable() ? def.toImmutable(env, trace) : def);
 
                 } else {
                     if (param.getTypeClass() != null)
@@ -154,7 +154,7 @@ final public class InvokeHelper {
                         passed[i] = new ReferenceMemory(arg);
                     }
                 } else
-                    passed[i] = arg.toImmutable();
+                    passed[i] = param.isMutable() ? arg.toImmutable() : arg.toValue();
             }
 
             if (!param.checkTypeHinting(env, passed[i])){

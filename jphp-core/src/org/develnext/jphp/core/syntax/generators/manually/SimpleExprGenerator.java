@@ -601,8 +601,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             isRef = true;
             if (next instanceof VariableExprToken)
-                if (analyzer.getFunction() != null)
+                if (analyzer.getFunction() != null) {
                     analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
+                    analyzer.getFunction().getMutableLocal().add((VariableExprToken)next);
+                }
 
             if (previous instanceof AssignExprToken || previous instanceof KeyValueExprToken
                     || (canStartByReference && previous == null)) {
@@ -796,9 +798,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             separator = Separator.ARRAY_BLOCK;
         }
 
+        VariableExprToken var = null;
         if (previous instanceof VariableExprToken) {
             if (analyzer.getFunction() != null){
-                analyzer.getFunction().getArrayAccessLocal().add((VariableExprToken)previous);
+                analyzer.getFunction().getArrayAccessLocal().add(var = (VariableExprToken)previous);
             }
         }
 
@@ -855,10 +858,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (isRef){
             result = new ArrayGetRefExprToken(result);
             ((ArrayGetRefExprToken)result).setShortcut(true);
+            if (var != null && analyzer.getFunction() != null)
+                analyzer.getFunction().getMutableLocal().add(var);
         } else if (iterator.hasNext()){
             next = iterator.next();
             if (next instanceof AssignableOperatorToken || lastPush){
                 result = new ArrayGetRefExprToken(result);
+                if (var != null && analyzer.getFunction() != null)
+                    analyzer.getFunction().getMutableLocal().add(var);
             }
             iterator.previous();
         }

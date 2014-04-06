@@ -27,6 +27,7 @@ public class FunctionStmtToken extends StmtToken {
     protected Set<VariableExprToken> refLocal;
     protected Set<VariableExprToken> unstableLocal;
     protected Set<VariableExprToken> staticLocal;
+    protected Set<VariableExprToken> mutableLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -48,6 +49,7 @@ public class FunctionStmtToken extends StmtToken {
         this.refLocal = new HashSet<VariableExprToken>();
         this.unstableLocal = new HashSet<VariableExprToken>();
         this.staticLocal = new HashSet<VariableExprToken>();
+        this.mutableLocal = new HashSet<VariableExprToken>();
     }
 
     public Set<VariableExprToken> getStaticLocal() {
@@ -254,5 +256,13 @@ public class FunctionStmtToken extends StmtToken {
             return null;
 
         return labels.get(name.toLowerCase());
+    }
+
+    public Set<VariableExprToken> getMutableLocal() {
+        return mutableLocal;
+    }
+
+    public void setMutableLocal(Set<VariableExprToken> mutableLocal) {
+        this.mutableLocal = mutableLocal;
     }
 }

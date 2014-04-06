@@ -54,9 +54,11 @@ public class CompileFunctionEntity extends FunctionEntity {
         int j = 0;
         for(Class<?> clazz : types) {
             boolean isRef = method.references[i];
+            boolean mutableValue = method.mutableValues[i];
+
             MemoryUtils.Converter<?> converter = method.converters[i];
             if (clazz == Memory.class) {
-                passed[i] = isRef ? arguments[j] : arguments[j].toImmutable();
+                passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toImmutable() : arguments[j].toValue());
                 j++;
             } else if (converter != null) {
                 passed[i] = converter.run(arguments[j]);

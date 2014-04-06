@@ -7,8 +7,8 @@ function test($x = MY_CONST, $y = ABC){
     return $x + $y;
 }
 
-if (test() !== 20)
-    return 'fail_1';
+if (($x = test()) !== 20)
+    return 'fail_1: ' . $x;
 
 if (test(12) !== 22)
     return 'fail_2';

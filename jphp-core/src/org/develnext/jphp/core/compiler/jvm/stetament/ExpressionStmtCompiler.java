@@ -734,6 +734,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         for(int i = 0; i < method.parameterTypes.length; i++){
             Class<?> argType = method.parameterTypes[i];
             boolean isRef = method.references[i];
+            boolean isMutable = method.isPresentAnnotationOfParam(i, Runtime.MutableValue.class);
 
             if (method.isPresentAnnotationOfParam(i, Runtime.GetLocals.class)){
                 if (!writeOpcode)
@@ -865,7 +866,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                 writePushMemory(tmp);
                         }
 
-                        writePop(argType, true, !isRef);
+                        writePop(argType, true, isMutable && !isRef);
+                        if (!isMutable && !isRef && stackPeek().type.isReference()) {
+                            writeSysDynamicCall(Memory.class, "toValue", Memory.class);
+                        }
+
                         immutable = false;
                     }
                     j++;

@@ -18,6 +18,7 @@ public class ParameterEntity extends Entity {
     protected HintType type = HintType.ANY;
     protected String typeClass;
     protected String typeClassLower;
+    protected boolean mutable = true;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -167,6 +168,14 @@ public class ParameterEntity extends Entity {
 
         sb.append("$").append(name);
         return sb.toString();
+    }
+
+    public boolean isMutable() {
+        return mutable;
+    }
+
+    public void setMutable(boolean mutable) {
+        this.mutable = mutable;
     }
 
     @Override

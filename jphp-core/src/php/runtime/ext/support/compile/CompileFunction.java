@@ -160,6 +160,7 @@ public class CompileFunction {
         public final Class<?> resultType;
 
         public final boolean[] references;
+        public final boolean[] mutableValues;
 
         public final int argsCount;
 
@@ -180,6 +181,7 @@ public class CompileFunction {
                 isImmutableIgnoreRefs = false;
 
             references = new boolean[parameterTypes.length];
+            mutableValues = new boolean[parameterTypes.length];
             int i = 0;
 
             for (Class<?> type : parameterTypes){
@@ -188,6 +190,8 @@ public class CompileFunction {
                         references[i] = true;
                         if (!isImmutableIgnoreRefs)
                             isImmutable = false;
+                    } else if (annotation.annotationType() == Runtime.MutableValue.class) {
+                        mutableValues[i] = true;
                     }
                 }
                 i++;

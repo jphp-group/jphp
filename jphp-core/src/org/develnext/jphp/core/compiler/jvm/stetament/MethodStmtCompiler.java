@@ -414,6 +414,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setName(argument.getName().getName());
                 parameters[i].setTrace(argument.toTraceInfo(compiler.getContext()));
 
+                parameters[i].setMutable(
+                        statement.isDynamicLocal() || statement.getMutableLocal().contains(argument.getName())
+                );
+
                 parameters[i].setType(argument.getHintType());
                 if (argument.getHintTypeClass() != null)
                     parameters[i].setTypeClass(argument.getHintTypeClass().getName());
@@ -427,8 +431,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     if (value.isSingle()) {
                         if (value.getSingle() instanceof NameToken){
                             parameters[i].setDefaultValueConstName(((NameToken) value.getSingle()).getName());
-                            if (defaultValue == null)
+                            if (defaultValue == null) {
                                 defaultValue = (new ConstantMemory(((NameToken) value.getSingle()).getName()));
+                                parameters[i].setMutable(true);
+                            }
                         } else if (value.getSingle() instanceof StaticAccessExprToken){
                             StaticAccessExprToken access = (StaticAccessExprToken)value.getSingle();
 
@@ -443,6 +449,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                                         ((NameToken) access.getClazz()).getName() + "::" +
                                         ((NameToken) access.getField()).getName()
                                 );
+                                parameters[i].setMutable(true);
                             }
                         }
                     }
