@@ -7,8 +7,8 @@ JPHP is a new implementation for PHP which uses the Java VM. It supports many fe
 How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and then
 can execute the result on the Java VM.
 
-Supports: JDK 1.6+ (OpenJDK, Oracle)
-Support Forum: https://groups.google.com/forum/#!forum/jphp-compiler
++ Supports: JDK 1.6+ (OpenJDK, Oracle)
++ Support Forum: https://groups.google.com/forum/#!forum/jphp-compiler
 
 ### Goals
 
