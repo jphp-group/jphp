@@ -47,6 +47,9 @@ public class MethodDumper extends Dumper<MethodEntity> {
         // ref
         print.writeBoolean(entity.isReturnReference());
 
+        // uses stack trace
+        print.writeBoolean(entity.isUsesStackTrace());
+
         // modifier
         print.writeEnum(entity.getModifier());
 
@@ -90,6 +93,9 @@ public class MethodDumper extends Dumper<MethodEntity> {
 
         // ref
         entity.setReturnReference( data.readBoolean() );
+
+        // uses stack trace
+        entity.setUsesStackTrace( data.readBoolean() );
 
         // modifier
         entity.setModifier(data.readModifier());

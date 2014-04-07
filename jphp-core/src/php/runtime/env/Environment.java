@@ -292,6 +292,10 @@ public class Environment {
         return peekCall(0).trace;
     }
 
+    public TraceInfo trace(int systemOffsetStackTrace){
+        return new TraceInfo(Thread.currentThread().getStackTrace()[systemOffsetStackTrace]);
+    }
+
     public int getCallStackTop(){
         return callStackTop;
     }

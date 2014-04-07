@@ -98,6 +98,9 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         argument.setReference(isReference);
         argument.setValue(value);
 
+        if (argument.isReference() && argument.getValue() != null)
+            analyzer.getFunction().variable(argument.getName()).setUsed(true);
+
         return argument;
     }
 
@@ -133,12 +136,13 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
                 FunctionStmtToken parent = analyzer.getFunction(true);
                 if (argument.isReference() && parent != null) {
-                    parent.getPassedLocal().add(argument.getName());
-                    parent.getUnstableLocal().add(argument.getName());
+                    parent.variable(argument.getName())
+                            .setPassed(true)
+                            .setUnstable(true);
 
                     parent = analyzer.peekClosure();
                     if (parent != null){
-                        parent.getUnstableLocal().add(argument.getName());
+                        parent.variable(argument.getName()).setUnstable(true);
                     }
                 }
             }
@@ -222,7 +226,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         for(ArgumentStmtToken argument : result.getUses()){
                             if (argument.isReference()){
                                 if (analyzer.getFunction() != null){
-                                    analyzer.getFunction().getRefLocal().add(argument.getName());
+                                    analyzer.getFunction().variable(argument.getName()).setReference(true);
                                 }
                             }
                             uses.add(argument.getName());

@@ -16,6 +16,12 @@ public class TraceInfo {
 
     private String fileName;
 
+    public TraceInfo(StackTraceElement element) {
+        this.fileName = element.getFileName();
+        this.startLine = element.getLineNumber() + 1;
+        this.startPosition = -1;
+    }
+
     public TraceInfo(String fileName, int startLine, int startPosition) {
         this.fileName = fileName;
         this.startPosition = startPosition;

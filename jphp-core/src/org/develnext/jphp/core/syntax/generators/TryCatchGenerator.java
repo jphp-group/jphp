@@ -43,7 +43,7 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         result.setVariable(variable);
 
         if (analyzer.getFunction() != null){
-            analyzer.getFunction().getUnstableLocal().add(variable);
+            analyzer.getFunction().variable(variable).setUnstable(true);
         }
         analyzer.getScope().addVariable(variable);
 

@@ -21,6 +21,7 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     protected Extension extension;
     protected boolean deprecated;
+    protected boolean usesStackTrace = false;
 
     protected AbstractFunctionEntity(Context context) {
         super(context);
@@ -58,9 +59,13 @@ abstract public class AbstractFunctionEntity extends Entity {
     public void unsetArguments(Memory[] arguments){
         if (arguments != null){
             int x = 0;
-            for(ParameterEntity argument : this.parameters) {
-                if (argument.isMutable() && argument.isArray()) {
-                    arguments[x].unset();
+            for(Memory argument : arguments) {
+                if (argument == null) continue;
+
+                ParameterEntity param = parameters != null && x < parameters.length ? parameters[x] : null;
+                if (param == null || (param.isUsed() && param.isMutable() && !param.isReference())) {
+                    if (argument.isArray())
+                        argument.unset();
                 }
                 x++;
             }
@@ -125,5 +130,13 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public void setReturnReference(boolean returnReference) {
         this.returnReference = returnReference;
+    }
+
+    public boolean isUsesStackTrace() {
+        return usesStackTrace;
+    }
+
+    public void setUsesStackTrace(boolean usesStackTrace) {
+        this.usesStackTrace = usesStackTrace;
     }
 }

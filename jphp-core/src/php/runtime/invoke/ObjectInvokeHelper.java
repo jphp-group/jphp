@@ -115,8 +115,9 @@ final public class ObjectInvokeHelper {
         Memory[] passed = null;
         boolean doublePop = false;
 
-        if (object.type != Memory.Type.OBJECT)
+        if (object.type != Memory.Type.OBJECT) {
             env.error(trace, ErrorType.E_ERROR, Messages.ERR_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
+        }
 
         IObject iObject = ((ObjectMemory)object).value;
         ClassEntity clazz = iObject.getReflection();

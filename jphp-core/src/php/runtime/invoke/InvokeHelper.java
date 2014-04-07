@@ -2,6 +2,7 @@ package php.runtime.invoke;
 
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -129,6 +130,8 @@ final public class InvokeHelper {
         int i = 0;
         if (passed != null)
         for(ParameterEntity param : parameters){
+            if (!param.isUsed() && param.getType() == HintType.ANY) continue;
+
             Memory arg = passed[i];
             if (arg == null) {
                 Memory def = param.getDefaultValue();
@@ -154,8 +157,9 @@ final public class InvokeHelper {
                         env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
                         passed[i] = new ReferenceMemory(arg);
                     }
-                } else
-                    passed[i] = param.isMutable() ? arg.toImmutable() : arg.toValue();
+                } else {
+                        passed[i] = param.isMutable() ? arg.toImmutable() : arg.toValue();
+                }
             }
 
             if (!param.checkTypeHinting(env, passed[i])){
@@ -233,11 +237,13 @@ final public class InvokeHelper {
         Memory result = function.getImmutableResult();
         if (result != null) return result;
 
-        if (trace != null) env.pushCall(trace, null, args, function.getName(), null, null);
+        if (trace != null && function.isUsesStackTrace())
+            env.pushCall(trace, null, args, function.getName(), null, null);
+
         try {
             result = function.invoke(env, trace, passed);
         } finally {
-            if (trace != null)
+            if (trace != null && function.isUsesStackTrace())
                 env.popCall();
         }
         return result;
@@ -282,8 +288,8 @@ final public class InvokeHelper {
         MethodEntity method = classEntity == null ? null : classEntity.findMethod(methodName);
         Memory[] passed = null;
 
-        IObject maybeObject = env.getLateObject();
         if (method == null){
+            IObject maybeObject = env.getLateObject();
             if (maybeObject != null && maybeObject.getReflection().isInstanceOf(classEntity))
                 return ObjectInvokeHelper.invokeMethod(
                         new ObjectMemory(maybeObject), originMethodName, methodName, env, trace, args
@@ -309,6 +315,7 @@ final public class InvokeHelper {
         }
 
         if (!method.isStatic()) {
+            IObject maybeObject = env.getLateObject();
             if (maybeObject != null
                     && maybeObject.getReflection().isInstanceOf(classEntity))
                 return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args);
@@ -355,12 +362,12 @@ final public class InvokeHelper {
             return result;
 
         try {
-            if (trace != null)
+            if (trace != null && method.isUsesStackTrace())
                 env.pushCall(trace, null, args, originMethodName, method.getClazzName(), originClassName);
 
             result = method.invokeStatic(env, passed);
         } finally {
-            if (trace != null)
+            if (trace != null && method.isUsesStackTrace())
                 env.popCall();
         }
 

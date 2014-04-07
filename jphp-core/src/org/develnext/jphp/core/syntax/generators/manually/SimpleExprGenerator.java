@@ -266,7 +266,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (param.isSingle()){
                     if (param.getTokens().get(0) instanceof VariableExprToken) {
                         if (analyzer.getFunction() != null)
-                            analyzer.getFunction().getPassedLocal().add((VariableExprToken)param.getTokens().get(0));
+                            analyzer.getFunction().variable((VariableExprToken)param.getTokens().get(0)).setPassed(true);
                     }
                 }
             }
@@ -603,8 +603,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (current instanceof VariableExprToken){
             analyzer.getScope().addVariable((VariableExprToken) current);
-            if (analyzer.getFunction() != null)
+            if (analyzer.getFunction() != null) {
                 analyzer.getFunction().setVarsExists(true);
+                analyzer.getFunction().variable((VariableExprToken)current).setUsed(true);
+            }
         }
 
         if (current instanceof ValueIfElseToken){
@@ -619,8 +621,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             isRef = true;
             if (next instanceof VariableExprToken)
                 if (analyzer.getFunction() != null) {
-                    analyzer.getFunction().getRefLocal().add((VariableExprToken)next);
-                    analyzer.getFunction().getMutableLocal().add((VariableExprToken)next);
+                    analyzer.getFunction().variable((VariableExprToken)next)
+                        .setReference(true)
+                        .setMutable(true);
                 }
 
             if (previous instanceof AssignExprToken || previous instanceof KeyValueExprToken
@@ -633,8 +636,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (iterator.hasPrevious()) {
                     token = iterator.previous();
                     if (token instanceof VariableExprToken && analyzer.getFunction() != null){
-                        analyzer.getFunction().getRefLocal().add((VariableExprToken)token);
-                        analyzer.getFunction().getMutableLocal().add((VariableExprToken)token);
+                        analyzer.getFunction().variable((VariableExprToken)token)
+                                .setReference(true)
+                                .setMutable(true);
                        // analyzer.getFunction().getUnstableLocal().add((VariableExprToken)token); TODO: check is needed?
                     }
 
@@ -655,7 +659,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (previous instanceof AmpersandRefToken){
             if (current instanceof VariableExprToken)
                 if (analyzer.getFunction() != null)
-                    analyzer.getFunction().getRefLocal().add((VariableExprToken)current);
+                    analyzer.getFunction().variable((VariableExprToken)current).setReference(true);
         }
 
         if ((current instanceof MinusExprToken || current instanceof PlusExprToken)
@@ -823,7 +827,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         VariableExprToken var = null;
         if (previous instanceof VariableExprToken) {
             if (analyzer.getFunction() != null){
-                analyzer.getFunction().getArrayAccessLocal().add(var = (VariableExprToken)previous);
+                analyzer.getFunction().variable(var = (VariableExprToken)previous).setArrayAccess(true);
             }
         }
 
@@ -881,13 +885,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result = new ArrayGetRefExprToken(result);
             ((ArrayGetRefExprToken)result).setShortcut(true);
             if (var != null && analyzer.getFunction() != null)
-                analyzer.getFunction().getMutableLocal().add(var);
+                analyzer.getFunction().variable(var).setMutable(true);
         } else if (iterator.hasNext()){
             next = iterator.next();
             if (next instanceof AssignableOperatorToken || lastPush){
                 result = new ArrayGetRefExprToken(result);
                 if (var != null && analyzer.getFunction() != null)
-                    analyzer.getFunction().getMutableLocal().add(var);
+                    analyzer.getFunction().variable(var).setMutable(true);
             }
             iterator.previous();
         }

@@ -5,7 +5,7 @@ import php.runtime.common.collections.map.HashedMap;
 import java.util.Map;
 
 public enum HintType {
-    ANY, STRING, INT, DOUBLE, NUMBER, BOOLEAN, SCALAR, ARRAY, OBJECT, CALLABLE, VARARG;
+    ANY, STRING, INT, DOUBLE, NUMBER, BOOLEAN, SCALAR, ARRAY, OBJECT, CALLABLE, VARARG, TRAVERSABLE;
 
     public String toString(){
         switch (this){
@@ -16,7 +16,9 @@ public enum HintType {
             case BOOLEAN: return "boolean";
             case SCALAR: return "scalar";
             case CALLABLE: return "callable";
+            case STRING: return "string";
             case VARARG: return "...";
+            case TRAVERSABLE: return "traversable";
             default:
                 return "";
         }

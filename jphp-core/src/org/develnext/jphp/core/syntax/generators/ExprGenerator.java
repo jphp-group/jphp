@@ -216,14 +216,16 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         Token last = result.getValue().getLast();
         if (analyzer.getFunction() != null) {
             if (result.getKey() != null){
-                analyzer.getFunction().getRefLocal().add(result.getKey());
-                analyzer.getFunction().getUnstableLocal().add(result.getKey());
+                analyzer.getFunction().variable(result.getKey())
+                        .setReference(true)
+                        .setUnstable(true);
             }
 
             if (last instanceof VariableExprToken){
                 VariableExprToken variable = (VariableExprToken)last;
-                analyzer.getFunction().getRefLocal().add(variable);
-                analyzer.getFunction().getUnstableLocal().add(variable);
+                analyzer.getFunction().variable(variable)
+                        .setReference(true)
+                        .setUnstable(true);
             }
         }
 
@@ -361,8 +363,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 VariableExprToken variable = (VariableExprToken)next;
                 analyzer.getScope().addVariable(variable);
                 if (analyzer.getFunction() != null) {
-                    analyzer.getFunction().getRefLocal().add(variable);
-                    analyzer.getFunction().getUnstableLocal().add(variable);
+                    analyzer.getFunction().variable(variable)
+                            .setReference(true)
+                            .setUnstable(true);
                 }
 
                 variables.add(variable);
@@ -395,8 +398,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
             analyzer.getScope().addVariable(variable);
             if (analyzer.getFunction() != null){
-                analyzer.getFunction().getRefLocal().add(variable);
-                analyzer.getFunction().getUnstableLocal().add(variable);
+                analyzer.getFunction().variable(variable)
+                        .setReference(true)
+                        .setUnstable(true);
                 analyzer.getFunction().getStaticLocal().add(variable);
             }
 

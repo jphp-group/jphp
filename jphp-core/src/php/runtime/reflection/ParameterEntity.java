@@ -1,11 +1,13 @@
 package php.runtime.reflection;
 
+import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.support.Entity;
 
 public class ParameterEntity extends Entity {
@@ -19,6 +21,7 @@ public class ParameterEntity extends Entity {
     protected String typeClass;
     protected String typeClassLower;
     protected boolean mutable = true;
+    protected boolean used = true;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -88,45 +91,93 @@ public class ParameterEntity extends Entity {
         }
     }
 
+    public static void validateTypeHinting(Environment env, int index, Memory[] args, HintType type,
+                                           boolean nullable) {
+        Memory value = args[index - 1];
+
+        if (!checkTypeHinting(env, value, type, nullable)) {
+            String given;
+            if (value == null){
+                given = "none";
+            } else if (value.isObject()) {
+                given = "instance of " + value.toValue(ObjectMemory.class).getReflection().getName();
+            } else {
+                given = value.getRealType().toString();
+            }
+
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            StackTraceElement e = stack[2];
+            StackTraceElement where = stack[3];
+
+            String className = env.scope.getClassLoader().getClass(e.getClassName()).getName();
+            String methodName = e.getMethodName();
+
+            env.error(new TraceInfo(where),
+                    ErrorType.E_RECOVERABLE_ERROR,
+                    "Argument %s passed to %s::%s() must be of the type %s, %s given",
+                    index,
+                    className, methodName,
+                    type.toString(), given
+            );
+        }
+    }
+    public static boolean checkTypeHinting(Environment env, Memory value, HintType type) {
+        return checkTypeHinting(env, value, type, false);
+    }
+
+    public static boolean checkTypeHinting(Environment env, Memory value, HintType type, boolean nullable) {
+        if (nullable && value.isNull())
+            return true;
+
+        switch (type){
+            case SCALAR:
+                switch (value.getRealType()){
+                    case BOOL:
+                    case INT:
+                    case DOUBLE:
+                    case STRING:
+                        return true;
+                }
+                return false;
+            case NUMBER: return value.isNumber();
+            case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
+            case INT: return value.getRealType() == Memory.Type.INT;
+            case STRING: return value.isString();
+            case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
+            case ARRAY:
+                return value.isArray();
+            case TRAVERSABLE:
+                if (value.isArray())
+                    return true;
+                if (value.instanceOf("Traversable", "traversable"))
+                    return true;
+                return false;
+            case CALLABLE:
+                Invoker invoker = Invoker.valueOf(env, null, value);
+                return invoker != null && invoker.canAccess(env) == 0;
+            default:
+                return true;
+        }
+    }
+
+    public boolean checkTypeHinting(Environment env, Memory value, String typeClass, boolean nullable) {
+        if (nullable && value.isNull())
+            return true;
+
+        if (!value.isObject())
+            return false;
+
+        ObjectMemory object = value.toValue(ObjectMemory.class);
+        ClassEntity oEntity = object.getReflection();
+
+        return oEntity.isInstanceOf(typeClass);
+    }
+
     public boolean checkTypeHinting(Environment env, Memory value){
         if (type != HintType.ANY && type != null){
-            if (defaultValue != null && defaultValue.isNull() && value.isNull())
-                return true;
-
-            switch (type){
-                case SCALAR:
-                    switch (value.getRealType()){
-                        case BOOL:
-                        case INT:
-                        case DOUBLE:
-                        case STRING:
-                            return true;
-                    }
-                    return false;
-                case NUMBER: return value.isNumber();
-                case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
-                case INT: return value.getRealType() == Memory.Type.INT;
-                case STRING: return value.isString();
-                case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
-                case ARRAY:
-                    return value.isArray();
-                case CALLABLE:
-                    Invoker invoker = Invoker.valueOf(env, null, value);
-                    return invoker != null && invoker.canAccess(env) == 0;
-                default:
-                    return true;
-            }
+            return checkTypeHinting(env, value, type, defaultValue != null && defaultValue.isNull());
         } else if (typeClass != null) {
-            if (defaultValue != null && defaultValue.isNull() && value.isNull())
-                return true;
-
-            if (!value.isObject())
-                return false;
-
-            ObjectMemory object = value.toValue(ObjectMemory.class);
-            ClassEntity oEntity = object.getReflection();
-
-            return oEntity.isInstanceOf(typeClass);
+            return checkTypeHinting(env, value, typeClass, defaultValue != null && defaultValue.isNull());
         } else
             return true;
     }
@@ -176,6 +227,14 @@ public class ParameterEntity extends Entity {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
     }
 
     @Override

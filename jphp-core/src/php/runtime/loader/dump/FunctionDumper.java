@@ -36,6 +36,8 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
 
         data.writeBoolean(entity.isReturnReference());
 
+        data.writeBoolean(entity.isUsesStackTrace());
+
         data.writeBoolean(entity.isImmutable());
         data.writeMemory(entity.getImmutableResult());
 
@@ -66,6 +68,8 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
         entity.setInternalName(data.readName());
 
         entity.setReturnReference(data.readBoolean());
+
+        entity.setUsesStackTrace(data.readBoolean());
 
         entity.setImmutable(data.readBoolean());
         entity.setResult(data.readMemory());

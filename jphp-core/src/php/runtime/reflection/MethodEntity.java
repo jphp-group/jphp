@@ -68,6 +68,7 @@ public class MethodEntity extends AbstractFunctionEntity {
     public MethodEntity(Extension extension, Method method){
         this((Context)null);
         this.extension = extension;
+        this.usesStackTrace = true;
 
         Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
         do {
@@ -229,16 +230,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         } catch (InvocationTargetException e){
             return environment.__throwException(e);
         } finally {
-            if (arguments != null){
-                int x = 0;
-                if (this.parameters != null)
-                for(ParameterEntity argument : this.parameters){
-                    if (!argument.isReference) {
-                        arguments[x].unset();
-                    }
-                    x++;
-                }
-            }
+            unsetArguments(arguments);
         }
     }
 
@@ -467,6 +459,16 @@ public class MethodEntity extends AbstractFunctionEntity {
         this.trait = trait;
     }
 
+    public int getRequiredParamCount() {
+        int cnt = 0;
+        if (parameters != null)
+        for(ParameterEntity e : parameters) {
+            if (e.getDefaultValue() != null)
+                break;
+        }
+        return cnt;
+    }
+
     public MethodEntity duplicateForInject() {
         MethodEntity methodEntity = new MethodEntity(this.context);
         methodEntity.setExtension(getExtension());
@@ -483,6 +485,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         methodEntity.setEmpty(isEmpty);
         methodEntity.setImmutable(isImmutable);
         methodEntity.setResult(result);
+        methodEntity.setUsesStackTrace(isUsesStackTrace());
         methodEntity.setDeprecated(isDeprecated());
         methodEntity.setInternalName(getInternalName());
         if (trace == null || trace == TraceInfo.UNKNOWN)

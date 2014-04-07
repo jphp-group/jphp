@@ -19,6 +19,11 @@ public @interface Runtime {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({METHOD})
+    public @interface FastMethod {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({PARAMETER})
     public @interface MutableValue {
         boolean ignoreRefs() default false;

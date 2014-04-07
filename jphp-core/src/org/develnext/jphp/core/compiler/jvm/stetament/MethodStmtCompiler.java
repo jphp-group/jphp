@@ -311,7 +311,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                     LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
                     if (argument.isReference()){
                         local.setReference(true);
-                        statement.getUnstableLocal().add(argument.getName());
+                        statement.variable(argument.getName()).setUnstable(true);
                     }
 
                     expressionCompiler.writePushDup();
@@ -327,8 +327,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             for(ArgumentStmtToken argument : statement.getArguments()){
                 if (argument.isReference()){
-                    statement.getRefLocal().add(argument.getName());
-                    statement.getUnstableLocal().add(argument.getName());
+                    statement.variable(argument.getName())
+                            .setReference(true)
+                            .setUnstable(true);
                 }
 
                 LabelNode undefined = new LabelNode();
@@ -337,23 +338,25 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 expressionCompiler.writeDefineVariable(argument.getName());
                 LocalVariable local = getLocalVariable(argument.getName().getName());
 
-                expressionCompiler.writeVarLoad(args);
-                expressionCompiler.writePushGetFromArray(i, Memory.class);
-                expressionCompiler.writeVarAssign(local, argument.getName(), true, false);
+                if (local != null) {
+                    expressionCompiler.writeVarLoad(args);
+                    expressionCompiler.writePushGetFromArray(i, Memory.class);
+                    expressionCompiler.writeVarAssign(local, argument.getName(), true, false);
 
-                // if length <= i then undefined
-                node.instructions.add(new JumpInsnNode(Opcodes.IFNONNULL, next));
-                expressionCompiler.stackPop();
+                    // if length <= i then undefined
+                    node.instructions.add(new JumpInsnNode(Opcodes.IFNONNULL, next));
+                    expressionCompiler.stackPop();
 
-                if (argument.getValue() == null)
-                    expressionCompiler.writePushNull();
-                else
-                    expressionCompiler.writeExpression(argument.getValue(), true, false);
+                    if (argument.getValue() == null)
+                        expressionCompiler.writePushNull();
+                    else
+                        expressionCompiler.writeExpression(argument.getValue(), true, false);
 
-                expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
-                node.instructions.add(next);
+                    expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
+                    node.instructions.add(next);
 
-                local.pushLevel();
+                    local.pushLevel();
+                }
 
                 i++;
             }
@@ -415,7 +418,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameters[i].setTrace(argument.toTraceInfo(compiler.getContext()));
 
                 parameters[i].setMutable(
-                        statement.isDynamicLocal() || statement.getMutableLocal().contains(argument.getName())
+                        statement.isDynamicLocal() || statement.variable(argument.getName()).isMutable()
+                );
+
+                parameters[i].setUsed(
+                        !statement.isUnusedVariable(argument.getName())
                 );
 
                 parameters[i].setType(argument.getHintType());
@@ -462,15 +469,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                     parameters[i].setDefaultValue(defaultValue);
                 }
-
-                /*if (argument.getValue() != null){
-                    ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
-                    Memory result = expressionCompiler.writeExpression(argument.getValue(), true, true);
-                    if (result == null){
-                        unexpectedToken(argument.getValue().getTokens().get(0));
-                    }
-                    parameters[i].setDefaultValue( result );
-                }   */
                 i++;
             }
             entity.setParameters(parameters);

@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
+import org.develnext.jphp.core.syntax.VariableStats;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -20,14 +21,10 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean interfacable;
 
     protected Map<String, LabelStmtToken> labels;
+    protected Map<String, VariableStats> variables;
 
     protected Set<VariableExprToken> local;
-    protected Set<VariableExprToken> passedLocal;
-    protected Set<VariableExprToken> arrayAccessLocal;
-    protected Set<VariableExprToken> refLocal;
-    protected Set<VariableExprToken> unstableLocal;
     protected Set<VariableExprToken> staticLocal;
-    protected Set<VariableExprToken> mutableLocal;
 
     protected boolean dynamicLocal;
     protected boolean callsExist;
@@ -44,12 +41,9 @@ public class FunctionStmtToken extends StmtToken {
         this.callsExist = false;
         this.varsExists = false;
         this.thisExists = false;
-        this.passedLocal = new HashSet<VariableExprToken>();
-        this.arrayAccessLocal = new HashSet<VariableExprToken>();
-        this.refLocal = new HashSet<VariableExprToken>();
-        this.unstableLocal = new HashSet<VariableExprToken>();
+
         this.staticLocal = new HashSet<VariableExprToken>();
-        this.mutableLocal = new HashSet<VariableExprToken>();
+        this.variables = new LinkedHashMap<String, VariableStats>();
     }
 
     public Set<VariableExprToken> getStaticLocal() {
@@ -104,22 +98,6 @@ public class FunctionStmtToken extends StmtToken {
         this.uses = uses;
     }
 
-    public Set<VariableExprToken> getRefLocal() {
-        return refLocal;
-    }
-
-    public void setRefLocal(Set<VariableExprToken> refLocal) {
-        this.refLocal = refLocal;
-    }
-
-    public Set<VariableExprToken> getUnstableLocal() {
-        return unstableLocal;
-    }
-
-    public void setUnstableLocal(Set<VariableExprToken> unstableLocal) {
-        this.unstableLocal = unstableLocal;
-    }
-
     public boolean isReturnReference() {
         return returnReference;
     }
@@ -165,14 +143,6 @@ public class FunctionStmtToken extends StmtToken {
         this.labels = labels;
     }
 
-    public Set<VariableExprToken> getPassedLocal() {
-        return passedLocal;
-    }
-
-    public void setPassedLocal(Set<VariableExprToken> passedLocal) {
-        this.passedLocal = passedLocal;
-    }
-
     public boolean isDynamicLocal() {
         return dynamicLocal;
     }
@@ -190,12 +160,13 @@ public class FunctionStmtToken extends StmtToken {
     }
 
     public boolean isReference(VariableExprToken variable){
-        return dynamicLocal || arrayAccessLocal.contains(variable) || passedLocal.contains(variable)
-                || refLocal.contains(variable);
+        VariableStats stats = variable(variable);
+
+        return dynamicLocal || stats.isArrayAccess() || stats.isPassed() || stats.isReference();
     }
 
     public boolean isUnstableVariable(VariableExprToken variable){
-        return unstableLocal.contains(variable);
+        return variable(variable).isUnstable();
     }
 
     public boolean isVarsExists() {
@@ -208,14 +179,6 @@ public class FunctionStmtToken extends StmtToken {
 
     public boolean isMutable(){
         return varsExists || callsExist;
-    }
-
-    public Set<VariableExprToken> getArrayAccessLocal() {
-        return arrayAccessLocal;
-    }
-
-    public void setArrayAccessLocal(Set<VariableExprToken> arrayAccessLocal) {
-        this.arrayAccessLocal = arrayAccessLocal;
     }
 
     public String getFulledName(char delimiter){
@@ -258,11 +221,19 @@ public class FunctionStmtToken extends StmtToken {
         return labels.get(name.toLowerCase());
     }
 
-    public Set<VariableExprToken> getMutableLocal() {
-        return mutableLocal;
+    public VariableStats variable(String name) {
+        VariableStats stats = variables.get(name);
+        if (stats == null)
+            variables.put(name, stats = new VariableStats());
+
+        return stats;
     }
 
-    public void setMutableLocal(Set<VariableExprToken> mutableLocal) {
-        this.mutableLocal = mutableLocal;
+    public VariableStats variable(VariableExprToken token) {
+        return variable(token.getName());
+    }
+
+    public boolean isUnusedVariable(VariableExprToken token) {
+        return !dynamicLocal && variable(token).isUnused();
     }
 }

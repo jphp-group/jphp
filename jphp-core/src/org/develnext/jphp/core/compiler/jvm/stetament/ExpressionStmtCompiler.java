@@ -32,6 +32,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
+import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.invoke.InvokeHelper;
@@ -42,6 +43,8 @@ import php.runtime.memory.*;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.Entity;
 
 import java.io.File;
@@ -620,11 +623,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    public void writePushLocal(){
+    public void writePushLocal() {
         writeVarLoad("~local");
     }
 
     public void writePushEnv(){
+        method.entity.setUsesStackTrace(true);
+
         LocalVariable variable = method.getLocalVariable("~env");
         if (variable == null) {
             if (!methodStatement.isStatic())
@@ -638,7 +643,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         makeVarLoad(variable);
     }
 
-    public void writePushEnvFromSelf(){
+    public void writePushEnvFromSelf() {
+        method.entity.setUsesStackTrace(true);
+
         writeVarLoad("~this");
         writeSysDynamicCall(null, "getEnvironment", Environment.class);
     }
@@ -915,14 +922,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
-    public void writePushParameters(Collection<ExprStmtToken> parameters){
+    public void writePushParameters(Collection<ExprStmtToken> parameters, Memory... additional){
         if (parameters.isEmpty()){
             code.add(new InsnNode(ACONST_NULL));
             stackPush(Memory.Type.REFERENCE);
             return;
         }
 
-        writePushSmallInt(parameters.size());
+        writePushSmallInt(parameters.size() + (additional == null ? 0 : additional.length));
         code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
         stackPop();
         stackPush(Memory.Type.REFERENCE);
@@ -939,6 +946,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
             stackPop();
             i++;
+        }
+
+        if (additional != null) {
+            for (Memory m : additional) {
+                writePushDup();
+                writePushSmallInt(i);
+                writePushMemory(m);
+                writePopBoxing();
+
+                code.add(new InsnNode(AASTORE));
+                stackPop();
+                stackPop();
+                stackPop();
+                i++;
+            }
         }
     }
 
@@ -1013,13 +1035,62 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
+    boolean writePushFastStaticMethod(CallExprToken function, boolean returnValue) {
+        StaticAccessExprToken access = (StaticAccessExprToken)function.getName();
+
+        CompileClass compileClass = compiler.getEnvironment().scope.findCompileClass(access.getClazz().getWord());
+        if (compileClass == null)
+            return false;
+
+        ClassEntity classEntity = compiler.getEnvironment().fetchClass(compileClass.getNativeClass());
+        MethodEntity methodEntity = classEntity.findMethod(access.getField().getWord().toLowerCase());
+        if (methodEntity != null && methodEntity.getNativeMethod().isAnnotationPresent(Runtime.FastMethod.class)) {
+            int cnt = methodEntity.getRequiredParamCount();
+
+            if (cnt > function.getParameters().size()) {
+                writeWarning(function, Messages.ERR_EXPECT_EXACTLY_PARAMS.fetch(
+                        methodEntity.getClazzName() + "::" + methodEntity.getName(),
+                        cnt, function.getParameters().size()
+                ));
+                if (returnValue)
+                    writePushNull();
+                return true;
+            }
+
+            List<Memory> additional = new ArrayList<Memory>();
+            for(ParameterEntity param : methodEntity.parameters) {
+                if (param.getDefaultValue() != null)
+                    additional.add(param.getDefaultValue());
+                else if (!additional.isEmpty())
+                    throw new IllegalStateException("Arguments with default values must be located at the end");
+            }
+
+            writePushEnv();
+            writePushParameters(function.getParameters(), additional.toArray(new Memory[0]));
+            writeSysStaticCall(
+                    compileClass.getNativeClass(),
+                    methodEntity.getName(),
+                    Memory.class,
+                    Environment.class, Memory[].class
+            );
+            if (!returnValue)
+                writePopAll(1);
+            return true;
+        }
+        return false;
+    }
+
     Memory writePushStaticMethod(CallExprToken function, boolean returnValue, boolean writeOpcode,
                                  PushCallStatistic statistic){
         StaticAccessExprToken access = (StaticAccessExprToken)function.getName();
+
         if (!writeOpcode)
             return null;
 
         writeLineNumber(function);
+
+        if (writePushFastStaticMethod(function, returnValue))
+            return null;
 
         writePushEnv();
         writePushTraceInfo(function.getName());
@@ -1255,6 +1326,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     protected void writeDefineVariable(VariableExprToken value){
+        if (methodStatement.isUnusedVariable(value))
+            return;
+
         LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null) {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
@@ -1318,10 +1392,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return null;
 
         LocalVariable variable = method.getLocalVariable(value.getName());
-        if (variable == null || variable.getClazz() == null) {
+        if (variable == null || variable.getClazz() == null || methodStatement.isUnusedVariable(value)) {
             return Memory.NULL;
         } else {
-            if (methodStatement.getPassedLocal().contains(value))
+            if (methodStatement.variable(value).isPassed())
                 return null;
 
             Memory mem = variable.getValue();
@@ -1896,7 +1970,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarStore(local, returnValue, true);
         }
 
-        if (!methodStatement.getPassedLocal().contains(variable))
+        if (!methodStatement.variable(variable).isPassed())
             local.setValue(value);
 
         if (methodStatement.isDynamicLocal())
