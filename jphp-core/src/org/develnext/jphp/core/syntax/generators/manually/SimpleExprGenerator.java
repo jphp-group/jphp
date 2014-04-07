@@ -773,6 +773,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return processString((StringExprToken) current);
         }
 
+        if (current instanceof NameToken) {
+            return analyzer.getRealName((NameToken)current);
+        }
+
         return null;
     }
 

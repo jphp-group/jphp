@@ -29,4 +29,9 @@ public class NamespacesTest extends JvmCompilerCase {
         Memory memory = includeResource("namespaces/use_as.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testGlobals() {
+        check("namespaces/globals.php");
+    }
 }

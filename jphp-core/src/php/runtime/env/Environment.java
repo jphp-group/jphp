@@ -1,5 +1,6 @@
 package php.runtime.env;
 
+import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.Constants;
@@ -179,7 +180,7 @@ public class Environment {
         this(parent.scope, parent.defaultBuffer.getOutput());
 
         configuration.putAll(parent.configuration);
-        constants.putAll(parent.constants);
+        //constants.putAll(parent.constants);
 
         classMap.putAll(parent.classMap);
         for(ClassEntity e : classMap.values()) {
@@ -484,7 +485,7 @@ public class Environment {
     }
 
     public Memory findConstant(String name, String nameLower){
-        ConstantEntity entity = constants.get(nameLower);
+        ConstantEntity entity = constantMap.get(nameLower);
         if (entity != null) {
             if (!entity.caseSensitise || name.equals(entity.getName()))
                 return entity.getValue();
@@ -506,7 +507,7 @@ public class Environment {
         if (constant != null)
             return false;
 
-        constants.put(name.toLowerCase(), new ConstantEntity(name, value, caseSensitise));
+        constantMap.put(name.toLowerCase(), new ConstantEntity(name, value, caseSensitise));
         return true;
     }
 
@@ -936,7 +937,11 @@ public class Environment {
 
         if (constant == null){
             error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
-            return StringMemory.valueOf(name);
+            int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+            if (p > -1) // for global scope
+                return StringMemory.valueOf(name.substring(p + 1));
+            else
+                return StringMemory.valueOf(name);
         }
 
         return constant;

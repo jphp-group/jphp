@@ -1,5 +1,6 @@
 package php.runtime.invoke;
 
+import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
@@ -165,6 +166,10 @@ final public class InvokeHelper {
         return passed;
     }
 
+    /**
+     * Method is invoked via bytecode
+     * @throws Throwable
+     */
     public static Memory callAny(Memory method, Memory[] args, Environment env, TraceInfo trace)
             throws Throwable {
         method = method.toImmutable();
@@ -242,8 +247,16 @@ final public class InvokeHelper {
                               Memory[] args) throws Throwable {
         FunctionEntity function = env.functionMap.get(sign);
         if (function == null) {
-            env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
-            return Memory.NULL;
+            if (sign.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
+                int p = sign.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+                if (p > -1)
+                    function = env.functionMap.get(sign.substring(p + 1));
+            }
+
+            if (function == null) {
+                env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
+                return Memory.NULL;
+            }
         }
         return call(env, trace, function, args);
     }

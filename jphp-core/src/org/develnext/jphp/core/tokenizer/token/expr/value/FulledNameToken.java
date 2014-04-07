@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
+import php.runtime.Information;
 import php.runtime.common.StringUtils;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.Token;
@@ -11,9 +12,16 @@ import java.util.ListIterator;
 public class FulledNameToken extends NameToken {
     private List<NameToken> names;
     private boolean absolutely;
+    private boolean processed;
+
+    public FulledNameToken(FulledNameToken token) {
+        this(token.meta, Information.NAMESPACE_SEP_CHAR);
+        names = token.names;
+        absolutely = token.absolutely;
+    }
 
     public FulledNameToken(TokenMeta meta) {
-        this(meta, '\\');
+        this(meta, Information.NAMESPACE_SEP_CHAR);
     }
 
     public FulledNameToken(TokenMeta meta, char sep){
@@ -73,6 +81,14 @@ public class FulledNameToken extends NameToken {
 
     public boolean isSingle(){
         return names.size() == 1;
+    }
+
+    public boolean isProcessed() {
+        return isAbsolutely() || processed;
+    }
+
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
     }
 
     public static FulledNameToken valueOf(String... names){

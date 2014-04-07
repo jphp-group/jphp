@@ -393,7 +393,7 @@ public class SyntaxAnalyzer {
     }
 
     public FulledNameToken getRealName(NameToken what) {
-        if (what instanceof FulledNameToken && ((FulledNameToken) what).isAbsolutely())
+        if (what instanceof FulledNameToken && ((FulledNameToken) what).isProcessed())
             return (FulledNameToken) what;
 
         String name = what.getName();
@@ -401,11 +401,16 @@ public class SyntaxAnalyzer {
         // check name in uses
         for(NamespaceUseStmtToken use : namespace.getUses()){
             if (use.getAs() == null){
-                if (name.equalsIgnoreCase(use.getName().getLastName().getName()))
-                    return use.getName();
+                if (name.equalsIgnoreCase(use.getName().getLastName().getName())) {
+                    FulledNameToken t = new FulledNameToken(use.getName());
+                    t.setProcessed(true);
+                    return t;
+                }
             } else {
                 if (name.equalsIgnoreCase(use.getAs().getName())){
-                    return use.getName();
+                    FulledNameToken t = new FulledNameToken(use.getName());
+                    t.setProcessed(true);
+                    return t;
                 }
             }
         }
@@ -419,6 +424,8 @@ public class SyntaxAnalyzer {
         else
             names.add(what);
 
-        return new FulledNameToken(what.getMeta(), names);
+        FulledNameToken t = new FulledNameToken(what.getMeta(), names);
+        t.setProcessed(true);
+        return t;
     }
 }

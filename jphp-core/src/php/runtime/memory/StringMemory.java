@@ -11,7 +11,10 @@ public class StringMemory extends Memory {
 
     public StringMemory(String value) {
         super(Type.STRING);
-        this.value = value;
+        if (value == null)
+            this.value = "";
+        else
+            this.value = value;
     }
 
     public StringMemory(char ch){

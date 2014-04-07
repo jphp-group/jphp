@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 final public class Information {
+    public final static String NAMESPACE_SEP = "\\";
+    public final static char NAMESPACE_SEP_CHAR = '\\';
+
     public static final String NAME = "JPHP";
     public static final String CORE_VERSION = "0.4-SNAPSHOT";
     public static final String LIKE_PHP_VERSION = "5.3.2";

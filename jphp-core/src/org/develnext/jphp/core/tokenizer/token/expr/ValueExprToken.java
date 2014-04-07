@@ -106,7 +106,7 @@ abstract public class ValueExprToken extends ExprToken {
     }
 
     public static boolean isConstable(Token token, boolean arrays){
-        if (token instanceof NameToken && !(token instanceof FulledNameToken))
+        if (token instanceof NameToken)
             return true;
 
         if (token instanceof IntegerExprToken)

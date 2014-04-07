@@ -41,8 +41,8 @@ public class JvmCompiler extends AbstractCompiler {
         this.module.setId( scope.nextModuleIndex() );
     }
 
-    public ConstantEntity findConstant(String shortName){
-        return constants.get(shortName);
+    public ConstantEntity findConstant(String fullName){
+        return constants.get(fullName.toLowerCase());
     }
 
     public FunctionEntity findFunction(String name){
@@ -119,7 +119,7 @@ public class JvmCompiler extends AbstractCompiler {
             List<ConstantEntity> items = compileConstant(constant);
 
             for(ConstantEntity el : items){
-                if (!constants.containsKey(el.getName())){
+                if (!constants.containsKey(el.getLowerName())){
                     module.addConstant(el);
 
                     if (scope.findUserConstant(el.getName()) != null){
@@ -129,7 +129,7 @@ public class JvmCompiler extends AbstractCompiler {
                         );
                     }
 
-                    constants.put(el.getShortName(), el);
+                    constants.put(el.getLowerName(), el);
                 } else {
                     environment.error(el.getTrace(), ErrorType.E_ERROR,
                         Messages.ERR_CANNOT_REDECLARE_CONSTANT,
