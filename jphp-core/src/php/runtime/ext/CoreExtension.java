@@ -8,6 +8,8 @@ import php.runtime.ext.core.classes.*;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
+import php.runtime.ext.core.classes.util.BinUtils;
+import php.runtime.ext.core.classes.util.StrUtils;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.core.stream.*;
 import php.runtime.ext.support.Extension;
@@ -49,6 +51,9 @@ public class CoreExtension extends Extension {
         // T_ERROR
         for (ErrorType el : ErrorType.values())
             constants.put(el.name(), new CompileConstant(el.name(), el.value));
+
+        registerNativeClass(scope, StrUtils.class);
+        registerNativeClass(scope, BinUtils.class);
 
         registerNativeClass(scope, WrapEnvironment.class);
         registerNativeClass(scope, WrapThreadGroup.class);
