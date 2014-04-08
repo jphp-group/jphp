@@ -17,6 +17,7 @@ public enum HintType {
             case SCALAR: return "scalar";
             case CALLABLE: return "callable";
             case STRING: return "string";
+            case OBJECT: return "object";
             case VARARG: return "...";
             case TRAVERSABLE: return "traversable";
             default:

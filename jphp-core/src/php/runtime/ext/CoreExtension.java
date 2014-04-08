@@ -9,6 +9,7 @@ import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
 import php.runtime.ext.core.classes.util.BinUtils;
+import php.runtime.ext.core.classes.util.NumUtils;
 import php.runtime.ext.core.classes.util.StrUtils;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.core.stream.*;
@@ -54,6 +55,7 @@ public class CoreExtension extends Extension {
 
         registerNativeClass(scope, StrUtils.class);
         registerNativeClass(scope, BinUtils.class);
+        registerNativeClass(scope, NumUtils.class);
 
         registerNativeClass(scope, WrapEnvironment.class);
         registerNativeClass(scope, WrapThreadGroup.class);

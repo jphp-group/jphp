@@ -1,16 +1,20 @@
 package php.runtime.lang;
 
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.common.collections.map.HashedMap;
-import php.runtime.annotation.Reflection;
-import php.runtime.env.Environment;
-import php.runtime.memory.ReferenceMemory;
 import php.runtime.Memory;
+import php.runtime.common.HintType;
+import php.runtime.common.collections.map.HashedMap;
+import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ParameterEntity;
 
 import java.util.Map;
 
-public abstract class Closure extends BaseObject implements IStaticVariables {
+import static php.runtime.annotation.Reflection.*;
+
+public abstract class Closure extends BaseObject implements IStaticVariables, Cloneable {
     protected Memory[] uses;
     private Map<String, ReferenceMemory> statics;
     protected Memory self = Memory.NULL;
@@ -22,30 +26,30 @@ public abstract class Closure extends BaseObject implements IStaticVariables {
         this.uses = uses;
     }
 
-    @Reflection.Signature
+    @Signature
     abstract public Memory __invoke(Environment env, Memory... args);
 
     public Memory[] getUses() {
         return uses == null ? new Memory[0] : uses;
     }
 
-    @Reflection.Signature({@Reflection.Arg("prop"), @Reflection.Arg("value")})
+    @Signature({@Arg("prop"), @Arg("value")})
     public Memory __set(Environment env, Memory... args){
         env.error(ErrorType.E_ERROR, "Closure object cannot have properties");
         return Memory.NULL;
     }
 
-    @Reflection.Signature({@Reflection.Arg("prop")})
+    @Signature({@Arg("prop")})
     public Memory __get(Environment env, Memory... args){
         return __set(env, args);
     }
 
-    @Reflection.Signature({@Reflection.Arg("prop")})
+    @Signature({@Arg("prop")})
     public Memory __unset(Environment env, Memory... args){
         return __set(env, args);
     }
 
-    @Reflection.Signature({@Reflection.Arg("prop")})
+    @Signature({@Arg("prop")})
     public Memory __isset(Environment env, Memory... args){
         return __set(env, args);
     }
@@ -76,5 +80,30 @@ public abstract class Closure extends BaseObject implements IStaticVariables {
             statics.put(name, result);
         }
         return result;
+    }
+
+    @Signature({@Arg("newThis"), @Arg(value = "newScope", optional = @Optional("static"))})
+    public Memory bindTo(Environment env, Memory... args) throws CloneNotSupportedException {
+        ParameterEntity.validateTypeHinting(env, 1, args, HintType.OBJECT, true);
+
+        Closure newClosure = (Closure) this.clone();
+        newClosure.self = args[0];
+        newClosure.scope = args[1].toString();
+        return new ObjectMemory(newClosure);
+    }
+
+    @Signature({
+            @Arg(value = "closure", typeClass = "Closure"),
+            @Arg(value = "newThis"),
+            @Arg(value = "newScope", optional = @Optional("static"))
+    })
+    public static Memory bind(Environment env, Memory... args) throws CloneNotSupportedException {
+        ParameterEntity.validateTypeHinting(env, 2, args, HintType.OBJECT, true);
+        Closure closure = args[0].toObject(Closure.class);
+
+        Closure newClosure = (Closure)closure.clone();
+        newClosure.self = args[0];
+        newClosure.scope = args[1].toString();
+        return new ObjectMemory(newClosure);
     }
 }

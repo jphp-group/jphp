@@ -9,6 +9,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.support.Entity;
+import php.runtime.util.JVMStackTracer;
 
 public class ParameterEntity extends Entity {
 
@@ -108,15 +109,20 @@ public class ParameterEntity extends Entity {
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
             StackTraceElement e = stack[2];
             StackTraceElement where = stack[3];
+            TraceInfo trace;
+            if (where.getLineNumber() <= 0)
+                trace = env.trace();
+            else
+                trace = new TraceInfo(where);
 
-            String className = env.scope.getClassLoader().getClass(e.getClassName()).getName();
-            String methodName = e.getMethodName();
 
-            env.error(new TraceInfo(where),
+            JVMStackTracer.Item item = new JVMStackTracer.Item(env.scope.getClassLoader(), e);
+
+            env.error(trace,
                     ErrorType.E_RECOVERABLE_ERROR,
-                    "Argument %s passed to %s::%s() must be of the type %s, %s given",
+                    "Argument %s passed to %s() must be of the type %s, %s given",
                     index,
-                    className, methodName,
+                    item.getSignature(),
                     type.toString(), given
             );
         }
@@ -139,6 +145,7 @@ public class ParameterEntity extends Entity {
                         return true;
                 }
                 return false;
+            case OBJECT: return value.isObject();
             case NUMBER: return value.isNumber();
             case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
             case INT: return value.getRealType() == Memory.Type.INT;

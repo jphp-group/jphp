@@ -8,16 +8,18 @@ final class str {
     /**
      * @param string $string
      * @param string $search
+     * @param int $fromIndex
      * @return int
      */
-    public static function indexOf($string, $search) { return 0; }
+    public static function indexOf($string, $search, $fromIndex = 0) { return 0; }
 
     /**
      * @param $string
      * @param $search
+     * @param null|int $fromIndex - null means $fromIndex will be equal $string.length
      * @return int
      */
-    public static function lastIndexOf($string, $search) { return 0; }
+    public static function lastIndexOf($string, $search, $fromIndex = null) { return 0; }
 
     /**
      * @param string $string
@@ -39,14 +41,14 @@ final class str {
      * @param string $string2
      * @return int
      */
-    public static function compareInsensitive($string1, $string2) { return 0; }
+    public static function compareIgnoreCase($string1, $string2) { return 0; }
 
     /**
      * @param string $string
      * @param string $pattern
      * @return bool
      */
-    public static function match($string, $pattern) { return false; }
+    public static function matches($string, $pattern) { return false; }
 
     /**
      * @param $string
@@ -54,14 +56,14 @@ final class str {
      * @param int $offset
      * @return bool
      */
-    public static function startWith($string, $prefix, $offset = 0) { return false; }
+    public static function startsWith($string, $prefix, $offset = 0) { return false; }
 
     /**
      * @param string $string
      * @param string $suffix
      * @return bool
      */
-    public static function endWith($string, $suffix) { return false; }
+    public static function endsWith($string, $suffix) { return false; }
 
     /**
      * To lower case
@@ -104,4 +106,22 @@ final class str {
      * @return string
      */
     public static function repeat($string, $amount) { return ''; }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    public static function trim($string) { return ''; }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    public static function reverse($string) { return ''; }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    public static function shuffle($string) { return ''; }
 }

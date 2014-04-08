@@ -193,6 +193,7 @@ public class ClassEntity extends Entity {
 
             for (Class<?> interface_ : nativeClazz.getInterfaces()){
                 if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
+                if (interface_.getPackage().getName().startsWith("java.")) continue;
 
                 String name = interface_.getSimpleName();
                 if (interface_.isAnnotationPresent(Reflection.Name.class)){

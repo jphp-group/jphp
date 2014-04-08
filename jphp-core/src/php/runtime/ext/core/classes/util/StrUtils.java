@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.MathFunctions;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
@@ -22,15 +23,27 @@ final public class StrUtils extends BaseObject {
     private Memory __construct(Environment env, Memory... args) { return Memory.NULL; }
 
     @FastMethod
-    @Signature({@Arg("string"), @Arg("search")})
+    @Signature({
+            @Arg("string"),
+            @Arg("search"),
+            @Arg(value = "fromIndex", optional = @Optional(value = "0", type = HintType.INT))
+    })
     public static Memory indexOf(Environment env, Memory... args) {
-        return LongMemory.valueOf(args[0].toString().indexOf(args[1].toString()));
+        int fromIndex = args[2].toInteger();
+        return LongMemory.valueOf(args[0].toString().indexOf(args[1].toString(), fromIndex));
     }
 
     @FastMethod
-    @Signature({@Arg("string"), @Arg("search")})
+    @Signature({
+            @Arg("string"),
+            @Arg("search"),
+            @Arg(value = "fromIndex", optional = @Optional("NULL"))
+    })
     public static Memory lastIndexOf(Environment env, Memory... args) {
-        return LongMemory.valueOf(args[0].toString().lastIndexOf(args[1].toString()));
+        return LongMemory.valueOf(args[2].isNull()
+                ? args[0].toString().lastIndexOf(args[1].toString())
+                : args[0].toString().lastIndexOf(args[1].toString(), args[2].toInteger())
+        );
     }
 
     @FastMethod
@@ -57,7 +70,7 @@ final public class StrUtils extends BaseObject {
 
     @FastMethod
     @Signature({@Arg("string"), @Arg("pattern")})
-    public static Memory match(Environment env, Memory... args) {
+    public static Memory matches(Environment env, Memory... args) {
         return args[0].toString().matches(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
     }
 
@@ -79,7 +92,7 @@ final public class StrUtils extends BaseObject {
             @Arg("prefix"),
             @Arg(value = "offset", optional = @Optional(value = "0", type = HintType.INT))
     })
-    public static Memory startWith(Environment env, Memory... args) {
+    public static Memory startsWith(Environment env, Memory... args) {
         return args[0].toString().startsWith(args[1].toString(), args[2].toInteger()) ? Memory.TRUE : Memory.FALSE;
     }
 
@@ -88,7 +101,7 @@ final public class StrUtils extends BaseObject {
             @Arg("string"),
             @Arg("suffix")
     })
-    public static Memory endWith(Environment env, Memory... args) {
+    public static Memory endsWith(Environment env, Memory... args) {
         return args[0].toString().endsWith(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
     }
 
@@ -132,6 +145,9 @@ final public class StrUtils extends BaseObject {
     @Signature({@Arg("string"), @Arg("amount")})
     public static Memory repeat(Environment env, Memory... args) {
         String s = args[0].toString();
+        int amount = args[0].toInteger();
+        if (amount <= 0)
+            return Memory.FALSE;
 
         if (s.length() == 1) {
             return new StringMemory(StringUtils.repeat(s.charAt(0), args[1].toInteger()));
@@ -143,5 +159,33 @@ final public class StrUtils extends BaseObject {
             }
             return new StringMemory(sb.toString());
         }
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory trim(Environment env, Memory... args) {
+        return new StringMemory(args[0].toString().trim());
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory reverse(Environment env, Memory... args) {
+        return new StringMemory(StringUtils.reverse(args[0].toString()));
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory shuffle(Environment env, Memory... args) {
+        char[] chars = args[0].toString().toCharArray();
+
+        int length = chars.length;
+        for (int i = 0; i < length; i++) {
+            int rand = MathFunctions.RANDOM.nextInt(length);
+
+            char temp = chars[rand];
+            chars[rand] = chars[i];
+            chars[i] = temp;
+        }
+        return new StringMemory(new String(chars));
     }
 }
