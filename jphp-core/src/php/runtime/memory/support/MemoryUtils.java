@@ -312,7 +312,16 @@ public class MemoryUtils {
     public static Memory valueOf(String value, HintType type){
         switch (type){
             case STRING: return new StringMemory(value);
-            case ANY: return value.equals("NULL") ? Memory.NULL : new StringMemory(value);
+            case ANY:
+                if (value.equals("false"))
+                    return Memory.FALSE;
+                if (value.equals("true"))
+                    return Memory.TRUE;
+                else if (value.equalsIgnoreCase("null"))
+                    return Memory.NULL;
+
+                Memory m = StringMemory.toNumeric(value, false, null);
+                return m != null ? m : new StringMemory(value);
             case DOUBLE:
                 return new DoubleMemory(Double.parseDouble(value));
             case INT: {

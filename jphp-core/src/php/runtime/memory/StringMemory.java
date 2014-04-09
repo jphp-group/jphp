@@ -32,6 +32,10 @@ public class StringMemory extends Memory {
         return new StringMemory(value);
     }
 
+    public static Memory valueOf(char ch) {
+        return getChar(ch);
+    }
+
     @Override
     public long toLong() {
         return toLongNumeric().toLong();

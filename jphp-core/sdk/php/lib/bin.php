@@ -7,9 +7,12 @@ namespace php\lib;
  * Class Binary
  * @package php
  */
-final class bin {
+class bin {
+
+    private function __construct() { }
+
     /**
-     * @param string|traversable $string
+     * @param string|array $string
      * @return string - binary string
      */
     public static function of($string) { return ''; }

@@ -237,7 +237,9 @@ public class ClassEntity extends Entity {
                     param.setName(arg.value());
 
                     param.setDefaultValue(null);
-                    if (arg.optional().exists() || !arg.optional().value().isEmpty() || arg.type() != HintType.ANY){
+                    if (arg.optional().exists()
+                            || !arg.optional().value().isEmpty()
+                            || (arg.type() != HintType.STRING && !arg.optional().value().isEmpty())){
                         param.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
                     }
 

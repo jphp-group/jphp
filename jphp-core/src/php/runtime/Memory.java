@@ -647,6 +647,10 @@ abstract public class Memory {
     public ForeachIterator getNewIterator(Environment env,
                                           boolean getReferences, boolean getKeyReferences){ return null; }
 
+    final public ForeachIterator getNewIterator(Environment env) {
+        return getNewIterator(env, false, false);
+    }
+
     public boolean instanceOf(String className, String lowerClassName){
         return false;
     }

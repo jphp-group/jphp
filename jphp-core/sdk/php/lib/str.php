@@ -1,25 +1,57 @@
 <?php
 namespace php\lib;
 
-final class str {
+/**
+ * Class str
+ * @package php\lib
+ */
+class str {
 
     private function __construct() {}
+
+    /**
+     * @param string $char
+     * @return int
+     */
+    public static function ord($char) { return 0; }
+
+    /**
+     * @param int $code
+     * @return string
+     */
+    public static function char($code) { return ''; }
 
     /**
      * @param string $string
      * @param string $search
      * @param int $fromIndex
-     * @return int
+     * @return int - returns -1 if not found
      */
-    public static function indexOf($string, $search, $fromIndex = 0) { return 0; }
+    public static function pos($string, $search, $fromIndex = 0) { return 0; }
+
+    /**
+     * @param string $string
+     * @param string $search
+     * @param int $fromIndex
+     * @return int - returns -1 if not found
+     */
+    public static function posIgnoreCase($string, $search, $fromIndex = 0) { return 0; }
 
     /**
      * @param $string
      * @param $search
      * @param null|int $fromIndex - null means $fromIndex will be equal $string.length
+     * @return int - returns -1 if not found
+     */
+    public static function lastPos($string, $search, $fromIndex = null) { return 0; }
+
+    /**
+     * @param string $string
+     * @param string $search
+     * @param null|int $fromIndex - null means $fromIndex will be equal $string.length
      * @return int
      */
-    public static function lastIndexOf($string, $search, $fromIndex = null) { return 0; }
+    public static function lastPosIgnoreCase($string, $search, $fromIndex = null) { return 0; }
 
     /**
      * @param string $string
@@ -42,6 +74,13 @@ final class str {
      * @return int
      */
     public static function compareIgnoreCase($string1, $string2) { return 0; }
+
+    /**
+     * @param string $string1
+     * @param string $string2
+     * @return bool
+     */
+    public static function equalsIgnoreCase($string1, $string2) { return false; }
 
     /**
      * @param string $string
@@ -120,8 +159,25 @@ final class str {
     public static function reverse($string) { return ''; }
 
     /**
+     * Returns a randomized string based on chars in $string
      * @param string $string
      * @return string
      */
     public static function shuffle($string) { return ''; }
+
+    /**
+     * @param string $string
+     * @param string $separator
+     * @param int $limit
+     * @return array
+     */
+    public static function split($string, $separator, $limit = 0) { return []; }
+
+    /**
+     * @param $iterable
+     * @param string $separator
+     * @param int $limit
+     * @return string
+     */
+    public static function join($iterable, $separator, $limit = 0) { return ''; }
 }

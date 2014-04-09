@@ -6,15 +6,21 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.MathFunctions;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
+import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ParameterEntity;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\lib\\str")
 final public class StrUtils extends BaseObject {
+    public Memory string;
+
     public StrUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -28,7 +34,7 @@ final public class StrUtils extends BaseObject {
             @Arg("search"),
             @Arg(value = "fromIndex", optional = @Optional(value = "0", type = HintType.INT))
     })
-    public static Memory indexOf(Environment env, Memory... args) {
+    public static Memory pos(Environment env, Memory... args) {
         int fromIndex = args[2].toInteger();
         return LongMemory.valueOf(args[0].toString().indexOf(args[1].toString(), fromIndex));
     }
@@ -37,13 +43,36 @@ final public class StrUtils extends BaseObject {
     @Signature({
             @Arg("string"),
             @Arg("search"),
+            @Arg(value = "fromIndex", optional = @Optional(value = "0", type = HintType.INT))
+    })
+    public static Memory posIgnoreCase(Environment env, Memory... args) {
+        int fromIndex = args[2].toInteger();
+        return LongMemory.valueOf(StringUtils.indexOfIgnoreCase(args[0].toString(), args[1].toBinaryString(), fromIndex));
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg("search"),
             @Arg(value = "fromIndex", optional = @Optional("NULL"))
     })
-    public static Memory lastIndexOf(Environment env, Memory... args) {
+    public static Memory lastPos(Environment env, Memory... args) {
         return LongMemory.valueOf(args[2].isNull()
                 ? args[0].toString().lastIndexOf(args[1].toString())
                 : args[0].toString().lastIndexOf(args[1].toString(), args[2].toInteger())
         );
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg("search"),
+            @Arg(value = "fromIndex", optional = @Optional("NULL"))
+    })
+    public static Memory lastPosIgnoreCase(Environment env, Memory... args) {
+        String string = args[0].toString();
+        int from = args[2].isNull() ? string.length() : args[2].toInteger();
+        return LongMemory.valueOf(StringUtils.lastIndexOfIgnoreCase(string, args[1].toString(), from));
     }
 
     @FastMethod
@@ -84,6 +113,12 @@ final public class StrUtils extends BaseObject {
     @Signature({@Arg("string1"), @Arg("string2")})
     public static Memory compareIgnoreCase(Environment env, Memory... args) {
         return LongMemory.valueOf(args[0].toString().compareToIgnoreCase(args[1].toString()));
+    }
+
+    @FastMethod
+    @Signature({@Arg("string1"), @Arg("string2")})
+    public static Memory equalsIgnoreCase(Environment env, Memory... args) {
+        return TrueMemory.valueOf(args[0].toString().equalsIgnoreCase(args[1].toString()));
     }
 
     @FastMethod
@@ -187,5 +222,68 @@ final public class StrUtils extends BaseObject {
             chars[i] = temp;
         }
         return new StringMemory(new String(chars));
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg("separator"),
+            @Arg(value = "limit", optional = @Optional(value = "0", type = HintType.INT))
+    })
+    public static Memory split(Environment env, Memory... args) {
+        String string = args[0].toString();
+        String separator = args[1].toString();
+        int limit = args[2].toInteger();
+
+        return new ArrayMemory(StringUtils.split(string, separator, limit)).toConstant();
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("collection"),
+            @Arg("separator"),
+            @Arg(value = "limit", optional = @Optional(value = "0", type = HintType.INT))
+    })
+    public static Memory join(Environment env, Memory... args) {
+        String separator = args[1].toString();
+        StringBuilder builder = new StringBuilder();
+        int limit = args[2].toInteger();
+
+        int i = 0;
+        if (args[0].isArray()) {
+            ArrayMemory array = args[0].toValue(ArrayMemory.class);
+            int size = array.size();
+            if (limit > 0 && limit < size)
+                size = limit;
+
+            for(Memory el : array){
+                builder.append(el);
+                if (i != size - 1)
+                    builder.append(separator);
+                i++;
+                if (i == size) break;
+            }
+
+            return new StringMemory(builder.toString());
+        } else {
+            ParameterEntity.validateTypeHinting(env, 1, args, HintType.TRAVERSABLE, false);
+
+            ForeachIterator iterator = args[0].getNewIterator(env);
+            while (iterator.next()) {
+                builder.append(iterator.getValue());
+                builder.append(separator);
+                i++;
+
+                if (limit > 0 && i == limit) break;
+            }
+
+            int length = builder.length();
+            if (length > 0) {
+                builder.delete(length - separator.length(), length);
+            } else
+                return Memory.CONST_EMPTY_STRING;
+
+            return new StringMemory(builder.toString());
+        }
     }
 }

@@ -5,7 +5,7 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'org.ow2.asm', name: 'asm-all', version:'5.0+'
+    compile group: 'org.ow2.asm', name: 'asm-all', version:'5.0.1'
 
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-zend-ext')
