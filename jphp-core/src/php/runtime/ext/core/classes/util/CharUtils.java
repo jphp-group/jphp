@@ -60,7 +60,7 @@ final public class CharUtils extends BaseObject {
     @FastMethod
     @Signature({@Arg("char1"), @Arg("char2")})
     public static Memory compare(Environment env, Memory... args) {
-        return LongMemory.valueOf(Character.compare(chr(args[0]), chr(args[1])));
+        return LongMemory.valueOf(chr(args[0]) - chr(args[1]));
     }
 
     @FastMethod
