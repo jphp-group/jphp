@@ -4,10 +4,10 @@ namespace php\lib;
 /**
  * Library for working with enumerations - arrays, iterators, etc.
  *
- * Class enum
+ * Class items
  * @package php\lib
  */
-class enum {
+class items {
 
     private function __construct() { }
 

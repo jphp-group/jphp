@@ -1,5 +1,6 @@
 <?php
 namespace php\lib;
+use php\util\Cursor;
 
 /**
  * Class str
@@ -169,12 +170,12 @@ class str {
      * @param string $string
      * @param string $separator
      * @param int $limit
-     * @return array
+     * @return Cursor
      */
-    public static function split($string, $separator, $limit = 0) { return []; }
+    public static function split($string, $separator, $limit = 0) { return new Cursor(); }
 
     /**
-     * @param $iterable
+     * @param array|\Iterator $iterable
      * @param string $separator
      * @param int $limit
      * @return string

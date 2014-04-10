@@ -18,9 +18,9 @@ import java.util.Set;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\enum")
-final public class EnumUtils extends BaseObject {
-    public EnumUtils(Environment env, ClassEntity clazz) {
+@Name("php\\lib\\items")
+final public class ItemsUtils extends BaseObject {
+    public ItemsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 

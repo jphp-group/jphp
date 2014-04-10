@@ -304,6 +304,7 @@ public class ObjectMemory extends Memory {
         } else if (value instanceof Iterator){
             final Iterator iterator = (Iterator)value;
             final String className = value.getReflection().getName();
+            final boolean isNative = value.getReflection().isInternal();
 
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 private boolean keyInit = false;
@@ -317,12 +318,14 @@ public class ObjectMemory extends Memory {
 
                 protected boolean rewind() {
                     if (!rewind){
-                        env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
+                        if (!isNative)
+                            env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
                         try {
                             return iterator.rewind(env).toValue() != FALSE;
                         } finally {
                             rewind = true;
-                            env.popCall();
+                            if (!isNative)
+                                env.popCall();
                         }
                     }
                     return true;
@@ -346,32 +349,38 @@ public class ObjectMemory extends Memory {
                     boolean valid = false;
                     keyInit = false;
                     if (needNext){
-                        env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
+                        if (!isNative)
+                            env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
                         try {
                             iterator.next(env);
                         } finally {
-                            env.popCall();
+                            if (!isNative)
+                                env.popCall();
                         }
                     }
 
                     needNext = true;
-                    env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
+                    if (!isNative)
+                        env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
                     try {
                         valid = iterator.valid(env).toBoolean();
                         if (valid) {
-                            env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
+                            if (!isNative)
+                                env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
                             try {
                                 currentValue = iterator.current(env);
                                 if (!getReferences)
                                     currentValue = currentValue.toImmutable();
                             } finally {
-                                env.popCall();
+                                if (!isNative)
+                                    env.popCall();
                             }
                         } else {
                             rewind = false;
                         }
                     } finally {
-                        env.popCall();
+                        if (!isNative)
+                            env.popCall();
                     }
 
                     return valid;
@@ -387,13 +396,15 @@ public class ObjectMemory extends Memory {
                     if (keyInit)
                         return (Memory)currentKey;
 
-                    env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
+                    if (!isNative)
+                        env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
                     try {
                         currentKey = iterator.key(env).toImmutable();
                         keyInit = true;
                         return (Memory)currentKey;
                     } finally {
-                        env.popCall();
+                        if (!isNative)
+                            env.popCall();
                     }
                 }
             };
