@@ -223,7 +223,7 @@ public class Tokenizer {
                     i += 1;
                     break;
                     // nop
-                } else if (GrammarUtils.isEngLetter(ch) || (tmp.length() != 0 && Character.isDigit(ch))){
+                } else if (GrammarUtils.isEngLetter(ch) || ch == '_' || (tmp.length() != 0 && Character.isDigit(ch))){
                     tmp.append(ch);
                 } else if (tmp.length() > 0 && checkNewLine(ch)){
                     pos = 0;
