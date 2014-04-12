@@ -4,6 +4,7 @@ import php.runtime.common.Messages;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.ext.core.classes.WrapInvoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.Memory;
 import php.runtime.reflection.ParameterEntity;
@@ -67,6 +68,9 @@ abstract public class Invoker {
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toValue();
         if (method.isObject()){
+            if (method.instanceOf(WrapInvoker.class))
+                return method.toObject(WrapInvoker.class).getInvoker();
+
             return DynamicMethodInvoker.valueOf(env, trace, method);
         } else if (method.isArray()){
             Memory one = null, two = null;

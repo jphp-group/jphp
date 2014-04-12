@@ -31,10 +31,6 @@ abstract public class Stream extends BaseObject implements Resource {
     private String mode;
     private Memory context = Memory.NULL;
 
-    public Stream(ClassEntity entity) {
-        super(entity);
-    }
-
     public Stream(Environment env) {
         super(env);
     }
@@ -124,7 +120,7 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
-    public static Memory create(Environment env, Memory... args) throws Throwable {
+    public static Memory of(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();
 
         String protocol = "file";
@@ -212,6 +208,19 @@ abstract public class Stream extends BaseObject implements Resource {
             exception(env, e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * @param arg
+     * @return
+     */
+    public static String getPath(Memory arg) {
+        if (arg.instanceOf(FileObject.class)){
+            return arg.toObject(FileObject.class).file.getPath();
+        } else if (arg.instanceOf(Stream.class)){
+            return arg.toObject(Stream.class).getPath();
+        } else
+            return arg.toString();
     }
 
     /**

@@ -82,7 +82,10 @@ class Cursor implements Iterator {
      */
     public function current() { return 0; }
 
-    public function next() { }
+    /**
+     * @return $this|void
+     */
+    public function next() { return $this; }
 
     public function key() { }
 

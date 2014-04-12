@@ -58,6 +58,8 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ItemsUtils.class);
         registerNativeClass(scope, Cursor.class);
 
+        registerNativeClass(scope, WrapInvoker.class);
+        registerNativeClass(scope, WrapModule.class);
         registerNativeClass(scope, WrapEnvironment.class);
         registerNativeClass(scope, WrapThreadGroup.class);
         registerNativeClass(scope, WrapThread.class);
