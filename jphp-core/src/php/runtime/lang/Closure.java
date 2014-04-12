@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static php.runtime.annotation.Reflection.*;
 
+@Name("Closure")
 public abstract class Closure extends BaseObject implements IStaticVariables, Cloneable {
     protected Memory[] uses;
     private Map<String, ReferenceMemory> statics;

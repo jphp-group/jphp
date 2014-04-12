@@ -179,7 +179,7 @@ final public class InvokeHelper {
             throws Throwable {
         method = method.toValue();
         if (method.isObject()) {
-            if (method.instanceOf(WrapInvoker.class))
+            if (method.toValue(ObjectMemory.class).value instanceof WrapInvoker)
                 return method.toObject(WrapInvoker.class).getInvoker().callNoThrow(args);
 
             return ObjectInvokeHelper.invokeMethod(method, null, null, env, trace, args);
