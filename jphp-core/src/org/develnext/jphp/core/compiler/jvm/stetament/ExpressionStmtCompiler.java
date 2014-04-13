@@ -2382,9 +2382,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
         } else if (operator instanceof SilentToken) {
-            if (!o.isKnown())
-                unexpectedToken(operator);
-
             writePushEnv();
             writeSysDynamicCall(Environment.class, "__pushSilent", void.class);
 
