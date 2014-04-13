@@ -71,10 +71,9 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                     iterator.previous();
                     break;
                 } else if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken){
-                    break;
-                }
-
-                instructions.add(expr);
+                   // nop break;
+                } else
+                    instructions.add(expr);
             }
         } else {
             ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
