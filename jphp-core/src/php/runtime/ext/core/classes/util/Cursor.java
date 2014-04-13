@@ -49,6 +49,9 @@ public class Cursor extends BaseObject implements Iterator {
         if (this.selfIterator == null)
             this.selfIterator = new ObjectMemory(this).getNewIterator(env);
 
+        if (!this.valid)
+            env.exception("Unable to iterate the cursor repeatedly");
+
         return this.selfIterator;
     }
 
@@ -88,12 +91,18 @@ public class Cursor extends BaseObject implements Iterator {
         final int step = args[2].toInteger() < 1 ? 1 : args[2].toInteger();
 
         return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
-            protected int i = from;
+            protected int i;
+
+            @Override
+            public void reset() {
+                this.i = from;
+                currentKeyMemory = LongMemory.valueOf(0);
+                currentKey = currentKeyMemory;
+            }
 
             @Override
             protected boolean init() {
-                currentKeyMemory = LongMemory.valueOf(0);
-                currentKey = currentKeyMemory;
+                reset();
                 return true;
             }
 
@@ -134,7 +143,13 @@ public class Cursor extends BaseObject implements Iterator {
             protected int length = string.length();
 
             @Override
+            public void reset() {
+                this.i = 0;
+            }
+
+            @Override
             protected boolean init() {
+                this.reset();
                 return length > 0;
             }
 
@@ -175,6 +190,13 @@ public class Cursor extends BaseObject implements Iterator {
 
         return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
             protected boolean applyAppended = false;
+
+            @Override
+            public void reset() {
+                iterator.reset();
+                appendIterator.reset();
+                applyAppended = false;
+            }
 
             @Override
             protected boolean init() {
@@ -254,8 +276,11 @@ public class Cursor extends BaseObject implements Iterator {
     @Override
     @Signature
     public Memory rewind(Environment env, Memory... args) {
-        if (init)
-            throw new IllegalStateException("Cannot rewind() collection object");
+        if (init) {
+            worker.reset();
+            return Memory.NULL;
+            //throw new IllegalStateException("Cannot rewind() collection object");
+        }
 
         init = true;
         if (!worker.next(env)){
@@ -276,6 +301,7 @@ public class Cursor extends BaseObject implements Iterator {
     @Signature
     public Memory count(Environment env, Memory... args) {
         int cnt = 0;
+        ForeachIterator iterator = getSelfIterator(env);
         while (iterator.next()) cnt++;
 
         return LongMemory.valueOf(cnt);
@@ -350,16 +376,21 @@ public class Cursor extends BaseObject implements Iterator {
 
     @Signature({
             @Arg(value = "sliceSize"),
-            @Arg(value = "callback", type = HintType.CALLABLE)
+            @Arg(value = "callback", type = HintType.CALLABLE),
+            @Arg(value = "withKeys", optional = @Optional("false"))
     })
     public Memory eachSlice(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(env, null, args[1]);
 
         ArrayMemory tmp = new ArrayMemory();
+        boolean withKeys = args[2].toBoolean();
         int cnt = 0, r = 0, n = args[0].toInteger();
         while (iterator.next()) {
             cnt++;
-            tmp.add(iterator.getValue());
+            if (withKeys)
+                tmp.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+            else
+                tmp.add(iterator.getValue());
             if (cnt >= n) {
                 r++;
                 Memory ret = invoker.callNoThrow(tmp);
@@ -432,7 +463,7 @@ public class Cursor extends BaseObject implements Iterator {
             public boolean next(final Environment env) {
                 while (iterator.next()) {
                     i++;
-                    if (i >= skip)
+                    if (i > skip)
                         return true;
                 }
 
@@ -475,6 +506,10 @@ public class Cursor extends BaseObject implements Iterator {
 
         public Memory key(Environment env) {
             return iterator.getMemoryKey();
+        }
+
+        public void reset() {
+            iterator.reset();
         }
     }
 }

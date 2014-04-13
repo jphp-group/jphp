@@ -312,6 +312,11 @@ public class ObjectMemory extends Memory {
                 private boolean rewind = false;
 
                 @Override
+                public void reset() {
+                    rewind();
+                }
+
+                @Override
                 protected boolean init() {
                     return rewind();
                 }
@@ -420,6 +425,11 @@ public class ObjectMemory extends Memory {
                     reflection = value.getReflection();
                     child = value.getProperties().foreachIterator(getReferences, getKeyReferences);
                     return true;
+                }
+
+                @Override
+                public void reset() {
+                    child.reset();
                 }
 
                 @Override

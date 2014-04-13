@@ -12,7 +12,22 @@ import org.junit.runners.MethodSorters;
 public class CursorTest extends JvmCompilerCase {
 
     @Test
+    public void testBasic() {
+        check("ext/standard/cursor/basic_001.php");
+        check("ext/standard/cursor/basic_002.php");
+        check("ext/standard/cursor/basic_003.php");
+        check("ext/standard/cursor/basic_004.php");
+        check("ext/standard/cursor/basic_005.php");
+        check("ext/standard/cursor/basic_006.php");
+        check("ext/standard/cursor/basic_007.php");
+        check("ext/standard/cursor/basic_008.php");
+        check("ext/standard/cursor/basic_009.php");
+        check("ext/standard/cursor/basic_010.php");
+        check("ext/standard/cursor/basic_011.php");
+    }
+
+    @Test
     public void testToArray() {
-        check("ext/standard/cursor/001_toarray.php");
+        check("ext/standard/cursor/toarray_001.php");
     }
 }

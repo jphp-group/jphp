@@ -1052,6 +1052,9 @@ public class Environment {
 
         @Override
         protected boolean prevValue() { return false; }
+
+        @Override
+        public void reset() { }
     };
 
     public ForeachIterator __getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){

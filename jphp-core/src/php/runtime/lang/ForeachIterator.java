@@ -58,6 +58,8 @@ abstract public class ForeachIterator {
         return currentKey;
     }
 
+    abstract public void reset();
+
     public Memory getMemoryKey(){
         if (currentKeyMemory != null)
             return currentKeyMemory;

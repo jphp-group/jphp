@@ -1067,6 +1067,21 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             protected Iterator<Object> keys;
 
             @Override
+            public void reset() {
+                if (getKeyReferences && list != null)
+                    ArrayMemory.this.convertToMap();
+
+                if (list == null) {
+                    if (withPrevious || getKeyReferences)
+                        keys = new ArrayList<Object>(map.keySet()).listIterator();
+                    else
+                        keys = new ArrayList<Object>(map.keySet()).iterator();
+                } else {
+                    listMax = list.size();
+                }
+            }
+
+            @Override
             protected boolean init() {
                 if (getKeyReferences && list != null)
                     ArrayMemory.this.convertToMap();

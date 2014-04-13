@@ -9,9 +9,8 @@ class Invoker {
 
     /**
      * @param callable $callback
-     * @param bool $checkAccess
      */
-    public function __construct(callable $callback, $checkAccess = false) {  }
+    public function __construct(callable $callback) {  }
 
     /**
      * @param array $args

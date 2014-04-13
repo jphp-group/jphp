@@ -32,9 +32,10 @@ class Cursor implements Iterator {
     /**
      * @param $sliceSize
      * @param callable $callback (array $items): bool
+     * @param bool $withKeys
      * @return int - slice iteration count
      */
-    public function eachSlice($sliceSize, callable $callback) { return 0; }
+    public function eachSlice($sliceSize, callable $callback, $withKeys = false) { return 0; }
 
     /**
      * @param callable $callback ($el[, $key])
@@ -82,11 +83,11 @@ class Cursor implements Iterator {
      */
     public function current() { return 0; }
 
-    /**
-     * @return $this|void
-     */
-    public function next() { return $this; }
+    public function next() {  }
 
+    /**
+     * @return mixed
+     */
     public function key() { }
 
     public function valid() { }
