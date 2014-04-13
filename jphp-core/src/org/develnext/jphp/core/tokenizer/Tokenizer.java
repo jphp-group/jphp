@@ -213,8 +213,8 @@ public class Tokenizer {
 
                 if (docType == null && GrammarUtils.isQuote(ch) != null) {
                     docType = GrammarUtils.isQuote(ch);
-                } else if (docType != null && docType == GrammarUtils.isQuote(ch)){
-                    if (i + 1 >= codeLength || !GrammarUtils.isNewline(code.charAt(i + 1))){
+                } else if (docType != null && docType == GrammarUtils.isQuote(ch)) {
+                    if (i + 1 >= codeLength || !GrammarUtils.isNewline(code.charAt(i + 1))) {
                         throw new ParseException(
                                 Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
                                 new TraceInfo(context, currentLine, currentLine, pos + 1, pos + 1)
@@ -223,6 +223,8 @@ public class Tokenizer {
                     i += 1;
                     break;
                     // nop
+                } else if (tmp.length() == 0 && (ch == ' ' || ch == '\t')) {
+                    //nop
                 } else if (GrammarUtils.isEngLetter(ch) || ch == '_' || (tmp.length() != 0 && Character.isDigit(ch))){
                     tmp.append(ch);
                 } else if (tmp.length() > 0 && checkNewLine(ch)){
