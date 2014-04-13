@@ -171,6 +171,7 @@ public class Cursor extends BaseObject implements Iterator {
     @Signature(@Arg(value = "collection", type = HintType.TRAVERSABLE))
     public Memory append(Environment env, Memory... args) {
         final ForeachIterator appendIterator = args[0].toImmutable().getNewIterator(env);
+        final ForeachIterator iterator = getSelfIterator(env);
 
         return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
             protected boolean applyAppended = false;
