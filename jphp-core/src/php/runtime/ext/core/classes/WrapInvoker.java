@@ -42,6 +42,9 @@ public class WrapInvoker extends BaseObject {
     }
 
     @Signature
+    private Memory __clone(Environment env, Memory... args) { return Memory.NULL; }
+
+    @Signature
     public Memory canAccess(Environment env, Memory... args) {
         return invoker.canAccess(env) == 0 ? Memory.TRUE : Memory.FALSE;
     }
@@ -58,6 +61,9 @@ public class WrapInvoker extends BaseObject {
         sb.append("(");
 
         int i = 0;
+        if (invoker.getParameters() == null) {
+            sb.append("<internal>");
+        } else
         for(ParameterEntity param : invoker.getParameters()) {
             if (i != 0)
                 sb.append(", ");
@@ -93,17 +99,23 @@ public class WrapInvoker extends BaseObject {
 
     @Signature
     public Memory call(Environment env, Memory... args) {
-        return invoker.callNoThrow(args);
+        invoker.setTrace(env.trace());
+        env.popCall();
+        try {
+            return invoker.callNoThrow(args);
+        } finally {
+            env.pushCall(this, "call");
+        }
     }
 
     @Signature(@Arg(value = "args", type = HintType.ARRAY))
     public Memory callArray(Environment env, Memory... args) {
-        return invoker.callNoThrow(args[0].toValue(ArrayMemory.class).values());
+        return call(env, args[0].toValue(ArrayMemory.class).values());
     }
 
     @Signature
     public Memory __invoke(Environment env, Memory... args) {
-        return invoker.callNoThrow(args);
+        return call(env, args);
     }
 
     @Runtime.FastMethod

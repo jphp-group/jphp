@@ -8,7 +8,6 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.WrapInvoker;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -179,9 +178,6 @@ final public class InvokeHelper {
             throws Throwable {
         method = method.toValue();
         if (method.isObject()) {
-            if (method.toValue(ObjectMemory.class).value instanceof WrapInvoker)
-                return method.toObject(WrapInvoker.class).getInvoker().callNoThrow(args);
-
             return ObjectInvokeHelper.invokeMethod(method, null, null, env, trace, args);
         } else if (method.isArray()){
             Memory one = null, two = null;

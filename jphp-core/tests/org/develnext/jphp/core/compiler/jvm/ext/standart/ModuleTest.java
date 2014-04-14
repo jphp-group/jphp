@@ -9,15 +9,12 @@ import org.junit.runners.MethodSorters;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class InvokerTest extends JvmCompilerCase {
+public class ModuleTest extends JvmCompilerCase {
 
     @Test
     public void testBasic() {
-        check("ext/standard/invoker/basic_001.php");
-        check("ext/standard/invoker/basic_002.php");
-        check("ext/standard/invoker/basic_003.php");
-        check("ext/standard/invoker/basic_004.php", true);
-        check("ext/standard/invoker/basic_005.php");
-        check("ext/standard/invoker/basic_006.php");
+        check("ext/standard/module/basic_001.php");
+        check("ext/standard/module/basic_002.php");
+        check("ext/standard/module/basic_003.php");
     }
 }

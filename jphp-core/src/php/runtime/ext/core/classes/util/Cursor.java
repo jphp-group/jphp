@@ -65,9 +65,22 @@ public class Cursor extends BaseObject implements Iterator {
             return invoker.callNoThrow(iterator.getValue(), iterator.getMemoryKey());
     }
 
-    @Signature
-    private Memory __construct(Environment env, Memory... args) {
-        throw new IllegalStateException("Please use php\\lib\\items::query() method insteadof this");
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE)
+    })
+    public Memory __construct(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
+
+        this.iterator = iterator;
+        this.worker = new Worker() {
+            @Override
+            public boolean next(Environment env) {
+                return Cursor.this.iterator.next();
+            }
+        };
+        this.worker.setIterator(iterator);
+
+        return Memory.NULL;
     }
 
 
@@ -424,6 +437,22 @@ public class Cursor extends BaseObject implements Iterator {
                 return false;
             }
         }));
+    }
+
+    @Signature(@Arg(value = "filter", type = HintType.CALLABLE, optional = @Optional("NULL")))
+    public Memory findOne(Environment env, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+
+        ForeachIterator iterator = getSelfIterator(env);
+        Memory r = Memory.NULL;
+        int argCount = invoker.getArgumentCount();
+
+        while (iterator.next()) {
+            if (call(iterator, invoker).toBoolean())
+                return iterator.getValue();
+        }
+
+        return Memory.NULL;
     }
 
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE))

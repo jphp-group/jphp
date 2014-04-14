@@ -9,19 +9,28 @@ use Iterator;
  */
 class Cursor implements Iterator {
 
-    private function __construct(){}
+    /**
+     * @param array|Iterator $collection
+     */
+    public function __construct($collection) { }
 
     /**
-     * @param array|\Iterator $collection
+     * @param array|Iterator $collection
      * @return Cursor
      */
-    public function append($collection) { return new Cursor(); }
+    public function append($collection) { return new Cursor([]); }
 
     /**
      * @param callable $filter
      * @return Cursor
      */
-    public function find(callable $filter = null) { return new Cursor(); }
+    public function find(callable $filter = null) { return new Cursor([]); }
+
+    /**
+     * @param callable $filter
+     * @return mixed
+     */
+    public function findOne(callable $filter = null) { return 0; }
 
     /**
      * @param callable $callback ($el[, $key]): bool
@@ -41,19 +50,19 @@ class Cursor implements Iterator {
      * @param callable $callback ($el[, $key])
      * @return Cursor
      */
-    public function map(callable $callback) { return new Cursor(); }
+    public function map(callable $callback) { return new Cursor([]); }
 
     /**
      * @param int $n - skip count
      * @return Cursor
      */
-    public function skip($n) { return new Cursor(); }
+    public function skip($n) { return new Cursor([]); }
 
     /**
      * @param $count
      * @return Cursor
      */
-    public function limit($count) { return new Cursor(); }
+    public function limit($count) { return new Cursor([]); }
 
     /**
      * @param callable $callback ($result, $el[, $key])
@@ -83,6 +92,9 @@ class Cursor implements Iterator {
      */
     public function current() { return 0; }
 
+    /**
+     * @return void
+     */
     public function next() {  }
 
     /**
@@ -90,15 +102,21 @@ class Cursor implements Iterator {
      */
     public function key() { }
 
-    public function valid() { }
+    /**
+     * @return bool
+     */
+    public function valid() { return false; }
 
+    /**
+     * @return void
+     */
     public function rewind() { }
 
     /**
      * @param array|Iterator $collection
      * @return Cursor
      */
-    public static function of($collection) { return new Cursor(); }
+    public static function of($collection) { return new Cursor([]); }
 
     /**
      * @param int $from
@@ -106,12 +124,12 @@ class Cursor implements Iterator {
      * @param int $step
      * @return Cursor
      */
-    public static function ofRange($from, $to, $step = 1) { return new Cursor(); }
+    public static function ofRange($from, $to, $step = 1) { return new Cursor([]); }
 
     /**
      * @param $string
      * @param int $chunkSize
      * @return Cursor
      */
-    public static function ofString($string, $chunkSize = 1) { return new Cursor(); }
+    public static function ofString($string, $chunkSize = 1) { return new Cursor([]); }
 }

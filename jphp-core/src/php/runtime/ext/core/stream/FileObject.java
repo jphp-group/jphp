@@ -1,6 +1,7 @@
 package php.runtime.ext.core.stream;
 
 import php.runtime.Memory;
+import php.runtime.common.Constants;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -12,7 +13,6 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -20,9 +20,9 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\File")
 public class FileObject extends BaseObject {
-    public final static int FILES_ONLY = JFileChooser.FILES_ONLY;
-    public final static int DIRECTORIES_ONLY = JFileChooser.DIRECTORIES_ONLY;
-    public final static int FILES_AND_DIRECTORIES = JFileChooser.FILES_AND_DIRECTORIES;
+    public static String PATH_SEPARATOR = Constants.PATH_SEPARATOR;
+    public static String DIRECTORY_SEPARATOR = Constants.DIRECTORY_SEPARATOR;
+    public static boolean PATH_NAME_CASE_INSENSITIVE = Constants.PATH_NAME_CASE_INSENSITIVE;
 
     protected File file;
 
