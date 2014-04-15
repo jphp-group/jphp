@@ -701,7 +701,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             final LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
             ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getToken(
-                    nextToken(iterator), iterator, null,
+                    nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON,
                     braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind/*,
                     new Callback<Boolean, Token>() {
                         @Override
