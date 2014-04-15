@@ -506,7 +506,13 @@ public class Tokenizer {
             boolean closed = false;
             switch (kind){
                 case SIMPLE:
-                    closed = (GrammarUtils.isNewline(ch)); break;
+                    closed = (GrammarUtils.isNewline(ch));
+                    if (GrammarUtils.isCloseTag(String.valueOf(new char[]{prev_ch, ch}))) {
+                        i -= 2;
+                        closed = true;
+                    }
+
+                    break;
                 case DOCTYPE:
                 case BLOCK:
                     closed = (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;

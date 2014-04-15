@@ -14,4 +14,9 @@ public class CommentsTest extends JvmCompilerCase {
     public void testDoctype(){
         check("comments/doctype.php");
     }
+
+    @Test
+    public void testSimpleWithCloseTag(){
+        check("comments/simple_with_close_tag.php");
+    }
 }
