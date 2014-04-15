@@ -271,6 +271,11 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertTrue(memory.valueOfIndex(0).isArray());
         Assert.assertEquals(2, memory.valueOfIndex(0).toValue(ArrayMemory.class).size());
         Assert.assertEquals(2, memory.valueOfIndex(1).toValue(ArrayMemory.class).size());
+
+        // test logic and array
+        memory = runDynamic("array(1 && 1, 2);");
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals(2, memory.toValue(ArrayMemory.class).size());
     }
 
     @Test
