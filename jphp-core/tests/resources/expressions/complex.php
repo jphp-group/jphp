@@ -12,4 +12,7 @@ if ($a !== true)
 if ($c !== 'yes')
     return 'fail_2';
 
+if (!!true !== !$unknown)
+    return 'fail_3';
+
 return $e == 0 ? 'success' : 'fail';
