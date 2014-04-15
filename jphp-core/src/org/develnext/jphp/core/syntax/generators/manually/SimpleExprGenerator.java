@@ -1084,8 +1084,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
             } else if (current instanceof SemicolonToken){ // TODO refactor!
                 if (separator == Separator.SEMICOLON || separator == Separator.COMMA_OR_SEMICOLON) {
-                    if (tokens.isEmpty())
-                        unexpectedToken(current);
+                    /*if (tokens.isEmpty()) see: issues/94
+                        unexpectedToken(current);*/
                     break;
                 }
 
