@@ -81,6 +81,10 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = run("1.0 . 'bar'");
         Assert.assertEquals("1bar", memory.toString());
+
+        memory = run("$x = 'foo';\n" +
+                "return 'bar' . (string)$x;", false);
+        Assert.assertEquals("barfoo", memory.toString());
     }
 
     @Test
