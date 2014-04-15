@@ -26,10 +26,10 @@ public class ResourceStream extends Stream {
 
     @Override
     @Reflection.Signature({@Reflection.Arg("path")})
-    public Memory __construct(Environment env, Memory... args) {
+    public Memory __construct(Environment env, Memory... args) throws IOException {
         stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(args[0].toString());
         if (stream == null)
-            exception(env, "Resource not found - %s", args[0]);
+            throw new IOException("Resource not found - " + args[0]);
 
         return Memory.NULL;
     }

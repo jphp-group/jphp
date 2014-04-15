@@ -62,10 +62,11 @@ abstract public class AbstractFunctionEntity extends Entity {
             for(Memory argument : arguments) {
                 if (argument == null) continue;
 
-                ParameterEntity param = parameters != null && x < parameters.length ? parameters[x] : null;
-                if (param == null || (param.isUsed() && param.isMutable() && !param.isReference())) {
-                    if (argument.isArray())
+                if (argument.isArray()) {
+                    ParameterEntity param = parameters != null && x < parameters.length ? parameters[x] : null;
+                    if (param == null || (param.isUsed() && param.isMutable() && !param.isReference())) {
                         argument.unset();
+                    }
                 }
                 x++;
             }

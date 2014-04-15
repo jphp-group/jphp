@@ -36,12 +36,12 @@ public class MiscStream extends Stream {
     }
 
     private void throwCannotRead(Environment env){
-        exception(env, "Cannot read stream");
+        env.exception(WrapIOException.class, "Cannot read stream");
     }
 
     @Override
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
-    public Memory __construct(Environment env, Memory... args) {
+    public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args);
 
         String path = getPath();
@@ -54,43 +54,37 @@ public class MiscStream extends Stream {
         } else if ("stderr".equals(path)){
             outputStream = System.err;
         } else
-            exception(env, "Unknown type stream - %s", path);
+            env.exception(WrapIOException.class, "Unknown type stream - %s", path);
 
         return Memory.NULL;
     }
 
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
-    public Memory write(Environment env, Memory... args) {
+    public Memory write(Environment env, Memory... args) throws IOException {
         int len = args[1].toInteger();
         byte[] bytes = args[0].getBinaryBytes();
 
-        try {
-            eof = false;
-            len = len == 0 || len > bytes.length ? bytes.length : len;
-            if (memoryStream != null){
-                memoryStream.write(bytes, 0, len);
-                return LongMemory.valueOf(len);
-            } else if (outputStream != null) {
-                outputStream.write(bytes, 0, len);
-                this.position += len;
-                inputStream = null;
-                return LongMemory.valueOf(len);
-            } else if (inputStream != null){
-                exception(env, "Cannot write to input stream");
-                return Memory.CONST_INT_0;
-            }
-
+        eof = false;
+        len = len == 0 || len > bytes.length ? bytes.length : len;
+        if (memoryStream != null){
+            memoryStream.write(bytes, 0, len);
+            return LongMemory.valueOf(len);
+        } else if (outputStream != null) {
+            outputStream.write(bytes, 0, len);
+            this.position += len;
+            inputStream = null;
+            return LongMemory.valueOf(len);
+        } else if (inputStream != null){
+            env.exception(WrapIOException.class, "Cannot write to input stream");
             return Memory.CONST_INT_0;
-        } catch (IOException e) {
-            exception(env, e.getMessage());
         }
 
-        return Memory.FALSE;
+        return Memory.CONST_INT_0;
     }
 
     @Signature(@Arg("length"))
-    public Memory read(Environment env, Memory... args){
+    public Memory read(Environment env, Memory... args) throws IOException {
         if (!canRead)
             throwCannotRead(env);
 
@@ -106,22 +100,16 @@ public class MiscStream extends Stream {
             return new BinaryMemory(result);
         } else if (inputStream != null){
             byte[] buf = new byte[len];
-            try {
-                int read;
-                read = inputStream.read(buf);
-                eof = read == -1;
-                if (read == -1)
-                    return Memory.FALSE;
+            int read;
+            read = inputStream.read(buf);
+            eof = read == -1;
+            if (read == -1)
+                return Memory.FALSE;
 
-                position += read;
-                return new BinaryMemory(Arrays.copyOf(buf, read));
-            } catch (IOException e) {
-                exception(env, e.getMessage());
-            }
+            position += read;
+            return new BinaryMemory(Arrays.copyOf(buf, read));
         } else
-            exception(env, "Cannot read from output stream");
-
-        return Memory.NULL;
+            throw new IOException("Cannot read from output stream");
     }
 
     @Signature
@@ -145,17 +133,13 @@ public class MiscStream extends Stream {
     }
 
     @Signature
-    public Memory close(Environment env, Memory... args){
-        try {
-            if (memoryStream != null){
-              memoryStream.close();
-            } if (inputStream != null)
-                inputStream.close();
-            else if (outputStream != null)
-                outputStream.close();
-        } catch (IOException e) {
-            exception(env, e.getMessage());
-        }
+    public Memory close(Environment env, Memory... args) throws IOException {
+        if (memoryStream != null){
+          memoryStream.close();
+        } if (inputStream != null)
+            inputStream.close();
+        else if (outputStream != null)
+            outputStream.close();
         return Memory.NULL;
     }
 
@@ -170,11 +154,11 @@ public class MiscStream extends Stream {
     public Memory seek(Environment env, Memory... args){
         if (memoryStream != null){
             if (!memoryStream.seek(args[0].toInteger()))
-                exception(env, "Cannot seek to %s", args[0].toInteger());
+                env.exception(WrapIOException.class, "Cannot seek to %s", args[0].toInteger());
 
             this.position = args[0].toInteger();
         } else {
-            exception(env, "Cannot seek in input/output stream");
+            env.exception(WrapIOException.class, "Cannot seek in input/output stream");
         }
         return Memory.NULL;
     }
@@ -184,20 +168,16 @@ public class MiscStream extends Stream {
         if (memoryStream != null)
             return LongMemory.valueOf(memoryStream.length);
         else
-            exception(env, "Unsupported method for this type stream");
+            env.exception(WrapIOException.class, "Unsupported method for this type stream");
         return Memory.NULL;
     }
 
     @Signature
-    public Memory flush(Environment env, Memory... args){
+    public Memory flush(Environment env, Memory... args) throws IOException {
         if (outputStream == null)
-            exception(env, "Only output stream support flush()");
-
-        try {
+            env.exception(WrapIOException.class, "Only output stream support flush()");
+        else
             outputStream.flush();
-        } catch (IOException e) {
-            exception(env, e.getMessage());
-        }
         return Memory.NULL;
     }
 }

@@ -328,6 +328,7 @@ final public class InvokeHelper {
         }
 
         checkAccess(env, trace, method);
+
         if (passed == null)
             passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
 
@@ -338,13 +339,11 @@ final public class InvokeHelper {
             if (trace != null)
                 env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
 
-            result = method.invokeStatic(env, passed);
+            return method.invokeStatic(env, passed);
         } finally {
             if (trace != null)
                 env.popCall();
         }
-
-        return result;
     }
 
     public static Memory callStatic(Environment env, TraceInfo trace,

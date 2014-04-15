@@ -152,15 +152,15 @@ final public class ObjectInvokeHelper {
         }
 
         InvokeHelper.checkAccess(env, trace, method);
-        if (passed == null)
+        if (passed == null) {
             passed = InvokeHelper.makeArguments(
                     env, args, method.parameters, className, methodName, trace
             );
+        }
 
-        Memory result;
-        if (method.isImmutable()){
-            method.unsetArguments(passed);
-            return method.getResult().toImmutable();
+        Memory result = method.getImmutableResult();
+        if (result != null){
+            return result;
         }
 
         try {
@@ -169,7 +169,7 @@ final public class ObjectInvokeHelper {
                 if (doublePop)
                     env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
-            result = method.invokeDynamic(iObject, env, passed);
+            return method.invokeDynamic(iObject, env, passed);
         } finally {
             if (trace != null){
                 env.popCall();
@@ -177,7 +177,6 @@ final public class ObjectInvokeHelper {
                     env.popCall();
             }
         }
-        return result;
     }
 
     public static Memory invokeMethod(IObject iObject, MethodEntity method,

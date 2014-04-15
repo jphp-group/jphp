@@ -3,9 +3,9 @@ Basic cursor test current and key
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
-$cursor = Cursor::of(['x' => 1, 'y' => 2]);
+$cursor = Flow::of(['x' => 1, 'y' => 2]);
 
 var_dump($cursor->current());
 var_dump($cursor->key());

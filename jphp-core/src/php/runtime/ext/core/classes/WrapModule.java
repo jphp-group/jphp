@@ -48,6 +48,7 @@ public class WrapModule extends BaseObject {
                 JvmCompiler compiler = new JvmCompiler(env, context);
                 module = compiler.compile(false);
             }
+            register(env);
         } finally {
             Stream.closeStream(env, is);
         }
@@ -63,20 +64,13 @@ public class WrapModule extends BaseObject {
         }
     }
 
-    @Signature
-    public Memory isRegistered(Environment env, Memory... args) {
-        return registered ? Memory.TRUE : Memory.FALSE;
-    }
-
-    @Signature
-    public Memory register(Environment env, Memory... args) {
+    protected void register(Environment env, Memory... args) {
         if (registered)
-            return Memory.FALSE;
+            return;
 
         loadModule(env);
         env.registerModule(module);
         registered = true;
-        return Memory.TRUE;
     }
 
     @Signature(@Arg(value = "variables", type = HintType.ARRAY, optional = @Optional("NULL")))

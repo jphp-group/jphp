@@ -3,9 +3,9 @@ Basic cursor test each
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
-$cursor = Cursor::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
+$cursor = Flow::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
 $count = $cursor->each(function($value, $key){
     var_dump($key . '=' . $value);
     if ($key === 'd')

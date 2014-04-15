@@ -7,7 +7,6 @@ use php\io\Stream;
 use php\lang\Module;
 
 $module = new Module(Stream::of('res://resources/ext/standard/module/basic_002.inc.php'));
-$module->register();
 
 Foo::bar();
 foobar();

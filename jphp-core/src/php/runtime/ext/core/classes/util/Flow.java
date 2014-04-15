@@ -13,8 +13,8 @@ import php.runtime.reflection.ClassEntity;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\util\\Cursor")
-public class Cursor extends BaseObject implements Iterator {
+@Name("php\\util\\Flow")
+public class Flow extends BaseObject implements Iterator {
     protected ForeachIterator selfIterator;
     protected ForeachIterator iterator;
     protected Worker worker;
@@ -22,26 +22,28 @@ public class Cursor extends BaseObject implements Iterator {
     protected boolean init;
     protected boolean valid = true;
 
-    public Cursor(Environment env, ForeachIterator iterator) {
+    protected boolean withKeys = false;
+
+    public Flow(Environment env, ForeachIterator iterator) {
         super(env);
         this.iterator = iterator;
         this.worker = new Worker() {
             @Override
             public boolean next(Environment env) {
-                return Cursor.this.iterator.next();
+                return Flow.this.iterator.next();
             }
         };
         this.worker.setIterator(iterator);
     }
 
-    public Cursor(Environment env, ForeachIterator iterator, Worker worker) {
+    public Flow(Environment env, ForeachIterator iterator, Worker worker) {
         super(env);
         this.iterator = iterator;
         this.worker = worker;
         this.worker.setIterator(iterator);
     }
 
-    public Cursor(Environment env, ClassEntity clazz) {
+    public Flow(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
@@ -50,7 +52,7 @@ public class Cursor extends BaseObject implements Iterator {
             this.selfIterator = new ObjectMemory(this).getNewIterator(env);
 
         if (!this.valid)
-            env.exception("Unable to iterate the cursor repeatedly");
+            env.exception("Unable to iterate the flow repeatedly");
 
         return this.selfIterator;
     }
@@ -75,7 +77,7 @@ public class Cursor extends BaseObject implements Iterator {
         this.worker = new Worker() {
             @Override
             public boolean next(Environment env) {
-                return Cursor.this.iterator.next();
+                return Flow.this.iterator.next();
             }
         };
         this.worker.setIterator(iterator);
@@ -84,12 +86,18 @@ public class Cursor extends BaseObject implements Iterator {
     }
 
 
+    @Signature
+    public Memory withKeys(Environment env, Memory... args) {
+        withKeys = true;
+        return new ObjectMemory(this);
+    }
+
     @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })
     public static Memory of(Environment env, Memory... args) {
-        return new ObjectMemory(new Cursor(env, args[0].toImmutable().getNewIterator(env)));
+        return new ObjectMemory(new Flow(env, args[0].toImmutable().getNewIterator(env)));
     }
 
     @FastMethod
@@ -103,7 +111,7 @@ public class Cursor extends BaseObject implements Iterator {
         final int to   = args[1].toInteger();
         final int step = args[2].toInteger() < 1 ? 1 : args[2].toInteger();
 
-        return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
             protected int i;
 
             @Override
@@ -151,7 +159,7 @@ public class Cursor extends BaseObject implements Iterator {
         final String string = args[0].toString();
         final int chunkSize = args[1].toInteger() < 1 ? 1 : args[1].toInteger();
 
-        return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
             protected int i = 0;
             protected int length = string.length();
 
@@ -201,7 +209,7 @@ public class Cursor extends BaseObject implements Iterator {
         final ForeachIterator appendIterator = args[0].toImmutable().getNewIterator(env);
         final ForeachIterator iterator = getSelfIterator(env);
 
-        return new ObjectMemory(new Cursor(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
             protected boolean applyAppended = false;
 
             @Override
@@ -320,10 +328,8 @@ public class Cursor extends BaseObject implements Iterator {
         return LongMemory.valueOf(cnt);
     }
 
-    @Signature(@Arg(value = "withKeys", optional = @Optional("false")))
+    @Signature
     public Memory toArray(Environment env, Memory... args) {
-        boolean withKeys = args[0].toBoolean();
-
         ForeachIterator iterator = getSelfIterator(env);
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
@@ -389,14 +395,12 @@ public class Cursor extends BaseObject implements Iterator {
 
     @Signature({
             @Arg(value = "sliceSize"),
-            @Arg(value = "callback", type = HintType.CALLABLE),
-            @Arg(value = "withKeys", optional = @Optional("false"))
+            @Arg(value = "callback", type = HintType.CALLABLE)
     })
     public Memory eachSlice(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(env, null, args[1]);
 
         ArrayMemory tmp = new ArrayMemory();
-        boolean withKeys = args[2].toBoolean();
         int cnt = 0, r = 0, n = args[0].toInteger();
         while (iterator.next()) {
             cnt++;
@@ -422,11 +426,64 @@ public class Cursor extends BaseObject implements Iterator {
         return LongMemory.valueOf(r);
     }
 
+    @Signature({
+            @Arg(value = "callback", type = HintType.CALLABLE)
+    })
+    public Memory group(Environment env, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+        final ForeachIterator iterator = getSelfIterator(env);
+
+        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+            protected Memory key;
+
+            @Override
+            protected boolean init() {
+                key = Memory.CONST_INT_M1;
+                return true;
+            }
+
+            @Override
+            protected boolean nextValue() {
+                Memory r = new ArrayMemory();
+
+                boolean done = false;
+                while (iterator.next()) {
+                    done = true;
+                    if (withKeys)
+                        r.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+                    else
+                        r.refOfPush().assign(iterator.getValue());
+
+                    if (call(iterator, invoker).toBoolean())
+                        break;
+                }
+
+                if (done) {
+                    currentKeyMemory = key.inc();
+                    currentKey = currentKeyMemory;
+                    currentValue = r;
+                }
+                return done;
+            }
+
+            @Override
+            protected boolean prevValue() {
+                return false;
+            }
+
+            @Override
+            public void reset() {
+                iterator.reset();
+                key = Memory.CONST_INT_M1;
+            }
+        }));
+    }
+
     @Signature(@Arg(value = "filter", type = HintType.CALLABLE, optional = @Optional("NULL")))
     public Memory find(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
 
-        return new ObjectMemory(new Cursor(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
             @Override
             public boolean next(final Environment env) {
                 while (iterator.next()) {
@@ -459,7 +516,7 @@ public class Cursor extends BaseObject implements Iterator {
     public Memory map(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
 
-        return new ObjectMemory(new Cursor(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
             Memory current;
 
             @Override
@@ -485,7 +542,7 @@ public class Cursor extends BaseObject implements Iterator {
         if (skip <= 0)
             return new ObjectMemory(this);
 
-        return new ObjectMemory(new Cursor(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
             protected int i = 0;
 
             @Override
@@ -504,7 +561,7 @@ public class Cursor extends BaseObject implements Iterator {
     @Signature(@Arg("max"))
     public Memory limit(Environment env, Memory... args) {
         final int limit = args[0].toInteger();
-        return new ObjectMemory(new Cursor(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
             protected int i = 0;
 
             @Override

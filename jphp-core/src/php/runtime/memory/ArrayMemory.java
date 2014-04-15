@@ -28,7 +28,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     protected List<ReferenceMemory> list;
     protected LinkedMap<Object, ReferenceMemory> map;
 
-    protected ThreadLocal<ForeachIterator> foreachIterator = new ThreadLocal<ForeachIterator>();
+    protected ForeachIterator foreachIterator = null;
 
     public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);
@@ -234,6 +234,30 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         } else {
             return map.get(key);
         }
+    }
+
+    public void add(IObject object) {
+        add(new ObjectMemory(object));
+    }
+
+    public void add(long value) {
+        add(LongMemory.valueOf(value));
+    }
+
+    public void add(String value) {
+        add(StringMemory.valueOf(value));
+    }
+
+    public void add(double value) {
+        add(new DoubleMemory(value));
+    }
+
+    public void add(boolean value) {
+        add(value ? TRUE : FALSE);
+    }
+
+    public void addNull() {
+        add(NULL);
     }
 
     public ReferenceMemory add(Memory value){
@@ -725,7 +749,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             mem.map  = map;
             mem.lastLongIndex = lastLongIndex;
             copies++;
-            resetCurrentIterator();
+            reset();
             return mem;
         } else {
             copies++;
@@ -1201,16 +1225,20 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     public ForeachIterator getCurrentIterator() {
-        if (foreachIterator.get() == null) {
-            ForeachIterator iterator = foreachIterator(false, true);
-            foreachIterator.set(iterator);
+        if (foreachIterator == null) {
+            foreachIterator = foreachIterator(false, true);
         }
 
-        return foreachIterator.get();
+        return foreachIterator;
+    }
+
+    protected void reset() {
+        foreachIterator = null;
     }
 
     public Memory resetCurrentIterator(){
-        foreachIterator.set(null);
+        reset();
+
         ForeachIterator iterator = getCurrentIterator();
         if (size == 0)
             return FALSE;

@@ -3,19 +3,19 @@ Basic cursor test limit and offset + count;
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
-$cursor = Cursor::ofRange(1, 99);
+$cursor = Flow::ofRange(1, 99);
 var_dump('count_with_skip='.$cursor->skip(19)->count());
 
-$cursor = Cursor::ofRange(1, 99);
+$cursor = Flow::ofRange(1, 99);
 var_dump('count_with_limit='.$cursor->limit(20)->count());
 
-$cursor = Cursor::ofRange(1, 99);
+$cursor = Flow::ofRange(1, 99);
 var_dump('count_with_skip+limit='.$cursor->skip(20)->limit(40)->count());
 
 echo "--\n";
-$cursor = Cursor::of([10, 20, 30, 40, 50])->skip(1)->limit(3)->each(function($el){
+$cursor = Flow::of([10, 20, 30, 40, 50])->skip(1)->limit(3)->each(function($el){
     var_dump($el);
 })
 

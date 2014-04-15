@@ -1,7 +1,9 @@
 <?php
 namespace php\io;
 
-abstract class Stream {
+use Iterator;
+
+abstract class Stream implements Iterator {
     /**
      * @var string
      */
@@ -59,12 +61,13 @@ abstract class Stream {
     /**
      * @param string $path
      * @param null|string $mode
-     * @throws IOException
+     * @return Stream
      */
     public function __construct($path, $mode = null){ }
 
     /**
      * @param $context
+     * @return void
      */
     public function setContext($context) { }
 
@@ -72,6 +75,31 @@ abstract class Stream {
      * @return mixed
      */
     public function getContext(){ }
+
+    /**
+     * @return mixed
+     */
+    public function current() { }
+
+    /**
+     * @return void
+     */
+    public function next() { }
+
+    /**
+     * @return mixed
+     */
+    public function key() { }
+
+    /**
+     * @return bool
+     */
+    public function valid() { }
+
+    /**
+     * @return void
+     */
+    public function rewind() { }
 
 
     /**

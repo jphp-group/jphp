@@ -3,19 +3,19 @@ Basic cursor test eachSlice
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
-$cursor = Cursor::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
+$cursor = Flow::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
 $cursor->eachSlice(2, function($array){
     var_dump($array);
 });
 
 echo "--with keys\n";
 
-$cursor = Cursor::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
-$cursor->eachSlice(2, function($array){
+$cursor = Flow::of(['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40, 'e' => 50]);
+$cursor->withKeys()->eachSlice(2, function($array){
     var_dump($array);
-}, true);
+});
 
 ?>
 --EXPECT--

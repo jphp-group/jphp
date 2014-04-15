@@ -3,10 +3,10 @@ Basic cursor test repetandly
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
 $arr = [1,2];
-$cur = Cursor::of($arr);
+$cur = Flow::of($arr);
 
 var_dump($cur->count());
 
@@ -19,4 +19,4 @@ try {
 ?>
 --EXPECT--
 int(2)
-string(39) "Unable to iterate the cursor repeatedly"
+string(37) "Unable to iterate the flow repeatedly"

@@ -3,18 +3,18 @@ Basic cursor test append
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
 $arr = [1,2];
 $callback = function($e) { var_dump($e); };
 
 echo "--simple\n";
-Cursor::of($arr)
+Flow::of($arr)
     ->append(['foo','bar'])
     ->each($callback);
 
 echo "--with-result\n";
-Cursor::of($arr)
+Flow::of($arr)
     ->skip(1)
     ->append(['foo', 'bar'])
     ->each($callback);

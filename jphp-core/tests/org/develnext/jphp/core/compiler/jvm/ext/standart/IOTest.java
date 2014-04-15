@@ -14,5 +14,7 @@ public class IOTest extends JvmCompilerCase {
     @Test
     public void testFileObject() {
         check("ext/standard/io/file_object_001.php");
+        check("ext/standard/io/file_object_002.php");
+        check("ext/standard/io/file_object_003.php");
     }
 }

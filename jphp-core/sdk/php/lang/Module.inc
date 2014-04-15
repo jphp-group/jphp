@@ -10,6 +10,8 @@ use php\io\Stream;
  */
 class Module {
     /**
+     * Register all functions and classes of module in current environment
+     *
      * @param File|Stream|string $source
      * @param bool $compiled
      * @param bool $debugInformation
@@ -17,18 +19,7 @@ class Module {
     public function __construct($source, $compiled = false, $debugInformation = true) { }
 
     /**
-     * Register all functions and classes of module in current environment
-     */
-    public function register() { return false; }
-
-    /**
-     * @return bool
-     */
-    public function isRegistered() { return false; }
-
-    /**
      * Include module and return result
-     *      * also registers the module automatically
      * @param array $variables
      * @return mixed
      */

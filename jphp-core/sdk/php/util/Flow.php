@@ -4,10 +4,10 @@ namespace php\util;
 use Iterator;
 
 /**
- * Class Cursor
+ * Class Flow
  * @package php\util
  */
-class Cursor implements Iterator {
+class Flow implements Iterator {
 
     /**
      * @param array|Iterator $collection
@@ -15,22 +15,34 @@ class Cursor implements Iterator {
     public function __construct($collection) { }
 
     /**
-     * @param array|Iterator $collection
-     * @return Cursor
+     * Enables to save keys for the next operation
+     * @return $this
      */
-    public function append($collection) { return new Cursor([]); }
+    public function withKeys() { return $this; }
+
+    /**
+     * @param array|Iterator $collection
+     * @return Flow
+     */
+    public function append($collection) { return new Flow([]); }
 
     /**
      * @param callable $filter
-     * @return Cursor
+     * @return Flow
      */
-    public function find(callable $filter = null) { return new Cursor([]); }
+    public function find(callable $filter = null) { return new Flow([]); }
 
     /**
      * @param callable $filter
      * @return mixed
      */
     public function findOne(callable $filter = null) { return 0; }
+
+    /**
+     * @param callable $callback
+     * @return Flow
+     */
+    public function group(callable $callback) { return new Flow([]); }
 
     /**
      * @param callable $callback ($el[, $key]): bool
@@ -48,21 +60,21 @@ class Cursor implements Iterator {
 
     /**
      * @param callable $callback ($el[, $key])
-     * @return Cursor
+     * @return Flow
      */
-    public function map(callable $callback) { return new Cursor([]); }
+    public function map(callable $callback) { return new Flow([]); }
 
     /**
      * @param int $n - skip count
-     * @return Cursor
+     * @return Flow
      */
-    public function skip($n) { return new Cursor([]); }
+    public function skip($n) { return new Flow([]); }
 
     /**
      * @param $count
-     * @return Cursor
+     * @return Flow
      */
-    public function limit($count) { return new Cursor([]); }
+    public function limit($count) { return new Flow([]); }
 
     /**
      * @param callable $callback ($result, $el[, $key])
@@ -71,10 +83,9 @@ class Cursor implements Iterator {
     public function reduce(callable $callback) { return 0; }
 
     /**
-     * @param bool $withKeys
      * @return array
      */
-    public function toArray($withKeys = false) { return []; }
+    public function toArray() { return []; }
 
     /**
      * @param string $separator
@@ -114,22 +125,22 @@ class Cursor implements Iterator {
 
     /**
      * @param array|Iterator $collection
-     * @return Cursor
+     * @return Flow
      */
-    public static function of($collection) { return new Cursor([]); }
+    public static function of($collection) { return new Flow([]); }
 
     /**
      * @param int $from
      * @param int $to
      * @param int $step
-     * @return Cursor
+     * @return Flow
      */
-    public static function ofRange($from, $to, $step = 1) { return new Cursor([]); }
+    public static function ofRange($from, $to, $step = 1) { return new Flow([]); }
 
     /**
      * @param $string
      * @param int $chunkSize
-     * @return Cursor
+     * @return Flow
      */
-    public static function ofString($string, $chunkSize = 1) { return new Cursor([]); }
+    public static function ofString($string, $chunkSize = 1) { return new Flow([]); }
 }

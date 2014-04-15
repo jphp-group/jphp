@@ -3,7 +3,7 @@ Basic cursor test with iterator
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
 class MyIter implements Iterator {
 
@@ -20,7 +20,7 @@ class MyIter implements Iterator {
     public function rewind() { $this->i = 0; }
 }
 
-$cursor = Cursor::of(new MyIter());
+$cursor = Flow::of(new MyIter());
 foreach($cursor as $el) {
     var_dump($el);
 }

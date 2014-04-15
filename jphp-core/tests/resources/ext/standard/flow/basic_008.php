@@ -3,17 +3,17 @@ Basic cursor test find
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
 $arr = [1,2,3,4];
 $filter = function($e) { return $e % 2 == 0; };
 
-foreach(Cursor::of($arr)->find($filter) as $el) {
+foreach(Flow::of($arr)->find($filter) as $el) {
     var_dump($el);
 }
 
 echo "--with-skip\n";
-foreach(Cursor::of($arr)->skip(2)->find($filter) as $el) {
+foreach(Flow::of($arr)->skip(2)->find($filter) as $el) {
     var_dump($el);
 }
 

@@ -1,12 +1,12 @@
 --TEST--
-Cursor toArray
+Flow toArray
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
-$arr1 = Cursor::of(['x' => 1,2,3])->toArray();
-$arr2 = Cursor::of(['x' => 100, 'y' => 500])->toArray(true);
+$arr1 = Flow::of(['x' => 1,2,3])->toArray();
+$arr2 = Flow::of(['x' => 100, 'y' => 500])->withKeys()->toArray();
 
 var_dump($arr1, $arr2);
 

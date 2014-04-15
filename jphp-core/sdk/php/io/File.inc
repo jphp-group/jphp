@@ -191,4 +191,24 @@ class File {
      * @throws IOException
      */
     public function findFiles(callable $filter = null) { return array(); }
+
+    /**
+     * @param string $prefix
+     * @param string $suffix
+     * @param null|File|string $directory
+     * @return File
+     */
+    public static function createTemp($prefix, $suffix, $directory = null) { return new File(''); }
+
+    /**
+     * List the available filesystem roots.
+     *   @see java.io.File.listRoots()
+     *
+     * @return File[]
+     *          An array of {@code File} objects denoting the available
+     *          filesystem roots, or empty array if the set of roots could not
+     *          be determined.  The array will be empty if there are no
+     *          filesystem roots.
+     */
+    public static function listRoots() { return []; }
 }

@@ -3,18 +3,18 @@ Basic cursor test map + reduce
 --FILE--
 <?php
 
-use php\util\Cursor;
+use php\util\Flow;
 
 $arr = [1,2,3,4];
 
 echo "--simple-map\n";
-var_dump(Cursor::of($arr)->map(function($e) { return $e * 20; })->toArray());
+var_dump(Flow::of($arr)->map(function($e) { return $e * 20; })->toArray());
 
 echo "--simple-reduce\n";
-var_dump(Cursor::of($arr)->reduce(function($result, $e) { return $result + $e; }));
+var_dump(Flow::of($arr)->reduce(function($result, $e) { return $result + $e; }));
 
 echo "--simple-map+reduce\n";
-var_dump(Cursor::of($arr)
+var_dump(Flow::of($arr)
     ->map(function($e) { return $e * 20; })
     ->reduce(function($result, $e) { return $result + $e; }));
 
