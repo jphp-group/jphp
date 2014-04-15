@@ -993,7 +993,7 @@ public class Environment {
             throws Throwable {
         File file = new File(fileName);
         if (!file.exists()){
-            error(trace, E_ERROR, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch("require", fileName));
+            error(trace, E_ERROR, Messages.ERR_REQUIRE_FAILED.fetch("require", fileName));
             return Memory.NULL;
         } else {
             ModuleEntity module = importModule(new Context(file, getDefaultCharset()));
@@ -1162,8 +1162,11 @@ public class Environment {
             return Memory.CONST_EMPTY_STRING;
     }
 
-    public void __defineFunction(TraceInfo trace, int moduleIndex, int index){
-        ModuleEntity module = scope.moduleIndexMap.get(moduleIndex);
+    public void __defineFunction(TraceInfo trace, String moduleInternalName, int index){
+        ModuleEntity module = scope.moduleIndexMap.get(moduleInternalName);
+        if (module == null)
+            throw new CriticalException("Cannot find module: " + moduleInternalName);
+
         FunctionEntity function = module.findFunction(index);
 
         if (functionMap.put(function.getLowerName(), function) != null){

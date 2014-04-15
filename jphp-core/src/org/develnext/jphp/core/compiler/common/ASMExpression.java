@@ -151,7 +151,15 @@ public class ASMExpression {
             if (el instanceof BraceExprToken)
                 break;
 
-            boolean flush = current == null || elPrior == 1 || (isRightOperator ? elPrior > prior : elPrior <= prior);
+            if (current != null
+                    && current.getAssociation() == Association.RIGHT
+                    && !current.isBinary()
+                    && prev instanceof OperatorExprToken)
+                break;
+
+            boolean flush = current == null
+                    || elPrior == 1
+                    || (isRightOperator ? elPrior > prior : elPrior <= prior);
             if (flush){
                 stack.pop();
                 list.add(el);

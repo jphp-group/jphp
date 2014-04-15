@@ -14,11 +14,16 @@ public class FunctionCompiler extends BaseStatementCompiler<FunctionStmtToken> {
     public void write(FunctionStmtToken token) {
         expr.writePushEnv();
         expr.writePushTraceInfo(token);
-        expr.writePushConstInt(compiler.getModule().getId());
+        expr.writePushConstString(compiler.getModule().getInternalName());
         expr.writePushConstInt(token.getId());
 
         expr.writeSysDynamicCall(
-                Environment.class, "__defineFunction", void.class, TraceInfo.class, Integer.TYPE, Integer.TYPE
+                Environment.class,
+                "__defineFunction",
+                void.class,
+                TraceInfo.class,
+                String.class,
+                Integer.TYPE
         );
     }
 }

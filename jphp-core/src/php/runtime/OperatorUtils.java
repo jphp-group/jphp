@@ -191,4 +191,8 @@ public class OperatorUtils {
         }
         return new BinaryMemory(bytes);
     }
+
+    public static String concatRight(String s1, String s2) {
+        return s2.concat(s1);
+    }
 }

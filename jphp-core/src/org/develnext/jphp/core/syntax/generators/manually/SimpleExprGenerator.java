@@ -700,24 +700,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(current);
 
             final LogicOperatorExprToken logic = (LogicOperatorExprToken)current;
-            ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getToken(
-                    nextToken(iterator), iterator, null,
-                    braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind/*,
-                    new Callback<Boolean, Token>() {
-                        @Override
-                        public Boolean call(Token param) {
-                            if (param instanceof OperatorExprToken &&
-                                    !(param instanceof LogicOperatorExprToken)){
-                                if (logic.getPriority() < ((OperatorExprToken) param).getPriority())
-                                    return true;
-                            }
-                            return false;
-                        }
-                    }*/
+            ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                nextToken(iterator),
+                iterator,
+                braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind
             );
-
-            if (closedBraceKind == null && braceOpened < 1)
-                iterator.previous();
 
             logic.setRightValue(result);
             return logic;
@@ -833,11 +820,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         Token next = nextToken(iterator);
         if (isClosedBrace(next, braceKind)){
-            if (nextToken(iterator) instanceof AssignableOperatorToken) {
-                iterator.previous();
+            Token tk = nextTokenAndPrev(iterator);
+            if (tk instanceof AssignableOperatorToken || isOpenedBrace(tk, BraceExprToken.Kind.ARRAY)) {
                 return new ArrayPushExprToken(TokenMeta.of(current, next));
             } else
-                unexpectedToken(next);
+                unexpectedToken(tk);
         } else
             iterator.previous();
 
@@ -1000,7 +987,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         DynamicAccessExprToken.class,
                         StringExprToken.class,
                         StringBuilderExprToken.class,
-                        CallOperatorToken.class) ||
+                        CallOperatorToken.class,
+                        ArrayPushExprToken.class) ||
                         (previous instanceof StaticAccessExprToken && ((StaticAccessExprToken)previous).isGetStaticField())){
                     // array
                     current = processArrayToken(previous, current, iterator);
@@ -1076,15 +1064,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ColonToken){
                 if (separator == Separator.COLON) {
-                    if (tokens.isEmpty())
-                        unexpectedToken(current);
+                    /*if (tokens.isEmpty()) see: issues/93
+                        unexpectedToken(current);*/
                     break;
                 }
                 unexpectedToken(current);
             } else if (current instanceof SemicolonToken){ // TODO refactor!
                 if (separator == Separator.SEMICOLON || separator == Separator.COMMA_OR_SEMICOLON) {
-                    if (tokens.isEmpty())
-                        unexpectedToken(current);
+                    /*if (tokens.isEmpty()) see: issues/94
+                        unexpectedToken(current);*/
                     break;
                 }
 

@@ -376,9 +376,21 @@ public class MethodEntity extends AbstractFunctionEntity {
         return signature = sb.toString();
     }
 
-    public boolean equalsBySignature(MethodEntity method){
-        return getSignature().equals(method.getSignature());
+    public boolean equalsBySignature(MethodEntity method, boolean strong){
+        if (strong)
+            return getSignature().equals(method.getSignature());
+        else {
+            int cnt1 = parameters != null ? parameters.length : 0;
+            int cnt2 = method.parameters != null ? method.parameters.length : 0;
+
+            return cnt1 == cnt2;
+        }
     }
+
+    public boolean equalsBySignature(MethodEntity method){
+        return equalsBySignature(method, true);
+    }
+
 
     public boolean equalsByHintTypingSignature(MethodEntity method){
         if (parameters == null || method.parameters == null)

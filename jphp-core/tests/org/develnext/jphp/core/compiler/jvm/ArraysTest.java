@@ -68,6 +68,12 @@ public class ArraysTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testArrayPushRefAssign(){
+        Memory memory = includeResource("arrays/array_push_ref_assign.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
     public void testCompare(){
         check("arrays/compare.php");
     }

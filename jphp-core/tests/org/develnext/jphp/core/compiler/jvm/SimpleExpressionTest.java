@@ -81,6 +81,10 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = run("1.0 . 'bar'");
         Assert.assertEquals("1bar", memory.toString());
+
+        memory = run("$x = 'foo';\n" +
+                "return 'bar' . (string)$x;", false);
+        Assert.assertEquals("barfoo", memory.toString());
     }
 
     @Test
@@ -267,6 +271,11 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertTrue(memory.valueOfIndex(0).isArray());
         Assert.assertEquals(2, memory.valueOfIndex(0).toValue(ArrayMemory.class).size());
         Assert.assertEquals(2, memory.valueOfIndex(1).toValue(ArrayMemory.class).size());
+
+        // test logic and array
+        memory = runDynamic("array(1 && 1, 2);");
+        Assert.assertTrue(memory.isArray());
+        Assert.assertEquals(2, memory.toValue(ArrayMemory.class).size());
     }
 
     @Test

@@ -412,7 +412,7 @@ public class ClassEntity extends Entity {
                     //method.setModifier(Modifier.PUBLIC);
                 }
 
-                if (!systemMethod.equalsBySignature(method)){
+                if (!systemMethod.equalsBySignature(method, false)){
                     addResult.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, method));
                 } else if (systemMethod.isStatic && !method.isStatic)
                     addResult.add(InvalidMethod.warning(InvalidMethod.Kind.MUST_STATIC, method));

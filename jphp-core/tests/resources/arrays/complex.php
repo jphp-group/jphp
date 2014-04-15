@@ -21,4 +21,10 @@ $arr[] = 60;
 if ($arr[2] !== 60)
     return "fail_5";
 
+$arr = [ // @bug issue/92
+    true || !!$x,
+];
+if ($arr[0] !== true)
+    return "fail_6";
+
 return "success";

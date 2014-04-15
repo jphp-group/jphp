@@ -1985,6 +1985,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (operator instanceof ConcatExprToken){
             if (isInvert){
+                stackPush(R);
                 writePopString();
                 writePush(L, StackItem.Type.STRING);
                 writeSysStaticCall(OperatorUtils.class, "concatRight", String.class, String.class, String.class);
