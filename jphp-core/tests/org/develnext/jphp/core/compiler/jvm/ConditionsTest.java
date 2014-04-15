@@ -41,4 +41,10 @@ public class ConditionsTest extends JvmCompilerCase {
         Memory memory = includeResource("conditions/nested.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testElvis(){
+        Memory memory = includeResource("conditions/elvis.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

@@ -1077,8 +1077,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 break;
             } else if (current instanceof ColonToken){
                 if (separator == Separator.COLON) {
-                    if (tokens.isEmpty())
-                        unexpectedToken(current);
+                    /*if (tokens.isEmpty()) see: issues/93
+                        unexpectedToken(current);*/
                     break;
                 }
                 unexpectedToken(current);

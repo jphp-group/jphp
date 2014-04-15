@@ -65,7 +65,7 @@ echo "Simple equal 3: "; var_dump($a == $d);
 echo "Strict equal 1: "; var_dump($a === $b);
 echo "Strict equal 2: "; var_dump($a === $c);
 echo "Strict equal 3: "; var_dump($a === $d);
-
+?>
 --EXPECT--
 Two instances of the same class
 o1 == o2 : TRUE
