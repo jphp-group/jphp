@@ -88,4 +88,10 @@ public class UserFunctionTest extends JvmCompilerCase {
         Memory memory = includeResource("user_function/with_const_default.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testNested(){
+        Memory memory = includeResource("user_function/nested.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }
