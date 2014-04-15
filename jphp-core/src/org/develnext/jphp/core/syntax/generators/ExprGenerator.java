@@ -106,7 +106,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 nextToken(iterator), iterator, EndifStmtToken.class, ElseIfStmtToken.class
         );
         if (iterator.hasNext()){
-            Token next = iterator.next();
+            Token next = nextToken(iterator);
             if (next instanceof ElseStmtToken){
                 BodyStmtToken bodyElse = analyzer.generator(BodyGenerator.class).getToken(
                     nextToken(iterator), iterator, false, false, EndifStmtToken.class

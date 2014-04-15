@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import php.runtime.common.Messages;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
@@ -110,7 +111,10 @@ abstract public class Generator<T extends Token> {
 
     protected Token nextToken(ListIterator<Token> iterator){
         checkUnexpectedEnd(iterator);
-        return iterator.next();
+        Token tk = iterator.next();
+        if (tk instanceof CommentToken)
+            return nextToken(iterator);
+        return tk;
     }
 
     protected Token nextTokenAndPrev(ListIterator<Token> iterator){
