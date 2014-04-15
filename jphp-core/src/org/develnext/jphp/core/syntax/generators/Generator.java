@@ -120,6 +120,9 @@ abstract public class Generator<T extends Token> {
     protected Token nextTokenAndPrev(ListIterator<Token> iterator){
         checkUnexpectedEnd(iterator);
         Token result = iterator.next();
+        if (result instanceof CommentToken) {
+            return nextTokenAndPrev(iterator);
+        }
         iterator.previous();
         return result;
     }
