@@ -173,8 +173,6 @@ public class WrapFont extends RootObject {
                 );
             } catch (FontFormatException e) {
                 env.exception(env.trace(), e.getMessage());
-            } catch (IOException e) {
-                Stream.exception(env, e.getMessage());
             }
         } else {
             File file = new File(args[0].toString());
@@ -185,8 +183,6 @@ public class WrapFont extends RootObject {
                 );
             } catch (FontFormatException e) {
                 env.exception(env.trace(), e.getMessage());
-            } catch (IOException e) {
-                Stream.exception(env, e.getMessage());
             }
         }
 
