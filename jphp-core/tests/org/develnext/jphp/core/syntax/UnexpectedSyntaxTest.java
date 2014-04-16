@@ -99,11 +99,11 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
 
     @Test(expected = ErrorException.class)
     public void testStaticsInvalid(){
-        getSyntaxTree("static $x, $y;");
+        getSyntaxTree("static $x $y;");
     }
 
     @Test
     public void testStatics(){
-        getSyntaxTree("static $x = 100500;");
+        getSyntaxTree("static $x = 100500, $y, $z = 'foobar', $a, $b;");
     }
 }

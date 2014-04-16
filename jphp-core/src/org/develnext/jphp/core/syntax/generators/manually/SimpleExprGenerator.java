@@ -161,7 +161,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (last instanceof DynamicAccessExprToken){
             last = new DynamicAccessEmptyExprToken((DynamicAccessExprToken)last);
             value.getTokens().set(value.getTokens().size() - 1, last);
-        } else if (last instanceof VariableExprToken){
+        } else if (last instanceof VariableExprToken || last instanceof GetVarExprToken){
             // nop
         } else if (last instanceof StaticAccessExprToken && ((StaticAccessExprToken) last).isGetStaticField()){
             last = new StaticAccessIssetExprToken((StaticAccessExprToken)last);
@@ -195,7 +195,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (analyzer.getClazz() != null && !"__isset".equals(analyzer.getFunction().getFulledName())){
                     ((DynamicAccessIssetExprToken)newToken).setWithMagic(false);
                 }
-            } else if (last instanceof VariableExprToken){
+            } else if (last instanceof VariableExprToken || last instanceof GetVarExprToken){
                 // nop
             } else if (last instanceof StaticAccessExprToken && ((StaticAccessExprToken) last).isGetStaticField()){
                 newToken = new StaticAccessIssetExprToken((StaticAccessExprToken)last);

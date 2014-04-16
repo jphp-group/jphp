@@ -14,6 +14,10 @@ unset(${$name});
 if (isset($x))
     return 'fail_3: unset($x)';
 
+$foo = isset(${'x'});
+$var = 'x';
+$bar = isset($$var);
+
 $y = 'name';
 $$$y = 30;
 

@@ -44,4 +44,16 @@ $simple = new Simple();
 $simple->test();
 $simple->test();
 
+static $one = 20, $two, $three = 40;
+
+if ($one !== 20)
+    return 'fail_1';
+
+if ($two !== null)
+    return 'fail_2';
+
+if ($three !== 40)
+    return 'fail_3';
+
+
 return test() + Foo::test() + Bar::test() + $simple->test() === 12 ? 'success' : 'fail';
