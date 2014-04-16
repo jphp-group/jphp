@@ -27,4 +27,8 @@ list($a, $a) = [10, 20];
 if ($a !== 10)
     return 'fail_7: duplicate';
 
+list($b[], $b[]) = [10, 20];
+if ($b[0] !== 20 && $b[1] !== 10)
+    return 'fail_8: array push';
+
 return 'success';

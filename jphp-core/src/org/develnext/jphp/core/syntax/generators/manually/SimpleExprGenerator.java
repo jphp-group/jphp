@@ -111,6 +111,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (!(single instanceof VariableExprToken
                         || single instanceof ArrayGetExprToken
                         || single instanceof DynamicAccessExprToken
+                        || single instanceof ArrayPushExprToken
                         || (single instanceof StaticAccessExprToken && ((StaticAccessExprToken) single).isGetStaticField()))){
                     unexpectedToken(single);
                 }
@@ -820,11 +821,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         Token next = nextToken(iterator);
         if (isClosedBrace(next, braceKind)){
-            Token tk = nextTokenAndPrev(iterator);
-            if (tk instanceof AssignableOperatorToken || isOpenedBrace(tk, BraceExprToken.Kind.ARRAY)) {
-                return new ArrayPushExprToken(TokenMeta.of(current, next));
-            } else
-                unexpectedToken(tk);
+            //Token tk = nextTokenAndPrev(iterator);
+            //if (tk instanceof AssignableOperatorToken || isOpenedBrace(tk, BraceExprToken.Kind.ARRAY)) {
+            // !!! allow [] anywhere
+            return new ArrayPushExprToken(TokenMeta.of(current, next));
+            /*} else
+                unexpectedToken(tk);*/
         } else
             iterator.previous();
 

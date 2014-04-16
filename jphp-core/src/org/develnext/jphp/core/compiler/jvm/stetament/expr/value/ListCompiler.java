@@ -37,7 +37,7 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
             if (v.isVariable()){
                 LocalVariable variable = method.getLocalVariable(v.getVariableName());
                 expr.writeVarAssign(variable, (VariableExprToken) v.var.getSingle(), false, true);
-            } else if (v.isArray() || v.isStaticProperty()) {
+            } else if (v.isArray() || v.isStaticProperty() || v.isArrayPush()) {
                 expr.writeExpression(v.var, true, false);
                 if (expr.stackPeek().immutable || expr.stackPeek().isConstant())
                     expr.unexpectedToken(v.var.getSingle());
