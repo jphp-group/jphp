@@ -374,7 +374,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
-    protected GetVarExprToken processVarVar(Token current, Token next, ListIterator<Token> iterator){
+    public GetVarExprToken processVarVar(Token current, Token next, ListIterator<Token> iterator){
         ExprStmtToken name = null;
         if (next instanceof VariableExprToken){ // $$var
             name = new ExprStmtToken(next);

@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.tokenizer.token.expr.*;
 import php.runtime.common.Messages;
 import php.runtime.common.Separator;
 import php.runtime.exceptions.FatalException;
@@ -7,9 +8,6 @@ import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.token.*;
-import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
-import org.develnext.jphp.core.tokenizer.token.expr.ExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
@@ -355,7 +353,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processGlobal(GlobalStmtToken result, ListIterator<Token> iterator){
-        List<VariableExprToken> variables = new ArrayList<VariableExprToken>();
+        List<ValueExprToken> variables = new ArrayList<ValueExprToken>();
         Token next = nextToken(iterator);
         Token prev = null;
         do {
@@ -369,11 +367,17 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 }
 
                 variables.add(variable);
+            } else if (next instanceof DollarExprToken) {
+                GetVarExprToken var = analyzer.generator(SimpleExprGenerator.class)
+                        .processVarVar(next, nextTokenAndPrev(iterator), iterator);
+
+                variables.add(var);
+                next = var;
             } else if (next instanceof CommaToken){
-                if (!(prev instanceof VariableExprToken))
+                if (!(prev instanceof VariableValueExprToken))
                     unexpectedToken(next);
             } else if (next instanceof SemicolonToken){
-                if (!(prev instanceof VariableExprToken))
+                if (!(prev instanceof VariableValueExprToken))
                     unexpectedToken(next);
                 break;
             } else
