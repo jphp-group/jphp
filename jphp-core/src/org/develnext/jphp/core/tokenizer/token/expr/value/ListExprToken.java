@@ -4,6 +4,7 @@ import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArrayGetExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ArrayPushExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.DynamicAccessExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
@@ -58,6 +59,10 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
             //this.name = var.getName();
             this.index = index;
             this.indexes = indexes;
+        }
+
+        public boolean isArrayPush() {
+            return var.getLast() instanceof ArrayPushExprToken;
         }
 
         public boolean isVariable(){
