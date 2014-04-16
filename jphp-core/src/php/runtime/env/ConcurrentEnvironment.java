@@ -230,7 +230,7 @@ public class ConcurrentEnvironment extends Environment {
     }
 
     @Override
-    public void __defineFunction(TraceInfo trace, int moduleIndex, int index) {
+    public void __defineFunction(TraceInfo trace, String moduleIndex, int index) {
         synchronized (this) {
             super.__defineFunction(trace, moduleIndex, index);
         }
