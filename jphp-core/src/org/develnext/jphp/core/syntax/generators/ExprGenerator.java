@@ -420,6 +420,9 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 result.setInitValue(null);
                 list.add(result);
                 break;
+            } else if (next instanceof CommaToken) {
+                result.setInitValue(null);
+                list.add(result);
             } else
                 unexpectedToken(next);
 
