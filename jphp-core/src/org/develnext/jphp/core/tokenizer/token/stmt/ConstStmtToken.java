@@ -1,8 +1,9 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
-import org.develnext.jphp.core.tokenizer.TokenType;
-import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.TokenType;
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 public class ConstStmtToken extends StmtToken {
     private ClassStmtToken clazz;
     private NamespaceStmtToken namespace;
+    private CommentToken docComment;
 
     public final List<Item> items;
 
@@ -41,6 +43,14 @@ public class ConstStmtToken extends StmtToken {
         if (clazz != null)
             throw new IllegalArgumentException("Cannot set namespace for a class constant");
         this.namespace = namespace;
+    }
+
+    public CommentToken getDocComment() {
+        return docComment;
+    }
+
+    public void setDocComment(CommentToken docComment) {
+        this.docComment = docComment;
     }
 
     public class Item {

@@ -2,10 +2,7 @@ package org.develnext.jphp.core.compiler.jvm.stetament;
 
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.FunctionEntity;
-import php.runtime.reflection.MethodEntity;
-import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.*;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
@@ -35,6 +32,9 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setReturnReference(statement.isReturnReference());
         entity.setInternalName(compiler.getModule().getInternalName() + "_func" + statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
+
+        if (statement.getDocComment() != null)
+            entity.setDocComment(new DocumentComment(statement.getDocComment().getComment()));
 
         NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
         ClassStmtToken token = new ClassStmtToken(statement.getMeta());

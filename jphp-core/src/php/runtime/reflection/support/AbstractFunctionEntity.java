@@ -25,7 +25,6 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     protected AbstractFunctionEntity(Context context) {
         super(context);
-        docComment = new DocumentComment();
     }
 
     public Closure getClosure(Environment env){

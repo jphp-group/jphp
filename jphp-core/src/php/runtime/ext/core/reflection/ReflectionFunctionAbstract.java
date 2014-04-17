@@ -51,6 +51,9 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
     public Memory getDocComment(Environment env, Memory... args){
         if (getClosureEntity() != null)
             return Memory.NULL;
+        if (getEntity().getDocComment() == null)
+            return Memory.NULL;
+
         return new StringMemory(getEntity().getDocComment().toString());
     }
 

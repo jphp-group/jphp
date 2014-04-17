@@ -2,6 +2,7 @@ package org.develnext.jphp.core.tokenizer.token.stmt;
 
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.TokenType;
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import php.runtime.common.Modifier;
 import php.runtime.reflection.ClassEntity;
@@ -15,6 +16,7 @@ public class ClassStmtToken extends StmtToken {
 
     private NamespaceStmtToken namespace;
     private NameToken name;
+    private CommentToken docComment;
     private ExtendsStmtToken extend;
     private ImplementsStmtToken implement;
 
@@ -214,6 +216,14 @@ public class ClassStmtToken extends StmtToken {
 
     public Replacement findReplacement(String methodName) {
         return replacements == null ? null : replacements.get(methodName.toLowerCase());
+    }
+
+    public CommentToken getDocComment() {
+        return docComment;
+    }
+
+    public void setDocComment(CommentToken docComment) {
+        this.docComment = docComment;
     }
 
     protected static class MethodName {

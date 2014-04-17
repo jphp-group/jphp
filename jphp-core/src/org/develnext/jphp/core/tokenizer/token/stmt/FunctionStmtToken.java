@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
 import org.develnext.jphp.core.syntax.VariableStats;
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -13,6 +14,7 @@ public class FunctionStmtToken extends StmtToken {
     protected Modifier modifier;
     protected NamespaceStmtToken namespace;
     protected NameToken name;
+    protected CommentToken docComment;
 
     protected boolean returnReference;
     protected List<ArgumentStmtToken> arguments;
@@ -235,5 +237,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public boolean isUnusedVariable(VariableExprToken token) {
         return !dynamicLocal && variable(token).isUnused();
+    }
+
+    public CommentToken getDocComment() {
+        return docComment;
+    }
+
+    public void setDocComment(CommentToken docComment) {
+        this.docComment = docComment;
     }
 }

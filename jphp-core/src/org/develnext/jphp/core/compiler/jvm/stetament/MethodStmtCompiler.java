@@ -13,6 +13,7 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
 import php.runtime.Memory;
+import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -394,6 +395,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         if (statement != null){
             if (external)
                 statement.setDynamicLocal(true);
+
+            if (statement.getDocComment() != null)
+                entity.setDocComment(new DocumentComment(statement.getDocComment().getComment()));
 
             entity.setAbstract(statement.isAbstract());
             entity.setAbstractable(statement.getBody() == null);
