@@ -1,7 +1,8 @@
-package org.develnext.jphp.gendocs;
+package org.develnext.jphp.genapi;
 
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
+import org.develnext.jphp.genapi.template.SphinxTemplate;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 
@@ -64,8 +65,9 @@ public class DocGenerator {
             if (!targetDirectory.mkdirs())
                 throw new IllegalStateException("Cannot create target directory");
 
+        SphinxTemplate sphinxTemplate = new SphinxTemplate();
         for(File file : files) {
-            ApiDocument document = new ApiDocument(parseFile(file));
+            ApiDocument document = new ApiDocument(parseFile(file), sphinxTemplate);
             document.generate(targetDirectory);
         }
     }

@@ -1,7 +1,7 @@
 
 task("gen-docs", dependsOn: "classes", type: JavaExec) {
     description = "Generate doc api"
-    main = "org.develnext.jphp.gendocs.DocGenerator"
+    main = "org.develnext.jphp.genapi.DocGenerator"
     classpath = sourceSets.main.runtimeClasspath
 }
 
