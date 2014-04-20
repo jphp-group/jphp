@@ -37,14 +37,13 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.invoke.InvokeHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.FunctionCallCache;
+import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.memory.*;
 import php.runtime.memory.support.MemoryUtils;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.MethodEntity;
-import php.runtime.reflection.ParameterEntity;
+import php.runtime.reflection.*;
 import php.runtime.reflection.support.Entity;
 
 import java.io.File;
@@ -1114,12 +1113,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writePushString(methodName);
 
             writePushParameters(function.getParameters());
+
+            int cacheIndex = method.clazz.getAndIncCallFuncCount();
+            writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
+            writePushConstInt(cacheIndex);
+
             writeSysStaticCall(
                     InvokeHelper.class, "callStatic", Memory.class,
                     Environment.class, TraceInfo.class,
                     String.class, String.class, // lower sign name
                     String.class, String.class, // origin names
-                    Memory[].class
+                    Memory[].class,
+                    MethodCallCache.class, Integer.TYPE
             );
         } else {
             if (clazz instanceof NameToken){
@@ -1155,12 +1160,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
             writePushParameters(function.getParameters());
+
+            int cacheIndex = method.clazz.getAndIncCallFuncCount();
+            writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
+            writePushConstInt(cacheIndex);
+
             writeSysStaticCall(
                     InvokeHelper.class, "callStaticDynamic", Memory.class,
                     Environment.class, TraceInfo.class,
                     String.class, String.class,
                     String.class, String.class,
-                    Memory[].class
+                    Memory[].class,
+                    MethodCallCache.class, Integer.TYPE
             );
         }
         if (statistic != null)
@@ -1195,15 +1206,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (!writeOpcode)
                     return null;
                 method.entity.setImmutable(false);
+                int index = method.clazz.getAndIncCallFuncCount();
 
                 writePushEnv();
                 writePushTraceInfo(function);
                 writePushString(realName.toLowerCase());
                 writePushString(realName);
                 writePushParameters(function.getParameters());
+
+                writeGetStatic("$CALL_FUNC_CACHE", FunctionCallCache.class);
+                writePushConstInt(index);
+
                 writeSysStaticCall(
                         InvokeHelper.class, "call", Memory.class,
-                        Environment.class, TraceInfo.class, String.class, String.class, Memory[].class
+                        Environment.class, TraceInfo.class, String.class, String.class, Memory[].class,
+                        FunctionCallCache.class, Integer.TYPE
                 );
                 if (!returnValue)
                     writePopAll(1);
