@@ -307,7 +307,7 @@ final public class InvokeHelper {
         if (callCache != null) {
             MethodEntity entity = callCache.get(env.scope, cacheIndex);
             if (entity != null) {
-                return callStatic(env, trace, entity, args);
+                return callStatic(env, trace, entity, args, false);
             }
         }
 
@@ -355,7 +355,7 @@ final public class InvokeHelper {
             );
         }
 
-        if (callCache != null && method.isPublic()) {
+        if (callCache != null) {
             callCache.put(env.scope, cacheIndex, method);
         }
 
@@ -379,14 +379,23 @@ final public class InvokeHelper {
         return result;
     }
 
+
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
             throws Throwable {
+        return callStatic(env, trace, method, args, true);
+    }
+
+    public static Memory callStatic(Environment env, TraceInfo trace,
+                                    MethodEntity method,
+                                    Memory[] args, boolean checkAccess)
+            throws Throwable {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        checkAccess(env, trace, method);
+        if (checkAccess)
+            checkAccess(env, trace, method);
 
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
         Memory result = method.getImmutableResult();
