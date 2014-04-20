@@ -42,11 +42,11 @@ abstract public class CallCache<T extends Entity> {
         T[] data = cache[id];
 
         if (data == null) {
-            cache[id] = data = newArrayData(index + 1);
+            cache[id] = data = newArrayData(index + 1 + 10);
         } else {
             if (index >= data.length) {
                 synchronized (cache) {
-                    T[] newData = newArrayData(index + 1);
+                    T[] newData = newArrayData(index + 1 + 10);
                     System.arraycopy(data, 0, newData, 0, data.length);
                     cache[id] = data = newData;
                 }
