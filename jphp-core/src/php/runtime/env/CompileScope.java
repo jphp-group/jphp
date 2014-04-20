@@ -31,9 +31,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CompileScope {
+    public final int id;
+
     protected RuntimeClassLoader classLoader;
     public final Set<String> superGlobals;
 
+    protected final static AtomicInteger scopeCount = new AtomicInteger(0);
     protected final AtomicInteger moduleCount = new AtomicInteger(0);
     protected final AtomicLong classCount = new AtomicLong(0);
     protected final AtomicLong methodCount = new AtomicLong(0);
@@ -59,6 +62,7 @@ public class CompileScope {
     public LangMode langMode = LangMode.JPHP;
 
     public CompileScope(CompileScope parent) {
+        id = scopeCount.getAndIncrement();
         classLoader = parent.classLoader;
 
         moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
@@ -94,6 +98,7 @@ public class CompileScope {
     }
 
     public CompileScope() {
+        id = scopeCount.getAndIncrement();
         classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
 
         moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
@@ -354,5 +359,22 @@ public class CompileScope {
 
     public JVMStackTracer getStackTracer(){
         return getStackTracer(Thread.currentThread().getStackTrace());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompileScope)) return false;
+
+        CompileScope that = (CompileScope) o;
+
+        if (id != that.id) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }
