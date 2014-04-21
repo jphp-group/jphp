@@ -5,12 +5,12 @@ import php.runtime.reflection.FunctionEntity;
 public class FunctionCallCache extends CallCache<FunctionEntity> {
 
     @Override
-    public FunctionEntity[] newArrayData(int length) {
-        return new FunctionEntity[length];
+    public Item[] newArrayData(int length) {
+        return new Item[length];
     }
 
     @Override
-    public FunctionEntity[][] newArrayArrayData(int length) {
-        return new FunctionEntity[length][];
+    public Item[][] newArrayArrayData(int length) {
+        return new Item[length][];
     }
 }

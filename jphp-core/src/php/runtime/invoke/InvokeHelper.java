@@ -258,12 +258,12 @@ final public class InvokeHelper {
         FunctionEntity function = null;
 
         if (callCache != null)
-            function = callCache.get(env.scope, cacheIndex);
+            function = callCache.get(env, cacheIndex);
 
         if (function == null) {
             function = env.functionMap.get(sign);
             if (function != null && callCache != null) {
-                callCache.put(env.scope, cacheIndex, function);
+                callCache.put(env, cacheIndex, function);
             }
         }
 
@@ -280,7 +280,7 @@ final public class InvokeHelper {
             }
 
             if (callCache != null) {
-                callCache.put(env.scope, cacheIndex, function);
+                callCache.put(env, cacheIndex, function);
             }
         }
 
@@ -305,7 +305,7 @@ final public class InvokeHelper {
                                     Memory[] args, MethodCallCache callCache, int cacheIndex)
             throws Throwable {
         if (callCache != null) {
-            MethodEntity entity = callCache.get(env.scope, cacheIndex);
+            MethodEntity entity = callCache.get(env, cacheIndex);
             if (entity != null) {
                 return callStatic(env, trace, entity, args, false);
             }
@@ -356,7 +356,7 @@ final public class InvokeHelper {
         }
 
         if (callCache != null) {
-            callCache.put(env.scope, cacheIndex, method);
+            callCache.put(env, cacheIndex, method);
         }
 
         checkAccess(env, trace, method);
