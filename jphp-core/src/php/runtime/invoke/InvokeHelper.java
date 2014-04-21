@@ -258,12 +258,12 @@ final public class InvokeHelper {
         FunctionEntity function = null;
 
         if (callCache != null)
-            function = callCache.get(env.scope, cacheIndex);
+            function = callCache.get(env, cacheIndex);
 
         if (function == null) {
             function = env.functionMap.get(sign);
             if (function != null && callCache != null) {
-                callCache.put(env.scope, cacheIndex, function);
+                callCache.put(env, cacheIndex, function);
             }
         }
 
@@ -280,7 +280,7 @@ final public class InvokeHelper {
             }
 
             if (callCache != null) {
-                callCache.put(env.scope, cacheIndex, function);
+                callCache.put(env, cacheIndex, function);
             }
         }
 
@@ -305,9 +305,9 @@ final public class InvokeHelper {
                                     Memory[] args, MethodCallCache callCache, int cacheIndex)
             throws Throwable {
         if (callCache != null) {
-            MethodEntity entity = callCache.get(env.scope, cacheIndex);
+            MethodEntity entity = callCache.get(env, cacheIndex);
             if (entity != null) {
-                return callStatic(env, trace, entity, args);
+                return callStatic(env, trace, entity, args, false);
             }
         }
 
@@ -355,8 +355,8 @@ final public class InvokeHelper {
             );
         }
 
-        if (callCache != null && method.isPublic()) {
-            callCache.put(env.scope, cacheIndex, method);
+        if (callCache != null) {
+            callCache.put(env, cacheIndex, method);
         }
 
         checkAccess(env, trace, method);
@@ -379,14 +379,23 @@ final public class InvokeHelper {
         return result;
     }
 
+
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
             throws Throwable {
+        return callStatic(env, trace, method, args, true);
+    }
+
+    public static Memory callStatic(Environment env, TraceInfo trace,
+                                    MethodEntity method,
+                                    Memory[] args, boolean checkAccess)
+            throws Throwable {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        checkAccess(env, trace, method);
+        if (checkAccess)
+            checkAccess(env, trace, method);
 
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
         Memory result = method.getImmutableResult();

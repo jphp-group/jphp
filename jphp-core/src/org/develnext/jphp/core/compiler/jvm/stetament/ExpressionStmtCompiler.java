@@ -1114,9 +1114,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
 
-            int cacheIndex = method.clazz.getAndIncCallFuncCount();
-            writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
-            writePushConstInt(cacheIndex);
+            if (method.clazz.statement.isTrait()) {
+                writePushConstNull();
+                writePushConstInt(0);
+            }  else {
+                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
+                writePushConstInt(cacheIndex);
+            }
 
             writeSysStaticCall(
                     InvokeHelper.class, "callStatic", Memory.class,
@@ -1161,9 +1166,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
 
-            int cacheIndex = method.clazz.getAndIncCallFuncCount();
-            writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
-            writePushConstInt(cacheIndex);
+            if (clazz instanceof StaticExprToken || method.clazz.statement.isTrait()) {
+                writePushConstNull();
+                writePushConstInt(0);
+            } else {
+                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
+                writePushConstInt(cacheIndex);
+            }
 
             writeSysStaticCall(
                     InvokeHelper.class, "callStaticDynamic", Memory.class,
