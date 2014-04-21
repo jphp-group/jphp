@@ -8,6 +8,8 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.cache.FunctionCallCache;
+import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -209,7 +211,8 @@ final public class InvokeHelper {
                         trace,
                         className, className.toLowerCase(),
                         methodName, methodName.toLowerCase(),
-                        args
+                        args,
+                        null, 0
                 );
             }
         } else {
@@ -222,10 +225,11 @@ final public class InvokeHelper {
                         env, trace,
                         className, className.toLowerCase(),
                         methodName, methodName.toLowerCase(),
-                        args
+                        args,
+                        null, 0
                 );
             } else {
-                return InvokeHelper.call(env, trace, methodName.toLowerCase(), methodName, args);
+                return InvokeHelper.call(env, trace, methodName.toLowerCase(), methodName, args, null, 0);
             }
         }
     }
@@ -250,8 +254,19 @@ final public class InvokeHelper {
     }
 
     public static Memory call(Environment env, TraceInfo trace, String sign, String originName,
-                              Memory[] args) throws Throwable {
-        FunctionEntity function = env.functionMap.get(sign);
+                              Memory[] args, FunctionCallCache callCache, int cacheIndex) throws Throwable {
+        FunctionEntity function = null;
+
+        if (callCache != null)
+            function = callCache.get(env, cacheIndex);
+
+        if (function == null) {
+            function = env.functionMap.get(sign);
+            if (function != null && callCache != null) {
+                callCache.put(env, cacheIndex, function);
+            }
+        }
+
         if (function == null) {
             if (sign.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
                 int p = sign.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
@@ -263,26 +278,39 @@ final public class InvokeHelper {
                 env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_FUNCTION.fetch(originName));
                 return Memory.NULL;
             }
+
+            if (callCache != null) {
+                callCache.put(env, cacheIndex, function);
+            }
         }
+
         return call(env, trace, function, args);
     }
 
     public static Memory callStaticDynamic(Environment env, TraceInfo trace,
                                            String originClassName, String className,
                                            String originMethodName, String methodName,
-                                           Memory[] args) throws Throwable {
+                                           Memory[] args, MethodCallCache callCache, int cacheIndex) throws Throwable {
         return callStatic(
                 env, trace,
                 className, methodName,
                 originClassName, originMethodName,
-                args
+                args,
+                callCache, cacheIndex
         );
     }
 
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     String className, String methodName, String originClassName, String originMethodName,
-                                    Memory[] args)
+                                    Memory[] args, MethodCallCache callCache, int cacheIndex)
             throws Throwable {
+        if (callCache != null) {
+            MethodEntity entity = callCache.get(env, cacheIndex);
+            if (entity != null) {
+                return callStatic(env, trace, entity, args, false);
+            }
+        }
+
         ClassEntity classEntity = env.fetchClass(originClassName, className, true);
 
         MethodEntity method = classEntity == null ? null : classEntity.findMethod(methodName);
@@ -327,6 +355,10 @@ final public class InvokeHelper {
             );
         }
 
+        if (callCache != null) {
+            callCache.put(env, cacheIndex, method);
+        }
+
         checkAccess(env, trace, method);
 
         if (passed == null)
@@ -346,14 +378,23 @@ final public class InvokeHelper {
         }
     }
 
+
     public static Memory callStatic(Environment env, TraceInfo trace,
                                     MethodEntity method,
                                     Memory[] args)
             throws Throwable {
+        return callStatic(env, trace, method, args, true);
+    }
+
+    public static Memory callStatic(Environment env, TraceInfo trace,
+                                    MethodEntity method,
+                                    Memory[] args, boolean checkAccess)
+            throws Throwable {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        checkAccess(env, trace, method);
+        if (checkAccess)
+            checkAccess(env, trace, method);
 
         Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
         Memory result = method.getImmutableResult();

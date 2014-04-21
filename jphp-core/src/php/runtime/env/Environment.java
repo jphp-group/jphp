@@ -1,5 +1,6 @@
 package php.runtime.env;
 
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
@@ -34,7 +35,6 @@ import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
 import php.runtime.reflection.*;
 import php.runtime.util.JVMStackTracer;
-import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -44,10 +44,12 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static php.runtime.exceptions.support.ErrorType.*;
 
 public class Environment {
+    public final int id;
     public final CompileScope scope;
     public final Map<String, Memory> configuration = new HashMap<String, Memory>();
     public final static Map<String, ConfigChangeHandler> configurationHandler;
@@ -112,6 +114,8 @@ public class Environment {
 
     private final ReferenceQueue<IObject> gcObjectRefQueue = new ReferenceQueue<IObject>();
     private final Set<WeakReference<IObject>> gcObjects = new HashSet<WeakReference<IObject>>();
+    private static final AtomicInteger ids = new AtomicInteger();
+    private static final Stack<Integer> freeIds = new Stack<Integer>();
 
     public void doFinal() throws Throwable {
         for (ShutdownHandler handler : shutdownFunctions){
@@ -136,6 +140,12 @@ public class Environment {
         finalizeObjects();
         flushAll();
         lastMessage = null;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        freeIds.push(id);
     }
 
     /**
@@ -199,6 +209,14 @@ public class Environment {
 
     public Environment(CompileScope scope, OutputStream output) {
         this.scope = scope;
+        synchronized (freeIds) {
+            if (freeIds.empty()) {
+                this.id = ids.getAndIncrement();
+            } else {
+                this.id = freeIds.peek();
+            }
+        }
+
         this.outputBuffers = new Stack<OutputBuffer>();
 
         this.defaultBuffer = new OutputBuffer(this, null);

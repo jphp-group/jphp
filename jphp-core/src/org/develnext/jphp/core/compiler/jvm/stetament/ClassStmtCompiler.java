@@ -25,6 +25,8 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.cache.FunctionCallCache;
+import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.BaseObject;
 import php.runtime.reflection.*;
 
@@ -43,6 +45,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     private String functionName = "";
 
     private boolean initDynamicExists = false;
+    private int callFuncCount = 0;
+    private int callMethCount = 0;
 
     protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<ConstStmtToken.Item>();
     protected List<ClassVarStmtToken> dynamicProperties = new ArrayList<ClassVarStmtToken>();
@@ -51,6 +55,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         super(compiler);
         this.statement = statement;
         this.node = new ClassNodeImpl();
+    }
+
+    public int getAndIncCallFuncCount() {
+        return callFuncCount++;
+    }
+
+    public int getAndIncCallMethCount() {
+        return callMethCount++;
     }
 
     public boolean isInitDynamicExists() {
@@ -300,6 +312,20 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 null
         ));
 
+        node.fields.add(new FieldNode(
+                ACC_PROTECTED + ACC_STATIC, "$CALL_FUNC_CACHE",
+                Type.getDescriptor(FunctionCallCache.class),
+                null,
+                null
+        ));
+
+        node.fields.add(new FieldNode(
+                ACC_PROTECTED + ACC_STATIC, "$CALL_METH_CACHE",
+                Type.getDescriptor(MethodCallCache.class),
+                null,
+                null
+        ));
+
         if (functionName != null){
             node.fields.add(new FieldNode(
                     ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
@@ -447,6 +473,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             i++;
         }
         expressionCompiler.writePutStatic("$TRC", TraceInfo[].class);
+
+        // cached calls
+        expressionCompiler.writePushNewObject(FunctionCallCache.class);
+        expressionCompiler.writePutStatic("$CALL_FUNC_CACHE", FunctionCallCache.class);
+
+        expressionCompiler.writePushNewObject(MethodCallCache.class);
+        expressionCompiler.writePutStatic("$CALL_METH_CACHE", MethodCallCache.class);
 
         node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();

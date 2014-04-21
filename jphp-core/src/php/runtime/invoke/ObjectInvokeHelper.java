@@ -28,7 +28,7 @@ final public class ObjectInvokeHelper {
         if (object.isNull()){
             ClassEntity parent = env.__getParentClass(trace);
             return InvokeHelper.callStatic(
-                    env, trace, parent.getLowerName(), methodLowerName, parent.getName(), methodName, args
+                    env, trace, parent.getLowerName(), methodLowerName, parent.getName(), methodName, args, null, 0
             );
         }
 
