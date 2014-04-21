@@ -27,24 +27,27 @@ public class ApiDocument {
 
     public void generate(File targetDirectory) {
         for(ClassStmtToken cls : classes) {
+            System.out.println("gen class: " + cls.getFulledName());
+
             String result = template.printClass(new ClassDescription(cls));
             File file = new File(targetDirectory, cls.getFulledName('/') + ".rst");
             if (!file.getParentFile().exists()) {
                 if (!file.getParentFile().mkdirs()) {
                     throw new IllegalStateException("Cannot create the '" + file.getParent() + "' directory");
                 }
+            }
 
+            try {
+                FileWriter fileWriter = new FileWriter(file, false);
                 try {
-                    FileWriter fileWriter = new FileWriter(file, false);
-                    try {
-                        fileWriter.write(result);
-                    } finally {
-                        fileWriter.close();
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    fileWriter.write(result);
+                } finally {
+                    fileWriter.close();
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
+        template.onEnd(targetDirectory);
     }
 }

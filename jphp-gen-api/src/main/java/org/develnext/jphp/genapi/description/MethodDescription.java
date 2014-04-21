@@ -1,6 +1,7 @@
 package org.develnext.jphp.genapi.description;
 
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
+import php.runtime.common.Modifier;
 
 public class MethodDescription extends FunctionDescription<MethodStmtToken> {
 
@@ -22,5 +23,13 @@ public class MethodDescription extends FunctionDescription<MethodStmtToken> {
 
     public boolean isInterfacable() {
         return token.isInterfacable();
+    }
+
+    public boolean isProtected() {
+        return token.getModifier() == Modifier.PROTECTED;
+    }
+
+    public boolean isPrivate() {
+        return token.getModifier() == Modifier.PRIVATE;
     }
 }

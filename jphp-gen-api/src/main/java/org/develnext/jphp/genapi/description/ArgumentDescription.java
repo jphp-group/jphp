@@ -1,5 +1,6 @@
 package org.develnext.jphp.genapi.description;
 
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ArgumentStmtToken;
 import org.develnext.jphp.genapi.parameter.MethodParamParameter;
 import php.runtime.common.HintType;
@@ -26,7 +27,14 @@ public class ArgumentDescription extends BaseDescription<ArgumentStmtToken> {
     }
 
     public String getValue() {
-        return token.getValue() == null ? null : token.getValue().getMeta().getWord();
+        if (token.getValue() == null)
+            return null;
+
+        if (token.getValue().getLast() instanceof StringExprToken) {
+            return "'" + token.getValue().getWord() + "'";
+        } else {
+            return token.getValue().getMeta().getWord();
+        }
     }
 
     public String getDescription() {

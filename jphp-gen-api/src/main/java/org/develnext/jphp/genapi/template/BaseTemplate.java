@@ -5,6 +5,7 @@ import org.develnext.jphp.genapi.description.ClassDescription;
 import org.develnext.jphp.genapi.description.FunctionDescription;
 import org.develnext.jphp.genapi.description.MethodDescription;
 
+import java.io.File;
 import java.util.Collection;
 
 abstract public class BaseTemplate {
@@ -70,4 +71,6 @@ abstract public class BaseTemplate {
     abstract protected void print(MethodDescription description);
     abstract protected void print(FunctionDescription description);
     abstract protected void print(ArgumentDescription description);
+
+    public void onEnd(File targetDirectory) { }
 }

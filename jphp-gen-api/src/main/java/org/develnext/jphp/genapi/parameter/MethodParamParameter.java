@@ -46,7 +46,8 @@ public class MethodParamParameter extends BaseParameter {
         for(String el : types) {
             i++;
             el = el.trim();
-            if (HintType.of(el) == null)
+            if (HintType.of(el) == null
+                    && !el.equalsIgnoreCase("mixed") && !el.equalsIgnoreCase("void") && !el.equalsIgnoreCase("null"))
                 el = SyntaxAnalyzer.getRealName(NameToken.valueOf(el.trim()), namespace).getName();
 
             this.types[i] = el;

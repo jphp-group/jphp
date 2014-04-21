@@ -84,6 +84,6 @@ public class DocGenerator {
         })) {
             generator.addDirectory(new File(file, "sdk/"), true);
         }
-        generator.generate(new File("./sdk"));
+        generator.generate(new File("./api"));
     }
 }

@@ -19,7 +19,7 @@ public class MethodReturnParameter extends BaseParameter {
         String tmp;
         if (k == -1) {
             tmp = value;
-            k = value.length() - 1;
+            k = value.length();
         } else {
             tmp = value.substring(offset, k);
             k = k + 1;
@@ -31,7 +31,8 @@ public class MethodReturnParameter extends BaseParameter {
         for(String el : types) {
             i++;
             el = el.trim();
-            if (HintType.of(el) == null)
+            if (HintType.of(el) == null
+                    && !el.equalsIgnoreCase("mixed") && !el.equalsIgnoreCase("void") && !el.equalsIgnoreCase("null"))
                 el = SyntaxAnalyzer.getRealName(NameToken.valueOf(el.trim()), namespace).getName();
 
             this.types[i] = el;
