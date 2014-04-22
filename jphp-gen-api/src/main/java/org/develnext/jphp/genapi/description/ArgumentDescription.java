@@ -12,6 +12,7 @@ public class ArgumentDescription extends BaseDescription<ArgumentStmtToken> {
     public ArgumentDescription(ArgumentStmtToken token, MethodParamParameter description) {
         super(token);
         this.description = description;
+        parse();
     }
 
     public String[] getTypes() {

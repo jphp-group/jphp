@@ -10,6 +10,50 @@ import java.util.Collection;
 
 abstract public class BaseTemplate {
     protected final StringBuilder sb = new StringBuilder();
+    protected final String language;
+    protected final String languageName;
+
+    public BaseTemplate(String language, String languageName) {
+        this.language = language;
+        this.languageName = languageName;
+    }
+
+    protected String subString(String s, int offset, int maxLen) {
+        int len = s.length();
+        if (offset + maxLen > len)
+            maxLen = len;
+
+        return s.substring(offset, offset + maxLen);
+    }
+
+    protected String getDescription(String source, String lang) {
+        StringBuilder origin = new StringBuilder();
+        StringBuilder translated = null;
+        boolean breakOrigin = false;
+        for(int i = 0; i < source.length(); i++) {
+            char ch = source.charAt(i);
+
+            if (ch == '-' && subString(source, i, 6).matches("^--[A-Za-z]{2}--$")) {
+                if (translated != null)
+                    break;
+
+                String name = source.substring(i + 2, i + 4);
+                if (name.equalsIgnoreCase(lang))
+                    translated = new StringBuilder();
+                else
+                    breakOrigin = true;
+                i += 6;
+            } else {
+                if (translated == null) {
+                    if (!breakOrigin)
+                        origin.append(source.charAt(i));
+                } else
+                    translated.append(source.charAt(i));
+            }
+        }
+
+        return translated != null ? translated.toString().trim() : origin.toString().trim();
+    }
 
     public String printClass(ClassDescription description) {
         sb.delete(0, sb.length());

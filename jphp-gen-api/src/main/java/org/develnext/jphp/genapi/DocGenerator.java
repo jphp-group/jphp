@@ -3,6 +3,7 @@ package org.develnext.jphp.genapi;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.genapi.template.SphinxTemplate;
+import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 
@@ -11,8 +12,13 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DocGenerator {
+    public static final Map<String, String> languages = new HashedMap<String, String>(){{
+        put("en", "English");
+        put("ru", "Русский");
+    }};
 
     protected List<File> files = new ArrayList<File>();
     protected Environment environment;
@@ -60,15 +66,15 @@ public class DocGenerator {
         }
     }
 
-    public void generate(File targetDirectory) {
+    public void generate(File targetDirectory, String language) {
         if (!targetDirectory.exists())
             if (!targetDirectory.mkdirs())
                 throw new IllegalStateException("Cannot create target directory");
 
-        SphinxTemplate sphinxTemplate = new SphinxTemplate();
+        SphinxTemplate sphinxTemplate = new SphinxTemplate(language, languages.get(language));
         for(File file : files) {
             ApiDocument document = new ApiDocument(parseFile(file), sphinxTemplate);
-            document.generate(targetDirectory);
+            document.generate(targetDirectory, language);
         }
     }
 
@@ -84,6 +90,9 @@ public class DocGenerator {
         })) {
             generator.addDirectory(new File(file, "sdk/"), true);
         }
-        generator.generate(new File("./api"));
+
+        for(Map.Entry<String, String> entry : languages.entrySet()) {
+            generator.generate(new File("./docs/api_" + entry.getKey()), entry.getKey());
+        }
     }
 }

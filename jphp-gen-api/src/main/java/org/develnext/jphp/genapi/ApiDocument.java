@@ -25,9 +25,9 @@ public class ApiDocument {
         this.template = template;
     }
 
-    public void generate(File targetDirectory) {
+    public void generate(File targetDirectory, String language) {
         for(ClassStmtToken cls : classes) {
-            System.out.println("gen class: " + cls.getFulledName());
+            System.out.println("[" +language+ "] gen class: " + cls.getFulledName());
 
             String result = template.printClass(new ClassDescription(cls));
             File file = new File(targetDirectory, cls.getFulledName('/') + ".rst");

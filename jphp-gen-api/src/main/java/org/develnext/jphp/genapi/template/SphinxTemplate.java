@@ -13,6 +13,36 @@ public class SphinxTemplate extends BaseTemplate {
 
     protected Map<String, List<ClassDescription>> classes = new LinkedHashMap<String, List<ClassDescription>>();
 
+    public SphinxTemplate(String language, String languageName) {
+        super(language, languageName);
+    }
+
+    protected void echoType(String type) {
+        sb.append(type.replaceAll("\\\\", "\\\\\\\\"));
+    }
+
+    protected void echoTypes(String... types) {
+        int i = 0;
+        if (types != null) {
+            sb.append(":doc:`");
+                for(String type : types) {
+                    String ref = type;
+                    if (ref.endsWith("[]"))
+                        ref = ref.substring(0, ref.length() - 2);
+
+                    if (i != 0)
+                        sb.append(">`, :doc:`");
+
+                    echoType(type);
+
+                    sb.append(" </api_"+ language +"/").append(ref.replace('\\', '/'));
+                    i++;
+                }
+
+            sb.append(">`");
+        }
+    }
+
     @Override
     protected void print(ClassDescription description) {
         String[] sections = StringUtils.split(description.getName(), "\\");
@@ -27,13 +57,13 @@ public class SphinxTemplate extends BaseTemplate {
         }
         list.add(description);
 
-        sb.append(description.getName().replaceAll("\\\\", "\\\\\\\\"));
+        echoType(description.getShortName());
         sb.append("\n")
                 .append(StringUtils.repeat('-', description.getName().length()))
                 .append("\n\n");
 
-        sb.append(".. php:class:: ")
-                .append(description.getShortName());
+        sb.append(".. php:class:: ");
+        echoType(description.getName());
 
         String extend = description.getExtends();
         String[] implement = description.getImplements();
@@ -42,48 +72,39 @@ public class SphinxTemplate extends BaseTemplate {
         if (extend != null || implement != null || description.isAbstract() || description.isFinal()) {
             sb.append("\n");
             if (description.isAbstract()) {
-                sb.append("\t**abstract** class\n");
+                sb.append(" **abstract** class\n\n");
             }
 
             if (description.isFinal()) {
-                sb.append("\t**final** class\n");
+                sb.append(" **final** class\n\n");
             }
 
             if (description.isInterface()) {
-                sb.append("\t**interface**\n");
+                sb.append(" **interface**\n\n");
             }
 
             if (description.isTrait()) {
-                sb.append("\t**trait**\n");
+                sb.append(" **trait**\n\n");
             }
 
             if (extend != null) {
-                sb.append("\t**extends**: :doc:`")
-                        .append(extend).append(" <api/").append(extend.replace('\\', '/')).append(">`\n");
+                sb.append(" **extends**: ");
+                echoTypes(extend);
             }
 
             if (implement != null) {
                 if (description.isInterface()) {
-                    sb.append("\t**extends**: ");
+                    sb.append(" **extends**: ");
                 } else {
-                    sb.append("\t**implements**: ");
+                    sb.append(" **implements**: ");
                 }
-                int i = 0;
-                for(String e : implement) {
-                    if (i != 0)
-                        sb.append("`>, ");
-                    sb.append(":doc:`").append(e).append(" <api/").append(e.replace('\\', '/'));
-                    if (implement.length == 1)
-                        sb.append("`>");
-
-                    i++;
-                }
+                echoTypes(implement);
                 sb.append("\n");
             }
         }
 
         if (description.getDescription() != null) {
-            sb.append("\n\t");
+            sb.append("\n ");
             sb.append(addTabToDescription(description.getDescription(), 1));
             sb.append("\n");
         }
@@ -97,6 +118,8 @@ public class SphinxTemplate extends BaseTemplate {
     }
 
     protected String addTabToDescription(String description, int tabCount) {
+        description = getDescription(description, language);
+
         StringBuilder builder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new StringReader(description));
 
@@ -105,7 +128,7 @@ public class SphinxTemplate extends BaseTemplate {
         try {
             while ((line = reader.readLine()) != null){
                 if (i != 0){
-                    line = StringUtils.repeat('\t', tabCount) + line;
+                    line = StringUtils.repeat(' ', tabCount) + line;
                     builder.append("\n");
                 }
                 builder.append(line);
@@ -120,9 +143,9 @@ public class SphinxTemplate extends BaseTemplate {
     @Override
     protected void print(FunctionDescription description) {
         if (description instanceof MethodDescription && ((MethodDescription) description).isStatic()) {
-            sb.append("\t..php:staticmethod:: ");
+            sb.append(" .. php:staticmethod:: ");
         } else {
-            sb.append("\t..php:method:: ");
+            sb.append(" .. php:method:: ");
         }
 
         sb.append(description.getName()).append("(");
@@ -141,28 +164,28 @@ public class SphinxTemplate extends BaseTemplate {
             i++;
         }
 
-        sb.append(")\n");
+        sb.append(")\n\n");
 
         if (description instanceof MethodDescription) {
             MethodDescription meth = (MethodDescription)description;
             boolean add = false;
             if (meth.isFinal()) {
-                sb.append("\n\t\t**final**\n");
+                sb.append("  **final**\n");
                 add = true;
             }
 
             if (meth.isAbstract()) {
-                sb.append("\n\t\t**abstract**\n");
+                sb.append("  **abstract**\n");
                 add = true;
             }
 
             if (meth.isPrivate()) {
-                sb.append("\n\t\t**private**\n");
+                sb.append("  **private**\n");
                 add = true;
             }
 
             if (meth.isProtected()) {
-                sb.append("\n\t\t**protected**\n");
+                sb.append("  **protected**\n");
                 add = true;
             }
 
@@ -171,7 +194,7 @@ public class SphinxTemplate extends BaseTemplate {
         }
 
         if (description.getDescription() != null && !description.getDescription().isEmpty()) {
-            sb.append("\n\t\t")
+            sb.append("  ")
                     .append(addTabToDescription(description.getDescription().trim(), 2))
                     .append("\n\n");
         }
@@ -179,12 +202,15 @@ public class SphinxTemplate extends BaseTemplate {
 
     @Override
     protected void print(ArgumentDescription description) {
-        sb.append("\t\t:param ");
-
-        if (description.getTypes() != null)
-            sb.append(StringUtils.join(description.getTypes(), " | ")).append(" ");
+        sb.append("  :param ");
 
         sb.append("$").append(description.getName()).append(": ");
+
+        if (description.getTypes() != null) {
+            echoTypes(description.getTypes());
+            sb.append(" ");
+        }
+
         if (description.getDescription() != null) {
             sb.append(addTabToDescription(description.getDescription(), 2));
         }
@@ -201,9 +227,10 @@ public class SphinxTemplate extends BaseTemplate {
     protected void onAfterFunction(FunctionDescription desc) {
         if (desc.getReturnTypes() != null
                 || (desc.getReturnDescription() != null && !desc.getReturnDescription().isEmpty())) {
-            sb.append("\t\t:returns: ");
+            sb.append("  :returns: ");
             if (desc.getReturnTypes() != null) {
-                sb.append(StringUtils.join(desc.getReturnTypes(), " | ")).append(" ");
+                echoTypes(desc.getReturnTypes());
+                sb.append(" ");
             }
 
             if (desc.getReturnDescription() != null) {
@@ -221,10 +248,10 @@ public class SphinxTemplate extends BaseTemplate {
         onEnd(targetDirectory, null);
     }
 
-    protected void onEnd(File targetDirectory, String namespace) {
+    protected List<String> onEnd(File targetDirectory, String namespace) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(namespace == null ? "API" : namespace)
+        sb.append(namespace == null ? "API (" + languageName + ")" : namespace)
                 .append("\n")
                 .append(StringUtils.repeat('-', 30)).append("\n\n");
 
@@ -232,16 +259,34 @@ public class SphinxTemplate extends BaseTemplate {
                 "   :maxdepth: 3\n\n");
 
         File[] files = targetDirectory.listFiles();
+
+        List<String> ctree = new ArrayList<String>();
         if (files != null) {
             for(File dir : files) {
                 if (dir.isFile() && dir.getName().endsWith(".rst")) {
-                    if (!dir.getName().equals("index.rst"))
-                        sb.append("   ").append(dir.getName()).append("\n");
+                    if (!dir.getName().equals("index.rst")) {
+                        ctree.add(dir.getName());
+                    }
                 } else if (dir.isDirectory()) {
-                    sb.append("   ").append(dir.getName()).append("/index\n");
-                    onEnd(dir, namespace == null ? dir.getName() : namespace + "\\\\" + dir.getName());
+                    ctree.add(dir.getName() + "/index");
                 }
             }
+
+            for(File dir : files) {
+                if (dir.isDirectory()) {
+                    List<String> tmp = onEnd(dir, namespace == null ? dir.getName() : dir.getName());
+                    if (ctree.isEmpty() || ctree.size() == 1) {
+                        ctree.clear();
+                        for(String e : tmp) {
+                            ctree.add(dir.getName() + "/" + e);
+                        }
+                    }
+                }
+            }
+        }
+
+        for(String e : ctree) {
+            sb.append("   ").append(e).append("\n");
         }
 
         File file = new File(targetDirectory, "/index.rst");
@@ -252,5 +297,7 @@ public class SphinxTemplate extends BaseTemplate {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        return ctree;
     }
 }

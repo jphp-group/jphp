@@ -3,7 +3,6 @@ package org.develnext.jphp.genapi.parameter;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
-import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 
 public class MethodReturnParameter extends BaseParameter {
@@ -31,8 +30,7 @@ public class MethodReturnParameter extends BaseParameter {
         for(String el : types) {
             i++;
             el = el.trim();
-            if (HintType.of(el) == null
-                    && !el.equalsIgnoreCase("mixed") && !el.equalsIgnoreCase("void") && !el.equalsIgnoreCase("null"))
+            if (!isNotClass(el))
                 el = SyntaxAnalyzer.getRealName(NameToken.valueOf(el.trim()), namespace).getName();
 
             this.types[i] = el;
