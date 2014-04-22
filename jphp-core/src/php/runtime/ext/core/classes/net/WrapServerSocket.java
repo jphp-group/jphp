@@ -3,7 +3,6 @@ package php.runtime.ext.core.classes.net;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
@@ -53,13 +52,8 @@ public class WrapServerSocket extends BaseObject {
     }
 
     @Signature
-    public Memory accept(Environment env, Memory... args){
-        try {
-            return new ObjectMemory(new WrapSocket(env, socket.accept()));
-        } catch (IOException e) {
-            Stream.exception(env, e.getMessage());
-        }
-        return Memory.NULL;
+    public Memory accept(Environment env, Memory... args) throws IOException {
+        return new ObjectMemory(new WrapSocket(env, socket.accept()));
     }
 
     @Signature({@Arg("hostname"), @Arg("port"),

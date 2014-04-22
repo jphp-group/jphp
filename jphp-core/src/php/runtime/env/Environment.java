@@ -938,18 +938,24 @@ public class Environment {
     public void registerModule(ModuleEntity module) {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
-                classMap.put(entity.getLowerName(), entity);
-                //entity.initEnvironment(this); // TODO : check and fix for traits
+                if (classMap.put(entity.getLowerName(), entity) != null) {
+                    error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()));
+                }
             }
         }
 
         for(FunctionEntity entity : module.getFunctions()) {
-            if (entity.isStatic())
-                functionMap.put(entity.getLowerName(), entity);
+            if (entity.isStatic()) {
+                if (functionMap.put(entity.getLowerName(), entity) != null) {
+                    error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()));
+                }
+            }
         }
 
         for(ConstantEntity entity : module.getConstants()) {
-            constantMap.put(entity.getLowerName(), entity);
+            if (constantMap.put(entity.getLowerName(), entity) != null) {
+                error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CONSTANT.fetch(entity.getName()));
+            }
         }
     }
 
@@ -1070,6 +1076,9 @@ public class Environment {
 
         @Override
         protected boolean prevValue() { return false; }
+
+        @Override
+        public void reset() { }
     };
 
     public ForeachIterator __getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){

@@ -168,7 +168,7 @@ public class ObjectArrayListIterator <E> extends ObjectArrayIterator<E> implemen
     }
 
     /**
-     * Sets the element under the cursor.
+     * Sets the element under the flow.
      * <p/>
      * This method sets the element that was returned by the last call
      * to {@link #next()} of {@link #previous()}.

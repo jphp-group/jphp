@@ -398,6 +398,8 @@ abstract public class Memory {
     public Memory assignRight(Memory memory) { return memory.assign(this); }
     public Memory assignRefRight(Memory memory) { return memory.assignRef(this); }
 
+    public Memory assign(IObject object) { return this.assign(new ObjectMemory(object)); }
+
     public Memory assignConcat(Memory memory) { return assign(concat(memory)); }
     public Memory assignConcat(long memory) { return assign(concat(memory)); }
     public Memory assignConcat(double memory) { return assign(concat(memory)); }
@@ -646,6 +648,10 @@ abstract public class Memory {
 
     public ForeachIterator getNewIterator(Environment env,
                                           boolean getReferences, boolean getKeyReferences){ return null; }
+
+    final public ForeachIterator getNewIterator(Environment env) {
+        return getNewIterator(env, false, false);
+    }
 
     public boolean instanceOf(String className, String lowerClassName){
         return false;

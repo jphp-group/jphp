@@ -8,6 +8,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
+import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
@@ -23,7 +24,7 @@ import static php.runtime.annotation.Reflection.*;
         @Arg(value = "path", modifier = Modifier.PRIVATE, readOnly = true, type = HintType.STRING),
         @Arg(value = "mode", modifier = Modifier.PRIVATE, readOnly = true)
 })
-abstract public class Stream extends BaseObject implements Resource {
+abstract public class Stream extends BaseObject implements Resource, Iterator {
     @Ignore
     public final static String CLASS_NAME = "php\\io\\Stream";
 
@@ -31,9 +32,9 @@ abstract public class Stream extends BaseObject implements Resource {
     private String mode;
     private Memory context = Memory.NULL;
 
-    public Stream(ClassEntity entity) {
-        super(entity);
-    }
+    protected boolean valid = false;
+    protected Memory current = Memory.NULL;
+    protected Memory key = Memory.CONST_INT_0;
 
     public Stream(Environment env) {
         super(env);
@@ -43,14 +44,8 @@ abstract public class Stream extends BaseObject implements Resource {
         super(env, clazz);
     }
 
-    public static void exception(Environment env, String message, Object... args){
-        WrapIOException exception = new WrapIOException(env, env.fetchClass("php\\io\\IOException"));
-        exception.__construct(env, new StringMemory(String.format(message, args)));
-        env.__throwException(exception);
-    }
-
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("NULL"))})
-    public Memory __construct(Environment env, Memory... args){
+    public Memory __construct(Environment env, Memory... args) throws IOException {
         setPath(args[0].toString());
         setMode(args[1].isNull() ? null : args[1].toString());
 
@@ -84,6 +79,45 @@ abstract public class Stream extends BaseObject implements Resource {
     public void setMode(String mode) {
         __class__.setProperty(this, "mode", mode == null ? null : new StringMemory(mode));
         this.mode = mode;
+    }
+
+    @Override
+    public Memory current(Environment env, Memory... args) {
+        return current;
+    }
+
+    @Override
+    public Memory key(Environment env, Memory... args) {
+        return key;
+    }
+
+    @Override
+    public Memory next(Environment env, Memory... args) {
+        try {
+            valid = !eof(env, args).toBoolean();
+            this.current = read(env, Memory.CONST_INT_1);
+            this.key = this.key.inc();
+        } catch (IOException e) {
+            env.exception(WrapIOException.class, e.getMessage());
+        }
+        return Memory.NULL;
+    }
+
+    @Override
+    public Memory rewind(Environment env, Memory... args) {
+        try {
+            seek(env, Memory.CONST_INT_0);
+            next(env, args);
+        } catch (IOException e) {
+            env.exception(WrapIOException.class, e.getMessage());
+        }
+        return Memory.NULL;
+    }
+
+    @Override
+    public Memory valid(Environment env, Memory... args) {
+        return valid ? Memory.TRUE : Memory.FALSE;
+
     }
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
@@ -124,7 +158,7 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
-    public static Memory create(Environment env, Memory... args) throws Throwable {
+    public static Memory of(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();
 
         String protocol = "file";
@@ -136,8 +170,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
         ClassEntity classEntity = env.getUserValue(Stream.class.getName() + "#" + protocol, ClassEntity.class);
         if (classEntity == null){
-            exception(env, "Unregistered protocol - %s://", protocol);
-            return Memory.NULL;
+            throw new IOException( "Unregistered protocol - "+protocol+"://");
         }
 
         return new ObjectMemory(
@@ -209,9 +242,22 @@ abstract public class Stream extends BaseObject implements Resource {
                 return new FileOutputStream(arg.toString());
             }
         } catch (IOException e){
-            exception(env, e.getMessage());
+            env.exception(WrapIOException.class, e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * @param arg
+     * @return
+     */
+    public static String getPath(Memory arg) {
+        if (arg.instanceOf(FileObject.class)){
+            return arg.toObject(FileObject.class).file.getPath();
+        } else if (arg.instanceOf(Stream.class)){
+            return arg.toObject(Stream.class).getPath();
+        } else
+            return arg.toString();
     }
 
     /**
@@ -228,7 +274,7 @@ abstract public class Stream extends BaseObject implements Resource {
                 return new FileInputStream(arg.toString());
             }
         } catch (IOException e){
-            exception(env, e.getMessage());
+            env.exception(WrapIOException.class, e.getMessage());
         }
         return null;
     }
@@ -238,7 +284,7 @@ abstract public class Stream extends BaseObject implements Resource {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                Stream.exception(env, e.getMessage());
+                env.exception(WrapIOException.class, e.getMessage());
             }
     }
 
@@ -247,7 +293,7 @@ abstract public class Stream extends BaseObject implements Resource {
             try {
                 outputStream.close();
             } catch (IOException e) {
-                Stream.exception(env, e.getMessage());
+                env.exception(WrapIOException.class, e.getMessage());
             }
     }
 

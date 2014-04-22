@@ -68,7 +68,6 @@ final public class JavaObject extends JavaReflection {
         return new StringMemory(object.getClass().getName());
     }
 
-
     public static JavaObject of(Environment env, Object value){
         JavaObject javaObject = new JavaObject(env, env.fetchClass("php\\lang\\JavaObject"));
         javaObject.setObject(value);

@@ -1,19 +1,15 @@
 <?php
 
-class foobar {
-    public function __construct() {
-        switch (1) {
-            default:
-                goto b;
-                a:
-                print "ok!\n";
-                break;
-                b:
-                print "ok!\n";
-                goto a;
-        }
-        print "ok!\n";
-    }
+/**
+ * Class My
+ */
+class My {
+
+    /**
+     * @var int
+     */
+    public $x;
 }
 
-new foobar;
+$r = new ReflectionClass('My');
+echo $r->getProperty('x')->getDocComment();

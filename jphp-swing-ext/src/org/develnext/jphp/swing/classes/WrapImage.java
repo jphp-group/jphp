@@ -130,7 +130,7 @@ public class WrapImage extends RootObject {
     }
 
     @Signature(@Arg("stream"))
-    public static Memory read(Environment env, Memory... args) {
+    public static Memory read(Environment env, Memory... args) throws IOException {
         InputStream input = Stream.getInputStream(env, args[0]);
         try {
             BufferedImage image = ImageIO.read(input);
@@ -138,12 +138,9 @@ public class WrapImage extends RootObject {
                 return Memory.NULL;
 
             return new ObjectMemory(new WrapImage(env, image));
-        } catch (IOException e) {
-            Stream.exception(env, e.getMessage());
         } finally {
             Stream.closeStream(env, input);
         }
-        return Memory.NULL;
     }
 
     @Signature({
@@ -151,12 +148,10 @@ public class WrapImage extends RootObject {
             @Arg("format"),
             @Arg("stream")
     })
-    public static Memory write(Environment env, Memory... args) {
+    public static Memory write(Environment env, Memory... args) throws IOException {
         OutputStream output = Stream.getOutputStream(env, args[2]);
         try {
             ImageIO.write(args[0].toObject(WrapImage.class).getImage(), args[1].toString(), output);
-        } catch (IOException e) {
-            Stream.exception(env, e.getMessage());
         } finally {
             Stream.closeStream(env, output);
         }

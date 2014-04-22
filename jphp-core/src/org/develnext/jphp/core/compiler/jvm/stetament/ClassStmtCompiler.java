@@ -28,10 +28,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.BaseObject;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ConstantEntity;
-import php.runtime.reflection.MethodEntity;
-import php.runtime.reflection.PropertyEntity;
+import php.runtime.reflection.*;
 
 import java.util.*;
 
@@ -235,6 +232,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setDefault(property.getValue() != null);
                 prop.setTrace(property.toTraceInfo(compiler.getContext()));
 
+                if (property.getDocComment() != null) {
+                    prop.setDocComment(new DocumentComment(property.getDocComment().getComment()));
+                }
+
                 ClassEntity.PropertyResult result = entity.addProperty(prop);
                 result.check(compiler.getEnvironment());
 
@@ -260,10 +261,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken)null);
         ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodStmtCompiler, null);
 
+        DocumentComment documentComment = null;
+        if (constant.getDocComment() != null)
+            documentComment = new DocumentComment(constant.getDocComment().getComment());
+
         for(ConstStmtToken.Item el : constant.items){
             Memory value = expressionStmtCompiler.writeExpression(el.value, true, true, false);
             ConstantEntity constantEntity = new ConstantEntity(el.getFulledName(), value, true);
             constantEntity.setTrace(el.name.toTraceInfo(compiler.getContext()));
+            constantEntity.setDocComment(documentComment);
 
             if (value != null && !value.isArray()) {
                 ConstantEntity c = entity.findConstant(el.getFulledName());
@@ -812,6 +818,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setFinal(statement.isFinal());
         entity.setAbstract(statement.isAbstract());
         entity.setName(statement.getFulledName());
+        if (statement.getDocComment() != null)
+            entity.setDocComment(new DocumentComment(statement.getDocComment().getComment()));
+
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
         entity.setType(statement.getClassType());
 

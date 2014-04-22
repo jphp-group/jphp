@@ -52,13 +52,8 @@ public class WrapSocket extends BaseObject {
     }
 
     @Signature
-    public Memory getOutput(Environment env, Memory... args){
-        try {
-            return new ObjectMemory(new MiscStream(env, socket.getOutputStream()));
-        } catch (IOException e) {
-            Stream.exception(env, e.getMessage());
-        }
-        return Memory.NULL;
+    public Memory getOutput(Environment env, Memory... args) throws IOException {
+        return new ObjectMemory(new MiscStream(env, socket.getOutputStream()));
     }
 
     @Signature

@@ -90,6 +90,9 @@ public class ReflectionClass extends Reflection {
 
     @Signature
     public Memory getDocComment(Environment env, Memory... args){
+        if (entity.getDocComment() == null)
+            return Memory.NULL;
+
         return new StringMemory(entity.getDocComment().toString());
     }
 

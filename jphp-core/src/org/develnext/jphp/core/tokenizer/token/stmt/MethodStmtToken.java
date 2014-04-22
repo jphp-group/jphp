@@ -28,8 +28,10 @@ public class MethodStmtToken extends FunctionStmtToken {
         setCallsExist(token.callsExist);
         setVarsExists(token.varsExists);
         setUses(token.uses);
+        setDocComment(token.docComment);
         labels = token.labels;
         variables = token.variables;
+        namespace = token.namespace;
     }
 
     public boolean isAbstract() {

@@ -3,12 +3,13 @@ package php.runtime.ext.core.stream;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
-import php.runtime.launcher.Launcher;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static php.runtime.annotation.Reflection.Name;
@@ -25,14 +26,10 @@ public class ResourceStream extends Stream {
 
     @Override
     @Reflection.Signature({@Reflection.Arg("path")})
-    public Memory __construct(Environment env, Memory... args) {
-        Launcher launcher = Launcher.current();
-        if (launcher == null)
-            throw new IllegalArgumentException("Launcher is not running");
-
-        stream = launcher.getResource(args[0].toString());
+    public Memory __construct(Environment env, Memory... args) throws IOException {
+        stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(args[0].toString());
         if (stream == null)
-            exception(env, "Resource not found - %s", args[0]);
+            throw new IOException("Resource not found - " + args[0]);
 
         return Memory.NULL;
     }

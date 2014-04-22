@@ -26,16 +26,16 @@ public class FileStream extends Stream {
     }
 
     private void throwFileNotFound(Environment env){
-        exception(env, MSG_FILE_NOT_FOUND, getPath());
+        env.exception(WrapIOException.class, MSG_FILE_NOT_FOUND, getPath());
     }
 
     private void throwCannotRead(Environment env){
-        exception(env, "Cannot read file");
+        env.exception(WrapIOException.class, "Cannot read file");
     }
 
     @Override
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Reflection.Optional("r"))})
-    public Memory __construct(Environment env, Memory... args) {
+    public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args);
 
         try {
@@ -71,7 +71,7 @@ public class FileStream extends Stream {
             } else if (getMode().equals("x") || getMode().equals("x+")){
                 File file = new File(getPath());
                 if (file.getAbsoluteFile().exists())
-                    exception(env, "File '%s' already exists (mode: %s)", getMode());
+                    env.exception(WrapIOException.class, "File '%s' already exists (mode: %s)", getMode());
 
                 accessFile = new RandomAccessFile(getPath(), "rw");
                 if (getMode().equals("x"))
@@ -81,11 +81,11 @@ public class FileStream extends Stream {
                 if (getMode().equals("c"))
                     canRead = false;
             } else
-                exception(env, "Unsupported mode - '%s'", getMode());
+                env.exception(WrapIOException.class, "Unsupported mode - '%s'", getMode());
         } catch (FileNotFoundException e){
             throwFileNotFound(env);
         } catch (java.io.IOException e) {
-            exception(env, e.getMessage());
+            env.exception(WrapIOException.class, e.getMessage());
         }
 
         return Memory.NULL;
@@ -101,7 +101,7 @@ public class FileStream extends Stream {
             accessFile.write(bytes, 0, len == 0 ? bytes.length : len);
             return LongMemory.valueOf(len == 0 ? bytes.length : len);
         } catch (IOException e) {
-            exception(env, e.getMessage());
+            env.exception(WrapIOException.class, e.getMessage());
         }
 
         return Memory.FALSE;
@@ -114,7 +114,7 @@ public class FileStream extends Stream {
 
         int len = args[0].toInteger();
         if (len < 1)
-            exception(env, "Length must be greater than zero, %s given", len);
+            env.exception(WrapIOException.class, "Length must be greater than zero, %s given", len);
 
         byte[] buff = new byte[len];
         try {
@@ -128,7 +128,7 @@ public class FileStream extends Stream {
             }
             return new BinaryMemory(buff);
         } catch (IOException e) {
-            exception(env, e.getMessage());
+            env.exception(WrapIOException.class, e.getMessage());
             return Memory.FALSE;
         }
     }
@@ -164,12 +164,8 @@ public class FileStream extends Stream {
     }
 
     @Signature
-    public Memory close(Environment env, Memory... args){
-        try {
-            accessFile.close();
-        } catch (IOException e) {
-            exception(env, e.getMessage());
-        }
+    public Memory close(Environment env, Memory... args) throws IOException {
+        accessFile.close();
         return Memory.NULL;
     }
 
@@ -179,42 +175,24 @@ public class FileStream extends Stream {
     }
 
     @Signature(@Arg("position"))
-    public Memory seek(Environment env, Memory... args){
-        try {
-            accessFile.seek(args[0].toLong());
-        } catch (IOException e) {
-            exception(env, e.getMessage());
-        }
+    public Memory seek(Environment env, Memory... args) throws IOException {
+        accessFile.seek(args[0].toLong());
         return Memory.NULL;
     }
 
     @Signature
-    public Memory getFilePointer(Environment env, Memory... args){
-        try {
-            return LongMemory.valueOf(accessFile.getFilePointer());
-        } catch (IOException e) {
-            exception(env, e.getMessage());
-        }
-        return Memory.FALSE;
+    public Memory getFilePointer(Environment env, Memory... args) throws IOException {
+        return LongMemory.valueOf(accessFile.getFilePointer());
     }
 
     @Signature
-    public Memory length(Environment env, Memory... args){
-        try {
-            return LongMemory.valueOf(accessFile.length());
-        } catch (IOException e){
-            exception(env, e.getMessage());
-        }
-        return Memory.FALSE;
+    public Memory length(Environment env, Memory... args) throws IOException {
+        return LongMemory.valueOf(accessFile.length());
     }
 
     @Signature(@Arg("size"))
-    public Memory truncate(Environment env, Memory... args){
-        try {
-            accessFile.setLength(args[0].toLong());
-        } catch (IOException e){
-            exception(env, e.getMessage());
-        }
+    public Memory truncate(Environment env, Memory... args) throws IOException {
+        accessFile.setLength(args[0].toLong());
         return Memory.NULL;
     }
 }

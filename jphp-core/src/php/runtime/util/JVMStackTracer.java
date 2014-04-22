@@ -21,7 +21,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
         this.result = new ArrayList<Item>();
 
         for(StackTraceElement e : elements) {
-            result.add(new Item(e));
+            result.add(new Item(classLoader, e));
         }
     }
 
@@ -30,7 +30,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
         return result.iterator();
     }
 
-    public class Item {
+    public static class Item {
         public final String fileName;
         public final int lineNumber;
         public final ModuleEntity module;
@@ -40,12 +40,12 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
 
         protected final StackTraceElement element;
 
-        protected Item(StackTraceElement el){
+        public Item(RuntimeClassLoader classLoader, StackTraceElement el){
             element = el;
             fileName = el.getFileName();
             lineNumber = el.getLineNumber();
             String className = el.getClassName();
-            FunctionEntity f_e = JVMStackTracer.this.classLoader.getFunction(className);
+            FunctionEntity f_e = classLoader.getFunction(className);
             String realMethodName = null;
             if (el.getMethodName() != null){
                 if (el.getMethodName().indexOf('$') > -1)
@@ -62,7 +62,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
                 clazz = null;
                 method = null;
             } else {
-                ClassEntity c_e = JVMStackTracer.this.classLoader.getClass(className);
+                ClassEntity c_e = classLoader.getClass(className);
                 if (c_e != null){
                     clazz = c_e;
                     function = null;
@@ -73,7 +73,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
 
                     module = c_e == null ? null : c_e.getModule();
                 } else {
-                    ModuleEntity m_e = JVMStackTracer.this.classLoader.getModule(className);
+                    ModuleEntity m_e = classLoader.getModule(className);
                     module = m_e;
                     clazz = null;
                     method = null;
@@ -86,8 +86,7 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
             return function == null && clazz == null && module == null;
         }
 
-        @Override
-        public String toString() {
+        public String getSignature() {
             String result;
             if (function != null)
                 result = function.getName();
@@ -102,6 +101,12 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
             else
                 result = element.getClassName() + "." + element.getMethodName();
 
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            String result = getSignature();
             result = result +
                     (fileName != null && lineNumber >= 0 ?
                                     "(" + fileName + ":" + lineNumber + ")" :

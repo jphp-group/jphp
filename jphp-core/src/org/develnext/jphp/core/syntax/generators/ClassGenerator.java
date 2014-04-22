@@ -327,6 +327,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 List<ClassVarStmtToken> properties = new ArrayList<ClassVarStmtToken>();
 
                 List<Token> modifiers = new ArrayList<Token>();
+                CommentToken lastComment = null;
+
                 while (iterator.hasNext()){
                     Token current = iterator.next();
                     if (current instanceof ExprStmtToken)
@@ -340,6 +342,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
+                        one.setDocComment(lastComment);
+
                         constants.add(one);
                         modifiers.clear();
                     } else if (isTokenClass(current, ClassGenerator.modifiers)){
@@ -361,12 +365,21 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                             if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class))
                                 unexpectedToken(modifier);
                         }
-                        properties.addAll(processProperty((VariableExprToken)current, modifiers, iterator));
+
+                        List<ClassVarStmtToken> vars = processProperty((VariableExprToken)current, modifiers, iterator);
+                        if (lastComment != null) {
+                            for (ClassVarStmtToken var : vars) {
+                                var.setDocComment(lastComment);
+                            }
+                        }
+
+                        properties.addAll(vars);
                         modifiers.clear();
                     } else if (current instanceof FunctionStmtToken) {
                         FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
                         MethodStmtToken method = new MethodStmtToken(function);
                         method.setClazz(result);
+                        method.setDocComment(lastComment);
 
                         for (Token modifier : modifiers) {
                             if (modifier instanceof AbstractStmtToken)
@@ -402,7 +415,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                     } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)) {
                         break;
                     } else if (current instanceof CommentToken){
-                        // todo comment process
+                        lastComment = (CommentToken) current;
                     } else
                         unexpectedToken(current);
                 }
@@ -441,19 +454,38 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             }
         }
 
+        ClassStmtToken result = null;
+
         if (current instanceof ClassStmtToken)
-            return (ClassStmtToken)current;
+            result = (ClassStmtToken)current;
         else if (current instanceof InterfaceStmtToken){
-            ClassStmtToken result = new ClassStmtToken(current.getMeta());
+            result = new ClassStmtToken(current.getMeta());
             result.setInterface(true);
-            return result;
         } else if (current instanceof TraitStmtToken) {
-            ClassStmtToken result = new ClassStmtToken(current.getMeta());
+            result = new ClassStmtToken(current.getMeta());
             result.setClassType(ClassEntity.Type.TRAIT);
-            return result;
         }
 
-        return null;
+        if (result != null) {
+            iterator.previous();
+            if (result.isFinal() || result.isAbstract())
+                iterator.previous();
+
+            if (iterator.hasPrevious()) {
+                Token tk = iterator.previous();
+                if (tk instanceof CommentToken) {
+                    result.setDocComment((CommentToken)tk);
+                }
+                iterator.next();
+            }
+
+            if (result.isFinal() || result.isAbstract())
+                iterator.previous();
+
+            iterator.next();
+        }
+
+        return result;
     }
 
     @Override

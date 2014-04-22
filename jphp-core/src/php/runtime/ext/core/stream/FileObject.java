@@ -1,6 +1,7 @@
 package php.runtime.ext.core.stream;
 
 import php.runtime.Memory;
+import php.runtime.common.Constants;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -12,17 +13,17 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\File")
 public class FileObject extends BaseObject {
-    public final static int FILES_ONLY = JFileChooser.FILES_ONLY;
-    public final static int DIRECTORIES_ONLY = JFileChooser.DIRECTORIES_ONLY;
-    public final static int FILES_AND_DIRECTORIES = JFileChooser.FILES_AND_DIRECTORIES;
+    public static String PATH_SEPARATOR = File.pathSeparator;
+    public static String DIRECTORY_SEPARATOR = File.separator;
+    public static boolean PATH_NAME_CASE_INSENSITIVE = Constants.PATH_NAME_CASE_INSENSITIVE;
 
     protected File file;
 
@@ -335,6 +336,35 @@ public class FileObject extends BaseObject {
     @Signature
     public Memory __toString(Environment env, Memory... args) {
         return new StringMemory(file.getPath());
+    }
+
+    @Signature({
+            @Arg("prefix"),
+            @Arg("suffix"),
+            @Arg(value = "directory", optional = @Optional("NULL"))
+    })
+    public static Memory createTemp(Environment env, Memory... args) throws IOException {
+        File file;
+        if (args[2].isNull())
+            file = File.createTempFile(args[0].toString(), args[1].toString());
+        else
+            file = File.createTempFile(args[0].toString(), args[1].toString(), valueOf(args[2]));
+
+        return new ObjectMemory(new FileObject(env, file));
+    }
+
+    @Signature
+    public static Memory listRoots(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        File[] roots = File.listRoots();
+        if (roots == null)
+            return r.toConstant();
+
+        for(File e : roots) {
+            r.add(new FileObject(env, e));
+        }
+
+        return r.toConstant();
     }
 
     public static File valueOf(Memory arg) {

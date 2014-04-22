@@ -4,4 +4,5 @@ include 'jphp-core',
         'jphp-zend-ext',
         'jphp-swing-ext',
         'jphp-json-ext',
+        'jphp-gen-api',
         'jphp-example-project'

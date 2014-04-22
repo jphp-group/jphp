@@ -135,10 +135,14 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 arguments.add(argument);
 
                 FunctionStmtToken parent = analyzer.getFunction(true);
-                if (argument.isReference() && parent != null) {
-                    parent.variable(argument.getName())
-                            .setPassed(true)
-                            .setUnstable(true);
+                if (parent != null) {
+                    parent.variable(argument.getName()).setUsed(true);
+
+                    if (argument.isReference()){
+                        parent.variable(argument.getName())
+                                .setPassed(true)
+                                .setUnstable(true);
+                    }
 
                     parent = analyzer.peekClosure();
                     if (parent != null){

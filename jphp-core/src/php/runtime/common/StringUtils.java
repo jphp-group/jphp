@@ -320,6 +320,28 @@ final public class StringUtils {
         return INDEX_NOT_FOUND;
     }
 
+    public static int lastIndexOfIgnoreCase(CharSequence str, CharSequence searchStr, int startPos) {
+        if (str == null || searchStr == null) {
+            return INDEX_NOT_FOUND;
+        }
+        if (startPos > str.length() - searchStr.length()) {
+            startPos = str.length() - searchStr.length();
+        }
+        if (startPos < 0) {
+            return INDEX_NOT_FOUND;
+        }
+        if (searchStr.length() == 0) {
+            return startPos;
+        }
+
+        for (int i = startPos; i >= 0; i--) {
+            if (regionMatches(str, true, i, searchStr, 0, searchStr.length())) {
+                return i;
+            }
+        }
+        return INDEX_NOT_FOUND;
+    }
+
     public static boolean isValidClassName(String name){
         int length = name.length();
         if (length == 0)

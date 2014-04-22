@@ -2,7 +2,7 @@ ext.isExtension = true;
 
 dependencies {
     compile project(':jphp-core')
-    compile 'com.google.code.gson:gson:2.2+'
+    compile 'com.google.code.gson:gson:2.2.4'
 
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-core').sourceSets.test.output

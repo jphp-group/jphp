@@ -393,12 +393,17 @@ public class SyntaxAnalyzer {
     }
 
     public FulledNameToken getRealName(NameToken what) {
+        return getRealName(what, namespace);
+    }
+
+    public static FulledNameToken getRealName(NameToken what, NamespaceStmtToken namespace) {
         if (what instanceof FulledNameToken && ((FulledNameToken) what).isProcessed())
             return (FulledNameToken) what;
 
         String name = what.getName();
 
         // check name in uses
+        if (namespace != null)
         for(NamespaceUseStmtToken use : namespace.getUses()){
             if (use.getAs() == null){
                 if (name.equalsIgnoreCase(use.getName().getLastName().getName())) {
@@ -415,7 +420,7 @@ public class SyntaxAnalyzer {
             }
         }
 
-        List<NameToken> names = namespace.getName() == null
+        List<NameToken> names = namespace == null || namespace.getName() == null
                 ? new ArrayList<NameToken>()
                 : new ArrayList<NameToken>(namespace.getName().getNames());
 
