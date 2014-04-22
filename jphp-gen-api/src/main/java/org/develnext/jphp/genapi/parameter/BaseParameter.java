@@ -16,7 +16,7 @@ abstract public class BaseParameter {
 
     abstract protected void parse();
 
-    protected boolean isNotClass(String type) {
+    public static boolean isNotClass(String type) {
         String ref = type;
         if (ref.endsWith("[]"))
             ref = type.substring(0, type.length() - 2);

@@ -4,6 +4,7 @@ import org.develnext.jphp.genapi.description.ArgumentDescription;
 import org.develnext.jphp.genapi.description.ClassDescription;
 import org.develnext.jphp.genapi.description.FunctionDescription;
 import org.develnext.jphp.genapi.description.MethodDescription;
+import org.develnext.jphp.genapi.parameter.BaseParameter;
 import php.runtime.common.StringUtils;
 
 import java.io.*;
@@ -34,6 +35,9 @@ public class SphinxTemplate extends BaseTemplate {
                         sb.append(">`, :doc:`");
 
                     echoType(type);
+
+                    if (BaseParameter.isNotClass(ref))
+                        ref = ".types/" + ref;
 
                     sb.append(" </api_"+ language +"/").append(ref.replace('\\', '/'));
                     i++;
@@ -268,13 +272,13 @@ public class SphinxTemplate extends BaseTemplate {
                     if (!dir.getName().equals("index.rst")) {
                         ctree.add(dir.getName());
                     }
-                } else if (dir.isDirectory()) {
+                } else if (dir.isDirectory() && !dir.getName().startsWith(".")) {
                     ctree.add(dir.getName() + "/index");
                 }
             }
 
             for(File dir : files) {
-                if (dir.isDirectory()) {
+                if (dir.isDirectory() && !dir.getName().startsWith(".")) {
                     List<String> tmp = onEnd(dir, namespace == null ? dir.getName() : dir.getName());
                     if (ctree.isEmpty() || ctree.size() == 1) {
                         ctree.clear();
