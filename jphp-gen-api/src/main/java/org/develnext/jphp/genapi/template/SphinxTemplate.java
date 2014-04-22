@@ -90,6 +90,7 @@ public class SphinxTemplate extends BaseTemplate {
             if (extend != null) {
                 sb.append(" **extends**: ");
                 echoTypes(extend);
+                sb.append("\n\n");
             }
 
             if (implement != null) {
@@ -99,7 +100,7 @@ public class SphinxTemplate extends BaseTemplate {
                     sb.append(" **implements**: ");
                 }
                 echoTypes(implement);
-                sb.append("\n");
+                sb.append("\n\n");
             }
         }
 
@@ -170,22 +171,22 @@ public class SphinxTemplate extends BaseTemplate {
             MethodDescription meth = (MethodDescription)description;
             boolean add = false;
             if (meth.isFinal()) {
-                sb.append("  **final**\n");
+                sb.append("  **final**\n\n");
                 add = true;
             }
 
             if (meth.isAbstract()) {
-                sb.append("  **abstract**\n");
+                sb.append("  **abstract**\n\n");
                 add = true;
             }
 
             if (meth.isPrivate()) {
-                sb.append("  **private**\n");
+                sb.append("  **private**\n\n");
                 add = true;
             }
 
             if (meth.isProtected()) {
-                sb.append("  **protected**\n");
+                sb.append("  **protected**\n\n");
                 add = true;
             }
 
