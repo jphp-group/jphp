@@ -1,9 +1,6 @@
 package org.develnext.jphp.genapi.template;
 
-import org.develnext.jphp.genapi.description.ArgumentDescription;
-import org.develnext.jphp.genapi.description.ClassDescription;
-import org.develnext.jphp.genapi.description.FunctionDescription;
-import org.develnext.jphp.genapi.description.MethodDescription;
+import org.develnext.jphp.genapi.description.*;
 
 import java.io.File;
 import java.util.Collection;
@@ -62,6 +59,18 @@ abstract public class BaseTemplate {
         print(description);
         onAfterClass(description);
 
+        if (!description.getProperties().isEmpty()) {
+            onBeforeProperties(description);
+
+            for(PropertyDescription el : description.getProperties()) {
+                onBeforeProperty(el);
+                print(el);
+                onAfterProperty(el);
+            }
+
+            onAfterProperties(description);
+        }
+
         onBeforeMethods(description);
         for (MethodDescription el : description.getMethods()) {
             onBeforeMethod(el);
@@ -103,6 +112,11 @@ abstract public class BaseTemplate {
     protected void onBeforeFunction(FunctionDescription desc) { }
     protected void onAfterFunction(FunctionDescription desc) { }
 
+    protected void onBeforeProperties(ClassDescription desc) { }
+    protected void onAfterProperties(ClassDescription desc) { }
+    protected void onBeforeProperty(PropertyDescription desc) { }
+    protected void onAfterProperty(PropertyDescription desc) { }
+
     protected void onBeforeMethods(ClassDescription desc) { }
     protected void onAfterMethods(ClassDescription desc) { }
     protected void onBeforeMethod(MethodDescription desc) { }
@@ -112,6 +126,7 @@ abstract public class BaseTemplate {
     protected void onAfterArgument(ArgumentDescription desc, FunctionDescription function) { }
 
     abstract protected void print(ClassDescription description);
+    abstract protected void print(PropertyDescription description);
     abstract protected void print(MethodDescription description);
     abstract protected void print(FunctionDescription description);
     abstract protected void print(ArgumentDescription description);

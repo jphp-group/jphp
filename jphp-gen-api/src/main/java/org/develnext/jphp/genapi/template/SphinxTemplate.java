@@ -1,9 +1,6 @@
 package org.develnext.jphp.genapi.template;
 
-import org.develnext.jphp.genapi.description.ArgumentDescription;
-import org.develnext.jphp.genapi.description.ClassDescription;
-import org.develnext.jphp.genapi.description.FunctionDescription;
-import org.develnext.jphp.genapi.description.MethodDescription;
+import org.develnext.jphp.genapi.description.*;
 import org.develnext.jphp.genapi.parameter.BaseParameter;
 import php.runtime.common.StringUtils;
 
@@ -47,25 +44,9 @@ public class SphinxTemplate extends BaseTemplate {
         }
     }
 
+
     @Override
     protected void print(ClassDescription description) {
-        String[] sections = StringUtils.split(description.getName(), "\\");
-
-        String namespace = sections.length == 1
-                ? ""
-                : StringUtils.join(Arrays.copyOf(sections, sections.length - 1), "\\");
-
-        List<ClassDescription> list = classes.get(namespace);
-        if (list == null) {
-            classes.put(namespace, list = new ArrayList<ClassDescription>());
-        }
-        list.add(description);
-
-        echoType(description.getShortName());
-        sb.append("\n")
-                .append(StringUtils.repeat('-', description.getName().length()))
-                .append("\n\n");
-
         sb.append(".. php:class:: ");
         echoType(description.getName());
 
@@ -118,6 +99,35 @@ public class SphinxTemplate extends BaseTemplate {
     }
 
     @Override
+    protected void onBeforeClass(ClassDescription description) {
+        String[] sections = StringUtils.split(description.getName(), "\\");
+
+        String namespace = sections.length == 1
+                ? ""
+                : StringUtils.join(Arrays.copyOf(sections, sections.length - 1), "\\");
+
+        List<ClassDescription> list = classes.get(namespace);
+        if (list == null) {
+            classes.put(namespace, list = new ArrayList<ClassDescription>());
+        }
+        list.add(description);
+
+        echoType(description.getShortName());
+        sb.append("\n")
+                .append(StringUtils.repeat('-', description.getName().length()))
+                .append("\n\n");
+
+        String descFile = "/api_" + language + ".desc/" + description.getName().replace('\\', '/') + ".header.rst";
+        sb.append(".. include:: ").append(descFile).append("\n\n");
+    }
+
+    @Override
+    protected void onAfterMethods(ClassDescription desc) {
+        String descFile = "/api_" + language + ".desc/" + desc.getName().replace('\\', '/') + ".footer.rst";
+        sb.append("\n\n.. include:: ").append(descFile).append("\n\n");
+    }
+
+    @Override
     protected void print(MethodDescription description) {
         print((FunctionDescription)description);
     }
@@ -143,6 +153,59 @@ public class SphinxTemplate extends BaseTemplate {
             throw new RuntimeException(e);
         }
         return builder.toString();
+    }
+
+    @Override
+    protected void onBeforeMethods(ClassDescription desc) {
+        sb.append("\n\n").append("**Methods**").append("\n\n----------\n\n");
+    }
+
+    @Override
+    protected void onBeforeProperties(ClassDescription desc) {
+        sb.append("\n\n").append("**Properties**").append("\n\n----------\n\n");
+    }
+
+    @Override
+    protected void print(PropertyDescription desc) {
+        sb.append(" .. php:attr:: ").append(desc.getName()).append("\n");
+
+        if (desc.getTypes() != null && desc.getTypes().length > 0) {
+            sb.append("\n");
+            sb.append("  "); echoTypes(desc.getTypes());
+            sb.append("\n");
+        }
+
+        sb.append("\n");
+
+        boolean add = false;
+        if (desc.isStatic()) {
+            sb.append("  **static**\n\n");
+            add = true;
+        }
+
+        if (desc.isPrivate()) {
+            sb.append("  **private**\n\n");
+            add = true;
+        }
+
+        if (desc.isProtected()) {
+            sb.append("  **protected**\n\n");
+            add = true;
+        }
+
+        if (desc.isReadonly()) {
+            sb.append("  **read-only**\n\n");
+            add = true;
+        }
+
+        if (add)
+            sb.append("\n");
+
+        if (desc.getDescription() != null && !desc.getDescription().isEmpty()) {
+            sb.append("  ")
+                    .append(addTabToDescription(desc.getDescription().trim(), 2))
+                    .append("\n\n");
+        }
     }
 
     @Override
@@ -256,9 +319,28 @@ public class SphinxTemplate extends BaseTemplate {
     protected List<String> onEnd(File targetDirectory, String namespace) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(namespace == null ? "API (" + languageName + ")" : namespace)
+        String sectionName;
+        if (namespace != null) {
+            String[] tmp = StringUtils.split(namespace, '\\');
+            sectionName = tmp[tmp.length - 1];
+        } else {
+            sectionName = "API (" + languageName + ")";
+        }
+
+        sb.append(sectionName)
                 .append("\n")
                 .append(StringUtils.repeat('-', 30)).append("\n\n");
+
+
+        sb.append("\n.. include:: /api_")
+                .append(language)
+                .append(".desc/");
+
+        if (namespace != null) {
+            sb.append(namespace.replace('\\', '/')).append("/");
+        }
+        sb.append("index.header.rst\n\n");
+
 
         sb.append(".. toctree::\n" +
                 "   :maxdepth: 3\n\n");
@@ -279,7 +361,7 @@ public class SphinxTemplate extends BaseTemplate {
 
             for(File dir : files) {
                 if (dir.isDirectory() && !dir.getName().startsWith(".")) {
-                    List<String> tmp = onEnd(dir, namespace == null ? dir.getName() : dir.getName());
+                    List<String> tmp = onEnd(dir, namespace == null ? dir.getName() : namespace + "\\" + dir.getName());
                     if (ctree.isEmpty() || ctree.size() == 1) {
                         ctree.clear();
                         for(String e : tmp) {
@@ -293,6 +375,16 @@ public class SphinxTemplate extends BaseTemplate {
         for(String e : ctree) {
             sb.append("   ").append(e).append("\n");
         }
+
+        sb.append("\n.. include:: /api_")
+                .append(language)
+                .append(".desc/");
+
+        if (namespace != null) {
+                sb.append(namespace.replace('\\', '/')).append("/");
+        }
+        sb.append("index.footer.rst\n\n");
+
 
         File file = new File(targetDirectory, "/index.rst");
         try {

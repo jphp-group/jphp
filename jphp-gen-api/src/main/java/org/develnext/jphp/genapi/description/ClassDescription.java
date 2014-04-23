@@ -1,6 +1,7 @@
 package org.develnext.jphp.genapi.description;
 
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
 import org.develnext.jphp.genapi.DocAnnotations;
 
@@ -10,6 +11,7 @@ import java.util.Map;
 
 public class ClassDescription extends BaseDescription<ClassStmtToken> {
     protected Map<String, MethodDescription> methods;
+    protected Map<String, PropertyDescription> properties;
     protected String description;
 
     public ClassDescription(ClassStmtToken token) {
@@ -21,6 +23,11 @@ public class ClassDescription extends BaseDescription<ClassStmtToken> {
         methods = new LinkedHashMap<String, MethodDescription>();
         for(MethodStmtToken el : token.getMethods()) {
             methods.put(el.getName().getName().toLowerCase(), new MethodDescription(el));
+        }
+
+        properties = new LinkedHashMap<String, PropertyDescription>();
+        for(ClassVarStmtToken el : token.getProperties()) {
+            properties.put(el.getVariable().getName(), new PropertyDescription(el));
         }
 
         if (token.getDocComment() != null){
@@ -35,6 +42,10 @@ public class ClassDescription extends BaseDescription<ClassStmtToken> {
 
     public Collection<MethodDescription> getMethods() {
         return methods.values();
+    }
+
+    public Collection<PropertyDescription> getProperties() {
+        return properties.values();
     }
 
     public String getName() {

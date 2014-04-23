@@ -13,6 +13,7 @@ public class ClassVarStmtToken extends StmtToken {
     private VariableExprToken variable;
     private ExprStmtToken value;
     private CommentToken docComment;
+    private ClassStmtToken clazz;
 
     public ClassVarStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_VAR);
@@ -56,5 +57,13 @@ public class ClassVarStmtToken extends StmtToken {
 
     public void setDocComment(CommentToken docComment) {
         this.docComment = docComment;
+    }
+
+    public ClassStmtToken getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(ClassStmtToken clazz) {
+        this.clazz = clazz;
     }
 }

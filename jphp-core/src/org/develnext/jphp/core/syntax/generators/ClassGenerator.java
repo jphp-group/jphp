@@ -127,7 +127,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             iterator.previous();
     }
 
-    protected List<ClassVarStmtToken> processProperty(VariableExprToken current, List<Token> modifiers,
+    protected List<ClassVarStmtToken> processProperty(ClassStmtToken clazz, VariableExprToken current,
+                                                      List<Token> modifiers,
                                                       ListIterator<Token> iterator){
         Token next = current;
         Token prev = null;
@@ -180,6 +181,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             classVar.setStatic(isStatic);
             classVar.setValue(initValue);
             classVar.setVariable(variable);
+            classVar.setClazz(clazz);
 
             result.add(classVar);
         }
@@ -366,7 +368,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                                 unexpectedToken(modifier);
                         }
 
-                        List<ClassVarStmtToken> vars = processProperty((VariableExprToken)current, modifiers, iterator);
+                        List<ClassVarStmtToken> vars = processProperty(
+                                result, (VariableExprToken)current, modifiers, iterator
+                        );
                         if (lastComment != null) {
                             for (ClassVarStmtToken var : vars) {
                                 var.setDocComment(lastComment);
