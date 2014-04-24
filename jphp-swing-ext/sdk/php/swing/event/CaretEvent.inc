@@ -4,7 +4,8 @@ use php\swing\UIElement;
 
 /**
  * Events:
- *      - caretUpdate
+ *
+ *      * caretUpdate
  *
  * Class CaretEvent
  * @package php\swing\event

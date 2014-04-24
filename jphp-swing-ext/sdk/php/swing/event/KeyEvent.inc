@@ -3,9 +3,10 @@ namespace php\swing\event;
 
 /**
  * Events:
- *      - keyUp
- *      - keyDown
- *      - keyPress
+ *
+ *      * keyUp
+ *      * keyDown
+ *      * keyPress
  *
  * Class KeyEvent
  * @package php\swing\event

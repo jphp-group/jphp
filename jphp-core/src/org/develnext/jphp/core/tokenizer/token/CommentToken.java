@@ -71,6 +71,8 @@ public class CommentToken extends Token {
                                 builder.append("\n");
                             builder.append(line);
                             i++;
+                        } else {
+                            builder.append("\n");
                         }
                     }
                 } catch (IOException e) {

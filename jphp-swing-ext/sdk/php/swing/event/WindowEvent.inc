@@ -5,10 +5,11 @@ use php\swing\UIWindow;
 
 /**
  * Events:
- *      - windowOpen
- *      - windowClose
- *      - windowClosing
- *      - windowActive
+ *
+ *      * windowOpen
+ *      * windowClose
+ *      * windowClosing
+ *      * windowActive
  *
  * Class WindowEvent
  * @package php\swing\event

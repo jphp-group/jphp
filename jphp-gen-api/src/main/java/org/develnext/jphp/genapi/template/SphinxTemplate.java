@@ -87,6 +87,51 @@ public class SphinxTemplate extends BaseTemplate {
                 echoTypes(implement);
                 sb.append("\n\n");
             }
+
+            if (!description.getChildClasses().isEmpty()) {
+                sb.append("**Children**").append("\n\n----------------------\n\n");
+
+                List<ClassDescription> tmp = new ArrayList<ClassDescription>(description.getChildClasses());
+
+                Collections.sort(tmp, new Comparator<ClassDescription>() {
+                    protected int getScore(ClassDescription e) {
+                        int i = 0;
+                        if (e.isAbstract())
+                            i += 1000;
+                        if (e.isFinal())
+                            i += 500;
+
+                        return i;
+                    }
+
+                    @Override
+                    public int compare(ClassDescription o1, ClassDescription o2) {
+                        int sc1 = getScore(o1);
+                        int sc2 = getScore(o2);
+                        if (sc1 == sc2) {
+                            return o1.getName().compareTo(o2.getName());
+                        } else {
+                            return sc1 > sc2 ? -1 : 1;
+                        }
+                    }
+                });
+
+                for(ClassDescription e : tmp) {
+                    sb.append(" * ");
+                    if (e.isAbstract())
+                        sb.append("**abstract** ");
+                    if (e.isFinal())
+                        sb.append("**final** ");
+
+                    if (e.isInterface())
+                        sb.append("**interface** ");
+                    else
+                        sb.append("**class** ");
+
+                    echoTypes(e.getName());
+                    sb.append("\n");
+                }
+            }
         }
 
         if (description.getDescription() != null) {
@@ -122,7 +167,7 @@ public class SphinxTemplate extends BaseTemplate {
     }
 
     @Override
-    protected void onAfterMethods(ClassDescription desc) {
+    protected void onAfterClassBody(ClassDescription desc) {
         String descFile = "/api_" + language + ".desc/" + desc.getName().replace('\\', '/') + ".footer.rst";
         sb.append("\n\n.. include:: ").append(descFile).append("\n\n");
     }
@@ -163,6 +208,22 @@ public class SphinxTemplate extends BaseTemplate {
     @Override
     protected void onBeforeProperties(ClassDescription desc) {
         sb.append("\n\n").append("**Properties**").append("\n\n----------\n\n");
+    }
+
+    @Override
+    protected void onBeforeConstants(ClassDescription desc) {
+        sb.append("\n\n").append("**Constants**").append("\n\n----------\n\n");
+    }
+
+    @Override
+    protected void print(ConstantDescription description) {
+        sb.append(" .. php:const:: ").append(description.getName()).append("\n\n");
+
+        if (description.getDescription() != null && !description.getDescription().isEmpty()) {
+            sb.append("  ")
+                    .append(addTabToDescription(description.getDescription().trim(), 2))
+                    .append("\n\n");
+        }
     }
 
     @Override
@@ -279,7 +340,8 @@ public class SphinxTemplate extends BaseTemplate {
             sb.append(" ");
         }
 
-        if (description.getDescription() != null) {
+        if (description.getDescription() != null && !description.getDescription().trim().isEmpty()) {
+            sb.append(" - ");
             sb.append(addTabToDescription(description.getDescription(), 2));
         }
 

@@ -3,7 +3,8 @@ namespace php\swing\event;
 
 /**
  * Events:
- *      - mouseWheel
+ *
+ *      * mouseWheel
  *
  * Class MouseWheelEvent
  * @package php\swing\event

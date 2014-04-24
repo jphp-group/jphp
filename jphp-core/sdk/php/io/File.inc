@@ -7,8 +7,19 @@ namespace php\io;
  */
 class File {
 
-    const PATH_SEPARATOR = ':'; // ; for WINDOWS
-    const DIRECTORY_SEPARATOR = '/'; // \ for WINDOWS
+    /**
+     * ``;`` on WINDOWS or ``:`` on UNIX
+     */
+    const PATH_SEPARATOR = ':';
+
+    /**
+     * ``\`` on Windows or ``/`` on Unix
+     */
+    const DIRECTORY_SEPARATOR = '/';
+
+    /**
+     * ``true`` if the names of paths are case insensitive on the current OS
+     */
     const PATH_NAME_CASE_INSENSITIVE = false; // true in WINDOWS
 
     /**
@@ -202,13 +213,11 @@ class File {
 
     /**
      * List the available filesystem roots.
-     *   @see java.io.File.listRoots()
+     * Returns an array of objects denoting the available filesystem roots,
+     * or empty array if the set of roots could not be determined.
+     * The array will be empty if there are no filesystem roots.
      *
      * @return File[]
-     *          An array of {@code File} objects denoting the available
-     *          filesystem roots, or empty array if the set of roots could not
-     *          be determined.  The array will be empty if there are no
-     *          filesystem roots.
      */
     public static function listRoots() { return []; }
 }

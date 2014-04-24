@@ -98,12 +98,6 @@ final public class StrUtils extends BaseObject {
     }
 
     @FastMethod
-    @Signature({@Arg("string"), @Arg("pattern")})
-    public static Memory matches(Environment env, Memory... args) {
-        return args[0].toString().matches(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
-    }
-
-    @FastMethod
     @Signature({@Arg("string1"), @Arg("string2")})
     public static Memory compare(Environment env, Memory... args) {
         return LongMemory.valueOf(args[0].toString().compareTo(args[1].toString()));
@@ -150,12 +144,6 @@ final public class StrUtils extends BaseObject {
     @Signature({@Arg("string")})
     public static Memory upper(Environment env, Memory... args) {
         return StringMemory.valueOf(args[0].toString().toUpperCase());
-    }
-
-    @FastMethod
-    @Signature({@Arg("string")})
-    public static Memory hash(Environment env, Memory... args) {
-        return LongMemory.valueOf(args[0].toString().hashCode());
     }
 
     @FastMethod

@@ -6,11 +6,13 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
 import org.develnext.jphp.genapi.description.ClassDescription;
 import org.develnext.jphp.genapi.template.BaseTemplate;
+import php.runtime.common.collections.map.HashedMap;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 public class ApiDocument {
     protected Collection<ClassStmtToken> classes;
@@ -25,12 +27,25 @@ public class ApiDocument {
         this.template = template;
     }
 
-    public void generate(File targetDirectory, String language) {
-        for(ClassStmtToken cls : classes) {
-            System.out.println("[" +language+ "] gen class: " + cls.getFulledName());
+    public Map<String, ClassDescription> getClasses() {
+        Map<String, ClassDescription> list = new HashedMap<String, ClassDescription>();
+        for(ClassStmtToken el : classes) {
+            list.put(el.getFulledName().toLowerCase(), new ClassDescription(el));
+        }
 
-            String result = template.printClass(new ClassDescription(cls));
-            File file = new File(targetDirectory, cls.getFulledName('/') + ".rst");
+        return list;
+    }
+
+    public void generate(File targetDirectory, String language, Map<String, ClassDescription> classMap) {
+        for(ClassStmtToken el : classes) {
+            ClassDescription cls = classMap.get(el.getFulledName().toLowerCase());
+            if (cls == null)
+                throw new IllegalStateException("Cannot find class " + el.getFulledName() + " in classMap");
+
+            System.out.println("[" +language+ "] gen class: " + cls.getName());
+
+            String result = template.printClass(cls);
+            File file = new File(targetDirectory, cls.getName().replace('\\', '/') + ".rst");
             if (!file.getParentFile().exists()) {
                 if (!file.getParentFile().mkdirs()) {
                     throw new IllegalStateException("Cannot create the '" + file.getParent() + "' directory");

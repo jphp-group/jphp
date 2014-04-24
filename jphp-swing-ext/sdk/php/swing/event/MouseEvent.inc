@@ -3,13 +3,14 @@ namespace php\swing\event;
 
 /**
  * Events:
- *      - click
- *      - mousePress
- *      - mouseRelease
- *      - mouseEnter
- *      - mouseExit
- *      - mouseDrag
- *      - mouseMove
+ *
+ *      * click
+ *      * mousePress
+ *      * mouseRelease
+ *      * mouseEnter
+ *      * mouseExit
+ *      * mouseDrag
+ *      * mouseMove
  *
  * Class MouseEvent
  * @package php\swing\event

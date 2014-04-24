@@ -58,7 +58,7 @@ class ExecutorService {
 
     /**
      * @param callable $runnable
-     * @param int $delay - milliseconds
+     * @param int $delay
      * @param Environment $env
      * @return Future
      */

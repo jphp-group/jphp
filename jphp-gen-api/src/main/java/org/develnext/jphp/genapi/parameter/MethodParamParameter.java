@@ -20,8 +20,8 @@ public class MethodParamParameter extends BaseParameter {
     protected int parseArgument(int offset) {
         int k = value.indexOf(' ', offset);
         if (k == -1) {
-            argument = value;
-            return value.length() - 1;
+            argument = value.substring(offset);
+            return value.length();
         } else {
             argument = value.substring(offset, k);
             return k + 1;

@@ -44,13 +44,15 @@ public class ArgumentDescription extends BaseDescription<ArgumentStmtToken> {
 
     @Override
     protected void parse() {
-        types = description == null ? null : description.getTypes();
-
         if (types == null) {
-            if (token.getHintTypeClass() != null) {
-                types = new String[] { token.getHintTypeClass().getName() };
-            } else if (token.getHintType() != null && token.getHintType() != HintType.ANY) {
-                types = new String[] { token.getHintType().toString() };
+            types = description == null ? null : description.getTypes();
+
+            if (types == null) {
+                if (token.getHintTypeClass() != null) {
+                    types = new String[] { token.getHintTypeClass().getName() };
+                } else if (token.getHintType() != null && token.getHintType() != HintType.ANY) {
+                    types = new String[] { token.getHintType().toString() };
+                }
             }
         }
     }

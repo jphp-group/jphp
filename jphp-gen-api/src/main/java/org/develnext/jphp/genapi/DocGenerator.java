@@ -2,6 +2,7 @@ package org.develnext.jphp.genapi;
 
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
+import org.develnext.jphp.genapi.description.ClassDescription;
 import org.develnext.jphp.genapi.template.SphinxTemplate;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Context;
@@ -72,9 +73,28 @@ public class DocGenerator {
                 throw new IllegalStateException("Cannot create target directory");
 
         SphinxTemplate sphinxTemplate = new SphinxTemplate(language, languages.get(language));
+        List<ApiDocument> documents = new ArrayList<ApiDocument>();
         for(File file : files) {
             ApiDocument document = new ApiDocument(parseFile(file), sphinxTemplate);
-            document.generate(targetDirectory, language);
+            documents.add(document);
+        }
+
+        Map<String, ClassDescription> classMap = new HashedMap<String, ClassDescription>();
+        for(ApiDocument document : documents) {
+            classMap.putAll(document.getClasses());
+        }
+
+        for(ClassDescription el : classMap.values()) {
+            if (el.getExtends() != null) {
+                ClassDescription parent = classMap.get(el.getExtends().toLowerCase());
+                if (parent != null) {
+                    parent.addChildClass(el);
+                }
+            }
+        }
+
+        for(ApiDocument document : documents) {
+            document.generate(targetDirectory, language, classMap);
         }
     }
 

@@ -59,6 +59,18 @@ abstract public class BaseTemplate {
         print(description);
         onAfterClass(description);
 
+        if (!description.getConstants().isEmpty()) {
+            onBeforeConstants(description);
+
+            for(ConstantDescription el : description.getConstants()) {
+                onBeforeConstant(el);
+                print(el);
+                onAfterConstant(el);
+            }
+
+            onAfterConstants(description);
+        }
+
         if (!description.getProperties().isEmpty()) {
             onBeforeProperties(description);
 
@@ -71,21 +83,24 @@ abstract public class BaseTemplate {
             onAfterProperties(description);
         }
 
-        onBeforeMethods(description);
-        for (MethodDescription el : description.getMethods()) {
-            onBeforeMethod(el);
-            print(el);
+        if (!description.getMethods().isEmpty()) {
+            onBeforeMethods(description);
+            for (MethodDescription el : description.getMethods()) {
+                onBeforeMethod(el);
+                print(el);
 
-            for(ArgumentDescription arg : el.getArguments()) {
-                onBeforeArgument(arg, el);
-                print(arg);
-                onAfterArgument(arg, el);
+                for(ArgumentDescription arg : el.getArguments()) {
+                    onBeforeArgument(arg, el);
+                    print(arg);
+                    onAfterArgument(arg, el);
+                }
+
+                onAfterMethod(el);
             }
-
-            onAfterMethod(el);
+            onAfterMethods(description);
         }
-        onAfterMethods(description);
 
+        onAfterClassBody(description);
         return sb.toString();
     }
 
@@ -112,6 +127,11 @@ abstract public class BaseTemplate {
     protected void onBeforeFunction(FunctionDescription desc) { }
     protected void onAfterFunction(FunctionDescription desc) { }
 
+    protected void onBeforeConstants(ClassDescription desc) {}
+    protected void onAfterConstants(ClassDescription desc) {}
+    protected void onBeforeConstant(ConstantDescription desc) { }
+    protected void onAfterConstant(ConstantDescription desc) { }
+
     protected void onBeforeProperties(ClassDescription desc) { }
     protected void onAfterProperties(ClassDescription desc) { }
     protected void onBeforeProperty(PropertyDescription desc) { }
@@ -122,10 +142,13 @@ abstract public class BaseTemplate {
     protected void onBeforeMethod(MethodDescription desc) { }
     protected void onAfterMethod(MethodDescription desc) { }
 
+    protected void onAfterClassBody(ClassDescription desc) { }
+
     protected void onBeforeArgument(ArgumentDescription desc, FunctionDescription function) { }
     protected void onAfterArgument(ArgumentDescription desc, FunctionDescription function) { }
 
     abstract protected void print(ClassDescription description);
+    abstract protected void print(ConstantDescription description);
     abstract protected void print(PropertyDescription description);
     abstract protected void print(MethodDescription description);
     abstract protected void print(FunctionDescription description);

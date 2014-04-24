@@ -2,17 +2,18 @@ package org.develnext.jphp.genapi.description;
 
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
 import org.develnext.jphp.genapi.DocAnnotations;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ClassDescription extends BaseDescription<ClassStmtToken> {
     protected Map<String, MethodDescription> methods;
     protected Map<String, PropertyDescription> properties;
+    protected Map<String, ConstantDescription> constants;
     protected String description;
+    protected List<ClassDescription> childClasses = new ArrayList<ClassDescription>();
 
     public ClassDescription(ClassStmtToken token) {
         super(token);
@@ -28,6 +29,11 @@ public class ClassDescription extends BaseDescription<ClassStmtToken> {
         properties = new LinkedHashMap<String, PropertyDescription>();
         for(ClassVarStmtToken el : token.getProperties()) {
             properties.put(el.getVariable().getName(), new PropertyDescription(el));
+        }
+
+        constants = new LinkedHashMap<String, ConstantDescription>();
+        for(ConstStmtToken el : token.getConstants()) {
+            constants.put(el.items.get(0).getFulledName(), new ConstantDescription(el));
         }
 
         if (token.getDocComment() != null){
@@ -46,6 +52,10 @@ public class ClassDescription extends BaseDescription<ClassStmtToken> {
 
     public Collection<PropertyDescription> getProperties() {
         return properties.values();
+    }
+
+    public Collection<ConstantDescription> getConstants() {
+        return constants.values();
     }
 
     public String getName() {
@@ -90,5 +100,13 @@ public class ClassDescription extends BaseDescription<ClassStmtToken> {
 
     public String getDescription() {
         return description;
+    }
+
+    public Collection<ClassDescription> getChildClasses() {
+        return childClasses;
+    }
+
+    public void addChildClass(ClassDescription clazz) {
+        childClasses.add(clazz);
     }
 }

@@ -3,8 +3,9 @@ namespace php\swing\event;
 
 /**
  * Events:
- *      - focus
- *      - blur
+ *
+ *      * focus
+ *      * blur
  *
  * Class FocusEvent
  * @package php\swing\event
