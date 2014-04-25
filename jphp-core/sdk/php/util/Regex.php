@@ -26,12 +26,11 @@ class Regex implements \Iterator {
     /**
      * Creates a new Regex of regex with $string and $flag
      *
-     * @param string $string
      * @param string $pattern regular expression
      * @param int $flag Regex::CASE_INSENSITIVE and other constants
      * @return Regex
      */
-    public static function of($pattern, $string = '', $flag = 0) { return new Regex(); }
+    public static function of($pattern, $flag = 0) { return new Regex(); }
 
 
     /**
