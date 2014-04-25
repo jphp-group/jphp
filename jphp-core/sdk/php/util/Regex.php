@@ -11,7 +11,6 @@ class Regex implements \Iterator {
     const CANON_EQ = 0x80;
     const CASE_INSENSITIVE = 0x02;
     const UNICODE_CASE = 0x40;
-    const UNICODE_CHARACTER_CLASS = 0x100;
     const COMMENTS = 0x04;
     const DOTALL = 0x20;
     const LITERAL = 0x10;
@@ -91,7 +90,7 @@ class Regex implements \Iterator {
      * Returns the input subsequence captured by the given group during the
      * previous match operation.
      *
-     * @param null|int|float|string $group
+     * @param null|int $group
      * @return string
      */
     public function group($group = null) { return ''; }

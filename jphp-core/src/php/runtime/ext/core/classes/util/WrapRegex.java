@@ -25,7 +25,6 @@ final public class WrapRegex extends BaseObject implements Iterator {
     public static final int CANON_EQ = Pattern.CANON_EQ;
     public static final int CASE_INSENSITIVE = Pattern.CASE_INSENSITIVE;
     public static final int UNICODE_CASE = Pattern.UNICODE_CASE;
-    public static final int UNICODE_CHARACTER_CLASS = Pattern.UNICODE_CHARACTER_CLASS;
     public static final int COMMENTS = Pattern.COMMENTS;
     public static final int DOTALL = Pattern.DOTALL;
     public static final int LITERAL = Pattern.LITERAL;
@@ -138,15 +137,8 @@ final public class WrapRegex extends BaseObject implements Iterator {
     public Memory group(Environment env, Memory... args) {
         if (args[0].isNull())
             return StringMemory.valueOf(matcher.group());
-        else if (args[0].isNumber())
+        else
             return StringMemory.valueOf(matcher.group(args[0].toInteger()));
-        else {
-            Memory l = StringMemory.toLong(args[0].toString());
-            if (l != null)
-                return StringMemory.valueOf(matcher.group(l.toInteger()));
-
-            return StringMemory.valueOf(matcher.group(args[0].toString()));
-        }
     }
 
     @Signature(@Reflection.Arg("replacement"))
