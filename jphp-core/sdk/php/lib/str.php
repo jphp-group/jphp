@@ -10,18 +10,6 @@ class str {
     private function __construct() {}
 
     /**
-     * @param string $char
-     * @return int
-     */
-    public static function ord($char) { return 0; }
-
-    /**
-     * @param int $code
-     * @return string
-     */
-    public static function char($code) { return ''; }
-
-    /**
      * Returns the index within this string of the first occurrence of the
      * specified substring, starting at the specified index.
      *
@@ -203,9 +191,24 @@ class str {
      * omitted.
      *
      * @param string $string
+     * @param string $charList
      * @return string
      */
-    public static function trim($string) { return ''; }
+    public static function trim($string, $charList = "\t\n\r\v\0 ") { return ''; }
+
+    /**
+     * @param string $string
+     * @param string $charList
+     * @return string
+     */
+    public static function trimRight($string, $charList = "\t\n\r\v\0 ") { return ''; }
+
+    /**
+     * @param string $string
+     * @param string $charList
+     * @return string
+     */
+    public static function trimLeft($string, $charList = "\t\n\r\v\0 ") { return ''; }
 
     /**
      * @param string $string
@@ -239,4 +242,27 @@ class str {
      * @return string
      */
     public static function join($iterable, $separator, $limit = 0) { return ''; }
+
+    /**
+     * Converts $string by using $charset and returns a binary string
+     *
+     * @param string $string
+     * @param string $charset e.g. UTF-8, Windows-1251, etc.
+     * @return string binary string
+     */
+    public static function encode($string, $charset) { return ''; }
+
+    /**
+     * Returns *true* if $string is integer number (e.g: '12893', '3784', '0047')
+     *
+     *  - for ``123`` - true
+     *  - for ``00304`` - true
+     *  - for ``3389e4`` - false
+     *  - for ``3.49`` - false
+     *  - for ``23  `` - false
+     *
+     * @param string $string
+     * @return bool
+     */
+    public static function isNumber($string) { return false; }
 }

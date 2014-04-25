@@ -3,7 +3,7 @@ namespace php\io;
 
 use Iterator;
 
-abstract class Stream implements Iterator {
+abstract class Stream {
     /**
      * @var string
      */
@@ -75,31 +75,6 @@ abstract class Stream implements Iterator {
      * @return mixed
      */
     public function getContext(){ }
-
-    /**
-     * @return mixed
-     */
-    public function current() { }
-
-    /**
-     * @return void
-     */
-    public function next() { }
-
-    /**
-     * @return mixed
-     */
-    public function key() { }
-
-    /**
-     * @return bool
-     */
-    public function valid() { }
-
-    /**
-     * @return void
-     */
-    public function rewind() { }
 
 
     /**

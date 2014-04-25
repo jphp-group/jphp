@@ -105,6 +105,9 @@ public class StringMemory extends Memory {
         boolean canSign = true;
         boolean e_char = false;
 
+        if (start == len)
+            return def;
+
         for(; i < len; i++){
             char ch = value.charAt(i);
             if (!('9' >= ch && ch >= '0')){

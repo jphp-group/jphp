@@ -7,12 +7,11 @@ import php.runtime.env.Environment;
 import php.runtime.ext.core.MathFunctions;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.StringMemory;
-import php.runtime.memory.TrueMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
+
+import java.nio.charset.Charset;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -168,12 +167,12 @@ final public class StrUtils extends BaseObject {
     @Signature({@Arg("string"), @Arg("amount")})
     public static Memory repeat(Environment env, Memory... args) {
         String s = args[0].toString();
-        int amount = args[0].toInteger();
+        int amount = args[1].toInteger();
         if (amount <= 0)
             return Memory.FALSE;
 
         if (s.length() == 1) {
-            return new StringMemory(StringUtils.repeat(s.charAt(0), args[1].toInteger()));
+            return new StringMemory(StringUtils.repeat(s.charAt(0), amount));
         } else {
             int cnt = args[1].toInteger();
             StringBuilder sb = new StringBuilder(cnt * s.length());
@@ -184,10 +183,70 @@ final public class StrUtils extends BaseObject {
         }
     }
 
+    protected static String trimStringByString(String text, String trimBy, boolean toLeft, boolean toRight) {
+        int len = text.length();
+
+        int left = 0;
+        if (toLeft) {
+            while (left < len && trimBy.indexOf(text.charAt(left)) > -1) {
+                left++;
+            }
+        }
+
+        int right = len - 1;
+        if (toRight) {
+            while (right > 0 && trimBy.indexOf(text.charAt(right)) > -1) {
+                right--;
+            }
+        }
+
+        if (toLeft && toRight) {
+            if (left == 0 && right == len - 1)
+                return text;
+            if (left == right)
+                return "";
+
+            return text.substring(left, right + 1);
+        } else if (toLeft) {
+            if (left == len)
+                return "";
+            return text.substring(left);
+        } else if (toRight) {
+            if (right == 0)
+                return "";
+            return text.substring(0, right + 1);
+        } else
+            throw new IllegalArgumentException();
+    }
+
     @FastMethod
-    @Signature(@Arg("string"))
+    @Signature({
+            @Arg("string"),
+            @Arg(value = "charlist", optional = @Optional(" \t\n\r\0\11"))
+    })
     public static Memory trim(Environment env, Memory... args) {
-        return new StringMemory(args[0].toString().trim());
+        String trimBy = args[1].toString();
+        return StringMemory.valueOf(trimStringByString(args[0].toString(), trimBy, true, true));
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg(value = "charlist", optional = @Optional(" \t\n\r\0\11"))
+    })
+    public static Memory trimRight(Environment env, Memory... args) {
+        String trimBy = args[1].toString();
+        return StringMemory.valueOf(trimStringByString(args[0].toString(), trimBy, false, true));
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg(value = "charlist", optional = @Optional(" \t\n\r\0\11"))
+    })
+    public static Memory trimLeft(Environment env, Memory... args) {
+        String trimBy = args[1].toString();
+        return StringMemory.valueOf(trimStringByString(args[0].toString(), trimBy, true, false));
     }
 
     @FastMethod
@@ -273,5 +332,26 @@ final public class StrUtils extends BaseObject {
 
             return new StringMemory(builder.toString());
         }
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg("charset")
+    })
+    public static Memory encode(Environment env, Memory... args) {
+        Charset charset = Charset.forName(args[1].toString());
+        if (charset == null)
+            return Memory.FALSE;
+
+        return new BinaryMemory(
+                charset.encode(args[0].toString()).array()
+        );
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory isNumber(Environment env, Memory... args) {
+        return StringMemory.toLong(args[0].toString()) != null ? Memory.TRUE : Memory.FALSE;
     }
 }

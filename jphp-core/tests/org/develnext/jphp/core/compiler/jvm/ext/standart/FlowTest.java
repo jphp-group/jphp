@@ -24,6 +24,7 @@ public class FlowTest extends JvmCompilerCase {
         check("ext/standard/flow/basic_009.php");
         check("ext/standard/flow/basic_010.php");
         check("ext/standard/flow/basic_011.php");
+        check("ext/standard/flow/basic_012.php");
     }
 
     @Test

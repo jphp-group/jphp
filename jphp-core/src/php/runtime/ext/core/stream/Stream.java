@@ -8,7 +8,6 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
-import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
@@ -24,17 +23,13 @@ import static php.runtime.annotation.Reflection.*;
         @Arg(value = "path", modifier = Modifier.PRIVATE, readOnly = true, type = HintType.STRING),
         @Arg(value = "mode", modifier = Modifier.PRIVATE, readOnly = true)
 })
-abstract public class Stream extends BaseObject implements Resource, Iterator {
+abstract public class Stream extends BaseObject implements Resource {
     @Ignore
     public final static String CLASS_NAME = "php\\io\\Stream";
 
     private String path;
     private String mode;
     private Memory context = Memory.NULL;
-
-    protected boolean valid = false;
-    protected Memory current = Memory.NULL;
-    protected Memory key = Memory.CONST_INT_0;
 
     public Stream(Environment env) {
         super(env);
@@ -79,45 +74,6 @@ abstract public class Stream extends BaseObject implements Resource, Iterator {
     public void setMode(String mode) {
         __class__.setProperty(this, "mode", mode == null ? null : new StringMemory(mode));
         this.mode = mode;
-    }
-
-    @Override
-    public Memory current(Environment env, Memory... args) {
-        return current;
-    }
-
-    @Override
-    public Memory key(Environment env, Memory... args) {
-        return key;
-    }
-
-    @Override
-    public Memory next(Environment env, Memory... args) {
-        try {
-            valid = !eof(env, args).toBoolean();
-            this.current = read(env, Memory.CONST_INT_1);
-            this.key = this.key.inc();
-        } catch (IOException e) {
-            env.exception(WrapIOException.class, e.getMessage());
-        }
-        return Memory.NULL;
-    }
-
-    @Override
-    public Memory rewind(Environment env, Memory... args) {
-        try {
-            seek(env, Memory.CONST_INT_0);
-            next(env, args);
-        } catch (IOException e) {
-            env.exception(WrapIOException.class, e.getMessage());
-        }
-        return Memory.NULL;
-    }
-
-    @Override
-    public Memory valid(Environment env, Memory... args) {
-        return valid ? Memory.TRUE : Memory.FALSE;
-
     }
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})

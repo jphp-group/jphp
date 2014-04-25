@@ -57,6 +57,8 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, NumUtils.class);
         registerNativeClass(scope, ItemsUtils.class);
         registerNativeClass(scope, Flow.class);
+        registerNativeClass(scope, RegexUtils.class);
+        registerNativeClass(scope, RegexUtils.WrapPattern.class);
 
         registerNativeClass(scope, WrapInvoker.class);
         registerNativeClass(scope, WrapModule.class);

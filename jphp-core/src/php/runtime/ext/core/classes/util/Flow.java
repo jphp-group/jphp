@@ -3,12 +3,15 @@ package php.runtime.ext.core.classes.util;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
+
+import java.io.IOException;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -146,6 +149,69 @@ public class Flow extends BaseObject implements Iterator {
             @Override
             protected boolean prevValue() {
                 return false;
+            }
+        }));
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg(value = "stream", typeClass = Stream.CLASS_NAME),
+            @Arg(value = "chunkSize", optional = @Optional("1"))
+    })
+    public static Memory ofStream(final Environment env, Memory... args) {
+        final Stream stream = args[0].toObject(Stream.class);
+        final int chunkSize = args[1].toInteger() < 1 ? 1 : args[1].toInteger();
+
+        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+
+            protected boolean eof() {
+                env.pushCall(stream, "eof");
+                try {
+                    return stream.eof(env).toBoolean();
+                } finally {
+                    env.popCall();
+                }
+            }
+
+            @Override
+            protected boolean init() {
+                currentKey = Memory.CONST_INT_M1;
+                return !eof();
+            }
+
+            @Override
+            protected boolean nextValue() {
+                if (eof())
+                    return false;
+
+                env.pushCall(stream, "read", LongMemory.valueOf(chunkSize));
+                try {
+                    currentValue = stream.read(env, LongMemory.valueOf(chunkSize));
+                    currentKey = ((LongMemory)currentKey).inc();
+                } catch (IOException e) {
+                    env.catchUncaught(e);
+                } finally {
+                    env.popCall();
+                }
+                return true;
+            }
+
+            @Override
+            protected boolean prevValue() {
+                return false;
+            }
+
+            @Override
+            public void reset() {
+                currentKey = Memory.CONST_INT_M1;
+                env.pushCall(stream, "seek", Memory.CONST_INT_0);
+                try {
+                    stream.seek(env, Memory.CONST_INT_0);
+                } catch (IOException e) {
+                    env.catchUncaught(e);
+                } finally {
+                    env.popCall();
+                }
             }
         }));
     }

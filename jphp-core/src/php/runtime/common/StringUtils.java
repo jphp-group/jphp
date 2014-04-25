@@ -264,7 +264,7 @@ final public class StringUtils {
             }
         }
         if (match || preserveAllTokens && lastMatch) {
-            list.add(str.substring(start, i));
+                list.add(str.substring(start, i));
         }
         return list.toArray(new String[list.size()]);
     }
