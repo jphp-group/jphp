@@ -1,13 +1,13 @@
 <?php
-namespace php\lib\regex;
+namespace php\util;
 
 /**
  * http://www.regular-expressions.info/java.html
  *
- * Class Pattern
- * @package php\lib\regex
+ * Class Regex
+ * @package php\util
  */
-class Pattern implements \Iterator {
+class Regex implements \Iterator {
     const CANON_EQ = 0x80;
     const CASE_INSENSITIVE = 0x02;
     const UNICODE_CASE = 0x40;
@@ -19,9 +19,20 @@ class Pattern implements \Iterator {
     const UNIX_LINES = 0x01;
 
     /**
-     * Use ``php\lib\regex::pattern()`` instead of this
+     * Use ``of()`` instead of this
      */
     private function __construct() { }
+
+    /**
+     * Creates a new Regex of regex with $string and $flag
+     *
+     * @param string $string
+     * @param string $pattern regular expression
+     * @param int $flag Regex::CASE_INSENSITIVE and other constants
+     * @return Regex
+     */
+    public static function of($pattern, $string = '', $flag = 0) { return new Regex(); }
+
 
     /**
      * Attempts to match the entire region against the pattern.
@@ -64,7 +75,7 @@ class Pattern implements \Iterator {
     public function replaceFirst($replacement) { return ''; }
 
     /**
-     * @param callable $callback (Pattern $pattern) -> string
+     * @param callable $callback (Regex $pattern) -> string
      * @return string
      */
     public function replaceWithCallback(callable $callback) { return ''; }
@@ -73,9 +84,9 @@ class Pattern implements \Iterator {
      * Duplicates this pattern with a new $string
      *
      * @param string $string
-     * @return Pattern
+     * @return Regex
      */
-    public function with($string) { return new Pattern(); }
+    public function with($string) { return new Regex(); }
 
     /**
      * Returns the input subsequence captured by the given group during the
@@ -148,7 +159,7 @@ class Pattern implements \Iterator {
      *
      * @param int $start
      * @param int $end
-     * @return Pattern
+     * @return Regex
      */
     public function region($start, $end) { return $this; }
 
@@ -186,16 +197,6 @@ class Pattern implements \Iterator {
     public function reset($string = null) { return $this; }
 
     /**
-     * Creates a new Pattern of regex with $string and $flag
-     *
-     * @param string $string
-     * @param string $pattern regular expression
-     * @param int $flag Pattern::CASE_INSENSITIVE and other constants
-     * @return Pattern
-     */
-    public static function of($pattern, $string = '', $flag = 0) { return new Pattern(); }
-
-    /**
      * @return null|string
      */
     public function current() { return ''; }
@@ -211,5 +212,59 @@ class Pattern implements \Iterator {
      * @return bool
      */
     public function valid() { }
+
     public function rewind() {}
+
+    /**
+     * Tells whether or not this string matches the given regular expression.
+     * See also java.lang.String.matches()
+     *
+     * @param string $string
+     * @param string $pattern  regular expression
+     * @return bool
+     */
+    public static function match($pattern, $string) { return false; }
+
+    /**
+     * Splits this string around matches of the given regular expression.
+     * See also java.lang.String.split()
+     *
+     * @param string $string
+     * @param string $pattern  the delimiting regular expression
+     * @param int $limit  the result threshold
+     * @return array the array of strings computed by splitting this string around matches of the given regular expression
+     */
+    public static function split($pattern, $string, $limit = 0) { return []; }
+
+    /**
+     * Returns a literal pattern ``String`` for the specified
+     * ``String``.
+     *
+     *
+     * This method produces a ``String`` that can be used to
+     * create a ``Regex`` that would match the string
+     * ``$string`` as if it were a literal pattern. Metacharacters
+     * or escape sequences in the input sequence will be given no special
+     * meaning.
+     *
+     * @param string $string The string to be literalized
+     * @return string A literal string replacement
+     */
+    public static function quote($string) { return ''; }
+
+    /**
+     * Returns a literal replacement ``String`` for the specified
+     * ``String``.
+     *
+     * This method produces a ``String`` that will work
+     * as a literal replacement $string in the
+     * replaceWithCallback() method of the ``php\util\Regex`` class.
+     * The ``String`` produced will match the sequence of characters
+     * in $string treated as a literal sequence. Slashes ('\') and
+     * dollar signs ('$') will be given no special meaning.
+     *
+     * @param string $string
+     * @return string
+     */
+    public static function quoteReplacement($string) { return ''; }
 }
