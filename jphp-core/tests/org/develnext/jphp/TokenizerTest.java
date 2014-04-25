@@ -335,7 +335,7 @@ public class TokenizerTest {
         Token token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
         assertEquals(CommentToken.Kind.DOCTYPE, ((CommentToken) token).getKind());
-        assertEquals("FOO BAR\n100500", ((CommentToken) token).getComment());
+        assertEquals("FOO BAR\n\n100500", ((CommentToken) token).getComment());
 
         // simple
         tokenizer = new Tokenizer(
