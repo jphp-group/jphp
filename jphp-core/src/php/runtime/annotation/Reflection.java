@@ -2,6 +2,7 @@ package php.runtime.annotation;
 
 import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
+import php.runtime.lang.IObject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -47,6 +48,9 @@ public @interface Reflection {
         Optional optional() default @Optional(exists = false);
         HintType type() default HintType.ANY;
         String typeClass() default "";
+
+        Class<? extends IObject> nativeType() default IObject.class;
+
         Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;
         boolean readOnly() default false;

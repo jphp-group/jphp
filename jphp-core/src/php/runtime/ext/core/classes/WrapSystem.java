@@ -23,4 +23,11 @@ final public class WrapSystem extends BaseObject {
         System.exit(args[0].toInteger());
         return Memory.NULL;
     }
+
+    @Signature
+    public static Memory gc(Environment env, Memory... args) {
+
+        System.gc();
+        return Memory.NULL;
+    }
 }

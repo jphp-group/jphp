@@ -14,4 +14,9 @@ final class System {
      * @param int $status
      */
     public static function halt($status) { }
+
+    /**
+     * Runs the garbage collector
+     */
+    public static function gc() { }
 }

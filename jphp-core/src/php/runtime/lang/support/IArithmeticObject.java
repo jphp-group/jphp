@@ -2,6 +2,9 @@ package php.runtime.lang.support;
 
 import php.runtime.Memory;
 
+import static php.runtime.annotation.Reflection.Ignore;
+
+@Ignore
 public interface IArithmeticObject {
     Memory __negative();
     Memory __plus(Memory value);

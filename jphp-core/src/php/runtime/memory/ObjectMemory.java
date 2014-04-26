@@ -13,6 +13,7 @@ import php.runtime.lang.Resource;
 import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.lang.spl.iterator.IteratorAggregate;
+import php.runtime.lang.support.ICloneableObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.Memory;
 import php.runtime.memory.support.MemoryStringUtils;
@@ -488,6 +489,10 @@ public class ObjectMemory extends Memory {
 
     @Override
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
+        if (value instanceof ICloneableObject) {
+            return new ObjectMemory(((ICloneableObject) value).__clone(env, trace));
+        }
+
         return new ObjectMemory(value.getReflection().cloneObject(value, env, trace));
     }
 

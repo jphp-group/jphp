@@ -111,6 +111,13 @@ public class MethodEntity extends AbstractFunctionEntity {
             param.setType(arg.type());
             if (!arg.typeClass().isEmpty())
                 param.setTypeClass(arg.typeClass());
+            else if (arg.nativeType() != IObject.class) {
+                Reflection.Name name1 = arg.nativeType().getAnnotation(Reflection.Name.class);
+                if (name1 != null)
+                    param.setTypeClass(name1.value());
+                else
+                    param.setTypeClass(arg.nativeType().getSimpleName());
+            }
 
             param.setReference(arg.reference());
             param.setName(arg.value().isEmpty() ? "arg" + i : arg.value());

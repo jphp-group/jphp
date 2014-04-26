@@ -2,6 +2,9 @@ package php.runtime.lang.support;
 
 import php.runtime.lang.IObject;
 
+import static php.runtime.annotation.Reflection.Ignore;
+
+@Ignore
 public interface IComparableObject<T extends IObject> {
     boolean __equal(T iObject);
     boolean __identical(T iObject);
