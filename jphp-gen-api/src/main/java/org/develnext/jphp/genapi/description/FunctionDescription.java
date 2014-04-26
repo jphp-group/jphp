@@ -13,6 +13,7 @@ public class FunctionDescription<T extends FunctionStmtToken> extends BaseDescri
     protected Map<String, ArgumentDescription> arguments;
     protected DocAnnotations annotations;
     protected MethodReturnParameter returnParameter;
+    protected MethodReturnParameter[] throwsParameters;
 
     public FunctionDescription(T token) {
         super(token);
@@ -29,6 +30,16 @@ public class FunctionDescription<T extends FunctionStmtToken> extends BaseDescri
         DocAnnotations.Parameter returnParam = annotations.getParameter("return");
         if (returnParam != null) {
             this.returnParameter = new MethodReturnParameter(token.getNamespace(), returnParam.value());
+        }
+
+        DocAnnotations.Parameter throwsParam = annotations.getParameter("throws");
+        if (throwsParam != null) {
+            this.throwsParameters = new MethodReturnParameter[throwsParam.values().size()];
+            int i = 0;
+            for(String e : throwsParam.values()) {
+                this.throwsParameters[i] = new MethodReturnParameter(token.getNamespace(), e);
+                i++;
+            }
         }
 
         Map<String, MethodParamParameter> paramDescription = new HashMap<String, MethodParamParameter>();
@@ -69,5 +80,9 @@ public class FunctionDescription<T extends FunctionStmtToken> extends BaseDescri
 
     public String getReturnDescription() {
         return returnParameter == null ? "" : returnParameter.getDescription();
+    }
+
+    public MethodReturnParameter[] getThrowsParameters() {
+        return throwsParameters;
     }
 }

@@ -2,6 +2,7 @@ package org.develnext.jphp.genapi.template;
 
 import org.develnext.jphp.genapi.description.*;
 import org.develnext.jphp.genapi.parameter.BaseParameter;
+import org.develnext.jphp.genapi.parameter.MethodReturnParameter;
 import php.runtime.common.StringUtils;
 
 import java.io.*;
@@ -326,6 +327,18 @@ public class SphinxTemplate extends BaseTemplate {
             sb.append("  ")
                     .append(addTabToDescription(description.getDescription().trim(), 2))
                     .append("\n\n");
+        }
+
+        if (description.getThrowsParameters() != null) {
+            for(MethodReturnParameter e : description.getThrowsParameters()) {
+                sb.append("  **throws** ");
+                echoTypes(e.getTypes());
+                if (e.getDescription() != null && !e.getDescription().trim().isEmpty()) {
+                    sb.append(" ");
+                    sb.append(addTabToDescription(e.getDescription().trim(), 2));
+                }
+                sb.append("\n\n");
+            }
         }
     }
 
