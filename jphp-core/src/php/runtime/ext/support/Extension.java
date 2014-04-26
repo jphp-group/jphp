@@ -8,6 +8,7 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.ext.support.compile.ConstantsContainer;
 import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.lang.IObject;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -70,6 +71,12 @@ abstract public class Extension {
         if (classes != null)
         for(Class<? extends Throwable> el : classes)
             scope.registerJavaException(javaClass, el);
+    }
+
+    public void registerJavaExceptionForContext(CompileScope scope, Class<? extends JavaException> javaClass,
+                                                Class<? extends IObject> context) {
+        registerNativeClass(scope, javaClass);
+        scope.registerJavaExceptionForContext(javaClass, context);
     }
 
     public void registerConstants(ConstantsContainer container){

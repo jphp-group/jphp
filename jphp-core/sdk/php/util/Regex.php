@@ -28,6 +28,7 @@ class Regex implements \Iterator {
      * @param string $pattern regular expression
      * @param int $flag Regex::CASE_INSENSITIVE and other constants
      * @return Regex
+     * @throws RegexException
      */
     public static function of($pattern, $flag = 0) { return new Regex(); }
 
@@ -46,6 +47,7 @@ class Regex implements \Iterator {
      *
      * @param int|null $start
      * @return bool
+     * @throws RegexException
      */
     public function find($start = null) { return false; }
 
@@ -60,6 +62,7 @@ class Regex implements \Iterator {
      *
      * @param string $replacement
      * @return string
+     * @throws RegexException
      */
     public function replace($replacement) { return ''; }
 
@@ -69,12 +72,14 @@ class Regex implements \Iterator {
      *
      * @param string $replacement
      * @return string
+     * @throws RegexException
      */
     public function replaceFirst($replacement) { return ''; }
 
     /**
      * @param callable $callback (Regex $pattern) -> string
      * @return string
+     * @throws RegexException
      */
     public function replaceWithCallback(callable $callback) { return ''; }
 
@@ -92,6 +97,7 @@ class Regex implements \Iterator {
      *
      * @param null|int $group
      * @return string
+     * @throws RegexException
      */
     public function group($group = null) { return ''; }
 
@@ -107,6 +113,7 @@ class Regex implements \Iterator {
      *
      * @param null|int $group
      * @return int
+     * @throws RegexException
      */
     public function start($group = null) { return 0; }
 
@@ -115,6 +122,7 @@ class Regex implements \Iterator {
      *
      * @param null|int $group
      * @return int
+     * @throws RegexException
      */
     public function end($group = null) { return 0; }
 
@@ -158,6 +166,7 @@ class Regex implements \Iterator {
      * @param int $start
      * @param int $end
      * @return Regex
+     * @throws RegexException
      */
     public function region($start, $end) { return $this; }
 
@@ -220,6 +229,7 @@ class Regex implements \Iterator {
      * @param string $string
      * @param string $pattern  regular expression
      * @return bool
+     * @throws RegexException
      */
     public static function match($pattern, $string) { return false; }
 
@@ -231,6 +241,7 @@ class Regex implements \Iterator {
      * @param string $pattern  the delimiting regular expression
      * @param int $limit  the result threshold
      * @return array the array of strings computed by splitting this string around matches of the given regular expression
+     * @throws RegexException
      */
     public static function split($pattern, $string, $limit = 0) { return []; }
 

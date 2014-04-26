@@ -390,28 +390,27 @@ final public class InvokeHelper {
                                     MethodEntity method,
                                     Memory[] args, boolean checkAccess)
             throws Throwable {
-        String originClassName = method.getClazz().getName();
-        String originMethodName = method.getName();
-
         if (checkAccess)
             checkAccess(env, trace, method);
 
-        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
         Memory result = method.getImmutableResult();
         if (result != null)
             return result;
 
+        String originClassName = method.getClazz().getName();
+        String originMethodName = method.getName();
+
+        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+
         try {
             if (trace != null && method.isUsesStackTrace())
-                env.pushCall(trace, null, args, originMethodName, method.getClazzName(), originClassName);
+                env.pushCall(trace, null, passed, originMethodName, originClassName, originClassName);
 
-            result = method.invokeStatic(env, passed);
+            return method.invokeStatic(env, passed);
         } finally {
             if (trace != null && method.isUsesStackTrace())
                 env.popCall();
         }
-
-        return result;
     }
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace){

@@ -82,6 +82,10 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
             }
         }
 
+        public boolean isSystem() {
+            return element.getClassName().startsWith("sun.");
+        }
+
         public boolean isInternal(){
             return function == null && clazz == null && module == null;
         }

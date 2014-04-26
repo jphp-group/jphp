@@ -1,10 +1,10 @@
 package php.runtime.ext.core.classes.util;
 
 import php.runtime.Memory;
-import php.runtime.annotation.*;
-import php.runtime.annotation.Runtime;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.spl.iterator.Iterator;
@@ -17,8 +17,8 @@ import php.runtime.reflection.ClassEntity;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static php.runtime.annotation.Reflection.Name;
-import static php.runtime.annotation.Reflection.Signature;
+import static php.runtime.annotation.Reflection.*;
+import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\util\\Regex")
 final public class WrapRegex extends BaseObject implements Iterator {
@@ -46,16 +46,18 @@ final public class WrapRegex extends BaseObject implements Iterator {
     }
 
     @Signature
-    private Memory __construct(Environment env, Memory... args) { return Memory.NULL; }
+    private Memory __construct(Environment env, Memory... args) {
+        return Memory.NULL;
+    }
 
 
-    @Signature(@Reflection.Arg("string"))
+    @Signature(@Arg("string"))
     public Memory with(Environment env, Memory... args) {
         Matcher matcher1 = matcher.pattern().matcher(args[0].toString());
         return new ObjectMemory(new WrapRegex(env, matcher1));
     }
 
-    @Signature(@Reflection.Arg(value = "start", optional = @Reflection.Optional("null")))
+    @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
     public Memory find(Environment env, Memory... args) {
         if (args[0].isNull())
             return matcher.find() ? Memory.TRUE : Memory.FALSE;
@@ -68,7 +70,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return matcher.matches() ? Memory.TRUE : Memory.FALSE;
     }
 
-    @Signature(@Reflection.Arg(value = "string", optional = @Reflection.Optional("null")))
+    @Signature(@Arg(value = "string", optional = @Reflection.Optional("null")))
     public Memory reset(Environment env, Memory... args) {
         if (args[0].isNull())
             matcher.reset();
@@ -78,7 +80,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return new ObjectMemory(this);
     }
 
-    @Signature(@Reflection.Arg(value = "group", optional = @Reflection.Optional("null")))
+    @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory end(Environment env, Memory... args) {
         if (args[0].isNull())
             return LongMemory.valueOf(matcher.end());
@@ -86,7 +88,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
             return LongMemory.valueOf(matcher.end(args[0].toInteger()));
     }
 
-    @Signature(@Reflection.Arg(value = "group", optional = @Reflection.Optional("null")))
+    @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory start(Environment env, Memory... args) {
         if (args[0].isNull())
             return LongMemory.valueOf(matcher.start());
@@ -94,16 +96,19 @@ final public class WrapRegex extends BaseObject implements Iterator {
             return LongMemory.valueOf(matcher.start(args[0].toInteger()));
     }
 
+    @FastMethod
     @Signature
     public Memory getGroupCount(Environment env, Memory... args) {
         return LongMemory.valueOf(matcher.groupCount());
     }
 
+    @FastMethod
     @Signature
     public Memory hitEnd(Environment env, Memory... args) {
         return matcher.hitEnd() ? Memory.TRUE : Memory.FALSE;
     }
 
+    @FastMethod
     @Signature
     public Memory requireEnd(Environment env, Memory... args) {
         return matcher.requireEnd() ? Memory.TRUE : Memory.FALSE;
@@ -115,43 +120,55 @@ final public class WrapRegex extends BaseObject implements Iterator {
     }
 
     @Signature({
-            @Reflection.Arg("start"),
-            @Reflection.Arg("end")
+            @Arg("start"),
+            @Arg("end")
     })
     public Memory region(Environment env, Memory... args) {
+
         matcher.region(args[0].toInteger(), args[1].toInteger());
         return new ObjectMemory(this);
+
     }
 
+    @FastMethod
     @Signature
     public Memory regionStart(Environment env, Memory... args) {
         return LongMemory.valueOf(matcher.regionStart());
     }
 
+    @FastMethod
     @Signature
     public Memory regionEnd(Environment env, Memory... args) {
         return LongMemory.valueOf(matcher.regionEnd());
     }
 
-    @Signature(@Reflection.Arg(value = "group", optional = @Reflection.Optional("null")))
+    @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory group(Environment env, Memory... args) {
+
         if (args[0].isNull())
             return StringMemory.valueOf(matcher.group());
         else
             return StringMemory.valueOf(matcher.group(args[0].toInteger()));
     }
 
-    @Signature(@Reflection.Arg("replacement"))
+    @Signature(@Arg("replacement"))
     public Memory replace(Environment env, Memory... args) {
-        return StringMemory.valueOf(matcher.replaceAll(args[0].toString()));
+        try {
+            return StringMemory.valueOf(matcher.replaceAll(args[0].toString()));
+        } catch (IllegalStateException e) {
+            throw new RegexException(env, e);
+        } catch (IndexOutOfBoundsException e) {
+            throw new RegexException(env, e);
+        }
     }
 
-    @Signature(@Reflection.Arg("replacement"))
+    @Signature(@Arg("replacement"))
     public Memory replaceFirst(Environment env, Memory... args) {
+
         return StringMemory.valueOf(matcher.replaceFirst(args[0].toString()));
     }
 
-    @Signature(@Reflection.Arg(value = "callback", type = HintType.CALLABLE))
+    @Signature(@Arg(value = "callback", type = HintType.CALLABLE))
     public Memory replaceWithCallback(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(env, null, args[0]);
         StringBuffer sb = new StringBuffer();
@@ -167,10 +184,9 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return StringMemory.valueOf(sb.toString());
     }
 
-    @Runtime.FastMethod
     @Signature({
-            @Reflection.Arg("pattern"),
-            @Reflection.Arg(value = "flags", optional = @Reflection.Optional("0"))
+            @Arg("pattern"),
+            @Arg(value = "flags", optional = @Reflection.Optional("0"))
     })
     public static Memory of(Environment env, Memory... args) {
         int flags = args[1].toInteger();
@@ -222,21 +238,18 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return valid ? Memory.TRUE : Memory.FALSE;
     }
 
-
-    @Runtime.FastMethod
     @Signature({
-            @Reflection.Arg("pattern"),
-            @Reflection.Arg("string"),
+            @Arg("pattern"),
+            @Arg("string")
     })
     public static Memory match(Environment env, Memory... args) {
         return args[1].toString().matches(args[0].toString()) ? Memory.TRUE : Memory.FALSE;
     }
 
-    @Runtime.FastMethod
     @Signature({
-            @Reflection.Arg("pattern"),
-            @Reflection.Arg("string"),
-            @Reflection.Arg(value = "limit", optional = @Reflection.Optional("0"))
+            @Arg("pattern"),
+            @Arg("string"),
+            @Arg(value = "limit", optional = @Reflection.Optional("0"))
     })
     public static Memory split(Environment env, Memory... args) {
         String[] r;
@@ -250,15 +263,26 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return new ArrayMemory(r).toConstant();
     }
 
-    @Runtime.FastMethod
-    @Signature(@Reflection.Arg("string"))
+    @FastMethod
+    @Signature(@Arg("string"))
     public static Memory quote(Environment env, Memory... args) {
         return StringMemory.valueOf(Pattern.quote(args[0].toString()));
     }
 
-    @Runtime.FastMethod
-    @Signature(@Reflection.Arg("string"))
+    @FastMethod
+    @Signature(@Arg("string"))
     public static Memory quoteReplacement(Environment env, Memory... args) {
         return StringMemory.valueOf(Matcher.quoteReplacement(args[0].toString()));
+    }
+
+    @Name("php\\util\\RegexException")
+    public static class RegexException extends JavaException {
+        public RegexException(Environment env, Throwable throwable) {
+            super(env, throwable);
+        }
+
+        public RegexException(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
     }
 }

@@ -35,7 +35,8 @@ public class ExceptionHandler {
                         env.scope.getClassLoader(), ((JavaException) exception).getThrowable().getStackTrace()
                 );
                 for(JVMStackTracer.Item el : tracer){
-                    env.echo("        " + el.toString() + "\n");
+                    if (!el.isSystem())
+                        env.echo("  " + el.toString() + "\n");
                 }
             }
             return false;

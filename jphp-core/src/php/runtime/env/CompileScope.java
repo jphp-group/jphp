@@ -48,6 +48,7 @@ public class CompileScope {
     protected final Map<String, FunctionEntity> functionMap;
     protected final Map<String, ConstantEntity> constantMap;
     protected final Map<Class<? extends Throwable>, Class<? extends JavaException>> exceptionMap;
+    protected final Map<String, Class<? extends JavaException>> exceptionMapForContext;
 
     protected Map<String, Extension> extensions;
 
@@ -72,6 +73,7 @@ public class CompileScope {
         functionMap = new HashMap<String, FunctionEntity>();
         constantMap = new HashMap<String, ConstantEntity>();
         exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
+        exceptionMapForContext = new HashMap<String, Class<? extends JavaException>>();
 
         extensions = new LinkedHashMap<String, Extension>();
 
@@ -113,6 +115,7 @@ public class CompileScope {
         compileFunctionMap = new HashMap<String, CompileFunction>();
         compileClassMap    = new HashMap<String, CompileClass>();
         exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
+        exceptionMapForContext = new HashMap<String, Class<? extends JavaException>>();
 
         superGlobals = new HashSet<String>();
 
@@ -265,6 +268,14 @@ public class CompileScope {
         exceptionMap.put(throwClazz, clazz);
     }
 
+    public void registerJavaExceptionForContext(Class<? extends JavaException> clazz, Class<? extends IObject> context) {
+        Reflection.Name name = context.getAnnotation(Reflection.Name.class);
+        if (name == null)
+            exceptionMapForContext.put(context.getSimpleName().toLowerCase(), clazz);
+        else
+            exceptionMapForContext.put(name.value().toLowerCase(), clazz);
+    }
+
     public void registerClass(ClassEntity clazz){
         classMap.put(clazz.getLowerName(), clazz);
     }
@@ -334,6 +345,10 @@ public class CompileScope {
 
     public Class<? extends JavaException> findJavaException(Class<? extends Throwable> clazz) {
         return exceptionMap.get(clazz);
+    }
+
+    public Class<? extends JavaException> findJavaExceptionForContext(String className) {
+        return exceptionMapForContext.get(className);
     }
 
     public ModuleEntity loadModule(String name){

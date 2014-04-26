@@ -58,6 +58,7 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ItemsUtils.class);
         registerNativeClass(scope, Flow.class);
         registerNativeClass(scope, WrapRegex.class);
+        registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
 
         registerNativeClass(scope, WrapInvoker.class);
         registerNativeClass(scope, WrapModule.class);

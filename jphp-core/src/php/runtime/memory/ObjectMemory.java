@@ -171,7 +171,7 @@ public class ObjectMemory extends Memory {
                     return false;
                 IObject otherObject = ((ObjectMemory)other).value;
                 return comparator.compare(value, otherObject);
-            case REFERENCE: return equal(other.toValue());
+            case REFERENCE: return compare(other.toValue(), comparator);
         }
         return false;
     }
