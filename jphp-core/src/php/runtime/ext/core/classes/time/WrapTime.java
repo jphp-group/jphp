@@ -141,26 +141,32 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone).getTime(), zone));
     }
 
-    @Signature(@Arg("count"))
-    public Memory plusDays(Environment env, Memory... args) {
+    @Signature(@Arg(value = "args", type = HintType.ARRAY))
+    public Memory add(Environment env, Memory... args) {
+        ArrayMemory arg = args[0].toValue(ArrayMemory.class);
+        Memory year  = arg.getByScalar("year");
+        Memory month = arg.getByScalar("month");
+        Memory day   = arg.getByScalar("day");
+        Memory hour  = arg.getByScalar("hour");
+        Memory min   = arg.getByScalar("min");
+        Memory sec   = arg.getByScalar("sec");
+        Memory millis = arg.getByScalar("millis");
+
         Calendar calendar1 = (Calendar) calendar.clone();
-        calendar1.add(Calendar.DATE, args[0].toInteger());
-
-        return new ObjectMemory(new WrapTime(env, calendar1.getTime(), timeZone));
-    }
-
-    @Signature(@Arg("count"))
-    public Memory plusYears(Environment env, Memory... args) {
-        Calendar calendar1 = (Calendar) calendar.clone();
-        calendar1.add(Calendar.YEAR, args[0].toInteger());
-
-        return new ObjectMemory(new WrapTime(env, calendar1.getTime(), timeZone));
-    }
-
-    @Signature(@Arg("count"))
-    public Memory plusMonths(Environment env, Memory... args) {
-        Calendar calendar1 = (Calendar) calendar.clone();
-        calendar1.add(Calendar.MONTH, args[0].toInteger());
+        if (year != null)
+            calendar1.add(Calendar.YEAR, year.toInteger());
+        if (month != null)
+            calendar1.add(Calendar.MONTH, month.toInteger());
+        if (day != null)
+            calendar1.add(Calendar.DAY_OF_MONTH, day.toInteger());
+        if (hour != null)
+            calendar1.add(Calendar.HOUR_OF_DAY, hour.toInteger());
+        if (min != null)
+            calendar1.add(Calendar.MINUTE, min.toInteger());
+        if (sec != null)
+            calendar1.add(Calendar.SECOND, sec.toInteger());
+        if (millis != null)
+            calendar1.add(Calendar.MILLISECOND, millis.toInteger());
 
         return new ObjectMemory(new WrapTime(env, calendar1.getTime(), timeZone));
     }
@@ -203,7 +209,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
             calendar1.set(Calendar.DATE, day.toInteger());
 
         if (hour != null)
-            calendar1.set(Calendar.HOUR, hour.toInteger());
+            calendar1.set(Calendar.HOUR_OF_DAY, hour.toInteger());
 
         if (min != null)
             calendar1.set(Calendar.MINUTE, min.toInteger());
@@ -241,7 +247,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[0]));
         calendar.setTime(date1);
         calendar.set(Calendar.DATE, 0);
-        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 

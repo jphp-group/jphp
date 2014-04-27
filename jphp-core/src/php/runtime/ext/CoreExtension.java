@@ -5,10 +5,12 @@ import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
+import php.runtime.ext.core.classes.lib.*;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
 import php.runtime.ext.core.classes.time.WrapTime;
+import php.runtime.ext.core.classes.time.WrapTimeFormat;
 import php.runtime.ext.core.classes.time.WrapTimeZone;
 import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
@@ -59,11 +61,13 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, NumUtils.class);
         registerNativeClass(scope, ItemsUtils.class);
 
-        registerNativeClass(scope, Flow.class);
+        registerNativeClass(scope, WrapLocale.class);
+        registerNativeClass(scope, WrapFlow.class);
         registerNativeClass(scope, WrapRegex.class);
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
         
         registerNativeClass(scope, WrapTimeZone.class);
+        registerNativeClass(scope, WrapTimeFormat.class);
         registerNativeClass(scope, WrapTime.class);
 
         registerNativeClass(scope, WrapInvoker.class);

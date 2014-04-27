@@ -37,18 +37,19 @@ class TimeZone {
      */
     public static function of($ID) { return new TimeZone(0, ''); }
 
-
     /**
      * Set default time zone for Time objects, by default - the default timezone is UTC
      * @param TimeZone $zone
+     * @param bool $globally
      */
-    public static function setDefault(TimeZone $zone) { }
+    public static function setDefault(TimeZone $zone, $globally = false) { }
 
     /**
      * Get default timezone
+     * @param bool $globally if ``false`` - only for the current environment
      * @return TimeZone
      */
-    public static function getDefault() { return new TimeZone(0, ''); }
+    public static function getDefault($globally = false) { return new TimeZone(0, ''); }
 
     /**
      * Get timezone of OS::

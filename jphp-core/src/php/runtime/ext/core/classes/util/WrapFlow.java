@@ -17,7 +17,7 @@ import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\util\\Flow")
-public class Flow extends BaseObject implements Iterator {
+public class WrapFlow extends BaseObject implements Iterator {
     protected ForeachIterator selfIterator;
     protected ForeachIterator iterator;
     protected Worker worker;
@@ -27,26 +27,26 @@ public class Flow extends BaseObject implements Iterator {
 
     protected boolean withKeys = false;
 
-    public Flow(Environment env, ForeachIterator iterator) {
+    public WrapFlow(Environment env, ForeachIterator iterator) {
         super(env);
         this.iterator = iterator;
         this.worker = new Worker() {
             @Override
             public boolean next(Environment env) {
-                return Flow.this.iterator.next();
+                return WrapFlow.this.iterator.next();
             }
         };
         this.worker.setIterator(iterator);
     }
 
-    public Flow(Environment env, ForeachIterator iterator, Worker worker) {
+    public WrapFlow(Environment env, ForeachIterator iterator, Worker worker) {
         super(env);
         this.iterator = iterator;
         this.worker = worker;
         this.worker.setIterator(iterator);
     }
 
-    public Flow(Environment env, ClassEntity clazz) {
+    public WrapFlow(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
@@ -80,7 +80,7 @@ public class Flow extends BaseObject implements Iterator {
         this.worker = new Worker() {
             @Override
             public boolean next(Environment env) {
-                return Flow.this.iterator.next();
+                return WrapFlow.this.iterator.next();
             }
         };
         this.worker.setIterator(iterator);
@@ -100,7 +100,7 @@ public class Flow extends BaseObject implements Iterator {
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })
     public static Memory of(Environment env, Memory... args) {
-        return new ObjectMemory(new Flow(env, args[0].toImmutable().getNewIterator(env)));
+        return new ObjectMemory(new WrapFlow(env, args[0].toImmutable().getNewIterator(env)));
     }
 
     @FastMethod
@@ -114,7 +114,7 @@ public class Flow extends BaseObject implements Iterator {
         final int to   = args[1].toInteger();
         final int step = args[2].toInteger() < 1 ? 1 : args[2].toInteger();
 
-        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
             protected int i;
 
             @Override
@@ -162,7 +162,7 @@ public class Flow extends BaseObject implements Iterator {
         final Stream stream = args[0].toObject(Stream.class);
         final int chunkSize = args[1].toInteger() < 1 ? 1 : args[1].toInteger();
 
-        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
 
             protected boolean eof() {
                 env.pushCall(stream, "eof");
@@ -225,7 +225,7 @@ public class Flow extends BaseObject implements Iterator {
         final String string = args[0].toString();
         final int chunkSize = args[1].toInteger() < 1 ? 1 : args[1].toInteger();
 
-        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
             protected int i = 0;
             protected int length = string.length();
 
@@ -275,7 +275,7 @@ public class Flow extends BaseObject implements Iterator {
         final ForeachIterator appendIterator = args[0].toImmutable().getNewIterator(env);
         final ForeachIterator iterator = getSelfIterator(env);
 
-        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
             protected boolean applyAppended = false;
 
             @Override
@@ -499,7 +499,7 @@ public class Flow extends BaseObject implements Iterator {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
         final ForeachIterator iterator = getSelfIterator(env);
 
-        return new ObjectMemory(new Flow(env, new ForeachIterator(false, false, false) {
+        return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
             protected Memory key;
 
             @Override
@@ -549,7 +549,7 @@ public class Flow extends BaseObject implements Iterator {
     public Memory find(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
 
-        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new WrapFlow(env, getSelfIterator(env), new Worker() {
             @Override
             public boolean next(final Environment env) {
                 while (iterator.next()) {
@@ -582,7 +582,7 @@ public class Flow extends BaseObject implements Iterator {
     public Memory map(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
 
-        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new WrapFlow(env, getSelfIterator(env), new Worker() {
             Memory current;
 
             @Override
@@ -608,7 +608,7 @@ public class Flow extends BaseObject implements Iterator {
         if (skip <= 0)
             return new ObjectMemory(this);
 
-        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new WrapFlow(env, getSelfIterator(env), new Worker() {
             protected int i = 0;
 
             @Override
@@ -627,7 +627,7 @@ public class Flow extends BaseObject implements Iterator {
     @Signature(@Arg("max"))
     public Memory limit(Environment env, Memory... args) {
         final int limit = args[0].toInteger();
-        return new ObjectMemory(new Flow(env, getSelfIterator(env), new Worker() {
+        return new ObjectMemory(new WrapFlow(env, getSelfIterator(env), new Worker() {
             protected int i = 0;
 
             @Override

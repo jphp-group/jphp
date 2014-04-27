@@ -104,7 +104,7 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
         if (arg.isNull()) {
             TimeZone zone = env.getUserValue(WrapTime.class.getName() + "#def_time_zone", TimeZone.class);
             if (zone == null)
-                return UTC;
+                return TimeZone.getDefault();
             else
                 return zone;
         } else if (arg.instanceOf(WrapTimeZone.class)) {
@@ -114,15 +114,22 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
             throw new IllegalArgumentException();
     }
 
-    @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class))
+    @Signature({
+            @Arg(value = "timeZone", nativeType = WrapTimeZone.class),
+            @Arg(value = "globally", optional = @Optional("false"))
+    })
     public static Memory setDefault(Environment env, Memory... args) {
-        env.setUserValue(WrapTime.class.getName() + "#def_time_zone", getTimeZone(env, args[0]));
+        if (args[1].toBoolean())
+            TimeZone.setDefault(args[0].toObject(WrapTimeZone.class).timeZone);
+        else
+            env.setUserValue(WrapTime.class.getName() + "#def_time_zone", args[0].toObject(WrapTimeZone.class).timeZone);
         return Memory.NULL;
     }
 
-    @Signature
+    @Signature(@Arg(value = "globally", optional = @Optional("false")))
     public static Memory getDefault(Environment env, Memory... args) {
-        return new ObjectMemory(new WrapTimeZone(env, getTimeZone(env, Memory.NULL)));
+        return new ObjectMemory(new WrapTimeZone(env,
+                args[0].toBoolean() ? TimeZone.getDefault() : getTimeZone(env, Memory.NULL)));
     }
 
     @Signature

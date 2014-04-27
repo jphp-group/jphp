@@ -1,4 +1,4 @@
-package php.runtime.ext.core.classes.util;
+package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
 import php.runtime.common.HintType;
