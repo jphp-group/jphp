@@ -50,17 +50,6 @@ class Locale {
     /**
      * @return string
      */
-    public function getScript() { return ''; }
-
-    /**
-     * @param Locale $locale
-     * @return string
-     */
-    public function getDisplayScript(Locale $locale = null) { return ''; }
-
-    /**
-     * @return string
-     */
     public function getISO3Country() { return ''; }
 
     /**

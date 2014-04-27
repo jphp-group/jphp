@@ -88,11 +88,6 @@ public class WrapLocale extends BaseObject {
     }
 
     @Signature
-    public Memory getScript(Environment env, Memory... args) {
-        return StringMemory.valueOf(locale.getScript());
-    }
-
-    @Signature
     public Memory getISO3Country(Environment env, Memory... args) {
         return StringMemory.valueOf(locale.getISO3Country());
     }
@@ -131,14 +126,6 @@ public class WrapLocale extends BaseObject {
         return StringMemory.valueOf(args[0].isNull()
                 ? locale.getDisplayVariant()
                 : locale.getDisplayVariant(args[0].toObject(WrapLocale.class).locale)
-        );
-    }
-
-    @Signature(@Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("null")))
-    public Memory getDisplayScript(Environment env, Memory... args) {
-        return StringMemory.valueOf(args[0].isNull()
-                ? locale.getDisplayScript()
-                : locale.getDisplayScript(args[0].toObject(WrapLocale.class).locale)
         );
     }
 
