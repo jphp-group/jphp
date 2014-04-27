@@ -30,7 +30,7 @@ abstract public class BaseTemplate {
         for(int i = 0; i < source.length(); i++) {
             char ch = source.charAt(i);
 
-            if (ch == '-' && subString(source, i, 6).matches("^--[A-Za-z]{2}--$")) {
+            if (ch == '-' && i + 6 < source.length() + 1 && subString(source, i, 6).matches("^--[A-Za-z]{2}--$")) {
                 if (translated != null)
                     break;
 

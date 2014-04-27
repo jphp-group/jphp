@@ -7,6 +7,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.support.ICloneableObject;
 import php.runtime.lang.support.IComparableObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -23,7 +24,6 @@ import static php.runtime.annotation.Runtime.FastMethod;
 @Name("php\\time\\Time")
 public class WrapTime extends BaseObject implements IComparableObject<WrapTime>, ICloneableObject<WrapTime> {
     protected final static TimeZone UTC = TimeZone.getTimeZone("UTC");
-    protected final static Calendar utc_calendar = Calendar.getInstance(UTC);
     protected Date date;
     protected TimeZone timeZone;
     protected Calendar calendar;
@@ -72,7 +72,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
 
     @Signature
     public Memory month(Environment env, Memory... args) {
-        return LongMemory.valueOf(calendar.get(Calendar.MONTH));
+        return LongMemory.valueOf(calendar.get(Calendar.MONTH) + 1);
     }
 
     @Signature
@@ -106,6 +106,31 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
     }
 
     @Signature
+    public Memory hour(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.get(Calendar.HOUR));
+    }
+
+    @Signature
+    public Memory hourOfDay(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+    }
+
+    @Signature
+    public Memory minute(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.get(Calendar.MINUTE));
+    }
+
+    @Signature
+    public Memory second(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.get(Calendar.SECOND));
+    }
+
+    @Signature
+    public Memory millisecond(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.get(Calendar.MILLISECOND));
+    }
+
+    @Signature
     public Memory getTimeZone(Environment env, Memory... args) {
         return new ObjectMemory(new WrapTimeZone(env, timeZone));
     }
@@ -113,11 +138,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
     @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")))
     public static Memory now(Environment env, Memory... args) {
         TimeZone zone = WrapTimeZone.getTimeZone(env, args[0]);
-        if (zone == UTC) {
-            return new ObjectMemory(new WrapTime(env, utc_calendar.getTime(), UTC));
-        } else {
-            return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone).getTime(), zone));
-        }
+        return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone).getTime(), zone));
     }
 
     @Signature(@Arg("count"))
@@ -144,6 +165,58 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         return new ObjectMemory(new WrapTime(env, calendar1.getTime(), timeZone));
     }
 
+    @Signature
+    public Memory __toString(Environment env, Memory... args) {
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        isoFormat.setTimeZone(timeZone);
+        return new StringMemory(isoFormat.format(date));
+    }
+
+    @Signature(@Arg("format"))
+    public Memory toString(Environment env, Memory... args) {
+        SimpleDateFormat format = new SimpleDateFormat(args[0].toString());
+        format.setTimeZone(timeZone);
+        return StringMemory.valueOf(format.format(date));
+    }
+
+    @Signature({
+            @Arg(value = "args", type = HintType.ARRAY)
+    })
+    public Memory replace(Environment env, Memory... args) {
+        ArrayMemory arg = args[0].toValue(ArrayMemory.class);
+        Memory year  = arg.getByScalar("year");
+        Memory month = arg.getByScalar("month");
+        Memory day   = arg.getByScalar("day");
+        Memory hour  = arg.getByScalar("hour");
+        Memory min   = arg.getByScalar("min");
+        Memory sec   = arg.getByScalar("sec");
+        Memory millis = arg.getByScalar("millis");
+
+        Calendar calendar1 = (Calendar) calendar.clone();
+        if (year != null)
+            calendar1.set(Calendar.YEAR, year.toInteger());
+
+        if (month != null)
+            calendar1.set(Calendar.MONTH, month.toInteger() - 1);
+
+        if (day != null)
+            calendar1.set(Calendar.DATE, day.toInteger());
+
+        if (hour != null)
+            calendar1.set(Calendar.HOUR, hour.toInteger());
+
+        if (min != null)
+            calendar1.set(Calendar.MINUTE, min.toInteger());
+
+        if (sec != null)
+            calendar1.set(Calendar.SECOND, sec.toInteger());
+
+        if (millis != null)
+            calendar1.set(Calendar.MILLISECOND, millis.toInteger());
+
+        return new ObjectMemory(new WrapTime(env, calendar1.getTime(), calendar1.getTimeZone()));
+    }
+
     @FastMethod
     @Signature
     public static Memory millis(Environment env, Memory... args) {
@@ -152,26 +225,41 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
 
     @FastMethod
     @Signature
+    public static Memory seconds(Environment env, Memory... args) {
+        return LongMemory.valueOf(System.currentTimeMillis() / 1000);
+    }
+
+    @FastMethod
+    @Signature
     public static Memory nanos(Environment env, Memory... args) {
         return LongMemory.valueOf(System.nanoTime());
     }
 
-    @Signature
-    public Memory __toString(Environment env, Memory... args) {
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        isoFormat.setTimeZone(timeZone);
-        return new StringMemory(isoFormat.format(date));
+    @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("NULL")))
+    public static Memory today(Environment env, Memory... args) {
+        Date date1 = new Date();
+        Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[0]));
+        calendar.setTime(date1);
+        calendar.set(Calendar.DATE, 0);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone()));
     }
 
     @Signature({
             @Arg(value = "args", type = HintType.ARRAY),
-            @Arg(value = "timeZone", nativeType = WrapTimeZone.class)
+            @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null"))
     })
     public static Memory of(Environment env, Memory... args) {
         Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[1]));
         Memory arg = args[0];
         int year  = arg.valueOfIndex("year").toInteger();
-        int month = arg.valueOfIndex("month").toInteger();
+        Memory m = arg.toValue(ArrayMemory.class).getByScalar("month");
+        int month = 1;
+        if (m != null)
+            month = m.toInteger();
 
         int day   = arg.valueOfIndex("day").toInteger();
         if (day < 1)
@@ -181,7 +269,9 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         int min   = arg.valueOfIndex("min").toInteger();
         int sec   = arg.valueOfIndex("sec").toInteger();
 
-        calendar.set(year, month + 1, day, hour, min, sec);
+        calendar.set(year, month - 1, day, hour, min, sec);
+        calendar.set(Calendar.MILLISECOND, arg.valueOfIndex("millis").toInteger());
+
         return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone()));
     }
 

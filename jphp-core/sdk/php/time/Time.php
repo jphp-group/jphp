@@ -7,7 +7,7 @@ namespace php\time;
  */
 class Time {
     /**
-     * @param int $date timestamp
+     * @param int $date unix long timestamp (in millis)
      * @param null|TimeZone $timezone - if null then gets default timezone
      */
     public function __construct($date, TimeZone $timezone = null) { }
@@ -27,11 +27,13 @@ class Time {
     public function getTimeZone() { return new TimeZone(0, ''); }
 
     /**
+     * Get the current year
      * @return int
      */
     public function year() { return 0; }
 
     /**
+     * Get the current month of the year, 1 - Jan, 12 - Dec
      * @return int
      */
     public function month() { return 0; }
@@ -72,7 +74,44 @@ class Time {
     public function dayOfWeekInMonth() { return 0; }
 
     /**
+     * Get hour, indicating the hour of the morning or afternoon.
+     * hour() is used for the 12-hour clock (0 - 11). Noon and midnight are represented by 0, not by 12.
+     *
+     * @return int
+     */
+    public function hour() { return 0; }
+
+    /**
+     * Get hour of the day
+     * @return int
+     */
+    public function hourOfDay() { return 0; }
+
+    /**
+     * Get minute of the hour
+     * @return int
+     */
+    public function minute() { return 0; }
+
+    /**
+     * Get second of the minute
+     * @return int
+     */
+    public function second() { return 0; }
+
+    /**
+     * Get millisecond of the second
+     * @return int
+     */
+    public function millisecond() { return 0; }
+
+    /**
      * Get a new time + day count
+     *
+     * .. note::
+     *
+     *    use negative values to minus days
+     *
      * @param int $count
      * @return Time
      */
@@ -93,22 +132,78 @@ class Time {
     public function plusYears($count) { return new Time(0); }
 
     /**
-     * Returns now time object
+     * Clones the current datetime and replaces some fields to new values $args
+     *
+     * @param array $args [millis, sec, min, hour, day, month, year]
+     * @return Time
+     */
+    public function replace(array $args) { return new Time(0); }
+
+    /**
+     * Format the current datetime to string with $format
+     *
+     *  G 	Era designator 	Text 	AD
+     *  y 	Year 	Year 	1996; 96
+     *  M 	Month in year 	Month 	July; Jul; 07
+     *  w 	Week in year 	Number 	27
+     *  W 	Week in month 	Number 	2
+     *  D 	Day in year 	Number 	189
+     *  d 	Day in month 	Number 	10
+     *  F 	Day of week in month 	Number 	2
+     *  E 	Day in week 	Text 	Tuesday; Tue
+     *  a 	Am/pm marker 	Text 	PM
+     *  H 	Hour in day (0-23) 	Number 	0
+     *  k 	Hour in day (1-24) 	Number 	24
+     *  K 	Hour in am/pm (0-11) 	Number 	0
+     *  h 	Hour in am/pm (1-12) 	Number 	12
+     *  m 	Minute in hour 	Number 	30
+     *  s 	Second in minute 	Number 	55
+     *  S 	Millisecond 	Number 	978
+     *  z 	Time zone 	General time zone 	Pacific Standard Time; PST; GMT-08:00
+     *  Z 	Time zone 	RFC 822 time zone 	-0800
+     *
+     * @param string $format date time format
+     * @return string
+     */
+    public function toString($format) { return ''; }
+
+    /**
+     * Format the time to yyyy-MM-dd'T'HH:mm:ss
+     * @return string
+     */
+    public function __toString() { return ''; }
+
+    /**
+     * Returns now time object (date + time)
      * @param TimeZone $timeZone
      * @return Time
      */
     public static function now(TimeZone $timeZone = null) { return new Time(0); }
 
     /**
+     * Returns today date (without time)
+     * @param TimeZone $timeZone
+     * @return Time
+     */
+    public static function today(TimeZone $timeZone = null)  { return new Time(0); }
+
+    /**
      * Create a new time by using the $args arrays that can contain the ``sec``, ``min``, ``hour`` and other keys::
      *
      *    $time = Time::of(['year' => 2013, 'month' => 1, 'day' => 1]) // 01 Jan 2013
      *
-     * @param array $args [sec, min, hour, day, month, year]
+     * @param array $args [millis, sec, min, hour, day, month, year]
      * @param TimeZone $timeZone if null then it uses the default timezone
      * @return Time
      */
     public static function of(array $args, TimeZone $timeZone = null) { return new Time(0); }
+
+    /**
+     * Returns the current time in seconds (like the ``millis()`` method only in seconds)
+     *
+     * @return int
+     */
+    public static function seconds() { return 0; }
 
     /**
      * Returns the current time in milliseconds.  Note that
