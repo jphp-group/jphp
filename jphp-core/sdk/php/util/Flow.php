@@ -8,7 +8,7 @@ use php\io\Stream;
  * A special class to work with arrays and iterators under flows.
  * Flows are used for the lazy array/iterator operations, to save the RAM memory.
  *
- * Class Flow
+ * Class Flow, Immutable
  * @package php\util
  */
 class Flow implements Iterator {
@@ -119,7 +119,29 @@ class Flow implements Iterator {
     public function reduce(callable $callback) { return 0; }
 
     /**
+     * Sort the last result of the flow, also see: ``php\\lib\\items::sort()``
+     *
+     * .. note:: use the ``withKeys()`` method to save keys
+     *
+     * @param callable $comparator ($o1, $o2) -> int, where -1 smaller, 0 equal, 1 greater
+     * @return array
+     */
+    public function sort(callable $comparator = null) { return []; }
+
+    /**
+     * The same method as ``sort()`` only based on keys insteadof values
+     *
+     * .. note:: use the ``withKeys()`` method to save keys
+     *
+     * @param callable $comparator ($key1, $key2) -> int
+     * @return array
+     */
+    public function sortByKeys(callable $comparator = null) { return []; }
+
+    /**
      * Convert elements to an array
+     *
+     * .. note:: use the ``withKeys()`` method to save keys
      *
      * @return array
      */
@@ -162,6 +184,11 @@ class Flow implements Iterator {
      * @return void
      */
     public function rewind() { }
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 
     /**
      * Creates a new flow for an array of Iterator

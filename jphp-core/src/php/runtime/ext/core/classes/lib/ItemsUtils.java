@@ -8,12 +8,12 @@ import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.Countable;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -35,6 +35,85 @@ final public class ItemsUtils extends BaseObject {
             return invoker.callNoThrow(iterator.getValue());
         else
             return invoker.callNoThrow(iterator.getValue(), iterator.getMemoryKey());
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")),
+            @Arg(value = "saveKeys", optional = @Optional("false"))
+    })
+    public static Memory sortByKeys(Environment env, Memory... args) {
+        boolean saveKeys = args[2].toBoolean();
+        List<KeyValueMemory> tmp = new ArrayList<KeyValueMemory>();
+
+        ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
+        while (iterator.next()) {
+            tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue()));
+        }
+
+        final Invoker invoker = args[0].isNull() ? null : Invoker.valueOf(env, null, args[1]);
+        Collections.sort(tmp, new Comparator<KeyValueMemory>() {
+            @Override
+            public int compare(KeyValueMemory o1, KeyValueMemory o2) {
+                if (invoker == null)
+                    return o1.key.compareTo(o2.key);
+                else
+                    return invoker.callNoThrow(o1.key, o2.key).toInteger();
+            }
+        });
+
+        ArrayMemory r = new ArrayMemory();
+        Iterator<KeyValueMemory> iterator1 = tmp.iterator();
+        while (iterator1.hasNext()) {
+            if (saveKeys)
+                r.add(iterator1.next());
+            else
+                r.add(iterator1.next().value);
+
+            iterator1.remove();
+        }
+
+        return r.toConstant();
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")),
+            @Arg(value = "saveKeys", optional = @Optional("false"))
+    })
+    public static Memory sort(Environment env, Memory... args) {
+        boolean saveKeys = args[2].toBoolean();
+        ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
+
+        List<Memory> tmp = new ArrayList<Memory>();
+        while (iterator.next()) {
+            if (saveKeys)
+                tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue()));
+            else
+                tmp.add(iterator.getValue());
+        }
+
+        Memory[] sortTmp = tmp.toArray(new Memory[]{});
+        tmp.clear();
+
+        if (args[1].isNull()) {
+            Arrays.sort(sortTmp);
+        } else {
+            final Invoker invoker = Invoker.valueOf(env, null, args[1]);
+            Arrays.sort(sortTmp, new Comparator<Memory>() {
+                @Override
+                public int compare(Memory o1, Memory o2) {
+                    return invoker.callNoThrow(o1, o2).toInteger();
+                }
+            });
+        }
+
+        ArrayMemory r = new ArrayMemory();
+        for(Memory el : sortTmp) {
+            r.add(el);
+        }
+
+        return r.toConstant();
     }
 
     @FastMethod

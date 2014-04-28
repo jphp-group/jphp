@@ -3,7 +3,7 @@ package org.develnext.jphp.swing.classes;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.classes.stream.Stream;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.memory.*;

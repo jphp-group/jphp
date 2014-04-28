@@ -3,9 +3,7 @@ package php.runtime.ext.core.classes.time;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
-import php.runtime.lang.support.ICloneableObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -20,7 +18,7 @@ import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\time\\TimeZone")
-public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTimeZone>, ICloneableObject<WrapTimeZone> {
+public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTimeZone> {
     protected final static TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     protected TimeZone timeZone;
@@ -65,6 +63,15 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
             );
         }
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*id").assign(timeZone.getID());
+        r.refOfIndex("*rawOffset").assign(timeZone.getRawOffset());
+        r.refOfIndex("*name").assign(timeZone.getDisplayName());
+        return r.toConstant();
     }
 
     @Signature
@@ -132,11 +139,6 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
                 args[0].toBoolean() ? TimeZone.getDefault() : getTimeZone(env, Memory.NULL)));
     }
 
-    @Signature
-    public static Memory getSystem(Environment env, Memory... args) {
-        return new ObjectMemory(new WrapTimeZone(env, TimeZone.getDefault()));
-    }
-
     @Signature(@Arg(value = "rawOffset", optional = @Optional("null")))
     public static Memory getAvailableIDs(Environment env, Memory... args) {
         if (args[0].isNull())
@@ -175,8 +177,8 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
         return this.timeZone.getRawOffset() <= iObject.timeZone.getRawOffset();
     }
 
-    @Override
-    public WrapTimeZone __clone(Environment env, TraceInfo trace) {
-        return new WrapTimeZone(env, timeZone);
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 }

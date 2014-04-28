@@ -32,13 +32,15 @@ final public class WrapRegex extends BaseObject implements Iterator {
     public static final int UNIX_LINES = Pattern.UNIX_LINES;
 
     protected Matcher matcher;
+    protected String input;
     protected Memory current;
     protected Memory key;
     protected boolean valid = true;
 
-    public WrapRegex(Environment env, Matcher matcher) {
+    public WrapRegex(Environment env, Matcher matcher, String input) {
         super(env);
         this.matcher = matcher;
+        this.input = input;
     }
 
     public WrapRegex(Environment env, ClassEntity clazz) {
@@ -50,11 +52,27 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return Memory.NULL;
     }
 
+    public Matcher getMatcher() {
+        return matcher;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*pattern").assign(matcher.pattern().toString());
+        r.refOfIndex("*flags").assign(matcher.pattern().flags());
+        r.refOfIndex("*input").assign(input);
+        return r.toConstant();
+    }
 
     @Signature(@Arg("string"))
     public Memory with(Environment env, Memory... args) {
         Matcher matcher1 = matcher.pattern().matcher(args[0].toString());
-        return new ObjectMemory(new WrapRegex(env, matcher1));
+        return new ObjectMemory(new WrapRegex(env, matcher1, args[0].toString()));
     }
 
     @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
@@ -144,7 +162,6 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory group(Environment env, Memory... args) {
-
         if (args[0].isNull())
             return StringMemory.valueOf(matcher.group());
         else
@@ -164,7 +181,6 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature(@Arg("replacement"))
     public Memory replaceFirst(Environment env, Memory... args) {
-
         return StringMemory.valueOf(matcher.replaceFirst(args[0].toString()));
     }
 
@@ -184,6 +200,16 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return StringMemory.valueOf(sb.toString());
     }
 
+    @Signature
+    public Memory getPattern(Environment env, Memory... args) {
+        return StringMemory.valueOf(matcher.pattern().pattern());
+    }
+
+    @Signature
+    public Memory getFlags(Environment env, Memory... args) {
+        return LongMemory.valueOf(matcher.pattern().flags());
+    }
+
     @Signature({
             @Arg("pattern"),
             @Arg(value = "flags", optional = @Reflection.Optional("0"))
@@ -193,7 +219,16 @@ final public class WrapRegex extends BaseObject implements Iterator {
         Pattern pattern = Pattern.compile(args[0].toString(), flags);
         Matcher matcher = pattern.matcher("");
 
-        return ObjectMemory.valueOf(new WrapRegex(env, matcher));
+        return ObjectMemory.valueOf(new WrapRegex(env, matcher, ""));
+    }
+
+    @Signature(@Arg(value = "flags"))
+    public Memory withFlags(Environment env, Memory... args) {
+        int flags = args[0].toInteger();
+        Pattern pattern = Pattern.compile(matcher.pattern().pattern(), flags);
+        Matcher matcher1 = pattern.matcher(input);
+
+        return ObjectMemory.valueOf(new WrapRegex(env, matcher1, input));
     }
 
     @Override
@@ -273,6 +308,11 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Signature(@Arg("string"))
     public static Memory quoteReplacement(Environment env, Memory... args) {
         return StringMemory.valueOf(Matcher.quoteReplacement(args[0].toString()));
+    }
+
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 
     @Name("php\\util\\RegexException")

@@ -115,6 +115,14 @@ public class WrapTimeFormat extends BaseObject {
         return Memory.NULL;
     }
 
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*format").assign(format);
+
+        return r.toConstant();
+    }
+
     @Signature(@Arg(value = "time", nativeType = WrapTime.class))
     public Memory format(Environment env, Memory... args) {
         WrapTime time = args[0].toObject(WrapTime.class);
@@ -136,5 +144,10 @@ public class WrapTimeFormat extends BaseObject {
         } catch (ParseException e) {
             return Memory.NULL;
         }
+    }
+
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 }

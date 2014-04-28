@@ -1,4 +1,4 @@
-package php.runtime.ext.core.stream;
+package php.runtime.ext.core.classes.stream;
 
 import php.runtime.env.Environment;
 import php.runtime.ext.java.JavaException;

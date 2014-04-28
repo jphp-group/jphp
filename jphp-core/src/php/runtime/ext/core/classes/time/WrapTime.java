@@ -22,7 +22,7 @@ import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\time\\Time")
-public class WrapTime extends BaseObject implements IComparableObject<WrapTime>, ICloneableObject<WrapTime> {
+public class WrapTime extends BaseObject implements IComparableObject<WrapTime> {
     protected final static TimeZone UTC = TimeZone.getTimeZone("UTC");
     protected Date date;
     protected TimeZone timeZone;
@@ -48,6 +48,18 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         super(env, clazz);
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public Calendar getCalendar() {
+        return calendar;
+    }
+
     @Signature({
             @Arg(value = "date"),
             @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null"))
@@ -58,6 +70,14 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         this.date = new Date(args[0].toLong());
         this.timeZone = zone;
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*time").assign(date.getTime());
+        r.refOfIndex("*timeZone").assign(timeZone.getID());
+        return r.toConstant();
     }
 
     @Signature
@@ -135,10 +155,21 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
         return new ObjectMemory(new WrapTimeZone(env, timeZone));
     }
 
+    @Signature(@Arg(value = "time", nativeType = WrapTime.class))
+    public Memory compare(Environment env, Memory... args) {
+        return LongMemory.valueOf(calendar.compareTo(args[0].toObject(WrapTime.class).calendar));
+    }
+
     @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")))
     public static Memory now(Environment env, Memory... args) {
         TimeZone zone = WrapTimeZone.getTimeZone(env, args[0]);
         return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone).getTime(), zone));
+    }
+
+    @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class))
+    public Memory withTimezone(Environment env, Memory... args) {
+        TimeZone zone = WrapTimeZone.getTimeZone(env, args[0]);
+        return new ObjectMemory(new WrapTime(env, date, zone));
     }
 
     @Signature(@Arg(value = "args", type = HintType.ARRAY))
@@ -283,36 +314,36 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime>,
 
     @Override
     public boolean __equal(WrapTime iObject) {
-        return date.compareTo(iObject.date) == 0;
+        return calendar.compareTo(iObject.calendar) == 0;
     }
 
     @Override
     public boolean __identical(WrapTime iObject) {
-        return date.compareTo(iObject.date) == 0 && timeZone.getID().equals(iObject.timeZone.getID());
+        return calendar.compareTo(iObject.calendar) == 0 && timeZone.getID().equals(iObject.timeZone.getID());
     }
 
     @Override
     public boolean __greater(WrapTime iObject) {
-        return date.compareTo(iObject.date) > 0;
+        return calendar.compareTo(iObject.calendar) > 0;
     }
 
     @Override
     public boolean __greaterEq(WrapTime iObject) {
-        return date.compareTo(iObject.date) >= 0;
+        return calendar.compareTo(iObject.calendar) >= 0;
     }
 
     @Override
     public boolean __smaller(WrapTime iObject) {
-        return date.compareTo(iObject.date) < 0;
+        return calendar.compareTo(iObject.calendar) < 0;
     }
 
     @Override
     public boolean __smallerEq(WrapTime iObject) {
-        return date.compareTo(iObject.date) <= 0;
+        return calendar.compareTo(iObject.calendar) <= 0;
     }
 
-    @Override
-    public WrapTime __clone(Environment env, TraceInfo trace) {
-        return new WrapTime(env, date, timeZone);
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 }

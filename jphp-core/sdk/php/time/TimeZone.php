@@ -2,7 +2,7 @@
 namespace php\time;
 
 /**
- * Class TimeZone
+ * Class TimeZone, Immutable
  * @package php\time
  */
 class TimeZone {
@@ -10,6 +10,7 @@ class TimeZone {
      * @param int $rawOffset
      * @param string $ID
      * @param array $options
+     * @return TimeZone
      */
     public function __construct($rawOffset, $ID, array $options = null) { }
 
@@ -24,6 +25,11 @@ class TimeZone {
      * @return string
      */
     public function getRawOffset() { return ''; }
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 
     /**
      * Returns UTC Time zone
@@ -50,15 +56,6 @@ class TimeZone {
      * @return TimeZone
      */
     public static function getDefault($globally = false) { return new TimeZone(0, ''); }
-
-    /**
-     * Get timezone of OS::
-     *
-     *      TimeZone::setDefault(TimeZone::getSystem()); // set the default timezone as the system timezone
-     *
-     * @return TimeZone
-     */
-    public static function getSystem() { return new TimeZone(0, ''); }
 
     /**
      * Returns all available ids of timezones

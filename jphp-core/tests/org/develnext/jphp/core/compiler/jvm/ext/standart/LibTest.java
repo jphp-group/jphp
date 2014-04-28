@@ -19,4 +19,11 @@ public class LibTest extends JvmCompilerCase {
         check("ext/standard/lib/str_004.php");
     }
 
+    @Test
+    public void testNum() {
+        check("ext/standard/lib/num_001.php");
+        check("ext/standard/lib/num_002.php");
+        check("ext/standard/lib/num_003.php");
+    }
+
 }

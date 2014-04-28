@@ -4,7 +4,7 @@ namespace php\util;
 /**
  * http://www.regular-expressions.info/java.html
  *
- * Class Regex
+ * Class Regex, Immutable
  * @package php\util
  */
 class Regex implements \Iterator {
@@ -21,6 +21,18 @@ class Regex implements \Iterator {
      * Use ``of()`` instead of this
      */
     private function __construct() { }
+
+    /**
+     * Get the current pattern
+     * @return string
+     */
+    public function getPattern() { return ''; }
+
+    /**
+     * Get the current flags
+     * @return int
+     */
+    public function getFlags() { return 0; }
 
     /**
      * Creates a new Regex of regex with $string and $flag
@@ -90,6 +102,14 @@ class Regex implements \Iterator {
      * @return Regex
      */
     public function with($string) { return new Regex(); }
+
+    /**
+     * Clone this object with the new $flags
+     *
+     * @param int $flags
+     * @return Regex
+     */
+    public function withFlags($flags) { return new Regex(); }
 
     /**
      * Returns the input subsequence captured by the given group during the
@@ -221,6 +241,11 @@ class Regex implements \Iterator {
     public function valid() { }
 
     public function rewind() {}
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 
     /**
      * Tells whether or not this string matches the given regular expression.

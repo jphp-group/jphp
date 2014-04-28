@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes.util;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -13,7 +14,7 @@ import java.util.Locale;
 import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\util\\Locale")
-public class WrapLocale extends BaseObject {
+public class WrapLocale extends BaseObject implements IComparableObject<WrapLocale> {
     protected Locale locale;
 
     public WrapLocale(Environment env, Locale locale) {
@@ -37,6 +38,16 @@ public class WrapLocale extends BaseObject {
     public Memory __construct(Environment env, Memory... args) {
         locale = new Locale(args[0].toString(), args[1].toString(), args[2].toString());
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*language").assign(locale.getLanguage());
+        r.refOfIndex("*country").assign(locale.getCountry());
+        r.refOfIndex("*variant").assign(locale.getVariant());
+
+        return r.toConstant();
     }
 
     public static Locale getDefault(Environment env, Memory arg) {
@@ -246,5 +257,40 @@ public class WrapLocale extends BaseObject {
             r.add(new WrapLocale(env, el));
         }
         return r.toConstant();
+    }
+
+    @Override
+    public boolean __equal(WrapLocale iObject) {
+        return locale.equals(iObject.getLocale());
+    }
+
+    @Override
+    public boolean __identical(WrapLocale iObject) {
+        return locale == iObject.getLocale();
+    }
+
+    @Override
+    public boolean __greater(WrapLocale iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __greaterEq(WrapLocale iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smaller(WrapLocale iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smallerEq(WrapLocale iObject) {
+        return false;
+    }
+
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 }

@@ -28,6 +28,12 @@ public class FlowTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testSorting() {
+        check("ext/standard/flow/sorting_001.php");
+        check("ext/standard/flow/sorting_002.php");
+    }
+
+    @Test
     public void testToArray() {
         check("ext/standard/flow/toarray_001.php");
     }

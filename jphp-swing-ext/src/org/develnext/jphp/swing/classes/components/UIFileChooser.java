@@ -4,7 +4,7 @@ import php.runtime.Memory;
 import php.runtime.common.Constants;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.FileObject;
+import php.runtime.ext.core.classes.stream.FileObject;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
 import org.develnext.jphp.swing.classes.components.support.UIWindow;

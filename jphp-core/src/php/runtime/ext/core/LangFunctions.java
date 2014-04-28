@@ -13,7 +13,7 @@ import php.runtime.env.message.SystemMessage;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;

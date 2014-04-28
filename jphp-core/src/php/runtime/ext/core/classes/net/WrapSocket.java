@@ -2,8 +2,7 @@ package php.runtime.ext.core.classes.net;
 
 import php.runtime.Memory;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.MiscStream;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.classes.stream.MiscStream;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;

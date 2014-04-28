@@ -12,6 +12,17 @@ class num {
     private function __construct() { }
 
     /**
+     * Compare two numbers
+     *
+     * .. note:: it can be used as comparator for number sorting
+     *
+     * @param int|double $num1
+     * @param int|double $num2
+     * @return int 0 if are equal, 1 if $num1 > $num2, -1 if $num1 < $num2
+     */
+    public static function compare($num1, $num2) { return 0; }
+
+    /**
      * Returns a string representation of the $number
      * argument as an unsigned integer in base 2.
      *

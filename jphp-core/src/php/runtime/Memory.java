@@ -9,8 +9,7 @@ import php.runtime.lang.StdClass;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 
-abstract public class Memory {
-
+abstract public class Memory implements Comparable<Memory> {
 
     public enum Type {
         NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, KEY_VALUE;
@@ -667,5 +666,15 @@ abstract public class Memory {
 
     public boolean instanceOf(String name){
         return false;
+    }
+
+    @Override
+    public int compareTo(Memory o) {
+        if (greater(o))
+            return 1;
+        else if (smaller(o))
+            return -1;
+        else
+            return 0;
     }
 }

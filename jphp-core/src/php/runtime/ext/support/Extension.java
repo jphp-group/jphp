@@ -65,6 +65,7 @@ abstract public class Extension {
             throw new RuntimeException("Class already registered - " + clazz.getName());
     }
 
+    @SuppressWarnings("unchecked")
     public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
                                       Class<? extends Throwable>... classes) {
         registerNativeClass(scope, javaClass);

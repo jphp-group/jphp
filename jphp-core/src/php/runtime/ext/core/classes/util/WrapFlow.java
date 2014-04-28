@@ -3,7 +3,8 @@ package php.runtime.ext.core.classes.util;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.classes.lib.ItemsUtils;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
@@ -392,6 +393,16 @@ public class WrapFlow extends BaseObject implements Iterator {
         while (iterator.next()) cnt++;
 
         return LongMemory.valueOf(cnt);
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")))
+    public Memory sort(Environment env, Memory... args) {
+        return ItemsUtils.sort(env, new ObjectMemory(this), args[0], this.withKeys ? Memory.TRUE : Memory.FALSE);
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")))
+    public Memory sortByKeys(Environment env, Memory... args) {
+        return ItemsUtils.sortByKeys(env, new ObjectMemory(this), args[0], this.withKeys ? Memory.TRUE : Memory.FALSE);
     }
 
     @Signature

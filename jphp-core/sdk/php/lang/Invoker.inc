@@ -106,7 +106,7 @@ class Invoker {
     public function isDynamicCall() { return false; }
 
     /**
-     * @param mixed $callback
+     * @param mixed|callable $callback
      * @return Invoker|null - returns ``null`` if passed is not callable
      *   --RU-- возвращает ``null`` если передан не валидный $callback
      */

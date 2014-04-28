@@ -2,7 +2,7 @@
 namespace php\util;
 
 /**
- * Class Locale
+ * Class Locale, Immutable
  * @package php\util
  */
 class Locale {
@@ -68,6 +68,11 @@ class Locale {
      * @return string
      */
     public function __toString() { return ''; }
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 
     /**
      * @return Locale

@@ -1,4 +1,4 @@
-package php.runtime.ext.core.stream;
+package php.runtime.ext.core.classes.stream;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
@@ -90,7 +90,6 @@ public class FileStream extends Stream {
 
         return Memory.NULL;
     }
-
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
     public Memory write(Environment env, Memory... args){

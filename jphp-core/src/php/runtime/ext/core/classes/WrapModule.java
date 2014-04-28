@@ -5,7 +5,7 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.stream.Stream;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;

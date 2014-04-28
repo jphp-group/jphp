@@ -14,7 +14,7 @@ import php.runtime.ext.core.classes.time.WrapTimeFormat;
 import php.runtime.ext.core.classes.time.WrapTimeZone;
 import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
-import php.runtime.ext.core.stream.*;
+import php.runtime.ext.core.classes.stream.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 
@@ -55,6 +55,10 @@ public class CoreExtension extends Extension {
         for (ErrorType el : ErrorType.values())
             constants.put(el.name(), new CompileConstant(el.name(), el.value));
 
+        registerJavaException(scope, WrapJavaExceptions.IllegalArgumentException.class, IllegalArgumentException.class);
+        registerJavaException(scope, WrapJavaExceptions.IllegalStateException.class, IllegalStateException.class);
+        registerJavaException(scope, WrapJavaExceptions.NumberFormatException.class, NumberFormatException.class);
+
         registerNativeClass(scope, CharUtils.class);
         registerNativeClass(scope, StrUtils.class);
         registerNativeClass(scope, BinUtils.class);
@@ -62,10 +66,11 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, ItemsUtils.class);
 
         registerNativeClass(scope, WrapLocale.class);
+        registerNativeClass(scope, WrapScanner.class);
         registerNativeClass(scope, WrapFlow.class);
         registerNativeClass(scope, WrapRegex.class);
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
-        
+
         registerNativeClass(scope, WrapTimeZone.class);
         registerNativeClass(scope, WrapTimeFormat.class);
         registerNativeClass(scope, WrapTime.class);

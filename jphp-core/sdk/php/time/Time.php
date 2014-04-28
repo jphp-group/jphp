@@ -1,5 +1,6 @@
 <?php
 namespace php\time;
+use php\lang\JavaException;
 
 /**
  * Class Time, Immutable
@@ -106,6 +107,27 @@ class Time {
     public function millisecond() { return 0; }
 
     /**
+     * Compares the time values
+     *
+     * Returns the value ``0`` if the time represented by the argument
+     * is equal to the time represented by this ``Time``; a value
+     * less than ``0`` if the time of this ``Time`` is
+     * before the time represented by the argument; and a value greater than
+     * ``0`` if the time of this ``Time`` is after the
+     * time represented by the argument.
+     *
+     * @param Time $time
+     * @return int
+     */
+    public function compare(Time $time) { return 0; }
+
+    /**
+     * @param TimeZone $timeZone
+     * @return Time
+     */
+    public function withTimeZone(TimeZone $timeZone) { return new Time(0); }
+
+    /**
      * Get a new time + $args
      *
      * .. note::
@@ -158,6 +180,11 @@ class Time {
      * @return string
      */
     public function __toString() { return ''; }
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 
     /**
      * Returns now time object (date + time)

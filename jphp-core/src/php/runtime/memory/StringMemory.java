@@ -144,6 +144,9 @@ public class StringMemory extends Memory {
             canSign = false;
         }
         if (real) {
+            if (len == 1 || len == 0)
+                return def;
+
             if (len == i && start == 0)
                 return new DoubleMemory(Double.parseDouble(value));
             else

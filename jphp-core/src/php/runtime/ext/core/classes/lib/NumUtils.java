@@ -60,6 +60,14 @@ final public class NumUtils extends BaseObject {
     }
 
     @FastMethod
+    @Signature({
+            @Arg("num1"), @Arg("num2")
+    })
+    public static Memory compare(Environment env, Memory... args) {
+        return LongMemory.valueOf(args[0].toNumeric().compareTo(args[1].toNumeric()));
+    }
+
+    @FastMethod
     @Signature(@Arg("value"))
     public static Memory toOctal(Environment env, Memory... args) {
         return StringMemory.valueOf(Long.toOctalString(args[0].toLong()));

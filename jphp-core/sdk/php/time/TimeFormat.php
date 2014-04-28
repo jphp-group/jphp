@@ -5,7 +5,7 @@ namespace php\time;
 use php\util\Locale;
 
 /**
- * Class TimeFormat
+ * Class TimeFormat, Immutable
  * @package php\time
  */
 class TimeFormat {
@@ -28,4 +28,9 @@ class TimeFormat {
      * @return Time|null if parse error then returns ``null``
      */
     public function parse($string, TimeZone $timeZone = null) { return new Time(0); }
+
+    /**
+     * Class is immutable, the disallowed clone method
+     */
+    private function __clone() { }
 }

@@ -64,4 +64,24 @@ class items {
      * @return array
      */
     public static function flatten($collection, $maxLevel = -1) { return []; }
+
+    /**
+     * Sorts the specified list into ascending order
+     *
+     * @param array|Iterator $collection
+     * @param callable $comparator ($o1, $o2) -> int where -1 smaller, 0 equal, 1 greater
+     * @param bool $saveKeys
+     * @return array
+     */
+    public static function sort($collection, callable $comparator = null, $saveKeys = false) { return []; }
+
+    /**
+     * Sorts the specified list into ascending order by keys
+     *
+     * @param array|Iterator $collection
+     * @param callable $comparator ($key1, $key2)
+     * @param bool $saveKeys
+     * @return array
+     */
+    public static function sortByKeys($collection, callable $comparator = null, $saveKeys = false) { return []; }
 }
