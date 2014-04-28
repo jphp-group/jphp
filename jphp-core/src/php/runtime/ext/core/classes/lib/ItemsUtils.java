@@ -48,7 +48,7 @@ final public class ItemsUtils extends BaseObject {
 
         ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
         while (iterator.next()) {
-            tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue()));
+            tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue().toImmutable()));
         }
 
         final Invoker invoker = args[0].isNull() ? null : Invoker.valueOf(env, null, args[1]);
@@ -83,18 +83,24 @@ final public class ItemsUtils extends BaseObject {
     })
     public static Memory sort(Environment env, Memory... args) {
         boolean saveKeys = args[2].toBoolean();
-        ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
+        Memory[] sortTmp;
 
-        List<Memory> tmp = new ArrayList<Memory>();
-        while (iterator.next()) {
-            if (saveKeys)
-                tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue()));
-            else
-                tmp.add(iterator.getValue());
+        if (!saveKeys && args[0].isArray()) {
+            Memory[] original = args[0].toValue(ArrayMemory.class).values(true);
+            sortTmp = Arrays.copyOf(original, original.length);
+        } else {
+            ForeachIterator iterator = args[0].toImmutable().getNewIterator(env);
+            List<Memory> tmp = new ArrayList<Memory>();
+            while (iterator.next()) {
+                if (saveKeys)
+                    tmp.add(new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue().toImmutable()));
+                else
+                    tmp.add(iterator.getValue().toImmutable());
+            }
+
+            sortTmp = tmp.toArray(new Memory[tmp.size()]);
+            tmp.clear();
         }
-
-        Memory[] sortTmp = tmp.toArray(new Memory[]{});
-        tmp.clear();
 
         if (args[1].isNull()) {
             Arrays.sort(sortTmp);
@@ -155,9 +161,9 @@ final public class ItemsUtils extends BaseObject {
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
             if (withKeys)
-                r.put(iterator.getMemoryKey(), iterator.getValue());
+                r.put(iterator.getMemoryKey(), iterator.getValue().toImmutable());
             else
-                r.add(iterator.getValue());
+                r.add(iterator.getValue().toImmutable());
         }
 
         return r.toConstant();
@@ -182,7 +188,7 @@ final public class ItemsUtils extends BaseObject {
             Memory el = iterator.getValue();
             ForeachIterator innerIterator = el.getNewIterator(env);
             if (innerIterator == null || (level >= maxLevel && maxLevel > -1)) {
-                array.add(el);
+                array.add(el.toImmutable());
             } else {
                 if (used.add(el.getPointer())) {
                     flatten(env, innerIterator, used, array, level + 1, maxLevel);

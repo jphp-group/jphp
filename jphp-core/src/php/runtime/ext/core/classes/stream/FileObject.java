@@ -66,6 +66,13 @@ public class FileObject extends BaseObject {
     }
 
     @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*path").assign(file.getPath());
+        return r.toConstant();
+    }
+
+    @Signature
     public Memory exists(Environment env, Memory... args){
         return file.exists() ? Memory.TRUE : Memory.FALSE;
     }

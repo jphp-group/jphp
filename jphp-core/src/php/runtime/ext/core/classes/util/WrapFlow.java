@@ -135,11 +135,10 @@ public class WrapFlow extends BaseObject implements Iterator {
             protected boolean nextValue() {
                 if (i <= to) {
                     currentValue = LongMemory.valueOf(i);
-                    if (currentKeyMemory == null)
-                        currentKeyMemory = LongMemory.valueOf(0);
+                    if (currentKey == null)
+                        currentKey = LongMemory.valueOf(0);
 
-                    currentKeyMemory = currentKeyMemory.inc();
-                    currentKey = currentKeyMemory;
+                    currentKey = ((LongMemory)currentKey).inc();
                     i += step;
                     return true;
                 }
@@ -589,6 +588,41 @@ public class WrapFlow extends BaseObject implements Iterator {
         return Memory.NULL;
     }
 
+    @Signature
+    public Memory keys(Environment env, Memory... args) {
+        return new ObjectMemory(new WrapFlow(env, getSelfIterator(env), new Worker() {
+            Memory current;
+            Memory key;
+
+            @Override
+            public boolean next(final Environment env) {
+                if (iterator.next()) {
+                    current = iterator.getMemoryKey();
+                    key = key == null ? Memory.CONST_INT_0 : key.inc();
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public Memory current(Environment env) {
+                return current == null ? Memory.NULL : current;
+            }
+
+            @Override
+            public Memory key(Environment env) {
+                return key == null ? Memory.NULL : key;
+            }
+
+            @Override
+            public void reset() {
+                key = null;
+                current = null;
+            }
+        }));
+    }
+
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE))
     public Memory map(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
@@ -608,7 +642,7 @@ public class WrapFlow extends BaseObject implements Iterator {
 
             @Override
             public Memory current(Environment env) {
-                return this.current;
+                return current == null ? Memory.NULL : current;
             }
         }));
     }

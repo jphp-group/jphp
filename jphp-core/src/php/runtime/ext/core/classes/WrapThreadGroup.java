@@ -3,10 +3,7 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
-import php.runtime.memory.TrueMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.*;
@@ -47,6 +44,18 @@ public class WrapThreadGroup extends BaseObject {
             setGroup(new ThreadGroup(args[1].toObject(WrapThreadGroup.class).getGroup(), args[0].toString()));
 
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*name").assign(group.getName());
+        r.refOfIndex("*maxPriority").assign(group.getMaxPriority());
+
+        if (group.getParent() != null)
+            r.refOfIndex("*parentName").assign(group.getParent().getName());
+
+        return r.toConstant();
     }
 
     @Signature

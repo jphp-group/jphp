@@ -5,6 +5,8 @@ import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.support.IComparableObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -13,7 +15,7 @@ import php.runtime.reflection.ClassEntity;
 import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\lang\\Thread")
-public class WrapThread extends BaseObject {
+public class WrapThread extends BaseObject implements IComparableObject<WrapThread> {
     public static final int MAX_PRIORITY = Thread.MAX_PRIORITY;
     public static final int MIN_PRIORITY = Thread.MIN_PRIORITY;
     public static final int NORM_PRIORITY = Thread.NORM_PRIORITY;
@@ -91,6 +93,20 @@ public class WrapThread extends BaseObject {
         }
 
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*id").assign(thread.getId());
+        r.refOfIndex("*name").assign(thread.getName());
+        if (thread.getThreadGroup() != null)
+            r.refOfIndex("*group").assign(thread.getThreadGroup().getName());
+        else
+            r.refOfIndex("*group");
+
+        r.refOfIndex("*priority").assign(thread.getPriority());
+        return r.toConstant();
     }
 
     @Signature
@@ -209,5 +225,35 @@ public class WrapThread extends BaseObject {
             invoker.callNoThrow();
         }
         return Memory.NULL;
+    }
+
+    @Override
+    public boolean __equal(WrapThread iObject) {
+        return thread == iObject.thread;
+    }
+
+    @Override
+    public boolean __identical(WrapThread iObject) {
+        return thread == iObject.thread;
+    }
+
+    @Override
+    public boolean __greater(WrapThread iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __greaterEq(WrapThread iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smaller(WrapThread iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smallerEq(WrapThread iObject) {
+        return false;
     }
 }

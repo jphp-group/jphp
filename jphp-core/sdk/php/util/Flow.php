@@ -91,6 +91,12 @@ class Flow implements Iterator {
     public function map(callable $callback) { return new Flow([]); }
 
     /**
+     * Create a new flow by using the keys of the current flow
+     * @return Flow
+     */
+    public function keys() { return new Flow([]); }
+
+    /**
      * Skips $n elements in the current collection
      *
      * @param int $n skip count
