@@ -1274,7 +1274,10 @@ public class Environment {
             if (item.classEntity != null)
                 return item.classEntity;
 
-            return item.classEntity = fetchClass(item.clazz, false);
+            ClassEntity e = item.classEntity = fetchClass(item.clazz, false);
+            if (e == null)
+                throw new IllegalStateException("Cannot find '" + item.clazz + "' in the current environment");
+            return e;
         }
     }
 
@@ -1289,7 +1292,10 @@ public class Environment {
             if (item != null && item.clazz != null){
                 if (item.classEntity != null)
                     return item.classEntity;
-                return item.classEntity = fetchClass(item.clazz, false);
+                ClassEntity e = item.classEntity = fetchClass(item.clazz, false);
+                if (e == null)
+                    throw new IllegalStateException("Cannot find '" + item.clazz + "' in the current environment");
+                return e;
             }
         }
         return null;

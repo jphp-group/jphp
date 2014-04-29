@@ -43,6 +43,7 @@ abstract public class Invoker {
     abstract protected Memory invoke(Memory... args) throws Throwable;
 
     final public Memory call(Memory... args) throws Throwable {
+        trace = trace == null ? (env == null ? TraceInfo.UNKNOWN : env.trace()) : trace;
         /*pushCall(trace, args);
         try {*/
             return invoke(args);

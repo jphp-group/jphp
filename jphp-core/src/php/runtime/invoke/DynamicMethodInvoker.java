@@ -54,7 +54,9 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     protected Memory invoke(Memory... args) throws Throwable {
-        return ObjectInvokeHelper.invokeMethod(object, method, env, trace, args, false);
+        return ObjectInvokeHelper.invokeMethod(
+                object, method, env, trace == null ? TraceInfo.UNKNOWN : trace, args, false
+        );
     }
 
     @Override

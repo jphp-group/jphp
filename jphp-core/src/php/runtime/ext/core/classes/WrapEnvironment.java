@@ -80,6 +80,7 @@ public class WrapEnvironment extends BaseObject {
             return Memory.NULL;
         }
 
+        invoker.setTrace(env.trace());
         return invoker.call();
     }
 

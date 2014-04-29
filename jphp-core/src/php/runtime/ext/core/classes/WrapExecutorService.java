@@ -48,6 +48,7 @@ public class WrapExecutorService extends BaseObject {
             return Memory.NULL;
         }
 
+        invoker.setTrace(env.trace());
         service.execute(new Runnable() {
             @Override
             public void run() {
