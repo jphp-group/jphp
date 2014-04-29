@@ -27,6 +27,34 @@ allprojects {
         test.java.srcDirs = ["src/main/tests"]
         test.resources.srcDirs = ["src/main/tests"]
     }
+
+    // dist
+    ext.distPath = "$rootProject.buildDir/dist-" + project.version
+
+    task collectJars(type: Copy){
+        into "$project.ext.distPath/libs"
+        from configurations.runtime
+        exclude "jphp-*"
+    }
+
+    task copyRuntimeLibs(type: Copy, dependsOn: "jar") {
+        into "$project.ext.distPath/libs"
+        from "$libsDir/" + jar.archiveName
+        rename jar.archiveName, "$jar.baseName." + jar.extension
+    }
+
+    task buildPortableDef(dependsOn: [copyRuntimeLibs, collectJars]) {
+        copy {
+            from "sdk/"
+            into "$project.ext.distPath/sdk"
+        }
+    }
+}
+
+task distZip (type: Zip) {
+    archiveName "dist-" + version + ".zip"
+    from project.ext.distPath
+    destinationDir buildDir
 }
 
 // extensions

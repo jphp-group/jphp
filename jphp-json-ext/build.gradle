@@ -7,3 +7,7 @@ dependencies {
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-core').sourceSets.test.output
 }
+
+task dist(dependsOn: buildPortableDef) {
+    // ...
+}

@@ -2,7 +2,7 @@ sourceSets {
     main.java.srcDirs = ['src']
 }
 
-jar {
+/*jar {
     jar.archiveName = 'jphp-cli.jar'
 
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -15,7 +15,7 @@ jar {
 
         into "$libsDir"
     }
-}
+}*/
 
 dependencies {
     compile project(':jphp-core')
@@ -23,3 +23,13 @@ dependencies {
     compile 'com.beust:jcommander:1.32'
 }
 
+task dist(dependsOn: buildPortableDef) {
+    // ...
+    copy {
+        from 'shell/jphp'
+        from 'shell/jphp.bat'
+        from 'shell/jphp.conf'
+
+        into project.ext.distPath
+    }
+}

@@ -2,4 +2,4 @@
 
 set ROOT=%~dp0
 
-java -Xms20m -jar "%ROOT%/jphp-cli.jar" %*
+java -Dfile.encoding=UTF8 -Xms20m -cp "%ROOT%/libs/*;" org.develnext.jphp.cli.CLI %*
