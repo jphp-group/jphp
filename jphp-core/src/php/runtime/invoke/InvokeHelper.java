@@ -346,7 +346,7 @@ final public class InvokeHelper {
             IObject maybeObject = env.getLateObject();
             if (maybeObject != null
                     && maybeObject.getReflection().isInstanceOf(classEntity))
-                return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args);
+                return ObjectInvokeHelper.invokeMethod(maybeObject, method, env, trace, args, true);
 
             env.error(trace,
                     ErrorType.E_STRICT,

@@ -919,7 +919,7 @@ public class ClassEntity extends Entity {
         }
 
         if (doConstruct && methodConstruct != null){
-            ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args);
+            ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args, true);
         }
         return object;
     }
@@ -946,7 +946,7 @@ public class ClassEntity extends Entity {
         }
 
         if (methodMagicClone != null){
-            ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null);
+            ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null, true);
         }
 
         return copy;

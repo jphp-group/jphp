@@ -43,12 +43,12 @@ abstract public class Invoker {
     abstract protected Memory invoke(Memory... args) throws Throwable;
 
     final public Memory call(Memory... args) throws Throwable {
-        pushCall(trace, args);
-        try {
+        /*pushCall(trace, args);
+        try {*/
             return invoke(args);
-        } finally {
+        /*} finally {
             popCall();
-        }
+        }*/
     }
 
     public Memory callNoThrow(Memory... args){

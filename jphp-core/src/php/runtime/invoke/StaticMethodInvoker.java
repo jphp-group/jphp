@@ -56,7 +56,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     protected Memory invoke(Memory... args) throws Throwable {
-        return InvokeHelper.callStatic(env, trace, method, args);
+        return InvokeHelper.callStatic(env, trace, method, args, false);
     }
 
     @Override

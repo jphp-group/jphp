@@ -180,7 +180,8 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory invokeMethod(IObject iObject, MethodEntity method,
-                                      Environment env, TraceInfo trace, Memory[] args) throws Throwable {
+                                      Environment env, TraceInfo trace, Memory[] args, boolean checkAccess)
+            throws Throwable {
         ClassEntity clazz = iObject.getReflection();
         if (method == null)
             method = clazz.methodMagicInvoke;
@@ -192,7 +193,9 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        InvokeHelper.checkAccess(env, trace, method);
+        if (checkAccess)
+            InvokeHelper.checkAccess(env, trace, method);
+
         Memory[] passed = InvokeHelper.makeArguments(
                 env, args, method.parameters, className, method.getName(), trace
         );

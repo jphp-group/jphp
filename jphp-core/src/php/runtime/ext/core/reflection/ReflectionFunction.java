@@ -111,7 +111,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
     public Memory invoke(Environment env, Memory... args) throws Throwable {
         if (closure != null)
             return ObjectInvokeHelper.invokeMethod(
-                    closure, closureEntity.methodMagicInvoke, env, env.peekCall(0).trace, args
+                    closure, closureEntity.methodMagicInvoke, env, env.peekCall(0).trace, args, true
             );
         else {
             return InvokeHelper.call(env, env.peekCall(0).trace, functionEntity, args);
