@@ -13,7 +13,14 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.HashSet;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
