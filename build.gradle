@@ -51,6 +51,11 @@ allprojects {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = "1.11";
+    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
+}
+
 task distZip (type: Zip) {
     archiveName "dist-" + version + ".zip"
     from project.ext.distPath
