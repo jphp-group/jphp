@@ -39,7 +39,6 @@ public class ErrorHandler {
             if (argCount > 4)
                 args[4] = new ArrayMemory(false, message.getTrace().args);
 
-            invoker.pushCall(trace, args);
             try {
                 invoker.setTrace(null);
                 return (invoker.call(args).toValue() != Memory.FALSE);
@@ -51,8 +50,6 @@ public class ErrorHandler {
                 throw e;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
-            } finally {
-                invoker.popCall();
             }
         }
         return false;

@@ -26,6 +26,8 @@ $invoker = A::test3();
 var_dump($invoker->canAccess());
 $invoker();
 
+$invoker = new Invoker('A::test2');
+
 ?>
 --EXPECTF--
 bool(true)
@@ -33,4 +35,4 @@ bool(true)
 bool(true)
 bool(false)
 
-Fatal error: Call to private method A::test2() from context '' in %s on line 24, position %d
+Recoverable error: Argument 1 passed to php\lang\Invoker::__construct() must be of the type callable, string given, called in %s on line %d, position %d and defined in Unknown on line %d, position %d

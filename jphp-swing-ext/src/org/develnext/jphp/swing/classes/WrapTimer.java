@@ -1,11 +1,10 @@
 package org.develnext.jphp.swing.classes;
 
+import org.develnext.jphp.swing.SwingExtension;
+import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
-import org.develnext.jphp.swing.SwingExtension;
-import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
@@ -14,7 +13,6 @@ import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -43,12 +41,7 @@ public class WrapTimer extends RootObject {
             public void actionPerformed(ActionEvent e) {
                 if (callback != null){
                     Memory[] args = new Memory[]{ new ObjectMemory(self) };
-                    callback.pushCall(TraceInfo.UNKNOWN, args);
-                    try {
-                        callback.callNoThrow(args);
-                    } finally {
-                        callback.popCall();
-                    }
+                    callback.callNoThrow(args);
                 }
             }
         });

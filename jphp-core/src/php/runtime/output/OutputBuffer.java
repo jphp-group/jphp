@@ -179,31 +179,27 @@ public class OutputBuffer {
 
             args[1] = LongMemory.valueOf(status);
 
-            invoker.pushCall(trace == null ? TraceInfo.UNKNOWN : trace, args);
+            invoker.setTrace(trace == null ? TraceInfo.UNKNOWN : trace);
+            Memory result;
+            incLock();
             try {
-                Memory result;
-                incLock();
-                try {
-                   result = invoker.call(args).toValue();
-                } finally {
-                    decLock();
-                }
-                if (result != Memory.FALSE){
-                    byte[] data = result instanceof BinaryMemory
-                            ? result.getBinaryBytes() : result.toString().getBytes(environment.getDefaultCharset());
-                    if (flush){
-                        if (output == null)
-                            parentOutput.write(data);
-                        else
-                            output.write(data);
-                        reset();
-                        status = HANDLER_FLUSH;
-                    }
-
-                    return;
-                }
+               result = invoker.call(args).toValue();
             } finally {
-                invoker.popCall();
+                decLock();
+            }
+            if (result != Memory.FALSE){
+                byte[] data = result instanceof BinaryMemory
+                        ? result.getBinaryBytes() : result.toString().getBytes(environment.getDefaultCharset());
+                if (flush){
+                    if (output == null)
+                        parentOutput.write(data);
+                    else
+                        output.write(data);
+                    reset();
+                    status = HANDLER_FLUSH;
+                }
+
+                return;
             }
         }
 

@@ -38,9 +38,18 @@ abstract public class Invoker {
 
     abstract public int getArgumentCount();
 
-    abstract public void pushCall(TraceInfo trace, Memory[] args);
+    abstract protected void pushCall(TraceInfo trace, Memory[] args);
 
-    abstract public Memory call(Memory... args) throws Throwable;
+    abstract protected Memory invoke(Memory... args) throws Throwable;
+
+    final public Memory call(Memory... args) throws Throwable {
+        pushCall(trace, args);
+        try {
+            return invoke(args);
+        } finally {
+            popCall();
+        }
+    }
 
     public Memory callNoThrow(Memory... args){
         try {
@@ -52,7 +61,7 @@ abstract public class Invoker {
         }
     }
 
-    public void popCall(){
+    protected void popCall(){
         env.popCall();
     }
 

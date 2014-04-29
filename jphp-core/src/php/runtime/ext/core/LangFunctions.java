@@ -522,15 +522,7 @@ public class LangFunctions extends FunctionsContainer {
         }
         invoker.setTrace(trace);
 
-        invoker.pushCall(null, args);
-        Memory result = Memory.FALSE;
-
-        try {
-            result = invoker.call(args);
-        } finally {
-            invoker.popCall();
-        }
-        return result;
+        return invoker.call(args);
     }
 
     public static Memory call_user_func(Environment env, TraceInfo trace, Memory function, Memory... args)

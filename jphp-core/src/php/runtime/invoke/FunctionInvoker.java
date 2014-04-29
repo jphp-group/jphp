@@ -42,7 +42,7 @@ public class FunctionInvoker extends Invoker {
     }
 
     @Override
-    public Memory call(Memory... args) throws Throwable {
+    protected Memory invoke(Memory... args) throws Throwable {
         return InvokeHelper.call(env, trace, entity, args);
     }
 

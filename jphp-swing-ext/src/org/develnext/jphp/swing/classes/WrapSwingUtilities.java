@@ -1,12 +1,11 @@
 package org.develnext.jphp.swing.classes;
 
+import org.develnext.jphp.swing.SwingExtension;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.DieException;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
 import php.runtime.ext.java.JavaObject;
-import org.develnext.jphp.swing.SwingExtension;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.BaseObject;
@@ -99,15 +98,12 @@ final public class WrapSwingUtilities extends BaseObject {
                             else
                                 args[0] = new ObjectMemory(JavaObject.of(env, e));
 
-                            callback.pushCall(TraceInfo.UNKNOWN, args);
                             try {
                                 callback.call(args);
                             } catch (DieException e1) {
                                 System.exit(e1.getExitCode());
                             } catch (Throwable throwable) {
                                 showExceptionMessage(env, throwable);
-                            } finally {
-                                callback.popCall();
                             }
                         } else {
                             showExceptionMessage(env, e);

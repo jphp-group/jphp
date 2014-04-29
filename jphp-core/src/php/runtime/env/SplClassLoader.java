@@ -39,13 +39,7 @@ public class SplClassLoader {
     }
 
     public boolean load(Memory... args){
-        // recursion
-        invoker.pushCall(null, new Memory[0]);
-        try {
-            return invoker.callNoThrow(args).toBoolean();
-        } finally {
-            invoker.popCall();
-        }
+        return invoker.callNoThrow(args).toBoolean();
     }
 
     public Invoker getInvoker() {

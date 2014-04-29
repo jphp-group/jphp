@@ -34,7 +34,7 @@ class MagicDynamicMethodInvoker extends DynamicMethodInvoker {
     }
 
     @Override
-    public Memory call(Memory... args) throws Throwable {
-        return super.call(methodName, new ArrayMemory(false, args));
+    protected Memory invoke(Memory... args) throws Throwable {
+        return super.invoke(methodName, new ArrayMemory(false, args));
     }
 }

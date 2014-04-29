@@ -280,16 +280,7 @@ public class FileObject extends BaseObject {
                     FileObject o = new FileObject(env, __class__, dir);
                     Memory[] args = new Memory[]{new ObjectMemory(o), new StringMemory(name)};
 
-                    invoker.pushCall(trace, args);
-                    try {
-                        return invoker.call(args).toBoolean();
-                    } catch (RuntimeException e){
-                        throw e;
-                    } catch (Throwable throwable) {
-                        throw new RuntimeException(throwable);
-                    } finally {
-                        invoker.popCall();
-                    }
+                    return invoker.callNoThrow(args).toBoolean();
                 }
             });
             return new ArrayMemory(result);
@@ -316,16 +307,7 @@ public class FileObject extends BaseObject {
                     FileObject o = new FileObject(env, __class__, dir);
                     Memory[] args = new Memory[]{new ObjectMemory(o), new StringMemory(name)};
 
-                    invoker.pushCall(trace, args);
-                    try {
-                        return invoker.call(args).toBoolean();
-                    } catch (RuntimeException e){
-                        throw e;
-                    } catch (Throwable throwable) {
-                        throw new RuntimeException(throwable);
-                    } finally {
-                        invoker.popCall();
-                    }
+                    return invoker.callNoThrow(args).toBoolean();
                 }
             });
         }
