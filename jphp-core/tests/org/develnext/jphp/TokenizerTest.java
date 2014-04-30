@@ -395,5 +395,17 @@ public class TokenizerTest {
         assertTrue(token instanceof StringExprToken);
         assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
         assertEquals(" \\n<foobar> ", ((StringExprToken) token).getValue());
+
+        tokenizer = new Tokenizer(
+                new Context("a(<<<DOC\n<foobar>\nDOC\n)\n")
+        );
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof NameToken);
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof BraceExprToken);
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
+        assertEquals("<foobar>", ((StringExprToken) token).getValue());
     }
 }

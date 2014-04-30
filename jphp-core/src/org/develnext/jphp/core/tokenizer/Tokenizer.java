@@ -270,8 +270,9 @@ public class Tokenizer {
                     if (end < codeLength){
                         String tmp = code.substring(i + 1, end - 1);
                         if (tmp.equals(endString)
-                                && code.charAt(end - 1) == ';'
-                                && GrammarUtils.isNewline(code.charAt(end))){
+                                && (code.charAt(end - 1) == ';'
+                                && GrammarUtils.isNewline(code.charAt(end)))
+                                || GrammarUtils.isNewline(code.charAt(end - 1))){
                             currentPosition = i + endString.length();
                             relativePosition = endString.length();
                             ch_quote = StringExprToken.Quote.DOC;
