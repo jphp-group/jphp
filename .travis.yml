@@ -9,4 +9,4 @@ jdk:
 before_install:
  - chmod +x gradlew
 
-script: gradle check
+script: ./gradlew check
