@@ -8,7 +8,7 @@ import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.compiler.AbstractCompiler;
-import org.develnext.jphp.core.compiler.jvm.stetament.*;
+import org.develnext.jphp.core.compiler.jvm.statement.*;
 import php.runtime.exceptions.CompileException;
 import php.runtime.exceptions.support.ErrorType;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
