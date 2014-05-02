@@ -7,6 +7,7 @@ jdk:
   - oraclejdk8
 
 before_install:
+ - gradle wrapper
  - chmod +x gradlew
 
-script: gradle check
+script: ./gradlew check
