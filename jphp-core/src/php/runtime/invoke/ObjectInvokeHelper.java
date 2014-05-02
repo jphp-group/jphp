@@ -180,6 +180,12 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory invokeMethod(IObject iObject, MethodEntity method,
+                                      Environment env, TraceInfo trace, Memory[] args)
+            throws Throwable {
+        return invokeMethod(iObject, method, env, trace, args, true);
+    }
+
+    public static Memory invokeMethod(IObject iObject, MethodEntity method,
                                       Environment env, TraceInfo trace, Memory[] args, boolean checkAccess)
             throws Throwable {
         ClassEntity clazz = iObject.getReflection();
