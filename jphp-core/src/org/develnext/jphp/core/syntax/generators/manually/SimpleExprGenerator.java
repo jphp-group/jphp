@@ -665,7 +665,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if ((current instanceof MinusExprToken || current instanceof PlusExprToken)
                 && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
-                        || next instanceof HexExprValue)){
+                        || next instanceof HexExprValue || next instanceof BinaryExprValue)){
 
             if (!(previous instanceof ValueExprToken
                     || previous instanceof ArrayGetExprToken || previous instanceof DynamicAccessExprToken
