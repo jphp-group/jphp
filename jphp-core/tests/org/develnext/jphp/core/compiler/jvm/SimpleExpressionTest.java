@@ -368,4 +368,27 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals(255, memory.toLong());
         Assert.assertEquals(Memory.Type.INT, memory.type);
     }
+
+    @Test
+    public void testUnaryPlusMinus() {
+        Memory memory;
+
+        memory = runDynamic("+ 1");
+        Assert.assertEquals(1, memory.toLong());
+
+        memory = runDynamic("- 1");
+        Assert.assertEquals(-1, memory.toLong());
+
+        memory = runDynamic("+ 0x01");
+        Assert.assertEquals(1, memory.toLong());
+
+        memory = runDynamic("- 0x01");
+        Assert.assertEquals(-1, memory.toLong());
+
+        memory = runDynamic("+ 0b01");
+        Assert.assertEquals(1, memory.toLong());
+
+        memory = runDynamic("- 0b01");
+        Assert.assertEquals(-1, memory.toLong());
+    }
 }
