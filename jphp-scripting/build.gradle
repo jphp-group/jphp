@@ -1,0 +1,19 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
+
+dependencies {
+    compile project(':jphp-core')
+    compile project(':jphp-zend-ext')
+}
+
+task dist(dependsOn: buildPortableDef) {
+    // ...
+}
