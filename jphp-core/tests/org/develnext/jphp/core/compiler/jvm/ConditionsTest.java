@@ -47,4 +47,9 @@ public class ConditionsTest extends JvmCompilerCase {
         Memory memory = includeResource("conditions/elvis.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testSwitchBugs() {
+        check("conditions/switch_bug110.php");
+    }
 }

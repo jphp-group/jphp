@@ -34,7 +34,7 @@ public class SwitchCompiler extends BaseStatementCompiler<SwitchStmtToken> {
 
         LabelNode[][] jumps = new LabelNode[token.getCases().size() + 1][2];
         int i = 0;
-        for(CaseStmtToken one : token.getCases()){
+        for(CaseStmtToken one : token.getCases()) {
             jumps[i] = new LabelNode[]{ new LabelNode(), new LabelNode() }; // checkLabel, bodyLabel
             if (i == jumps.length - 1)
                 jumps[i] = new LabelNode[]{ end, end };
@@ -69,8 +69,12 @@ public class SwitchCompiler extends BaseStatementCompiler<SwitchStmtToken> {
         i = 0;
         for(CaseStmtToken one : token.getCases()){
             add(jumps[i][1]);
+            expr.writeDefineVariables(one.getLocals());
+
             expr.write(BodyStmtToken.class, one.getBody());
             i++;
+
+            expr.writeUndefineVariables(one.getLocals());
         }
 
         method.popJump();

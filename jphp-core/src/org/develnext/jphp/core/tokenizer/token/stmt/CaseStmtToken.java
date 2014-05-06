@@ -2,9 +2,12 @@ package org.develnext.jphp.core.tokenizer.token.stmt;
 
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
+
+import java.util.Set;
 
 public class CaseStmtToken extends StmtToken {
-
+    private Set<VariableExprToken> locals;
     private ExprStmtToken conditional;
     private BodyStmtToken body;
 
@@ -30,5 +33,13 @@ public class CaseStmtToken extends StmtToken {
 
     public void setBody(BodyStmtToken body) {
         this.body = body;
+    }
+
+    public Set<VariableExprToken> getLocals() {
+        return locals;
+    }
+
+    public void setLocals(Set<VariableExprToken> locals) {
+        this.locals = locals;
     }
 }

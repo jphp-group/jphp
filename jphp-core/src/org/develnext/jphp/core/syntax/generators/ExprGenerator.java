@@ -38,6 +38,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected void processCase(CaseStmtToken result, ListIterator<Token> iterator){
+        analyzer.addScope();
+
         if (!(result instanceof DefaultStmtToken)){
             Token next = nextToken(iterator);
             ExprStmtToken conditional = analyzer.generator(SimpleExprGenerator.class).getToken(
@@ -57,6 +59,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             EndswitchStmtToken.class, CaseStmtToken.class, DefaultStmtToken.class, BraceExprToken.class
         );
         result.setBody(body);
+
+        result.setLocals(analyzer.removeScope().getVariables());
     }
 
     protected void processSwitch(SwitchStmtToken result, ListIterator<Token> iterator){
