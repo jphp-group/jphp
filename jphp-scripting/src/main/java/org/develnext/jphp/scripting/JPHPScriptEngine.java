@@ -103,12 +103,14 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
 
         @Override
         public Object put(String name, Object value) {
-            return globals.put(name, MemoryUtils.valueOf(value));
+            return globals.putAsKeyString(name, MemoryUtils.valueOf(value));
         }
 
         @Override
         public void putAll(Map<? extends String, ? extends Object> toMerge) {
-            throw new NotImplementedException();
+            for (String key : toMerge.keySet()) {
+                put(key, toMerge.get(key));
+            }
         }
 
         @Override
@@ -118,7 +120,7 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
 
         @Override
         public Set<String> keySet() {
-            Set<String> set = new HashSet<String>();
+            Set<String> set = new HashSet<String>(size());
             for (Object k : globals.keySet()) {
                 set.add(k.toString());
             }
@@ -132,7 +134,11 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
 
         @Override
         public Set<Entry<String, Object>> entrySet() {
-            return null;
+            Set<Entry<String, Object>> set = new HashSet<Entry<String, Object>>(size());
+            for (Object k : globals.keySet()) {
+                set.add(new AbstractMap.SimpleEntry<String, Object>(k.toString(), get(k)));
+            }
+            return set;
         }
 
         @Override
