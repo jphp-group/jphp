@@ -14,5 +14,7 @@ public class Main {
         script.eval();
         script.getEngine().put("test", "another world\n");
         script.eval();
+        engine.eval("<?php $foo = 'bar';");
+        System.out.println(engine.get("foo").toString());
     }
 }

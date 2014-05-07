@@ -5,10 +5,13 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.launcher.Launcher;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ModuleEntity;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.script.*;
 import java.io.*;
+import java.util.*;
 
 public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable {
 
@@ -19,9 +22,20 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
     private static final String __LANGUAGE_VERSION__ = "5.3";
 
     private ScriptEngineFactory factory = null;
+    private Environment environment;
 
     public JPHPScriptEngine() {
         super();
+
+        Launcher launcher = new Launcher();
+        try {
+            launcher.run(false);
+        } catch (Throwable e) {
+            //pass
+        }
+        environment = new Environment(launcher.getCompileScope(), System.out);
+        environment.getDefaultBuffer().setImplicitFlush(true);
+
         JPHPContext ctx = new JPHPContext();
         ctx.setBindings(createBindings(), ScriptContext.ENGINE_SCOPE);
         setContext(ctx);
@@ -32,8 +46,6 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
         put(ENGINE_VERSION, __ENGINE_VERSION__);
         put(NAME, __SHORT_NAME__);
     }
-
-
 
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
@@ -54,11 +66,6 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
     public CompiledScript compile(Reader reader) throws ScriptException {
         try {
             InputStream is = new ReaderInputStream(reader);
-            Launcher launcher = new Launcher();
-            launcher.run(false);
-
-            Environment environment = new Environment(launcher.getCompileScope(), System.out);
-            environment.getDefaultBuffer().setImplicitFlush(true);
             Context context = new Context(is);
             ModuleEntity module = environment.importModule(context);
             return new JPHPCompiledScript(module, environment);
@@ -71,7 +78,7 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
 
     @Override
     public Bindings createBindings() {
-        return new SimpleBindings();
+        return new JPHPBindings(environment.getGlobals());
     }
 
     @Override
@@ -84,6 +91,79 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
 
     public void setFactory(JPHPScriptEngineFactory f) {
         factory = f;
+    }
+
+    public class JPHPBindings implements Bindings {
+
+        private ArrayMemory globals;
+
+        public JPHPBindings(ArrayMemory globals) {
+            this.globals = globals;
+        }
+
+        @Override
+        public Object put(String name, Object value) {
+            return globals.put(name, MemoryUtils.valueOf(value));
+        }
+
+        @Override
+        public void putAll(Map<? extends String, ? extends Object> toMerge) {
+            throw new NotImplementedException();
+        }
+
+        @Override
+        public void clear() {
+            globals.clear();
+        }
+
+        @Override
+        public Set<String> keySet() {
+            Set<String> set = new HashSet<String>();
+            for (Object k : globals.keySet()) {
+                set.add(k.toString());
+            }
+            return set;
+        }
+
+        @Override
+        public Collection<Object> values() {
+            return new ArrayList<Object>(Arrays.asList(globals.values()));
+        }
+
+        @Override
+        public Set<Entry<String, Object>> entrySet() {
+            return null;
+        }
+
+        @Override
+        public int size() {
+            return globals.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return globals.containsKey(key);
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            return false;
+        }
+
+        @Override
+        public Object get(Object key) {
+            return globals.getByScalar(key);
+        }
+
+        @Override
+        public Object remove(Object key) {
+            return globals.removeByScalar(key);
+        }
     }
 
     public class JPHPCompiledScript extends CompiledScript {
@@ -99,9 +179,6 @@ public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable
         public Object eval(ScriptContext context) throws ScriptException {
             try {
                 try {
-                    Bindings b = context.getBindings(ScriptContext.ENGINE_SCOPE);
-                    ArrayMemory arr = new ArrayMemory(b);
-                    environment.getGlobals().putAll(arr);
                     return module.include(environment);
                 } catch (Exception e) {
                     environment.catchUncaught(e);

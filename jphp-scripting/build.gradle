@@ -7,9 +7,13 @@ sourceSets {
             srcDir 'src/main/resources'
         }
     }
+    test.resources.srcDirs = ["src/main/tests"]
 }
 
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-zend-ext')
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-core').sourceSets.test.output
 }
