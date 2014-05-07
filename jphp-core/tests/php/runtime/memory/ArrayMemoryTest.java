@@ -6,6 +6,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import php.runtime.Memory;
+import php.runtime.memory.support.MemoryUtils;
+
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -169,5 +172,39 @@ public class ArrayMemoryTest {
         arr.refOfIndex(2);
         assertEquals(1, arr.toLong());
         assertTrue(arr.toBoolean());
+    }
+
+    @Test
+    public void testContainsKey() {
+        ArrayMemory arr = new ArrayMemory();
+        assertFalse(arr.containsKey(0));
+        arr.add("test");
+        assertEquals(1, arr.size());
+        assertTrue(arr.containsKey(0));
+        assertTrue(arr.containsKey("0"));
+        assertFalse(arr.containsKey(1));
+        arr.put("k", MemoryUtils.valueOf("v"));
+        assertEquals(2, arr.size());
+        assertTrue(arr.containsKey("k"));
+    }
+
+    @Test
+    public void testKeySet() {
+        ArrayMemory arr = new ArrayMemory();
+        arr.add("t1");
+        arr.add("t2");
+        Set<Object> set = arr.keySet();
+        Object[] setArr = set.toArray();
+        assertEquals(2, setArr.length);
+        assertEquals(0, setArr[0]);
+        assertEquals(1, setArr[1]);
+        //convert into hashmap
+        arr.put("3", MemoryUtils.valueOf("t3"));
+        set = arr.keySet();
+        setArr = set.toArray();
+        assertEquals(3, setArr.length);
+        assertEquals(0, ((Memory)setArr[0]).toInteger());
+        assertEquals(1, ((Memory)setArr[1]).toInteger());
+        assertEquals("3", setArr[2].toString());
     }
 }
