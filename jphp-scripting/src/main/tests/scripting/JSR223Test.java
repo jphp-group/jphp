@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import php.runtime.Information;
+
 import javax.script.*;
 
 
@@ -18,7 +20,7 @@ public class JSR223Test {
         Assert.assertNotNull(engine);
         Assert.assertTrue(engine instanceof Compilable);
         Assert.assertNotNull(f);
-        Assert.assertEquals("JPHP Engine", f.getEngineName());
+        Assert.assertEquals(Information.NAME, f.getEngineName());
         Assert.assertEquals("php", f.getLanguageName());
     }
 

@@ -1,6 +1,7 @@
 package org.develnext.jphp.scripting;
 
 import org.develnext.jphp.scripting.util.ReaderInputStream;
+import php.runtime.Information;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.launcher.Launcher;
@@ -15,11 +16,11 @@ import java.util.*;
 
 public class JPHPScriptEngine extends AbstractScriptEngine implements Compilable {
 
-    private static final String __ENGINE_VERSION__   = "0.4";
-    private static final String __NAME__             = "JPHP Engine";
+    private static final String __ENGINE_VERSION__   = Information.CORE_VERSION;
+    private static final String __NAME__             = Information.NAME;
     private static final String __SHORT_NAME__       = "jphp";
     private static final String __LANGUAGE__         = "php";
-    private static final String __LANGUAGE_VERSION__ = "5.3";
+    private static final String __LANGUAGE_VERSION__ = Information.LIKE_PHP_VERSION;
 
     private ScriptEngineFactory factory = null;
     private Environment environment;
