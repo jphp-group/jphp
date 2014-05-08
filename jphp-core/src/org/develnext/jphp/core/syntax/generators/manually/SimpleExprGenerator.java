@@ -740,14 +740,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 } else if (next instanceof NameToken || next instanceof VariableExprToken){
                     result.setField((ValueExprToken)next);
                 } else if (next instanceof ClassStmtToken) { // PHP 5.5 ::class
-                    if (clazz instanceof NameToken) {
-                        StringExprToken r = new StringExprToken(
-                                TokenMeta.of(((NameToken) clazz).getName(), clazz),
-                                StringExprToken.Quote.SINGLE
-                        );
-                        return r;
-                    } else if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
+                    if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
                         result.setField(new ClassExprToken(next.getMeta()));
+                    } else if (clazz instanceof NameToken) {
+                            StringExprToken r = new StringExprToken(
+                                    TokenMeta.of(((NameToken) clazz).getName(), clazz),
+                                    StringExprToken.Quote.SINGLE
+                            );
+                            return r;
                     } else
                         unexpectedToken(next);
                 } else

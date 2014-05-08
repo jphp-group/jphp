@@ -109,4 +109,9 @@ public class ClassesTest extends JvmCompilerCase {
         Memory memory = includeResource("classes/new.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testBugs() {
+        check("classes/bug107.php");
+    }
 }

@@ -282,13 +282,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 String constant = ((NameToken) access.getField()).getName();
                 String clazz = null;
                 ClassEntity entity = null;
-                if (access.getClazz() instanceof FulledNameToken){
-                    clazz    = ((FulledNameToken) access.getClazz()).getName();
-                    entity = compiler.getModule().findClass(clazz);
-                } else if (access.getClazz() instanceof ParentExprToken){
+                if (access.getClazz() instanceof ParentExprToken){
                     entity = method.clazz.entity.getParent();
                     if (entity != null)
                         clazz = entity.getName();
+                } else if (access.getClazz() instanceof FulledNameToken){
+                    clazz    = ((FulledNameToken) access.getClazz()).getName();
+                    entity = compiler.getModule().findClass(clazz);
                 }
 
                 if (entity == null && method.clazz.entity != null && method.clazz.entity.getName().equalsIgnoreCase(clazz))
