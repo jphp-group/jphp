@@ -6,6 +6,7 @@ import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -210,8 +211,10 @@ final public class ObjectInvokeHelper {
             return result;
         }
 
-        if (trace != null)
-            env.pushCall(trace, iObject, args, method.getName(), method.getClazz().getName(), className);
+        if (trace != null) {
+            env.pushCall(trace, iObject, args, method.getName(),
+                    iObject instanceof Closure ? className : method.getClazz().getName(), className);
+        }
 
         try {
             result = method.invokeDynamic(iObject, env, passed);

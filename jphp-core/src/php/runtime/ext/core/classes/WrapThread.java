@@ -170,12 +170,14 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
 
     @Signature
     public Memory start(Environment env, Memory... args){
+        invoker.setTrace(env.trace());
         thread.start();
         return Memory.NULL;
     }
 
     @Signature
     public Memory run(Environment env, Memory... args){
+        invoker.setTrace(env.trace());
         thread.run();
         return Memory.NULL;
     }
