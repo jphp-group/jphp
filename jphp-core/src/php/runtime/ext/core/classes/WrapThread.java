@@ -199,7 +199,7 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
     }
 
     @Signature
-    public static Memory yield(Environment env, Memory... args){
+    public static Memory doYield(Environment env, Memory... args){
         Thread.yield();
         return Memory.NULL;
     }

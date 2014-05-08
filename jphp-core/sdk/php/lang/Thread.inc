@@ -85,7 +85,7 @@ class Thread {
      * its current use of a processor. The scheduler is free to ignore this
      * hint.
      */
-    public static function yield() { }
+    public static function doYield() { }
 
     /**
      * Causes the currently executing thread to sleep (temporarily cease
