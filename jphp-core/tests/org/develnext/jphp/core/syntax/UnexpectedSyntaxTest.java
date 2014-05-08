@@ -111,4 +111,9 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
     public void testBug104() {
         getSyntaxTree("$c = new A($this->foo = bar());");
     }
+
+    @Test
+    public void testBug101() {
+        getSyntaxTree("$b = $a instanceof \\Closure ? 1 : 2;");
+    }
 }

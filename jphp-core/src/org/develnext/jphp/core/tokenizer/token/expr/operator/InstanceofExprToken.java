@@ -6,6 +6,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.OperatorExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
+import php.runtime.common.Association;
 
 public class InstanceofExprToken extends OperatorExprToken {
 
@@ -13,6 +14,11 @@ public class InstanceofExprToken extends OperatorExprToken {
 
     public InstanceofExprToken(TokenMeta meta) {
         super(meta, TokenType.T_INSTANCEOF);
+    }
+
+    @Override
+    public Association getOnlyAssociation() {
+        return Association.LEFT;
     }
 
     @Override
