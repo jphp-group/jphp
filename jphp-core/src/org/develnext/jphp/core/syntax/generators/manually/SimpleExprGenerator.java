@@ -358,13 +358,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 DynamicAccessAssignExprToken dResult = new DynamicAccessAssignExprToken(result);
                 dResult.setAssignOperator(next);
 
-                analyzer.generator(SimpleExprGenerator.class);
                 ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
-                        .setCanStartByReference(true).getToken(
-                                nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind
-                        );
-                if (closedBraceKind == null || braceOpened < 1)
-                    iterator.previous();
+                        .setCanStartByReference(true)
+                        .getNextExpression(nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind);
+
                 dResult.setValue(value);
                 return dResult;
             }

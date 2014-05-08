@@ -106,4 +106,9 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
     public void testStatics(){
         getSyntaxTree("static $x = 100500, $y, $z = 'foobar', $a, $b;");
     }
+
+    @Test
+    public void testBug104() {
+        getSyntaxTree("$c = new A($this->foo = bar());");
+    }
 }
