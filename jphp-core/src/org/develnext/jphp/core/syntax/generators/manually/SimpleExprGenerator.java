@@ -1008,7 +1008,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
                 if (separator == Separator.ARRAY)
                     break;
-                if (closedBraceKind == BraceExprToken.Kind.ARRAY){
+                if (closedBraceKind == BraceExprToken.Kind.ARRAY || closedBraceKind == BraceExprToken.Kind.ANY){
                     //if (tokens.isEmpty())
                     iterator.previous();
                     break;

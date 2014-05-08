@@ -52,4 +52,9 @@ public class ConditionsTest extends JvmCompilerCase {
     public void testSwitchBugs() {
         check("conditions/switch_bug110.php");
     }
+
+    @Test
+    public void testElvisBugs() {
+        check("conditions/elvis_bug106.php");
+    }
 }
