@@ -3,6 +3,7 @@ package org.develnext.jphp.core.tokenizer;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 
 public class GrammarUtils {
+    private final static char CHAR_UNDEFINED = 0xFFFF;
 
     public final static String CLOSE_TAG = "?>";
     public final static String OPEN_TAG = "<?";
@@ -14,6 +15,14 @@ public class GrammarUtils {
 
     public static boolean isValidName(String name){
         return (name.matches("^[a-z_\\x7f-\\xff][a-z0-9_\\x7f-\\xff]{0,60}$"));
+    }
+
+    public static boolean isNameChar(char c) {
+        return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || (c == '_')
+                || (c >= '0' && c <= '9')
+                || (c >= 127);
     }
 
     public static boolean isVariableChar(char ch){

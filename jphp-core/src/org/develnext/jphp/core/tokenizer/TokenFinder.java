@@ -205,7 +205,7 @@ public class TokenFinder {
                                 isVar = false;
                                 break;
                             }
-                            if (ch != '_' && !Character.isLetter(ch) && !Character.isDigit(ch)) {
+                            if (ch != '_' && !GrammarUtils.isNameChar(ch)) {
                                 isVar = false;
                                 break;
                             }
@@ -303,7 +303,7 @@ public class TokenFinder {
                         if (i == 0){
                             isName = false;
                         }
-                    } else if (Character.isLetter(ch)){
+                    } else if (GrammarUtils.isNameChar(ch)){
                         isInt = false;
                     } else {
                         return null;
