@@ -122,6 +122,11 @@ public class MemoryTest {
         Assert.assertNull(StringMemory.toLong("-"));
         Assert.assertEquals(-1, StringMemory.toLong("-1").toLong());
         Assert.assertEquals(32, StringMemory.toLong("32").toLong());
+
+        Assert.assertTrue(new BinaryMemory(new byte[]{1,2}).toBoolean());
+        Assert.assertFalse(new BinaryMemory(new byte[]{}).toBoolean());
+        Assert.assertFalse(new BinaryMemory().toBoolean());
+        Assert.assertFalse(new BinaryMemory(new byte[]{'0'}).toBoolean());
     }
 
     @Test

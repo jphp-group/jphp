@@ -94,4 +94,9 @@ public class BinaryMemory extends StringMemory {
 
         return new StringMemory((char)(bytes[i.toInteger()] & 0xFF));
     }
+
+    @Override
+    public boolean toBoolean() {
+        return (bytes != null && bytes.length > 0 && bytes[0] != '0');
+    }
 }
