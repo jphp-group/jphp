@@ -6,6 +6,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.OperatorExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import php.runtime.common.Association;
 
 public class InstanceofExprToken extends OperatorExprToken {
@@ -31,6 +32,10 @@ public class InstanceofExprToken extends OperatorExprToken {
         return false;
     }
 
+    public ExprStmtToken getWhatExpr() {
+        return what instanceof ExprStmtToken ? (ExprStmtToken)what : null;
+    }
+
     public FulledNameToken getWhat() {
         return what instanceof FulledNameToken ? (FulledNameToken)what : null;
     }
@@ -43,11 +48,19 @@ public class InstanceofExprToken extends OperatorExprToken {
         return what instanceof VariableExprToken;
     }
 
+    public boolean isExpression() {
+        return what instanceof ExprStmtToken;
+    }
+
     public void setWhat(FulledNameToken what) {
         this.what = what;
     }
 
     public void setWhatVariable(VariableExprToken what){
+        this.what = what;
+    }
+
+    public void setWhatExpr(ExprStmtToken what) {
         this.what = what;
     }
 

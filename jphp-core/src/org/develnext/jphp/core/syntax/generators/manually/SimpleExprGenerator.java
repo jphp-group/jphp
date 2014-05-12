@@ -578,8 +578,24 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 InstanceofExprToken instanceOf = (InstanceofExprToken)current;
                 if (next instanceof NameToken)
                     instanceOf.setWhat( analyzer.getRealName((NameToken)next) );
-                else
-                    instanceOf.setWhatVariable( (VariableExprToken)next );
+                else {
+                    current = next;
+                    next = nextToken(iterator);
+                    if (next instanceof DynamicAccessExprToken) {
+                        instanceOf.setWhatExpr(new ExprStmtToken(
+                                current, // variable
+                                processDynamicAccess(next, nextTokenAndPrev(iterator), iterator, closedBraceKind, braceOpened)
+                        ));
+                    } else if (isOpenedBrace(next, BraceExprToken.Kind.ARRAY)) {
+                        instanceOf.setWhatExpr(new ExprStmtToken(
+                                current, // variable
+                                processArrayToken(next, nextTokenAndPrev(iterator), iterator)
+                        ));
+                    } else {
+                        instanceOf.setWhatVariable( (VariableExprToken)current );
+                        iterator.previous();
+                    }
+                }
                 return instanceOf;
             } else
                 unexpectedToken(next, TokenType.T_STRING);

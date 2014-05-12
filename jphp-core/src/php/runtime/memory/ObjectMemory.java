@@ -474,7 +474,10 @@ public class ObjectMemory extends Memory {
     @Override
     public boolean instanceOf(String className, String lowerClassName) {
         ClassEntity origin = value.getReflection();
-        return origin.isInstanceOfLower(lowerClassName);
+        if (!lowerClassName.isEmpty() && lowerClassName.charAt(0) == '\\')
+            return origin.isInstanceOf(lowerClassName.substring(1));
+        else
+            return origin.isInstanceOfLower(lowerClassName);
     }
 
     @Override

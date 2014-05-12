@@ -28,6 +28,10 @@ public class InstanceOfCompiler extends BaseExprCompiler<InstanceofExprToken> {
             expr.writePushVariable(instanceOf.getWhatVariable());
             expr.writePopString();
             expr.writePushDupLowerCase();
+        } else if (instanceOf.isExpression()) {
+            expr.writeExpression(instanceOf.getWhatExpr(), true, false);
+            expr.writePopString();
+            expr.writePushDupLowerCase();
         } else {
             expr.writePushConstString(instanceOf.getWhat().getName());
             expr.writePushConstString(instanceOf.getWhat().getName().toLowerCase());
