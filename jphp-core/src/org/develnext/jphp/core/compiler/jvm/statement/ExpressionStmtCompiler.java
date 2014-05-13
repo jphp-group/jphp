@@ -2009,6 +2009,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                              OperatorExprToken operator,
                              Class operatorResult, String operatorName){
         boolean isInvert = !R.isKnown();
+        if (!R.isKnown() && !L.isKnown() && R.getLevel() > L.getLevel())
+            isInvert = false;
 
         if (operator instanceof ConcatExprToken){
             if (isInvert){

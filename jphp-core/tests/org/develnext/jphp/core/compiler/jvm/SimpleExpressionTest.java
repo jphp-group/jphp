@@ -391,4 +391,10 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         memory = runDynamic("- 0b01");
         Assert.assertEquals(-1, memory.toLong());
     }
+
+    @Test
+    public void testBug119() {
+        Memory r = runDynamic("$val = 3; $t = '2'; return '1' . $t . (int)$val;", false);
+        Assert.assertEquals("123", r.toString());
+    }
 }
