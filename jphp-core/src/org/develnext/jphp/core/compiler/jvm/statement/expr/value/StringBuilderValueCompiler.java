@@ -8,16 +8,17 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringBuilderExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
+import java.util.List;
+
 public class StringBuilderValueCompiler extends BaseExprCompiler<StringBuilderExprToken> {
     public StringBuilderValueCompiler(ExpressionStmtCompiler exprCompiler) {
         super(exprCompiler);
     }
 
-    @Override
-    public void write(StringBuilderExprToken value, boolean returnValue) {
+    public void writeBuilder(List<Token> tokens) {
         expr.writePushNewObject(StringBuilder.class);
 
-        for(Token el : value.getExpression()){
+        for(Token el : tokens){
             //writePushDup();
             if (el instanceof ValueExprToken){
                 expr.writePush((ValueExprToken) el, true, false);
@@ -35,5 +36,10 @@ public class StringBuilderValueCompiler extends BaseExprCompiler<StringBuilderEx
         }
 
         expr.writeSysDynamicCall(StringBuilder.class, "toString", String.class);
+    }
+
+    @Override
+    public void write(StringBuilderExprToken value, boolean returnValue) {
+        writeBuilder(value.getExpression());
     }
 }

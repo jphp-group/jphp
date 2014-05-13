@@ -495,6 +495,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     protected Token processString(StringExprToken string){
         if (string.getSegments().isEmpty()){
+            if (string.getQuote() == StringExprToken.Quote.SHELL)
+                return new ShellExecExprToken(string.getMeta(), Collections.<Token>emptyList());
+
             return string;
         }
 
@@ -558,6 +561,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             tokens.add(item);
         }
+
+        if (string.getQuote() == StringExprToken.Quote.SHELL)
+            return new ShellExecExprToken(meta, tokens);
 
         return new StringBuilderExprToken(meta, tokens);
     }

@@ -10,7 +10,12 @@ import java.util.List;
 
 public class StringExprToken extends ValueExprToken {
 
-    public enum Quote { SINGLE, DOUBLE, SHELL, DOC }
+    public enum Quote { SINGLE, DOUBLE, SHELL, DOC;
+
+        public boolean isMagic() {
+            return this == DOUBLE || this == SHELL;
+        }
+    }
 
     public static class Segment {
         public final int from;

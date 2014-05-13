@@ -1,15 +1,14 @@
 package org.develnext.jphp.core.tokenizer;
 
-import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.ShellExecExprToken;
-import php.runtime.common.Directive;
-import php.runtime.common.Messages;
-import php.runtime.exceptions.ParseException;
-import php.runtime.env.Context;
-import php.runtime.env.TraceInfo;
 import org.develnext.jphp.core.tokenizer.token.*;
+import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.EchoRawToken;
+import php.runtime.common.Directive;
+import php.runtime.common.Messages;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.ParseException;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -200,7 +199,7 @@ public class Tokenizer {
         boolean slash = false;
         StringBuilder sb = new StringBuilder();
 
-        boolean isMagic = quote == StringExprToken.Quote.DOUBLE;
+        boolean isMagic = quote != null && quote.isMagic();
         String endString = null;
 
         if (quote == StringExprToken.Quote.DOC){
@@ -245,7 +244,7 @@ public class Tokenizer {
             currentPosition = i;
             i += 1; // skip \n
 
-            isMagic = (docType == null || docType == StringExprToken.Quote.DOUBLE);
+            isMagic = (docType == null || docType.isMagic());
             endString = tmp.toString();
         }
 
@@ -486,9 +485,6 @@ public class Tokenizer {
         meta.setWord(sb.toString());
 
         StringExprToken expr = new StringExprToken(meta, quote);
-        if (expr.getQuote() == StringExprToken.Quote.SHELL)
-            return new ShellExecExprToken(meta);
-
         expr.setSegments(segments);
         return expr;
     }

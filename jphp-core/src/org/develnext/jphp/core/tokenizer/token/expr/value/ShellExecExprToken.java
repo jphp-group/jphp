@@ -1,11 +1,12 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
 import org.develnext.jphp.core.tokenizer.TokenMeta;
-import org.develnext.jphp.core.tokenizer.TokenType;
-import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
+import org.develnext.jphp.core.tokenizer.token.Token;
 
-public class ShellExecExprToken extends ValueExprToken {
-    public ShellExecExprToken(TokenMeta meta) {
-        super(meta, TokenType.T_J_CUSTOM);
+import java.util.List;
+
+public class ShellExecExprToken extends StringBuilderExprToken implements CallableExprToken {
+    public ShellExecExprToken(TokenMeta meta, List<Token> expression) {
+        super(meta, expression);
     }
 }
