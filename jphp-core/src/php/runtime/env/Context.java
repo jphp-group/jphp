@@ -19,6 +19,14 @@ public class Context {
         this.inputStream = input;
     }
 
+    public Context(InputStream input, Charset charset) {
+        this(input, null, charset);
+    }
+
+    public Context(InputStream input) {
+        this(input, null, Charset.defaultCharset());
+    }
+
     public Context(File file, Charset charset) {
         this.file = file;
         this.moduleName = file.getPath();

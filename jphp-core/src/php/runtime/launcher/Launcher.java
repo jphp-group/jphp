@@ -137,8 +137,6 @@ public class Launcher {
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }
-        } else {
-            throw new LaunchException("Cannot find configuration: " + pathToConf);
         }
     }
 

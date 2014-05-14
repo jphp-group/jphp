@@ -100,6 +100,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             return value;
     }
 
+    public Set<Object> keySet() {
+        if (list != null) {
+            Set<Object> set = new HashSet<Object>(size());
+            for (int i = 0; i < size(); i++) {
+                set.add(i);
+            }
+            return set;
+        }
+        return map.keySet();
+    }
+
     public ArrayMemory duplicate(){
         ArrayMemory result = new ArrayMemory();
         result.lastLongIndex = lastLongIndex;
@@ -154,6 +165,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             default:
                 return LongMemory.valueOf(key.toLong());
         }
+    }
+
+    public boolean containsKey(Object key) {
+        if (size() == 0) {
+            return false;
+        }
+        if (list != null) {
+            long t = MemoryUtils.valueOf(key).toLong();
+            return t >= 0 && t < list.size();
+        }
+        return map.containsKey(key);
     }
 
     private void convertToMap(){
