@@ -11,7 +11,6 @@ import php.runtime.reflection.ModuleEntity;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.logging.ConsoleHandler;
 
 public class CLI {
     private final Arguments arguments;
