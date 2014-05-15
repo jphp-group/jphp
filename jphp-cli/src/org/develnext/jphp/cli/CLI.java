@@ -48,7 +48,7 @@ public class CLI {
 
     protected void checkSyntax(String filename) throws Throwable {
         Launcher launcher = new Launcher("jphp.conf", args);
-        launcher.run(false);
+        launcher.run(false, true);
         File file = new File(filename);
         Environment environment = new Environment(launcher.getCompileScope(), output);
         Context context = new Context(file);
