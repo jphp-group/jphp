@@ -9,6 +9,7 @@ import php.runtime.reflection.ModuleEntity;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.logging.ConsoleHandler;
 
 public class CLI {
     private final Arguments arguments;
@@ -43,7 +44,7 @@ public class CLI {
         output.println();
     }
 
-    protected void executeFile(String filename) throws Throwable {
+    protected void executeFile(String filename, boolean checkOnly) throws Throwable {
         Launcher launcher = new Launcher("jphp.conf", args);
         launcher.run(false);
 
@@ -55,7 +56,12 @@ public class CLI {
             Context context = new Context(file);
             ModuleEntity module = environment.importModule(context);
 
-            module.include(environment);
+            if (!checkOnly) {
+                module.include(environment);
+            } else {
+                output.print("No syntax errors detected in ");
+                output.println(filename);
+            }
         } catch (Exception e){
             environment.catchUncaught(e);
         } catch (Throwable throwable) {
@@ -75,7 +81,7 @@ public class CLI {
         else if (arguments.showVersion){
             showVersion();
         } else if (arguments.file != null){
-            executeFile(arguments.file);
+            executeFile(arguments.file, arguments.runLint);
         } else
             showHelp();
     }
