@@ -185,7 +185,7 @@ public class FunctionStmtToken extends StmtToken {
 
     public String getFulledName(char delimiter){
         return namespace == null || namespace.getName() == null
-                ? name.getName()
+                ? (name == null ? null : name.getName())
                 : namespace.getName().toName(delimiter) + delimiter + name.getName();
     }
 

@@ -229,7 +229,8 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            return Memory.NULL;
+            //env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
@@ -240,7 +241,8 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
-            env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
+            return Memory.NULL;
+            //env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
