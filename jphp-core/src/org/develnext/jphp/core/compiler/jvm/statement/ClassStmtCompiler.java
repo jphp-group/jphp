@@ -537,7 +537,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             if (_interface != null){
                 for(ClassEntity el : _interface.getInterfaces().values()){
-                    writeInterfaces(el, used);
+                    if (!_interface.isInternal() || !el.isInternal())
+                        writeInterfaces(el, used);
                 }
             }
         }

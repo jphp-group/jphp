@@ -1,15 +1,17 @@
 package php.runtime.lang.spl.iterator;
 
-import php.runtime.annotation.Reflection;
-import php.runtime.env.Environment;
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 
-@Reflection.Name("RecursiveIterator")
+import static php.runtime.annotation.Reflection.Name;
+import static php.runtime.annotation.Reflection.Signature;
+
+@Name("RecursiveIterator")
 public interface RecursiveIterator extends Iterator {
 
-    @Reflection.Signature
+    @Signature
     public Memory getChildren(Environment env, Memory... args);
 
-    @Reflection.Signature
+    @Signature
     public Memory hasChildren(Environment env, Memory... args);
 }
