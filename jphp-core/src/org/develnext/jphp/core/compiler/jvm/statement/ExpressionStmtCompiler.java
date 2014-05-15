@@ -2110,7 +2110,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case BOOL:
             case CHAR:
             case INT: {
-                code.add(new InsnNode(L2I));
+                code.add(new InsnNode(I2L));
                 stackPop();
                 stackPush(Memory.Type.INT);
             } break;
