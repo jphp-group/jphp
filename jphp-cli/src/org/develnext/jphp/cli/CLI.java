@@ -1,6 +1,8 @@
 package org.develnext.jphp.cli;
 
 import com.beust.jcommander.JCommander;
+import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
+import org.develnext.jphp.core.tokenizer.Tokenizer;
 import php.runtime.Information;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -44,7 +46,30 @@ public class CLI {
         output.println();
     }
 
-    protected void executeFile(String filename, boolean checkOnly) throws Throwable {
+    protected void checkSyntax(String filename) throws Throwable {
+        Launcher launcher = new Launcher("jphp.conf", args);
+        launcher.run(false);
+        File file = new File(filename);
+        Environment environment = new Environment(launcher.getCompileScope(), output);
+        Context context = new Context(file);
+        try {
+            SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, new Tokenizer(context));
+            analyzer.getTree();
+            output.println(String.format("No syntax errors detected in %s", filename));
+        } catch (Exception e) {
+            environment.catchUncaught(e);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        } finally {
+            try {
+                environment.doFinal();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+    }
+
+    protected void executeFile(String filename) throws Throwable {
         Launcher launcher = new Launcher("jphp.conf", args);
         launcher.run(false);
 
@@ -55,13 +80,7 @@ public class CLI {
         try {
             Context context = new Context(file);
             ModuleEntity module = environment.importModule(context);
-
-            if (!checkOnly) {
-                module.include(environment);
-            } else {
-                output.print("No syntax errors detected in ");
-                output.println(filename);
-            }
+            module.include(environment);
         } catch (Exception e){
             environment.catchUncaught(e);
         } catch (Throwable throwable) {
@@ -76,14 +95,17 @@ public class CLI {
     }
 
     public void process() throws Throwable {
-        if (arguments.showHelp)
+        if (arguments.showHelp) {
             showHelp();
-        else if (arguments.showVersion){
+        } else if (arguments.showVersion) {
             showVersion();
+        } else if (arguments.runLint && arguments.file != null) {
+            checkSyntax(arguments.file);
         } else if (arguments.file != null){
-            executeFile(arguments.file, arguments.runLint);
-        } else
+            executeFile(arguments.file);
+        } else {
             showHelp();
+        }
     }
 
     public static void main(String[] args) throws Throwable {
