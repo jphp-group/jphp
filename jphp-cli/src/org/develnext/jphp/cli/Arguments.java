@@ -30,8 +30,8 @@ final public class Arguments {
     @Parameter(names = "-F", description = "<file>  Parse and execute <file> for every input line", echoInput = true)
     public String inputFile;
 
-    @Parameter(names = "-l", description = "PHP information")
-    public boolean phpInformation;
+    @Parameter(names = "-l", description = "Syntax check only (lint)")
+    public boolean runLint;
 
     @Parameter(names = "-r", description = "<code>  Run PHP <code> without using script tags <?..?>")
     public String code;

@@ -165,19 +165,25 @@ public class Launcher {
         environment.getDefaultBuffer().setImplicitFlush(true);
     }
 
-    public void run() throws Throwable {
-        run(true);
-    }
-
     public void printTrace(String name) {
         long t = System.currentTimeMillis() - startTime;
         System.out.printf("[%s] = " + t + " millis\n", name);
         startTime = System.currentTimeMillis();
     }
 
+    public void run() throws Throwable {
+        run(true);
+    }
+
     public void run(boolean mustBootstrap) throws Throwable {
+        run(mustBootstrap, false);
+    }
+
+    public void run(boolean mustBootstrap, boolean disableExtensions) throws Throwable {
         readConfig();
-        initExtensions();
+        if (!disableExtensions) {
+            initExtensions();
+        }
 
         if (isDebug()){
             long t = System.currentTimeMillis() - startTime;
