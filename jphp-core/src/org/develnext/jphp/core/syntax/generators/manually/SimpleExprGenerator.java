@@ -279,9 +279,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (previous instanceof ValueExprToken) {
             result.setName(analyzer.getRealName((ValueExprToken)previous));
             if (analyzer.getFunction() != null){
-                if (result.getName() instanceof NameToken)
-                if (dynamicLocalFunctions.contains(((NameToken) result.getName()).getName().toLowerCase()))
-                    analyzer.getFunction().setDynamicLocal(true);
+                if (result.getName() instanceof NameToken) {
+                    String name = ((NameToken) result.getName()).getName().toLowerCase();
+                    if (result.getName() instanceof FulledNameToken) {
+                        name = ((FulledNameToken) result.getName()).getLastName().getName().toLowerCase();
+                    }
+
+                    if (dynamicLocalFunctions.contains(name))
+                        analyzer.getFunction().setDynamicLocal(true);
+                }
             }
         } else {
             if (previous instanceof DynamicAccessExprToken) {
