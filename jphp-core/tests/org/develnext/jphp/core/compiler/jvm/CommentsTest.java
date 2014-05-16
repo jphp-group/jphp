@@ -19,4 +19,9 @@ public class CommentsTest extends JvmCompilerCase {
     public void testSimpleWithCloseTag(){
         check("comments/simple_with_close_tag.php");
     }
+
+    @Test
+    public void testBugs() {
+        check("comments/bug125.php");
+    }
 }

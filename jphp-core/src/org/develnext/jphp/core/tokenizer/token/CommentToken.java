@@ -30,6 +30,7 @@ public class CommentToken extends Token {
     }
 
     private Kind kind;
+    private boolean oldStyle;
     private String comment;
 
     public CommentToken(TokenMeta meta) {
@@ -38,9 +39,10 @@ public class CommentToken extends Token {
             kind = Kind.DOCTYPE;
         } else if (meta.getWord().startsWith("//")){
             kind = Kind.SIMPLE;
-        } else if (meta.getWord().startsWith("#"))
+        } else if (meta.getWord().startsWith("#")) {
             kind = Kind.SIMPLE;
-        else
+            oldStyle = true;
+        } else
             kind = Kind.BLOCK;
 
         this.comment = getComment();
@@ -81,7 +83,7 @@ public class CommentToken extends Token {
                 return builder.toString();
             }
             default:
-                return getWord().substring(2);
+                return getWord().substring(oldStyle ? 1 : 2);
         }
     }
 }
