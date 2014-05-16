@@ -265,17 +265,15 @@ public class Tokenizer {
             if (checkNewLine(ch)) {
                 pos = 0;
                 if (endString != null){
-                    int end = i + 1 + endString.length() + 1;
+                    int end = i + 1 + endString.length();
                     if (end < codeLength){
-                        String tmp = code.substring(i + 1, end - 1);
-                        if (tmp.equals(endString)
-                                && (code.charAt(end - 1) == ';'
-                                && GrammarUtils.isNewline(code.charAt(end)))
-                                || GrammarUtils.isNewline(code.charAt(end - 1))){
-                            currentPosition = i + endString.length();
-                            relativePosition = endString.length();
-                            ch_quote = StringExprToken.Quote.DOC;
-                            break;
+                        if (code.substring(i + 1, end).equals(endString)) {
+                            if ((code.charAt(end) == ';' && GrammarUtils.isNewline(code.charAt(end + 1))) || GrammarUtils.isNewline(code.charAt(end))) {
+                                currentPosition = i + endString.length();
+                                relativePosition = endString.length();
+                                ch_quote = StringExprToken.Quote.DOC;
+                                break;
+                            }
                         }
                     }
                 }

@@ -408,4 +408,22 @@ public class TokenizerTest {
         assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
         assertEquals("<foobar>", ((StringExprToken) token).getValue());
     }
+
+    @Test
+    public void testBug122() throws IOException {
+        Tokenizer tokenizer = new Tokenizer(
+                new Context("<<<ESC\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "<?php\n" +
+                        "ESC;\n")
+        );
+        Token token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
+        assertEquals("\n\n\n\n\n<?php", ((StringExprToken) token).getValue());
+    }
 }
