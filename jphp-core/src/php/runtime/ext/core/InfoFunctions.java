@@ -138,7 +138,11 @@ public class InfoFunctions extends FunctionsContainer {
     }
 
     public static Memory get_extension_funcs(Environment env, String name){
-        return new ArrayMemory(env.scope.getExtension(name).getFunctions().keySet());
+        Extension ext = env.scope.getExtension(name);
+        if (ext == null) {
+            return Memory.FALSE;
+        }
+        return new ArrayMemory(ext.getFunctions().keySet());
     }
 
     public static Memory ini_get(Environment env, String name){
