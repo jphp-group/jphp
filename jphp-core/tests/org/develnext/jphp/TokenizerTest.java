@@ -355,7 +355,7 @@ public class TokenizerTest {
         token = tokenizer.nextToken();
         assertTrue(token instanceof CommentToken);
         assertEquals(CommentToken.Kind.SIMPLE, ((CommentToken) token).getKind());
-        assertEquals("// foobar ", ((CommentToken) token).getComment());
+        assertEquals(" // foobar ", ((CommentToken) token).getComment());
 
         assertTrue(tokenizer.nextToken() instanceof VariableExprToken);
         assertNull(tokenizer.nextToken());
