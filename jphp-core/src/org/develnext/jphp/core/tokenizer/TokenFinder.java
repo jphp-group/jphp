@@ -1,14 +1,16 @@
 package org.develnext.jphp.core.tokenizer;
 
 import org.develnext.jphp.core.tokenizer.token.*;
-import org.develnext.jphp.core.tokenizer.token.expr.*;
+import org.develnext.jphp.core.tokenizer.token.expr.BackslashExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
+import org.develnext.jphp.core.tokenizer.token.expr.DollarExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 public class TokenFinder {
 
@@ -171,15 +173,129 @@ public class TokenFinder {
         put("print", PrintNameToken.class);
     }};
 
-    private Pattern variablePattern = Pattern.compile("^\\$[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
-    private Pattern integerPattern = Pattern.compile("^[0-9]+$");
-    private Pattern hexPattern = Pattern.compile("^0x[0-9a-f]+$", Pattern.CASE_INSENSITIVE);
-    private Pattern binaryPattern = Pattern.compile("^0b[01]+$");
-    private Pattern octalPattern = Pattern.compile("^0[0-7]+$");
-    private Pattern floatPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$");
-    private Pattern floatExpPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)[eE][+-]?[0-9]+$");
-
     public TokenFinder() {
+    }
+
+    private boolean isVarialbe(String word) {
+        char ch = word.charAt(0);
+        if (ch != '$' || word.length() < 2) {
+            return false;
+        }
+        for (int i = 1; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if ((i == 1 && Character.isDigit(ch)) || (ch != '_' && !GrammarUtils.isNameChar(ch))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isOctal(String word) {
+        char ch = word.charAt(0);
+        if (ch != '0') {
+            return false;
+        }
+        for (int i = 1; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if (ch < '0' || ch > '7') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInteger(String word) {
+        char ch;
+        for (int i = 0; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isBinaryInteger(String word) {
+        if (word.length() < 3 || word.charAt(0) != '0' || word.charAt(1) != 'b') {
+            return false;
+        }
+        char ch;
+        for (int i = 2; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if (ch != '0' && ch != '1') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isHexInteger(String word) {
+        char ch;
+        if (word.length() < 3 || word.charAt(0) != '0') {
+            return false;
+        }
+        ch = word.charAt(1);
+        if (ch != 'x' && ch != 'X') {
+            return false;
+        }
+        for (int i = 2; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if (!(ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isSimpleFloat(String word) {
+        if (word.length() < 2) { // because must be at least 0. or .0
+            return false;
+        }
+        boolean dotPresent = false;
+        char ch;
+        for (int i = 0; i < word.length(); i++) {
+            ch = word.charAt(i);
+            if (ch == '.') {
+                if (dotPresent) {
+                    return false;
+                }
+                dotPresent = true;
+            } else if (!Character.isDigit(ch)) {
+                return false;
+            }
+        }
+        return dotPresent;
+    }
+
+    private boolean isExpFloat(String word) {
+        if (word.length() < 3) { // at least [digit]e[digit]
+            return false;
+        }
+        int ePosition = word.indexOf('e');
+        if (ePosition == -1) {
+            ePosition = word.indexOf('E');
+            if (ePosition == -1) {
+                return false;
+            }
+        }
+        String mantissa = word.substring(0, ePosition);
+        if (!isInteger(mantissa) && !isSimpleFloat(mantissa)) {
+            return false; //invalid mantissa
+        }
+        int powerPosition = ePosition + 1;
+        char ch = word.charAt(powerPosition);
+        if (ch == '+' || ch == '-') {
+            powerPosition++;
+        }
+        if (powerPosition >= word.length()) { // e.g 3e+
+            return false;
+        }
+        for (int i = powerPosition; i < word.length(); i++) {
+            if (!Character.isDigit(word.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Class<? extends Token> find(String word){
@@ -193,22 +309,22 @@ public class TokenFinder {
             return null;
         }
 
-        if (variablePattern.matcher(word).matches()) {
+        if (isVarialbe(word)) {
             return VariableExprToken.class;
         }
-        if (octalPattern.matcher(word).matches()) {
+        if (isOctal(word)) {
             return OctalExprValue.class;
         }
-        if (integerPattern.matcher(word).matches()) {
+        if (isInteger(word)) {
             return IntegerExprToken.class;
         }
-        if (floatPattern.matcher(word).matches() || floatExpPattern.matcher(word).matches()) {
+        if (isSimpleFloat(word) || isExpFloat(word)) {
             return DoubleExprToken.class;
         }
-        if (hexPattern.matcher(word).matches()) {
+        if (isHexInteger(word)) {
             return HexExprValue.class;
         }
-        if (binaryPattern.matcher(word).matches()) {
+        if (isBinaryInteger(word)) {
             return BinaryExprValue.class;
         }
 
