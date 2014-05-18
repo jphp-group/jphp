@@ -175,7 +175,7 @@ public class TokenFinder {
     private Pattern integerPattern = Pattern.compile("^[0-9]+$");
     private Pattern hexPattern = Pattern.compile("^0x[0-9a-f]+$", Pattern.CASE_INSENSITIVE);
     private Pattern binaryPattern = Pattern.compile("^0b[01]+$");
-    private Pattern octalPattern = Pattern.compile("^0[0-9]+$");
+    private Pattern octalPattern = Pattern.compile("^0[0-7]+$");
     private Pattern floatPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$");
     private Pattern floatExpPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)[eE][+-]?[0-9]+$");
 
@@ -197,7 +197,7 @@ public class TokenFinder {
             return VariableExprToken.class;
         }
         if (octalPattern.matcher(word).matches()) {
-            return IntegerExprToken.class;
+            return OctalExprValue.class;
         }
         if (integerPattern.matcher(word).matches()) {
             return IntegerExprToken.class;

@@ -121,6 +121,9 @@ abstract public class ValueExprToken extends ExprToken {
         if (token instanceof BinaryExprValue)
             return true;
 
+        if (token instanceof OctalExprValue)
+            return true;
+
         if (token instanceof StringExprToken){
             if (((StringExprToken) token).getSegments().isEmpty())
                 return true;

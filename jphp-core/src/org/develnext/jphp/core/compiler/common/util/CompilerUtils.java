@@ -26,6 +26,8 @@ final public class CompilerUtils {
             return LongMemory.valueOf(((HexExprValue) value).getValue());
         } else if (value instanceof BinaryExprValue) {
             return LongMemory.valueOf(((BinaryExprValue) value).getValue());
+        } else if (value instanceof OctalExprValue) {
+            return LongMemory.valueOf(((OctalExprValue) value).getValue());
         } else if (value instanceof DoubleExprToken){
             return DoubleMemory.valueOf(((DoubleExprToken) value).getValue());
         } else if (value instanceof StringExprToken){
