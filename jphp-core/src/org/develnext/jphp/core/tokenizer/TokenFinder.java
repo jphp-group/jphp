@@ -8,6 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 public class TokenFinder {
 
@@ -170,6 +171,14 @@ public class TokenFinder {
         put("print", PrintNameToken.class);
     }};
 
+    private Pattern variablePattern = Pattern.compile("^\\$[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*$");
+    private Pattern integerPattern = Pattern.compile("^[0-9]+$");
+    private Pattern hexPattern = Pattern.compile("^0x[0-9a-f]+$", Pattern.CASE_INSENSITIVE);
+    private Pattern binaryPattern = Pattern.compile("^0b[01]+$");
+    private Pattern octalPattern = Pattern.compile("^0[0-9]+$");
+    private Pattern floatPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)$");
+    private Pattern floatExpPattern = Pattern.compile("^([0-9]+\\.?[0-9]*|[0-9]*\\.?[0-9]+)[eE][+-]?[0-9]+$");
+
     public TokenFinder() {
     }
 
@@ -180,159 +189,42 @@ public class TokenFinder {
             return token;
 
         int length = word.length();
-
-        boolean isVar = false;
-        boolean isHex = false;
-        boolean isBinary = false;
-        boolean isInt = true;
-        boolean isFloat = false;
-        boolean isName = true;
-        boolean isFulledName = false;
-
-        boolean e_ch = false;
-        boolean p_ch = false;
-        boolean sign_ch = false;
-        for(int i = 0; i < length; i++){
-            char ch = word.charAt(i);
-
-            switch (ch){
-                case '$':
-                    isVar = true;
-                    if (i == 0){
-                        for(int j = i + 1; j < length; j++){
-                            ch = word.charAt(j);
-                            if (j == i + 1 && Character.isDigit(ch)) {
-                                isVar = false;
-                                break;
-                            }
-                            if (ch != '_' && !GrammarUtils.isNameChar(ch)) {
-                                isVar = false;
-                                break;
-                            }
-                        }
-                    } else
-                        isVar = false;
-                    break;
-                case '\\':
-                    if (isName){
-                        isFulledName = true;
-                    }
-                    isFloat = isHex = isInt = isVar = false;
-                    break;
-                case 'x':case 'X':
-                    if (i == 1 && word.charAt(i - 1) == '0') {
-                        isHex = true;
-                        isFloat = false;
-                        isInt = false;
-
-                        for(int j = i + 1; j < length; j++){
-                            ch = word.charAt(j);
-                            if (!(ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch))){
-                                isHex = false;
-                                break;
-                            }
-                        }
-                    } else {
-                        isInt = false;
-                    }
-                    break;
-                case 'b':
-                    if (i == 1 && word.charAt(i - 1) == '0') {
-                        isBinary = true;
-                        isFloat = false;
-                        isInt = true;
-
-                        for(int j = i + 1; j < length; j++){
-                            ch = word.charAt(j);
-                            if (ch != '0' && ch != '1'){
-                                isBinary = false;
-                                break;
-                            }
-                        }
-                    } else {
-                        isInt = false;
-                    }
-                    break;
-                case '_':
-                    isInt = false;
-                    break;
-                case '-':case '+':
-                    if (!sign_ch && isInt){
-                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
-
-                        if (ch == 'e' || ch == 'E'){
-                            isFloat = true;
-                            sign_ch = true;
-                        } else
-                            return null;
-                    } else {
-                        return null;
-                    }
-                    break;
-                case '.':
-                    if (!p_ch && isInt){
-                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
-                        if (Character.isDigit(ch)){
-                            isFloat = true;
-                        } else
-                            return null;
-                    } else
-                        return null;
-                    break;
-                case 'e':case 'E':
-                    if (!e_ch){
-                        isFloat = true;
-                        ch = i + 1 < length ? word.charAt(i + 1) : 0;
-                        if (!Character.isDigit(ch)){
-                            if (ch == '-' || ch == '+'){
-                                ch = i + 2 < length ? word.charAt(i + 2) : 0;
-                                if (!Character.isDigit(ch)) {
-                                    return null;
-                                }
-                                i += 1;
-                            } else {
-                                isInt = false;
-                                //i += 0;
-                            }
-                        }
-                        e_ch = true;
-                    }
-                    break;
-                default:
-                    if (Character.isDigit(ch)){
-                        if (i == 0){
-                            isName = false;
-                        }
-                    } else if (GrammarUtils.isNameChar(ch)){
-                        isInt = false;
-                    } else {
-                        return null;
-                    }
-            }
+        if (length == 0) {
+            return null;
         }
 
-        if (isVar)
+        if (variablePattern.matcher(word).matches()) {
             return VariableExprToken.class;
-
-        if (isHex)
-            return HexExprValue.class;
-
-        if (isBinary)
-            return BinaryExprValue.class;
-
-        if (isInt && isFloat)
-            return DoubleExprToken.class;
-
-        if (isInt)
+        }
+        if (octalPattern.matcher(word).matches()) {
             return IntegerExprToken.class;
+        }
+        if (integerPattern.matcher(word).matches()) {
+            return IntegerExprToken.class;
+        }
+        if (floatPattern.matcher(word).matches() || floatExpPattern.matcher(word).matches()) {
+            return DoubleExprToken.class;
+        }
+        if (hexPattern.matcher(word).matches()) {
+            return HexExprValue.class;
+        }
+        if (binaryPattern.matcher(word).matches()) {
+            return BinaryExprValue.class;
+        }
 
-        if (isName && isFulledName)
+        boolean fulledName = false;
+        for (int i = 0; i < length; i++) {
+            char ch = word.charAt(i);
+            if (ch == '\\') {
+                fulledName = true;
+            } else if (!GrammarUtils.isNameChar(ch)) {
+                return null;
+            }
+        }
+        if (fulledName) {
             return FulledNameToken.class;
-
-        if (isName)
-            return NameToken.class;
-
-        return null;
+        }
+        return NameToken.class;
     }
 
     public Class<? extends Token> find(TokenMeta meta){
