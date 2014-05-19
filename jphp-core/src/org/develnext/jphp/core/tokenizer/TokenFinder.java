@@ -191,6 +191,9 @@ public class TokenFinder {
     }
 
     private boolean isOctal(String word) {
+        if (word.length() < 2) { // at least 0[digit]
+            return false;
+        }
         char ch = word.charAt(0);
         if (ch != '0') {
             return false;
