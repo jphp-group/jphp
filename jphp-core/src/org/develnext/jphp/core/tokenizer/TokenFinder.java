@@ -176,7 +176,7 @@ public class TokenFinder {
     public TokenFinder() {
     }
 
-    private boolean isVarialbe(String word) {
+    private boolean isVariable(String word) {
         char ch = word.charAt(0);
         if (ch != '$' || word.length() < 2) {
             return false;
@@ -312,7 +312,7 @@ public class TokenFinder {
             return null;
         }
 
-        if (isVarialbe(word)) {
+        if (isVariable(word)) {
             return VariableExprToken.class;
         }
         if (isOctal(word)) {
