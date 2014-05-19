@@ -98,6 +98,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         // values
         compilerRules.put(BinaryExprValue.class, BinaryValueCompiler.class);
+        compilerRules.put(OctalExprValue.class, OctalValueCompiler.class);
         compilerRules.put(BooleanExprToken.class, BooleanValueCompiler.class);
         compilerRules.put(HexExprValue.class, HexValueCompiler.class);
         compilerRules.put(IntegerExprToken.class, IntValueCompiler.class);
@@ -1688,7 +1689,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     boolean tryIsImmutable(ValueExprToken value) {
         if (value instanceof IntegerExprToken || value instanceof HexExprValue
-                || value instanceof BinaryExprValue)
+                || value instanceof BinaryExprValue || value instanceof OctalExprValue)
             return true;
         else if (value instanceof DoubleExprToken)
             return true;
@@ -1715,7 +1716,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     StackItem.Type tryGetType(ValueExprToken value){
         if (value instanceof IntegerExprToken || value instanceof HexExprValue
-                || value instanceof BinaryExprValue)
+                || value instanceof BinaryExprValue || value instanceof OctalExprValue)
             return StackItem.Type.LONG;
         else if (value instanceof DoubleExprToken)
             return StackItem.Type.DOUBLE;

@@ -370,6 +370,13 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testOctalIntegers() {
+        Memory memory = runDynamic("010");
+        Assert.assertEquals(8, memory.toLong());
+        Assert.assertEquals(Memory.Type.INT, memory.type);
+    }
+
+    @Test
     public void testUnaryPlusMinus() {
         Memory memory;
 
@@ -390,6 +397,12 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = runDynamic("- 0b01");
         Assert.assertEquals(-1, memory.toLong());
+
+        memory = runDynamic("+ 010");
+        Assert.assertEquals(8, memory.toLong());
+
+        memory = runDynamic("- 010");
+        Assert.assertEquals(-8, memory.toLong());
     }
 
     @Test
