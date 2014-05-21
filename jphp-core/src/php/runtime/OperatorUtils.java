@@ -195,4 +195,8 @@ public class OperatorUtils {
     public static String concatRight(String s1, String s2) {
         return s2.concat(s1);
     }
+
+    public static boolean instanceOfRight(String name, String lowerName, Memory o) {
+        return o.instanceOf(name, lowerName);
+    }
 }

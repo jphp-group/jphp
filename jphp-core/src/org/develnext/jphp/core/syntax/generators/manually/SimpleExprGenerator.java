@@ -6,7 +6,6 @@ import org.develnext.jphp.core.syntax.generators.ExprGenerator;
 import org.develnext.jphp.core.syntax.generators.FunctionGenerator;
 import org.develnext.jphp.core.syntax.generators.Generator;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
-import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.BreakToken;
 import org.develnext.jphp.core.tokenizer.token.ColonToken;
@@ -584,7 +583,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             isRef = false;
         }
 
-        if (current instanceof InstanceofExprToken){
+        /*if (current instanceof InstanceofExprToken){
             if (next instanceof NameToken || next instanceof VariableExprToken){
                 nextToken(iterator);
                 InstanceofExprToken instanceOf = (InstanceofExprToken)current;
@@ -611,7 +610,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 return instanceOf;
             } else
                 unexpectedToken(next, TokenType.T_STRING);
-        }
+        }*/
 
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind, braceOpened);
