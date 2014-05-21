@@ -228,35 +228,35 @@ public class StringMemoryTest {
     public void testPow(){
         StringMemory memory = new StringMemory("10");
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(2).type);
         Assert.assertEquals(100, memory.pow(2).toLong());
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(true).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(true).type);
         Assert.assertEquals(10, memory.pow(true).toLong());
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(false).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(false).type);
         Assert.assertEquals(1, memory.pow(false).toLong());
 
         Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2.0).type);
         Assert.assertEquals(100.0, memory.pow(2.0).toDouble(), 0.00001);
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow("2").type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow("2").type);
         Assert.assertEquals(100, memory.pow("2").toLong());
 
         Assert.assertEquals(Memory.Type.DOUBLE, memory.pow("2.0").type);
         Assert.assertEquals(100, memory.pow("2.0").toDouble(), 0.000001);
 
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(Memory.NULL).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(Memory.NULL).type);
         Assert.assertEquals(1, memory.pow(Memory.NULL).toLong());
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(Memory.FALSE).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(Memory.FALSE).type);
         Assert.assertEquals(1, memory.pow(Memory.FALSE).toLong());
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(Memory.TRUE).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(Memory.TRUE).type);
         Assert.assertEquals(10, memory.pow(Memory.TRUE).toLong());
 
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(Memory.CONST_INT_2).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(Memory.CONST_INT_2).type);
         Assert.assertEquals(100, memory.pow(Memory.CONST_INT_2).toLong());
 
         Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(Memory.CONST_DOUBLE_1).type);

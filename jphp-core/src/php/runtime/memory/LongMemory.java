@@ -133,7 +133,7 @@ public class LongMemory extends Memory {
     @Override
     public Memory pow(Memory memory) {
         switch (memory.type){
-            case INT: return DoubleMemory.valueOf(Math.pow(value, ((LongMemory) memory).value));
+            case INT: return LongMemory.valueOf((long) Math.pow(value, ((LongMemory) memory).value));
             case DOUBLE: return new DoubleMemory(Math.pow(value, ((DoubleMemory) memory).value));
             case REFERENCE: return pow(memory.toImmutable());
             default: return pow(memory.toNumeric());

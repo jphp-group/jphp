@@ -217,23 +217,23 @@ public class TrueMemoryTest {
     @Test
     public void testPow(){
         Assert.assertEquals(1, Memory.TRUE.pow(Memory.CONST_INT_1).toLong());
-        Assert.assertTrue(Memory.TRUE.pow(Memory.CONST_INT_1) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.pow(Memory.CONST_INT_1) instanceof LongMemory);
 
         Assert.assertEquals(1, Memory.TRUE.pow(Memory.TRUE).toLong());
-        Assert.assertTrue(Memory.TRUE.pow(Memory.TRUE) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.pow(Memory.TRUE) instanceof LongMemory);
 
         Assert.assertEquals(1, Memory.TRUE.pow(Memory.FALSE).toLong());
-        Assert.assertTrue(Memory.TRUE.pow(Memory.FALSE) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.pow(Memory.FALSE) instanceof LongMemory);
 
         Assert.assertEquals(1, Memory.TRUE.pow(2).toLong());
-        Assert.assertTrue(Memory.TRUE.pow(2) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.pow(2) instanceof LongMemory);
 
         Assert.assertEquals(1, Memory.TRUE.powRight(true).toLong());
         Assert.assertTrue(Memory.TRUE.powRight(false).toLong() == 0);
-        Assert.assertTrue(Memory.TRUE.powRight(false) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.powRight(false) instanceof LongMemory);
         Assert.assertEquals(1, Memory.TRUE.powRight(true).toLong());
-        Assert.assertTrue(Memory.TRUE.powRight(true) instanceof DoubleMemory);
-        Assert.assertTrue(Memory.TRUE.powRight(1) instanceof DoubleMemory);
+        Assert.assertTrue(Memory.TRUE.powRight(true) instanceof LongMemory);
+        Assert.assertTrue(Memory.TRUE.powRight(1) instanceof LongMemory);
         Assert.assertTrue(Memory.TRUE.powRight(1).toLong() == 1);
         Assert.assertTrue(Memory.TRUE.powRight(1.0) instanceof DoubleMemory);
         Assert.assertEquals(1.3, Memory.TRUE.powRight(1.3).toDouble(), 0.000001);

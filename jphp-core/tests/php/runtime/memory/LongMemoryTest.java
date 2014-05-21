@@ -58,11 +58,11 @@ public class LongMemoryTest {
     public void testPow(){
         LongMemory memory = new LongMemory(10);
         Assert.assertEquals(100, memory.pow(2).toLong());
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(2).type);
 
         Assert.assertEquals(10, memory.pow(true).toLong());
         Assert.assertEquals(1, memory.pow(false).toLong());
-        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(false).type);
+        Assert.assertEquals(Memory.Type.INT, memory.pow(false).type);
 
         Assert.assertEquals(100, memory.pow(2.0).toDouble(), 0.0001);
         Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2.0).type);

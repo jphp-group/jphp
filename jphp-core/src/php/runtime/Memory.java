@@ -268,10 +268,32 @@ abstract public class Memory implements Comparable<Memory> {
 
     // POW
     abstract public Memory pow(Memory memory);
-    public Memory pow(long value){ return new DoubleMemory(Math.pow(toDouble(), (double)value)); }
-    public Memory pow(double value){ return new DoubleMemory(Math.pow(toDouble(), (double)value)); }
-    public Memory pow(boolean value){ return new DoubleMemory(Math.pow(toDouble(), value ? 1. : 0.)); }
-    public Memory pow(String value){ return pow(StringMemory.toNumeric(value)); }
+    public Memory pow(long value) {
+        if (this instanceof LongMemory || this instanceof TrueMemory || this instanceof FalseMemory) {
+            return new LongMemory((long) Math.pow(toLong(), value));
+        }
+        if (this instanceof StringMemory) {
+            Memory real = toNumeric();
+            if (real instanceof LongMemory) {
+                return new LongMemory((long) Math.pow(real.toLong(), value));
+            }
+        }
+        return new DoubleMemory(Math.pow(toDouble(), (double)value));
+    }
+    public Memory pow(double value) { return new DoubleMemory(Math.pow(toDouble(), value)); }
+    public Memory pow(boolean value) {
+        if (this instanceof LongMemory || this instanceof TrueMemory || this instanceof FalseMemory) {
+            return value ? toImmutable() : CONST_INT_1;
+        }
+        if (this instanceof StringMemory) {
+            Memory real = toNumeric();
+            if (real instanceof LongMemory) {
+                return value ? real : CONST_INT_1;
+            }
+        }
+        return value ? toImmutable() : CONST_DOUBLE_1;
+    }
+    public Memory pow(String value) { return pow(StringMemory.toNumeric(value)); }
 
     // DIV
     abstract public Memory div(Memory memory);
