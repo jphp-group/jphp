@@ -41,4 +41,9 @@ public class ExpressionsTest extends JvmCompilerCase {
         Memory memory = includeResource("expressions/inc_dec.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testConstantExpressions() {
+        check("expressions/constant_expressions.php");
+    }
 }

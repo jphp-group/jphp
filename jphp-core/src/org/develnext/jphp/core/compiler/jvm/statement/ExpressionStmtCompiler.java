@@ -2514,8 +2514,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (stackEmpty(true))
             unexpectedToken(operator);
 
-        if (!writeOpcode)
-            return null;
+        if (!writeOpcode) {
+            StackItem top = stackPeek();
+            Memory one = tryWritePush(top, false, false, true);
+            if (one == null)
+                return null;
+
+            Memory two = writeExpression(operator.getRightValue(), true, true, false);
+            if (two == null)
+                return null;
+
+            stackPop();
+            Memory r = operator.calc(one, two);
+            stackPush(r);
+            return r;
+        }
 
         StackItem o = stackPop();
 

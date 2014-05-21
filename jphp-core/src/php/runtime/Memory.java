@@ -290,6 +290,20 @@ abstract public class Memory implements Comparable<Memory> {
     // NOT
     public boolean not(){ return !toBoolean(); }
 
+    private static boolean _xor(boolean... args) {
+        boolean r = false;
+        for (boolean b : args) {
+            r = r ^ b;
+        }
+        return r;
+    }
+
+    public boolean xor(Memory value) { return _xor(toBoolean(), value.toBoolean()); }
+    public boolean xor(long value) { return _xor(toBoolean(), value != 0); }
+    public boolean xor(double value) { return _xor(toBoolean(), OperatorUtils.toBoolean(value)); }
+    public boolean xor(boolean value) { return _xor(toBoolean(), value); }
+    public boolean xor(String value) { return _xor(toBoolean(), OperatorUtils.toBoolean(value)); }
+
     // EQUAL
     abstract public boolean equal(Memory memory);
     public boolean equal(long value){ return toLong() == value; }
