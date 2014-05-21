@@ -407,7 +407,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processValueIfElse(ValueIfElseToken current, Token next, ListIterator<Token> iterator,
-                                       BraceExprToken.Kind closedBrace, int braceOpened){
+                                       BraceExprToken.Kind closedBrace, int braceOpened, Separator separator){
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
                 nextToken(iterator), iterator, Separator.COLON, closedBrace
         );
@@ -420,7 +420,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         iterator.next();
         ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                nextToken(iterator), iterator, BraceExprToken.Kind.ANY
+                nextToken(iterator), iterator, separator, BraceExprToken.Kind.ANY
         );
 
         if (alternative == null)
@@ -636,7 +636,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof ValueIfElseToken){
-            return processValueIfElse((ValueIfElseToken)current, next, iterator, closedBraceKind, braceOpened);
+            return processValueIfElse((ValueIfElseToken)current, next, iterator, closedBraceKind, braceOpened, separator);
         }
 
         // &
@@ -939,7 +939,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 current, iterator, separator, closedBraceKind
         );
         Token tk = iterator.previous();
-        if (!isBreak(tk) && (separator == null || !isTokenClass(tk, separator.getTokenClass()))){
+        if (!isBreak(tk) && (separator == null || !separator.is(tk))){
             iterator.next();
         }
         return value;

@@ -34,4 +34,9 @@ public class LoopsTest extends JvmCompilerCase {
         Memory memory = includeResource("loops/foreach.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testForeachBugs() {
+        check("loops/foreach_bug124.php");
+    }
 }
