@@ -575,7 +575,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
-                                       BraceExprToken.Kind closedBraceKind, int braceOpened){
+                                       BraceExprToken.Kind closedBraceKind, int braceOpened, Separator separator){
         if (current instanceof DynamicAccessExprToken){
             return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
         }
@@ -734,6 +734,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                 nextToken(iterator),
                 iterator,
+                separator,
                 braceOpened > 0 ? BraceExprToken.Kind.SIMPLE : closedBraceKind
             );
 
@@ -1139,7 +1140,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
 
                 if (cast == null){
-                    Token token = processSimpleToken(current, previous, next, iterator, closedBraceKind, braceOpened);
+                    Token token = processSimpleToken(
+                            current, previous, next, iterator, closedBraceKind, braceOpened, separator
+                    );
                     if (token != null)
                         current = token;
 
