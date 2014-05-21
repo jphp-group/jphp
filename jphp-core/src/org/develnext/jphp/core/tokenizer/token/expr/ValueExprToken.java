@@ -63,6 +63,13 @@ abstract public class ValueExprToken extends ExprToken {
             return operatorResult(Double.valueOf(o1.toString()) * Double.valueOf(o2.toString()));
     }
 
+    protected ValueExprToken pow(ValueExprToken value){
+        Object o1 = this.toNumeric();
+        Object o2 = value.toNumeric();
+
+        return operatorResult(Math.pow(Double.valueOf(o1.toString()), Double.valueOf(o2.toString())));
+    }
+
     protected ValueExprToken div(ValueExprToken value){
         Object o1 = this.toNumeric();
         Object o2 = value.toNumeric();
@@ -97,6 +104,8 @@ abstract public class ValueExprToken extends ExprToken {
             return mul(value);
         else if (operator instanceof DivExprToken)
             return div(value);
+        else if (operator instanceof PowExprToken)
+            return pow(value);
         else if (operator instanceof ModExprToken)
             return mod(value);
         else if (operator instanceof ConcatExprToken)

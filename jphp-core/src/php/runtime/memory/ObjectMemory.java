@@ -156,6 +156,11 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
+    public Memory pow(Memory memory) {
+        return toNumeric().pow(memory);
+    }
+
+    @Override
     public Memory div(Memory memory) {
         return toNumeric().div(memory);
     }
