@@ -269,29 +269,23 @@ abstract public class Memory implements Comparable<Memory> {
     // POW
     abstract public Memory pow(Memory memory);
     public Memory pow(long value) {
-        if (this instanceof LongMemory || this instanceof TrueMemory || this instanceof FalseMemory) {
-            return new LongMemory((long) Math.pow(toLong(), value));
-        }
-        if (this instanceof StringMemory) {
-            Memory real = toNumeric();
-            if (real instanceof LongMemory) {
-                return new LongMemory((long) Math.pow(real.toLong(), value));
+        Memory real = toNumeric();
+        if (real instanceof LongMemory) {
+            double result = Math.pow(real.toLong(), value);
+            if (result > Long.MAX_VALUE) {
+                return new DoubleMemory(result);
             }
+            return new LongMemory((long) result);
         }
-        return new DoubleMemory(Math.pow(toDouble(), (double)value));
+        return new DoubleMemory(Math.pow(real.toDouble(), value));
     }
     public Memory pow(double value) { return new DoubleMemory(Math.pow(toDouble(), value)); }
     public Memory pow(boolean value) {
-        if (this instanceof LongMemory || this instanceof TrueMemory || this instanceof FalseMemory) {
-            return value ? toImmutable() : CONST_INT_1;
+        Memory real = toNumeric();
+        if (real instanceof LongMemory) {
+            return value ? real.toImmutable() : Memory.CONST_INT_1;
         }
-        if (this instanceof StringMemory) {
-            Memory real = toNumeric();
-            if (real instanceof LongMemory) {
-                return value ? real : CONST_INT_1;
-            }
-        }
-        return value ? toImmutable() : CONST_DOUBLE_1;
+        return value ? real.toImmutable() : Memory.CONST_DOUBLE_1;
     }
     public Memory pow(String value) { return pow(StringMemory.toNumeric(value)); }
 

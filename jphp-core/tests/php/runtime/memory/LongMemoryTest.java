@@ -66,6 +66,9 @@ public class LongMemoryTest {
 
         Assert.assertEquals(100, memory.pow(2.0).toDouble(), 0.0001);
         Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2.0).type);
+
+        memory = new LongMemory(Long.MAX_VALUE);
+        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(3).type);
     }
 
     @Test
