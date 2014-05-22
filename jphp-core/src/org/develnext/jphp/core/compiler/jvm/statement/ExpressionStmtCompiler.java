@@ -1400,7 +1400,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     protected void writeUndefineVariable(VariableExprToken value, LabelNode end){
         LocalVariable variable = method.getLocalVariable(value.getName());
-        variable.popLevel();
+        if (variable != null)
+            variable.popLevel();
     }
 
     public void writePushVariable(VariableExprToken value){
