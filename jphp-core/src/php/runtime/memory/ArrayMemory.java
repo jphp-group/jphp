@@ -617,8 +617,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         checkCopied();
         if (size < 1)
             return null;
-
-        size -= 1;
+        
         Memory value;
         if (list != null){
             value = list.get(size - 1);
@@ -626,6 +625,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         } else {
             value = map.remove(map.lastKey());
         }
+        size -= 1;
+        
         return value.toValue();
     }
 
