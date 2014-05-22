@@ -166,9 +166,14 @@ final public class ObjectInvokeHelper {
 
         try {
             if (trace != null) {
-                env.pushCall(trace, iObject, args, methodName, method.getClazz().getName(), className);
+                env.pushCall(
+                        trace, iObject, args, methodName,
+                        iObject instanceof Closure ? className : method.getClazz().getName(), className
+                );
+
                 if (doublePop)
-                    env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
+                    env.pushCall(trace, iObject, passed, method.getName(),
+                            iObject instanceof Closure ? className : method.getClazz().getName(), className);
             }
             return method.invokeDynamic(iObject, env, passed);
         } finally {

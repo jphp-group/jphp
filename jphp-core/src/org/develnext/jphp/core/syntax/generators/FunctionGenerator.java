@@ -224,6 +224,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         if (prevClosure != null){
                             if (result.isThisExists()) {
                                 analyzer.getScope().addVariable(FunctionStmtToken.thisVariable);
+                                prevClosure.variable(FunctionStmtToken.thisVariable).setUsed(true);
                                 //prevClosure.setThisExists(true);
                             }
                         }

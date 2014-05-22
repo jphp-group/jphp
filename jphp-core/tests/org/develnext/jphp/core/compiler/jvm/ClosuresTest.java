@@ -35,4 +35,9 @@ public class ClosuresTest extends JvmCompilerCase {
         Memory memory = includeResource("closures/static_vars.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testBugs() {
+        check("closures/bug138.php");
+    }
 }
