@@ -69,6 +69,10 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
 
         this.date = new Date(args[0].toLong());
         this.timeZone = zone;
+        
+        calendar = Calendar.getInstance(timeZone);
+        calendar.setTime(date);
+        
         return Memory.NULL;
     }
 
