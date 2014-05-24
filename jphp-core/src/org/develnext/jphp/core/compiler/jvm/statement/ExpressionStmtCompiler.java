@@ -97,10 +97,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         compilerRules.put(JvmCompiler.ClassInitEnvironment.class, ClassInitEnvironmentCompiler.class);
 
         // values
-        compilerRules.put(BinaryExprValue.class, BinaryValueCompiler.class);
-        compilerRules.put(OctalExprValue.class, OctalValueCompiler.class);
         compilerRules.put(BooleanExprToken.class, BooleanValueCompiler.class);
-        compilerRules.put(HexExprValue.class, HexValueCompiler.class);
         compilerRules.put(IntegerExprToken.class, IntValueCompiler.class);
         compilerRules.put(NullExprToken.class, NullValueCompiler.class);
         compilerRules.put(DoubleExprToken.class, DoubleValueCompiler.class);
@@ -1688,8 +1685,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     boolean tryIsImmutable(ValueExprToken value) {
-        if (value instanceof IntegerExprToken || value instanceof HexExprValue
-                || value instanceof BinaryExprValue || value instanceof OctalExprValue)
+        if (value instanceof IntegerExprToken)
             return true;
         else if (value instanceof DoubleExprToken)
             return true;
@@ -1715,8 +1711,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     StackItem.Type tryGetType(ValueExprToken value){
-        if (value instanceof IntegerExprToken || value instanceof HexExprValue
-                || value instanceof BinaryExprValue || value instanceof OctalExprValue)
+        if (value instanceof IntegerExprToken)
             return StackItem.Type.LONG;
         else if (value instanceof DoubleExprToken)
             return StackItem.Type.DOUBLE;
