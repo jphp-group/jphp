@@ -445,7 +445,7 @@ final public class SScanF {
             if (i == 0)
                 val = 0;
             else
-                val = Double.parseDouble(s.substring(start, i).toString());
+                val = Double.parseDouble(s.substring(start, i));
 
             sscanfPut(var, new DoubleMemory(val), isReturnArray);
             return i;

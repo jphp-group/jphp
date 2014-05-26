@@ -1506,9 +1506,7 @@ public class ClassEntity extends Entity {
 
             InvalidConstant that = (InvalidConstant) o;
 
-            if (!constant.equals(that.constant)) return false;
-
-            return true;
+            return constant.equals(that.constant);
         }
 
         @Override
@@ -1552,10 +1550,7 @@ public class ClassEntity extends Entity {
 
             InvalidMethod that = (InvalidMethod) o;
 
-            if (!method.equals(that.method)) return false;
-            if (!kind.equals(that.kind)) return false;
-
-            return true;
+            return method.equals(that.method) && kind.equals(that.kind);
         }
 
         @Override
@@ -1598,9 +1593,7 @@ public class ClassEntity extends Entity {
 
             InvalidProperty that = (InvalidProperty) o;
 
-            if (!property.equals(that.property)) return false;
-            if (!kind.equals(that.kind)) return false;
-            return true;
+            return property.equals(that.property) && kind.equals(that.kind);
         }
 
         @Override

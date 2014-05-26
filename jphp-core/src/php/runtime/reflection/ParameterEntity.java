@@ -154,11 +154,7 @@ public class ParameterEntity extends Entity {
             case ARRAY:
                 return value.isArray();
             case TRAVERSABLE:
-                if (value.isArray())
-                    return true;
-                if (value.instanceOf("Traversable", "traversable"))
-                    return true;
-                return false;
+                return value.isArray() || value.instanceOf("Traversable", "traversable");
             case CALLABLE:
                 Invoker invoker = Invoker.valueOf(env, null, value);
                 return invoker != null && invoker.canAccess(env) == 0;
@@ -254,9 +250,8 @@ public class ParameterEntity extends Entity {
 
         if (isReference != that.isReference) return false;
         if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
-        if (type != that.type) return false;
+        return type == that.type;
 
-        return true;
     }
 
     @Override

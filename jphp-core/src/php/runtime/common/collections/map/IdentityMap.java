@@ -145,7 +145,7 @@ public class IdentityMap <K,V> extends AbstractHashedMap<K, V> implements Serial
             if (obj == this) {
                 return true;
             }
-            if (obj instanceof Map.Entry == false) {
+            if (!(obj instanceof Entry)) {
                 return false;
             }
             Map.Entry other = (Map.Entry) obj;

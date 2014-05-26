@@ -267,8 +267,7 @@ public class LongMemory extends Memory {
         if (o == null || !(o instanceof LongMemory)) return false;
 
         LongMemory that = (LongMemory) o;
-        if (value != that.value) return false;
-        return true;
+        return value == that.value;
     }
 
     @Override

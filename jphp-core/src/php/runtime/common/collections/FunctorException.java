@@ -133,7 +133,7 @@ public class FunctorException extends RuntimeException {
     public void printStackTrace(PrintWriter out) {
         synchronized (out) {
             super.printStackTrace(out);
-            if (rootCause != null && JDK_SUPPORTS_NESTED == false) {
+            if (rootCause != null && !JDK_SUPPORTS_NESTED) {
                 out.print("Caused by: ");
                 rootCause.printStackTrace(out);
             }

@@ -66,15 +66,10 @@ public class JVMStackTracer implements Iterable<JVMStackTracer.Item> {
                 if (c_e != null){
                     clazz = c_e;
                     function = null;
-                    if (c_e != null)
-                        method = c_e.findMethod(realMethodName);
-                    else
-                        method = null;
-
-                    module = c_e == null ? null : c_e.getModule();
+                    method = c_e.findMethod(realMethodName);
+                    module = c_e.getModule();
                 } else {
-                    ModuleEntity m_e = classLoader.getModule(className);
-                    module = m_e;
+                    module = classLoader.getModule(className);
                     clazz = null;
                     method = null;
                     function = null;

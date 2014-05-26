@@ -33,14 +33,11 @@ public class VariableExprToken extends ValueExprToken implements VariableValueEx
         if (!(o instanceof VariableExprToken)) return false;
 
         VariableExprToken token = (VariableExprToken) o;
-        if (token.getClass() != this.getClass()) return false;
-        if (!name.equals(token.name)) return false;
+        return token.getClass() == this.getClass() && name.equals(token.name);
 
-        return true;
     }
 
     public static VariableExprToken valueOf(String name){
-        VariableExprToken variable = new VariableExprToken(TokenMeta.empty(), name);
-        return variable;
+        return new VariableExprToken(TokenMeta.empty(), name);
     }
 }

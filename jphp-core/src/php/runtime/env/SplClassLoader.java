@@ -28,8 +28,7 @@ public class SplClassLoader {
 
         SplClassLoader that = (SplClassLoader) o;
 
-        if (!invoker.equals(that.invoker)) return false;
-        return true;
+        return invoker.equals(that.invoker);
     }
 
     @Override

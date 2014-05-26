@@ -69,8 +69,7 @@ public class FunctionInvoker extends Invoker {
 
         FunctionInvoker that = (FunctionInvoker) o;
 
-        if (!entity.equals(that.entity)) return false;
-        return true;
+        return entity.equals(that.entity);
     }
 
     @Override

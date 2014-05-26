@@ -768,11 +768,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
                         result.setField(new ClassExprToken(next.getMeta()));
                     } else if (clazz instanceof NameToken) {
-                            StringExprToken r = new StringExprToken(
-                                    TokenMeta.of(((NameToken) clazz).getName(), clazz),
-                                    StringExprToken.Quote.SINGLE
-                            );
-                            return r;
+                        return new StringExprToken(
+                                TokenMeta.of(((NameToken) clazz).getName(), clazz),
+                                StringExprToken.Quote.SINGLE);
                     } else
                         unexpectedToken(next);
                 } else

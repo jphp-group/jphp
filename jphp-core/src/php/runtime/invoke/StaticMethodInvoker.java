@@ -94,10 +94,8 @@ public class StaticMethodInvoker extends Invoker {
 
         StaticMethodInvoker that = (StaticMethodInvoker) o;
 
-        if (!calledClass.equals(that.calledClass)) return false;
-        if (!method.equals(that.method)) return false;
+        return calledClass.equals(that.calledClass) && method.equals(that.method);
 
-        return true;
     }
 
     @Override

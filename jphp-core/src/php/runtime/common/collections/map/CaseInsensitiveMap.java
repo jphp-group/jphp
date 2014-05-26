@@ -114,7 +114,7 @@ public class CaseInsensitiveMap <V> extends AbstractHashedMap<String, V> impleme
      */
     protected String convertKey(String key) {
         if (key != null) {
-            return key.toString().toLowerCase();
+            return key.toLowerCase();
         } else {
             return null;
         }

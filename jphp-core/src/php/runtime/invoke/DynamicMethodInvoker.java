@@ -122,10 +122,8 @@ public class DynamicMethodInvoker extends Invoker {
 
         DynamicMethodInvoker that = (DynamicMethodInvoker) o;
 
-        if (!method.equals(that.method)) return false;
-        if (object.getPointer() != that.object.getPointer()) return false;
+        return method.equals(that.method) && object.getPointer() == that.object.getPointer();
 
-        return true;
     }
 
     @Override

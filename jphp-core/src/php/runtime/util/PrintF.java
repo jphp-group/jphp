@@ -382,9 +382,8 @@ public class PrintF {
             int i = 0;
             int len = format.length();
 
-            int min = width;
             int max = Integer.MAX_VALUE;
-            char ch = ' ';
+            char ch;
 
             if (0 < len && format.charAt(0) == '.') {
                 max = 0;
@@ -394,7 +393,7 @@ public class PrintF {
                 }
             }
 
-            _min = min;
+            _min = width;
             _max = max;
 
             _index = index;
