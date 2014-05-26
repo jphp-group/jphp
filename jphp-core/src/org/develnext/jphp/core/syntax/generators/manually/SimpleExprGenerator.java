@@ -764,6 +764,19 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     nextAndExpected(iterator, BraceExprToken.class);
                 } else if (next instanceof NameToken || next instanceof VariableExprToken){
                     result.setField((ValueExprToken)next);
+                } else if (next instanceof DollarExprToken) {
+                    Token nm = nextToken(iterator);
+                    if (nm instanceof VariableExprToken) {
+                        result.setFieldExpr(new ExprStmtToken(nm));
+                    } else if (nm instanceof DollarExprToken) {
+                        result.setFieldExpr(new ExprStmtToken(processVarVar(nm, nextTokenAndPrev(iterator), iterator)));
+                    } else if (isOpenedBrace(nm, BraceExprToken.Kind.BLOCK)) {
+                        iterator.previous();
+                        result.setFieldExpr(
+                                analyzer.generator(ExprGenerator.class).getInBraces(BraceExprToken.Kind.BLOCK, iterator)
+                        );
+                    } else
+                        unexpectedToken(next);
                 } else if (next instanceof ClassStmtToken) { // PHP 5.5 ::class
                     if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
                         result.setField(new ClassExprToken(next.getMeta()));

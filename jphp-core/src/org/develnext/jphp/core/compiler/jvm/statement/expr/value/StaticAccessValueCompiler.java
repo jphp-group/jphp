@@ -18,8 +18,8 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
     @Override
     public void write(StaticAccessExprToken token, boolean returnValue) {
         boolean isConstant = token.getField() instanceof NameToken;
-        if (token.getField() == null)
-            expr.unexpectedToken(token.getFieldExpr().getSingle());
+        /*if (token.getField() == null)
+            expr.unexpectedToken(token.getFieldExpr().getSingle());*/
 
         if (token.getField() instanceof ClassExprToken) {
             if (token.getClazz() instanceof ParentExprToken) {
@@ -32,13 +32,13 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 expr.unexpectedToken(token);
         } else {
             ValueExprToken clazz = token.getClazz();
-            if (clazz instanceof NameToken){
+            if (clazz instanceof ParentExprToken){
+                expr.writePushParent(clazz);
+            } else if (clazz instanceof NameToken){
                 expr.writePushConstString(((NameToken) clazz).getName());
                 expr.writePushConstString(((NameToken) clazz).getName().toLowerCase());
             } else {
-                if (clazz instanceof ParentExprToken){
-                    expr.writePushParent(clazz);
-                } else if (clazz instanceof StaticExprToken){
+                if (clazz instanceof StaticExprToken){
                     expr.writePushStatic();
                 } else
                     expr.writePush(clazz, true, false);
@@ -56,10 +56,15 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 );
                 expr.setStackPeekAsImmutable();
             } else {
-                if (!(token.getField() instanceof VariableExprToken))
-                    expr.unexpectedToken(token.getField());
+                if (token.getFieldExpr() != null) {
+                    expr.writeExpression(token.getFieldExpr(), true, false);
+                    expr.writePopString();
+                } else {
+                    if (!(token.getField() instanceof VariableExprToken))
+                        expr.unexpectedToken(token.getField());
 
-                expr.writePushConstString(((VariableExprToken) token.getField()).getName());
+                    expr.writePushConstString(((VariableExprToken) token.getField()).getName());
+                }
                 expr.writePushEnv();
                 expr.writePushTraceInfo(token);
 
