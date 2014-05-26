@@ -22,12 +22,6 @@ final public class CompilerUtils {
     public static Memory toMemory(ValueExprToken value, Memory... arguments){
         if (value instanceof IntegerExprToken){
             return LongMemory.valueOf(((IntegerExprToken) value).getValue());
-        } else if (value instanceof HexExprValue){
-            return LongMemory.valueOf(((HexExprValue) value).getValue());
-        } else if (value instanceof BinaryExprValue) {
-            return LongMemory.valueOf(((BinaryExprValue) value).getValue());
-        } else if (value instanceof OctalExprValue) {
-            return LongMemory.valueOf(((OctalExprValue) value).getValue());
         } else if (value instanceof DoubleExprToken){
             return DoubleMemory.valueOf(((DoubleExprToken) value).getValue());
         } else if (value instanceof StringExprToken){

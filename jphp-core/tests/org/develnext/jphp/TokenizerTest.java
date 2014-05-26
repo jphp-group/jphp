@@ -82,12 +82,12 @@ public class TokenizerTest {
         assertEquals("xyz", ((StringExprToken) token).getValue());
 
         token = tokenizer.nextToken();
-        assertTrue(token instanceof HexExprValue);
-        assertEquals(new BigInteger("CC", 16).longValue(), ((HexExprValue) token).getValue());
+        assertTrue(token instanceof IntegerExprToken);
+        assertEquals(new BigInteger("CC", 16).longValue(), ((IntegerExprToken) token).getValue());
 
         token = tokenizer.nextToken();
-        assertTrue(token instanceof BinaryExprValue);
-        assertEquals(new BigInteger("0011", 2).longValue(), ((BinaryExprValue) token).getValue());
+        assertTrue(token instanceof IntegerExprToken);
+        assertEquals(new BigInteger("0011", 2).longValue(), ((IntegerExprToken) token).getValue());
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof BooleanExprToken);

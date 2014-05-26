@@ -688,9 +688,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if ((current instanceof MinusExprToken || current instanceof PlusExprToken)
-                && (next instanceof IntegerExprToken || next instanceof DoubleExprToken
-                        || next instanceof HexExprValue || next instanceof BinaryExprValue
-                || next instanceof OctalExprValue)){
+                && (next instanceof IntegerExprToken || next instanceof DoubleExprToken)){
 
             if (!(previous instanceof ValueExprToken
                     || previous instanceof ArrayGetExprToken || previous instanceof DynamicAccessExprToken
@@ -702,12 +700,6 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         return new IntegerExprToken(TokenMeta.of(current, next));
                     } else if (next instanceof DoubleExprToken){
                         return new DoubleExprToken(TokenMeta.of(current, next));
-                    } else if (next instanceof BinaryExprValue) {
-                        return new BinaryExprValue(TokenMeta.of(current, next));
-                    } else if (next instanceof OctalExprValue) {
-                        return new OctalExprValue(TokenMeta.of(current, next));
-                    } else if (next instanceof HexExprValue) {
-                        return new HexExprValue(TokenMeta.of(current, next));
                     }
                 }
 
