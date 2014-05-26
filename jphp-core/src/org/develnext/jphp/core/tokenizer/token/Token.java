@@ -48,10 +48,8 @@ public class Token {
         if (!(o instanceof Token)) return false;
 
         Token token = (Token) o;
-        if (token.getClass() != this.getClass()) return false;
-        if (!getWord().equals(token.getWord())) return false;
+        return token.getClass() == this.getClass() && getWord().equals(token.getWord());
 
-        return true;
     }
 
     public static Token of(TokenMeta meta){

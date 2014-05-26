@@ -245,9 +245,8 @@ public class ListOrderedMap <K,V> extends AbstractMapDecorator<K, V> implements 
         StringBuffer buf = new StringBuffer();
         buf.append('{');
         boolean first = true;
-        Iterator it = entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
+        for (Object o : entrySet()) {
+            Entry entry = (Entry) o;
             Object key = entry.getKey();
             Object value = entry.getValue();
             if (first) {
@@ -432,7 +431,7 @@ public class ListOrderedMap <K,V> extends AbstractMapDecorator<K, V> implements 
         }
 
         public boolean remove(Object obj) {
-            if (obj instanceof Map.Entry == false) {
+            if (!(obj instanceof Entry)) {
                 return false;
             }
             if (getEntrySet().contains(obj)) {
@@ -545,7 +544,7 @@ public class ListOrderedMap <K,V> extends AbstractMapDecorator<K, V> implements 
         }
 
         public void remove() {
-            if (readable == false) {
+            if (!readable) {
                 throw new IllegalStateException(AbstractHashedMap.REMOVE_INVALID);
             }
             iterator.remove();
@@ -554,21 +553,21 @@ public class ListOrderedMap <K,V> extends AbstractMapDecorator<K, V> implements 
         }
 
         public K getKey() {
-            if (readable == false) {
+            if (!readable) {
                 throw new IllegalStateException(AbstractHashedMap.GETKEY_INVALID);
             }
             return last;
         }
 
         public V getValue() {
-            if (readable == false) {
+            if (!readable) {
                 throw new IllegalStateException(AbstractHashedMap.GETVALUE_INVALID);
             }
             return parent.get(last);
         }
 
         public V setValue(V value) {
-            if (readable == false) {
+            if (!readable) {
                 throw new IllegalStateException(AbstractHashedMap.SETVALUE_INVALID);
             }
             return parent.map.put(last, value);
@@ -581,7 +580,7 @@ public class ListOrderedMap <K,V> extends AbstractMapDecorator<K, V> implements 
         }
 
         public String toString() {
-            if (readable == true) {
+            if (readable) {
                 return "Iterator[" + getKey() + "=" + getValue() + "]";
             } else {
                 return "Iterator[]";

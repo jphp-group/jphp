@@ -383,9 +383,8 @@ public class CompileScope {
 
         CompileScope that = (CompileScope) o;
 
-        if (id != that.id) return false;
+        return id == that.id;
 
-        return true;
     }
 
     @Override

@@ -95,9 +95,7 @@ final public class CompilerUtils {
     }
 
     public static boolean isOperatorAlwaysReturn(OperatorExprToken operator) {
-        if (operator instanceof KeyValueExprToken)
-            return true;
+        return operator instanceof KeyValueExprToken;
 
-        return false;
     }
 }

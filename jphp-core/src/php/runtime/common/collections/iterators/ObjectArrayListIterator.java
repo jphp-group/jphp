@@ -117,7 +117,7 @@ public class ObjectArrayListIterator <E> extends ObjectArrayIterator<E> implemen
      * @throws java.util.NoSuchElementException if there is no previous element
      */
     public E previous() {
-        if (hasPrevious() == false) {
+        if (!hasPrevious()) {
             throw new NoSuchElementException();
         }
         this.lastItemIndex = --this.index;
@@ -131,7 +131,7 @@ public class ObjectArrayListIterator <E> extends ObjectArrayIterator<E> implemen
      * @throws java.util.NoSuchElementException if there is no next element
      */
     public E next() {
-        if (hasNext() == false) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
         this.lastItemIndex = this.index;

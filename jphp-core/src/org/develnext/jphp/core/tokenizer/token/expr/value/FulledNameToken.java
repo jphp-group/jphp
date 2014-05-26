@@ -96,7 +96,6 @@ public class FulledNameToken extends NameToken {
         for(String value : names){
             tmp.add(NameToken.valueOf(value));
         }
-        FulledNameToken fulledNameToken = new FulledNameToken(TokenMeta.empty(), tmp);
-        return fulledNameToken;
+        return new FulledNameToken(TokenMeta.empty(), tmp);
     }
 }

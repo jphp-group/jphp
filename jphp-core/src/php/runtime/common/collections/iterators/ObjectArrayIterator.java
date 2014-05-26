@@ -143,7 +143,7 @@ public class ObjectArrayIterator <E> implements Iterator<E>, ResettableIterator<
      *                                have already been returned
      */
     public E next() {
-        if (hasNext() == false) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
         return this.array[this.index++];

@@ -250,10 +250,7 @@ public class ClassStmtToken extends StmtToken {
 
             MethodName that = (MethodName) o;
 
-            if (!className.equalsIgnoreCase(that.className)) return false;
-            if (!name.equalsIgnoreCase(that.name)) return false;
-
-            return true;
+            return className.equalsIgnoreCase(that.className) && name.equalsIgnoreCase(that.name);
         }
 
         @Override
