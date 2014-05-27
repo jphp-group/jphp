@@ -1,12 +1,10 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
-import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
-import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 
-public class NullExprToken extends ValueExprToken {
+public class NullExprToken extends FulledNameToken {
     public NullExprToken(TokenMeta meta) {
-        super(meta, TokenType.T_STRING);
+        super(meta);
     }
 
     @Override
@@ -22,5 +20,10 @@ public class NullExprToken extends ValueExprToken {
     @Override
     public String toString() {
         return "";
+    }
+
+    @Override
+    public boolean isProcessed() {
+        return true;
     }
 }

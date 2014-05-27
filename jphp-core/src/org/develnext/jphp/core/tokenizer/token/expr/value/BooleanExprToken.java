@@ -1,15 +1,13 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
-import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
-import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 
-public class BooleanExprToken extends ValueExprToken {
+public class BooleanExprToken extends FulledNameToken {
 
     private boolean value;
 
     public BooleanExprToken(TokenMeta meta) {
-        super(meta, TokenType.T_STRING);
+        super(meta);
         String word = meta.getWord().toLowerCase();
         if ("true".equals(word))
             this.value = true;
@@ -36,5 +34,10 @@ public class BooleanExprToken extends ValueExprToken {
     @Override
     public String toString() {
         return value ? "1" : "";
+    }
+
+    @Override
+    public boolean isProcessed() {
+        return true;
     }
 }

@@ -42,7 +42,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         Token name = nextToken(iterator);
         if (name instanceof NameToken){
             result.setName((NameToken)name);
-            if (name.getClass() != NameToken.class && name.getClass() != FulledNameToken.class)
+            if (name instanceof ParentExprToken)
                 unexpectedToken(name);
         } else
             unexpectedToken(name, TokenType.T_STRING);

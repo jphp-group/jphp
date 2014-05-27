@@ -53,7 +53,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
             while (true){
                 Token next = nextToken(iterator);
                 if (next instanceof NameToken){
-                    if (next instanceof FulledNameToken)
+                    if (next instanceof FulledNameToken && !((FulledNameToken) next).isProcessed())
                         unexpectedToken(next, TokenType.T_STRING);
 
                     Token token = nextToken(iterator);

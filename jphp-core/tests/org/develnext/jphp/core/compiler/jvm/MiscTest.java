@@ -12,6 +12,7 @@ public class MiscTest extends JvmCompilerCase {
 
     @Test
     public void testBugs(){
+        check("misc/bug132.php");
         check("misc/bug134.php");
     }
 }
