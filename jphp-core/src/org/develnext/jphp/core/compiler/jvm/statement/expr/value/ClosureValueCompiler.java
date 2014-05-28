@@ -45,7 +45,11 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
             expr.writePushSmallInt(i);
 
             LocalVariable local = method.getLocalVariable(param.getName().getName());
-            expr.writeVarLoad(local);
+            if (local == null)
+                expr.writePushNull();
+            else
+                expr.writeVarLoad(local);
+
             if (!param.isReference())
                 expr.writePopBoxing(true);
 
