@@ -498,10 +498,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
-    protected Token processString(StringExprToken string){
+    protected Token processString(StringExprToken string) {
         if (string.getSegments().isEmpty()){
-            if (string.getQuote() == StringExprToken.Quote.SHELL)
+            if (string.getQuote() == StringExprToken.Quote.SHELL) {
                 return new ShellExecExprToken(string.getMeta(), Collections.<Token>emptyList());
+            }
 
             return string;
         }
@@ -567,10 +568,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             tokens.add(item);
         }
 
-        if (string.getQuote() == StringExprToken.Quote.SHELL)
+        if (string.getQuote() == StringExprToken.Quote.SHELL) {
             return new ShellExecExprToken(meta, tokens);
+        }
 
-        return new StringBuilderExprToken(meta, tokens);
+        StringBuilderExprToken result = new StringBuilderExprToken(meta, tokens);
+        result.setBinary(string.isBinary());
+        return result;
     }
 
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
@@ -583,34 +587,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             isRef = false;
         }
 
-        /*if (current instanceof InstanceofExprToken){
-            if (next instanceof NameToken || next instanceof VariableExprToken){
-                nextToken(iterator);
-                InstanceofExprToken instanceOf = (InstanceofExprToken)current;
-                if (next instanceof NameToken)
-                    instanceOf.setWhat( analyzer.getRealName((NameToken)next) );
-                else {
-                    current = next;
-                    next = nextToken(iterator);
-                    if (next instanceof DynamicAccessExprToken) {
-                        instanceOf.setWhatExpr(new ExprStmtToken(
-                                current, // variable
-                                processDynamicAccess(next, nextTokenAndPrev(iterator), iterator, closedBraceKind, braceOpened)
-                        ));
-                    } else if (isOpenedBrace(next, BraceExprToken.Kind.ARRAY)) {
-                        instanceOf.setWhatExpr(new ExprStmtToken(
-                                current, // variable
-                                processArrayToken(next, nextTokenAndPrev(iterator), iterator)
-                        ));
-                    } else {
-                        instanceOf.setWhatVariable( (VariableExprToken)current );
-                        iterator.previous();
-                    }
-                }
-                return instanceOf;
-            } else
-                unexpectedToken(next, TokenType.T_STRING);
-        }*/
+        if (current instanceof NameToken && next instanceof StringExprToken) {
+            // binary string
+            if (((NameToken) current).getName().equalsIgnoreCase("b")) {
+                ((StringExprToken) next).setBinary(true);
+                iterator.next();
+                return processString((StringExprToken)next);
+            }
+
+        }
 
         if (current instanceof ImportExprToken)
             return processImport(current, next, iterator, closedBraceKind, braceOpened);

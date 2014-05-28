@@ -9,6 +9,7 @@ import java.util.List;
 
 public class StringBuilderExprToken extends ValueExprToken {
     protected List<Token> expression;
+    protected boolean binary;
 
     public StringBuilderExprToken(TokenMeta meta, List<Token> expression) {
         super(meta, TokenType.T_CONSTANT_ENCAPSED_STRING);
@@ -17,5 +18,13 @@ public class StringBuilderExprToken extends ValueExprToken {
 
     public List<Token> getExpression() {
         return expression;
+    }
+
+    public boolean isBinary() {
+        return binary;
+    }
+
+    public void setBinary(boolean binary) {
+        this.binary = binary;
     }
 }

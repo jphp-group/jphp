@@ -11,6 +11,8 @@ import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 import static php.runtime.annotation.Reflection.*;
@@ -347,6 +349,20 @@ final public class StrUtils extends BaseObject {
         return new BinaryMemory(
                 charset.encode(args[0].toString()).array()
         );
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"),
+            @Arg("charset")
+    })
+    public static Memory decode(Environment env, Memory... args) {
+        Charset charset = Charset.forName(args[1].toString());
+        if (charset == null)
+            return Memory.FALSE;
+
+        CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(args[0].getBinaryBytes()));
+        return StringMemory.valueOf(charBuffer.toString());
     }
 
     @FastMethod

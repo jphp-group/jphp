@@ -23,6 +23,10 @@ public class BinaryMemory extends StringMemory {
         this.bytes = bytes;
     }
 
+    public static Memory valueOf(String value) {
+        return new BinaryMemory(value);
+    }
+
     @Override
     public byte[] getBinaryBytes() {
         return bytes;

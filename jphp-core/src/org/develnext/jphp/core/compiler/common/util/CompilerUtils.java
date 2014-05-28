@@ -24,7 +24,7 @@ final public class CompilerUtils {
             return LongMemory.valueOf(((IntegerExprToken) value).getValue());
         } else if (value instanceof DoubleExprToken){
             return DoubleMemory.valueOf(((DoubleExprToken) value).getValue());
-        } else if (value instanceof StringExprToken){
+        } else if (value instanceof StringExprToken && !((StringExprToken) value).isBinary()){
             return StringMemory.valueOf(((StringExprToken) value).getValue());
         } else if (value instanceof BooleanExprToken){
             return ((BooleanExprToken) value).getValue() ? Memory.TRUE : Memory.FALSE;

@@ -35,6 +35,8 @@ public class StringExprToken extends ValueExprToken {
     protected List<Segment> segments = new ArrayList<Segment>();
     protected ExprStmtToken expression;
 
+    protected boolean binary;
+
     public StringExprToken(TokenMeta meta, Quote quote) {
         super(meta, TokenType.T_CONSTANT_ENCAPSED_STRING);
         this.quote = quote;
@@ -106,5 +108,13 @@ public class StringExprToken extends ValueExprToken {
     @Override
     public boolean isConstant() {
         return true;
+    }
+
+    public boolean isBinary() {
+        return binary;
+    }
+
+    public void setBinary(boolean binary) {
+        this.binary = binary;
     }
 }

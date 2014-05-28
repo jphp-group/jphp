@@ -253,6 +253,15 @@ class str {
     public static function encode($string, $charset) { return ''; }
 
     /**
+     * Decodes $string by using $charset to UNICODE, returns a unicode string
+     *
+     * @param string $string
+     * @param string $charset e.g. UTF-8, Windows-1251, etc.
+     * @return string binary string
+     */
+    public static function decode($string, $charset) { return ''; }
+
+    /**
      * Returns *true* if $string is integer number (e.g: '12893', '3784', '0047')
      *
      *  - for ``123`` - true
