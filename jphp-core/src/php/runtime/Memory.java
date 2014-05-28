@@ -115,8 +115,13 @@ abstract public class Memory implements Comparable<Memory> {
     abstract public Memory toNumeric();
     abstract public String toString();
     public Memory toUnset() { return NULL; }
+
     public String toBinaryString(){
         return toString();
+    }
+
+    public Memory toBinary() {
+        return new BinaryMemory(toString());
     }
 
     public float toFloat(){ return (float)toDouble(); }

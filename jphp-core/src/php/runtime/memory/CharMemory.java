@@ -2,6 +2,7 @@ package php.runtime.memory;
 
 import php.runtime.common.StringUtils;
 import php.runtime.Memory;
+import php.runtime.memory.helper.BinaryCharArrayMemory;
 import php.runtime.memory.helper.CharArrayMemory;
 
 public class CharMemory extends StringMemory {
@@ -48,7 +49,11 @@ public class CharMemory extends StringMemory {
 
             if (index < len2)
                 builder.append( value.substring(index + 1) );
-            origin.assign(new CharArrayMemory(builder.toString()));
+
+            if (v instanceof BinaryMemory)
+                origin.assign(new BinaryCharArrayMemory(builder.toString()));
+            else
+                origin.assign(new CharArrayMemory(builder.toString()));
         }
     }
 

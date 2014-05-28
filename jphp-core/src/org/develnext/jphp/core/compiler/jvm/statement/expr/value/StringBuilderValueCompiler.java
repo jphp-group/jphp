@@ -7,6 +7,8 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringBuilderExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
+import php.runtime.Memory;
+import php.runtime.memory.BinaryMemory;
 
 import java.util.List;
 
@@ -16,6 +18,10 @@ public class StringBuilderValueCompiler extends BaseExprCompiler<StringBuilderEx
     }
 
     public void writeBuilder(List<Token> tokens) {
+        writeBuilder(tokens, false);
+    }
+
+    public void writeBuilder(List<Token> tokens, boolean binary) {
         expr.writePushNewObject(StringBuilder.class);
 
         for(Token el : tokens){
@@ -36,10 +42,14 @@ public class StringBuilderValueCompiler extends BaseExprCompiler<StringBuilderEx
         }
 
         expr.writeSysDynamicCall(StringBuilder.class, "toString", String.class);
+
+        if (binary) {
+            expr.writeSysStaticCall(BinaryMemory.class, "valueOf", Memory.class, String.class);
+        }
     }
 
     @Override
     public void write(StringBuilderExprToken value, boolean returnValue) {
-        writeBuilder(value.getExpression());
+        writeBuilder(value.getExpression(), value.isBinary());
     }
 }
