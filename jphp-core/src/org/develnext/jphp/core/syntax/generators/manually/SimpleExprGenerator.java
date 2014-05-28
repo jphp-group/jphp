@@ -429,6 +429,42 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return current;
     }
 
+    protected ExprStmtToken processNewExpr(Token next, BraceExprToken.Kind closedBrace, int braceOpened,
+            ListIterator<Token> iterator, boolean first) {
+        List<Token> tmp = new ArrayList<Token>();
+        if (first)
+            tmp.add(next);
+
+        Token previous = next;
+        Token token = nextToken(iterator);
+
+        if (isOpenedBrace(token, BraceExprToken.Kind.ARRAY) || isOpenedBrace(token, BraceExprToken.Kind.BLOCK)) {
+            tmp.add(processArrayToken(previous, token, iterator));
+            if (iterator.hasNext()) {
+                if (nextTokenAndPrev(iterator) instanceof DynamicAccessExprToken)
+                    tmp.addAll(processNewExpr(next, closedBrace, braceOpened, iterator, false).getTokens());
+            }
+        } else if (token instanceof DynamicAccessExprToken) {
+            next = null;
+            if (iterator.hasNext()) {
+                next = iterator.next();
+                iterator.previous();
+            }
+            tmp.add(processDynamicAccess(token, next, iterator, closedBrace, braceOpened));
+            if (iterator.hasNext()) {
+                token = nextTokenAndPrev(iterator);
+                if (isOpenedBrace(token, BraceExprToken.Kind.ARRAY)
+                        || isOpenedBrace(token, BraceExprToken.Kind.BLOCK)
+                        || token instanceof DynamicAccessExprToken) {
+                    tmp.addAll(processNewExpr(next, closedBrace, braceOpened, iterator, false).getTokens());
+                }
+            }
+        } else
+            iterator.previous();
+
+        return new ExprStmtToken(tmp);
+    }
+
     protected Token processNew(Token current, BraceExprToken.Kind closedBrace, int braceOpened, ListIterator<Token> iterator){
         NewExprToken result = (NewExprToken)current;
         Token next = nextToken(iterator);
@@ -436,24 +472,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             FulledNameToken nameToken = analyzer.getRealName((NameToken)next);
             result.setName(nameToken);
         } else if (next instanceof VariableExprToken) {
-            List<Token> tmp = new ArrayList<Token>();
-            tmp.add(next);
-
-            Token previous = next;
-            Token token = nextToken(iterator);
-            if (isOpenedBrace(token, BraceExprToken.Kind.ARRAY) || isOpenedBrace(token, BraceExprToken.Kind.BLOCK)) {
-                tmp.add(processArrayToken(previous, token, iterator));
-            } else if (token instanceof DynamicAccessExprToken) {
-                next = null;
-                if (iterator.hasNext()) {
-                    next = iterator.next();
-                    iterator.previous();
-                }
-                tmp.add(processDynamicAccess(token, next, iterator, closedBrace, braceOpened));
-            } else
-                iterator.previous();
-
-            result.setName(new ExprStmtToken(tmp));
+            result.setName(processNewExpr(next, closedBrace, braceOpened, iterator, true));
         } else if (next instanceof StaticExprToken){
             result.setName((StaticExprToken)next);
         } else if (next instanceof SelfExprToken){
