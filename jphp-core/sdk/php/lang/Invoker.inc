@@ -22,7 +22,7 @@ class Invoker {
      *
      * @param array $args
      * @return mixed
-     * @return int
+     * @return int|mixed
      */
     public function callArray(array $args) { return 0; }
 
@@ -32,7 +32,7 @@ class Invoker {
      * Вызвать текущий callback
      *
      * @param ...
-     * @return int
+     * @return int|mixed
      */
     public function call() { return 0; }
 

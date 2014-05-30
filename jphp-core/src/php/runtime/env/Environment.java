@@ -293,7 +293,11 @@ public class Environment {
     }
 
     public void popCall(){
-        callStack[--callStackTop].clear(); // clear for GC
+        try {
+            callStack[--callStackTop].clear(); // clear for GC
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalThreadStateException();
+        }
     }
 
     public CallStackItem peekCall(int depth){
@@ -319,6 +323,9 @@ public class Environment {
     }
 
     public CallStackItem[] getCallStackSnapshot(){
+        if (callStackTop < 0)
+            throw new IllegalThreadStateException();
+
         CallStackItem[] result = new CallStackItem[callStackTop];
         int i = 0;
         for(CallStackItem el : callStack){
