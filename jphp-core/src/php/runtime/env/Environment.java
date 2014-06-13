@@ -1098,7 +1098,11 @@ public class Environment {
     }
 
     public ClassEntity __getClosure(String moduleIndex, int index){
-        return scope.moduleIndexMap.get(moduleIndex).findClosure(index);
+        ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
+        if (moduleEntity == null)
+            throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a closure object");
+
+        return moduleEntity.findClosure(index);
     }
 
     public Memory __getSingletonClosure(String moduleIndex, int index){

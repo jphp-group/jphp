@@ -27,6 +27,9 @@ public class ResourceStream extends Stream {
     @Override
     @Reflection.Signature({@Reflection.Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
+        super.__construct(env, args);
+        setPath("res://" + this.getPath());
+
         stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(args[0].toString());
         if (stream == null)
             throw new IOException("Resource not found - " + args[0]);

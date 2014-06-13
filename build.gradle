@@ -43,7 +43,7 @@ allprojects {
         rename jar.archiveName, "$jar.baseName." + jar.extension
     }
 
-    task buildPortableDef(dependsOn: [copyRuntimeLibs, collectJars]) {
+    task buildPortableDef(dependsOn: [copyRuntimeLibs, collectJars], overwrite: true) {
         copy {
             from "sdk/"
             into "$project.ext.distPath/sdk"

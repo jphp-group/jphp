@@ -58,8 +58,10 @@ public class WrapModule extends BaseObject {
     protected void loadModule(Environment env) {
         if (!module.isLoaded()) {
             synchronized (env.scope) {
-                if (!module.isLoaded())
+                if (!module.isLoaded()) {
                     env.scope.loadModule(module);
+                    env.scope.addUserModule(module);
+                }
             }
         }
     }
@@ -70,6 +72,7 @@ public class WrapModule extends BaseObject {
 
         loadModule(env);
         env.registerModule(module);
+
         registered = true;
     }
 

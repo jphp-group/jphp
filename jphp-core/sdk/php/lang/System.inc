@@ -19,4 +19,13 @@ final class System {
      * Runs the garbage collector
      */
     public static function gc() { }
+
+    /**
+     * Gets a system property by name
+     *
+     * @param $name
+     * @param string $def
+     * @return string
+     */
+    public static function getProperty($name, $def = '') { return ''; }
 }
