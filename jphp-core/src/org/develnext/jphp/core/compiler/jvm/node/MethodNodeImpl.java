@@ -25,7 +25,9 @@ public class MethodNodeImpl extends MethodNode {
         this.exceptions = node.exceptions;
         this.tryCatchBlocks = node.tryCatchBlocks;
         this.localVariables = node.localVariables;
+
         this.instructions = node.instructions;
+
         this.invisibleAnnotations = node.invisibleAnnotations;
         this.invisibleParameterAnnotations = node.invisibleParameterAnnotations;
         this.visibleAnnotations = node.visibleAnnotations;

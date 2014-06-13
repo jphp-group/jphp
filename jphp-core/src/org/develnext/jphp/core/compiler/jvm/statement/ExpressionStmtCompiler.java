@@ -1314,12 +1314,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode endLabel = new LabelNode();
             LabelNode elseLabel = new LabelNode();
 
-            writeVarLoad("~this");
-
             if (methodStatement.isStatic()) {
                 writePushNull();
                 writeVarStore(variable, false, false);
             } else {
+                writeVarLoad("~this");
                 writeSysDynamicCall(IObject.class, "isMock", Boolean.TYPE);
 
                 code.add(new JumpInsnNode(IFEQ, elseLabel));
