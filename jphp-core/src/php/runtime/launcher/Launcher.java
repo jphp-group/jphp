@@ -194,11 +194,13 @@ public class Launcher {
         if (file != null){
             try {
                 ModuleEntity bootstrap = loadFrom(file);
-                initModule(bootstrap);
+
                 if (new StringMemory(config.getProperty("bootstrap.showBytecode", "")).toBoolean()) {
                     ModuleOpcodePrinter moduleOpcodePrinter = new ModuleOpcodePrinter(bootstrap);
                     System.out.println(moduleOpcodePrinter.toString());
                 }
+
+                initModule(bootstrap);
                 try {
                     bootstrap.include(environment);
                 } catch (Exception e){

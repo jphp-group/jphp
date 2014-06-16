@@ -38,6 +38,7 @@ public class RuntimeClassLoader extends ClassLoader {
     protected Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
         byte[] data = clazz.getData();
         Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
+
         clazz.setNativeClazz(result);
         for(MethodEntity method : clazz.getMethods().values()){
             if (method.getNativeMethod() == null && !method.isAbstractable()){
@@ -47,6 +48,7 @@ public class RuntimeClassLoader extends ClassLoader {
                 method.getNativeMethod().setAccessible(true);
             }
         }
+
         internalClasses.put(clazz.getInternalName(), clazz);
         return result;
     }

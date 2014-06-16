@@ -36,11 +36,11 @@ public class ModuleOpcodePrinter {
             }
 
             for(ClassEntity clazz : module.getClasses()){
-                if (clazz.getType() == ClassEntity.Type.CLASS){
+                if (clazz.isClass() || clazz.isTrait()){
                     opcodePrinter = new OpcodePrinter(clazz);
-                    writer.write("#### Class: " + clazz.getName() + "\n");
+                    writer.write("#### " + (clazz.isTrait() ? "Trait" : "Class") + ": " + clazz.getName() + "\n");
                     opcodePrinter.toWriter(writer);
-                    writer.write("#### /Class \n\n\n");
+                    writer.write("#### /" + (clazz.isTrait() ? "Trait" : "Class") + " \n\n\n");
                 }
             }
 

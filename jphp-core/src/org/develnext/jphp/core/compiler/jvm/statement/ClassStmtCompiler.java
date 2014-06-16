@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.compiler.jvm.statement;
 
 import org.develnext.jphp.core.compiler.jvm.Constants;
+import org.develnext.jphp.core.compiler.jvm.JPHPClassWriter;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.node.ClassNodeImpl;
@@ -15,7 +16,6 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -35,7 +35,7 @@ import java.util.*;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
-    protected ClassWriter cw;
+    protected JPHPClassWriter cw;
     public final ClassNode node;
     public final ClassStmtToken statement;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
@@ -635,7 +635,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         if (alias.getModifier() != null)
             dup.setModifier(alias.getModifier());
 
-        MethodNode methodNode = new MethodNodeImpl(methodEntity.getMethodNode());
+        MethodNodeImpl methodNode = MethodNodeImpl.duplicate(methodEntity.getMethodNode());
 
         if (origin != null) {
             dup.setPrototype(origin);
@@ -899,15 +899,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             }
 
             writeInitStatic();
-            cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES); // !!! IMPORTANT use COMPUTE_FRAMES
+            cw = new JPHPClassWriter(entity.isTrait());
             node.accept(cw);
 
             entity.setData(cw.toByteArray());
         }
         return entity;
-    }
-
-    ClassWriter getClassWriter() {
-        return cw;
     }
 }
