@@ -313,6 +313,7 @@ public class CompileScope {
             return null;
 
         entity = new ClassEntity(compileClass.getExtension(), this, compileClass.getNativeClass());
+        entity.setId(nextClassIndex());
         synchronized (classMap) {
             classMap.put(name, entity);
         }

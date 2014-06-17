@@ -4,8 +4,11 @@ import php.runtime.env.Environment;
 import php.runtime.ext.java.JavaException;
 import php.runtime.reflection.ClassEntity;
 
+import static php.runtime.annotation.Reflection.Name;
+
 final public class WrapJavaExceptions {
 
+    @Name("php\\lang\\IllegalArgumentException")
     public static class IllegalArgumentException extends JavaException {
         public IllegalArgumentException(Environment env, Throwable throwable) {
             super(env, throwable);
@@ -16,6 +19,7 @@ final public class WrapJavaExceptions {
         }
     }
 
+    @Name("php\\lang\\IllegalStateException")
     public static class IllegalStateException extends JavaException {
         public IllegalStateException(Environment env, Throwable throwable) {
             super(env, throwable);
@@ -26,6 +30,7 @@ final public class WrapJavaExceptions {
         }
     }
 
+    @Name("php\\lang\\NumberFormatException")
     public static class NumberFormatException extends JavaException {
         public NumberFormatException(Environment env, Throwable throwable) {
             super(env, throwable);

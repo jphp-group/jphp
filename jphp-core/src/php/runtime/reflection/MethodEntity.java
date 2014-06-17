@@ -236,6 +236,8 @@ public class MethodEntity extends AbstractFunctionEntity {
             return isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){
             return environment.__throwException(e);
+        } catch (Throwable e) {
+            throw e;
         } finally {
             unsetArguments(arguments);
         }
