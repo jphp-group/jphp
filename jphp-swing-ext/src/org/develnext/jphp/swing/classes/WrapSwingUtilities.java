@@ -113,11 +113,7 @@ final public class WrapSwingUtilities extends BaseObject {
 
                 try {
                     thread.setContextClassLoader(env.scope.getClassLoader());
-                    invoker.call();
-                } catch (RuntimeException e){
-                    throw e;
-                } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
+                    invoker.callNoThrow();
                 } finally {
                     thread.setContextClassLoader(old);
                 }

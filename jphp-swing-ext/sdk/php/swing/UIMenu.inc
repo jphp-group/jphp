@@ -3,6 +3,8 @@ namespace php\swing;
 
 /**
  * Class UIMenu
+ * events: `select`, `deselect`, `cancel`
+ *
  * @package php\swing
  */
 class UIMenu extends UIMenuItem {

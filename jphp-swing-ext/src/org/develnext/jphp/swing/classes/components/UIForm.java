@@ -51,4 +51,19 @@ public class UIForm extends UIWindow {
         frame.setDefaultCloseOperation(args[0].toInteger());
         return Memory.NULL;
     }
+
+    @Signature
+    protected Memory __getMaximized(Environment env, Memory... args) {
+        return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH
+                ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature(@Arg("value"))
+    public Memory __setMaximized(Environment env, Memory... args) {
+        frame.setExtendedState(args[0].toBoolean()
+                ? frame.getExtendedState() | Frame.MAXIMIZED_BOTH
+                : frame.getExtendedState() ^ Frame.MAXIMIZED_BOTH);
+
+        return Memory.NULL;
+    }
 }

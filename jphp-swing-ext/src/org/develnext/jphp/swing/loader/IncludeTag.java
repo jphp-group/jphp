@@ -16,9 +16,7 @@ public class IncludeTag extends BaseTag<Component> {
         if (src == null)
             throw new IllegalArgumentException("Attribute `src` is required");
 
-        Component cmp = uiReader.read(Launcher.current().getResource(src)
-
-        );
+        Component cmp = uiReader.read(Launcher.current().getResource(src));
         return cmp;
     }
 

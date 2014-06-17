@@ -1,8 +1,5 @@
 package org.develnext.jphp.swing.classes.components.support;
 
-import php.runtime.Memory;
-import php.runtime.common.HintType;
-import php.runtime.env.Environment;
 import org.develnext.jphp.swing.ComponentProperties;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.XYLayout;
@@ -16,6 +13,9 @@ import org.develnext.jphp.swing.event.EventProvider;
 import org.develnext.jphp.swing.misc.Align;
 import org.develnext.jphp.swing.misc.Anchor;
 import org.develnext.jphp.swing.misc.EventContainer;
+import php.runtime.Memory;
+import php.runtime.common.HintType;
+import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
@@ -106,7 +106,8 @@ abstract public class UIElement extends RootObject {
         invoker.setTrace(env.trace());
 
         if (eventProvider == null) {
-            env.exception(env.trace(), "Unknown event type - " + args[0]);
+            throw new IllegalArgumentException("Unknown event type - " + args[0]);
+            //env.exception(env.trace(), "Unknown event type - " + args[0]);
         }
 
         onBindEvent(env, name, invoker);
