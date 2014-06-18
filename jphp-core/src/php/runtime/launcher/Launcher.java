@@ -205,6 +205,8 @@ public class Launcher {
                     bootstrap.include(environment);
                 } catch (Exception e){
                     environment.catchUncaught(e);
+                } finally {
+                    environment.doFinal();
                 }
 
             } catch (IOException e) {

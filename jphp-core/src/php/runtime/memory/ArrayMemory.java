@@ -436,6 +436,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                     convertToMap();
             }
         } else {
+            if (!(key instanceof String))
+                key = key.toString();
+
             if (list != null)
                 convertToMap();
         }
@@ -617,7 +620,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
         checkCopied();
         if (size < 1)
             return null;
-        
+
         Memory value;
         if (list != null){
             value = list.get(size - 1);
@@ -626,7 +629,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
             value = map.remove(map.lastKey());
         }
         size -= 1;
-        
+
         return value.toValue();
     }
 

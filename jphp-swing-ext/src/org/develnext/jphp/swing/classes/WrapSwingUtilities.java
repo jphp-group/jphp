@@ -9,10 +9,12 @@ import php.runtime.ext.java.JavaObject;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -29,6 +31,12 @@ final public class WrapSwingUtilities extends BaseObject {
     @Signature
     private Memory __construct(Environment env, Memory... args){
         return Memory.NULL;
+    }
+
+    @Signature
+    public static Memory getScreenSize(Environment env, Memory... args) {
+        Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        return new ArrayMemory(dimension.getWidth(), dimension.getHeight());
     }
 
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE, optional = @Optional("NULL")))

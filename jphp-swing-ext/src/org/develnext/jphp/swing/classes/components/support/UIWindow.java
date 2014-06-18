@@ -81,7 +81,7 @@ abstract public class UIWindow extends UIContainer {
     protected Memory __setOpacity(Environment env, Memory... args) {
         Window window = getWindow();
         try {
-            Method m = window.getClass().getMethod("setOpacity", Float.class);
+            Method m = window.getClass().getMethod("setOpacity", Float.TYPE);
             m.invoke(window, args[0].toFloat());
         } catch (NoSuchMethodException e) {
             return Memory.NULL;

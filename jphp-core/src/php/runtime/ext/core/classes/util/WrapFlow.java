@@ -410,7 +410,7 @@ public class WrapFlow extends BaseObject implements Iterator {
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
             if (withKeys)
-                r.put(iterator.getMemoryKey(), iterator.getValue());
+                r.put(iterator.getKey(), iterator.getValue());
             else
                 r.add(iterator.getValue());
         }

@@ -8,6 +8,7 @@ import org.develnext.jphp.swing.misc.Align;
 import org.develnext.jphp.swing.misc.Anchor;
 
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ final public class ComponentPropertyReaders extends PropertyReaders<Component> {
         put("position", POSITION);
         put("min-size", MIN_SIZE);
         put("autosize", AUTOSIZE);
+        put("cursor", CURSOR);
     }};
 
     @Override
@@ -172,6 +174,18 @@ final public class ComponentPropertyReaders extends PropertyReaders<Component> {
         public void read(Component component, Value value) {
             ComponentProperties properties = SwingExtension.getProperties(component);
             properties.setGroups(value.asString());
+        }
+    };
+
+    public final static PropertyReader<Component> CURSOR = new PropertyReader<Component>() {
+        @Override
+        public void read(Component component, Value value) {
+            try {
+                Field field = Cursor.class.getField(value.asString().toUpperCase() + "_CURSOR");
+                component.setCursor(Cursor.getPredefinedCursor(field.getInt(null)));
+            } catch (Exception e) {
+                //throw new RuntimeException(e);
+            }
         }
     };
 

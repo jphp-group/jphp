@@ -205,8 +205,8 @@ final public class StrUtils extends BaseObject {
         if (toLeft && toRight) {
             if (left == 0 && right == len - 1)
                 return text;
-            if (left == right)
-                return "";
+           /* if (left < right - 1)
+                return "";*/
             if (right == 0 && left > 0)
                 return text.substring(left);
 

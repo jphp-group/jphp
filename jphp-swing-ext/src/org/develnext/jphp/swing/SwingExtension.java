@@ -118,6 +118,7 @@ public class SwingExtension extends Extension {
 
         registerNativeClass(scope, UITextElement.class);
         registerNativeClass(scope, UIEdit.class, JTextFieldX.class);
+        registerNativeClass(scope, UIPasswordEdit.class, JPasswordFieldX.class);
         registerNativeClass(scope, UITextArea.class, JTextAreaX.class);
         registerNativeClass(scope, UIEditorArea.class, JEditorPaneX.class);
         registerNativeClass(scope, UICombobox.class, JComboBox.class);
@@ -162,6 +163,7 @@ public class SwingExtension extends Extension {
         registerReaderTag(new UIToggleButtonTag());
         registerReaderTag(new UICheckboxTag());
         registerReaderTag(new UIEditTag());
+        registerReaderTag(new UIPasswordEditTag());
         registerReaderTag(new UITextAreaTag());
         registerReaderTag(new UILabelTag());
         registerReaderTag(new UIImageTag());
@@ -201,6 +203,7 @@ public class SwingExtension extends Extension {
         registerPropertyReaders(new JProgressBarPropertyReaders());
         registerPropertyReaders(new JTreeXPropertyReaders());
         registerPropertyReaders(new JTabbedPanePropertyReaders());
+        registerPropertyReaders(new JFramePropertyReaders());
     }
 
     @Override

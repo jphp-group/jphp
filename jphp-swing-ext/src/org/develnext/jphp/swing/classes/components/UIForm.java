@@ -60,9 +60,11 @@ public class UIForm extends UIWindow {
 
     @Signature(@Arg("value"))
     public Memory __setMaximized(Environment env, Memory... args) {
-        frame.setExtendedState(args[0].toBoolean()
-                ? frame.getExtendedState() | Frame.MAXIMIZED_BOTH
-                : frame.getExtendedState() ^ Frame.MAXIMIZED_BOTH);
+        if (args[0].toBoolean()) {
+            frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+        } else {
+            frame.setExtendedState(Frame.NORMAL);
+        }
 
         return Memory.NULL;
     }
