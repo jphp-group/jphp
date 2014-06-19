@@ -1,9 +1,11 @@
 package org.develnext.jphp.http.classes;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.develnext.jphp.http.classes.entity.WrapHttpEntity;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
@@ -12,8 +14,7 @@ import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
 
-import static php.runtime.annotation.Reflection.Name;
-import static php.runtime.annotation.Reflection.Signature;
+import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\net\\HttpRequest")
 public class WrapHttpRequest extends BaseObject {
@@ -40,8 +41,16 @@ public class WrapHttpRequest extends BaseObject {
         this.httpRequest = httpRequest;
     }
 
-    @Signature
+    @Signature(
+            @Arg(value = "entity", nativeType = WrapHttpEntity.class, optional = @Optional("null"))
+    )
     public Memory execute(Environment env, Memory... args) throws IOException {
+        if (!args[0].isNull()) {
+            ((HttpEntityEnclosingRequestBase)httpRequest).setEntity(
+                    args[0].toObject(WrapHttpEntity.class).getEntity()
+            );
+        }
+
         CloseableHttpResponse response = httpClient.execute(httpRequest);
         return new ObjectMemory(new WrapHttpResponse(env, response));
     }

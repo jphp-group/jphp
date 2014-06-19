@@ -9,6 +9,11 @@ use php\io\Stream;
 class HttpEntity {
 
     /**
+     * @param Stream|string $source
+     */
+    public function __construct($source) { }
+
+    /**
      * @return Stream
      */
     public function getContent() { return Stream::of(''); }

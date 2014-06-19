@@ -9,7 +9,8 @@ namespace php\net;
 class HttpRequest {
 
     /**
+     * @param HttpEntity|null $entity
      * @return HttpResponse
      */
-    public function execute() { return new HttpResponse(); }
+    public function execute(HttpEntity $entity = null) { return new HttpResponse(); }
 }

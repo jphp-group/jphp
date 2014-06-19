@@ -38,6 +38,7 @@ public class WrapHttpUrlEncodingFormEntity extends WrapHttpEntity {
             pairs.add(new BasicNameValuePair(iterator.getKey().toString(), iterator.getValue().toString()));
         }
 
+
         this.entity = new UrlEncodedFormEntity(pairs,
                 args[1].isNull() ? env.getDefaultCharset().name() : args[1].toString()
         );
