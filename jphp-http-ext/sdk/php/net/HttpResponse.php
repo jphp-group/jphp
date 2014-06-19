@@ -15,7 +15,17 @@ class HttpResponse {
     public function getStatusCode() { return 0; }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getContent() { return ""; }
+    public function getHeaders() { return []; }
+
+    /**
+     * @param HttpEntity $entity
+     */
+    public function setEntity(HttpEntity $entity = null) {  }
+
+    /**
+     * @return HttpEntity
+     */
+    public function getEntity() { return new HttpEntity(); }
 }
