@@ -22,6 +22,7 @@ import static php.runtime.annotation.Reflection.*;
 public class JsonProcessor extends WrapProcessor {
 
     public static final int SERIALIZE_PRETTY_PRINT = 1;
+    public static final int DESERIALIZE_AS_ARRAYS = 1024;
 
     protected GsonBuilder builder;
     protected Gson gson;
@@ -77,6 +78,10 @@ public class JsonProcessor extends WrapProcessor {
         int flags = args[0].toInteger();
         if ((flags & SERIALIZE_PRETTY_PRINT) == SERIALIZE_PRETTY_PRINT) {
             builder.setPrettyPrinting();
+        }
+
+        if ((flags & DESERIALIZE_AS_ARRAYS) == DESERIALIZE_AS_ARRAYS) {
+            memoryDeserializer.setAssoc(true);
         }
 
         if (flags > 0)

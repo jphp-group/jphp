@@ -8,6 +8,7 @@ namespace php\format;
 class JsonProcessor extends Processor {
 
     const SERIALIZE_PRETTY_PRINT = 1;
+    const DESERIALIZE_AS_ARRAYS  = 1024;
 
     /**
      * @param int $flags
