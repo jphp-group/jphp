@@ -5,6 +5,7 @@ import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
+import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.lib.*;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
@@ -110,6 +111,8 @@ public class CoreExtension extends Extension {
 
         registerNativeClass(scope, WrapExecutorService.class);
         registerNativeClass(scope, WrapFuture.class);
+
+        registerNativeClass(scope, WrapProcessor.class);
     }
 
     @Override

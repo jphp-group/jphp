@@ -9,6 +9,7 @@ import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -16,9 +17,14 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
 
     protected boolean assoc;
     protected int maxDepth = 512;
+    protected WeakReference<Environment> env;
 
     public boolean isAssoc() {
         return assoc;
+    }
+
+    public void setEnv(Environment env) {
+        this.env = new WeakReference<Environment>(env);
     }
 
     public void setAssoc(boolean assoc) {

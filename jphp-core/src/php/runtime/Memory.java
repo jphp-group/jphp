@@ -9,6 +9,9 @@ import php.runtime.lang.StdClass;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 abstract public class Memory implements Comparable<Memory> {
 
     public enum Type {
@@ -67,6 +70,20 @@ abstract public class Memory implements Comparable<Memory> {
                 default:
                     return "unknown";
             }
+        }
+
+        protected final static Map<String, Type> TYPE_MAP = new HashMap<String, Type>(){{
+            put("array", ARRAY);
+            put("bool", BOOL); put("boolean", BOOL);
+            put("double", DOUBLE); put("float", DOUBLE);
+            put("int", INT); put("integer", INT); put("long", INT);
+            put("null", NULL);
+            put("string", STRING);
+            put("object", OBJECT);
+        }};
+
+        public static Type of(String code) {
+            return TYPE_MAP.get(code.toLowerCase());
         }
     }
 
