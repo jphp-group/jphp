@@ -132,7 +132,10 @@ final public class InvokeHelper {
         int i = 0;
         if (passed != null)
         for(ParameterEntity param : parameters){
-            if (!param.isUsed() && param.getType() == HintType.ANY) continue;
+            if (!param.isUsed() && param.getType() == HintType.ANY) {
+                i++;
+                continue;
+            }
 
             Memory arg = passed[i];
             if (arg == null) {
