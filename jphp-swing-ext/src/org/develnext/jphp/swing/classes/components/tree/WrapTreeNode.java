@@ -1,20 +1,19 @@
 package org.develnext.jphp.swing.classes.components.tree;
 
 
+import org.develnext.jphp.swing.SwingExtension;
+import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
-import php.runtime.ext.java.JavaObject;
-import org.develnext.jphp.swing.SwingExtension;
-import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.TrueMemory;
+import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ClassEntity;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
-
 import java.util.NoSuchElementException;
 
 import static php.runtime.annotation.Reflection.*;
@@ -43,7 +42,7 @@ public class WrapTreeNode extends RootObject {
             @Arg(value = "allowsChildren", optional = @Optional(value = "1", type = HintType.BOOLEAN))
     })
     public Memory __construct(Environment env, Memory... args) {
-        node = new DefaultMutableTreeNode(args[0].isNull() ? null : args[0].toString(), args[1].toBoolean());
+        node = new DefaultMutableTreeNode(args[0].isNull() ? null : args[0], args[1].toBoolean());
         return Memory.NULL;
     }
 
@@ -107,7 +106,8 @@ public class WrapTreeNode extends RootObject {
             return Memory.NULL;
         if (node.getUserObject() instanceof Memory)
             return (Memory) node.getUserObject();
-        return new ObjectMemory(JavaObject.of(env, node.getUserObject()));
+        else
+            return MemoryUtils.valueOf(node.getUserObject());
     }
 
     @Signature

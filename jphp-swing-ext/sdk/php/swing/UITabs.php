@@ -22,6 +22,12 @@ class UITabs extends UIContainer {
     public $tabPlacement;
 
     /**
+     * @readonly
+     * @var int
+     */
+    public $tabCount;
+
+    /**
      * @param string $title
      * @param UIElement $component
      * @param Image $icon

@@ -143,6 +143,11 @@ public class UITabs extends UIContainer {
         return Memory.NULL;
     }
 
+    @Signature
+    protected Memory __getTabCount(Environment env, Memory... args) {
+        return LongMemory.valueOf(component.getTabCount());
+    }
+
     @Signature(@Arg("index"))
     public Memory getTabComponentAt(Environment env, Memory... args) {
         Component cmp = component.getTabComponentAt(args[0].toInteger());

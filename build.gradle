@@ -31,13 +31,13 @@ allprojects {
     // dist
     ext.distPath = "$rootProject.buildDir/dist-" + project.version
 
-    task collectJars(type: Copy){
+    task collectJars(type: Copy, overwrite: true){
         into "$project.ext.distPath/libs"
         from configurations.runtime
         exclude "jphp-*"
     }
 
-    task copyRuntimeLibs(type: Copy, dependsOn: "jar") {
+    task copyRuntimeLibs(type: Copy, dependsOn: "jar", overwrite: true) {
         into "$project.ext.distPath/libs"
         from "$libsDir/" + jar.archiveName
         rename jar.archiveName, "$jar.baseName." + jar.extension
