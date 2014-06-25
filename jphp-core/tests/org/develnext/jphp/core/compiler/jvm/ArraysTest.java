@@ -92,4 +92,9 @@ public class ArraysTest extends JvmCompilerCase {
         Assert.assertEquals("foobar_bla", memory.valueOfIndex("a").toString());
         Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
     }
+
+    @Test
+    public void testBugs() {
+        check("arrays/bug148.php");
+    }
 }

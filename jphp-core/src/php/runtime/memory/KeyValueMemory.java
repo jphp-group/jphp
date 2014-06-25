@@ -13,4 +13,9 @@ public class KeyValueMemory extends ReferenceMemory {
     public static Memory valueOf(Memory key, Memory value){
         return new KeyValueMemory(key, value);
     }
+
+    @Override
+    public Memory toImmutable() {
+        return this;
+    }
 }

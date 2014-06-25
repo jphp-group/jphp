@@ -1470,6 +1470,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
 
                 writePopBoxing();
+                writePopImmutable();
                 writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
                 writePopAll(1);
             }
