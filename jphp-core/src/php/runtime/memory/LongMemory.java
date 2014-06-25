@@ -105,7 +105,7 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: return LongMemory.valueOf(value + ((LongMemory) memory).value);
             case DOUBLE: return new DoubleMemory(value + ((DoubleMemory)memory).value);
-            case REFERENCE: return plus(memory.toImmutable());
+            case REFERENCE: return plus(memory.toValue());
             default: return plus(memory.toNumeric());
         }
     }
@@ -115,7 +115,7 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: return LongMemory.valueOf(value - ((LongMemory) memory).value);
             case DOUBLE: return new DoubleMemory(value - ((DoubleMemory)memory).value);
-            case REFERENCE: return minus(memory.toImmutable());
+            case REFERENCE: return minus(memory.toValue());
             default: return minus(memory.toNumeric());
         }
     }
@@ -125,7 +125,7 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: return LongMemory.valueOf(value * ((LongMemory) memory).value);
             case DOUBLE: return new DoubleMemory(value * ((DoubleMemory)memory).value);
-            case REFERENCE: return mul(memory.toImmutable());
+            case REFERENCE: return mul(memory.toValue());
             default: return mul(memory.toNumeric());
         }
     }
@@ -145,7 +145,7 @@ public class LongMemory extends Memory {
             case DOUBLE:
                 if (((DoubleMemory)memory).value == 0) return FALSE;
                 return new DoubleMemory(value / ((DoubleMemory)memory).value);
-            case REFERENCE: return div(memory.toImmutable());
+            case REFERENCE: return div(memory.toValue());
             default: return div(memory.toNumeric());
         }
     }
@@ -172,7 +172,7 @@ public class LongMemory extends Memory {
             case INT: return ((LongMemory)memory).value == value;
             case DOUBLE: return ((DoubleMemory)memory).value == value;
             case STRING: return equal(memory.toNumeric());
-            case REFERENCE: return equal(memory.toImmutable());
+            case REFERENCE: return equal(memory.toValue());
             default:
                 return value == toLong();
         }
@@ -194,7 +194,7 @@ public class LongMemory extends Memory {
             case INT: return ((LongMemory)memory).value != value;
             case DOUBLE: return ((DoubleMemory)memory).value != value;
             case STRING: return notEqual(memory.toNumeric());
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
             default:
                 return value != toLong();
         }
@@ -211,7 +211,7 @@ public class LongMemory extends Memory {
             case DOUBLE: return value < ((DoubleMemory)memory).value;
             case INT: return value < ((LongMemory)memory).value;
             case STRING: return smaller(memory.toNumeric());
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
             default:
                 return value < toLong();
         }
@@ -223,7 +223,7 @@ public class LongMemory extends Memory {
             case DOUBLE: return value <= ((DoubleMemory)memory).value;
             case INT: return value <= ((LongMemory)memory).value;
             case STRING: return smallerEq(memory.toNumeric());
-            case REFERENCE: return smallerEq(memory.toImmutable());
+            case REFERENCE: return smallerEq(memory.toValue());
             default:
                 return value <= toLong();
         }

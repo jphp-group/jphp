@@ -340,7 +340,7 @@ public class StringMemory extends Memory {
     public String concat(Memory memory) {
         switch (memory.type){
             case STRING: return toString().concat(memory.toString());
-            case REFERENCE: return concat(memory.toImmutable());
+            case REFERENCE: return concat(memory.toValue());
             default:
                 return (toString() + memory.toString());
         }
@@ -350,7 +350,7 @@ public class StringMemory extends Memory {
     public boolean smaller(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) < 0;
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
         }
         return toNumeric().smaller(memory);
     }
@@ -364,7 +364,7 @@ public class StringMemory extends Memory {
     public boolean smallerEq(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) <= 0;
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
         }
         return toNumeric().smallerEq(memory);
     }
@@ -378,7 +378,7 @@ public class StringMemory extends Memory {
     public boolean greater(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) > 0;
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
         }
         return toNumeric().greater(memory);
     }
@@ -392,7 +392,7 @@ public class StringMemory extends Memory {
     public boolean greaterEq(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) >= 0;
-            case REFERENCE: return smaller(memory.toImmutable());
+            case REFERENCE: return smaller(memory.toValue());
         }
         return toNumeric().greaterEq(memory);
     }

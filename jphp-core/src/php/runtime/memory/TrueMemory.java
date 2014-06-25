@@ -91,7 +91,7 @@ public class TrueMemory extends Memory {
         switch (memory.type){
             case INT: return LongMemory.valueOf(1 + ((LongMemory) memory).value);
             case DOUBLE: return new DoubleMemory(1 + ((DoubleMemory)memory).value);
-            case REFERENCE: return plus(memory.toImmutable());
+            case REFERENCE: return plus(memory.toValue());
             default: return memory.toNumeric().plus(CONST_INT_1);
         }
     }
@@ -101,7 +101,7 @@ public class TrueMemory extends Memory {
         switch (memory.type){
             case INT: return LongMemory.valueOf(1 - ((LongMemory)memory).value);
             case DOUBLE: return new DoubleMemory(1 - ((DoubleMemory)memory).value);
-            case REFERENCE: return minus(memory.toImmutable());
+            case REFERENCE: return minus(memory.toValue());
             case BOOL: return LongMemory.valueOf(1 - memory.toLong());
             default: return CONST_INT_1.minus(memory.toNumeric());
         }
@@ -112,7 +112,7 @@ public class TrueMemory extends Memory {
         switch (memory.type){
             case INT:
             case DOUBLE: return memory;
-            case REFERENCE: return mul(memory.toImmutable());
+            case REFERENCE: return mul(memory.toValue());
             default: return memory.toNumeric();
         }
     }
@@ -121,7 +121,7 @@ public class TrueMemory extends Memory {
     public Memory div(Memory memory) {
         switch (memory.type){
             case DOUBLE: return new DoubleMemory(1 / ((DoubleMemory)memory).value);
-            case REFERENCE: return div(memory.toImmutable());
+            case REFERENCE: return div(memory.toValue());
             default:
                 return CONST_INT_1.div(memory.toNumeric());
         }
