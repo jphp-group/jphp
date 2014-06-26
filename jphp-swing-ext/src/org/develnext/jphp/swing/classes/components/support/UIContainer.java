@@ -1,6 +1,7 @@
 package org.develnext.jphp.swing.classes.components.support;
 
 
+import org.develnext.jphp.swing.XYLayout;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import org.develnext.jphp.swing.ComponentProperties;
@@ -69,18 +70,48 @@ abstract public class UIContainer extends UIElement {
 
     @Signature({
             @Arg(value = "component", typeClass = SwingExtension.NAMESPACE + "UIElement"),
-            @Arg(value = "index", optional = @Optional("NULL"))
+            @Arg(value = "index", optional = @Optional("NULL")),
+            @Arg(value = "constraints", optional = @Optional("NULL"))
     })
     public Memory add(Environment env, Memory... args){
         UIElement element = unwrap(args[0]);
 
-        if (args[1].isNull())
-            getContainer().add(element.getComponent());
-        else {
-            getContainer().add(element.getComponent(), args[1].toInteger());
+        if (args[1].isNull()) {
+            if (args[2].isNull())
+                getContainer().add(element.getComponent());
+            else
+                getContainer().add(element.getComponent(), args[2].toString());
+        } else {
+            if (args[2].isNull())
+                getContainer().add(element.getComponent(), args[1].toInteger());
+            else
+                getContainer().add(element.getComponent(), args[2].toString(), args[1].toInteger());
         }
 
+
         return args[0];
+    }
+
+
+    @Signature(@Arg("type"))
+    public Memory setLayout(Environment env, Memory... args) {
+        String s = args[0].toString().toLowerCase();
+
+        Container component = getContainer();
+        if ("absolute".equals(s))
+            component.setLayout(new XYLayout());
+        else if ("grid".equals(s)) {
+            component.setLayout(new GridLayout());
+        } else if ("flow".equals(s))
+            component.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        else if ("grid-bag".equals(s))
+            component.setLayout(new GridBagLayout());
+        else if ("border".equals(s))
+            component.setLayout(new BorderLayout());
+        else if ("card".equals(s))
+            component.setLayout(new CardLayout());
+
+        return null;
     }
 
     protected Component getComponent(Container where, String group){

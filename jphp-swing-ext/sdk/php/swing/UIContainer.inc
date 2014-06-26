@@ -10,8 +10,14 @@ abstract class UIContainer extends UIElement {
      * Add child component
      * @param UIElement $component
      * @param null|int $index
+     * @param null|int $constraints
      */
-    public function add(UIElement $component, $index = null) { }
+    public function add(UIElement $component, $index = null, $constraints = null) { }
+
+    /**
+     * @param string $type - absolute, grid, flow, grid-bag, border, card
+     */
+    public function setLayout($type) { }
 
     /**
      * @param UIElement $component
