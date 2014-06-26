@@ -59,6 +59,11 @@ class UIFileChooser extends UIContainer {
     public $controlButtonVisible;
 
     /**
+     * @var bool
+     */
+    public $acceptAllFileFilterUsed;
+
+    /**
      * @param string $approveButtonText
      * @param UIWindow $parent
      * @return bool

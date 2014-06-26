@@ -87,4 +87,9 @@ class UIListbox extends UIContainer {
      * clear all
      */
     public function removeAllItems() { }
+
+    /**
+     * @param callable $callback (UIListbox $self, UILabel $template, $value, int $index, bool isSelected, bool cellHasFocus)
+     */
+    public function onCellRender(callable $callback = null) { }
 }

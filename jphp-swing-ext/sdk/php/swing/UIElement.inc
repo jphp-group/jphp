@@ -148,6 +148,11 @@ abstract class UIElement {
     public $popupMenu;
 
     /**
+     * @var string
+     */
+    public $cursor;
+
+    /**
      * Get graphic canvas object
      * @return Graphics
      */
@@ -194,6 +199,18 @@ abstract class UIElement {
      * @param ... $args
      */
     public function trigger($name){ }
+
+    /**
+     * @param string $name
+     * @param callable $callback
+     */
+    public function setAction($name, callable $callback = null) { }
+
+    /**
+     * @param string $keyString
+     * @param string $actionName
+     */
+    public function setInputKey($keyString, $actionName) { }
 
     /**
      * @return bool

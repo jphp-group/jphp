@@ -24,6 +24,10 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name(SwingExtension.NAMESPACE + "UIFileChooser")
 public class UIFileChooser extends UIContainer {
+    public final static int FILES_ONLY = JFileChooser.FILES_ONLY;
+    public final static int FILES_AND_DIRECTORIES = JFileChooser.FILES_AND_DIRECTORIES;
+    public final static int DIRECTORIES_ONLY = JFileChooser.DIRECTORIES_ONLY;
+
     protected JFileChooser component;
 
     public UIFileChooser(Environment env, JFileChooser component) {
@@ -91,6 +95,17 @@ public class UIFileChooser extends UIContainer {
     @Signature(@Arg("value"))
     protected Memory __setDragEnabled(Environment env, Memory... args) {
         component.setDragEnabled(args[0].toBoolean());
+        return Memory.NULL;
+    }
+
+    @Signature
+    protected Memory __getAcceptAllFileFilterUsed(Environment env, Memory... args) {
+        return TrueMemory.valueOf(component.isAcceptAllFileFilterUsed());
+    }
+
+    @Signature(@Arg("value"))
+    protected Memory __setAcceptAllFileFilterUsed(Environment env, Memory... args) {
+        component.setAcceptAllFileFilterUsed(args[0].toBoolean());
         return Memory.NULL;
     }
 

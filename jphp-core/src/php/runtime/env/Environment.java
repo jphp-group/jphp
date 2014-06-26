@@ -23,10 +23,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
-import php.runtime.lang.BaseException;
-import php.runtime.lang.ForeachIterator;
-import php.runtime.lang.IObject;
-import php.runtime.lang.UncaughtException;
+import php.runtime.lang.*;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -1301,8 +1298,17 @@ public class Environment {
         for (int i = 0; i < N; i++){
             CallStackItem item = peekCall(i);
             if (item != null && item.clazz != null){
-                if (item.classEntity != null)
+                if (item.classEntity != null) {
+                    if (item.object instanceof Closure) {
+                        Memory self = ((Closure) item.object).getSelf();
+                        if (self.isObject())
+                            return self.toValue(ObjectMemory.class).getReflection();
+                        else
+                            return null;
+                    }
+
                     return item.classEntity;
+                }
                 ClassEntity e = item.classEntity = fetchClass(item.clazz, false);
                 if (e == null)
                     throw new IllegalStateException("Cannot find '" + item.clazz + "' in the current environment");

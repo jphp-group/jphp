@@ -26,6 +26,8 @@ import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.lang.reflect.Field;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -585,6 +587,59 @@ abstract public class UIElement extends RootObject {
             return Memory.NULL;
 
         return new ObjectMemory(new UIPopupMenu(env, menu));
+    }
+
+    @Signature(@Arg("value"))
+    protected Memory __setCursor(Environment env, Memory... args) {
+        try {
+            Field field = Cursor.class.getField(args[0].toString().toUpperCase() + "_CURSOR");
+            getComponent().setCursor(Cursor.getPredefinedCursor(field.getInt(null)));
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("name"),
+            @Arg(value = "callback", type = HintType.CALLABLE, optional = @Optional("null"))
+    })
+    public Memory setAction(Environment env, Memory... args) {
+        if (args[1].isNull()) {
+            getJComponent().getActionMap().remove(args[0].toString());
+            return Memory.NULL;
+        }
+
+        final Invoker invoker = Invoker.valueOf(env, null, args[1]);
+
+        getJComponent().getActionMap().put(args[0].toString(), new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                invoker.callNoThrow();
+            }
+        });
+
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("keyString"),
+            @Arg("actionName")
+    })
+    public Memory setInputKey(Environment env, Memory... args) {
+        if (args[1].isNull())
+            getJComponent().getInputMap().remove(KeyStroke.getKeyStroke(args[0].toString()));
+        else
+            getJComponent().getInputMap().put(KeyStroke.getKeyStroke(args[0].toString()), args[1].toString());
+
+        return Memory.NULL;
+    }
+
+    @Signature
+    protected Memory __getCursor(Environment env, Memory... args) {
+        return StringMemory.valueOf(getComponent().getCursor().getName());
     }
 
     public static UIElement of(Environment env, Component component){

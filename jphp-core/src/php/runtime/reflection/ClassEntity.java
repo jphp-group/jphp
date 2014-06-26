@@ -2,19 +2,20 @@ package php.runtime.reflection;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.CompileScope;
-import php.runtime.exceptions.CriticalException;
-import php.runtime.ext.support.Extension;
-import php.runtime.exceptions.FatalException;
-import php.runtime.exceptions.support.ErrorException;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.annotation.Reflection;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.support.ErrorException;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.support.Extension;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -22,7 +23,6 @@ import php.runtime.lang.support.MagicSignatureClass;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.Memory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.Entity;
 
@@ -1396,7 +1396,7 @@ public class ClassEntity extends Entity {
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
 
-        if (entity == null){
+        if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
             if (staticEntity != null){
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
