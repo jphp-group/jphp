@@ -113,6 +113,8 @@ public class CoreExtension extends Extension {
         registerNativeClass(scope, WrapFuture.class);
 
         registerNativeClass(scope, WrapProcessor.class);
+
+        registerNativeClass(scope, WrapProcess.class);
     }
 
     @Override

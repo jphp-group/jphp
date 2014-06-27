@@ -520,7 +520,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected Token processString(StringExprToken string) {
         if (string.getSegments().isEmpty()){
             if (string.getQuote() == StringExprToken.Quote.SHELL) {
-                return new ShellExecExprToken(string.getMeta(), Collections.<Token>emptyList());
+                return new ShellExecExprToken(string.getMeta(), Arrays.<Token>asList(string));
             }
 
             return string;

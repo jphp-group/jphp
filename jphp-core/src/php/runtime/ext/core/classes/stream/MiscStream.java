@@ -6,7 +6,10 @@ import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 import static php.runtime.annotation.Reflection.*;
@@ -113,13 +116,23 @@ public class MiscStream extends Stream {
     }
 
     @Signature
-    public Memory readFully(Environment env, Memory... args){
+    public Memory readFully(Environment env, Memory... args) throws IOException {
         if (memoryStream != null){
             byte[] result = memoryStream.readFully();
             if (result != null)
                 return new BinaryMemory(result);
             else
                 return Memory.FALSE;
+        } else if (inputStream != null) {
+            byte[] buff = new byte[1024];
+            int len;
+
+            ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+            while ((len = inputStream.read(buff)) > 0) {
+                tmp.write(buff, 0, len);
+            }
+
+            return new BinaryMemory(tmp.toByteArray());
         }
         return Memory.NULL;
     }
