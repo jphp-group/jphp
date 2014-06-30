@@ -40,4 +40,15 @@ final public class WrapJavaExceptions {
             super(env, clazz);
         }
     }
+
+    @Name("php\\concurrent\\TimeoutException")
+    public static class TimeoutException extends JavaException {
+        public TimeoutException(Environment env, Throwable throwable) {
+            super(env, throwable);
+        }
+
+        public TimeoutException(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+    }
 }

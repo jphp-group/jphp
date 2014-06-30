@@ -1,15 +1,14 @@
 package org.develnext.jphp.swing.classes.components;
 
+import org.develnext.jphp.swing.SwingExtension;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
-import org.develnext.jphp.swing.SwingExtension;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
-
 import java.awt.*;
 
 import static php.runtime.annotation.Reflection.*;

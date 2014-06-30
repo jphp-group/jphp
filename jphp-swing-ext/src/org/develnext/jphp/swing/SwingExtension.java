@@ -81,6 +81,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, WrapUIManager.class);
         registerNativeClass(scope, WrapSwingUtilities.class);
         registerNativeClass(scope, RootObject.class);
+        registerNativeClass(scope, WrapSwingWorker.class);
 
         registerNativeClass(scope, WrapTimer.class);
         registerNativeClass(scope, WrapFont.class);

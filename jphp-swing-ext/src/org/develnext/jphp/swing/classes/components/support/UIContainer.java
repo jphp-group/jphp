@@ -118,9 +118,12 @@ abstract public class UIContainer extends UIElement {
         if (where instanceof JFrame)
             where = ((JFrame) where).getRootPane();
 
-        int count = where.getComponentCount();
+        int count = where instanceof JMenu ? ((JMenu) where).getItemCount() : where.getComponentCount();
         for(int i = 0; i < count; i++){
-            Component el = where.getComponent(i);
+            Component el = where instanceof JMenu ? ((JMenu) where).getItem(i) : where.getComponent(i);
+            if (el == null)
+                continue;
+
             ComponentProperties properties = SwingExtension.getProperties(el);
 
             if (properties != null && properties.hasGroup(group)){
@@ -141,9 +144,12 @@ abstract public class UIContainer extends UIElement {
         if (where instanceof JFrame)
             where = ((JFrame) where).getRootPane();
 
-        int count = where.getComponentCount();
+        int count = where instanceof JMenu ? ((JMenu) where).getItemCount() : where.getComponentCount();
         for(int i = 0; i < count; i++){
-            Component el = where.getComponent(i);
+            Component el = where instanceof JMenu ? ((JMenu) where).getItem(i) : where.getComponent(i);
+            if (el == null)
+                continue;
+
             ComponentProperties properties = SwingExtension.getProperties(el);
 
             if (properties != null && properties.hasGroup(group)){

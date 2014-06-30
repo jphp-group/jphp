@@ -1233,6 +1233,16 @@ public class Environment {
         return ObjectInvokeHelper.invokeMethod(new ObjectMemory(object), name, name.toLowerCase(), this, trace(), args);
     }
 
+    public Memory invokeMethodNoThrow(IObject object, String name, Memory... args) {
+        try {
+            return invokeMethod(object, name, args);
+        } catch (RuntimeException e){
+            throw e;
+        } catch (Throwable e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public Memory invokeMethod(TraceInfo trace, Memory object, String name, Memory... args) throws Throwable {
         return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace, args);
     }
@@ -1405,4 +1415,6 @@ public class Environment {
             }
         });
     }
+
+
 }

@@ -1,13 +1,14 @@
 package org.develnext.jphp.swing.classes.components;
 
+import org.develnext.jphp.swing.SwingExtension;
+import org.develnext.jphp.swing.classes.WrapImage;
+import org.develnext.jphp.swing.classes.components.support.UIContainer;
+import org.develnext.jphp.swing.classes.components.support.UIWindow;
 import php.runtime.Memory;
 import php.runtime.common.Constants;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.FileObject;
-import org.develnext.jphp.swing.SwingExtension;
-import org.develnext.jphp.swing.classes.components.support.UIContainer;
-import org.develnext.jphp.swing.classes.components.support.UIWindow;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
@@ -15,6 +16,7 @@ import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileView;
 import java.awt.*;
 import java.io.File;
 import java.util.HashSet;
@@ -331,6 +333,69 @@ public class UIFileChooser extends UIContainer {
     @Signature
     public Memory resetChoosableFilters(Environment env, Memory... args) {
         component.resetChoosableFileFilters();
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "field"),
+            @Arg(value = "callback", type = HintType.CALLABLE, optional = @Optional("null"))
+    })
+    public Memory onFileView(final Environment env, final Memory... args) {
+        final FileView oldFileView = component.getFileView();
+        final Invoker invoker = Invoker.valueOf(env, null, args[1]);
+        final String field = args[0].toString().toLowerCase();
+
+        component.setFileView(new FileView() {
+            @Override
+            public String getName(File f) {
+                if (invoker != null && field.equals("name")) {
+                    Memory r = invoker.callNoThrow(new ObjectMemory(new FileObject(env, f)));
+                    if (!r.isNull())
+                        return r.toString();
+                }
+
+                return oldFileView == null ? super.getName(f) : oldFileView.getName(f);
+            }
+
+            @Override
+            public String getDescription(File f) {
+                if (invoker != null && field.equals("description")) {
+                    Memory r = invoker.callNoThrow(new ObjectMemory(new FileObject(env, f)));
+                    if (!r.isNull())
+                        return r.toString();
+                }
+
+                return oldFileView == null ? super.getDescription(f) : oldFileView.getDescription(f);
+            }
+
+            @Override
+            public String getTypeDescription(File f) {
+                return super.getTypeDescription(f);
+            }
+
+            @Override
+            public Icon getIcon(File f) {
+                if (invoker != null && field.equals("icon")) {
+                    Memory r = invoker.callNoThrow(new ObjectMemory(new FileObject(env, f)));
+                    if (r.instanceOf(WrapImage.class))
+                        return r.toObject(WrapImage.class).getImageIcon();
+                }
+
+                return oldFileView == null ? super.getIcon(f) : oldFileView.getIcon(f);
+            }
+
+            @Override
+            public Boolean isTraversable(File f) {
+                if (invoker != null && field.equals("traversable")) {
+                    Memory r = invoker.callNoThrow(new ObjectMemory(new FileObject(env, f)));
+                    if (!r.isNull())
+                        return r.toBoolean();
+                }
+
+                return oldFileView == null ? super.isTraversable(f) : oldFileView.isTraversable(f);
+            }
+        });
+
         return Memory.NULL;
     }
 }

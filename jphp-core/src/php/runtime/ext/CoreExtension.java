@@ -21,6 +21,7 @@ import php.runtime.ext.support.compile.CompileConstant;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.concurrent.TimeoutException;
 
 public class CoreExtension extends Extension {
     @Override
@@ -111,6 +112,7 @@ public class CoreExtension extends Extension {
 
         registerNativeClass(scope, WrapExecutorService.class);
         registerNativeClass(scope, WrapFuture.class);
+        registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
         registerNativeClass(scope, WrapProcessor.class);
 

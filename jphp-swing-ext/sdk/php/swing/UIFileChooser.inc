@@ -116,4 +116,10 @@ class UIFileChooser extends UIContainer {
     public function cancelSelection() { }
 
     public function changeToParentDirectory() { }
+
+    /**
+     * @param string $field - name (string), description (string), icon (Image), traversable (bool)
+     * @param callable $callback (File $file)
+     */
+    public function onFileView($field, callable $callback = null) { }
 }
