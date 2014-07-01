@@ -83,7 +83,9 @@ configure([
         project(':jphp-core'),
         project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
-        project(':jphp-json-ext')
+        project(':jphp-json-ext'),
+        project(':jphp-http-ext'),
+        project(':jphp-scripting')
 ]) {
 
     if (!project.ext.isSnapshot) {
@@ -106,19 +108,19 @@ configure([
     }
 
     task deploy << {
-        ext {
-            username = System.console().readLine("\nusername: ")
-            password = System.console().readPassword("password: ").toString()
+        rootProject.ext {
+            username = rootProject.hasProperty('username') ? rootProject.username : System.console().readLine("\nusername: ")
+            password = rootProject.hasProperty('password') ? rootProject.password : System.console().readPassword("password: ").toString()
         }
 
         uploadArchives {
             repositories {
                 mavenDeployer {
                     repository(url: 'http://maven.develnext.org/repository/internal') {
-                        authentication(userName: deploy.username, password: deploy.password);
+                        authentication(userName: rootProject.username, password: rootProject.password);
                     }
-                    snapshotRepository(url: 'http://maven.develnext.org/repository/snapshots') {
-                        authentication(userName: deploy.username, password: deploy.password);
+                    snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+                        authentication(userName: rootProject.username, password: rootProject.password);
                     }
                 }
             }
