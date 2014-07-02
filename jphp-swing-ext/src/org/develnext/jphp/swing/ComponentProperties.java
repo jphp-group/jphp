@@ -25,6 +25,7 @@ public class ComponentProperties {
     protected final WeakReference<Component> ref;
     protected String originGroups;
     protected Set<String> groups;
+    protected int[] padding = new int[] {0, 0, 0, 0};
     public final Set<Anchor> anchors;
 
     protected Align align = Align.NONE;
@@ -102,6 +103,14 @@ public class ComponentProperties {
 
     public void setAutoSize(boolean autoSize) {
         this.autoSize = autoSize;
+    }
+
+    public void setPadding(int top, int right, int bottom, int left) {
+        this.padding = new int[] { top, right, bottom, left };
+    }
+
+    public int[] getPadding() {
+        return padding;
     }
 
     public void updateEvents(final Environment env){

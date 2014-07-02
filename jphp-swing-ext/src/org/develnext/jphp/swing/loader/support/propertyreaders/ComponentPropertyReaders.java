@@ -24,6 +24,7 @@ final public class ComponentPropertyReaders extends PropertyReaders<Component> {
         put("h", H);
         put("align", ALIGN);
         put("anchors", ANCHORS);
+        put("padding", PADDING);
         put("group", GROUP);
         put("font", FONT);
         put("background", BACKGROUND);
@@ -174,6 +175,35 @@ final public class ComponentPropertyReaders extends PropertyReaders<Component> {
         public void read(Component component, Value value) {
             ComponentProperties properties = SwingExtension.getProperties(component);
             properties.setGroups(value.asString());
+        }
+    };
+
+
+    public final static PropertyReader<Component> PADDING = new PropertyReader<Component>() {
+        @Override
+        public void read(Component component, Value value) {
+            ComponentProperties properties = SwingExtension.getProperties(component);
+
+            String v[] = value.asArray(true);
+            if (v.length == 1) {
+                int size = Integer.parseInt(v[0]);
+                properties.setPadding(size, size, size, size);
+            } else if (v.length == 2) {
+                int ver = Integer.parseInt(v[0]);
+                int hor = Integer.parseInt(v[1]);
+                properties.setPadding(ver, hor, ver, hor);
+            } else if (v.length == 3) {
+                int top = Integer.parseInt(v[0]);
+                int hor = Integer.parseInt(v[1]);
+                int bottom = Integer.parseInt(v[2]);
+                properties.setPadding(top, hor, bottom, hor);
+            } else if (v.length > 3) {
+                int top = Integer.parseInt(v[0]);
+                int right = Integer.parseInt(v[1]);
+                int bottom = Integer.parseInt(v[2]);
+                int left = Integer.parseInt(v[3]);
+                properties.setPadding(top, right, bottom, left);
+            }
         }
     };
 

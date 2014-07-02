@@ -30,6 +30,8 @@ public class XYLayout implements LayoutManager2 {
         return new Dimension(0, 0);
     }
 
+    protected final static int[] NULL_PADDING = new int[] {0, 0, 0, 0};
+
     public void layoutContainer(Container target) {
         ContainerData data = containerData.get(target);
         if (data == null) {
@@ -44,10 +46,12 @@ public class XYLayout implements LayoutManager2 {
         Insets insets = target.getInsets();
         int count = target.getComponentCount();
 
-        int clientTop = 0;
-        int clientBottom = target.getHeight() - (insets.top + insets.bottom);
-        int clientLeft = 0;
-        int clientRight = target.getWidth() - (insets.left + insets.right);
+        int[] clientPadding = targetInfo == null ? NULL_PADDING : targetInfo.getPadding();
+
+        int clientTop = 0 + clientPadding[0];
+        int clientBottom = target.getHeight() - (insets.top + insets.bottom) - clientPadding[2];
+        int clientLeft = 0 + clientPadding[3];
+        int clientRight = target.getWidth() - (insets.left + insets.right) - clientPadding[1];
 
         int maxWidth = 0;
         int maxHeight = 0;
@@ -73,6 +77,7 @@ public class XYLayout implements LayoutManager2 {
                     boolean aBottom = info.anchors.contains(Anchor.BOTTOM);
 
                     w = component.getWidth();
+
                     if (aLeft && aRight) {
                         x = insets.left + component.getX();
                         w = component.getWidth() + offsetW;
