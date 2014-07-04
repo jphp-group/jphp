@@ -37,6 +37,11 @@ public class JComboboxPropertyReaders extends PropertyReaders<JComboBox> {
         public void read(JComboBox component, Value value) {
             component.setSelectedIndex(value.asInteger());
         }
+
+        @Override
+        public boolean isPostRead() {
+            return true;
+        }
     };
 
     public final static PropertyReader<JComboBox> READONLY = new PropertyReader<JComboBox>() {
@@ -50,6 +55,16 @@ public class JComboboxPropertyReaders extends PropertyReaders<JComboBox> {
         @Override
         public void read(JComboBox component, Value value) {
             component.setModel(new DefaultComboBoxModel(value.asArray(false)));
+        }
+
+        @Override
+        public boolean isArrayed() {
+            return true;
+        }
+
+        @Override
+        public boolean isTranslatable() {
+            return true;
         }
     };
 }

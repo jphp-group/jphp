@@ -41,7 +41,10 @@ public class WrapScanner extends BaseObject
     })
     public Memory __construct(Environment env, Memory... args) {
         if (args[0].instanceOf(Stream.class)) {
-            scanner = new Scanner(Stream.getInputStream(env, args[0]), args[1].toString());
+            if (args[1].isNull())
+                scanner = new Scanner(Stream.getInputStream(env, args[0]));
+            else
+                scanner = new Scanner(Stream.getInputStream(env, args[0]), args[1].toString());
         } else {
             scanner = new Scanner(args[0].toString());
         }

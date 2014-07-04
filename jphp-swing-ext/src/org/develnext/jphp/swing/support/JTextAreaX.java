@@ -2,10 +2,15 @@ package org.develnext.jphp.swing.support;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.print.PrinterException;
 
 public class JTextAreaX extends JScrollableComponent<JTextArea> implements RootTextElement {
+    @Override
+    public JTextComponent getTextComponent() {
+        return getContent();
+    }
 
     @Override
     protected JTextArea newComponent() {

@@ -1,9 +1,12 @@
 package org.develnext.jphp.swing.support;
 
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.print.PrinterException;
 
 public interface RootTextElement {
+
+    JTextComponent getTextComponent();
 
     void setText(String value);
     String getText();

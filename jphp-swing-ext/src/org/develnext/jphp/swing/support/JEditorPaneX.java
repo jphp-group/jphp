@@ -1,6 +1,7 @@
 package org.develnext.jphp.swing.support;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.print.PrinterException;
 
@@ -8,6 +9,11 @@ public class JEditorPaneX extends JScrollableComponent<JEditorPane> implements R
     @Override
     protected JEditorPane newComponent() {
         return new JEditorPane();
+    }
+
+    @Override
+    public JTextComponent getTextComponent() {
+        return getContent();
     }
 
     @Override
