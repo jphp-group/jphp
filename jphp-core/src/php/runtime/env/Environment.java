@@ -968,12 +968,20 @@ public class Environment {
         Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
-            error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
-            int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
-            if (p > -1) // for global scope
-                return StringMemory.valueOf(name.substring(p + 1));
-            else
-                return StringMemory.valueOf(name);
+            if (name.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
+                int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+                if (p > -1)
+                    constant = findConstant(name.substring(p + 1), lowerName.substring(p + 1));
+            }
+
+            if (constant == null) {
+                error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
+                int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+                if (p > -1) // for global scope
+                    return StringMemory.valueOf(name.substring(p + 1));
+                else
+                    return StringMemory.valueOf(name);
+            }
         }
 
         return constant;
