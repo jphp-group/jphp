@@ -143,7 +143,7 @@ public class MethodEntity extends AbstractFunctionEntity {
                 }
             }
         }
-        throw new CriticalException("Cannot find MethodNode for method - " + name + "(" + getSignature() + ")");
+        throw new CriticalException("Cannot find MethodNode for method - " + name + "(" + getSignatureString(true) + ")");
     }
 
     public Closure getClosure(Environment env, final IObject object) {

@@ -35,7 +35,7 @@ public class RuntimeClassLoader extends ClassLoader {
         return internalModules.get(internalName);
     }
 
-    protected Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
+    public Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
         byte[] data = clazz.getData();
         Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
 
