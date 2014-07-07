@@ -17,7 +17,7 @@ public class UIListboxTag extends BaseTag<JListbox> {
     }
 
     @Override
-    public void read(ElementItem element, JListbox component, Node node) {
+    public void read(ElementItem element, JListbox component, Node node, UIReader uiReader) {
     }
 
     @Override

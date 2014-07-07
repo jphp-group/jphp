@@ -15,7 +15,7 @@ public class UIMenuItemTag extends BaseTag<JMenuItem> {
     }
 
     @Override
-    public void read(ElementItem element, JMenuItem component, Node node) {
+    public void read(ElementItem element, JMenuItem component, Node node, UIReader uiReader) {
     }
 
     @Override

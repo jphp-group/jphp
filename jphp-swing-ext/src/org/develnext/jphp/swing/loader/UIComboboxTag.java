@@ -15,7 +15,7 @@ public class UIComboboxTag extends BaseTag<JComboBox> {
     }
 
     @Override
-    public void read(ElementItem element, JComboBox component, Node node) {
+    public void read(ElementItem element, JComboBox component, Node node, UIReader uiReader) {
 
     }
 

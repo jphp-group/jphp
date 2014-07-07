@@ -6,6 +6,7 @@ import org.develnext.jphp.swing.classes.components.support.RootObject;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.TrueMemory;
@@ -44,6 +45,14 @@ public class WrapTreeNode extends RootObject {
     public Memory __construct(Environment env, Memory... args) {
         node = new DefaultMutableTreeNode(args[0].isNull() ? null : args[0], args[1].toBoolean());
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("*userData").assign(__getUserData(env).toString());
+
+        return r;
     }
 
     @Signature

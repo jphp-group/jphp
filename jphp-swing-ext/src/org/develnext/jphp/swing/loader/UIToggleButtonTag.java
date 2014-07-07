@@ -15,8 +15,8 @@ public class UIToggleButtonTag extends BaseTag<JToggleButton> {
     }
 
     @Override
-    public void read(ElementItem element, JToggleButton component, Node node) {
+    public void read(ElementItem element, JToggleButton component, Node node, UIReader uiReader) {
         if (isCDataContent(node))
-            component.setText(node.getTextContent());
+            component.setText(uiReader.translate(component, node.getTextContent()));
     }
 }

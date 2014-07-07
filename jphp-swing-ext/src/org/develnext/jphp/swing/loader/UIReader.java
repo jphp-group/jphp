@@ -38,6 +38,12 @@ public class UIReader {
         return translateHandler;
     }
 
+    public String translate(Component component, String value) {
+        if (translateHandler == null)
+            return value;
+        return translateHandler.onTranslate(component, new Value(value)).asString();
+    }
+
     public void setTranslateHandler(TranslateHandler translateHandler) {
         this.translateHandler = translateHandler;
     }
@@ -61,7 +67,7 @@ public class UIReader {
                 SwingExtension.registerComponent(component);
 
             ElementItem item = new ElementItem(element);
-            tag.read(item, component, element);
+            tag.read(item, component, element, this);
 
             NamedNodeMap attrs = element.getAttributes();
             String var = null;

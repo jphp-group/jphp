@@ -18,7 +18,7 @@ abstract public class BaseTag<T extends Component> {
 
     abstract public T create(ElementItem element, UIReader uiReader);
 
-    public void read(ElementItem element, T component, Node node) { }
+    public void read(ElementItem element, T component, Node node, UIReader uiReader) { }
     public void afterRead(ElementItem element, T component, Node node) { }
 
     public void addChildren(T component, Component child) {

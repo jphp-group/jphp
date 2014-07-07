@@ -15,7 +15,7 @@ public class UICheckboxMenuItemTag extends BaseTag<JCheckBoxMenuItem> {
     }
 
     @Override
-    public void read(ElementItem element, JCheckBoxMenuItem component, Node node) {
+    public void read(ElementItem element, JCheckBoxMenuItem component, Node node, UIReader uiReader) {
     }
 
     @Override

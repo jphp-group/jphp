@@ -14,7 +14,7 @@ public class UIDialogTag extends UIWindowTag<JDialogX> {
     }
 
     @Override
-    public void read(ElementItem element, JDialogX component, Node node) {
+    public void read(ElementItem element, JDialogX component, Node node, UIReader uiReader) {
         component.setLayout(new XYLayout());
     }
 }

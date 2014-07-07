@@ -17,7 +17,7 @@ public class UISliderTag extends BaseTag<JSlider> {
     }
 
     @Override
-    public void read(ElementItem element, JSlider component, Node node) {
+    public void read(ElementItem element, JSlider component, Node node, UIReader uiReader) {
     }
 
     @Override

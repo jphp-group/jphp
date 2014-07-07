@@ -15,8 +15,8 @@ public class UIProgressTag extends BaseTag<JProgressBar> {
     }
 
     @Override
-    public void read(ElementItem element, JProgressBar component, Node node) {
+    public void read(ElementItem element, JProgressBar component, Node node, UIReader uiReader) {
         if (isCDataContent(node))
-            component.setString(node.getTextContent());
+            component.setString(uiReader.translate(component, node.getTextContent()));
     }
 }

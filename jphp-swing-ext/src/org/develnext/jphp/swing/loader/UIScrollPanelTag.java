@@ -16,7 +16,7 @@ public class UIScrollPanelTag extends BaseTag<JScrollPanel> {
     }
 
     @Override
-    public void read(ElementItem element, JScrollPanel component, Node node) {
+    public void read(ElementItem element, JScrollPanel component, Node node, UIReader uiReader) {
 
     }
 

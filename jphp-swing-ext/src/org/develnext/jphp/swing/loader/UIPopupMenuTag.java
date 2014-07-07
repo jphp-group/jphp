@@ -15,7 +15,7 @@ public class UIPopupMenuTag extends BaseTag<JPopupMenu> {
     }
 
     @Override
-    public void read(ElementItem element, JPopupMenu component, Node node) {
+    public void read(ElementItem element, JPopupMenu component, Node node, UIReader uiReader) {
     }
 
     @Override

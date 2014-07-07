@@ -42,7 +42,7 @@ public class UITreeTag extends BaseTag<JTreeX> {
     }
 
     @Override
-    public void read(ElementItem element, JTreeX component, Node node) {
+    public void read(ElementItem element, JTreeX component, Node node, UIReader uiReader) {
         component.setCellRenderer(new UITree.CustomTreeCellRenderer());
     }
 

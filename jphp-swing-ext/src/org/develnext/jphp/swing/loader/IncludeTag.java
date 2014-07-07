@@ -21,7 +21,7 @@ public class IncludeTag extends BaseTag<Component> {
     }
 
     @Override
-    public void read(ElementItem element, Component component, Node node) {
+    public void read(ElementItem element, Component component, Node node, UIReader uiReader) {
 
     }
 

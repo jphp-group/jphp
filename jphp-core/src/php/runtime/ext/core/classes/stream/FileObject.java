@@ -34,11 +34,15 @@ public class FileObject extends BaseObject {
     public FileObject(Environment env, File file) {
         super(env);
         this.file = file;
+        if (file == null)
+            throw new IllegalArgumentException();
     }
 
     public FileObject(Environment env, ClassEntity clazz, File file) {
         super(env, clazz);
         this.file = file;
+        if (file == null)
+            throw new IllegalArgumentException();
     }
 
     protected void exception(Environment env, String message, Object... args){
@@ -143,6 +147,9 @@ public class FileObject extends BaseObject {
 
     @Signature
     public Memory getParentFile(Environment env, Memory... args){
+        if (file.getParentFile() == null)
+            return Memory.NULL;
+
         FileObject fo = new FileObject(env, __class__);
         fo.file = file.getParentFile();
         return new ObjectMemory(fo);

@@ -27,6 +27,8 @@ public class AbstractButtonPropertyReaders extends PropertyReaders<AbstractButto
         put("rollover-enabled", ROLLOVER_ENABLED);
         put("content-area-filled", CONTENT_AREA_FILLED);
         put("button-group", BUTTON_GROUP);
+        put("hor-align", HOR_ALIGN);
+        put("ver-align", VER_ALIGN);
     }};
 
     @Override
@@ -152,4 +154,20 @@ public class AbstractButtonPropertyReaders extends PropertyReaders<AbstractButto
             component.setRolloverSelectedIcon(value.asIcon());
         }
     };
+
+
+    public final static PropertyReader<AbstractButton> HOR_ALIGN = new PropertyReader<AbstractButton>() {
+        @Override
+        public void read(AbstractButton component, Value value) {
+            component.setHorizontalAlignment(value.asInteger());
+        }
+    };
+
+    public final static PropertyReader<AbstractButton> VER_ALIGN = new PropertyReader<AbstractButton>() {
+        @Override
+        public void read(AbstractButton component, Value value) {
+            component.setVerticalAlignment(value.asInteger());
+        }
+    };
+
 }

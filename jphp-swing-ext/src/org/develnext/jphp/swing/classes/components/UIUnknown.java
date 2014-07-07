@@ -1,9 +1,11 @@
 package org.develnext.jphp.swing.classes.components;
 
-import php.runtime.Memory;
-import php.runtime.env.Environment;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
+import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
+import php.runtime.env.Environment;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.awt.*;
@@ -39,4 +41,14 @@ public class UIUnknown extends UIContainer {
         if (component.getName() == null || component.getName().isEmpty())
             SwingExtension.registerComponent(component);
     }
+
+
+    @Reflection.Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = super.__debugInfo(env).toValue(ArrayMemory.class);
+        r.refOfIndex("*java_class").assign(component.getClass().getName());
+
+        return r;
+    }
+
 }

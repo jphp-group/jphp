@@ -17,7 +17,7 @@ public class UIToolBarTag extends BaseTag<JToolBar> {
     }
 
     @Override
-    public void read(ElementItem element, JToolBar component, Node node) {
+    public void read(ElementItem element, JToolBar component, Node node, UIReader uiReader) {
 
     }
 

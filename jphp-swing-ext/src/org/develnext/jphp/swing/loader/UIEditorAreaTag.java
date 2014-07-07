@@ -14,8 +14,8 @@ public class UIEditorAreaTag extends BaseTag<JEditorPaneX> {
     }
 
     @Override
-    public void read(ElementItem element, JEditorPaneX component, Node node) {
+    public void read(ElementItem element, JEditorPaneX component, Node node, UIReader uiReader) {
         if (isCDataContent(node))
-            component.setText(node.getTextContent());
+            component.setText(uiReader.translate(component, node.getTextContent()));
     }
 }

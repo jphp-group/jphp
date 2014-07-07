@@ -14,8 +14,8 @@ public class UITextAreaTag extends BaseTag<JTextAreaX> {
     }
 
     @Override
-    public void read(ElementItem element, JTextAreaX component, Node node) {
+    public void read(ElementItem element, JTextAreaX component, Node node, UIReader uiReader) {
         if (isCDataContent(node))
-            component.setText(node.getTextContent());
+            component.setText(uiReader.translate(component, node.getTextContent()));
     }
 }

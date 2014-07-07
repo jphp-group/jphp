@@ -14,8 +14,8 @@ public class UIEditTag extends BaseTag<JTextFieldX> {
     }
 
     @Override
-    public void read(ElementItem element, JTextFieldX component, Node node) {
+    public void read(ElementItem element, JTextFieldX component, Node node, UIReader uiReader) {
         if (isCDataContent(node))
-            component.setText(node.getTextContent());
+            component.setText(uiReader.translate(component, node.getTextContent()));
     }
 }

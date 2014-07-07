@@ -16,7 +16,7 @@ public class UIPanelTag extends BaseTag<JPanel> {
     }
 
     @Override
-    public void read(ElementItem element, JPanel component, Node node) {
+    public void read(ElementItem element, JPanel component, Node node, UIReader uiReader) {
         component.setLayout(new XYLayout());
     }
 }

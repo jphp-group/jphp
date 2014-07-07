@@ -14,7 +14,7 @@ public class UIImageTag extends BaseTag<JImageX> {
     }
 
     @Override
-    public void read(ElementItem element, JImageX component, Node node) {
+    public void read(ElementItem element, JImageX component, Node node, UIReader uiReader) {
 
     }
 }

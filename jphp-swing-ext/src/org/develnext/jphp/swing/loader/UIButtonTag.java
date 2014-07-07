@@ -15,8 +15,9 @@ public class UIButtonTag extends BaseTag<JButton> {
     }
 
     @Override
-    public void read(ElementItem element, JButton component, Node node) {
-        if (isCDataContent(node))
-            component.setText(node.getTextContent());
+    public void read(ElementItem element, JButton component, Node node, UIReader uiReader) {
+        if (isCDataContent(node)) {
+            component.setText(uiReader.translate(component, node.getTextContent()));
+        }
     }
 }

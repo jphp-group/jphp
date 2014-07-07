@@ -14,7 +14,7 @@ public class UIFormTag extends UIWindowTag<JFrameX> {
     }
 
     @Override
-    public void read(ElementItem element, JFrameX component, Node node) {
+    public void read(ElementItem element, JFrameX component, Node node, UIReader uiReader) {
         component.setLayout(new XYLayout());
     }
 }
