@@ -122,4 +122,16 @@ public class UIDialog extends UIWindow {
                 )
         );
     }
+
+    @Signature({
+            @Arg("message"),
+            @Arg(value = "initialValue", optional = @Optional(""))
+    })
+    public static Memory input(Environment env, Memory... args){
+        return StringMemory.valueOf(
+                JOptionPane.showInputDialog(
+                        null, args[0].toString(), args[1].toString()
+                )
+        );
+    }
 }

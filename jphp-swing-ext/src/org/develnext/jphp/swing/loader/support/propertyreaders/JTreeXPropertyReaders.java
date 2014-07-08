@@ -37,6 +37,11 @@ public class JTreeXPropertyReaders extends PropertyReaders<JTreeX> {
             DefaultMutableTreeNode root = new DefaultMutableTreeNode(value.asString());
             component.setModel(new DefaultTreeModel(root));
         }
+
+        @Override
+        public boolean isTranslatable() {
+            return true;
+        }
     };
 
     public final static PropertyReader<JTreeX> DRAG_ENABLED = new PropertyReader<JTreeX>() {

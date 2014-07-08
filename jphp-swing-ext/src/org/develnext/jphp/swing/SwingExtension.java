@@ -1,31 +1,31 @@
 package org.develnext.jphp.swing;
 
-import php.runtime.Memory;
-import php.runtime.common.collections.map.HashedMap;
-import php.runtime.env.CompileScope;
-import php.runtime.env.Environment;
-import php.runtime.ext.support.Extension;
 import org.develnext.jphp.swing.classes.*;
 import org.develnext.jphp.swing.classes.components.*;
 import org.develnext.jphp.swing.classes.components.support.*;
-import org.develnext.jphp.swing.classes.components.support.UIElement;
+import org.develnext.jphp.swing.classes.components.text.WrapStyle;
 import org.develnext.jphp.swing.classes.components.tree.UITree;
 import org.develnext.jphp.swing.classes.components.tree.WrapTreeModel;
 import org.develnext.jphp.swing.classes.components.tree.WrapTreeNode;
 import org.develnext.jphp.swing.classes.events.*;
-import org.develnext.jphp.swing.classes.events.WrapKeyEvent;
-import org.develnext.jphp.swing.classes.events.WrapMouseEvent;
 import org.develnext.jphp.swing.event.*;
 import org.develnext.jphp.swing.loader.*;
 import org.develnext.jphp.swing.loader.support.BaseTag;
 import org.develnext.jphp.swing.loader.support.Tag;
 import org.develnext.jphp.swing.loader.support.propertyreaders.*;
 import org.develnext.jphp.swing.support.*;
+import php.runtime.Memory;
+import php.runtime.common.collections.map.HashedMap;
+import php.runtime.env.CompileScope;
+import php.runtime.env.Environment;
+import php.runtime.ext.support.Extension;
 import php.runtime.memory.StringMemory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SwingExtension extends Extension {
@@ -89,6 +89,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, WrapGraphics.class);
         registerNativeClass(scope, WrapImage.class);
         registerNativeClass(scope, WrapBorder.class);
+        registerNativeClass(scope, WrapStyle.class);
 
         registerNativeClass(scope, WrapComponentEvent.class);
         registerNativeClass(scope, WrapKeyEvent.class);
@@ -121,6 +122,8 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIEdit.class, JTextFieldX.class);
         registerNativeClass(scope, UIPasswordEdit.class, JPasswordFieldX.class);
         registerNativeClass(scope, UITextArea.class, JTextAreaX.class);
+        registerNativeClass(scope, UIRichTextArea.class, JRichTextAreaX.class);
+
         registerNativeClass(scope, UIEditorArea.class, JEditorPaneX.class);
         registerNativeClass(scope, UICombobox.class, JComboBox.class);
         registerNativeClass(scope, UIListbox.class, JListbox.class);
@@ -167,6 +170,7 @@ public class SwingExtension extends Extension {
         registerReaderTag(new UIEditTag());
         registerReaderTag(new UIPasswordEditTag());
         registerReaderTag(new UITextAreaTag());
+        registerReaderTag(new UIRichTextAreaTag());
         registerReaderTag(new UILabelTag());
         registerReaderTag(new UIImageTag());
         registerReaderTag(new UIPanelTag());

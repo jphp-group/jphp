@@ -55,4 +55,11 @@ class UIDialog extends UIWindow {
      * @return int
      */
     public static function confirm($text, $title, $optionType, $type = self::QUESTION_MESSAGE) { }
+
+    /**
+     * @param string $message
+     * @param string $initialValue
+     * @return string
+     */
+    public static function input($message, $initialValue = '') { return ''; }
 }

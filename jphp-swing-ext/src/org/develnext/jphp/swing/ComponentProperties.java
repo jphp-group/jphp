@@ -120,8 +120,9 @@ public class ComponentProperties {
             Class<?> cls = component.getClass();
             do {
                 EventProvider provider = SwingExtension.getEventProvider((Class<? extends Component>) cls);
-                if (provider != null)
+                if (provider != null) {
                     provider.register(env, component, this);
+                }
 
                 if (cls == Component.class)
                     break;

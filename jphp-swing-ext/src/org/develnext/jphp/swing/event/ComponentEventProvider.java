@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.event;
 
+import org.develnext.jphp.swing.support.JScrollableComponent;
 import php.runtime.env.Environment;
 import org.develnext.jphp.swing.ComponentProperties;
 
@@ -38,6 +39,9 @@ public class ComponentEventProvider extends EventProvider<Component> {
 
     @Override
     public void register(final Environment env, Component component, final ComponentProperties properties) {
+        if (component instanceof JScrollableComponent)
+            return;
+
         component.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
