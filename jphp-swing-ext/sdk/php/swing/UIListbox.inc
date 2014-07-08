@@ -57,6 +57,12 @@ class UIListbox extends UIContainer {
     public $verScrollPolicy;
 
     /**
+     * @readonly
+     * @var int
+     */
+    public $itemCount;
+
+    /**
      * @param array $items
      */
     public function setItems(array $items) { }

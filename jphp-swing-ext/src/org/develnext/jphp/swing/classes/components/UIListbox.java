@@ -71,6 +71,12 @@ public class UIListbox extends UIContainer {
     }
 
     @Signature
+    protected Memory __getItemCount(Environment env, Memory... args) {
+        DefaultListModel listModel = (DefaultListModel)component.getModel();
+        return LongMemory.valueOf(listModel.size());
+    }
+
+    @Signature
     protected Memory __getMaxSelectionIndex(Environment env, Memory... args) {
         return LongMemory.valueOf(component.getMaxSelectionIndex());
     }

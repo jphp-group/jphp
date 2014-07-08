@@ -156,6 +156,7 @@ public class SwingExtension extends Extension {
         registerEventProvider(new JTreeXEventProvider());
         registerEventProvider(new JMenuEventProvider());
         registerEventProvider(new JMenuItemEventProvider());
+        registerEventProvider(new JScrollableComponentEventProvider());
 
         registerReaderTag(new IncludeTag());
         registerReaderTag(new UIFormTag());
