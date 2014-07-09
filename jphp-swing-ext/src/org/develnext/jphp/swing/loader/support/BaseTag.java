@@ -1,25 +1,17 @@
 package org.develnext.jphp.swing.loader.support;
 
-import org.w3c.dom.Node;
 import org.develnext.jphp.swing.loader.UIReader;
+import org.w3c.dom.Node;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
 
 abstract public class BaseTag<T extends Component> {
-
-    protected final static Set<String> contentProperties = new HashSet<String>() {{
-        add("foreground");
-        add("background");
-        add("font");
-        add("focusable");
-    }};
-
     abstract public T create(ElementItem element, UIReader uiReader);
 
     public void read(ElementItem element, T component, Node node, UIReader uiReader) { }
-    public void afterRead(ElementItem element, T component, Node node) { }
+    public void afterRead(ElementItem element, T component, Node node, UIReader uiReader) { }
+
+    public void onReadAttribute(ElementItem element, String property, Value value, T component, UIReader uiReader) { }
 
     public void addChildren(T component, Component child) {
         if (component instanceof Container)

@@ -47,7 +47,7 @@ public class UITreeTag extends BaseTag<JTreeX> {
     }
 
     @Override
-    public void afterRead(ElementItem element, JTreeX component, Node node) {
+    public void afterRead(ElementItem element, JTreeX component, Node node, UIReader uiReader) {
         appendChildNodes(component, (DefaultMutableTreeNode)component.getModel().getRoot(), node);
         if (element.getAttr("expanded") != null && new Value(element.getAttr("expanded")).asBoolean())
             component.getContent().expandPath(new TreePath(component.getModel().getRoot()));

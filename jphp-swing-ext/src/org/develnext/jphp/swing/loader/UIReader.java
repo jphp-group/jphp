@@ -22,6 +22,8 @@ public class UIReader {
     protected final Map<Class<? extends Component>, PropertyReaders> readers;
     protected final Map<String, BaseTag> tags;
 
+    protected final Map<String, Style> styles;
+
     protected TranslateHandler translateHandler;
     protected ReadHandler readHandler;
 
@@ -29,6 +31,8 @@ public class UIReader {
         builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setIgnoringComments(true);
         builderFactory.setIgnoringElementContentWhitespace(true);
+
+        styles = new HashMap<String, Style>();
 
         readers = SwingExtension.readers;
         tags = SwingExtension.readerTags;
@@ -56,6 +60,10 @@ public class UIReader {
         this.readHandler = readHandler;
     }
 
+    public void registerStyle(Style style) {
+        styles.put(style.getAttributes().get("name").asString().toLowerCase(), style);
+    }
+
     @SuppressWarnings("unchecked")
     protected Component readElement(Node element) {
         String name = element.getNodeName();
@@ -71,20 +79,38 @@ public class UIReader {
 
             NamedNodeMap attrs = element.getAttributes();
             String var = null;
-            for(int i = 0; i < attrs.getLength(); i++){
+
+            Map<String, Value> attributes = new LinkedHashMap<String, Value>();
+            for(int i = 0; i < attrs.getLength(); i++) {
                 Node attr = attrs.item(i);
-                if (attr.getNodeName().equals("var")) {
+                if (attr.getNodeName().equalsIgnoreCase("var")) {
                     var = attr.getNodeValue();
                     continue;
                 }
 
+                Value value = new Value(attr.getNodeValue());
+                if (attr.getNodeName().equalsIgnoreCase("style")) {
+                    for(String styleName : value.asArray(true)) {
+                        Style style = styles.get(styleName.toLowerCase());
+                        if (style != null) {
+                            attributes.putAll(style.getAttributes());
+                        }
+                    }
+                    continue;
+                }
+
+                attributes.put(attr.getNodeName().toLowerCase(), value);
+            }
+
+            for(Map.Entry<String, Value> attr : attributes.entrySet()){
                 PropertyReader reader = null;
                 Class cls = component.getClass();
 
+                tag.onReadAttribute(item, attr.getKey(), attr.getValue(), component, this);
                 do {
                     PropertyReaders readers = this.readers.get(cls);
                     if (readers != null) {
-                        reader = readers.getReader(attr.getNodeName());
+                        reader = readers.getReader(attr.getKey());
                     }
                     if (cls == Component.class)
                         break;
@@ -94,7 +120,7 @@ public class UIReader {
                 } while (true);
 
                 if (reader != null){
-                    Value value = new Value(attr.getNodeValue());
+                    Value value = attr.getValue();
                     if (reader.isTranslatable() && translateHandler != null) {
                         if (reader.isArrayed()) {
                             StringBuilder sb = new StringBuilder();
@@ -112,12 +138,12 @@ public class UIReader {
                     }
 
                     if (reader.isPostRead())
-                        postRead.add(new Object[]{ reader, attr.getNodeName(), value });
+                        postRead.add(new Object[]{ reader, attr.getKey(), value });
                     else
-                        reader.read(tag.applyProperty(attr.getNodeName(), component), value);
+                        reader.read(tag.applyProperty(attr.getKey(), component), value);
                 }
             }
-            tag.afterRead(item, component, element);
+            tag.afterRead(item, component, element, this);
 
             if (readHandler != null && var != null) {
                 readHandler.onRead(component, var);
@@ -173,5 +199,33 @@ public class UIReader {
 
     public interface TranslateHandler {
         Value onTranslate(Component component, Value value);
+    }
+
+    public static class Style extends Component {
+        protected Map<String, Value> attributes;
+
+        public Style() {
+            attributes = new LinkedHashMap<String, Value>();
+            setVisible(false);
+        }
+
+        public Style(Map<String, Value> attributes) {
+            if (attributes == null)
+                throw new IllegalArgumentException();
+
+            this.attributes = attributes;
+            setVisible(false);
+        }
+
+        public void set(String attrName, Value value) {
+            if (value == null)
+                throw new IllegalArgumentException();
+
+            attributes.put(attrName, value);
+        }
+
+        public Map<String, Value> getAttributes() {
+            return attributes;
+        }
     }
 }
