@@ -1,8 +1,8 @@
 package php.runtime.ext.core.classes.stream;
 
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.reflection.ClassEntity;
@@ -10,9 +10,11 @@ import php.runtime.reflection.ClassEntity;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Enumeration;
 
-import static php.runtime.annotation.Reflection.Name;
+import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\ResourceStream")
 public class ResourceStream extends Stream {
@@ -20,12 +22,17 @@ public class ResourceStream extends Stream {
     protected long position = 0;
     protected boolean eof = false;
 
+    public ResourceStream(Environment env, InputStream stream) {
+        super(env);
+        this.stream = stream;
+    }
+
     public ResourceStream(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
     @Override
-    @Reflection.Signature({@Reflection.Arg("path")})
+    @Signature({@Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args);
         setPath("res://" + this.getPath());
@@ -38,11 +45,13 @@ public class ResourceStream extends Stream {
     }
 
     @Override
+    @Signature
     public Memory write(Environment env, Memory... args) throws IOException {
         throw new IOException("Stream only for reading");
     }
 
     @Override
+    @Signature
     public Memory read(Environment env, Memory... args) throws IOException {
         int len = args[0].toInteger();
         if (len <= 0)
@@ -60,6 +69,7 @@ public class ResourceStream extends Stream {
     }
 
     @Override
+    @Signature
     public Memory readFully(Environment env, Memory... args) throws IOException {
         ByteArrayOutputStream tmp = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
@@ -74,23 +84,45 @@ public class ResourceStream extends Stream {
     }
 
     @Override
+    @Signature
     public Memory eof(Environment env, Memory... args) {
         return eof ? Memory.TRUE : Memory.FALSE;
     }
 
     @Override
+    @Signature
     public Memory seek(Environment env, Memory... args) throws IOException {
         throw new IOException("Cannot seek");
     }
 
     @Override
+    @Signature
     public Memory getPosition(Environment env, Memory... args) {
         return LongMemory.valueOf(position);
     }
 
     @Override
+    @Signature
     public Memory close(Environment env, Memory... args) throws IOException {
         stream.close();
         return Memory.NULL;
+    }
+
+    @Signature(@Arg("name"))
+    public static Memory getResources(Environment env, Memory... args) throws IOException {
+        Enumeration<URL> list = Thread.currentThread().getContextClassLoader().getResources(args[0].toString());
+
+        ArrayMemory r = new ArrayMemory();
+        while (list.hasMoreElements()) {
+            URL url = list.nextElement();
+            if (url != null) {
+                ResourceStream rs = new ResourceStream(env, url.openStream());
+                rs.setPath("res://" + args[0]);
+
+                r.add(rs);
+            }
+        }
+
+        return r.toConstant();
     }
 }

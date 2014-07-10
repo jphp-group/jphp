@@ -112,7 +112,7 @@ public class UIDialog extends UIWindow {
     @Signature({
             @Arg("message"),
             @Arg(value = "title"),
-            @Arg(value = "optionType", optional = @Optional(value = "3", type = HintType.INT)),
+            @Arg(value = "optionType", optional = @Optional(value = "0", type = HintType.INT)),
             @Arg(value = "type", optional = @Optional(value = "1", type = HintType.INT))
     })
     public static Memory confirm(Environment env, Memory... args){

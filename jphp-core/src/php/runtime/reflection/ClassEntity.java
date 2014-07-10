@@ -567,11 +567,17 @@ public class ClassEntity extends Entity {
     }
 
     public boolean isInstanceOf(String name){
+        if (name == null)
+            throw new IllegalArgumentException();
+
         String lowerName = name.toLowerCase();
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
     public boolean isInstanceOfLower(String lowerName){
+        if (lowerName == null)
+            throw new IllegalArgumentException();
+
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 

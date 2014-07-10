@@ -245,6 +245,11 @@ class UITree extends UIContainer {
     public function makeVisible(TreeNode $node) { }
 
     /**
+     * @param TreeNode $node
+     */
+    public function scrollToNode(TreeNode $node) { }
+
+    /**
      * ...
      */
     public function cancelEditing() { }

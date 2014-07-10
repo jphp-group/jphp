@@ -441,6 +441,22 @@ public class UITree extends UIContainer {
         return Memory.NULL;
     }
 
+    @Signature(@Arg(value = "node", nativeType = WrapTreeNode.class))
+    public Memory scrollToNode(Environment env, Memory... args) {
+        TreePath path = getPath(args[0].toObject(WrapTreeNode.class).getNode());
+        if (path != null) {
+            component.getContent().makeVisible(path);
+
+            Rectangle bounds = component.getContent().getPathBounds(path);
+
+            if (bounds != null) {
+                bounds.x = 0;
+                component.getContent().scrollRectToVisible(bounds);
+            }
+        }
+        return Memory.NULL;
+    }
+
     public static void setTreeState(JTree tree, TreePath path, boolean expanded) {
         Object lastNode = path.getLastPathComponent();
         for (int i = 0; i < tree.getModel().getChildCount(lastNode); i++) {

@@ -172,10 +172,10 @@ public class PropertyEntity extends Entity {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:
-                ClassEntity cl = context == null ? env.getLastClassOnStack() : context;
+                ClassEntity cl = context == null ? env.getLastClassOnStack(true) : context;
                 return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
             case PROTECTED:
-                ClassEntity clazz = context == null ? env.getLastClassOnStack() : context;
+                ClassEntity clazz = context == null ? env.getLastClassOnStack(true) : context;
                 if (clazz == null)
                     return 1;
 

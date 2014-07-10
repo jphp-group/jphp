@@ -18,6 +18,7 @@ public class ClosureEntity extends ClassEntity {
 
     public ClosureEntity(Context context) {
         super(context);
+        setName(Closure.class.getSimpleName());
     }
 
     public boolean isReturnReference() {

@@ -1273,7 +1273,15 @@ public class Environment {
             return null;
         else {
             if (item.staticClassEntity != null)
-                return item.classEntity;
+                return item.staticClassEntity;
+
+            if (item.object instanceof Closure) {
+                Memory self = ((Closure) item.object).getSelf();
+                if (self.isObject())
+                    return self.toValue(ObjectMemory.class).getReflection();
+                else
+                    return null;
+            }
 
             return item.staticClassEntity = fetchClass(item.staticClazz != null ? item.staticClazz : item.clazz, false);
         }
@@ -1304,6 +1312,10 @@ public class Environment {
     }
 
     public ClassEntity getLastClassOnStack() {
+        return getLastClassOnStack(false);
+    }
+
+    public ClassEntity getLastClassOnStack(boolean includeClosures) {
         int N = getCallStackTop();
         for (int i = 0; i < N; i++){
             CallStackItem item = peekCall(i);
@@ -1329,7 +1341,7 @@ public class Environment {
     }
 
     public ClassEntity __getParentClass(TraceInfo trace){
-        ClassEntity context = getLastClassOnStack();
+        ClassEntity context = getLastClassOnStack(false);
         if (context == null){
             error(trace, "Cannot access parent:: when no class scope is active");
             return null;

@@ -93,31 +93,7 @@ final public class WrapSwingUtilities extends BaseObject {
                 Thread thread = Thread.currentThread();
                 ClassLoader old = thread.getContextClassLoader();
 
-                thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        Invoker callback = env.getUserValue(
-                                SwingExtension.NAMESPACE + "#exceptionHandler", Invoker.class
-                        );
-                        if (callback != null) {
-                            Memory[] args = new Memory[1];
-                            if (e instanceof BaseException)
-                                args[0] = new ObjectMemory((BaseException)e);
-                            else
-                                args[0] = new ObjectMemory(JavaObject.of(env, e));
-
-                            try {
-                                callback.call(args);
-                            } catch (DieException e1) {
-                                System.exit(e1.getExitCode());
-                            } catch (Throwable throwable) {
-                                showExceptionMessage(env, throwable);
-                            }
-                        } else {
-                            showExceptionMessage(env, e);
-                        }
-                    }
-                });
+                thread.setUncaughtExceptionHandler(buildUncaughtExceptionHandler(env));
 
                 try {
                     thread.setContextClassLoader(env.scope.getClassLoader());
@@ -128,5 +104,33 @@ final public class WrapSwingUtilities extends BaseObject {
             }
         });
         return Memory.NULL;
+    }
+
+    public static Thread.UncaughtExceptionHandler buildUncaughtExceptionHandler(final Environment env) {
+        return new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                Invoker callback = env.getUserValue(
+                        SwingExtension.NAMESPACE + "#exceptionHandler", Invoker.class
+                );
+                if (callback != null) {
+                    Memory[] args = new Memory[1];
+                    if (e instanceof BaseException)
+                        args[0] = new ObjectMemory((BaseException)e);
+                    else
+                        args[0] = new ObjectMemory(JavaObject.of(env, e));
+
+                    try {
+                        callback.call(args);
+                    } catch (DieException e1) {
+                        System.exit(e1.getExitCode());
+                    } catch (Throwable throwable) {
+                        showExceptionMessage(env, throwable);
+                    }
+                } else {
+                    showExceptionMessage(env, e);
+                }
+            }
+        };
     }
 }

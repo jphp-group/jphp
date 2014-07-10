@@ -54,7 +54,7 @@ class UIDialog extends UIWindow {
      * @param int $type
      * @return int
      */
-    public static function confirm($text, $title, $optionType, $type = self::QUESTION_MESSAGE) { }
+    public static function confirm($text, $title, $optionType = self::YES_NO_OPTION, $type = self::QUESTION_MESSAGE) { }
 
     /**
      * @param string $message

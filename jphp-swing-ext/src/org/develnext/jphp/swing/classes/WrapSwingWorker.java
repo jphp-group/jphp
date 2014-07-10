@@ -3,6 +3,7 @@ package org.develnext.jphp.swing.classes;
 import org.develnext.jphp.swing.SwingExtension;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.ObjectInvokeHelper;
@@ -27,7 +28,7 @@ abstract public class WrapSwingWorker extends BaseObject {
 
     public WrapSwingWorker(Environment env, ClassEntity clazz) {
         super(env, clazz);
-        worker = new Worker();
+        worker = new Worker(new ConcurrentEnvironment(env));
     }
 
     @Signature
@@ -96,21 +97,28 @@ abstract public class WrapSwingWorker extends BaseObject {
 
 
     protected class Worker extends SwingWorker<Memory, Memory> {
+        protected Environment env;
+        protected Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
+
+        public Worker(Environment env) {
+            this.env = env;
+            this.uncaughtExceptionHandler = WrapSwingUtilities.buildUncaughtExceptionHandler(env);
+        }
+
         @Override
         protected Memory doInBackground() throws Exception {
             try {
                 return ObjectInvokeHelper.invokeMethod(
                         WrapSwingWorker.this,
                         WrapSwingWorker.this.getReflection().findMethod("doinbackground"),
-                        getEnvironment(),
+                        env,
                         TraceInfo.UNKNOWN,
                         new Memory[]{},
                         false
                 );
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+                uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+                return Memory.NULL;
             }
         }
 
@@ -120,7 +128,7 @@ abstract public class WrapSwingWorker extends BaseObject {
                 ObjectInvokeHelper.invokeMethod(
                         WrapSwingWorker.this,
                         WrapSwingWorker.this.getReflection().findMethod("process"),
-                        getEnvironment(),
+                        env,
                         TraceInfo.UNKNOWN,
                         new Memory[]{ new ArrayMemory(chunks) },
                         false

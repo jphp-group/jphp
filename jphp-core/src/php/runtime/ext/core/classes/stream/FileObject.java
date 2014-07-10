@@ -21,9 +21,9 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\File")
 public class FileObject extends BaseObject {
-    public static String PATH_SEPARATOR = File.pathSeparator;
-    public static String DIRECTORY_SEPARATOR = File.separator;
-    public static boolean PATH_NAME_CASE_INSENSITIVE = Constants.PATH_NAME_CASE_INSENSITIVE;
+    public final static String PATH_SEPARATOR = File.pathSeparator;
+    public final static String DIRECTORY_SEPARATOR = File.separator;
+    public final static boolean PATH_NAME_CASE_INSENSITIVE = Constants.PATH_NAME_CASE_INSENSITIVE;
 
     protected File file;
 

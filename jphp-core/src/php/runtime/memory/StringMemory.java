@@ -22,6 +22,9 @@ public class StringMemory extends Memory {
     }
 
     public static Memory valueOf(String value){
+        if (value == null)
+            return NULL;
+
         if (value.isEmpty())
             return Memory.CONST_EMPTY_STRING;
 

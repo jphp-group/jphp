@@ -54,4 +54,10 @@ class ResourceStream extends Stream {
      * @return mixed
      */
     public function close() { }
+
+    /**
+     * @param string $name
+     * @return ResourceStream[]
+     */
+    public static function getResources($name) { return []; }
 }

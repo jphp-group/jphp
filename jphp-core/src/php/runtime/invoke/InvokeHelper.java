@@ -271,7 +271,7 @@ final public class InvokeHelper {
         }
 
         if (function == null) {
-            if (sign.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
+            if (!sign.isEmpty() && sign.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
                 int p = sign.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
                 if (p > -1)
                     function = env.functionMap.get(sign.substring(p + 1));
