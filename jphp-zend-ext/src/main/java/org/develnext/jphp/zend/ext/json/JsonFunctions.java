@@ -16,13 +16,12 @@ import static php.runtime.annotation.Runtime.Immutable;
 public class JsonFunctions extends FunctionsContainer {
 
     public static Memory json_decode(Environment env, String json, boolean assoc, int depth) {
-        GsonBuilder gsonBuilder = JsonExtension.DEFAULT_GSON_BUILDER_FOR_DECODE;
-        if (assoc || depth != 512) {
-            MemoryDeserializer memoryDeserializer = new MemoryDeserializer();
-            gsonBuilder = JsonExtension.createGsonBuilderForDecode(memoryDeserializer);
-            memoryDeserializer.setAssoc(assoc);
-            memoryDeserializer.setMaxDepth(depth);
-        }
+        MemoryDeserializer memoryDeserializer = new MemoryDeserializer();
+        memoryDeserializer.setEnv(env);
+        GsonBuilder gsonBuilder = JsonExtension.createGsonBuilderForDecode(memoryDeserializer);
+
+        memoryDeserializer.setAssoc(assoc);
+        memoryDeserializer.setMaxDepth(depth);
 
         Gson gson = gsonBuilder.create();
         try {
