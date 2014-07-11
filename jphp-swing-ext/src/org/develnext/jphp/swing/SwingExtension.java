@@ -116,7 +116,7 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIToggleButton.class, JToggleButton.class);
         registerNativeClass(scope, UIRadioButton.class, JRadioButton.class);
         registerNativeClass(scope, UICheckbox.class, JCheckBox.class);
-        registerNativeClass(scope, UIScrollPanel.class, JScrollPanel.class);
+        registerNativeClass(scope, UIScrollPanel.class, JScrollPanelX.class);
 
         registerNativeClass(scope, UITextElement.class);
         registerNativeClass(scope, UIEdit.class, JTextFieldX.class);
@@ -160,6 +160,7 @@ public class SwingExtension extends Extension {
         registerEventProvider(new JMenuEventProvider());
         registerEventProvider(new JMenuItemEventProvider());
         registerEventProvider(new JScrollableComponentEventProvider());
+        registerEventProvider(new JPopupMenuEventProvider());
 
         registerReaderTag(new IncludeTag());
         registerReaderTag(new StyleTag());

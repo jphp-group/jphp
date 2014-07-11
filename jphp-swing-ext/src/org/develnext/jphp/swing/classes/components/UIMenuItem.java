@@ -18,6 +18,9 @@ public class UIMenuItem extends UIAbstractButton {
 
     public UIMenuItem(Environment env, JMenuItem component) {
         super(env);
+        if (component == null)
+            throw new IllegalArgumentException();
+
         this.component = component;
     }
 

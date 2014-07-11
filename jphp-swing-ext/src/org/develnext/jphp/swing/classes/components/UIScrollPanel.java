@@ -1,24 +1,23 @@
 package org.develnext.jphp.swing.classes.components;
 
-import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
-import php.runtime.env.Environment;
 import org.develnext.jphp.swing.SwingExtension;
-import org.develnext.jphp.swing.XYLayout;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
 import org.develnext.jphp.swing.support.JScrollPanel;
+import org.develnext.jphp.swing.support.JScrollPanelX;
+import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.awt.*;
 
-import static php.runtime.annotation.Reflection.Name;
+import static php.runtime.annotation.Reflection.*;
 
 @Name(SwingExtension.NAMESPACE + "UIScrollPanel")
 public class UIScrollPanel extends UIContainer {
-    protected JScrollPanel component;
+    protected JScrollPanelX component;
 
-    public UIScrollPanel(Environment env, JScrollPanel component) {
+    public UIScrollPanel(Environment env, JScrollPanelX component) {
         super(env);
         this.component = component;
     }
@@ -29,39 +28,38 @@ public class UIScrollPanel extends UIContainer {
 
     @Override
     public Container getContainer() {
-        return component;
+        return component.getContent();
     }
 
     @Override
     public void setComponent(Component component) {
-        this.component = (JScrollPanel) component;
+        this.component = (JScrollPanelX) component;
     }
 
     @Override
     protected void onInit(Environment env, Memory... args) {
-        component = new JScrollPanel();
-        component.setLayout(new XYLayout());
+        component = new JScrollPanelX();
     }
 
-    @Reflection.Signature
+    @Signature
     protected Memory __getHorScrollPolicy(Environment env, Memory... args) {
         return StringMemory.valueOf(component.getHorScrollPolicy().name());
     }
 
-    @Reflection.Signature(@Reflection.Arg("value"))
+    @Signature(@Arg("value"))
     protected Memory __setHorScrollPolicy(Environment env, Memory... args) {
         component.setHorScrollPolicy(JScrollPanel.ScrollPolicy.valueOf(args[0].toString().toUpperCase()));
         return Memory.NULL;
     }
 
-    @Reflection.Signature
+    @Signature
     protected Memory __getVerScrollPolicy(Environment env, Memory... args) {
-        return StringMemory.valueOf(component.getHorScrollPolicy().name());
+        return StringMemory.valueOf(component.getVerScrollPolicy().name());
     }
 
-    @Reflection.Signature(@Reflection.Arg("value"))
+    @Signature(@Arg("value"))
     protected Memory __setVerScrollPolicy(Environment env, Memory... args) {
-        component.setHorScrollPolicy(JScrollPanel.ScrollPolicy.valueOf(args[0].toString().toUpperCase()));
+        component.setVerScrollPolicy(JScrollPanel.ScrollPolicy.valueOf(args[0].toString().toUpperCase()));
         return Memory.NULL;
     }
 }

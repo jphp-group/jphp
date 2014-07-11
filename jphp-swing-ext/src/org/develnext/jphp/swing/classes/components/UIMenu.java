@@ -57,6 +57,9 @@ public class UIMenu extends UIMenuItem {
     @Signature(@Arg("index"))
     public Memory getItem(Environment env, Memory... args) {
         JMenuItem item = component.getItem(args[0].toInteger());
+        if (item == null)
+            return Memory.NULL;
+
         return new ObjectMemory(new UIMenuItem(env, item));
     }
 

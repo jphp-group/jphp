@@ -216,6 +216,45 @@ abstract public class UIElement extends RootObject {
         return Memory.NULL;
     }
 
+    @Signature(@Arg(value = "value", type = HintType.ARRAY))
+    protected Memory __setPadding(Environment env, Memory... args) {
+        ComponentProperties properties = SwingExtension.getProperties(getComponent());
+        if (properties == null)
+            return Memory.NULL;
+
+        int[] v = args[0].toValue(ArrayMemory.class).toIntArray();
+        if (v.length == 1) {
+            int size = v[0];
+            properties.setPadding(size, size, size, size);
+        } else if (v.length == 2) {
+            int ver = v[0];
+            int hor = v[1];
+            properties.setPadding(ver, hor, ver, hor);
+        } else if (v.length == 3) {
+            int top = v[0];
+            int hor = v[1];
+            int bottom = v[2];
+            properties.setPadding(top, hor, bottom, hor);
+        } else if (v.length > 3) {
+            int top = v[0];
+            int right = v[1];
+            int bottom = v[2];
+            int left = v[3];
+            properties.setPadding(top, right, bottom, left);
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature
+    protected Memory __getPadding(Environment env, Memory... args) {
+        ComponentProperties properties = SwingExtension.getProperties(getComponent());
+        if (properties == null)
+            return Memory.NULL;
+
+        return new ArrayMemory(properties.getPadding()).toConstant();
+    }
+
     @Signature
     protected Memory __getSize(Environment env, Memory... args){
         return new ArrayMemory(getComponent().getWidth(), getComponent().getHeight());
@@ -354,7 +393,7 @@ abstract public class UIElement extends RootObject {
 
     @Signature
     protected Memory __getUid(Environment env, Memory... args){
-        return new StringMemory(getComponent().getName());
+        return StringMemory.valueOf(getComponent().getName());
     }
 
     @Signature

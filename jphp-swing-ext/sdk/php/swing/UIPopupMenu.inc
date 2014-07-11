@@ -3,6 +3,9 @@ namespace php\swing;
 
 /**
  * Class UIPopupMenu
+ *
+ * Events: open, close, cancel
+ *
  * @package php\swing
  */
 class UIPopupMenu extends UIContainer {

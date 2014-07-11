@@ -153,6 +153,11 @@ abstract class UIElement {
     public $cursor;
 
     /**
+     * @var array [int, int, int, int]
+     */
+    public $padding;
+
+    /**
      * Get graphic canvas object
      * @return Graphics
      */
