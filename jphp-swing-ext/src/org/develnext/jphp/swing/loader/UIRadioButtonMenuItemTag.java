@@ -19,7 +19,7 @@ public class UIRadioButtonMenuItemTag extends BaseTag<JRadioButton> {
     }
 
     @Override
-    public void addUnknown(JRadioButton component, Node node) {
+    public void addUnknown(JRadioButton component, Node node, UIReader uiReader) {
         if (node.getNodeName().equals("text")) {
             component.setText(node.getTextContent());
         }

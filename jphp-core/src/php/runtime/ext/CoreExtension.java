@@ -60,6 +60,7 @@ public class CoreExtension extends Extension {
         registerJavaException(scope, WrapJavaExceptions.IllegalArgumentException.class, IllegalArgumentException.class);
         registerJavaException(scope, WrapJavaExceptions.IllegalStateException.class, IllegalStateException.class);
         registerJavaException(scope, WrapJavaExceptions.NumberFormatException.class, NumberFormatException.class);
+        registerJavaException(scope, WrapJavaExceptions.InterruptedException.class, InterruptedException.class);
 
         registerNativeClass(scope, CharUtils.class);
         registerNativeClass(scope, StrUtils.class);

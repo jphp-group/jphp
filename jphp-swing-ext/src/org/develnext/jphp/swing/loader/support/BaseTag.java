@@ -18,7 +18,7 @@ abstract public class BaseTag<T extends Component> {
             ((Container) component).add(child);
     }
 
-    public void addUnknown(T component, Node node) {
+    public void addUnknown(T component, Node node, UIReader uiReader) {
 
     }
 

@@ -11,6 +11,7 @@ public class JTabbedPanePropertyReaders extends PropertyReaders<JTabbedPane> {
     protected final Map<String, PropertyReader<JTabbedPane>> register = new HashMap<String, PropertyReader<JTabbedPane>>(){{
         put("tabs", TABS);
         put("selected-index", SELECTED_INDEX);
+        put("tab-placement", TAB_PLACEMENT);
     }};
 
     @Override
@@ -48,6 +49,19 @@ public class JTabbedPanePropertyReaders extends PropertyReaders<JTabbedPane> {
         @Override
         public boolean isPostRead() {
             return true;
+        }
+    };
+
+    public final static PropertyReader<JTabbedPane> TAB_PLACEMENT = new PropertyReader<JTabbedPane>() {
+        @Override
+        public void read(JTabbedPane component, Value value) {
+            try {
+                component.setTabPlacement(SwingConstants.class.getField(value.asString().toUpperCase()).getInt(null));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
         }
     };
 }

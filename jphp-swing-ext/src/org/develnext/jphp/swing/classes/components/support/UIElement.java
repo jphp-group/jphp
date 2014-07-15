@@ -28,12 +28,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
 
 import static php.runtime.annotation.Reflection.*;
 
 @Name(SwingExtension.NAMESPACE + "UIElement")
 abstract public class UIElement extends RootObject {
     protected EventContainer cacheEventContainer;
+    protected Set<String> allowedEvents;
 
     public UIElement(Environment env) {
         super(env);
@@ -108,7 +111,8 @@ abstract public class UIElement extends RootObject {
         invoker.setTrace(env.trace());
 
         if (eventProvider == null) {
-            throw new IllegalArgumentException("Unknown event type - " + args[0]);
+            if (allowedEvents == null || !allowedEvents.contains(name))
+                throw new IllegalArgumentException("Unknown event type - " + args[0]);
             //env.exception(env.trace(), "Unknown event type - " + args[0]);
         }
 
@@ -140,6 +144,17 @@ abstract public class UIElement extends RootObject {
             System.arraycopy(args, 1, passed, 0, args.length - 1);
             properties.triggerEvent(args[0].toString().toLowerCase(), passed);
         }
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("name")
+    })
+    protected Memory addAllowedEventType(Environment env, Memory... args) {
+        if (allowedEvents == null)
+            allowedEvents = new HashSet<String>();
+
+        allowedEvents.add(args[0].toString().toLowerCase());
         return Memory.NULL;
     }
 

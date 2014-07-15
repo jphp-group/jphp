@@ -19,7 +19,7 @@ public class UIMenuTag extends BaseTag<JMenu> {
     }
 
     @Override
-    public void addUnknown(JMenu component, Node node) {
+    public void addUnknown(JMenu component, Node node, UIReader uiReader) {
         String name = node.getNodeName();
         if (name.equals("text")) {
             component.setText(node.getTextContent());

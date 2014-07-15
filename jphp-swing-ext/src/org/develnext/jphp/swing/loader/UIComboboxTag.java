@@ -20,7 +20,7 @@ public class UIComboboxTag extends BaseTag<JComboBox> {
     }
 
     @Override
-    public void addUnknown(JComboBox component, Node node) {
+    public void addUnknown(JComboBox component, Node node, UIReader uiReader) {
         if (node.getNodeName().equalsIgnoreCase("item")) {
             DefaultComboBoxModel model = (DefaultComboBoxModel) component.getModel();
             model.addElement(node.getTextContent());

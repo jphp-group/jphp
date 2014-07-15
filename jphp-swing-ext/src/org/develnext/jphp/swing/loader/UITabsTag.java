@@ -17,7 +17,7 @@ public class UITabsTag extends BaseTag<JTabbedPane> {
     }
 
     @Override
-    public void addUnknown(JTabbedPane component, Node node) {
+    public void addUnknown(JTabbedPane component, Node node, UIReader uiReader) {
         if ("tab".equals(node.getNodeName())) {
             NamedNodeMap attrs = node.getAttributes();
 
@@ -38,10 +38,10 @@ public class UITabsTag extends BaseTag<JTabbedPane> {
                 icon = new Value(attrs.getNamedItem("icon").getNodeValue()).asIcon();
 
             if (title != null)
-                component.setTitleAt(index, title);
+                component.setTitleAt(index, uiReader.translate(component, title));
 
             if (tooltip != null)
-                component.setToolTipTextAt(index, tooltip);
+                component.setToolTipTextAt(index, uiReader.translate(component, tooltip));
 
             if (icon != null)
                 component.setIconAt(index, icon);

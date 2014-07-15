@@ -158,6 +158,11 @@ abstract class UIElement {
     public $padding;
 
     /**
+     *
+     */
+    public function __construct() { }
+
+    /**
      * Get graphic canvas object
      * @return Graphics
      */
@@ -204,6 +209,11 @@ abstract class UIElement {
      * @param ... $args
      */
     public function trigger($name){ }
+
+    /**
+     * @param string $name
+     */
+    protected function addAllowedEventType($name) { }
 
     /**
      * @param string $name

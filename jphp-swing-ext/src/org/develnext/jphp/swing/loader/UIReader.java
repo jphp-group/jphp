@@ -159,7 +159,7 @@ public class UIReader {
                         BaseTag childTag = tags.get(node.getNodeName());
                         tag.addChildren(component, childTag.getContentPane(el));
                     } else {
-                        tag.addUnknown(component, node);
+                        tag.addUnknown(component, node, this);
                     }
                 }
             }

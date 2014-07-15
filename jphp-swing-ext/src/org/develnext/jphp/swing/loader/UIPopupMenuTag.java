@@ -19,7 +19,7 @@ public class UIPopupMenuTag extends BaseTag<JPopupMenu> {
     }
 
     @Override
-    public void addUnknown(JPopupMenu component, Node node) {
+    public void addUnknown(JPopupMenu component, Node node, UIReader uiReader) {
         String name = node.getNodeName();
         if (name.equals("separator")) {
             component.addSeparator();

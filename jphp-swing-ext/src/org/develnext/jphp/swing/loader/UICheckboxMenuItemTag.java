@@ -19,7 +19,7 @@ public class UICheckboxMenuItemTag extends BaseTag<JCheckBoxMenuItem> {
     }
 
     @Override
-    public void addUnknown(JCheckBoxMenuItem component, Node node) {
+    public void addUnknown(JCheckBoxMenuItem component, Node node, UIReader uiReader) {
         if (node.getNodeName().equals("text")) {
             component.setText(node.getTextContent());
         }

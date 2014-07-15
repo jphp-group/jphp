@@ -22,7 +22,7 @@ public class UIToolBarTag extends BaseTag<JToolBar> {
     }
 
     @Override
-    public void addUnknown(JToolBar component, Node node) {
+    public void addUnknown(JToolBar component, Node node, UIReader uiReader) {
         if (node.getNodeName().equals("separator")) {
             ElementItem item = new ElementItem(node);
             Value size = null;

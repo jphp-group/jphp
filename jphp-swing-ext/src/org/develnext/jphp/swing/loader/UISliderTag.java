@@ -22,7 +22,7 @@ public class UISliderTag extends BaseTag<JSlider> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void addUnknown(JSlider component, Node node) {
+    public void addUnknown(JSlider component, Node node, UIReader uiReader) {
         if (node.getNodeName().equalsIgnoreCase("item")) {
             Dictionary hashtable = component.getLabelTable();
             if (component.getLabelTable() == null)

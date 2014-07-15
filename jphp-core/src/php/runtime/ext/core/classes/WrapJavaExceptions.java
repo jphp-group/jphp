@@ -30,6 +30,17 @@ final public class WrapJavaExceptions {
         }
     }
 
+    @Name("php\\lang\\InterruptedException")
+    public static class InterruptedException extends JavaException {
+        public InterruptedException(Environment env, Throwable throwable) {
+            super(env, throwable);
+        }
+
+        public InterruptedException(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+    }
+
     @Name("php\\lang\\NumberFormatException")
     public static class NumberFormatException extends JavaException {
         public NumberFormatException(Environment env, Throwable throwable) {

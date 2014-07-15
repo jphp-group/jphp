@@ -2,6 +2,7 @@
 namespace php\swing;
 
 use php\concurrent\TimeoutException;
+use php\lang\InterruptedException;
 
 /**
  * Class SwingWorker
@@ -18,6 +19,7 @@ abstract class SwingWorker {
      * @param int $timeout
      * @return mixed
      * @throws TimeoutException
+     * @throws InterruptedException
      */
     public function get($timeout = -1) { return ''; }
 
