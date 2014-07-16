@@ -11,6 +11,12 @@ use php\io\Stream;
 class UIReader {
 
     /**
+     * Enables that the reader will create instances of UIInternalForm insteadof UIForm and UIDialog
+     * @var bool
+     */
+    public $useInternalForms;
+
+    /**
      * @param Stream|File|string $stream
      * @return UIElement
      */

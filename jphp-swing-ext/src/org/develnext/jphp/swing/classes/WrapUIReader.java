@@ -93,4 +93,15 @@ public class WrapUIReader extends RootObject {
             Stream.closeStream(env, stream);
         }
     }
+
+    @Signature(@Arg("value"))
+    protected Memory __setUseInternalForms(Environment env, Memory... args) {
+        reader.setUseInternalForms(args[0].toBoolean());
+        return Memory.NULL;
+    }
+
+    @Signature
+    protected Memory __getUseInternalForms(Environment env, Memory... args) {
+        return reader.isUseInternalForms() ? Memory.TRUE : Memory.FALSE;
+    }
 }

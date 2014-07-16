@@ -27,6 +27,8 @@ public class UIReader {
     protected TranslateHandler translateHandler;
     protected ReadHandler readHandler;
 
+    protected boolean useInternalForms;
+
     public UIReader() {
         builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setIgnoringComments(true);
@@ -58,6 +60,14 @@ public class UIReader {
 
     public void setReadHandler(ReadHandler readHandler) {
         this.readHandler = readHandler;
+    }
+
+    public boolean isUseInternalForms() {
+        return useInternalForms;
+    }
+
+    public void setUseInternalForms(boolean useInternalForms) {
+        this.useInternalForms = useInternalForms;
     }
 
     public void registerStyle(Style style) {

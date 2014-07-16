@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.classes.components;
 
+import org.develnext.jphp.swing.ComponentProperties;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
 import org.develnext.jphp.swing.support.JScrollPanel;
@@ -28,7 +29,7 @@ public class UIScrollPanel extends UIContainer {
 
     @Override
     public Container getContainer() {
-        return component.getContent();
+        return component;
     }
 
     @Override
@@ -39,6 +40,7 @@ public class UIScrollPanel extends UIContainer {
     @Override
     protected void onInit(Environment env, Memory... args) {
         component = new JScrollPanelX();
+        SwingExtension.registerComponent(component.getContent());
     }
 
     @Signature
@@ -61,5 +63,18 @@ public class UIScrollPanel extends UIContainer {
     protected Memory __setVerScrollPolicy(Environment env, Memory... args) {
         component.setVerScrollPolicy(JScrollPanel.ScrollPolicy.valueOf(args[0].toString().toUpperCase()));
         return Memory.NULL;
+    }
+
+    @Signature(@Arg("value"))
+    protected Memory __setAutosize(Environment env, Memory... args){
+        ComponentProperties properties = SwingExtension.getProperties(component.getContent());
+        properties.setAutoSize(args[0].toBoolean());
+        return Memory.NULL;
+    }
+
+    @Signature
+    protected Memory __getAutosize(Environment env, Memory... args){
+        ComponentProperties properties = SwingExtension.getProperties(component.getContent());
+        return properties.isAutoSize() ? Memory.TRUE : Memory.FALSE;
     }
 }

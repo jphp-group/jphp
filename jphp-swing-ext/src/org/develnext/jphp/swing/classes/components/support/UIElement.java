@@ -168,9 +168,7 @@ abstract public class UIElement extends RootObject {
 
     @Signature
     protected Memory __getAutosize(Environment env, Memory... args){
-        ArrayMemory result = new ArrayMemory();
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
-
         return properties.isAutoSize() ? Memory.TRUE : Memory.FALSE;
     }
 

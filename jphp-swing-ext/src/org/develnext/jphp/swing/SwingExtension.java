@@ -107,6 +107,8 @@ public class SwingExtension extends Extension {
         registerNativeClass(scope, UIDialog.class, JDialogX.class);
         registerNativeClass(scope, UIForm.class, JFrameX.class);
         registerNativeClass(scope, UIPanel.class, JPanel.class);
+        registerNativeClass(scope, UIDesktopPanel.class, JDesktopPane.class);
+        registerNativeClass(scope, UIInternalForm.class, JInternalFrame.class);
         registerNativeClass(scope, UIImage.class, JImageX.class);
 
         registerNativeClass(scope, UILabel.class, JLabel.class);
