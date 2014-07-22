@@ -1,15 +1,11 @@
 package php.runtime.reflection;
 
-import org.develnext.jphp.core.compiler.jvm.Constants;
-import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
-import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -25,18 +21,14 @@ import php.runtime.lang.support.MagicSignatureClass;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.Entity;
+import php.runtime.wrap.ClassWrapper;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-
-import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Type.*;
 
 public class ClassEntity extends Entity {
     private final static int FLAG_GET = 4000;
@@ -98,7 +90,8 @@ public class ClassEntity extends Entity {
 
     protected boolean isStatic;
 
-    protected static final ClassEntity magicSignatureClass = new ClassEntity(null, MagicSignatureClass.class);
+    protected static final ClassEntity magicSignatureClass =
+            new ClassEntity(new ClassWrapper(null, MagicSignatureClass.class));
 
     public ClassEntity(Context context) {
         super(context);
@@ -111,241 +104,15 @@ public class ClassEntity extends Entity {
         this.isInternal = false;
     }
 
+    public ClassEntity(ClassWrapper wrapper) {
+        this((Context) null);
+        wrapper.onWrap(this);
+    }
+
     public void setExtension(Extension extension) {
         this.extension = extension;
     }
 
-    public ClassEntity(CompileScope scope, Class<?> nativeClazz){
-        this(null, scope, nativeClazz);
-    }
-
-    public ClassEntity(Extension extension, CompileScope scope, Class<?> nativeClazz){
-        this(null);
-        this.nativeClazz = nativeClazz;
-        this.extension = extension;
-        if (nativeClazz.isInterface())
-            type = Type.INTERFACE;
-
-        this.isInternal = true;
-        this.isAbstract = java.lang.reflect.Modifier.isAbstract(nativeClazz.getModifiers());
-        this.isFinal    = java.lang.reflect.Modifier.isFinal(nativeClazz.getModifiers());
-
-        isNotRuntime = nativeClazz.isAnnotationPresent(Reflection.NotRuntime.class);
-        if (nativeClazz.isAnnotationPresent(Reflection.Name.class)){
-            Reflection.Name name = nativeClazz.getAnnotation(Reflection.Name.class);
-            setName(name.value());
-        } else {
-            setName(nativeClazz.getSimpleName());
-        }
-        setInternalName(nativeClazz.getName().replace('.', '/'));
-
-        if (nativeClazz.isAnnotationPresent(Reflection.Trait.class)) {
-            setType(Type.TRAIT);
-        }
-
-        if (!isTrait()) {
-            for(Field field : nativeClazz.getDeclaredFields()){
-                int mod = field.getModifiers();
-                if (field.isAnnotationPresent(Reflection.Ignore.class))
-                    continue;
-
-                if (java.lang.reflect.Modifier.isFinal(mod) && java.lang.reflect.Modifier.isStatic(mod)
-                        && !java.lang.reflect.Modifier.isPrivate(mod)){
-                    try {
-                        field.setAccessible(true);
-                        addConstant(new ConstantEntity(field.getName(), MemoryUtils.valueOf(field.get(null)), true));
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
-
-        Reflection.Signature signature = nativeClazz.getAnnotation(Reflection.Signature.class);
-        if (signature != null){
-            for(Reflection.Arg arg : signature.value()){
-                PropertyEntity entity = new PropertyEntity(context);
-                entity.setClazz(this);
-                entity.setModifier(arg.modifier());
-                entity.setName(arg.value());
-                entity.setStatic(false);
-
-                if (arg.optional().exists()){
-                    entity.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
-                } else {
-                    entity.setDefaultValue(null);
-                }
-
-                addProperty(entity);
-            }
-        }
-
-        this.setNativeClazz(nativeClazz);
-        applyUseTraits(scope);
-
-        for (Method method : nativeClazz.getDeclaredMethods()){
-            if (method.isAnnotationPresent(Reflection.Signature.class)){
-                MethodEntity entity = new MethodEntity(extension, method);
-                entity.setClazz(this);
-                entity.setNativeMethod(method);
-                entity.setAbstract(java.lang.reflect.Modifier.isAbstract(method.getModifiers()));
-                entity.setFinal(java.lang.reflect.Modifier.isFinal(method.getModifiers()));
-                entity.setStatic(java.lang.reflect.Modifier.isStatic(method.getModifiers()));
-                if (type == Type.INTERFACE){
-                    entity.setAbstractable(true);
-                    entity.setAbstract(false);
-                }
-                if (entity.isAbstract())
-                    entity.setAbstractable(true);
-
-                entity.setInternalName(method.getName());
-
-                Reflection.Name name = method.getAnnotation(Reflection.Name.class);
-                entity.setName(name == null ? method.getName() : name.value());
-
-                Reflection.Signature sign = method.getAnnotation(Reflection.Signature.class);
-                ParameterEntity[] params = new ParameterEntity[sign.value().length];
-
-                int i = 0;
-                for (Reflection.Arg arg : sign.value()){
-                    ParameterEntity param = new ParameterEntity(context);
-                    param.setReference(arg.reference());
-                    param.setType(arg.type());
-                    param.setName(arg.value());
-
-                    param.setDefaultValue(null);
-                    if (arg.optional().exists()
-                            || !arg.optional().value().isEmpty()
-                            || (arg.type() != HintType.STRING && !arg.optional().value().isEmpty())){
-                        param.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
-                    }
-
-                    params[i++] = param;
-                }
-
-                entity.setParameters(params);
-                addMethod(entity, null);
-            }
-        }
-
-        if (signature == null || !signature.root()){
-            if (scope != null){
-                Class<?> extend = nativeClazz.getSuperclass();
-                if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
-                    String name = extend.getSimpleName();
-                    if (extend.isAnnotationPresent(Reflection.Name.class)){
-                        name = extend.getAnnotation(Reflection.Name.class).value();
-                    }
-                    ClassEntity entity = scope.fetchUserClass(name);
-                    if (entity == null || entity.getType() != Type.CLASS)
-                        throw new IllegalArgumentException("Class '"+name+"' not registered");
-
-                    ExtendsResult result = setParent(entity, false);
-                    result.check(null);
-                    updateParentMethods();
-                }
-            }
-
-            for (Class<?> interface_ : nativeClazz.getInterfaces()){
-                if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
-                if (interface_.getPackage().getName().startsWith("java.")) continue;
-
-                String name = interface_.getSimpleName();
-                if (interface_.isAnnotationPresent(Reflection.Name.class)){
-                    name = interface_.getAnnotation(Reflection.Name.class).value();
-                }
-                ClassEntity entity = scope.fetchUserClass(name);
-                if (entity == null || entity.getType() != Type.INTERFACE)
-                    throw new IllegalArgumentException("Interface '"+name+"' not registered");
-
-                ImplementsResult result = addInterface(entity);
-                result.check(null);
-            }
-        }
-
-        doneDeclare();
-    }
-
-    protected void applyUseTraits(CompileScope scope) {
-        Reflection.UseTraits useTraits = nativeClazz.getAnnotation(Reflection.UseTraits.class);
-        if (useTraits != null) {
-            for (Class<? extends IObject> traitClass : useTraits.value()) {
-                ClassEntity traitEntity = scope.fetchUserClass(traitClass);
-                addTrait(traitEntity);
-
-                ClassNode classNode = getClassNode();
-                for(MethodEntity methodEntity : traitEntity.methods.values()) {
-                    MethodEntity origin = this.findMethod(methodEntity.getLowerName());
-
-                    MethodEntity dup = methodEntity.duplicateForInject();
-                    dup.setClazz(this);
-                    dup.setTrait(traitEntity);
-
-                    MethodNodeImpl methodNode = MethodNodeImpl.duplicate(methodEntity.getMethodNode());
-
-                    if (origin != null) {
-                        dup.setPrototype(origin);
-                    }
-
-                    dup.setInternalName(dup.getName() + "$" + this.nextMethodIndex());
-                    methodNode.name = dup.getInternalName();
-
-                    ClassEntity.SignatureResult result = this.addMethod(dup, null);
-                    result.check(null);
-
-                    classNode.methods.add(methodNode);
-                }
-
-                classNode.superName = getInternalName();
-                classNode.name = getInternalName().replace("/", "_") + "$withTraits";
-                setInternalName(classNode.name);
-            }
-
-            ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-
-            MethodNode constructor = new MethodNodeImpl();
-            constructor.name = Constants.INIT_METHOD;
-            constructor.access = ACC_PUBLIC;
-            constructor.desc = getMethodDescriptor(
-                    org.objectweb.asm.Type.getType(void.class),
-                    org.objectweb.asm.Type.getType(Environment.class),
-                    org.objectweb.asm.Type.getType(ClassEntity.class)
-            );
-            constructor.instructions = new InsnList();
-            LabelNode startL = new LabelNode();
-            constructor.instructions.add(startL);
-
-            constructor.instructions.add(new VarInsnNode(ALOAD, 0));
-            constructor.instructions.add(new VarInsnNode(ALOAD, 1));
-            constructor.instructions.add(new VarInsnNode(ALOAD, 2));
-            constructor.instructions.add(new MethodInsnNode(
-                    INVOKESPECIAL,
-                    getClassNode().superName,
-                    Constants.INIT_METHOD,
-                    constructor.desc,
-                    false
-            ));
-            LabelNode endL = new LabelNode();
-            constructor.instructions.add(endL);
-            constructor.localVariables.add(new LocalVariableNode("this", "L" + getClassNode().name + ";", null, startL, endL, 0));
-            constructor.localVariables.add(new LocalVariableNode("env", org.objectweb.asm.Type.getDescriptor(Environment.class), null, startL, endL, 1));
-            constructor.localVariables.add(new LocalVariableNode("cls", org.objectweb.asm.Type.getDescriptor(ClassEntity.class), null, startL, endL, 2));
-
-            constructor.instructions.add(new InsnNode(RETURN));
-
-            getClassNode().methods.set(0, constructor);
-            getClassNode().accept(classWriter);
-            setData(classWriter.toByteArray());
-
-            try {
-                scope.getClassLoader().loadClass(this);
-            } catch (NoSuchMethodException e) {
-                throw new CriticalException(e);
-            } catch (NoSuchFieldException e) {
-                throw new CriticalException(e);
-            }
-        }
-    }
 
     public boolean isStatic() {
         return isStatic;
@@ -369,6 +136,18 @@ public class ClassEntity extends Entity {
 
     public boolean isTrait() {
         return type == Type.TRAIT;
+    }
+
+    public void setInternal(boolean isInternal) {
+        this.isInternal = isInternal;
+    }
+
+    public boolean isNotRuntime() {
+        return isNotRuntime;
+    }
+
+    public void setNotRuntime(boolean isNotRuntime) {
+        this.isNotRuntime = isNotRuntime;
     }
 
     public void doneDeclare(){

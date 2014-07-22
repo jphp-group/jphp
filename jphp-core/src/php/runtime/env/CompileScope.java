@@ -24,6 +24,7 @@ import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.loader.RuntimeClassLoader;
 import php.runtime.reflection.*;
 import php.runtime.util.JVMStackTracer;
+import php.runtime.wrap.ClassWrapper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -312,7 +313,9 @@ public class CompileScope {
         if (compileClass == null)
             return null;
 
-        entity = new ClassEntity(compileClass.getExtension(), this, compileClass.getNativeClass());
+        entity = new ClassEntity(new ClassWrapper(
+                compileClass.getExtension(), this, compileClass.getNativeClass()
+        ));
         entity.setId(nextClassIndex());
         synchronized (classMap) {
             classMap.put(name, entity);
