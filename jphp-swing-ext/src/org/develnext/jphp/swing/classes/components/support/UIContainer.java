@@ -28,6 +28,9 @@ abstract public class UIContainer extends UIElement {
         super(env, clazz);
     }
 
+    protected Container getComponentsContainer() {
+        return getContainer();
+    }
     abstract public Container getContainer();
 
     @Override
@@ -40,32 +43,42 @@ abstract public class UIContainer extends UIElement {
     )
     public Memory remove(Environment env, Memory... args) {
         UIElement element = unwrap(args[0]);
-        getContainer().remove(element.getComponent());
+        getComponentsContainer().remove(element.getComponent());
         return Memory.NULL;
     }
 
     @Signature(@Arg("index"))
     public Memory removeByIndex(Environment env, Memory... args) {
-        getContainer().remove(args[0].toInteger());
+        getComponentsContainer().remove(args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature
     public Memory removeAll(Environment env, Memory... args) {
-        getContainer().removeAll();
+        getComponentsContainer().removeAll();
         return Memory.NULL;
     }
 
     @Signature(@Arg("index"))
     public Memory getComponent(Environment env, Memory... args) {
         return new ObjectMemory(UIElement.of(
-                env, getContainer().getComponent(args[0].toInteger())
+                env, getComponentsContainer().getComponent(args[0].toInteger())
         ));
     }
 
     @Signature
     public Memory getComponentCount(Environment env, Memory... args) {
-        return LongMemory.valueOf(getContainer().getComponentCount());
+        return LongMemory.valueOf(getComponentsContainer().getComponentCount());
+    }
+
+    @Signature
+    public Memory getComponents(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        Container container = getComponentsContainer();
+        for(int i = 0; i < container.getComponentCount(); i++) {
+            r.add(UIElement.of(env, container.getComponent(i)));
+        }
+        return r.toConstant();
     }
 
     @Signature({
@@ -88,7 +101,6 @@ abstract public class UIContainer extends UIElement {
                 getContainer().add(element.getComponent(), args[2].toString(), args[1].toInteger());
         }
 
-
         return args[0];
     }
 
@@ -97,7 +109,7 @@ abstract public class UIContainer extends UIElement {
     public Memory setLayout(Environment env, Memory... args) {
         String s = args[0].toString().toLowerCase();
 
-        Container component = getContainer();
+        Container component = getComponentsContainer();
         if ("absolute".equals(s))
             component.setLayout(new XYLayout());
         else if ("grid".equals(s)) {

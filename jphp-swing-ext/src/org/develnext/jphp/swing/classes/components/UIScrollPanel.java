@@ -43,6 +43,11 @@ public class UIScrollPanel extends UIContainer {
         SwingExtension.registerComponent(component.getContent());
     }
 
+    @Override
+    protected Container getComponentsContainer() {
+        return component.getContent();
+    }
+
     @Signature
     protected Memory __getHorScrollPolicy(Environment env, Memory... args) {
         return StringMemory.valueOf(component.getHorScrollPolicy().name());

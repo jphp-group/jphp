@@ -48,6 +48,11 @@ abstract class UIContainer extends UIElement {
     public function getComponent($index) { }
 
     /**
+     * @return UIElement[]
+     */
+    public function getComponents() { return []; }
+
+    /**
      * Find first component by group
      * @param string $group
      * @return UIElement|NULL

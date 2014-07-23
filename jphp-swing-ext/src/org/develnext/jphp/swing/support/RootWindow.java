@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.support;
 
+import javax.swing.*;
 import java.awt.*;
 
 public interface RootWindow {
@@ -18,4 +19,5 @@ public interface RootWindow {
     int getDefaultCloseOperation();
 
     Container getContentPane();
+    JRootPane getRootPane();
 }

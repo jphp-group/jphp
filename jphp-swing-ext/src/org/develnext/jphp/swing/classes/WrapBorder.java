@@ -139,4 +139,15 @@ public class WrapBorder extends RootObject {
             throw new IllegalArgumentException(e);
         }
     }
+
+    @Signature({
+            @Arg(value = "outside", nativeType = WrapBorder.class),
+            @Arg(value = "inside", nativeType = WrapBorder.class)
+    })
+    public static Memory createCompound(Environment env, Memory... args) {
+        return new ObjectMemory(new WrapBorder(env, BorderFactory.createCompoundBorder(
+                args[0].toObject(WrapBorder.class).getBorder(),
+                args[1].toObject(WrapBorder.class).getBorder()
+        )));
+    }
 }

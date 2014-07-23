@@ -1,13 +1,13 @@
 package org.develnext.jphp.swing.classes.components.support;
 
-import php.runtime.Memory;
-import php.runtime.env.Environment;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.UIDialog;
 import org.develnext.jphp.swing.classes.components.UIForm;
 import org.develnext.jphp.swing.support.JDialogX;
 import org.develnext.jphp.swing.support.JFrameX;
 import org.develnext.jphp.swing.support.RootWindow;
+import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
@@ -42,6 +42,11 @@ abstract public class UIWindow extends UIContainer {
     @Override
     public Component getComponent() {
         return getWindow();
+    }
+
+    @Override
+    protected Container getComponentsContainer() {
+        return (Container) getRootWindow().getRootPane().getLayeredPane().getComponent(0);
     }
 
     @Signature(@Arg("value"))

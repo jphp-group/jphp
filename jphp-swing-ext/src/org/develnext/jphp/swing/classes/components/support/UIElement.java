@@ -117,7 +117,7 @@ abstract public class UIElement extends RootObject {
         }
 
         onBindEvent(env, name, invoker);
-        ComponentProperties properties = SwingExtension.getProperties(getComponent());
+        ComponentProperties properties = SwingExtension.getProperties(getComponent(), true);
         properties.updateEvents(env);
 
         getEventContainer().addEvent(name, args[2].toString(), invoker);

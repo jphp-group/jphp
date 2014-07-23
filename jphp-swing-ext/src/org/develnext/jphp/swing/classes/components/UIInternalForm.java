@@ -2,8 +2,11 @@ package org.develnext.jphp.swing.classes.components;
 
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
+import org.develnext.jphp.swing.classes.components.support.UIElement;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -40,6 +43,19 @@ public class UIInternalForm extends UIContainer {
     protected void onInit(Environment env, Memory... args) {
         frame = new JInternalFrame();
     }
+
+    @Signature(@Arg("index"))
+    public Memory getComponent(Environment env, Memory... args) {
+        return new ObjectMemory(UIElement.of(
+                env, frame.getRootPane().getContentPane().getComponent(args[0].toInteger())
+        ));
+    }
+
+    @Signature
+    public Memory getComponentCount(Environment env, Memory... args) {
+        return LongMemory.valueOf(frame.getRootPane().getContentPane().getComponentCount());
+    }
+
 
     @Signature(@Arg(value = "value", nativeType = UIDesktopPanel.class))
     public Memory setLayeredPanel(Environment env, Memory... args) {

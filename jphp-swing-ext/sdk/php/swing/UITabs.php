@@ -3,6 +3,9 @@ namespace php\swing;
 
 /**
  * Class UITabs
+ *
+ *  Events: change
+ *
  * @package php\swing
  */
 class UITabs extends UIContainer {
