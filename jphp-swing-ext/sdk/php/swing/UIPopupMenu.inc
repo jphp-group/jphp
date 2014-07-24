@@ -39,4 +39,11 @@ class UIPopupMenu extends UIContainer {
      * @param UIElement $component
      */
     public function setSelected(UIElement $component) { }
+
+    /**
+     * @param UIElement $invoker
+     * @param int $x
+     * @param int $y
+     */
+    public function show(UIElement $invoker, $x, $y) { }
 }

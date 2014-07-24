@@ -100,21 +100,21 @@ public class UIListbox extends UIContainer {
     @Signature(@Arg("item"))
     public Memory addItem(Environment env, Memory... args) {
         DefaultListModel listModel = (DefaultListModel)component.getModel();
-        listModel.addElement(args[0].toString());
+        listModel.addElement(args[0].toValue());
         return Memory.NULL;
     }
 
     @Signature({@Arg("index"), @Arg("item")})
     public Memory insertItem(Environment env, Memory... args) {
         DefaultListModel listModel = (DefaultListModel)component.getModel();
-        listModel.insertElementAt(args[1].toString(), args[0].toInteger());
+        listModel.insertElementAt(args[1].toValue(), args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature({@Arg("index")})
     public Memory getItem(Environment env, Memory... args) {
         DefaultListModel listModel = (DefaultListModel)component.getModel();
-        return new StringMemory((String)listModel.getElementAt(args[0].toInteger()));
+        return (Memory)listModel.getElementAt(args[0].toInteger());
     }
 
     @Signature({@Arg("index")})
@@ -141,7 +141,7 @@ public class UIListbox extends UIContainer {
         ForeachIterator iterator = arr.foreachIterator(false, false);
         int i = 0;
         while (iterator.next()) {
-            listModel.addElement(iterator.getValue().toString());
+            listModel.addElement(iterator.getValue());
             i++;
         }
 

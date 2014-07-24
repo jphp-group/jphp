@@ -1,7 +1,10 @@
 package org.develnext.jphp.swing.loader.support;
 
+import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.launcher.Launcher;
+import php.runtime.memory.support.MemoryUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,6 +29,10 @@ public class Value {
 
     public int asInteger() {
         return Integer.parseInt(value);
+    }
+
+    public Memory asMemory() {
+        return MemoryUtils.valueOf(asString(), HintType.ANY);
     }
 
     public String[] asArray(boolean trim) {

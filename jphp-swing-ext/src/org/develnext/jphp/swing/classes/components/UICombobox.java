@@ -1,14 +1,15 @@
 package org.develnext.jphp.swing.classes.components;
 
+import org.develnext.jphp.swing.classes.components.support.UIElement;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.classes.components.support.UIContainer;
+import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
+import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ClassEntity;
 
 import javax.swing.*;
@@ -106,19 +107,18 @@ public class UICombobox extends UIContainer {
 
     @Signature(@Arg("value"))
     public Memory addItem(Environment env, Memory... args) {
-        component.addItem(args[0].toString());
+        component.addItem(args[0].toValue());
         return Memory.NULL;
     }
 
     @Signature(@Arg("value"))
     public Memory getItem(Environment env, Memory... args) {
-        String v = (String)component.getItemAt(args[0].toInteger());
-        return v == null ? Memory.NULL : new StringMemory(v);
+        return (Memory) component.getItemAt(args[0].toInteger());
     }
 
     @Signature({@Arg("index"), @Arg("value")})
     public Memory insertItem(Environment env, Memory... args) {
-        component.insertItemAt(args[1].toString(), args[0].toInteger());
+        component.insertItemAt(args[1].toValue(), args[0].toInteger());
         return Memory.NULL;
     }
 
@@ -138,16 +138,57 @@ public class UICombobox extends UIContainer {
     public Memory setItems(Environment env, Memory... args) {
         component.removeAllItems();
         ArrayMemory arr = args[0].toValue(ArrayMemory.class);
-        String[] items = new String[arr.size()];
+        Object[] items = new Object[arr.size()];
 
         ForeachIterator iterator = arr.foreachIterator(false, false);
         int i = 0;
         while (iterator.next()) {
-            items[i] = iterator.getValue().toString();
+            items[i] = iterator.getValue();
             i++;
         }
 
         component.setModel(new DefaultComboBoxModel(items));
+        return Memory.NULL;
+    }
+
+    protected static DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+
+    @Signature(@Arg(value = "handler", optional = @Optional("null")))
+    public Memory onCellRender(final Environment env, Memory... args) {
+        if (args[0].isNull())
+            component.setRenderer(defaultRenderer);
+        else {
+            final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+
+            final ObjectMemory self = new ObjectMemory(this);
+            component.setRenderer(new ListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                                                              boolean cellHasFocus) {
+
+                    JLabel template = (JLabel)defaultRenderer.getListCellRendererComponent(list, value, index,
+                            isSelected, cellHasFocus);
+
+                    Memory _value        = MemoryUtils.valueOf(value);
+                    Memory _index        = LongMemory.valueOf(index);
+                    Memory _isSelected   = TrueMemory.valueOf(isSelected);
+                    Memory _cellHasFocus = TrueMemory.valueOf(cellHasFocus);
+
+                    Memory r = invoker.callNoThrow(
+                            self,
+                            new ObjectMemory(new UILabel(env, template)),
+                            _value, _index, _isSelected, _cellHasFocus
+                    );
+
+                    if (r.isObject() && r.instanceOf(UIElement.class)) {
+                        return r.toObject(UIElement.class).getComponent();
+                    }
+
+                    return template;
+                }
+            });
+        }
+
         return Memory.NULL;
     }
 }

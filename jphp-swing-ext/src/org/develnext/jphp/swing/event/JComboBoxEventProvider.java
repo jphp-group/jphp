@@ -19,13 +19,13 @@ public class JComboBoxEventProvider extends EventProvider<JComboBox> {
         component.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                triggerItem(env, properties, "changed", e);
+                triggerItem(env, properties, "change", e);
             }
         });
     }
 
     @Override
     public boolean isAllowedEventType(Component component, String code) {
-        return "changed".equalsIgnoreCase(code);
+        return "change".equalsIgnoreCase(code);
     }
 }

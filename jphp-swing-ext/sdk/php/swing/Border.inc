@@ -64,4 +64,14 @@ class Border {
      * @return Border
      */
     public static function createLine($color, $size = 1, $rounded = false) { return new Border(); }
+
+    /**
+     * @param Color|array|int $color
+     * @param int $thickness
+     * @param int $length
+     * @param int $spacing
+     * @param bool $rounded
+     * @return Border
+     */
+    public static function createDashed($color, $thickness = 1, $length = 2, $spacing = 1, $rounded = false) { return new Border(); }
 }

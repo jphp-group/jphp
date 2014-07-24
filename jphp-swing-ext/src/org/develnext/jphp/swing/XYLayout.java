@@ -3,6 +3,7 @@ package org.develnext.jphp.swing;
 import org.develnext.jphp.swing.misc.Align;
 import org.develnext.jphp.swing.misc.Anchor;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 
@@ -52,6 +53,16 @@ public class XYLayout implements LayoutManager2 {
         int clientBottom = target.getHeight() - (insets.top + insets.bottom) - clientPadding[2];
         int clientLeft = 0 + clientPadding[3];
         int clientRight = target.getWidth() - (insets.left + insets.right) - clientPadding[1];
+
+        if (target instanceof JComponent) {
+            if (((JComponent) target).getBorder() != null) {
+                Insets borderInsets = ((JComponent) target).getBorder().getBorderInsets(target);
+                clientLeft += borderInsets.left;
+                clientTop  += borderInsets.top;
+                clientBottom -= borderInsets.bottom;
+                clientRight -= borderInsets.right;
+            }
+        }
 
         int maxWidth = 0;
         int maxHeight = 0;

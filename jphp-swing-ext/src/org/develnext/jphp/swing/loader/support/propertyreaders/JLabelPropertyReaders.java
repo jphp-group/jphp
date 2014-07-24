@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.loader.support.propertyreaders;
 
+import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.swing.loader.support.PropertyReader;
 import org.develnext.jphp.swing.loader.support.Value;
 
@@ -52,14 +53,14 @@ public class JLabelPropertyReaders extends PropertyReaders<JLabel> {
     public final static PropertyReader<JLabel> HOR_ALIGN = new PropertyReader<JLabel>() {
         @Override
         public void read(JLabel component, Value value) {
-            component.setHorizontalAlignment(value.asInteger());
+            component.setHorizontalAlignment(SwingExtension.toDirection(value.asMemory()));
         }
     };
 
     public final static PropertyReader<JLabel> VER_ALIGN = new PropertyReader<JLabel>() {
         @Override
         public void read(JLabel component, Value value) {
-            component.setVerticalAlignment(value.asInteger());
+            component.setVerticalAlignment(SwingExtension.toDirection(value.asMemory()));
         }
     };
 
@@ -80,14 +81,14 @@ public class JLabelPropertyReaders extends PropertyReaders<JLabel> {
     public final static PropertyReader<JLabel> HOR_TEXT_POSITION = new PropertyReader<JLabel>() {
         @Override
         public void read(JLabel component, Value value) {
-            component.setHorizontalTextPosition(value.asInteger());
+            component.setHorizontalTextPosition(SwingExtension.toDirection(value.asMemory()));
         }
     };
 
     public final static PropertyReader<JLabel> VER_TEXT_POSITION = new PropertyReader<JLabel>() {
         @Override
         public void read(JLabel component, Value value) {
-            component.setVerticalTextPosition(value.asInteger());
+            component.setVerticalTextPosition(SwingExtension.toDirection(value.asMemory()));
         }
     };
 }

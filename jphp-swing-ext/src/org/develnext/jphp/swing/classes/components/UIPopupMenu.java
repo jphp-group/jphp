@@ -99,4 +99,13 @@ public class UIPopupMenu extends UIContainer {
         );
         return Memory.NULL;
     }
+
+    @Signature({
+            @Arg(value = "component", nativeType = UIElement.class),
+            @Arg("x"), @Arg("y")
+    })
+    public Memory show(Environment env, Memory... args) {
+        component.show(args[0].toObject(UIElement.class).getComponent(), args[1].toInteger(), args[2].toInteger());
+        return Memory.NULL;
+    }
 }

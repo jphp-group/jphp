@@ -65,4 +65,10 @@ class UICombobox extends UIContainer {
      * clear all
      */
     public function removeAllItems() { }
+
+
+    /**
+     * @param callable $callback (UICombobox $self, UILabel $template, $value, int $index, bool isSelected, bool cellHasFocus)
+     */
+    public function onCellRender(callable $callback = null) { }
 }
