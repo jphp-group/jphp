@@ -177,6 +177,21 @@ final public class ItemsUtils extends BaseObject {
     }
 
     @FastMethod
+    @Signature(@Arg("collection"))
+    public static Memory toList(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+        for(Memory arg : args) {
+            if (arg.isTraversable()) {
+                ForeachIterator iterator = arg.getNewIterator(env);
+                while (iterator.next())
+                    r.add(iterator.getValue().toImmutable());
+            } else
+                r.add(arg.toImmutable());
+        }
+        return r.toConstant();
+    }
+
+    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })

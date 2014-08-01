@@ -1189,7 +1189,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                         return false;
                     } else {
                         cursor--;
-                        currentKey = (long)cursor;
+                        currentKey = LongMemory.valueOf((long)cursor);
                         setCurrentValue(list.get(cursor));
                         return true;
                     }
@@ -1221,7 +1221,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
                         return false;
                     }
 
-                    currentKey = (long)cursor;
+                    currentKey = LongMemory.valueOf((long)cursor);
                     setCurrentValue(list.get(cursor));
                     cursor++;
                     return true;

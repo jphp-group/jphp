@@ -38,7 +38,7 @@ class Process {
     /**
      * Returns the exit value for the subprocess.
      *
-     * @return int
+     * @return int|null - null if process is working
      * @throws IllegalStateException
      */
     public function getExitValue() { return 0; }

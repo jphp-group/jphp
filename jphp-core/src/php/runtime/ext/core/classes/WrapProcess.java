@@ -74,7 +74,11 @@ public class WrapProcess extends BaseObject {
 
     @Signature
     public Memory getExitValue(Environment env, Memory... args) {
-        return LongMemory.valueOf(getProcess().exitValue());
+        try {
+            return LongMemory.valueOf(getProcess().exitValue());
+        } catch (IllegalThreadStateException e) {
+            return Memory.NULL;
+        }
     }
 
     @Signature

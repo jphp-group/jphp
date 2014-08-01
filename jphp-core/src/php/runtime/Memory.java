@@ -6,6 +6,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
+import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 
@@ -206,6 +207,7 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean isClosure() { return false; }
     public boolean isResource() { return false; }
     public boolean isArray(){ return type == Type.ARRAY; }
+    public boolean isTraversable() { return isArray() || instanceOf(Traversable.class.getName()); }
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
     public boolean isReference() { return false; }

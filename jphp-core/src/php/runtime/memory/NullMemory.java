@@ -1,6 +1,8 @@
 package php.runtime.memory;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.lang.StdClass;
 
 public class NullMemory extends FalseMemory {
 
@@ -33,5 +35,15 @@ public class NullMemory extends FalseMemory {
     @Override
     public Memory dec() {
         return CONST_INT_M1;
+    }
+
+    @Override
+    public Memory toArray() {
+        return new ArrayMemory().toConstant();
+    }
+
+    @Override
+    public Memory toObject(Environment env) {
+        return new ObjectMemory(new StdClass(env));
     }
 }

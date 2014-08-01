@@ -43,6 +43,15 @@ class items {
     public static function toArray($collection, $withKeys = false) { return []; }
 
     /**
+     * Example: items::toList(['x' => 10, 20], 30, ['x' => 50, 60]) -> [10, 20, 30, 50, 60]
+     *
+     * @param $collection
+     * @param ...
+     * @return array
+     */
+    public static function toList($collection) { return []; }
+
+    /**
      * Returns all keys of collection
      * --RU--
      * Возвращает все ключи коллекции
