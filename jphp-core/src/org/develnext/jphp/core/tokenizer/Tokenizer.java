@@ -636,13 +636,14 @@ public class Tokenizer {
                     startRelativePosition = relativePosition;
                     EchoRawToken token = buildToken(EchoRawToken.class, meta);
 
-                    if (code.substring(currentPosition + 1, currentPosition + 4).equals("php")){
+                    if (codeLength >= currentPosition + 4 &&
+                            code.substring(currentPosition + 1, currentPosition + 4).equals("php")){
                         relativePosition += 4;
                         currentPosition += 3;
                         token.setShort(false);
-                    } else
+                    } else {
                         token.setShort(true);
-
+                    }
                     return token;
                 } else {
                     init = true;
