@@ -365,7 +365,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                 ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
                         .setCanStartByReference(true)
-                        .getNextExpression(nextToken(iterator), iterator, Separator.SEMICOLON, closedBraceKind);
+                        .getNextExpression(nextToken(iterator), iterator, closedBraceKind);
 
                 dResult.setValue(value);
                 return dResult;

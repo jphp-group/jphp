@@ -916,6 +916,7 @@ public class LangFunctions extends FunctionsContainer {
                 module = env.importModule(new Context(
                         inputStream, moduleName == Memory.NULL ? null : moduleName.toString(), env.getDefaultCharset()
                 ));
+
             } catch (Exception throwable) {
                 env.catchUncaught(throwable);
                 return Memory.NULL;
