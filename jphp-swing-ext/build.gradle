@@ -2,6 +2,7 @@ ext.isExtension = true;
 
 sourceSets {
     main.java.srcDirs = ['src']
+    main.resources.srcDirs = ['resources']
 }
 
 dependencies {

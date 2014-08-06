@@ -16,8 +16,8 @@ import php.runtime.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ModuleEntity;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Properties;
+import java.net.URL;
+import java.util.*;
 
 public class Launcher {
     protected final String[] args;
@@ -64,6 +64,21 @@ public class Launcher {
 
     public Memory getConfigValue(String key, String def) {
         return getConfigValue(key, new StringMemory(def));
+    }
+
+    public Collection<InputStream> getResources(String name) {
+        List<InputStream> result = new ArrayList<InputStream>();
+        try {
+            Enumeration<URL> urls = Launcher.class.getClassLoader().getResources(name);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                result.add(url.openStream());
+            }
+            return result;
+        } catch (IOException e) {
+            return Collections.emptyList();
+            //throw new LaunchException(e.getMessage());
+        }
     }
 
     public InputStream getResource(String name){
@@ -142,7 +157,24 @@ public class Launcher {
 
     protected void initExtensions(){
         String tmp = getConfigValue("env.extensions", "spl").toString();
-        String[] extensions = StringUtils.split(tmp, ",");
+        String[] _extensions = StringUtils.split(tmp, ",");
+
+        Set<String> extensions = new HashSet<String>();
+        for(String ext : _extensions) {
+            extensions.add(ext.trim());
+        }
+
+        if (getConfigValue("env.autoregister_extensions", Memory.TRUE).toBoolean()) {
+            for(InputStream list : getResources("JPHP-INF/extensions.list")) {
+                Scanner scanner = new Scanner(list);
+                while (scanner.hasNext()) {
+                    String line = scanner.nextLine().trim();
+                    if (!line.isEmpty()) {
+                        extensions.add(line);
+                    }
+                }
+            }
+        }
 
         for(String ext : extensions){
             String className = Information.EXTENSIONS.get(ext.trim().toLowerCase());
