@@ -196,9 +196,14 @@ public class FileObject extends BaseObject {
         return Memory.NULL;
     }
 
-    @Signature
+    @Signature(@Arg(value = "withDirs", optional = @Optional("false")))
     public Memory createNewFile(Environment env, Memory... args){
         try {
+            if (args[0].toBoolean()) {
+                if (!file.getParentFile().mkdirs())
+                    return Memory.FALSE;
+            }
+
             return file.createNewFile() ? Memory.TRUE : Memory.FALSE;
         } catch (java.io.IOException e) {
             exception(env, e.getMessage());

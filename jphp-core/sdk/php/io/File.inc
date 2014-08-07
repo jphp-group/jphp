@@ -131,10 +131,10 @@ class File {
     public function deleteOnExit() { }
 
     /**
+     * @param bool $withDirs
      * @return bool
-     * @throws IOException
      */
-    public function createNewFile() { return false; }
+    public function createNewFile($withDirs = false) { return false; }
 
     /**
      * @return int
