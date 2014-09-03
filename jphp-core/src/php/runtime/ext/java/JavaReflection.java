@@ -8,22 +8,26 @@ import php.runtime.reflection.ClassEntity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Reflection.Name("php\\lang\\JavaReflection")
 abstract public class JavaReflection extends BaseObject {
 
-    protected static final Map<Class<? extends JavaException>, Constructor<? extends JavaException>> constructors =
-            new HashMap<Class<? extends JavaException>, Constructor<? extends JavaException>>();
-    protected static final Map<Class<? extends Throwable>, Class<? extends JavaException>> cachedThClasses =
-            new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
+    protected static Map<Class<? extends JavaException>, Constructor<? extends JavaException>> constructors;
+    protected static Map<Class<? extends Throwable>, Class<? extends JavaException>> cachedThClasses;
 
     public JavaReflection(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
     public static void exception(Environment env, Throwable e) {
+        if (cachedThClasses == null)
+            cachedThClasses = new ConcurrentHashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
+
+        if (constructors == null)
+            constructors = new ConcurrentHashMap<Class<? extends JavaException>, Constructor<? extends JavaException>>();
+
         Class tmp = e.getClass();
         Class<? extends JavaException> clazz = cachedThClasses.get(tmp);
         if (clazz == null) {
