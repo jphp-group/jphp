@@ -15,7 +15,7 @@ can execute the result on the Java VM.
 
 JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP.
 
-Our project has been started in October 2013. There were a few reasons for that:
+Our project started in October 2013. There were a few reasons for that:
 
 1. Ability to use java libraries in PHP
 2. Upgrading performance via JIT and JVM
