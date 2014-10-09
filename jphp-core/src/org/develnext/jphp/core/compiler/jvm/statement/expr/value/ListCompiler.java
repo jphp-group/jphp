@@ -11,6 +11,7 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.memory.support.MemoryUtils;
 
 public class ListCompiler extends BaseExprCompiler<ListExprToken> {
     public ListCompiler(ExpressionStmtCompiler exprCompiler) {
@@ -19,7 +20,13 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
 
     @Override
     public void write(ListExprToken list, boolean returnValue) {
-        expr.writeExpression(list.getValue(), true, false);
+        write(list, returnValue, true);
+    }
+
+    public void write(ListExprToken list, boolean returnValue, boolean writeValue) {
+        if (writeValue)
+            expr.writeExpression(list.getValue(), true, false);
+
         int i, length = list.getVariables().size();
         for(i = length - 1; i >= 0; i--){ // desc order as in PHP
             ListExprToken.Variable v = list.getVariables().get(i);
@@ -28,11 +35,12 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
             if (v.indexes != null){
                 for(int index : v.indexes){
                     expr.writePushConstLong(index);
-                    expr.writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, expr.stackPeek().type.toClass());
+                    expr.writeSysStaticCall(MemoryUtils.class, "valueForList", Memory.class, Memory.class, expr.stackPeek().type.toClass());
+                    //expr.writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, expr.stackPeek().type.toClass());
                 }
             }
             expr.writePushConstLong(v.index);
-            expr.writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, expr.stackPeek().type.toClass());
+            expr.writeSysStaticCall(MemoryUtils.class, "valueForList", Memory.class, Memory.class, expr.stackPeek().type.toClass());
 
             if (v.isVariable()){
                 LocalVariable variable = method.getLocalVariable(v.getVariableName());
