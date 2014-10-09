@@ -338,6 +338,13 @@ public class MemoryUtils {
         }
     }
 
+    public static Memory valueForList(Memory memory, long index) {
+        if (memory.isArray()) {
+            return memory.valueOfIndex(index);
+        } else
+            return Memory.NULL;
+    }
+
     public static interface Converter<T> {
         T run(Memory value);
     }

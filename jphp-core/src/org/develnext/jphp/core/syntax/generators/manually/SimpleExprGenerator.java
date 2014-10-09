@@ -71,6 +71,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
     }
 
+    public ListExprToken processSingleList(Token current, ListIterator<Token> iterator) {
+        return processList(current, iterator, null, null, -1);
+    }
+
     protected ListExprToken processList(Token current, ListIterator<Token> iterator, List<Integer> indexes,
                                         BraceExprToken.Kind closedBraceKind, int braceOpened){
         ListExprToken result = (ListExprToken)current;

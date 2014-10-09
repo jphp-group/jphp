@@ -104,6 +104,8 @@ final public class Messages {
 
     public final static Item ERR_TRAIT_WAS_NOT_ADDED = new Item("Required Trait '%s' wasn't added to '%s'");
 
+    public final static Item ERR_CANNOT_USE_EMPTY_LIST = new Item("Cannot use empty list");
+
     public static class Item {
         private String message;
         public Item(String message){

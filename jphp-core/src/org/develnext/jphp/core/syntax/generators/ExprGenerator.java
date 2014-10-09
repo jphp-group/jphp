@@ -11,6 +11,7 @@ import org.develnext.jphp.core.tokenizer.token.*;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.exceptions.support.ErrorType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -158,7 +159,10 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             next = nextToken(iterator);
         }
 
-        if (next instanceof VariableExprToken && nextTokenAndPrev(iterator) instanceof KeyValueExprToken){
+        if (next instanceof ListExprToken) {
+            ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class).processSingleList(next, iterator);
+            result.setValue(new ExprStmtToken(listExpr));
+        } else if (next instanceof VariableExprToken && nextTokenAndPrev(iterator) instanceof KeyValueExprToken){
             iterator.next();
             result.setKey((VariableExprToken)next);
             result.setKeyReference(reference);
@@ -170,20 +174,27 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 next = nextToken(iterator);
             }
 
-            ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+            if (next instanceof ListExprToken) {
+                ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class)
+                        .processSingleList(next, iterator);
 
-            Token single = eValue.getLast();
+                result.setValue(new ExprStmtToken(listExpr));
+            } else {
+                ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
 
-            if (!(single instanceof VariableExprToken
-                    || single instanceof ArrayGetExprToken
-                    || single instanceof DynamicAccessExprToken
-                    || (single instanceof StaticAccessExprToken && ((StaticAccessExprToken) single).isGetStaticField()))){
-                unexpectedToken(single);
+                Token single = eValue.getLast();
+
+                if (!(single instanceof VariableExprToken
+                        || single instanceof ArrayGetExprToken
+                        || single instanceof DynamicAccessExprToken
+                        || (single instanceof StaticAccessExprToken && ((StaticAccessExprToken) single).isGetStaticField()))) {
+                    unexpectedToken(single);
+                }
+
+                result.setValue(eValue);
+                result.setValueReference(reference);
             }
-
-            result.setValue(eValue);
-            result.setValueReference(reference);
 
         } else {
             //next = iterator.previous();
@@ -202,6 +213,16 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.setValueReference(reference);
         }
             //unexpectedToken(next, "$var");
+
+        if (result.getValue().isSingle() && result.getValue().getSingle() instanceof ListExprToken) {
+            ListExprToken listExprToken = (ListExprToken)result.getValue().getSingle();
+            if (listExprToken.getVariables().isEmpty()) {
+                analyzer.getEnvironment().error(
+                        listExprToken.toTraceInfo(analyzer.getContext()), ErrorType.E_ERROR,
+                        Messages.ERR_CANNOT_USE_EMPTY_LIST
+                );
+            }
+        }
 
         next = nextToken(iterator);
         if (!isClosedBrace(next, BraceExprToken.Kind.SIMPLE))
