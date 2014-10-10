@@ -10,12 +10,15 @@ import php.runtime.ext.core.classes.lib.*;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
+import php.runtime.ext.core.classes.stream.*;
 import php.runtime.ext.core.classes.time.WrapTime;
 import php.runtime.ext.core.classes.time.WrapTimeFormat;
 import php.runtime.ext.core.classes.time.WrapTimeZone;
-import php.runtime.ext.core.classes.util.*;
+import php.runtime.ext.core.classes.util.WrapFlow;
+import php.runtime.ext.core.classes.util.WrapLocale;
+import php.runtime.ext.core.classes.util.WrapRegex;
+import php.runtime.ext.core.classes.util.WrapScanner;
 import php.runtime.ext.core.reflection.*;
-import php.runtime.ext.core.classes.stream.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 

@@ -21,6 +21,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
 import php.runtime.common.Callback;
+import php.runtime.common.Messages;
 import php.runtime.common.Separator;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.ParseException;
@@ -130,7 +131,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(next, "=");
 
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                    nextToken(iterator), iterator, closedBraceKind
+                    nextToken(iterator), iterator, BraceExprToken.Kind.ANY
             );
             result.setValue(value);
         }
@@ -304,11 +305,39 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
+    protected Token processYield(Token current, Token next, ListIterator<Token> iterator, BraceExprToken.Kind closedBrace) {
+        if (analyzer.getFunction() == null) {
+            analyzer.getEnvironment().error(
+                    current.toTraceInfo(analyzer.getContext()), Messages.ERR_YIELD_CAN_ONLY_INSIDE_FUNCTION.fetch()
+            );
+        }
+
+        analyzer.getFunction().setGenerator(true);
+
+        YieldExprToken result = (YieldExprToken) current;
+        if (next instanceof OperatorExprToken && ((OperatorExprToken) next).isBinary()) {
+            result.setValue(null);
+        } else {
+            if (analyzer.getLastYieldNeededExpr() != null) {
+                analyzer.getLastYieldNeededExpr().setNeedYield(null);
+                analyzer.setLastYieldNeededExpr(null);
+            }
+
+            ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                    nextToken(iterator), iterator, BraceExprToken.Kind.ANY
+            );
+            result.setValue(value);
+        }
+
+        analyzer.pushYield(result);
+        return result;
+    }
+
     protected ImportExprToken processImport(Token current, Token next, ListIterator<Token> iterator,
                                               BraceExprToken.Kind closedBrace, int braceOpened){
         ImportExprToken result = (ImportExprToken)current;
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                nextToken(iterator), iterator, closedBrace
+                nextToken(iterator), iterator, BraceExprToken.Kind.ANY
         );
         result.setValue(value);
 
@@ -324,7 +353,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         callExprToken.setName((ExprToken)current);
 
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                nextToken(iterator), iterator, closedBrace
+                nextToken(iterator), iterator, BraceExprToken.Kind.ANY
         );
 
         if (value == null)
@@ -365,7 +394,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                 ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
                         .setCanStartByReference(true)
-                        .getNextExpression(nextToken(iterator), iterator, closedBraceKind);
+                        .getNextExpression(nextToken(iterator), iterator, BraceExprToken.Kind.ANY);
 
                 dResult.setValue(value);
                 return dResult;
@@ -613,18 +642,23 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 iterator.next();
                 return processString((StringExprToken)next);
             }
-
         }
 
-        if (current instanceof ImportExprToken)
-            return processImport(current, next, iterator, closedBraceKind, braceOpened);
+        if (current instanceof YieldExprToken) {
+            return processYield(current, next, iterator, closedBraceKind);
+        }
 
-        if (current instanceof PrintNameToken){
+        if (current instanceof ImportExprToken) {
+            return processImport(current, next, iterator, closedBraceKind, braceOpened);
+        }
+
+        if (current instanceof PrintNameToken) {
             return processPrint(current, next, iterator, closedBraceKind, braceOpened);
         }
 
-        if (current instanceof NewExprToken)
+        if (current instanceof NewExprToken) {
             return processNew(current, closedBraceKind, braceOpened, iterator);
+        }
 
         if (current instanceof DollarExprToken){
             return processVarVar(current, next, iterator);

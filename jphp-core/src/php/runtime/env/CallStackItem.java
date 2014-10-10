@@ -33,6 +33,7 @@ public class CallStackItem {
         this.args = copy.args;
         this.function = copy.function;
         this.clazz = copy.clazz;
+        this.staticClazz = copy.staticClazz;
     }
 
     public CallStackItem(TraceInfo trace, IObject object, Memory[] args, String function, String clazz,

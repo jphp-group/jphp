@@ -12,10 +12,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
-import php.runtime.lang.BaseException;
-import php.runtime.lang.Closure;
-import php.runtime.lang.IObject;
-import php.runtime.lang.StdClass;
+import php.runtime.lang.*;
 import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.ErrorException;
 import php.runtime.lang.spl.Serializable;
@@ -136,6 +133,7 @@ public class CompileScope {
         //registerClass(stdClassEntity = new ClassEntity(extension, this, StdClass.class));
 
         registerLazyClass(extension, Closure.class);
+        registerLazyClass(extension, Generator.class);
         registerLazyClass(extension, StdClass.class);
         registerLazyClass(extension, BaseException.class);
         registerLazyClass(extension, ErrorException.class);

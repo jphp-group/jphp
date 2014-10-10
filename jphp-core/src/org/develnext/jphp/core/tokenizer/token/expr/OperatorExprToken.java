@@ -60,4 +60,6 @@ abstract public class OperatorExprToken extends ExprToken {
     public boolean isTraceNeeded(){
         return false;
     }
+
+    public boolean isMutableArguments() { return false; }
 }

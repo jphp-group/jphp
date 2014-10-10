@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class ClassEntity extends Entity {
+public class ClassEntity extends Entity implements Cloneable {
     private final static int FLAG_GET = 4000;
     private final static int FLAG_SET = 4001;
     private final static int FLAG_ISSET = 4002;

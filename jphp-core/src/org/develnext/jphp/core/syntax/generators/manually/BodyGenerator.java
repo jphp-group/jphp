@@ -5,6 +5,7 @@ import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.BodyStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
@@ -32,6 +33,16 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
         return getToken(current, iterator, absolute, true, endTokens);
     }
 
+    private void processYields(ExprStmtToken expr) {
+        if (expr.isSingle() && expr.getSingle() instanceof YieldExprToken) {
+
+        } else {
+            expr.setNeedYield(analyzer.peekYield());
+            analyzer.setLastYieldNeededExpr(expr);
+        }
+        analyzer.clearYieldStack();
+    }
+
     @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator, boolean absolute, boolean returnNull,
                                   Class<? extends Token>... endTokens) {
@@ -51,6 +62,7 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                     break;
                 }
 
+                processYields(expr);
                 instructions.add(expr);
             }
         } else if (current instanceof ColonToken || (absolute && endTokens != null)){
@@ -72,16 +84,22 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                     break;
                 } else if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken){
                    // nop break;
-                } else
+                } else {
+
+                    processYields(expr);
                     instructions.add(expr);
+                }
             }
         } else {
             ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
             if (expr != null) {
                 if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken) {
                     // nop
-                } else
+                } else {
+
+                    processYields(expr);
                     instructions.add(expr);
+                }
             }
         }
 

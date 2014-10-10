@@ -14,6 +14,10 @@ public class BodyCompiler extends BaseStatementCompiler<BodyStmtToken> {
         if (token!= null){
             for(ExprStmtToken line : token.getInstructions()){
                 expr.writeExpression(line, false, false);
+
+                if (line.getNeedYield() != null) {
+                    expr.write(line.getNeedYield());
+                }
             }
         }
     }

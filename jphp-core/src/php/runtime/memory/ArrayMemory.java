@@ -9,7 +9,6 @@ import php.runtime.exceptions.RecursiveException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
-import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
 import php.runtime.memory.helper.ShortcutMemory;
@@ -19,7 +18,7 @@ import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.*;
 
-public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Traversable {
+public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected long lastLongIndex;
     protected int size;
     protected int copies;
@@ -285,7 +284,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     public ReferenceMemory add(Memory value){
         if (value instanceof KeyValueMemory){
             KeyValueMemory keyValue = (KeyValueMemory)value;
-            return put(toKey(keyValue.key), keyValue.value);
+            return put(toKey(keyValue.key), keyValue.value.toImmutable());
         }
 
         ReferenceMemory ref;

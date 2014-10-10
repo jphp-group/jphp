@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.compiler.jvm.statement;
 
+import org.develnext.jphp.core.compiler.jvm.Constants;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import php.runtime.common.Messages;
@@ -9,10 +10,13 @@ import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
+import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
 import php.runtime.Memory;
+import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
@@ -21,9 +25,13 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.NEW;
 
 public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     public final ClassStmtCompiler clazz;
@@ -51,6 +59,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private LabelNode labelStart;
 
     private Map<Class<?>, AtomicInteger> statementIndexes = new HashMap<Class<?>, AtomicInteger>();
+
+    private GeneratorEntity generatorEntity;
 
     public MethodStmtCompiler(ClassStmtCompiler clazz, MethodNode node){
         super(clazz.getCompiler());
@@ -107,6 +117,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public void setExternal(boolean external) {
         this.external = external;
+    }
+
+    public GeneratorEntity getGeneratorEntity() {
+        return generatorEntity;
+    }
+
+    public void setGeneratorEntity(GeneratorEntity generatorEntity) {
+        this.generatorEntity = generatorEntity;
     }
 
     public Stack<TryCatchItem> getTryStack() {
@@ -406,7 +424,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setModifier(statement.getModifier());
             entity.setReturnReference(statement.isReturnReference());
             entity.setTrace(statement.toTraceInfo(compiler.getContext()));
-            entity.setImmutable( statement.getArguments().isEmpty() );
+            entity.setImmutable(statement.getArguments().isEmpty());
+            entity.setGeneratorEntity(generatorEntity);
 
             if (clazz.isSystem())
                 entity.setInternalName(entity.getName());
@@ -492,17 +511,64 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         } else {
             writeHeader();
 
-            entity.setEmpty(true);
-            if (statement != null && statement.getBody() != null){
-                for(ExprStmtToken instruction : statement.getBody().getInstructions()){
-                    compiler.compileExpression(this, instruction);
-                    entity.setEmpty(false);
-                }
-            }
+            if (statement.isGenerator()) {
+                entity.setEmpty(false);
+                entity.setImmutable(false);
+                GeneratorStmtCompiler generatorStmtCompiler = new GeneratorStmtCompiler(compiler, statement);
+                entity.setGeneratorEntity(generatorStmtCompiler.compile());
 
-            ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
-            token.setValue(new ExprStmtToken(Token.of("null")));
-            compiler.compileExpression(this, new ExprStmtToken(token));
+                ExpressionStmtCompiler expr = new ExpressionStmtCompiler(this, null);
+
+                expr.makeUnknown(new TypeInsnNode(NEW, entity.getGeneratorEntity().getInternalName()));
+                expr.stackPush(Memory.Type.REFERENCE);
+                expr.writePushDup();
+
+                // env
+                expr.writePushEnv();
+
+                // classEntity
+                expr.writePushDup();
+                expr.writePushConstString(compiler.getModule().getInternalName());
+                expr.writePushConstInt((int) entity.getGeneratorEntity().getId());
+                expr.writeSysDynamicCall(Environment.class, "__getGenerator", ClassEntity.class, String.class, Integer.TYPE);
+
+                // self
+                expr.writePushThis();
+
+                // uses
+                expr.writeVarLoad("~args");
+
+                expr.writeSysCall(
+                        entity.getGeneratorEntity().getInternalName(), INVOKESPECIAL, Constants.INIT_METHOD, void.class,
+                        Environment.class, ClassEntity.class, Memory.class, Memory[].class
+                );
+                expr.writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
+
+                expr.makeUnknown(new InsnNode(Opcodes.ARETURN));
+                expr.stackPop();
+            } else {
+                ExpressionStmtCompiler expr = new ExpressionStmtCompiler(this, null);
+
+                entity.setEmpty(true);
+                if (statement != null && statement.getBody() != null) {
+                    expr.writeDefineVariables(statement.getLocal());
+                    expr.write(statement.getBody());
+
+                    if (!statement.getBody().getInstructions().isEmpty()) {
+                        entity.setEmpty(false);
+                    }
+                }
+
+                if (generatorEntity != null) {
+                    expr.writeVarLoad("~this");
+                    expr.writePushConstBoolean(false);
+                    expr.writeSysDynamicCall(null, "_setValid", void.class, Boolean.TYPE);
+                }
+
+                ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
+                token.setValue(new ExprStmtToken(Token.of("null")));
+                compiler.compileExpression(this, new ExprStmtToken(token));
+            }
 
             writeFooter();
         }

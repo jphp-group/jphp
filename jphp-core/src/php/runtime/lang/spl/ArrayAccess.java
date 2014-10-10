@@ -3,11 +3,12 @@ package php.runtime.lang.spl;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.Memory;
+import php.runtime.lang.IObject;
 
 import static php.runtime.annotation.Reflection.*;
 
 @Name("ArrayAccess")
-public interface ArrayAccess {
+public interface ArrayAccess extends IObject {
 
     @Signature(value = @Arg("offset"), result = @Arg(type = HintType.BOOLEAN))
     public Memory offsetExists(Environment env, Memory... args);

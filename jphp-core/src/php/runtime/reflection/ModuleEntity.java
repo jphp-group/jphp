@@ -1,15 +1,16 @@
 package php.runtime.reflection;
 
+import php.runtime.Memory;
 import php.runtime.common.LangMode;
-import php.runtime.exceptions.support.ErrorException;
 import php.runtime.env.Context;
 import php.runtime.env.DieException;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorException;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.UncaughtException;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 import php.runtime.reflection.support.Entity;
 
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +27,7 @@ public class ModuleEntity extends Entity {
     private final List<FunctionEntity> functions;
     private final Map<String, ConstantEntity> constants;
     private final List<ClosureEntity> closures;
+    private final List<GeneratorEntity> generators;
 
     protected boolean isLoaded;
 
@@ -37,6 +39,7 @@ public class ModuleEntity extends Entity {
         this.functions = new ArrayList<FunctionEntity>();
         this.constants = new LinkedHashMap<String, ConstantEntity>();
         this.closures = new ArrayList<ClosureEntity>();
+        this.generators = new ArrayList<GeneratorEntity>();
         this.setName(context.getModuleNameNoThrow());
     }
 
@@ -121,6 +124,10 @@ public class ModuleEntity extends Entity {
         return closures;
     }
 
+    public Collection<GeneratorEntity> getGenerators() {
+        return generators;
+    }
+
     public Collection<FunctionEntity> getFunctions(){
         return functions;
     }
@@ -147,6 +154,13 @@ public class ModuleEntity extends Entity {
             return null;
     }
 
+    public GeneratorEntity findGenerator(int index){
+        if (index >= 0 && index < generators.size())
+            return generators.get(index);
+        else
+            return null;
+    }
+
     public void addConstant(ConstantEntity constant){
         if (!constants.containsKey(constant.getName()))
             constants.put(constant.getName(), constant);
@@ -154,14 +168,29 @@ public class ModuleEntity extends Entity {
 
     public void addClosure(ClosureEntity closure){
         closures.add(closure);
+        if (closure.getGeneratorEntity() != null) {
+            addGenerator(closure.getGeneratorEntity());
+        }
+    }
+
+    public void addGenerator(GeneratorEntity generator) {
+        generators.add(generator);
     }
 
     public void addClass(ClassEntity clazz){
         classes.put(clazz.getLowerName(), clazz);
+        for (MethodEntity entity : clazz.getOwnedMethods()) {
+            if (entity.getGeneratorEntity() != null) {
+                addGenerator(entity.getGeneratorEntity());
+            }
+        }
     }
 
     public void addFunction(FunctionEntity function){
         functions.add(function);
+        if (function.getGeneratorEntity() != null) {
+            addGenerator(function.getGeneratorEntity());
+        }
     }
 
     public Class<?> getNativeClazz() {
