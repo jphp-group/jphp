@@ -2,8 +2,10 @@ package org.develnext.jphp.core.compiler.jvm.statement.expr;
 
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.statement.ExpressionStmtCompiler;
+import org.develnext.jphp.core.compiler.jvm.statement.expr.value.ListCompiler;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.DynamicAccessExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.ListExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.BodyStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
@@ -113,13 +115,20 @@ public class ForeachCompiler extends BaseStatementCompiler<ForeachStmtToken> {
             if (!token.isValueReference())
                 expr.writePopImmutable();
 
-            expr.writeExpression(token.getValue(), true, false);
-            if (expr.stackPeek().immutable)
-                expr.unexpectedToken(token.getValue().getLast());
+            ExprStmtToken value = token.getValue();
 
-            expr.writeSysStaticCall(Memory.class,
-                    token.isValueReference() ? "assignRefRight" : "assignRight", Memory.class, Memory.class, Memory.class
-            );
+            if (value.isSingle() && value.getSingle() instanceof ListExprToken) {
+                ListCompiler listCompiler = (ListCompiler)expr.getCompiler(ListExprToken.class);
+                listCompiler.write((ListExprToken)value.getSingle(), false, false);
+            } else {
+                expr.writeExpression(value, true, false);
+                if (expr.stackPeek().immutable)
+                    expr.unexpectedToken(value.getLast());
+
+                expr.writeSysStaticCall(Memory.class,
+                        token.isValueReference() ? "assignRefRight" : "assignRight", Memory.class, Memory.class, Memory.class
+                );
+            }
         }
         expr.writePopAll(1);
 
