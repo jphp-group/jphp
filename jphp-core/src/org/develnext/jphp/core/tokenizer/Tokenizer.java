@@ -488,8 +488,9 @@ public class Tokenizer {
     }
 
     protected Token readComment(CommentToken.Kind kind, int startPosition, int startLine){
-        int i, pos = relativePosition;
-        for(i = currentPosition + 1; i < codeLength; i++){
+        int i, pos = relativePosition, k = 0;
+
+        for(i = currentPosition + 1; i < codeLength; i++, k++){
             char ch = code.charAt(i);
             pos++;
 
@@ -510,7 +511,7 @@ public class Tokenizer {
                     break;
                 case DOCTYPE:
                 case BLOCK:
-                    closed = (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
+                    closed = k != 0 && (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
             }
 
             closed = closed || i == codeLength - 1;
