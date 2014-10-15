@@ -425,7 +425,9 @@ public class Tokenizer {
                                     for(; i < codeLength; k++){
                                         if (k < codeLength){
                                             first = code.charAt(k);
-                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first) || first == '_'){
+                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first) || first == '_') {
+                                                // nop
+                                            } else if (complex == 1 && GrammarUtils.isVariableChar(first) && code.charAt(k - 1) == '[') {
                                                 // nop
                                             } else if (complex == 0 && first == '[') {
                                                 opened++;

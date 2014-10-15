@@ -53,4 +53,9 @@ public class VariablesTest extends JvmCompilerCase {
         Memory memory = includeResource("variables/list.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testBug152(){
+        check("variables/bug152.php");
+    }
 }
