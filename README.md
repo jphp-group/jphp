@@ -49,6 +49,7 @@ Our project started in October 2013. There were a few reasons for that:
 + `__debugInfo` for var_dump (PHP 5.6)
 + `::class` system constant (php 5.5)
 + list() in foreach (php 5.5)
++ `**` power operator (php 5.6)
 
 **What JPHP does not yet support?**
 
