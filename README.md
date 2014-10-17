@@ -53,7 +53,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 **What JPHP does not yet support?**
 
-+ Generators (php 5.5)
++ Generators (php 5.5) _in progress_
 
 ### Documentation
 
