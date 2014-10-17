@@ -20,7 +20,6 @@ public class TokenFinder {
         put("?>", BreakToken.class);
         put("<?=", OpenEchoTagToken.class);
         put("/*", CommentToken.class);
-        put("/**", CommentToken.class);
         put("//", CommentToken.class);
         put("<<<", StringStartDocToken.class);
 
