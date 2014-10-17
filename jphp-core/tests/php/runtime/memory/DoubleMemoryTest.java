@@ -55,6 +55,20 @@ public class DoubleMemoryTest {
     }
 
     @Test
+    public void testPow(){
+        DoubleMemory memory = new DoubleMemory(10);
+        Assert.assertEquals(100, memory.pow(2).toDouble(), 0.00001);
+        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2).type);
+
+        Assert.assertEquals(10, memory.pow(true).toDouble(), 0.00001);
+        Assert.assertEquals(1, memory.pow(false).toDouble(), 0.00001);
+        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(false).type);
+
+        Assert.assertEquals(100, memory.pow(2.0).toDouble(), 0.0001);
+        Assert.assertEquals(Memory.Type.DOUBLE, memory.pow(2.0).type);
+    }
+
+    @Test
     public void testDiv(){
         DoubleMemory memory = new DoubleMemory(10);
         Assert.assertEquals(5, memory.div(2).toDouble(), 0.00001);

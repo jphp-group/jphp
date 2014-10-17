@@ -118,6 +118,15 @@ public class TrueMemory extends Memory {
     }
 
     @Override
+    public Memory pow(Memory memory) {
+        switch (memory.type) {
+            case DOUBLE: return Memory.CONST_DOUBLE_1;
+            case REFERENCE: return pow(memory.toImmutable());
+            default: return Memory.CONST_INT_1;
+        }
+    }
+
+    @Override
     public Memory div(Memory memory) {
         switch (memory.type){
             case DOUBLE: return new DoubleMemory(1 / ((DoubleMemory)memory).value);

@@ -29,6 +29,7 @@ public class TokenFinder {
         put("*", MulExprToken.class);
         put("/", DivExprToken.class);
         put("%", ModExprToken.class);
+        put("**", PowExprToken.class);
         put("=", AssignExprToken.class);
         put("\\", BackslashExprToken.class);
         put("==", EqualExprToken.class);
@@ -66,6 +67,7 @@ public class TokenFinder {
         put("+=", AssignPlusExprToken.class);
         put("-=", AssignMinusExprToken.class);
         put("*=", AssignMulExprToken.class);
+        put("**=", AssignPowExprToken.class);
         put("/=", AssignDivExprToken.class);
         put("%=", AssignModExprToken.class);
         put(".=", AssignConcatExprToken.class);

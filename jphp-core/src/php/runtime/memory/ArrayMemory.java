@@ -877,6 +877,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory>, Tr
     }
 
     @Override
+    public Memory pow(Memory memory) {
+        return toNumeric().pow(memory);
+    }
+
+    @Override
     public Memory div(Memory memory) {
         return toNumeric().div(memory);
     }
