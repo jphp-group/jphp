@@ -25,6 +25,12 @@ public class ExpressionsTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testPow() {
+        check("expressions/pow_variation_t_pow.php", true);
+        check("expressions/pow_variation_pow.php", true);
+    }
+
+    @Test
     public void testComplexAssign(){
         Memory memory = includeResource("expressions/complex_assign.php");
         Assert.assertEquals("success", memory.toString());

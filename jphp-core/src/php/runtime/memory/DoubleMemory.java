@@ -146,6 +146,16 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
+    public Memory pow(Memory memory) {
+        switch (memory.type){
+            case INT: return new DoubleMemory(Math.pow(value, ((LongMemory)memory).value));
+            case DOUBLE: return new DoubleMemory(Math.pow(value, ((LongMemory)memory).value));
+            case REFERENCE: return mul(memory.toImmutable());
+            default: return pow(memory.toNumeric());
+        }
+    }
+
+    @Override
     public Memory div(Memory memory) {
         switch (memory.type){
             case INT:

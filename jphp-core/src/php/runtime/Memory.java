@@ -290,6 +290,29 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory mul(boolean value){ return LongMemory.valueOf(toLong() * (value ? 1 : 0));}
     public Memory mul(String value){ return mul(StringMemory.toNumeric(value)); }
 
+    // POW
+    abstract public Memory pow(Memory memory);
+    public Memory pow(long value) {
+        Memory real = toNumeric();
+        if (real instanceof LongMemory) {
+            double result = Math.pow(real.toLong(), value);
+            if (result > Long.MAX_VALUE) {
+                return new DoubleMemory(result);
+            }
+            return new LongMemory((long) result);
+        }
+        return new DoubleMemory(Math.pow(real.toDouble(), value));
+    }
+    public Memory pow(double value) { return new DoubleMemory(Math.pow(toDouble(), value)); }
+    public Memory pow(boolean value) {
+        Memory real = toNumeric();
+        if (real instanceof LongMemory) {
+            return value ? real.toImmutable() : Memory.CONST_INT_1;
+        }
+        return value ? real.toImmutable() : Memory.CONST_DOUBLE_1;
+    }
+    public Memory pow(String value) { return pow(StringMemory.toNumeric(value)); }
+
     // DIV
     abstract public Memory div(Memory memory);
     public Memory div(long value){ if(value==0) return FALSE; return new DoubleMemory(toDouble() / value); }
@@ -465,6 +488,13 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory assignMul(String memory) { return assign(mul(memory)); }
     public Memory assignMulRight(Memory memory) { return memory.assign(memory.mul(this)); }
 
+    public Memory assignPow(Memory memory) { return assign(pow(memory)); }
+    public Memory assignPow(long memory) { return assign(pow(memory)); }
+    public Memory assignPow(double memory) { return assign(pow(memory)); }
+    public Memory assignPow(boolean memory) { return assign(pow(memory)); }
+    public Memory assignPow(String memory) { return assign(pow(memory)); }
+    public Memory assignPowRight(Memory memory) { return memory.assign(memory.pow(this)); }
+
     public Memory assignDiv(Memory memory) { return assign(div(memory)); }
     public Memory assignDiv(long memory) { return assign(div(memory)); }
     public Memory assignDiv(double memory) { return assign(div(memory)); }
@@ -557,6 +587,12 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory modRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).mod(this); }
     public Memory modRight(String value){ return StringMemory.toNumeric(value).mod(this); }
 
+    public Memory powRight(Memory value){ return value.pow(this); }
+    public Memory powRight(long value){ return LongMemory.valueOf(value).pow(this); }
+    public Memory powRight(double value){ return new DoubleMemory(value).pow(this); }
+    public Memory powRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0)).pow(this); }
+    public Memory powRight(String value){ return StringMemory.toNumeric(value).pow(this); }
+
     public String concatRight(Memory value) { return value.concat(this); }
     public String concatRight(long value) { return value + toString(); }
     public String concatRight(double value) { return value + toString(); }
@@ -633,6 +669,12 @@ abstract public class Memory implements Comparable<Memory> {
     public static Memory assignMulRight(double value, Memory memory){ return memory.assignMul(value); }
     public static Memory assignMulRight(boolean value, Memory memory){ return memory.assignMul(value); }
     public static Memory assignMulRight(String value, Memory memory){ return memory.assignMul(value); }
+
+    public static Memory assignPowRight(Memory value, Memory memory){ return memory.assignPow(value); }
+    public static Memory assignPowRight(long value, Memory memory){ return memory.assignPow(value); }
+    public static Memory assignPowRight(double value, Memory memory){ return memory.assignPow(value); }
+    public static Memory assignPowRight(boolean value, Memory memory){ return memory.assignPow(value); }
+    public static Memory assignPowRight(String value, Memory memory){ return memory.assignPow(value); }
 
     public static Memory assignDivRight(Memory value, Memory memory){ return memory.assignDiv(value); }
     public static Memory assignDivRight(long value, Memory memory){ return memory.assignDiv(value); }

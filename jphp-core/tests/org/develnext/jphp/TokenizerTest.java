@@ -146,7 +146,7 @@ public class TokenizerTest {
 
     @Test
     public void testSimpleOperators() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(new Context( "= + - / * % . and or new && || ! xor"));
+        Tokenizer tokenizer = new Tokenizer(new Context( "= + - / * % . and or new && || ! xor **"));
 
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
@@ -163,6 +163,7 @@ public class TokenizerTest {
         assertTrue(tokenizer.nextToken() instanceof BooleanOrExprToken);
         assertTrue(tokenizer.nextToken() instanceof BooleanNotExprToken);
         assertTrue(tokenizer.nextToken() instanceof BooleanXorExprToken);
+        assertTrue(tokenizer.nextToken() instanceof PowExprToken);
     }
 
     @Test

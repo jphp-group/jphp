@@ -276,11 +276,15 @@ public class MathFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static Memory pow(Memory base, Memory exp){
-        long lExp;
-        if (base.type == Memory.Type.INT
-                && exp.type == Memory.Type.INT && (lExp = exp.toLong()) >= 0){
-            return LongMemory.valueOf( (long)Math.pow(base.toDouble(), lExp) );
+    public static Memory pow(Memory base, Memory exp) {
+        Memory realBase = base.toNumeric();
+        Memory realExp = exp.toNumeric();
+        if (realBase.type == Memory.Type.INT && realExp.type == Memory.Type.INT) {
+            double result = Math.pow(realBase.toLong(), realExp.toLong());
+            if (result > Long.MAX_VALUE) {
+                return DoubleMemory.valueOf(result);
+            }
+            return LongMemory.valueOf((long) result);
         } else {
             return new DoubleMemory(Math.pow(base.toDouble(), exp.toDouble()));
         }

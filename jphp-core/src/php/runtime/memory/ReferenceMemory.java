@@ -199,6 +199,31 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
+    public Memory pow(Memory memory) {
+        return value.pow(memory);
+    }
+
+    @Override
+    public Memory pow(long value) {
+        return this.value.pow(value);
+    }
+
+    @Override
+    public Memory pow(double value) {
+        return this.value.pow(value);
+    }
+
+    @Override
+    public Memory pow(boolean value) {
+        return this.value.pow(value);
+    }
+
+    @Override
+    public Memory pow(String value) {
+        return this.value.pow(value);
+    }
+
+    @Override
     public Memory div(Memory memory) {
         return value.div(memory);
     }
