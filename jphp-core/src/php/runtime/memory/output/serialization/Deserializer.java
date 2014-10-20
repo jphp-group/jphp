@@ -236,8 +236,14 @@ public class Deserializer {
 
                             try {
                                 IObject iObject = classEntity.newObjectWithoutConstruct(env);
+                                if (iObject == null) {
+                                    env.exception(
+                                            trace,
+                                            new Messages.Item("Unserialization of '%s' is not allowed").fetch(classEntity.getName())
+                                    );
+                                }
 
-                                if (isSerializable){
+                                if (isSerializable) {
                                     if (!(iObject instanceof Serializable)){
                                         env.warning(trace, "Class %s has no unserializer", classEntity.getName());
                                         return Memory.NULL;

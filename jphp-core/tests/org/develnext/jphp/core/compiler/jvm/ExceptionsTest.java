@@ -31,6 +31,11 @@ public class ExceptionsTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testFinally(){
+        check("exceptions/finally.php");
+    }
+
+    @Test
     public void testFinallyReturn(){
         check("exceptions/finally_return.php");
         check("exceptions/finally_return2.php");

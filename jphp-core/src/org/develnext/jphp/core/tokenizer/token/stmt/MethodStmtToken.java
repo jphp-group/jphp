@@ -29,6 +29,9 @@ public class MethodStmtToken extends FunctionStmtToken {
         setVarsExists(token.varsExists);
         setUses(token.uses);
         setDocComment(token.docComment);
+        setGenerator(token.isGenerator);
+        setId(token.id);
+        setGeneratorId(token.generatorId);
         labels = token.labels;
         variables = token.variables;
         namespace = token.namespace;

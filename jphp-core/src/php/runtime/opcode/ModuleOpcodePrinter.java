@@ -6,6 +6,7 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.*;
 
@@ -33,6 +34,13 @@ public class ModuleOpcodePrinter {
                 writer.write("#### Closure: " + closure.getInternalName() + "\n");
                 opcodePrinter.toWriter(writer);
                 writer.write("#### /Closure \n\n\n");
+            }
+
+            for(GeneratorEntity generator : module.getGenerators()){
+                opcodePrinter = new OpcodePrinter(generator);
+                writer.write("#### Generator: " + generator.getInternalName() + "\n");
+                opcodePrinter.toWriter(writer);
+                writer.write("#### /Generator \n\n\n");
             }
 
             for(ClassEntity clazz : module.getClasses()){

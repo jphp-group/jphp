@@ -25,7 +25,10 @@ public class IfElseCompiler extends BaseStatementCompiler<IfStmtToken> {
         add(new JumpInsnNode(IFEQ, token.getElseBody() != null ? elseL : end));
         expr.stackPop();
 
-        expr.write(token.getBody());
+        if (token.getBody() != null) {
+            expr.write(token.getBody());
+        }
+
         if (token.getElseBody() != null){
             add(new JumpInsnNode(GOTO, end));
             add(elseL);
@@ -41,7 +44,7 @@ public class IfElseCompiler extends BaseStatementCompiler<IfStmtToken> {
         expr.writeDefineVariables(token.getLocal());
         Memory memory = expr.writeExpression(token.getCondition(), true, true);
 
-        boolean isConstantly = token.getBody().isConstantly()
+        boolean isConstantly = token.getBody() != null && token.getBody().isConstantly()
                 && (token.getElseBody() == null || token.getElseBody().isConstantly());
 
         if (isConstantly && memory != null){

@@ -2,14 +2,15 @@ package php.runtime.loader.dump;
 
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.loader.dump.io.DumpException;
+import php.runtime.loader.dump.io.DumpInputStream;
+import php.runtime.loader.dump.io.DumpOutputStream;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
-import php.runtime.loader.dump.io.DumpException;
-import php.runtime.loader.dump.io.DumpInputStream;
-import php.runtime.loader.dump.io.DumpOutputStream;
 import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +18,13 @@ import java.io.OutputStream;
 
 public class ModuleDumper extends Dumper<ModuleEntity> {
     public final static int DUMP_STAMP = 479873682;
-    public final static int DUMP_VERSION = 20140330;
+    public final static int DUMP_VERSION = 20141011;
 
     protected ConstantDumper constantDumper = new ConstantDumper(context, env, debugInformation);
     protected ClosureDumper closureDumper = new ClosureDumper(context, env, debugInformation);
     protected FunctionDumper functionDumper = new FunctionDumper(context, env, debugInformation);
     protected ClassDumper classDumper = new ClassDumper(context, null, env, debugInformation);
+    protected GeneratorDumper generatorDumper = new GeneratorDumper(context, env, debugInformation);
 
     public ModuleDumper(Context context, Environment env, boolean debugInformation) {
         super(context, env, debugInformation);
@@ -62,6 +64,12 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         data.writeInt(entity.getClosures().size());
         for(ClosureEntity e : entity.getClosures()){
             closureDumper.save(e, output);
+        }
+
+        // generators
+        data.writeInt(entity.getGenerators().size());
+        for(GeneratorEntity e : entity.getGenerators()){
+            generatorDumper.save(e, output);
         }
 
         // functions
@@ -114,6 +122,13 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
             ClosureEntity el = closureDumper.load(input);
             el.setModule(entity);
             entity.addClosure(el);
+        }
+
+        count = data.readInt();
+        for(int i = 0; i < count; i++){
+            GeneratorEntity el = generatorDumper.load(input);
+            el.setModule(entity);
+            entity.addGenerator(el);
         }
 
         // functions

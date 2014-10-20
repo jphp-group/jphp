@@ -100,14 +100,19 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         }
         add(catchFail);
 
-        if (!token.getCatches().isEmpty()){
-            if (token.getFinally() != null){
-                expr.write(BodyStmtToken.class, token.getFinally());
-            }
+        if (token.getFinally() != null){
+            expr.write(BodyStmtToken.class, token.getFinally());
         }
 
-        expr.makeVarLoad(exception);
-        add(new InsnNode(ATHROW));
+        /*if (method.getTryStack().empty()) {
+            expr.writePushEnv();
+            expr.writeVarLoad(exception);
+            expr.writeSysDynamicCall(Environment.class, "__throwFailedCatch", void.class, BaseException.class);
+        } else {*/
+            expr.makeVarLoad(exception);
+            add(new InsnNode(ATHROW));
+        //}
+
         add(catchEnd);
 
         if (token.getFinally() != null){

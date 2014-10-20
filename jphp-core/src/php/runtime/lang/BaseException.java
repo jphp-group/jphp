@@ -17,6 +17,7 @@ import static php.runtime.annotation.Reflection.*;
 
 
 @Name("Exception")
+@BaseType
 @Signature(root = true, value =
 {
        @Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
@@ -64,14 +65,14 @@ public class BaseException extends RuntimeException implements IObject, JPHPExce
         return Memory.NULL;
     }
 
-    public void setTraceInfo(Environment env, TraceInfo trace){
+    public void setTraceInfo(Environment env, TraceInfo trace) {
         this.callStack = env.getCallStackSnapshot();
         this.trace = trace;
         this.init = false;
     }
 
     @Signature
-    final public Memory getMessage(Environment env, Memory... args){
+    final public Memory getMessage(Environment env, Memory... args) {
         return clazz.refOfProperty(getProperties(), "message").toValue();
     }
 

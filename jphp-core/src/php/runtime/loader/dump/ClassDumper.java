@@ -4,12 +4,15 @@ import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.Generator;
 import php.runtime.reflection.*;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,9 +116,24 @@ public class ClassDumper extends Dumper<ClassEntity> {
     }
 
     @Override
-    public ClassEntity load(InputStream input) throws IOException {
+    public ClassEntity load(InputStream input)  throws IOException {
+        return load(input, ClassEntity.class);
+    }
+
+    public <T extends ClassEntity> T load(InputStream input, Class<T> clazz) throws IOException {
         DumpInputStream data = new DumpInputStream(input);
-        ClassEntity entity   = new ClassEntity(context);
+        T entity   = null;
+        try {
+            entity = clazz.getConstructor(Context.class).newInstance(context);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
         entity.setId(env.scope.nextClassIndex());
 
         entity.setStatic(data.readBoolean());
@@ -138,7 +156,9 @@ public class ClassDumper extends Dumper<ClassEntity> {
                 env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, parent);
 
             ClassEntity.ExtendsResult result = entity.setParent(parentEntity, false);
-            result.check(env);
+
+            if (clazz != GeneratorEntity.class)
+                result.check(env);
         }
 
         // constants

@@ -5,6 +5,7 @@ import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.BodyStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
@@ -72,16 +73,18 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                     break;
                 } else if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken){
                    // nop break;
-                } else
+                } else {
                     instructions.add(expr);
+                }
             }
         } else {
             ExprStmtToken expr = analyzer.generator(ExprGenerator.class).getToken(current, iterator);
             if (expr != null) {
                 if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken) {
                     // nop
-                } else
+                } else {
                     instructions.add(expr);
+                }
             }
         }
 
@@ -95,8 +98,9 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator) {
-        return getToken(current, iterator, null);
+        return getToken(current, iterator, (Class<? extends Token>[])null);
     }
 
     @Override

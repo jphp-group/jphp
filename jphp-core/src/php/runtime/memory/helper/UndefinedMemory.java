@@ -9,7 +9,7 @@ public class UndefinedMemory extends NullMemory {
 
     @Override
     public Memory toImmutable() {
-        return NULL;
+        return UNDEFINED;
     }
 
     @Override

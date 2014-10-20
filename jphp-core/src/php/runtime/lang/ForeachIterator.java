@@ -1,6 +1,7 @@
 package php.runtime.lang;
 
 
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.Memory;
@@ -18,6 +19,8 @@ abstract public class ForeachIterator {
     abstract protected boolean init();
     abstract protected boolean nextValue();
     abstract protected boolean prevValue();
+
+    protected TraceInfo trace = TraceInfo.UNKNOWN;
 
     public ForeachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious) {
         this.getReferences = getReferences;
@@ -76,5 +79,13 @@ abstract public class ForeachIterator {
 
     public Memory getValue() {
         return currentValue;
+    }
+
+    public TraceInfo getTrace() {
+        return trace;
+    }
+
+    public void setTrace(TraceInfo trace) {
+        this.trace = trace;
     }
 }

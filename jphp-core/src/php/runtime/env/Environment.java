@@ -12,10 +12,7 @@ import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.env.message.WarningMessage;
-import php.runtime.exceptions.CriticalException;
-import php.runtime.exceptions.CustomErrorException;
-import php.runtime.exceptions.FatalException;
-import php.runtime.exceptions.JPHPException;
+import php.runtime.exceptions.*;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.java.JavaReflection;
@@ -264,6 +261,17 @@ public class Environment {
             e.onLoad(this);
 
         environment.set(this);
+    }
+
+    public void pushCall(CallStackItem stackItem) {
+        if (callStackTop >= callStack.length){
+            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
+            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
+            callStack = newCallStack;
+        }
+
+        callStack[callStackTop++] = stackItem;
+        maxCallStackTop = callStackTop;
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
@@ -695,7 +703,7 @@ public class Environment {
             System.exit(((DieException) e).getExitCode());
             return true;
         } else if (e instanceof ErrorException) {
-            ErrorException er = (ErrorException)e;
+            ErrorException er = (ErrorException) e;
             echo("\n");
 
             echo("\n[" + er.getType().name() + "] " + e.getMessage());
@@ -705,9 +713,12 @@ public class Environment {
             echo("\n    in '" + er.getTraceInfo().getFileName() + "'");
 
             JVMStackTracer tracer = scope.getStackTracer(e);
-            for(JVMStackTracer.Item el : tracer){
+            for (JVMStackTracer.Item el : tracer) {
                 echo("\n\tat " + (el.isInternal() ? "" : "-> ") + el);
             }
+            return true;
+        } else if (e instanceof FinallyException) {
+            // nop
             return true;
         } else if (e instanceof BaseException){
             BaseException be = (BaseException)e;
@@ -725,7 +736,9 @@ public class Environment {
     public boolean catchUncaught(UncaughtException e){
         if (exceptionHandler != null){
             try {
-                exceptionHandler.onException(this, e.getException());
+                if (!(e.getException() instanceof FinallyException)) {
+                    exceptionHandler.onException(this, e.getException());
+                }
             } catch (DieException _e){
                 catchUncaught(_e);
             } catch (ErrorException _e){
@@ -1051,6 +1064,21 @@ public class Environment {
         return __require(fileName, locals, trace, true);
     }
 
+    public void registerObjectInGC(IObject object) {
+        ClassEntity entity = object.getReflection();
+
+        if (entity != null && entity.methodDestruct != null) {
+            try {
+                cleanGcObjects();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+
+            WeakReference<IObject> wr = new WeakReference<IObject>(object, gcObjectRefQueue);
+            gcObjects.add(wr);
+        }
+    }
+
     public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
         ClassEntity entity = fetchClass(originName, lowerName, true);
@@ -1061,13 +1089,7 @@ public class Environment {
         assert entity != null;
         IObject object = entity.newObject(this, trace, true, args);
 
-        if (entity.methodDestruct != null) {
-            cleanGcObjects();
-
-            WeakReference<IObject> wr = new WeakReference<IObject>(object, gcObjectRefQueue);
-            gcObjects.add(wr);
-        }
-
+        registerObjectInGC(object);
         return new ObjectMemory( object );
     }
 
@@ -1091,10 +1113,19 @@ public class Environment {
             warning(trace, "Invalid argument supplied for foreach()");
             return invalidIterator;
         }
+        iterator.setTrace(trace);
         return iterator;
     }
 
-    public ClassEntity __getClosure(String moduleIndex, int index){
+    public ClassEntity __getGenerator(String moduleIndex, int index) {
+        ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
+        if (moduleEntity == null)
+            throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a generator object");
+
+        return moduleEntity.findGenerator(index);
+    }
+
+    public ClassEntity __getClosure(String moduleIndex, int index) {
         ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
         if (moduleEntity == null)
             throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a closure object");
@@ -1110,6 +1141,10 @@ public class Environment {
 
     public Memory __throwException(InvocationTargetException e) {
         Throwable throwable = e.getTargetException();
+        if (throwable instanceof FinallyException) {
+            return Memory.NULL;
+        }
+
         if (throwable instanceof JPHPException)
             throw (RuntimeException)throwable;
         else {
@@ -1145,7 +1180,15 @@ public class Environment {
         }
     }
 
-    public Memory __throwCatch(BaseException e, String className, String lowerClassName){
+    public void __throwFailedCatch(BaseException e) {
+        if (e instanceof FinallyException) {
+            return;
+        }
+
+        throw e;
+    }
+
+    public Memory __throwCatch(BaseException e, String className, String lowerClassName) {
         ClassEntity origin = e.getReflection();
         ClassEntity cause = fetchClass(className, lowerClassName, false);
 

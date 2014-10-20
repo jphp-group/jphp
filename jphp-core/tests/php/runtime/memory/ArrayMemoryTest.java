@@ -33,7 +33,7 @@ public class ArrayMemoryTest {
     public void testRefOfIndex(){
         ArrayMemory memory = new ArrayMemory();
         assertTrue(memory.refOfIndex(0) instanceof ReferenceMemory);
-        assertEquals(Memory.NULL, memory.refOfIndex(0).toImmutable());
+        assertEquals(Memory.UNDEFINED, memory.refOfIndex(0).toImmutable());
         memory.refOfIndex(0).assign(100500);
         assertEquals(100500, memory.refOfIndex(0).toLong());
         assertEquals(1, memory.size());
@@ -52,7 +52,7 @@ public class ArrayMemoryTest {
 
         memory.refOfIndex("foobar");
         assertEquals(3, memory.size());
-        assertEquals(Memory.NULL, memory.refOfIndex("foobar").toImmutable());
+        assertEquals(Memory.UNDEFINED, memory.refOfIndex("foobar").toImmutable());
         memory.refOfIndex("foobar").assign("bar");
         assertEquals("bar", memory.refOfIndex("foobar").toString());
     }

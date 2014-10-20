@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class ClassEntity extends Entity {
+public class ClassEntity extends Entity implements Cloneable {
     private final static int FLAG_GET = 4000;
     private final static int FLAG_SET = 4001;
     private final static int FLAG_ISSET = 4002;
@@ -727,9 +727,10 @@ public class ClassEntity extends Entity {
     }
 
     public IObject newObjectWithoutConstruct(Environment env) {
-        IObject object;
+        IObject object = null;
         try {
-            object = (IObject) nativeConstructor.newInstance(env, this);
+            if (nativeConstructor != null)
+                object = (IObject) nativeConstructor.newInstance(env, this);
         } catch (InvocationTargetException e){
             env.__throwException(e);
             return null;

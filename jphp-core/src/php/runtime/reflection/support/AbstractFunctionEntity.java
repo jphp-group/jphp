@@ -8,6 +8,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.lang.Closure;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.ParameterEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 abstract public class AbstractFunctionEntity extends Entity {
     protected boolean isImmutable;
@@ -22,6 +23,8 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected Extension extension;
     protected boolean deprecated;
     protected boolean usesStackTrace = false;
+
+    protected GeneratorEntity generatorEntity;
 
     protected AbstractFunctionEntity(Context context) {
         super(context);
@@ -138,5 +141,13 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public void setUsesStackTrace(boolean usesStackTrace) {
         this.usesStackTrace = usesStackTrace;
+    }
+
+    public GeneratorEntity getGeneratorEntity() {
+        return generatorEntity;
+    }
+
+    public void setGeneratorEntity(GeneratorEntity generatorEntity) {
+        this.generatorEntity = generatorEntity;
     }
 }

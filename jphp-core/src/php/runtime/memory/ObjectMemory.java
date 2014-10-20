@@ -6,16 +6,14 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.lang.Closure;
-import php.runtime.lang.ForeachIterator;
-import php.runtime.lang.IObject;
-import php.runtime.lang.Resource;
+import php.runtime.lang.*;
 import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.lang.support.ICloneableObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.Memory;
+import php.runtime.lang.support.IManualDestructable;
 import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.PropertyEntity;
@@ -305,9 +303,9 @@ public class ObjectMemory extends Memory {
 
     @Override
     public ForeachIterator getNewIterator(final Environment env, boolean getReferences, boolean getKeyReferences) {
-        if (value instanceof IteratorAggregate){
-            return ((IteratorAggregate)value).getIterator(env).getNewIterator(env, getReferences, getKeyReferences);
-        } else if (value instanceof Iterator){
+        if (value instanceof IteratorAggregate) {
+            return env.invokeMethodNoThrow(value, "getIterator").getNewIterator(env, getReferences, getKeyReferences);
+        } else if (value instanceof Iterator) {
             final Iterator iterator = (Iterator)value;
             final String className = value.getReflection().getName();
             final boolean isNative = value.getReflection().isInternal();
@@ -328,9 +326,15 @@ public class ObjectMemory extends Memory {
                 }
 
                 protected boolean rewind() {
+                    if (getReferences && value instanceof Generator) {
+                        if (!((Generator) value).isReturnReferences()) {
+                            env.exception(trace, "You can only iterate a generator by-reference if it declared that it yields by-reference");
+                        }
+                    }
+
                     if (!rewind){
                         if (!isNative)
-                            env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
+                            env.pushCall(trace, ObjectMemory.this.value, null, "rewind", className, null);
                         try {
                             return iterator.rewind(env).toValue() != FALSE;
                         } finally {
@@ -361,7 +365,7 @@ public class ObjectMemory extends Memory {
                     keyInit = false;
                     if (needNext){
                         if (!isNative)
-                            env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
+                            env.pushCall(trace, ObjectMemory.this.value, null, "next", className, null);
                         try {
                             iterator.next(env);
                         } finally {
@@ -372,12 +376,12 @@ public class ObjectMemory extends Memory {
 
                     needNext = true;
                     if (!isNative)
-                        env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
+                        env.pushCall(trace, ObjectMemory.this.value, null, "valid", className, null);
                     try {
                         valid = iterator.valid(env).toBoolean();
                         if (valid) {
                             if (!isNative)
-                                env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
+                                env.pushCall(trace, ObjectMemory.this.value, null, "current", className, null);
                             try {
                                 currentValue = iterator.current(env);
                                 if (!getReferences)
@@ -408,7 +412,7 @@ public class ObjectMemory extends Memory {
                         return (Memory)currentKey;
 
                     if (!isNative)
-                        env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
+                        env.pushCall(trace, ObjectMemory.this.value, null, "key", className, null);
                     try {
                         currentKey = iterator.key(env).toImmutable();
                         keyInit = true;
@@ -544,6 +548,10 @@ public class ObjectMemory extends Memory {
                 value.doFinalize();
                 env.pushCall(value, entity.methodDestruct.getName());
                 try {
+                    if (value instanceof IManualDestructable) {
+                        ((IManualDestructable) value).onManualDestruct(env);
+                    }
+
                     entity.methodDestruct.invokeDynamic(value, env);
                 } catch (InvocationTargetException e){
                     env.__throwException(e);

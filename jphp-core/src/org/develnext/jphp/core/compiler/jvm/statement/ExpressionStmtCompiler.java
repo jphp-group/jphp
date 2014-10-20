@@ -42,6 +42,7 @@ import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.memory.*;
+import php.runtime.memory.helper.UndefinedMemory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
 import php.runtime.reflection.support.Entity;
@@ -123,6 +124,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         compilerRules.put(StaticAccessIssetExprToken.class, StaticAccessValueCompiler.class);
         compilerRules.put(StaticAccessUnsetExprToken.class, StaticAccessValueCompiler.class);
         compilerRules.put(ListExprToken.class, ListCompiler.class);
+        compilerRules.put(YieldExprToken.class, YieldValueCompiler.class);
 
         // operation
         compilerRules.put(InstanceofExprToken.class, InstanceOfCompiler.class);
@@ -200,6 +202,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         Class<? extends BaseStatementCompiler<T>> rule =
                 (Class<? extends BaseStatementCompiler<T>>) compilerRules.get(clazz);
+
         if (rule == null)
             return null;
 
@@ -230,6 +233,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     public void makeVarLoad(LocalVariable variable){
         code.add(new VarInsnNode(ALOAD, variable.index));
+    }
+
+    public void makeUnknown(AbstractInsnNode node) {
+        code.add(node);
     }
 
     public LabelNode makeLabel(){
@@ -387,7 +394,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public void writePushMemory(Memory memory){
         Memory.Type type = Memory.Type.REFERENCE;
 
-        if (memory instanceof NullMemory){
+        if (memory instanceof UndefinedMemory) {
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "UNDEFINED", Type.getDescriptor(Memory.class)
+            ));
+        } else if (memory instanceof NullMemory) {
             code.add(new FieldInsnNode(
                     GETSTATIC, Type.getInternalName(Memory.class), "NULL", Type.getDescriptor(Memory.class)
             ));
@@ -675,16 +686,24 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushMemory(Memory.NULL);
     }
 
-    public void writePushConstNull(){
+    public void writePushConstNull() {
         stackPush(Memory.Type.REFERENCE);
         code.add(new InsnNode(ACONST_NULL));
     }
 
-    public void writePushNewObject(Class clazz){
+    public void writePushNewObject(Class clazz) {
         code.add(new TypeInsnNode(NEW, Type.getInternalName(clazz)));
         stackPush(Memory.Type.REFERENCE);
         writePushDup();
         writeSysCall(clazz, INVOKESPECIAL, Constants.INIT_METHOD, void.class);
+        stackPop();
+    }
+
+    public void writePushNewObject(String internalName, Class... paramClasses) {
+        code.add(new TypeInsnNode(NEW, internalName));
+        stackPush(Memory.Type.REFERENCE);
+        writePushDup();
+        writeSysCall(internalName, INVOKESPECIAL, Constants.INIT_METHOD, void.class, paramClasses);
         stackPop();
     }
 
@@ -1285,7 +1304,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void writePushThis(){
-        if (method.clazz.isClosure()){
+        if (method.clazz.isClosure() || method.getGeneratorEntity() != null){
             writeVarLoad("~this");
             writeGetDynamic("self", Memory.class);
         } else {
@@ -1305,7 +1324,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     protected void writeDefineThis(LocalVariable variable){
-        if (method.clazz.isClosure()){
+        if (method.clazz.isClosure() || method.getGeneratorEntity() != null){
             writeVarLoad("~this");
             writeGetDynamic("self", Memory.class);
             makeVarStore(variable);
@@ -1315,7 +1334,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode elseLabel = new LabelNode();
 
             if (methodStatement.isStatic()) {
-                writePushNull();
+                writePushMemory(Memory.UNDEFINED);
                 writeVarStore(variable, false, false);
             } else {
                 writeVarLoad("~this");
@@ -1325,9 +1344,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 stackPop();
 
                 if (variable.isReference()) {
-                    writePushNewObject(ReferenceMemory.class);
+                    writePushMemory(Memory.UNDEFINED);
+                    writeSysStaticCall(ReferenceMemory.class, "valueOf", Memory.class, Memory.class);
                 } else {
-                    writePushNull();
+                    writePushMemory(Memory.UNDEFINED);
                 }
                 writeVarStore(variable, false, false);
 
@@ -1784,6 +1804,26 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return true;
         } catch (java.lang.NoSuchMethodException e) {
             return false;
+        }
+    }
+
+    void writeSysCall(String internalClassName, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
+        Type[] args = new Type[paramClasses.length];
+        if (INVOKE_TYPE == INVOKEVIRTUAL || INVOKE_TYPE == INVOKEINTERFACE)
+            stackPop(); // this
+
+        for(int i = 0; i < args.length; i++){
+            args[i] = Type.getType(paramClasses[i]);
+            stackPop();
+        }
+
+        code.add(new MethodInsnNode(
+                INVOKE_TYPE, internalClassName, method, Type.getMethodDescriptor(Type.getType(returnClazz), args),
+                false
+        ));
+
+        if (returnClazz != void.class){
+            stackPush(null, StackItem.Type.valueOf(returnClazz));
         }
     }
 
@@ -2709,7 +2749,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writePushDup();*/
 
                     writePush(o1);
-                    if (!o1.immutable)
+                    if (!o1.immutable && !operator.isMutableArguments())
                         writePopImmutable();
                 }
                 if (name != null)
@@ -2853,6 +2893,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
 
         exprStackInit.pop();
+
         return result;
     }
 

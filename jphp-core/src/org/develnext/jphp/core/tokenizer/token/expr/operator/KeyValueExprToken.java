@@ -22,6 +22,11 @@ public class KeyValueExprToken extends OperatorExprToken {
     }
 
     @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
+
+    @Override
     public Memory calc(Memory o1, Memory o2) {
         return new KeyValueMemory(o1, o2);
     }

@@ -124,10 +124,12 @@ abstract public class Stream extends BaseObject implements Resource {
             path = path.substring(pos + 3);
         }
 
-        ClassEntity classEntity = env.getUserValue(Stream.class.getName() + "#" + protocol, ClassEntity.class);
-        if (classEntity == null){
-            throw new IOException( "Unregistered protocol - "+protocol+"://");
+        String className = env.getUserValue(Stream.class.getName() + "#" + protocol, String.class);
+        if (className == null){
+            throw new IOException("Unregistered protocol - " + protocol + "://");
         }
+
+        ClassEntity classEntity = env.fetchClass(className);
 
         return new ObjectMemory(
                 classEntity.newObject(env, env.trace(), true, new StringMemory(path), args[1])
@@ -152,7 +154,7 @@ abstract public class Stream extends BaseObject implements Resource {
             throw new IllegalArgumentException(Messages.ERR_CLASS_NOT_FOUND.fetch(className));
         }
 
-        env.setUserValue(Stream.class.getName() + "#" + protocol, classEntity);
+        env.setUserValue(Stream.class.getName() + "#" + protocol, classEntity.getName());
         return Memory.TRUE;
     }
 
@@ -166,15 +168,10 @@ abstract public class Stream extends BaseObject implements Resource {
         return env.removeUserValue(Stream.class.getName() + "#" + protocol) ? Memory.TRUE : Memory.FALSE;
     }
 
-    public static void initEnvironment(Environment env){
-        ClassEntity classEntity = env.fetchClass(FileStream.class);
-        env.setUserValue(Stream.class.getName() + "#file", classEntity);
-
-        classEntity = env.fetchClass(MiscStream.class);
-        env.setUserValue(Stream.class.getName() + "#php", classEntity);
-
-        classEntity = env.fetchClass(ResourceStream.class);
-        env.setUserValue(Stream.class.getName() + "#res", classEntity);
+    public static void initEnvironment(Environment env) {
+        env.setUserValue(Stream.class.getName() + "#file", "php\\io\\FileStream");
+        env.setUserValue(Stream.class.getName() + "#php", "php\\io\\MiscStream");
+        env.setUserValue(Stream.class.getName() + "#res", "php\\io\\ResourceStream");
     }
 
     @Override

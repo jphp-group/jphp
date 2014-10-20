@@ -172,6 +172,8 @@ public class TokenFinder {
         put("require_once", RequireOnceExprToken.class);
         put("echo", EchoStmtToken.class);
         put("print", PrintNameToken.class);
+
+        put("yield", YieldExprToken.class);
     }};
 
     public TokenFinder() {
