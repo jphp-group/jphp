@@ -4,6 +4,7 @@ import php.runtime.common.Modifier;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.lang.Closure;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
@@ -49,14 +50,17 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         classStmtCompiler.setFunctionName(null);
         ClassEntity clazzEntity = classStmtCompiler.compile();
 
+        MethodEntity __invoke = clazzEntity.findMethod("__invoke");
+
         entity.getMethods().putAll(clazzEntity.getMethods());
         if (clazzEntity.getParent() != null)
             entity.setParent(clazzEntity.getParent());
 
         entity.setData(clazzEntity.getData());
-        entity.setParameters(clazzEntity.findMethod("__invoke").parameters);
+        entity.setParameters(__invoke.parameters);
         entity.doneDeclare();
 
+        entity.setGeneratorEntity(__invoke.getGeneratorEntity());
         return entity;
     }
 }

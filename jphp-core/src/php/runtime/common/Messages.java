@@ -106,6 +106,9 @@ final public class Messages {
 
     public final static Item ERR_CANNOT_USE_EMPTY_LIST = new Item("Cannot use empty list");
 
+    public final static Item ERR_YIELD_CAN_ONLY_INSIDE_FUNCTION = new Item("The \"yield\" expression can only be used inside a function");
+
+
     public static class Item {
         private String message;
         public Item(String message){

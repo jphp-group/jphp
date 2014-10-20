@@ -3,6 +3,7 @@ package org.develnext.jphp.core.tokenizer.token.stmt;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,7 @@ public class ExprStmtToken extends StmtToken {
     private List<Token> tokens;
     private boolean isStmtList = true;
     private boolean constantly = true;
+    private YieldExprToken needYield;
 
     protected ExprStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -66,5 +68,20 @@ public class ExprStmtToken extends StmtToken {
 
     public boolean isConstantly() {
         return constantly;
+    }
+
+    public YieldExprToken getNeedYield() {
+        return needYield;
+    }
+
+    public void setNeedYield(YieldExprToken needYield) {
+        if (needYield != null) {
+            needYield.setOnlyGet(true);
+            this.needYield = new YieldExprToken(needYield.getMeta());
+            this.needYield.setOnlyNext(true);
+            this.needYield.setValue(needYield.getValue());
+        } else {
+            this.needYield = null;
+        }
     }
 }

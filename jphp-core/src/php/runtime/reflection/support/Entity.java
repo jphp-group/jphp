@@ -77,16 +77,22 @@ abstract public class Entity {
 
     public void setName(String name) {
         this.name = name;
-        this.lowerName = name.toLowerCase();
+        if (name != null) {
+            this.lowerName = name.toLowerCase();
 
-        String[] tmp = StringUtils.split(name, '\\');
-        if (tmp.length == 0)
-            this.shortName = name;
-        else
-            this.shortName = tmp[tmp.length - 1];
+            String[] tmp = StringUtils.split(name, '\\');
+            if (tmp.length == 0)
+                this.shortName = name;
+            else
+                this.shortName = tmp[tmp.length - 1];
 
-        if (tmp.length > 1)
-            this.namespaceName = StringUtils.join(tmp, '\\', 0, tmp.length - 1);
+            if (tmp.length > 1)
+                this.namespaceName = StringUtils.join(tmp, '\\', 0, tmp.length - 1);
+        } else {
+            this.lowerName = null;
+            this.shortName = null;
+            this.namespaceName = null;
+        }
     }
 
     public boolean isNamespace(){

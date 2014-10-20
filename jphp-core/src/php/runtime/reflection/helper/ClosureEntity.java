@@ -15,6 +15,7 @@ public class ClosureEntity extends ClassEntity {
     public ParameterEntity[] uses;
 
     protected ObjectMemory singleton;
+    protected GeneratorEntity generatorEntity;
 
     public ClosureEntity(Context context) {
         super(context);
@@ -78,5 +79,13 @@ public class ClosureEntity extends ClassEntity {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public GeneratorEntity getGeneratorEntity() {
+        return generatorEntity;
+    }
+
+    public void setGeneratorEntity(GeneratorEntity generatorEntity) {
+        this.generatorEntity = generatorEntity;
     }
 }

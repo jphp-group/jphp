@@ -10,6 +10,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.Directive;
 import php.runtime.common.LangMode;
@@ -32,6 +33,8 @@ public class SyntaxAnalyzer {
     private ClassStmtToken clazz;
     private FunctionStmtToken function;
     private Stack<FunctionStmtToken> closureStack;
+    private Stack<YieldExprToken> yieldStack = new Stack<YieldExprToken>();
+    private ExprStmtToken lastYieldNeededExpr = null;
 
     private Stack<Scope> scopeStack;
     private Stack<Scope> rootScopeStack = new Stack<Scope>();
@@ -47,6 +50,8 @@ public class SyntaxAnalyzer {
     private Environment environment;
     private LangMode langMode = null;
 
+    private int generatorSize = 0;
+
     public SyntaxAnalyzer(Environment environment, Tokenizer tokenizer){
         this(environment, tokenizer, null);
     }
@@ -58,6 +63,8 @@ public class SyntaxAnalyzer {
     public void reset(Environment environment, Tokenizer tokenizer){
         removeScope();
         //removeLocalScope();
+
+        generatorSize = 0;
 
         tokenizer.reset();
         this.environment = environment;
@@ -130,11 +137,22 @@ public class SyntaxAnalyzer {
 
     public void registerClass(ClassStmtToken clazz){
         classes.put(clazz.getFulledName().toLowerCase(), clazz);
+
+        for (MethodStmtToken method : clazz.getMethods()) {
+            if (method.isGenerator()) {
+                method.setGeneratorId(generatorSize++);
+            }
+        }
     }
 
     public void registerFunction(FunctionStmtToken function){
         if (function.getId() <= functions.size()){
             function.setId(functions.size());
+
+            if (function.isGenerator()) {
+                function.setGeneratorId(generatorSize++);
+            }
+
             functions.add(function);
         }
     }
@@ -145,6 +163,10 @@ public class SyntaxAnalyzer {
 
     public void registerClosure(ClosureStmtToken closure){
         closure.setId(closures.size());
+        if (closure.getFunction().isGenerator()) {
+            closure.getFunction().setGeneratorId(generatorSize++);
+        }
+
         closures.add(closure);
     }
 
@@ -369,6 +391,30 @@ public class SyntaxAnalyzer {
 
     public void pushClosure(FunctionStmtToken closure) {
         closureStack.push(closure);
+    }
+
+    public void pushYield(YieldExprToken yieldExprToken) {
+        yieldStack.push(yieldExprToken);
+    }
+
+    public int getYieldCount() {
+        return yieldStack.size();
+    }
+
+    public YieldExprToken peekYield() {
+        return yieldStack.empty() ? null : yieldStack.peek();
+    }
+
+    public void clearYieldStack() {
+        yieldStack.clear();
+    }
+
+    public ExprStmtToken getLastYieldNeededExpr() {
+        return lastYieldNeededExpr;
+    }
+
+    public void setLastYieldNeededExpr(ExprStmtToken lastYieldNeededExpr) {
+        this.lastYieldNeededExpr = lastYieldNeededExpr;
     }
 
     public FunctionStmtToken peekClosure() {

@@ -266,6 +266,17 @@ public class Environment {
         environment.set(this);
     }
 
+    public void pushCall(CallStackItem stackItem) {
+        if (callStackTop >= callStack.length){
+            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
+            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
+            callStack = newCallStack;
+        }
+
+        callStack[callStackTop++] = stackItem;
+        maxCallStackTop = callStackTop;
+    }
+
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
@@ -1091,10 +1102,19 @@ public class Environment {
             warning(trace, "Invalid argument supplied for foreach()");
             return invalidIterator;
         }
+        iterator.setTrace(trace);
         return iterator;
     }
 
-    public ClassEntity __getClosure(String moduleIndex, int index){
+    public ClassEntity __getGenerator(String moduleIndex, int index) {
+        ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
+        if (moduleEntity == null)
+            throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a generator object");
+
+        return moduleEntity.findGenerator(index);
+    }
+
+    public ClassEntity __getClosure(String moduleIndex, int index) {
         ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
         if (moduleEntity == null)
             throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a closure object");

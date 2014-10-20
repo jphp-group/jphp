@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.compiler.jvm;
 
+import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import php.runtime.Memory;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -19,6 +20,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,6 +31,8 @@ public class JvmCompiler extends AbstractCompiler {
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
+
+    protected YieldExprToken lastYield;
 
     public JvmCompiler(Environment environment, Context context) throws IOException {
         this(environment, context, new SyntaxAnalyzer(environment, new Tokenizer(context)));
@@ -55,6 +59,14 @@ public class JvmCompiler extends AbstractCompiler {
 
     public void setNamespace(NamespaceStmtToken namespace) {
         this.namespace = namespace;
+    }
+
+    public YieldExprToken getLastYield() {
+        return lastYield;
+    }
+
+    public void setLastYield(YieldExprToken lastYield) {
+        this.lastYield = lastYield;
     }
 
     public ClassEntity compileClass(ClassStmtToken clazz, boolean external) {
@@ -96,15 +108,17 @@ public class JvmCompiler extends AbstractCompiler {
     }
 
     @SuppressWarnings("unchecked")
-    public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method, boolean external) {
+    public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method, boolean external,
+                                      GeneratorEntity generatorEntity) {
         MethodStmtCompiler compiler = new MethodStmtCompiler(clazzCompiler, method);
         compiler.setExternal(external);
+        compiler.setGeneratorEntity(generatorEntity);
         clazzCompiler.node.methods.add(compiler.node);
         return compiler.compile();
     }
 
     public MethodEntity compileMethod(ClassStmtCompiler clazzCompiler, MethodStmtToken method){
-        return compileMethod(clazzCompiler, method, false);
+        return compileMethod(clazzCompiler, method, false, null);
     }
 
     public void compileExpression(MethodStmtCompiler method, ExprStmtToken expression) {

@@ -157,6 +157,10 @@ public class ClassWrapper {
     }
 
     protected void onWrapExtend(ClassEntity classEntity) {
+        if (nativeClass.isAnnotationPresent(Reflection.BaseType.class)) {
+            return;
+        }
+
         Class<?> extend = nativeClass.getSuperclass();
         if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
             String name = extend.getSimpleName();

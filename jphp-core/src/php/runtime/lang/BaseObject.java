@@ -8,6 +8,7 @@ import php.runtime.reflection.ClassEntity;
 import java.lang.ref.WeakReference;
 
 @Reflection.Ignore
+@Reflection.BaseType
 abstract public class BaseObject implements IObject {
     protected final ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;

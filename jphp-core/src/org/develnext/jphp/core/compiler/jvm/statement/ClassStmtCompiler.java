@@ -29,6 +29,7 @@ import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.BaseObject;
 import php.runtime.reflection.*;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.util.*;
 
@@ -47,6 +48,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     private boolean initDynamicExists = false;
     private int callFuncCount = 0;
     private int callMethCount = 0;
+
+    private GeneratorEntity generatorEntity;
 
     protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<ConstStmtToken.Item>();
     protected List<ClassVarStmtToken> dynamicProperties = new ArrayList<ClassVarStmtToken>();
@@ -69,7 +72,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         return initDynamicExists;
     }
 
-    public boolean isClosure(){
+    public boolean isClosure() {
         return functionName == null;
     }
 
@@ -81,6 +84,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.functionName = functionName;
     }
 
+    public GeneratorEntity getGeneratorEntity() {
+        return generatorEntity;
+    }
+
+    public void setGeneratorEntity(GeneratorEntity generatorEntity) {
+        this.generatorEntity = generatorEntity;
+    }
+
     public boolean isSystem() {
         return isSystem;
     }
@@ -89,7 +100,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         isSystem = system;
     }
 
-    public void setInterfaceCheck(boolean check){
+    public void setInterfaceCheck(boolean check) {
         isInterfaceCheck = check;
     }
 
@@ -101,19 +112,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.external = external;
     }
 
-    int addTraceInfo(int line, int position){
+    int addTraceInfo(int line, int position) {
         traceList.add(new TraceInfo(compiler.getContext(), line, 0, position, 0));
         return traceList.size() - 1;
     }
 
-    int addTraceInfo(Token token){
+    int addTraceInfo(Token token) {
         traceList.add(token.toTraceInfo(compiler.getContext()));
         return traceList.size() - 1;
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeDestructor(){
-        if (entity.methodDestruct != null){
+    protected void writeDestructor() {
+        if (entity.methodDestruct != null) {
             MethodNode destructor = new MethodNodeImpl();
             destructor.name = "finalize";
             destructor.access = ACC_PUBLIC;
@@ -163,7 +174,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeConstructor(){
+    protected void writeConstructor() {
         MethodNode constructor = new MethodNodeImpl();
         constructor.name = Constants.INIT_METHOD;
         constructor.access = ACC_PUBLIC;
@@ -176,19 +187,36 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
         methodCompiler.addLocalVariable("~this", l0);
 
-        if (isClosure()){
+        if (isClosure() || generatorEntity != null) {
             constructor.desc = Type.getMethodDescriptor(
                     Type.getType(void.class),
                     Type.getType(ClassEntity.class),
                     Type.getType(Memory.class),
                     Type.getType(Memory[].class)
             );
+
+            if (generatorEntity != null) {
+                constructor.desc = Type.getMethodDescriptor(
+                        Type.getType(void.class),
+                        Type.getType(Environment.class),
+                        Type.getType(ClassEntity.class),
+                        Type.getType(Memory.class),
+                        Type.getType(Memory[].class)
+                );
+                methodCompiler.addLocalVariable("~env", l0, Environment.class);
+            }
+
             methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
             methodCompiler.addLocalVariable("~self", l0, Memory.class);
             methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
 
             methodCompiler.writeHeader();
             expressionCompiler.writeVarLoad("~this");
+
+            if (generatorEntity != null) {
+                expressionCompiler.writeVarLoad("~env");
+            }
+
             expressionCompiler.writeVarLoad("~class");
             expressionCompiler.writeVarLoad("~self");
             expressionCompiler.writeVarLoad("~uses");
@@ -218,7 +246,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             ));
 
             // PROPERTIES
-            for(ClassVarStmtToken property : statement.getProperties()){
+            for (ClassVarStmtToken property : statement.getProperties()) {
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
                 Memory value = Memory.NULL;
                 if (property.getValue() != null)
@@ -257,15 +285,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         node.methods.add(constructor);
     }
 
-    protected void writeConstant(ConstStmtToken constant){
-        MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken)null);
+    protected void writeConstant(ConstStmtToken constant) {
+        MethodStmtCompiler methodStmtCompiler = new MethodStmtCompiler(this, (MethodStmtToken) null);
         ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodStmtCompiler, null);
 
         DocumentComment documentComment = null;
         if (constant.getDocComment() != null)
             documentComment = new DocumentComment(constant.getDocComment().getComment());
 
-        for(ConstStmtToken.Item el : constant.items){
+        for (ConstStmtToken.Item el : constant.items) {
             Memory value = expressionStmtCompiler.writeExpression(el.value, true, true, false);
             ConstantEntity constantEntity = new ConstantEntity(el.getFulledName(), value, true);
             constantEntity.setTrace(el.name.toTraceInfo(compiler.getContext()));
@@ -273,7 +301,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             if (value != null && !value.isArray()) {
                 ConstantEntity c = entity.findConstant(el.getFulledName());
-                if (c != null && c.getClazz().getId() == entity.getId()){
+                if (c != null && c.getClazz().getId() == entity.getId()) {
                     compiler.getEnvironment().error(
                             constant.toTraceInfo(compiler.getContext()),
                             ErrorType.E_ERROR,
@@ -284,20 +312,20 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 }
                 entity.addConstant(constantEntity);
             } else {
-                if (ValueExprToken.isConstable(el.value.getSingle(), false)){
+                if (ValueExprToken.isConstable(el.value.getSingle(), false)) {
                     dynamicConstants.add(el);
                     entity.addConstant(constantEntity);
                 } else
                     compiler.getEnvironment().error(
-                        constant.toTraceInfo(compiler.getContext()),
-                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
+                            constant.toTraceInfo(compiler.getContext()),
+                            Messages.ERR_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
                     );
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeSystemInfo(){
+    protected void writeSystemInfo() {
         node.fields.add(new FieldNode(
                 ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "$FN",
                 Type.getDescriptor(String.class),
@@ -326,7 +354,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 null
         ));
 
-        if (functionName != null){
+        if (functionName != null) {
             node.fields.add(new FieldNode(
                     ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
                     Type.getDescriptor(String.class),
@@ -338,17 +366,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     @SuppressWarnings("unchecked")
     protected void writeInitEnvironment() {
-        if (!dynamicConstants.isEmpty() || !dynamicProperties.isEmpty()){
+        if (!dynamicConstants.isEmpty() || !dynamicProperties.isEmpty()) {
             initDynamicExists = true;
             MethodNode node = new MethodNodeImpl();
             node.access = ACC_STATIC + ACC_PUBLIC;
             node.name = "__$initEnvironment";
             node.desc = Type.getMethodDescriptor(
-                Type.getType(void.class), Type.getType(Environment.class)
+                    Type.getType(void.class), Type.getType(Environment.class)
             );
             if (entity.isTrait()) {
                 node.desc = Type.getMethodDescriptor(
-                    Type.getType(void.class), Type.getType(Environment.class), Type.getType(String.class)
+                        Type.getType(void.class), Type.getType(Environment.class), Type.getType(String.class)
                 );
             }
 
@@ -373,7 +401,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             }
             expressionCompiler.writePushConstBoolean(true);
             expressionCompiler.writeSysDynamicCall(
-                Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
+                    Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
             );
             expressionCompiler.writeVarStore(l_class, false, false);
 
@@ -381,19 +409,19 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             final List<ConstStmtToken.Item> first = new ArrayList<ConstStmtToken.Item>();
             final Set<String> usedNames = new HashSet<String>();
             final List<ConstStmtToken.Item> other = new ArrayList<ConstStmtToken.Item>();
-            for (ConstStmtToken.Item el : dynamicConstants){
+            for (ConstStmtToken.Item el : dynamicConstants) {
                 Token tk = el.value.getSingle();
-                if (tk instanceof StaticAccessExprToken){
-                    StaticAccessExprToken access = (StaticAccessExprToken)tk;
+                if (tk instanceof StaticAccessExprToken) {
+                    StaticAccessExprToken access = (StaticAccessExprToken) tk;
                     boolean self = false;
                     if (access.getClazz() instanceof SelfExprToken)
                         self = true;
                     else if (access.getClazz() instanceof FulledNameToken
-                            && ((FulledNameToken) access.getClazz()).getName().equalsIgnoreCase(entity.getName())){
+                            && ((FulledNameToken) access.getClazz()).getName().equalsIgnoreCase(entity.getName())) {
                         self = true;
                     }
                     if (self) {
-                        String name = ((NameToken)access.getField()).getName();
+                        String name = ((NameToken) access.getField()).getName();
                         if (usedNames.contains(el.getFulledName()))
                             first.add(0, el);
                         else
@@ -411,7 +439,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             other.addAll(0, first);
 
-            for(ConstStmtToken.Item el : other){
+            for (ConstStmtToken.Item el : other) {
                 expressionCompiler.writeVarLoad(l_class);
                 expressionCompiler.writePushEnv();
                 expressionCompiler.writePushConstString(el.getFulledName());
@@ -419,12 +447,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 expressionCompiler.writePopBoxing(true);
 
                 expressionCompiler.writeSysDynamicCall(
-                    ClassEntity.class, "addDynamicConstant", void.class,
-                    Environment.class, String.class, Memory.class
+                        ClassEntity.class, "addDynamicConstant", void.class,
+                        Environment.class, String.class, Memory.class
                 );
             }
 
-            for (ClassVarStmtToken el : dynamicProperties){
+            for (ClassVarStmtToken el : dynamicProperties) {
                 expressionCompiler.writeVarLoad(l_class);
                 expressionCompiler.writePushEnv();
                 expressionCompiler.writePushConstString(el.getVariable().getName());
@@ -447,7 +475,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     @SuppressWarnings("unchecked")
-    protected void writeInitStatic(){
+    protected void writeInitStatic() {
         MethodNode node = new MethodNodeImpl();
         node.access = ACC_STATIC;
         node.name = Constants.STATIC_INIT_METHOD;
@@ -462,7 +490,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         expressionCompiler.stackPush(Memory.Type.REFERENCE);
 
         int i = 0;
-        for(TraceInfo traceInfo : traceList){
+        for (TraceInfo traceInfo : traceList) {
             expressionCompiler.writePushDup();
             expressionCompiler.writePushSmallInt(i);
             expressionCompiler.writePushCreateTraceInfo(traceInfo.getStartLine(), traceInfo.getStartPosition());
@@ -487,7 +515,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.node.methods.add(node);
     }
 
-    protected void writeInterfaceMethod(MethodEntity method){
+    protected void writeInterfaceMethod(MethodEntity method) {
         MethodNode node = new MethodNodeImpl();
         node.access = ACC_PUBLIC;
         node.name = method.getName();
@@ -518,25 +546,25 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.node.methods.add(node);
     }
 
-    protected void writeInterfaceMethods(Collection<MethodEntity> methods){
-        for(MethodEntity method : methods){
+    protected void writeInterfaceMethods(Collection<MethodEntity> methods) {
+        for (MethodEntity method : methods) {
             writeInterfaceMethod(method);
         }
     }
 
-    protected Set<ClassEntity> writeInterfaces(ClassEntity _interface){
+    protected Set<ClassEntity> writeInterfaces(ClassEntity _interface) {
         Set<ClassEntity> result = new HashSet<ClassEntity>();
         writeInterfaces(_interface, result);
         return result;
     }
 
     protected void writeInterfaces(ClassEntity _interface, Set<ClassEntity> used) {
-        if (used.add(_interface)){
+        if (used.add(_interface)) {
             if (_interface != null && _interface.isInternal())
                 node.interfaces.add(_interface.getInternalName());
 
-            if (_interface != null){
-                for(ClassEntity el : _interface.getInterfaces().values()){
+            if (_interface != null) {
+                for (ClassEntity el : _interface.getInterfaces().values()) {
                     if (!_interface.isInternal() || !el.isInternal())
                         writeInterfaces(el, used);
                 }
@@ -544,7 +572,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
-    protected ClassEntity fetchClass(String name){
+    protected ClassEntity fetchClass(String name) {
         ClassEntity result = compiler.getModule().findClass(name);
         if (result == null)
             result = getCompiler().getEnvironment().fetchClass(name, true);
@@ -564,9 +592,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     @SuppressWarnings("unchecked")
     protected void writeImplements() {
-        if (statement.getImplement() != null){
+        if (statement.getImplement() != null) {
             Environment env = compiler.getEnvironment();
-            for(FulledNameToken name : statement.getImplement()){
+            for (FulledNameToken name : statement.getImplement()) {
                 ClassEntity implement = fetchClass(name.getName());
                 Set<ClassEntity> needWriteInterfaceMethods = new HashSet<ClassEntity>();
                 if (implement == null) {
@@ -575,7 +603,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                             Messages.ERR_INTERFACE_NOT_FOUND.fetch(name.toName())
                     );
                 } else {
-                    if (implement.getType() != ClassEntity.Type.INTERFACE){
+                    if (implement.getType() != ClassEntity.Type.INTERFACE) {
                         env.error(
                                 name.toTraceInfo(compiler.getContext()),
                                 Messages.ERR_CANNOT_IMPLEMENT.fetch(entity.getName(), implement.getName())
@@ -587,7 +615,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 ClassEntity.ImplementsResult addResult = entity.addInterface(implement);
                 addResult.check(env);
 
-                for(ClassEntity el : needWriteInterfaceMethods){
+                for (ClassEntity el : needWriteInterfaceMethods) {
                     if (el.isInternal()) {
                         writeInterfaceMethods(el.getMethods().values());
                     }
@@ -662,7 +690,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             boolean replaceExists = false;
             boolean replaceAlias = false;
 
-            for(ClassStmtToken.Alias alias : aliases) {
+            for (ClassStmtToken.Alias alias : aliases) {
                 if (replacement != null && alias.getTrait().equalsIgnoreCase(replacement.getOrigin())) {
                     replaceExists = true;
                     break;
@@ -679,13 +707,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 aliases.add(new ClassStmtToken.Alias(trait.getName(), null, methodEntity.getName()));
         }
 
-        for(ClassStmtToken.Alias alias : aliases) {
+        for (ClassStmtToken.Alias alias : aliases) {
             writeCopiedMethod(alias, methodEntity.getName(), trait);
         }
     }
 
     protected void writeTraitProperties(ClassEntity trait, Collection<PropertyEntity> props) {
-        for(PropertyEntity el : props){
+        for (PropertyEntity el : props) {
             PropertyEntity origin = entity.properties.get(el.getLowerName());
 
             if (origin != null) {
@@ -750,7 +778,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         initDynamicExists = true;
 
         writeTraitProperties(trait);
-        for(MethodEntity methodEntity : trait.getMethods().values()) {
+        for (MethodEntity methodEntity : trait.getMethods().values()) {
             writeCopiedMethod(methodEntity, trait);
         }
     }
@@ -766,23 +794,23 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     protected void checkAliasAndReplacementsTraits() {
         if (statement.getAliases() != null)
-        for(List<ClassStmtToken.Alias> aliases : statement.getAliases().values()) {
-            for(ClassStmtToken.Alias alias : aliases) {
-                checkRequiredTrait(alias.getTrait());
+            for (List<ClassStmtToken.Alias> aliases : statement.getAliases().values()) {
+                for (ClassStmtToken.Alias alias : aliases) {
+                    checkRequiredTrait(alias.getTrait());
+                }
             }
-        }
 
         if (statement.getReplacements() != null)
-        for(ClassStmtToken.Replacement replacement : statement.getReplacements().values()) {
-            checkRequiredTrait(replacement.getOrigin());
-            for(String e : replacement.getTraits())
-                checkRequiredTrait(e);
-        }
+            for (ClassStmtToken.Replacement replacement : statement.getReplacements().values()) {
+                checkRequiredTrait(replacement.getOrigin());
+                for (String e : replacement.getTraits())
+                    checkRequiredTrait(e);
+            }
     }
 
     protected List<ClassEntity> fetchTraits() {
         List<ClassEntity> r = new ArrayList<ClassEntity>();
-        for(NameToken one : statement.getUses()) {
+        for (NameToken one : statement.getUses()) {
             ClassEntity trait = fetchClass(one.getName());
             if (trait == null) {
                 compiler.getEnvironment().error(
@@ -806,10 +834,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     protected void writeTraits(Collection<ClassEntity> traits) {
-        for(ClassEntity trait : traits) {
+        for (ClassEntity trait : traits) {
             writeTrait(trait);
         }
     }
+
 
     @Override
     public ClassEntity compile() {
@@ -849,14 +878,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             );
 
         if (compiler.getModule().findClass(entity.getLowerName()) != null
-              || compiler.getEnvironment().isLoadedClass(entity.getLowerName())){
+                || compiler.getEnvironment().isLoadedClass(entity.getLowerName())) {
             throw new FatalException(
                     Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()),
                     statement.getName().toTraceInfo(compiler.getContext())
             );
         }
 
-        if (!statement.isInterface()){
+        if (!statement.isInterface()) {
             node.access = ACC_SUPER + ACC_PUBLIC;
             node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
             node.superName = entity.getParent() == null
@@ -871,13 +900,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         // constants
         if (statement.getConstants() != null)
-            for(ConstStmtToken constant : statement.getConstants()){
-                  writeConstant(constant);
-        }
+            for (ConstStmtToken constant : statement.getConstants()) {
+                writeConstant(constant);
+            }
 
-        if (statement.getMethods() != null){
-            for (MethodStmtToken method : statement.getMethods()){
-                ClassEntity.SignatureResult result = entity.addMethod(compiler.compileMethod(this, method, external), null);
+        if (statement.getMethods() != null) {
+            for (MethodStmtToken method : statement.getMethods()) {
+                ClassEntity.SignatureResult result = entity.addMethod(
+                        compiler.compileMethod(this, method, external, generatorEntity), null);
                 result.check(compiler.getEnvironment());
             }
         }
@@ -891,10 +921,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         writeImplements();
         entity.doneDeclare();
 
-        if (!statement.isInterface()){
+        if (!statement.isInterface()) {
             writeDestructor();
 
-            if (entity.getType() != ClassEntity.Type.INTERFACE){
+            if (entity.getType() != ClassEntity.Type.INTERFACE) {
                 writeInitEnvironment();
             }
 

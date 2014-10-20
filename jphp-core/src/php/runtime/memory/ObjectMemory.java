@@ -305,8 +305,8 @@ public class ObjectMemory extends Memory {
 
     @Override
     public ForeachIterator getNewIterator(final Environment env, boolean getReferences, boolean getKeyReferences) {
-        if (value instanceof IteratorAggregate){
-            return ((IteratorAggregate)value).getIterator(env).getNewIterator(env, getReferences, getKeyReferences);
+        if (value instanceof IteratorAggregate) {
+            return env.invokeMethodNoThrow(value, "getIterator").getNewIterator(env, getReferences, getKeyReferences);
         } else if (value instanceof Iterator){
             final Iterator iterator = (Iterator)value;
             final String className = value.getReflection().getName();
@@ -330,7 +330,7 @@ public class ObjectMemory extends Memory {
                 protected boolean rewind() {
                     if (!rewind){
                         if (!isNative)
-                            env.pushCall(null, ObjectMemory.this.value, null, "rewind", className, null);
+                            env.pushCall(trace, ObjectMemory.this.value, null, "rewind", className, null);
                         try {
                             return iterator.rewind(env).toValue() != FALSE;
                         } finally {
@@ -361,7 +361,7 @@ public class ObjectMemory extends Memory {
                     keyInit = false;
                     if (needNext){
                         if (!isNative)
-                            env.pushCall(null, ObjectMemory.this.value, null, "next", className, null);
+                            env.pushCall(trace, ObjectMemory.this.value, null, "next", className, null);
                         try {
                             iterator.next(env);
                         } finally {
@@ -372,12 +372,12 @@ public class ObjectMemory extends Memory {
 
                     needNext = true;
                     if (!isNative)
-                        env.pushCall(null, ObjectMemory.this.value, null, "valid", className, null);
+                        env.pushCall(trace, ObjectMemory.this.value, null, "valid", className, null);
                     try {
                         valid = iterator.valid(env).toBoolean();
                         if (valid) {
                             if (!isNative)
-                                env.pushCall(null, ObjectMemory.this.value, null, "current", className, null);
+                                env.pushCall(trace, ObjectMemory.this.value, null, "current", className, null);
                             try {
                                 currentValue = iterator.current(env);
                                 if (!getReferences)
@@ -408,7 +408,7 @@ public class ObjectMemory extends Memory {
                         return (Memory)currentKey;
 
                     if (!isNative)
-                        env.pushCall(null, ObjectMemory.this.value, null, "key", className, null);
+                        env.pushCall(trace, ObjectMemory.this.value, null, "key", className, null);
                     try {
                         currentKey = iterator.key(env).toImmutable();
                         keyInit = true;

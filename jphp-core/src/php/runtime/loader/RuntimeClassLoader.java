@@ -8,6 +8,7 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -71,6 +72,10 @@ public class RuntimeClassLoader extends ClassLoader {
         return result;
     }
 
+    protected Class<?> loadGenerator(GeneratorEntity generator) throws NoSuchMethodException, NoSuchFieldException {
+        return loadClass(generator);
+    }
+
     public boolean loadModule(ModuleEntity module){
         String internal = module.getInternalName();
 
@@ -80,6 +85,9 @@ public class RuntimeClassLoader extends ClassLoader {
             try {
                 for(ClosureEntity closure : module.getClosures())
                     loadClosure(closure);
+
+                for(GeneratorEntity generator : module.getGenerators())
+                    loadGenerator(generator);
 
                 for(ClassEntity clazz : module.getClasses()){
                     if (clazz.getType() != ClassEntity.Type.INTERFACE)

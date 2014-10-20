@@ -134,8 +134,10 @@ public enum TokenType {
     T_CALLABLE(363),
     T_TRAIT_C(365),
 
+
     /// ---------------- ///
 
+    T_YIELD(999),
     T_J_CUSTOM(1000),
     T_J_BRACE(1001),
     T_J_ARRAY_ACCESS(1002),

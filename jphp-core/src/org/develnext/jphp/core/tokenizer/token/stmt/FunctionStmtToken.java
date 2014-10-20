@@ -34,8 +34,11 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean thisExists;
     public static final VariableExprToken thisVariable = VariableExprToken.valueOf("this");
     protected int id;
+    protected int generatorId = -1;
 
     protected boolean isStatic = false;
+
+    protected boolean isGenerator = false;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -153,6 +156,14 @@ public class FunctionStmtToken extends StmtToken {
         this.dynamicLocal = dynamicLocal;
     }
 
+    public boolean isGenerator() {
+        return isGenerator;
+    }
+
+    public void setGenerator(boolean isGenerator) {
+        this.isGenerator = isGenerator;
+    }
+
     public boolean isCallsExist() {
         return callsExist;
     }
@@ -245,5 +256,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setDocComment(CommentToken docComment) {
         this.docComment = docComment;
+    }
+
+    public int getGeneratorId() {
+        return generatorId;
+    }
+
+    public void setGeneratorId(int generatorId) {
+        this.generatorId = generatorId;
     }
 }
