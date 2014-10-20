@@ -1,11 +1,15 @@
 package php.runtime.lang;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.FinallyException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.spl.iterator.Iterator;
+import php.runtime.lang.support.IManualDestructable;
 import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
@@ -17,7 +21,10 @@ import java.util.NoSuchElementException;
 import static php.runtime.annotation.Reflection.*;
 
 @Name("Generator")
-abstract public class Generator extends BaseObject implements Iterator {
+@Final
+abstract public class Generator extends BaseObject implements Iterator, IManualDestructable {
+    private enum ClosedType { DEFAULT, MANUAL }
+
     protected Memory self;
     protected final Memory[] uses;
 
@@ -33,13 +40,18 @@ abstract public class Generator extends BaseObject implements Iterator {
     protected CallStackItem callStackItem;
 
     protected Throwable lastThrowable = null;
-    protected BaseException newThrow = null;
+    protected RuntimeException newThrow = null;
+
+    protected boolean busy;
+    protected ClosedType closed;
 
     public Generator(final Environment env, ClassEntity generator, Memory self, Memory[] uses) {
         super(env, generator);
         if (generator == null) {
             throw new CriticalException("Unable to create generator");
         }
+
+        env.registerObjectInGC(this);
 
         this.self = self;
         this.uses = uses;
@@ -65,6 +77,10 @@ abstract public class Generator extends BaseObject implements Iterator {
     abstract protected Memory _run(Environment env, Memory... args);
 
     protected Memory _next(Environment env) {
+        if (busy) {
+            env.error(env.trace(), "Cannot resume an already running generator");
+        }
+
         boolean x2 = false;
         if (callStackItem != null) {
             env.pushCall(new CallStackItem(callStackItem));
@@ -73,6 +89,7 @@ abstract public class Generator extends BaseObject implements Iterator {
 
         try {
             counter += 1;
+            busy = true;
             return iterator.next().getValue();
         } catch (NoSuchElementException e) {
             valid = false;
@@ -80,6 +97,7 @@ abstract public class Generator extends BaseObject implements Iterator {
         } finally {
             if (x2) env.popCall();
 
+            busy = false;
             checkThrow();
         }
         return null;
@@ -108,6 +126,27 @@ abstract public class Generator extends BaseObject implements Iterator {
         }
     }
 
+    public boolean isReturnReferences() {
+        return ((GeneratorEntity)getReflection()).isReturnReference();
+    }
+
+    @Override
+    public void onManualDestruct(Environment env) {
+        closed = ClosedType.MANUAL;
+    }
+
+    @Signature
+    public Memory __destruct(Environment env, Memory... args) {
+        if (isInit) {
+            if (closed == null) {
+                closed = ClosedType.DEFAULT;
+            }
+            newThrow = new FinallyException();
+            _next(env);
+        }
+        return Memory.NULL;
+    }
+
     @Override
     @Signature
     public Memory next(Environment env, Memory... args) {
@@ -117,6 +156,9 @@ abstract public class Generator extends BaseObject implements Iterator {
 
     @Signature(@Arg("value"))
     synchronized public Memory send(Environment env, Memory... args) {
+        if (!isInit) {
+           rewind(env);
+        }
 
         Bucket current = iterator.getCurrentValue();
         if (current == null) {
@@ -133,7 +175,7 @@ abstract public class Generator extends BaseObject implements Iterator {
     synchronized public Memory _throw(Environment env, Memory... args) {
         if (valid) {
             newThrow = args[0].toObject(BaseException.class);
-            newThrow.setTraceInfo(env, env.trace());
+            ((BaseException)newThrow).setTraceInfo(env, env.trace());
             return _next(env);
         } else {
             env.__throwException(args[0].toObject(BaseException.class));
@@ -206,6 +248,12 @@ abstract public class Generator extends BaseObject implements Iterator {
         return Memory.NULL;
     }
 
+    @Signature
+    private Memory __sleep(Environment env, Memory... args) {
+        env.exception(env.trace(), "Serialization of 'Generator' is not allowed");
+        return Memory.NULL;
+    }
+
     public CallStackItem getCallStackItem() {
         return callStackItem;
     }
@@ -219,8 +267,8 @@ abstract public class Generator extends BaseObject implements Iterator {
         }
     }
 
-    protected Memory yield() {
-        return yield(Memory.NULL);
+    protected Memory yield(Environment env, TraceInfo trace) {
+        return yield(env, trace, Memory.NULL);
     }
 
     protected Bucket setCurrent(Memory value) {
@@ -249,11 +297,17 @@ abstract public class Generator extends BaseObject implements Iterator {
         return current;
     }
 
-    protected Memory yield(Memory value) {
+    protected Memory yield(Environment env, TraceInfo trace, Memory value) {
+        if (closed == ClosedType.MANUAL) {
+            env.error(trace, "Cannot yield from finally in a force-closed generator");
+        }
+
         checkNewThrow();
 
         Bucket current = setCurrent(value);
         gen.yield(current);
+
+        checkNewThrow();
         return current.getValue();
     }
 

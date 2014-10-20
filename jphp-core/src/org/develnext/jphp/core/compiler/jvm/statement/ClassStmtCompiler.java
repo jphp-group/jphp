@@ -869,7 +869,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 );
 
             ClassEntity.ExtendsResult result = entity.setParent(parent, false);
-            result.check(compiler.getEnvironment());
+            if (isInterfaceCheck) {
+                result.check(compiler.getEnvironment());
+            }
         }
 
         if (!isSystem)

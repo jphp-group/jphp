@@ -167,7 +167,34 @@ public class GeneratorsTest extends JvmCompilerCase {
         check("generators/yield_in_finally.php");
         check("generators/yield_in_parenthesis.php");
         check("generators/yield_ref_function_call_by_reference.php");
-       // check("generators/yield_without_value.php"); TODO fix it
+        check("generators/yield_without_value.php");
+    }
+
+    @Test
+    public void testErrors() {
+        check("generators/errors/generator_cannot_return_before_yield_error.php", true);
+        check("generators/errors/generator_cannot_return_error.php", true);
+        check("generators/errors/generator_extend_error.php", true);
+        check("generators/errors/generator_instantiate_error.php", true);
+        check("generators/errors/non_ref_generator_iterated_by_ref_error.php", true);
+        check("generators/errors/resume_running_generator_error.php", true);
+        check("generators/errors/serialize_unserialize_error.php", true);
+        check("generators/errors/yield_const_by_ref_error.php", true);
+        check("generators/errors/yield_non_ref_function_call_by_ref_error.php", true);
+        check("generators/errors/yield_outside_function_error.php", true);
+        check("generators/errors/yield_in_force_closed_finally_error.php", true);
+    }
+
+    @Test
+    public void testFinally() {
+        check("generators/finally/finally_ran_on_close.php");
+        check("generators/finally/return_return.php");
+        check("generators/finally/return_yield.php");
+        check("generators/finally/run_on_dtor.php");
+        check("generators/finally/throw_yield.php");
+        check("generators/finally/yield_return.php");
+        check("generators/finally/yield_throw.php");
+        check("generators/finally/yield_yield.php");
     }
 
     @Test

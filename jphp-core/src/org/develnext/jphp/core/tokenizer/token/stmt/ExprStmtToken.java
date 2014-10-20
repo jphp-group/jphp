@@ -12,7 +12,6 @@ public class ExprStmtToken extends StmtToken {
     private List<Token> tokens;
     private boolean isStmtList = true;
     private boolean constantly = true;
-    private YieldExprToken needYield;
 
     protected ExprStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -68,20 +67,5 @@ public class ExprStmtToken extends StmtToken {
 
     public boolean isConstantly() {
         return constantly;
-    }
-
-    public YieldExprToken getNeedYield() {
-        return needYield;
-    }
-
-    public void setNeedYield(YieldExprToken needYield) {
-        if (needYield != null) {
-            needYield.setOnlyGet(true);
-            this.needYield = new YieldExprToken(needYield.getMeta());
-            this.needYield.setOnlyNext(true);
-            this.needYield.setValue(needYield.getValue());
-        } else {
-            this.needYield = null;
-        }
     }
 }

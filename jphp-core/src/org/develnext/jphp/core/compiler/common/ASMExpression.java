@@ -138,7 +138,6 @@ public class ASMExpression {
         }
 
         this.result = new ExprStmtToken(result);
-        this.result.setNeedYield(expr.getNeedYield());
     }
 
     protected void processOperator(Stack<Token> stack, List<Token> result, OperatorExprToken current){

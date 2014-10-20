@@ -33,16 +33,6 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
         return getToken(current, iterator, absolute, true, endTokens);
     }
 
-    private void processYields(ExprStmtToken expr) {
-        if (expr.isSingle() && expr.getSingle() instanceof YieldExprToken) {
-
-        } else {
-            expr.setNeedYield(analyzer.peekYield());
-            analyzer.setLastYieldNeededExpr(expr);
-        }
-        analyzer.clearYieldStack();
-    }
-
     @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator, boolean absolute, boolean returnNull,
                                   Class<? extends Token>... endTokens) {
@@ -62,7 +52,6 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                     break;
                 }
 
-                processYields(expr);
                 instructions.add(expr);
             }
         } else if (current instanceof ColonToken || (absolute && endTokens != null)){
@@ -85,8 +74,6 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                 } else if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken){
                    // nop break;
                 } else {
-
-                    processYields(expr);
                     instructions.add(expr);
                 }
             }
@@ -96,8 +83,6 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
                 if (expr.getTokens().size() == 1 && expr.getTokens().get(0) instanceof SemicolonToken) {
                     // nop
                 } else {
-
-                    processYields(expr);
                     instructions.add(expr);
                 }
             }
@@ -113,8 +98,9 @@ public class BodyGenerator extends Generator<BodyStmtToken> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public BodyStmtToken getToken(Token current, ListIterator<Token> iterator) {
-        return getToken(current, iterator, null);
+        return getToken(current, iterator, (Class<? extends Token>[])null);
     }
 
     @Override

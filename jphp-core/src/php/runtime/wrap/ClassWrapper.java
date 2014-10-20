@@ -122,12 +122,18 @@ public class ClassWrapper {
         entity.setAbstract(java.lang.reflect.Modifier.isAbstract(method.getModifiers()));
         entity.setFinal(java.lang.reflect.Modifier.isFinal(method.getModifiers()));
         entity.setStatic(java.lang.reflect.Modifier.isStatic(method.getModifiers()));
+
         if (classEntity.isInterface()){
             entity.setAbstractable(true);
             entity.setAbstract(false);
         }
+
         if (entity.isAbstract())
             entity.setAbstractable(true);
+
+        if (method.isAnnotationPresent(Reflection.Final.class)) {
+            entity.setFinal(true);
+        }
 
         entity.setInternalName(method.getName());
 
@@ -295,6 +301,10 @@ public class ClassWrapper {
         classEntity.setAbstract(Modifier.isAbstract(mod));
         classEntity.setFinal(Modifier.isFinal(mod));
         classEntity.setNotRuntime(nativeClass.isAnnotationPresent(Reflection.NotRuntime.class));
+
+        if (nativeClass.isAnnotationPresent(Reflection.Final.class)) {
+            classEntity.setFinal(true);
+        }
 
         this.onWrapName(classEntity);
         if (!classEntity.isTrait()) {

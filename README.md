@@ -40,20 +40,19 @@ Our project started in October 2013. There were a few reasons for that:
 ### Language Features
 > (without zend runtime libraries)
 
-+ PHP 5.4+ (with OOP)
++ PHP 5.5+ (with OOP)
 + Spl autoloading for classes
 + Iterators, ArrayAccess, Serializable, etc.
 + Reflection classes
-+ Try finally (PHP 5.5)
-+ Array and string literal dereferencing (PHP 5.5)
-+ `__debugInfo` for var_dump (PHP 5.6)
-+ `::class` system constant (php 5.5)
-+ list() in foreach (php 5.5)
++ `__debugInfo` for var_dump (php 5.6)
 + `**` power operator (php 5.6)
++ Constant Scalar Expressions (with constants) (php 5.6)
 
 **What JPHP does not yet support?**
 
-+ Generators (php 5.5) _in progress_
++ Importing namespaced functions (php 5.6)
++ Dedicated syntax for variadic functions (php 5.6)
++ Argument unpacking (php 5.6)
 
 ### Documentation
 

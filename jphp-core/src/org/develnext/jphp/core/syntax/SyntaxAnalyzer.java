@@ -33,8 +33,6 @@ public class SyntaxAnalyzer {
     private ClassStmtToken clazz;
     private FunctionStmtToken function;
     private Stack<FunctionStmtToken> closureStack;
-    private Stack<YieldExprToken> yieldStack = new Stack<YieldExprToken>();
-    private ExprStmtToken lastYieldNeededExpr = null;
 
     private Stack<Scope> scopeStack;
     private Stack<Scope> rootScopeStack = new Stack<Scope>();
@@ -391,30 +389,6 @@ public class SyntaxAnalyzer {
 
     public void pushClosure(FunctionStmtToken closure) {
         closureStack.push(closure);
-    }
-
-    public void pushYield(YieldExprToken yieldExprToken) {
-        yieldStack.push(yieldExprToken);
-    }
-
-    public int getYieldCount() {
-        return yieldStack.size();
-    }
-
-    public YieldExprToken peekYield() {
-        return yieldStack.empty() ? null : yieldStack.peek();
-    }
-
-    public void clearYieldStack() {
-        yieldStack.clear();
-    }
-
-    public ExprStmtToken getLastYieldNeededExpr() {
-        return lastYieldNeededExpr;
-    }
-
-    public void setLastYieldNeededExpr(ExprStmtToken lastYieldNeededExpr) {
-        this.lastYieldNeededExpr = lastYieldNeededExpr;
     }
 
     public FunctionStmtToken peekClosure() {

@@ -322,18 +322,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (next instanceof OperatorExprToken && ((OperatorExprToken) next).isBinary()) {
             result.setValue(null);
         } else {
-            if (analyzer.getLastYieldNeededExpr() != null) {
-                analyzer.getLastYieldNeededExpr().setNeedYield(null);
-                analyzer.setLastYieldNeededExpr(null);
-            }
-
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                     nextToken(iterator), iterator, BraceExprToken.Kind.ANY
             );
             result.setValue(value);
         }
 
-        analyzer.pushYield(result);
         return result;
     }
 

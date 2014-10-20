@@ -727,9 +727,10 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public IObject newObjectWithoutConstruct(Environment env) {
-        IObject object;
+        IObject object = null;
         try {
-            object = (IObject) nativeConstructor.newInstance(env, this);
+            if (nativeConstructor != null)
+                object = (IObject) nativeConstructor.newInstance(env, this);
         } catch (InvocationTargetException e){
             env.__throwException(e);
             return null;

@@ -4,10 +4,12 @@ import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.Generator;
 import php.runtime.reflection.*;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
+import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -154,7 +156,9 @@ public class ClassDumper extends Dumper<ClassEntity> {
                 env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, parent);
 
             ClassEntity.ExtendsResult result = entity.setParent(parentEntity, false);
-            result.check(env);
+
+            if (clazz != GeneratorEntity.class)
+                result.check(env);
         }
 
         // constants

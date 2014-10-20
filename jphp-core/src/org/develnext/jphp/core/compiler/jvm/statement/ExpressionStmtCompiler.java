@@ -42,6 +42,7 @@ import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.memory.*;
+import php.runtime.memory.helper.UndefinedMemory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
 import php.runtime.reflection.support.Entity;
@@ -393,7 +394,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public void writePushMemory(Memory memory){
         Memory.Type type = Memory.Type.REFERENCE;
 
-        if (memory instanceof NullMemory){
+        if (memory instanceof UndefinedMemory) {
+            code.add(new FieldInsnNode(
+                    GETSTATIC, Type.getInternalName(Memory.class), "UNDEFINED", Type.getDescriptor(Memory.class)
+            ));
+        } else if (memory instanceof NullMemory) {
             code.add(new FieldInsnNode(
                     GETSTATIC, Type.getInternalName(Memory.class), "NULL", Type.getDescriptor(Memory.class)
             ));
@@ -1329,7 +1334,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             LabelNode elseLabel = new LabelNode();
 
             if (methodStatement.isStatic()) {
-                writePushNull();
+                writePushMemory(Memory.UNDEFINED);
                 writeVarStore(variable, false, false);
             } else {
                 writeVarLoad("~this");
@@ -1339,9 +1344,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 stackPop();
 
                 if (variable.isReference()) {
-                    writePushNewObject(ReferenceMemory.class);
+                    writePushMemory(Memory.UNDEFINED);
+                    writeSysStaticCall(ReferenceMemory.class, "valueOf", Memory.class, Memory.class);
                 } else {
-                    writePushNull();
+                    writePushMemory(Memory.UNDEFINED);
                 }
                 writeVarStore(variable, false, false);
 

@@ -421,4 +421,10 @@ final public class InvokeHelper {
             env.warning(trace, Messages.ERR_RETURN_NOT_REFERENCE.fetch());
         }
     }
+
+    public static void checkYieldReference(Memory memory, Environment env, TraceInfo trace){
+        if (memory.isImmutable()){
+            env.error(trace, ErrorType.E_NOTICE, Messages.ERR_YIELD_NOT_REFERENCE.fetch());
+        }
+    }
 }

@@ -24,6 +24,7 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
+import php.runtime.memory.helper.UndefinedMemory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
 import org.develnext.jphp.core.compiler.AbstractCompiler;
@@ -759,6 +760,10 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory get_class(Environment env, TraceInfo trace, Memory object){
         if (object.isNull()){
+            if (object == Memory.UNDEFINED) {
+                return Memory.FALSE;
+            }
+            
             CallStackItem item = env.peekCall(0);
             if (item.clazz != null){
                 if (item.classEntity == null)

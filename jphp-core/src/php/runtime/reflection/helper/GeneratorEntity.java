@@ -19,6 +19,10 @@ public class GeneratorEntity extends ClassEntity {
 
     public GeneratorEntity(Context context) {
         super(context);
+        this.lowerName = getLowerName();
+        this.shortName = getShortName();
+        this.name      = getName();
+        this.namespaceName = getNamespaceName();
     }
 
     @Override

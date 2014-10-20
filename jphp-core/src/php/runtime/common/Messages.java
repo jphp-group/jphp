@@ -68,6 +68,7 @@ final public class Messages {
     public final static Item ERR_INCLUDE_FAILED = new Item("%s(): Failed opening '%s' for inclusion");
     public final static Item ERR_USE_UNDEFINED_CONSTANT = new Item("Use of undefined constant %s - assumed '%s'");
     public final static Item ERR_RETURN_NOT_REFERENCE = new Item("Only variable references should be returned by reference");
+    public final static Item ERR_YIELD_NOT_REFERENCE = new Item("Only variable references should be yielded by reference");
     public final static Item ERR_UNDEFINED_PROPERTY = new Item("Undefined property: %s::$%s");
     public final static Item ERR_UNDEFINED_CLASS_CONSTANT = new Item("Undefined class constant '%s'");
     public final static Item ERR_INDIRECT_MODIFICATION_OVERLOADED_PROPERTY = new Item("Indirect modification of overloaded property %s::$%s has no effect");

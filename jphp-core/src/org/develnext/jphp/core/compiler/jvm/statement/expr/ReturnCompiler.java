@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.InvokeHelper;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -20,6 +21,14 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
 
     @Override
     public void write(ReturnStmtToken token) {
+        if (token.getValue() != null && method.getGeneratorEntity() != null) {
+            env.error(
+                    token.toTraceInfo(compiler.getContext()),
+                    ErrorType.E_ERROR,
+                    "Generators cannot return values using \"return\""
+            );
+        }
+
         Memory result = Memory.NULL;
         boolean isImmutable = method.getEntity().isImmutable();
         if (token.getValue() != null)
@@ -40,7 +49,7 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
         else
             expr.writePopBoxing(false);
 
-        if (method.getEntity().isReturnReference()){
+        if (method.getEntity().isReturnReference()) {
             expr.writePushDup();
             expr.writePushEnv();
             expr.writePushTraceInfo(token);
@@ -53,7 +62,7 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
         } else
             expr.writePopImmutable();
 
-        if (!method.getTryStack().empty()){
+        if (!method.getTryStack().empty()) {
             LocalVariable variable = method.getLocalVariable("~result~");
             if (variable == null)
                 variable = method.addLocalVariable("~result~", null, Memory.class);

@@ -566,8 +566,8 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 }
 
                 ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
-                token.setValue(new ExprStmtToken(Token.of("null")));
-                compiler.compileExpression(this, new ExprStmtToken(token));
+                token.setValue(null);
+                expr.getCompiler(ReturnStmtToken.class).write(token);
             }
 
             writeFooter();

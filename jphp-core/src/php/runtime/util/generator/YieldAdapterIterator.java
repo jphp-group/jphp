@@ -27,7 +27,7 @@ abstract public class YieldAdapterIterator<T> implements Iterator<T>, Closeable 
      * close the iterator (which will clear the resources immediately).
      */
 
-    protected BaseException throwable;
+    protected Throwable throwable;
 
     protected T currentValue;
 
@@ -44,15 +44,15 @@ abstract public class YieldAdapterIterator<T> implements Iterator<T>, Closeable 
         return next();
     }
 
-    public BaseException getThrowable() {
+    public Throwable getThrowable() {
         return throwable;
     }
 
-    public void setThrowable(BaseException throwable) {
+    public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
     }
 
-    public void sendThrow(BaseException throwable) {
+    public void sendThrow(Throwable throwable) {
         this.throwable = throwable;
         next();
     }
