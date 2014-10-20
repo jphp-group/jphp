@@ -3,7 +3,7 @@ PHP Compiler for JVM
 
 [![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp)
 
-JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.4+).
+JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.5+).
 
 How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and then
 can execute the result on the Java VM.
@@ -26,7 +26,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
-+ JIT (2x - 10x faster PHP 5.4)
++ JIT (1x - 10x faster PHP 5.5)
 + Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
@@ -63,7 +63,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### JPHP - альтернативный движок для PHP
 
-Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это то же самое, только для PHP. Поддерживаются все фичи PHP 5.3+ и некоторые из PHP 5.4 и PHP 5.5.
+Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это то же самое, только для PHP. Поддерживаются все фичи PHP 5.5+ и некоторые из PHP 5.6.
 
 Основное отличие от PHP это отказ от использования несогласованных runtime библиотек и расширений. Язык тот же, а библиотеки для него другие, с использованием ООП и т.д.
 
