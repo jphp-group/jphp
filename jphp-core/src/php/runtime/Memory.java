@@ -162,7 +162,7 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     public <T extends Enum> T toEnum(Class<T> clazz) {
-        return Enum.valueOf(clazz, toString());
+        return (T) Enum.valueOf(clazz, toString());
     }
 
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
