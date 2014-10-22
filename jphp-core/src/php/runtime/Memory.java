@@ -161,6 +161,10 @@ abstract public class Memory implements Comparable<Memory> {
         return (T) toValue(ObjectMemory.class).value;
     }
 
+    public <T extends Enum> T toEnum(Class<T> clazz) {
+        return Enum.valueOf(clazz, toString());
+    }
+
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
         env.error(trace, "__clone method called on non-object");
         return NULL;

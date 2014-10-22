@@ -110,6 +110,7 @@ public class ClassWrapper {
         param.setType(arg.type());
         param.setName(arg.value());
         param.setNullable(arg.nullable());
+        param.setTypeEnum(arg.typeEnum());
 
         param.setDefaultValue(null);
         if (arg.optional().exists()

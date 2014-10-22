@@ -62,6 +62,7 @@ public @interface Reflection {
         String typeClass() default "";
 
         Class<? extends IObject> nativeType() default IObject.class;
+        Class<? extends Enum> typeEnum() default Enum.class;
 
         Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;

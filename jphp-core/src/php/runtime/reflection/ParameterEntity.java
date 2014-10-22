@@ -21,6 +21,8 @@ public class ParameterEntity extends Entity {
     protected HintType type = HintType.ANY;
     protected String typeClass;
     protected String typeClassLower;
+    protected Class<? extends Enum> typeEnum;
+
     protected boolean mutable = true;
     protected boolean used = true;
     protected boolean nullable = false;
@@ -99,6 +101,14 @@ public class ParameterEntity extends Entity {
             typeClass = null;
             typeClassLower = null;
         }
+    }
+
+    public Class<? extends Enum> getTypeEnum() {
+        return typeEnum;
+    }
+
+    public void setTypeEnum(Class<? extends Enum> typeEnum) {
+        this.typeEnum = typeEnum;
     }
 
     public static void validateTypeHinting(Environment env, int index, Memory[] args, HintType type,
@@ -190,6 +200,13 @@ public class ParameterEntity extends Entity {
             return checkTypeHinting(env, value, type, nullable || (defaultValue != null && defaultValue.isNull()));
         } else if (typeClass != null) {
             return checkTypeHinting(env, value, typeClass, nullable || (defaultValue != null && defaultValue.isNull()));
+        } else if (typeEnum != null && typeEnum != Enum.class) {
+            try {
+                Enum.valueOf(typeEnum, value.toString());
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
         } else
             return true;
     }
