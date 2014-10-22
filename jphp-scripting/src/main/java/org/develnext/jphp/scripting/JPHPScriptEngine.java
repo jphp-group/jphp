@@ -8,7 +8,6 @@ import php.runtime.launcher.Launcher;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.ModuleEntity;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.script.*;
 import java.io.*;
