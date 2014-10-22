@@ -109,6 +109,7 @@ public class ClassWrapper {
         param.setReference(arg.reference());
         param.setType(arg.type());
         param.setName(arg.value());
+        param.setNullable(arg.nullable());
 
         param.setDefaultValue(null);
         if (arg.optional().exists()

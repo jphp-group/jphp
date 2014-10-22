@@ -23,6 +23,7 @@ public class ParameterEntity extends Entity {
     protected String typeClassLower;
     protected boolean mutable = true;
     protected boolean used = true;
+    protected boolean nullable = false;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -74,6 +75,14 @@ public class ParameterEntity extends Entity {
 
     public void setType(HintType type) {
         this.type = type == null ? HintType.ANY : type;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 
     public void setTypeClass(String typeClass) {
@@ -177,10 +186,10 @@ public class ParameterEntity extends Entity {
     }
 
     public boolean checkTypeHinting(Environment env, Memory value){
-        if (type != HintType.ANY && type != null){
-            return checkTypeHinting(env, value, type, defaultValue != null && defaultValue.isNull());
+        if (type != HintType.ANY && type != null) {
+            return checkTypeHinting(env, value, type, nullable || (defaultValue != null && defaultValue.isNull()));
         } else if (typeClass != null) {
-            return checkTypeHinting(env, value, typeClass, defaultValue != null && defaultValue.isNull());
+            return checkTypeHinting(env, value, typeClass, nullable || (defaultValue != null && defaultValue.isNull()));
         } else
             return true;
     }

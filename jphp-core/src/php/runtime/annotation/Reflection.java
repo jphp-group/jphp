@@ -66,6 +66,7 @@ public @interface Reflection {
         Modifier modifier() default Modifier.PUBLIC;
         boolean reference() default false;
         boolean readOnly() default false;
+        boolean nullable() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
