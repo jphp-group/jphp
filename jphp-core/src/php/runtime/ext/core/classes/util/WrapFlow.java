@@ -121,7 +121,7 @@ public class WrapFlow extends BaseObject implements Iterator {
             @Override
             public void reset() {
                 this.i = from;
-                currentKeyMemory = LongMemory.valueOf(0);
+                currentKeyMemory = LongMemory.valueOf(-1);
                 currentKey = currentKeyMemory;
             }
 
@@ -139,6 +139,7 @@ public class WrapFlow extends BaseObject implements Iterator {
                         currentKey = LongMemory.valueOf(0);
 
                     currentKey = ((LongMemory)currentKey).inc();
+                    currentKeyMemory = null;
                     i += step;
                     return true;
                 }
