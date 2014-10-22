@@ -2,6 +2,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'idea'
+    apply plugin: 'signing'
 
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -9,8 +10,8 @@ allprojects {
     targetCompatibility = 1.6
 
     project.group = 'org.develnext'
-    project.version = '0.4'
-    project.ext.isSnapshot = true;
+    project.version = '0.5'
+    project.ext.isSnapshot = System.getProperty("release", "0") == "0";
 
     if (project.ext.isSnapshot) {
         version += '-SNAPSHOT'
@@ -105,6 +106,10 @@ configure([
             archives sourcesJar
             archives javadocJar
         }
+
+        signing {
+            sign configurations.archives
+        }
     }
 
     task deploy << {
@@ -116,11 +121,41 @@ configure([
         uploadArchives {
             repositories {
                 mavenDeployer {
-                    repository(url: 'http://maven.develnext.org/repository/internal') {
+                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                    repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
                         authentication(userName: rootProject.username, password: rootProject.password);
                     }
                     snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
                         authentication(userName: rootProject.username, password: rootProject.password);
+                    }
+
+                    pom.project {
+                        name 'JPHP Compiler'
+                        description 'Alternative language engine for PHP 5.5+'
+                        packaging 'jar'
+                        url 'http://github.com/jphp-compiler'
+
+                        scm {
+                            connection 'scm:git:git@github.com:jphp-compiler/jphp.git'
+                            developerConnection 'scm:git:git@github.com:jphp-compiler/jphp.git'
+                            url 'git@github.com:jphp-compiler/jphp.git'
+                        }
+
+                        licenses {
+                            license {
+                                name 'The Apache License, Version 2.0'
+                                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id 'dim-s'
+                                name 'Dmitriy Zayceff'
+                                email 'd.zayceff@gmail.com'
+                            }
+                        }
                     }
                 }
             }

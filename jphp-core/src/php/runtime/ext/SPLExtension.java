@@ -6,10 +6,7 @@ import php.runtime.ext.spl.SPLFunctions;
 import php.runtime.lang.spl.Countable;
 import php.runtime.lang.spl.exception.*;
 import php.runtime.lang.spl.exception.RuntimeException;
-import php.runtime.lang.spl.iterator.MultipleIterator;
-import php.runtime.lang.spl.iterator.OuterIterator;
-import php.runtime.lang.spl.iterator.RecursiveIterator;
-import php.runtime.lang.spl.iterator.SeekableIterator;
+import php.runtime.lang.spl.iterator.*;
 
 public class SPLExtension extends Extension {
     @Override
@@ -31,6 +28,10 @@ public class SPLExtension extends Extension {
         registerNativeClass(scope, RecursiveIterator.class);
         registerNativeClass(scope, SeekableIterator.class);
         registerNativeClass(scope, MultipleIterator.class);
+        registerNativeClass(scope, IteratorIterator.class);
+        registerNativeClass(scope, EmptyIterator.class);
+        registerNativeClass(scope, FilterIterator.class);
+        registerNativeClass(scope, InfiniteIterator.class);
 
         registerNativeClass(scope, LogicException.class);
         registerNativeClass(scope, BadFunctionCallException.class);

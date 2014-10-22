@@ -24,3 +24,4 @@ settings.xml
 build/
 
 gradle.properties
+secret.asc

@@ -1111,10 +1111,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public ForeachIterator foreachIterator(boolean getReferences, boolean withPrevious) {
-        return foreachIterator(getReferences, false, withPrevious);
+        return foreachIterator(getReferences, false, withPrevious, true);
     }
 
+
     public ForeachIterator foreachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious) {
+        return foreachIterator(getReferences, getKeyReferences, withPrevious, true);
+    }
+
+    public ForeachIterator foreachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious, final boolean freeze) {
         return new ForeachIterator(getReferences, getKeyReferences, withPrevious){
             protected int cursor = 0;
             protected int listMax;
@@ -1128,8 +1133,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 if (list == null) {
                     if (withPrevious || getKeyReferences)
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
-                    else
-                        keys = new ArrayList<Object>(map.keySet()).iterator();
+                    else {
+                        if (freeze) {
+                            keys = new ArrayList<Object>(map.keySet()).iterator();
+                        } else {
+                            keys = map.keySet().iterator();
+                        }
+                    }
                 } else {
                     listMax = list.size();
                 }
@@ -1219,7 +1229,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     return false;
 
                 if (ArrayMemory.this.list != null) {
-                    if (cursor >= listMax || size < listMax) {
+                    if (((cursor >= listMax && freeze) || (cursor >= size && !freeze)) || size < listMax) {
                         currentKey = null;
                         currentValue = null;
                         return false;
