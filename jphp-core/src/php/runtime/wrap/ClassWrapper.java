@@ -49,12 +49,15 @@ public class ClassWrapper {
     }
 
     protected void onWrapName(ClassEntity classEntity) {
+        String namespace = extension == null ? "" : extension.getNamespace();
+
         if (nativeClass.isAnnotationPresent(Reflection.Name.class)){
             Reflection.Name name = nativeClass.getAnnotation(Reflection.Name.class);
-            classEntity.setName(name.value());
+            classEntity.setName(namespace.isEmpty() ? name.value() : namespace + "\\" + name.value());
         } else {
-            classEntity.setName(nativeClass.getSimpleName());
+            classEntity.setName(namespace.isEmpty() ? nativeClass.getSimpleName() : namespace + "\\" + nativeClass.getSimpleName());
         }
+
         classEntity.setInternalName(nativeClass.getName().replace('.', '/'));
     }
 
