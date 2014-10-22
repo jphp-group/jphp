@@ -1393,4 +1393,84 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         return r;
     }
+
+    public Map<String, String> toStringMap() {
+        Map<String, String> r = new LinkedHashMap<String, String>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), iterator.getValue().toString());
+        }
+
+        return r;
+    }
+
+    public Map<String, Integer> toIntMap() {
+        Map<String, Integer> r = new LinkedHashMap<String, Integer>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), iterator.getValue().toInteger());
+        }
+
+        return r;
+    }
+
+    public Map<String, Long> toLongMap() {
+        Map<String, Long> r = new LinkedHashMap<String, Long>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), iterator.getValue().toLong());
+        }
+
+        return r;
+    }
+
+    public Map<String, Double> toDoubleMap() {
+        Map<String, Double> r = new LinkedHashMap<String, Double>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), iterator.getValue().toDouble());
+        }
+
+        return r;
+    }
+
+    public Map<String, Boolean> toBooleanMap() {
+        Map<String, Boolean> r = new LinkedHashMap<String, Boolean>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), iterator.getValue().toBoolean());
+        }
+
+        return r;
+    }
+
+    public <T extends IObject> Map<String, T> toObjectMap(Class<T> clazz) {
+        Map<String, T> r = new LinkedHashMap<String, T>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            Memory e = iterator.getValue();
+
+            if (e.instanceOf(clazz))
+                r.put(iterator.getKey().toString(), e.toObject(clazz));
+            else {
+                throw new IllegalArgumentException(Messages.ERR_INVALID_ARRAY_ELEMENT_TYPE.fetch(
+                        ReflectionUtils.getClassName(clazz), ReflectionUtils.getGivenName(e)
+                ));
+            }
+        }
+
+        return r;
+    }
 }
