@@ -3,6 +3,7 @@ package php.runtime.memory.support;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.ext.java.JavaObject;
 import php.runtime.memory.*;
 
@@ -101,7 +102,7 @@ public class MemoryUtils {
         // double
         put(Double.class, new Converter<Double>() {
             @Override
-            public Double run(Memory value) {
+            public Double run(Environment env, TraceInfo trace, Memory value) {
                 return value.toDouble();
             }
         });
@@ -110,7 +111,7 @@ public class MemoryUtils {
         // float
         put(Float.class, new Converter<Float>() {
             @Override
-            public Float run(Memory value) {
+            public Float run(Environment env, TraceInfo trace, Memory value) {
                 return (float)value.toDouble();
             }
         });
@@ -119,7 +120,7 @@ public class MemoryUtils {
         // long
         put(Long.class, new Converter<Long>() {
             @Override
-            public Long run(Memory value) {
+            public Long run(Environment env, TraceInfo trace, Memory value) {
                 return value.toLong();
             }
         });
@@ -128,7 +129,7 @@ public class MemoryUtils {
         // int
         put(Integer.class, new Converter<Integer>() {
             @Override
-            public Integer run(Memory value) {
+            public Integer run(Environment env, TraceInfo trace, Memory value) {
                 return (int)value.toLong();
             }
         });
@@ -137,7 +138,7 @@ public class MemoryUtils {
         // short
         put(Short.class, new Converter<Short>() {
             @Override
-            public Short run(Memory value) {
+            public Short run(Environment env, TraceInfo trace, Memory value) {
                 return (short)value.toLong();
             }
         });
@@ -146,7 +147,7 @@ public class MemoryUtils {
         // byte
         put(Byte.class, new Converter<Byte>() {
             @Override
-            public Byte run(Memory value) {
+            public Byte run(Environment env, TraceInfo trace, Memory value) {
                 return (byte)value.toLong();
             }
         });
@@ -155,7 +156,7 @@ public class MemoryUtils {
         // char
         put(Character.class, new Converter<Character>() {
             @Override
-            public Character run(Memory value) {
+            public Character run(Environment env, TraceInfo trace, Memory value) {
                 return value.toChar();
             }
         });
@@ -164,7 +165,7 @@ public class MemoryUtils {
         // bool
         put(Boolean.class, new Converter<Boolean>() {
             @Override
-            public Boolean run(Memory value) {
+            public Boolean run(Environment env, TraceInfo trace, Memory value) {
                 return value.toBoolean();
             }
         });
@@ -173,21 +174,21 @@ public class MemoryUtils {
         // string
         put(String.class, new Converter<String>() {
             @Override
-            public String run(Memory value) {
+            public String run(Environment env, TraceInfo trace, Memory value) {
                 return value.toString();
             }
         });
 
         put(Memory.class, new Converter<Memory>() {
             @Override
-            public Memory run(Memory value) {
+            public Memory run(Environment env, TraceInfo trace, Memory value) {
                 return value;
             }
         });
 
         put(Memory[].class, new Converter<Memory[]>() {
             @Override
-            public Memory[] run(Memory value) {
+            public Memory[] run(Environment env, TraceInfo trace, Memory value) {
                 if (value.isArray()){
                     List<Memory> result = new ArrayList<Memory>();
                     for(Memory one : (ArrayMemory)value){
@@ -345,8 +346,12 @@ public class MemoryUtils {
             return Memory.NULL;
     }
 
-    public static interface Converter<T> {
-        T run(Memory value);
+    abstract public static class Converter<T> {
+        abstract public T run(Environment env, TraceInfo trace, Memory value);
+
+        final public T run(Memory value) {
+            return run(null, null, value);
+        }
     }
 
     public static interface Unconverter<T> {

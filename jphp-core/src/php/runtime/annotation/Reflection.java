@@ -47,6 +47,11 @@ public @interface Reflection {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({PARAMETER})
+    public @interface Nullable {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, TYPE})
     public @interface Signature {
         boolean root() default false;

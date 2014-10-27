@@ -174,7 +174,15 @@ public class CompileFunction {
         public Method(java.lang.reflect.Method method, int argsCount, boolean _asImmutable) {
             this.argsCount = argsCount;
             this.method = method;
-            converters = MemoryUtils.getConverters(parameterTypes = method.getParameterTypes());
+
+            parameterTypes = method.getParameterTypes();
+            converters     = new MemoryUtils.Converter[parameterTypes.length];
+
+            int i = 0;
+            for (Class<?> type : parameterTypes) {
+                converters[i++] = getConverterForArgument(type);
+            }
+
             if (method.isVarArgs())
                 converters[converters.length - 1] = null;
 
@@ -187,9 +195,9 @@ public class CompileFunction {
             } else
                 isImmutableIgnoreRefs = false;
 
-            references = new boolean[parameterTypes.length];
+            references    = new boolean[parameterTypes.length];
             mutableValues = new boolean[parameterTypes.length];
-            int i = 0;
+            i = 0;
 
             for (Class<?> type : parameterTypes){
                 for(Annotation annotation : parameterAnnotations[i]){
@@ -206,6 +214,10 @@ public class CompileFunction {
 
             if (resultType == void.class)
                 isImmutable = false;
+        }
+
+        protected MemoryUtils.Converter<?> getConverterForArgument(Class<?> type) {
+            return MemoryUtils.getConverter(type);
         }
 
         public boolean isPresentAnnotationOfParam(int index, Class<? extends Annotation> clazz){

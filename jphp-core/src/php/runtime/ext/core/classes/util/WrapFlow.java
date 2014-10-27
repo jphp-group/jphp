@@ -689,6 +689,16 @@ public class WrapFlow extends BaseObject implements Iterator {
         }));
     }
 
+    @Override
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return ObjectMemory.valueOf(this).getNewIterator(env, getReferences, getKeyReferences);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env) {
+        return ObjectMemory.valueOf(this).getNewIterator(env);
+    }
+
     abstract static protected class Worker {
         protected ForeachIterator iterator;
 

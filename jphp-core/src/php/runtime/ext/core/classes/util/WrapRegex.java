@@ -7,6 +7,7 @@ import php.runtime.env.Environment;
 import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -313,6 +314,16 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Signature
     private Memory __clone(Environment env, Memory... args) {
         return Memory.NULL;
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return ObjectMemory.valueOf(this).getNewIterator(env, getReferences, getKeyReferences);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env) {
+        return ObjectMemory.valueOf(this).getNewIterator(env);
     }
 
     @Name("php\\util\\RegexException")

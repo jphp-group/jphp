@@ -3,6 +3,8 @@ package php.runtime.lang.spl.iterator;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.Name;
@@ -46,5 +48,15 @@ public class EmptyIterator extends BaseObject implements Iterator {
     @Signature
     public Memory valid(Environment env, Memory... args) {
         return Memory.FALSE;
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return ObjectMemory.valueOf(this).getNewIterator(env, getReferences, getKeyReferences);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env) {
+        return ObjectMemory.valueOf(this).getNewIterator(env);
     }
 }

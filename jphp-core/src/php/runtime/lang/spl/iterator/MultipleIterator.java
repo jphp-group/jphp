@@ -7,6 +7,7 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.exception.InvalidArgumentException;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.*;
@@ -149,5 +150,15 @@ public class MultipleIterator extends BaseObject implements Iterator {
         }
 
         return Memory.TRUE;
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return ObjectMemory.valueOf(this).getNewIterator(env, getReferences, getKeyReferences);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env) {
+        return ObjectMemory.valueOf(this).getNewIterator(env);
     }
 }

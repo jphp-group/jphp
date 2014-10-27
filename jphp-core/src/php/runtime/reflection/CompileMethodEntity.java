@@ -6,16 +6,30 @@ import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.stream.FileObject;
+import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.core.classes.util.WrapRegex;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
+import php.runtime.lang.spl.Traversable;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class CompileMethodEntity extends MethodEntity {
     protected CompileMethod function;
@@ -54,13 +68,13 @@ public class CompileMethodEntity extends MethodEntity {
 
         int i = 0;
         for (Class<?> el : method.getParameterTypes()) {
-            ParameterEntity param = new ParameterEntity(context, el);
+            ParameterEntity param = new ParameterEntity(context);
             param.setName("arg" + i);
 
             parameters[i++] = param;
         }
 
-        compileMethod.parameters = parameters;
+        compileMethod.setParameters(parameters);
     }
 
     @Override
@@ -102,19 +116,17 @@ public class CompileMethodEntity extends MethodEntity {
             int i = 0;
             int j = 0;
             for(Class<?> clazz : types) {
-                boolean isRef = method.references[i];
+                boolean isRef        = method.references[i];
                 boolean mutableValue = method.mutableValues[i];
+
+                MemoryOperation<?> operation = method.argumentOperations[i];
 
                 if (clazz == Memory.class) {
                     passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toImmutable() : arguments[j].toValue());
                     j++;
-                } else if (parameters[i] != null) {
-                    passed[i] = parameters[i].convert(env, trace, arguments[j]);
+                } else if (operation != null) {
+                    passed[i] = operation.convert(env, trace, arguments[j]);
                     j++;
-                } else if (clazz == Environment.class) {
-                    passed[i] = env;
-                } else if (clazz == TraceInfo.class) {
-                    passed[i] = trace;
                 } else if (i == types.length - 1 && types[i] == Memory[].class){
                     Memory[] arg = new Memory[arguments.length - i + 1];
                     if (!isRef){
@@ -126,7 +138,7 @@ public class CompileMethodEntity extends MethodEntity {
                     passed[i] = arg;
                     break;
                 } else {
-                    env.error(trace, ErrorType.E_CORE_ERROR, name + "(): Cannot call this function dynamically");
+                    env.error(trace, ErrorType.E_CORE_ERROR, name + "(): Cannot call this method dynamically");
                     passed[i] = Memory.NULL;
                 }
                 i++;
@@ -153,17 +165,8 @@ public class CompileMethodEntity extends MethodEntity {
     }
 
     public static class ParameterEntity extends php.runtime.reflection.ParameterEntity {
-        protected final Class<?> type;
-        protected final MemoryUtils.Converter converter;
-
-        public ParameterEntity(Context context, Class<?> type) {
+        public ParameterEntity(Context context) {
             super(context);
-            this.type = type;
-            converter = MemoryUtils.getConverter(type);
-        }
-
-        public Object convert(Environment env, TraceInfo trace, Memory value) {
-            return converter.run(value);
         }
     }
 
@@ -193,10 +196,29 @@ public class CompileMethodEntity extends MethodEntity {
         }
 
         public static class Method extends CompileFunction.Method {
+            protected MemoryOperation[] argumentOperations;
+            protected MemoryOperation returnOperation;
+
             protected ParameterEntity[] parameters;
 
             public Method(java.lang.reflect.Method method, int argsCount, boolean _asImmutable) {
                 super(method, argsCount, _asImmutable);
+            }
+
+            public void setParameters(ParameterEntity[] parameters) {
+                this.parameters = parameters;
+
+                returnOperation    = MemoryOperation.get(resultType, method.getGenericReturnType());
+                argumentOperations = new MemoryOperation[parameterTypes.length];
+
+                MemoryOperation op;
+                for (int i = 0; i < argumentOperations.length; i++) {
+                    op = argumentOperations[i] = MemoryOperation.get(parameterTypes[i], method.getGenericParameterTypes()[i]);
+
+                    if (op != null) {
+                        op.applyTypeHinting(parameters[i]);
+                    }
+                }
             }
         }
     }

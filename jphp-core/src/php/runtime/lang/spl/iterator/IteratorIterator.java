@@ -6,6 +6,7 @@ import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.Traversable;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.*;
@@ -68,5 +69,15 @@ public class IteratorIterator extends BaseObject implements Iterator, OuterItera
     @Signature
     public Memory valid(Environment env, Memory... args) {
         return valid ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
+        return ObjectMemory.valueOf(this).getNewIterator(env, getReferences, getKeyReferences);
+    }
+
+    @Override
+    public ForeachIterator getNewIterator(Environment env) {
+        return ObjectMemory.valueOf(this).getNewIterator(env);
     }
 }
