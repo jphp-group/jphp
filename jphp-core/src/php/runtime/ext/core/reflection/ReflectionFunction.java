@@ -135,7 +135,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
         if (functionEntity instanceof CompileFunctionEntity)
             exception(env, "Cannot get parameters for internal function %s()", functionEntity.getName());
 
-        ParameterEntity[] parameters = closureEntity == null ? functionEntity.parameters : closureEntity.parameters;
+        ParameterEntity[] parameters = closureEntity == null ? functionEntity.getParameters() : closureEntity.parameters;
 
         ClassEntity entity = env.fetchClass("ReflectionParameter");
         ArrayMemory result = new ArrayMemory();

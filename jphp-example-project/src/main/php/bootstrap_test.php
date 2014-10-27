@@ -1,11 +1,4 @@
 <?php
 
-function openLogger() {
-    while (true) {
-        echo 'Log: ' . yield . "\n";
-    }
-}
-
-$logger = openLogger();
-$logger->send('one');
-$logger->send('two');
+$foo = new Foobar();
+$foo->hello(123);

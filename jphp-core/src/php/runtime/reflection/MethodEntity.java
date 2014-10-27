@@ -47,7 +47,7 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public MethodEntity(FunctionEntity entity){
         super(entity.getContext());
-        setParameters(entity.parameters);
+        setParameters(entity.getParameters());
         setReturnReference(entity.isReturnReference());
         setDeprecated(entity.isDeprecated());
         setAbstract(false);

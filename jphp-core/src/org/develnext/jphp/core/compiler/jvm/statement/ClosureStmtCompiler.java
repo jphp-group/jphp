@@ -57,7 +57,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
             entity.setParent(clazzEntity.getParent());
 
         entity.setData(clazzEntity.getData());
-        entity.setParameters(__invoke.parameters);
+        entity.setParameters(__invoke.getParameters());
         entity.doneDeclare();
 
         entity.setGeneratorEntity(__invoke.getGeneratorEntity());

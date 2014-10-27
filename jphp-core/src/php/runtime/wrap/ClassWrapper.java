@@ -4,6 +4,7 @@ import org.develnext.jphp.core.compiler.jvm.Constants;
 import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.*;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.env.CompileScope;
@@ -159,10 +160,39 @@ public class ClassWrapper {
         classEntity.addMethod(entity, null);
     }
 
+    protected void onWrapCompileMethod(ClassEntity classEntity, Method method) {
+        MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
+
+        CompileMethodEntity entity;
+        if (_entity instanceof CompileMethodEntity) {
+            entity = (CompileMethodEntity) _entity;
+        } else {
+            entity = new CompileMethodEntity(classEntity.getExtension());
+        }
+
+        if (classEntity.isInterface()){
+            entity.setAbstractable(true);
+            entity.setAbstract(false);
+        }
+
+        entity.addMethod(method);
+        if (_entity == null) {
+            classEntity.addMethod(entity, null);
+            entity.setClazz(classEntity);
+        }
+    }
+
     protected void onWrapMethods(ClassEntity classEntity) {
         for (Method method : nativeClass.getDeclaredMethods()){
             if (method.isAnnotationPresent(Reflection.Signature.class)){
-                onWrapMethod(classEntity, method);
+                Class<?>[] types = method.getParameterTypes();
+
+                if (method.getReturnType() == Memory.class
+                        && types.length == 2 && types[0] == Environment.class && types[1] == Memory[].class) {
+                    onWrapMethod(classEntity, method);
+                } else {
+                    onWrapCompileMethod(classEntity, method);
+                }
             }
         }
     }

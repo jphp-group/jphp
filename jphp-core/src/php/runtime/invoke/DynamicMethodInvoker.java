@@ -22,7 +22,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public ParameterEntity[] getParameters() {
-        return method.parameters;
+        return method.getParameters();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public int getArgumentCount() {
-        return method.parameters == null ? 0 : method.parameters.length;
+        return method.getParameters() == null ? 0 : method.getParameters().length;
     }
 
     @Override

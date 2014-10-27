@@ -72,9 +72,9 @@ public class MethodDumperTest {
         dumper.save(entity, output);
         MethodEntity copyEntity = dumper.load(new ByteArrayInputStream(output.toByteArray()));
         Assert.assertEquals("foobar", copyEntity.getName());
-        Assert.assertEquals(2, copyEntity.parameters.length);
-        Assert.assertEquals("param1", copyEntity.parameters[0].getName());
-        Assert.assertEquals(HintType.ARRAY, copyEntity.parameters[0].getType());
-        Assert.assertEquals("param2", copyEntity.parameters[1].getName());
+        Assert.assertEquals(2, copyEntity.getParameters().length);
+        Assert.assertEquals("param1", copyEntity.getParameters()[0].getName());
+        Assert.assertEquals(HintType.ARRAY, copyEntity.getParameters()[0].getType());
+        Assert.assertEquals("param2", copyEntity.getParameters()[1].getName());
     }
 }

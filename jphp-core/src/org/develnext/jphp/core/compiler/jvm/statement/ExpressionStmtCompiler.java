@@ -1060,7 +1060,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         ClassEntity classEntity = compiler.getEnvironment().fetchClass(compileClass.getNativeClass());
         MethodEntity methodEntity = classEntity.findMethod(access.getField().getWord().toLowerCase());
-        if (methodEntity != null && methodEntity.getNativeMethod().isAnnotationPresent(Runtime.FastMethod.class)) {
+        if (methodEntity != null && methodEntity.getNativeMethod() != null
+                && methodEntity.getNativeMethod().isAnnotationPresent(Runtime.FastMethod.class)) {
             int cnt = methodEntity.getRequiredParamCount();
 
             if (cnt > function.getParameters().size()) {
@@ -1074,7 +1075,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
             List<Memory> additional = new ArrayList<Memory>();
-            for(ParameterEntity param : methodEntity.parameters) {
+            for(ParameterEntity param : methodEntity.getParameters()) {
                 if (param.getDefaultValue() != null)
                     additional.add(param.getDefaultValue());
                 else if (!additional.isEmpty())

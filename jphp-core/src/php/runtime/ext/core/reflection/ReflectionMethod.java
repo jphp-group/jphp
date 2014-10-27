@@ -80,7 +80,7 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
         if (cachedParameters != null)
             return cachedParameters;
 
-        ParameterEntity[] parameters = methodEntity.parameters;
+        ParameterEntity[] parameters = methodEntity.getParameters();
 
         ClassEntity entity = env.fetchClass("ReflectionParameter");
         ArrayMemory result = new ArrayMemory();

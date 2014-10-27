@@ -20,7 +20,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public ParameterEntity[] getParameters() {
-        return method.parameters;
+        return method.getParameters();
     }
 
     @Override
@@ -38,7 +38,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public int getArgumentCount() {
-        return method.parameters == null ? 0 : method.parameters.length;
+        return method.getParameters() == null ? 0 : method.getParameters().length;
     }
 
     public MethodEntity getMethod() {

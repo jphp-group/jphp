@@ -58,7 +58,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setData(clazzEntity.getData());
 
         MethodEntity methodEntity = clazzEntity.findMethod("__invoke");
-        entity.setParameters(methodEntity.parameters);
+        entity.setParameters(methodEntity.getParameters());
         entity.setEmpty(methodEntity.isEmpty());
         entity.setUsesStackTrace(methodEntity.isUsesStackTrace());
         entity.setImmutable(methodEntity.isImmutable());

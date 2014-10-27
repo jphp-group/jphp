@@ -46,9 +46,9 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
         // trace
         data.writeTrace(debugInformation ? entity.getTrace() : null);
 
-        data.writeInt(entity.parameters == null ? 0 : entity.parameters.length);
-        if (entity.parameters != null)
-            for(ParameterEntity param : entity.parameters){
+        data.writeInt(entity.getParameters() == null ? 0 : entity.getParameters().length);
+        if (entity.getParameters() != null)
+            for(ParameterEntity param : entity.getParameters()){
                 parameterDumper.save(param, output);
             }
 
@@ -81,11 +81,11 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
         if (paramCount < 0)
             throw new DumpException("Invalid param count");
 
-        entity.parameters = new ParameterEntity[paramCount];
+        entity.setParameters(new ParameterEntity[paramCount]);
         for(int i = 0; i < paramCount; i++){
             ParameterEntity param = parameterDumper.load(input);
             param.setTrace(entity.getTrace());
-            entity.parameters[i] = param;
+            entity.getParameters()[i] = param;
         }
 
         int dataLength = data.readInt();

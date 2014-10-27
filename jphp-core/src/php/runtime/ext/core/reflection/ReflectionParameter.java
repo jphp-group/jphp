@@ -65,7 +65,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
                     exception(env, "cos(): ReflectionParameter does not support internal functions", tmp.getName());
                     return Memory.NULL;
                 }
-                parameters = tmp.parameters;
+                parameters = tmp.getParameters();
             }
         }
         entity = null;

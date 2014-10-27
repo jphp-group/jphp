@@ -60,10 +60,10 @@ public class MethodDumper extends Dumper<MethodEntity> {
         // trace
         print.writeTrace(debugInformation ? entity.getTrace() : null);
 
-        print.writeInt(entity.parameters == null ? 0 : entity.parameters.length);
+        print.writeInt(entity.getParameters() == null ? 0 : entity.getParameters().length);
 
-        if (entity.parameters != null)
-        for(ParameterEntity param : entity.parameters){
+        if (entity.getParameters() != null)
+        for(ParameterEntity param : entity.getParameters()){
             parameterDumper.save(param, output);
         }
 
@@ -111,11 +111,11 @@ public class MethodDumper extends Dumper<MethodEntity> {
         if (paramCount < 0)
             throw new DumpException("Invalid param count");
 
-        entity.parameters = new ParameterEntity[paramCount];
+        entity.setParameters(new ParameterEntity[paramCount]);
         for(int i = 0; i < paramCount; i++){
             ParameterEntity param = parameterDumper.load(input);
             param.setTrace(entity.getTrace());
-            entity.parameters[i] = param;
+            entity.getParameters()[i] = param;
         }
 
         data.readRawData();

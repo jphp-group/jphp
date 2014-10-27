@@ -19,7 +19,7 @@ public class FunctionInvoker extends Invoker {
 
     @Override
     public ParameterEntity[] getParameters() {
-        return entity.parameters;
+        return entity.getParameters();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class FunctionInvoker extends Invoker {
 
     @Override
     public int getArgumentCount() {
-        return entity.parameters == null ? 0 : entity.parameters.length;
+        return entity.getParameters() == null ? 0 : entity.getParameters().length;
     }
 
     public FunctionEntity getFunction() {

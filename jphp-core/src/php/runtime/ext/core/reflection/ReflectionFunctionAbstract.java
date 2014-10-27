@@ -116,14 +116,14 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
     public Memory getNumberOfParameters(Environment env, Memory... args){
         if (getClosureEntity() != null)
             return LongMemory.valueOf(getClosureEntity().parameters.length);
-        return LongMemory.valueOf(getEntity().parameters.length);
+        return LongMemory.valueOf(getEntity().getParameters().length);
     }
 
     @Signature
     public Memory getNumberOfRequiredParameters(Environment env, Memory... args){
         int cnt = 0;
         ParameterEntity[] parameterEntities = getClosureEntity() == null
-                ? getEntity().parameters : getClosureEntity().parameters;
+                ? getEntity().getParameters() : getClosureEntity().parameters;
 
         for(ParameterEntity e : parameterEntities){
             if (e.getDefaultValue() == null)

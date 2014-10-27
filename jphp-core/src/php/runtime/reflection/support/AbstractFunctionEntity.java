@@ -15,7 +15,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected boolean isEmpty = false;
     protected DocumentComment docComment;
     protected boolean returnReference;
-    public ParameterEntity[] parameters;
+    protected ParameterEntity[] parameters;
 
     protected Memory result;
     protected boolean abstractable = false;
@@ -103,13 +103,12 @@ abstract public class AbstractFunctionEntity extends Entity {
         this.parameters = parameters;
     }
 
-    public int getParametersHash(){
-        int hash = parameters.length;
-        for(ParameterEntity param : parameters){
-            hash += param.hashCode();
-        }
+    public ParameterEntity[] getParameters() {
+        return getParameters(-1);
+    }
 
-        return hash;
+    public ParameterEntity[] getParameters(int count) {
+        return parameters;
     }
 
     public boolean isImmutable() {

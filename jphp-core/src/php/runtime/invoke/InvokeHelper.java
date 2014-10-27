@@ -239,7 +239,7 @@ final public class InvokeHelper {
 
     public static Memory call(Environment env, TraceInfo trace, FunctionEntity function, Memory[] args)
             throws Throwable {
-        Memory[] passed = makeArguments(env, args, function.parameters, function.getName(), null, trace);
+        Memory[] passed = makeArguments(env, args, function.getParameters(), function.getName(), null, trace);
 
         Memory result = function.getImmutableResult();
         if (result != null) return result;
@@ -365,7 +365,7 @@ final public class InvokeHelper {
         checkAccess(env, trace, method);
 
         if (passed == null)
-            passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+            passed = makeArguments(env, args, method.getParameters(), originClassName, originMethodName, trace);
 
         Memory result = method.getImmutableResult();
         if (result != null) return result;
@@ -403,7 +403,7 @@ final public class InvokeHelper {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        Memory[] passed = makeArguments(env, args, method.parameters, originClassName, originMethodName, trace);
+        Memory[] passed = makeArguments(env, args, method.getParameters(), originClassName, originMethodName, trace);
 
         try {
             if (trace != null && method.isUsesStackTrace())

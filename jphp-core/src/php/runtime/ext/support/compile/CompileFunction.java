@@ -1,14 +1,13 @@
 package php.runtime.ext.support.compile;
 
 
+import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
-import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.Memory;
 import php.runtime.memory.support.MemoryUtils;
 
 import java.lang.annotation.Annotation;
@@ -47,11 +46,11 @@ public class CompileFunction {
         return maxArgs;
     }
 
-    public void addMethod(java.lang.reflect.Method method){
-        addMethod(method, false);
+    public Method addMethod(java.lang.reflect.Method method){
+        return addMethod(method, false);
     }
 
-    public void addMethod(java.lang.reflect.Method method, boolean asImmutable){
+    public Method addMethod(java.lang.reflect.Method method, boolean asImmutable){
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
 
         if (method.isVarArgs()){
@@ -124,7 +123,7 @@ public class CompileFunction {
         if (methods[count] != null)
             throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
-        methods[count] = new Method(method, count, asImmutable);
+        return methods[count] = createMethod(method, count, asImmutable);
     }
 
     @Override
@@ -152,6 +151,10 @@ public class CompileFunction {
         }
 
         return method;
+    }
+
+    protected Method createMethod(java.lang.reflect.Method method, int count, boolean asImmutable) {
+        return new Method(method, count, asImmutable);
     }
 
     public static class Method {

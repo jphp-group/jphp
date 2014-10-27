@@ -74,7 +74,7 @@ final public class ObjectInvokeHelper {
         InvokeHelper.checkAccess(env, trace, method);
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
-                    env, args, method.parameters, className, methodName, trace
+                    env, args, method.getParameters(), className, methodName, trace
             );
         }
 
@@ -155,7 +155,7 @@ final public class ObjectInvokeHelper {
         InvokeHelper.checkAccess(env, trace, method);
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
-                    env, args, method.parameters, className, methodName, trace
+                    env, args, method.getParameters(args == null ? 0 : args.length), className, methodName, trace
             );
         }
 
@@ -209,7 +209,7 @@ final public class ObjectInvokeHelper {
             InvokeHelper.checkAccess(env, trace, method);
 
         Memory[] passed = InvokeHelper.makeArguments(
-                env, args, method.parameters, className, method.getName(), trace
+                env, args, method.getParameters(), className, method.getName(), trace
         );
         Memory result = method.getImmutableResult();
         if (result != null){
