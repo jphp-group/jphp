@@ -21,6 +21,12 @@ public @interface Reflection {
     public @interface BaseType {}
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE})
+    public @interface WrapInterfaces {
+        Class<?>[] value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD, FIELD})
     public @interface Final {}
 

@@ -4,7 +4,6 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.StringMemory;
-import php.runtime.memory.TrueMemory;
 import php.runtime.memory.support.MemoryOperation;
 
 public class StringMemoryOperation extends MemoryOperation<String> {

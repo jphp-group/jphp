@@ -160,6 +160,24 @@ public class ClassWrapper {
         classEntity.addMethod(entity, null);
     }
 
+    protected void onWrapWrapCompileMethod(ClassEntity classEntity, Method method) {
+        MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
+
+        WrapCompileMethodEntity entity;
+        if (_entity instanceof WrapCompileMethodEntity) {
+            entity = (WrapCompileMethodEntity) _entity;
+        } else {
+            entity = new WrapCompileMethodEntity(classEntity.getExtension());
+        }
+
+        entity.addMethod(method);
+        if (_entity == null) {
+            entity.setClazz(classEntity);
+            classEntity.addMethod(entity, null);
+        }
+    }
+
+
     protected void onWrapCompileMethod(ClassEntity classEntity, Method method) {
         MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
 
@@ -183,7 +201,16 @@ public class ClassWrapper {
     }
 
     protected void onWrapMethods(ClassEntity classEntity) {
-        for (Method method : nativeClass.getDeclaredMethods()){
+        Reflection.WrapInterfaces interfaces = nativeClass.getAnnotation(Reflection.WrapInterfaces.class);
+
+        if (interfaces != null)
+        for (Class _interface : interfaces.value()) {
+            for (Method method : _interface.getDeclaredMethods()) {
+                onWrapWrapCompileMethod(classEntity, method);
+            }
+        }
+
+        for (Method method : nativeClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Reflection.Signature.class)){
                 Class<?>[] types = method.getParameterTypes();
 

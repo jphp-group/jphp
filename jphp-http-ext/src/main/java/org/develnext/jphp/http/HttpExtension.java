@@ -17,11 +17,11 @@ public class HttpExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerNativeClass(scope, WrapHttpClient.class);
-        registerNativeClass(scope, WrapHttpRequest.class);
-        registerNativeClass(scope, WrapHttpResponse.class);
-        registerNativeClass(scope, WrapHttpEntity.class);
-        registerNativeClass(scope, WrapHttpFileEntity.class);
-        registerNativeClass(scope, WrapHttpUrlEncodingFormEntity.class);
+        registerClass(scope, WrapHttpClient.class);
+        registerClass(scope, WrapHttpRequest.class);
+        registerClass(scope, WrapHttpResponse.class);
+        registerClass(scope, WrapHttpEntity.class);
+        registerClass(scope, WrapHttpFileEntity.class);
+        registerClass(scope, WrapHttpUrlEncodingFormEntity.class);
     }
 }

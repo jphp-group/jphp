@@ -71,85 +71,90 @@ public class SwingExtension extends Extension {
         eventProviders.put(eventProvider.getComponentClass(), eventProvider);
     }
 
+    @Deprecated
     public void registerNativeClass(CompileScope scope, Class<? extends UIElement> clazz, Class<?> swingClazz) {
-        super.registerNativeClass(scope, clazz);
+        registerClass(scope, clazz, swingClazz);
+    }
+
+    public void registerClass(CompileScope scope, Class<? extends UIElement> clazz, Class<?> swingClazz) {
+        super.registerClass(scope, clazz);
         swingClasses.put(swingClazz, clazz);
     }
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerNativeClass(scope, WrapUIManager.class);
-        registerNativeClass(scope, WrapSwingUtilities.class);
-        registerNativeClass(scope, RootObject.class);
-        registerNativeClass(scope, WrapSwingWorker.class);
+        registerClass(scope, WrapUIManager.class);
+        registerClass(scope, WrapSwingUtilities.class);
+        registerClass(scope, RootObject.class);
+        registerClass(scope, WrapSwingWorker.class);
 
-        registerNativeClass(scope, WrapTimer.class);
-        registerNativeClass(scope, WrapFont.class);
-        registerNativeClass(scope, WrapColor.class);
-        registerNativeClass(scope, WrapGraphics.class);
-        registerNativeClass(scope, WrapImage.class);
-        registerNativeClass(scope, WrapBorder.class);
-        registerNativeClass(scope, WrapStyle.class);
+        registerClass(scope, WrapTimer.class);
+        registerClass(scope, WrapFont.class);
+        registerClass(scope, WrapColor.class);
+        registerClass(scope, WrapGraphics.class);
+        registerClass(scope, WrapImage.class);
+        registerClass(scope, WrapBorder.class);
+        registerClass(scope, WrapStyle.class);
 
-        registerNativeClass(scope, WrapComponentEvent.class);
-        registerNativeClass(scope, WrapKeyEvent.class);
-        registerNativeClass(scope, WrapMouseEvent.class);
-        registerNativeClass(scope, WrapMouseWheelEvent.class);
-        registerNativeClass(scope, WrapFocusEvent.class);
-        registerNativeClass(scope, WrapCaretEvent.class);
-        registerNativeClass(scope, WrapWindowEvent.class);
-        registerNativeClass(scope, WrapItemEvent.class);
-        registerNativeClass(scope, WrapSimpleEvent.class);
+        registerClass(scope, WrapComponentEvent.class);
+        registerClass(scope, WrapKeyEvent.class);
+        registerClass(scope, WrapMouseEvent.class);
+        registerClass(scope, WrapMouseWheelEvent.class);
+        registerClass(scope, WrapFocusEvent.class);
+        registerClass(scope, WrapCaretEvent.class);
+        registerClass(scope, WrapWindowEvent.class);
+        registerClass(scope, WrapItemEvent.class);
+        registerClass(scope, WrapSimpleEvent.class);
 
-        registerNativeClass(scope, UIElement.class);
-        registerNativeClass(scope, UIContainer.class);
-        registerNativeClass(scope, UIWindow.class);
-        registerNativeClass(scope, UIDialog.class, JDialogX.class);
-        registerNativeClass(scope, UIForm.class, JFrameX.class);
-        registerNativeClass(scope, UIPanel.class, JPanel.class);
-        registerNativeClass(scope, UIDesktopPanel.class, JDesktopPane.class);
-        registerNativeClass(scope, UIInternalForm.class, JInternalFrame.class);
-        registerNativeClass(scope, UIImage.class, JImageX.class);
+        registerClass(scope, UIElement.class);
+        registerClass(scope, UIContainer.class);
+        registerClass(scope, UIWindow.class);
+        registerClass(scope, UIDialog.class, JDialogX.class);
+        registerClass(scope, UIForm.class, JFrameX.class);
+        registerClass(scope, UIPanel.class, JPanel.class);
+        registerClass(scope, UIDesktopPanel.class, JDesktopPane.class);
+        registerClass(scope, UIInternalForm.class, JInternalFrame.class);
+        registerClass(scope, UIImage.class, JImageX.class);
 
-        registerNativeClass(scope, UILabel.class, JLabel.class);
+        registerClass(scope, UILabel.class, JLabel.class);
 
-        registerNativeClass(scope, UIAbstractButton.class);
-        registerNativeClass(scope, UIButton.class, JButton.class);
-        registerNativeClass(scope, UIToggleButton.class, JToggleButton.class);
-        registerNativeClass(scope, UIRadioButton.class, JRadioButton.class);
-        registerNativeClass(scope, UICheckbox.class, JCheckBox.class);
-        registerNativeClass(scope, UIScrollPanel.class, JScrollPanelX.class);
+        registerClass(scope, UIAbstractButton.class);
+        registerClass(scope, UIButton.class, JButton.class);
+        registerClass(scope, UIToggleButton.class, JToggleButton.class);
+        registerClass(scope, UIRadioButton.class, JRadioButton.class);
+        registerClass(scope, UICheckbox.class, JCheckBox.class);
+        registerClass(scope, UIScrollPanel.class, JScrollPanelX.class);
 
-        registerNativeClass(scope, UITextElement.class);
-        registerNativeClass(scope, UIEdit.class, JTextFieldX.class);
-        registerNativeClass(scope, UIPasswordEdit.class, JPasswordFieldX.class);
-        registerNativeClass(scope, UITextArea.class, JTextAreaX.class);
-        registerNativeClass(scope, UIRichTextArea.class, JRichTextAreaX.class);
+        registerClass(scope, UITextElement.class);
+        registerClass(scope, UIEdit.class, JTextFieldX.class);
+        registerClass(scope, UIPasswordEdit.class, JPasswordFieldX.class);
+        registerClass(scope, UITextArea.class, JTextAreaX.class);
+        registerClass(scope, UIRichTextArea.class, JRichTextAreaX.class);
 
-        registerNativeClass(scope, UIEditorArea.class, JEditorPaneX.class);
-        registerNativeClass(scope, UICombobox.class, JComboBox.class);
-        registerNativeClass(scope, UIListbox.class, JListbox.class);
-        registerNativeClass(scope, UISlider.class, JSlider.class);
-        registerNativeClass(scope, UIProgress.class, JProgressBar.class);
-        registerNativeClass(scope, UIUnknown.class, Component.class);
+        registerClass(scope, UIEditorArea.class, JEditorPaneX.class);
+        registerClass(scope, UICombobox.class, JComboBox.class);
+        registerClass(scope, UIListbox.class, JListbox.class);
+        registerClass(scope, UISlider.class, JSlider.class);
+        registerClass(scope, UIProgress.class, JProgressBar.class);
+        registerClass(scope, UIUnknown.class, Component.class);
 
-        registerNativeClass(scope, UIMenuBar.class, JMenuBar.class);
-        registerNativeClass(scope, UIMenuItem.class, JMenuItem.class);
-        registerNativeClass(scope, UICheckboxMenuItem.class, JCheckBoxMenuItem.class);
-        registerNativeClass(scope, UIMenu.class, JMenu.class);
-        registerNativeClass(scope, UIPopupMenu.class, JPopupMenu.class);
+        registerClass(scope, UIMenuBar.class, JMenuBar.class);
+        registerClass(scope, UIMenuItem.class, JMenuItem.class);
+        registerClass(scope, UICheckboxMenuItem.class, JCheckBoxMenuItem.class);
+        registerClass(scope, UIMenu.class, JMenu.class);
+        registerClass(scope, UIPopupMenu.class, JPopupMenu.class);
 
-        registerNativeClass(scope, UIFileChooser.class, JFileChooser.class);
-        registerNativeClass(scope, UIColorChooser.class, JColorChooser.class);
-        registerNativeClass(scope, UIToolBar.class, JToolBar.class);
+        registerClass(scope, UIFileChooser.class, JFileChooser.class);
+        registerClass(scope, UIColorChooser.class, JColorChooser.class);
+        registerClass(scope, UIToolBar.class, JToolBar.class);
 
-        registerNativeClass(scope, UITree.class, JTreeX.class);
-        registerNativeClass(scope, WrapTreeNode.class);
-        registerNativeClass(scope, WrapTreeModel.class);
-        registerNativeClass(scope, UITable.class, JTableX.class);
-        registerNativeClass(scope, UITabs.class, JTabbedPane.class);
+        registerClass(scope, UITree.class, JTreeX.class);
+        registerClass(scope, WrapTreeNode.class);
+        registerClass(scope, WrapTreeModel.class);
+        registerClass(scope, UITable.class, JTableX.class);
+        registerClass(scope, UITabs.class, JTabbedPane.class);
 
-        registerNativeClass(scope, WrapUIReader.class);
+        registerClass(scope, WrapUIReader.class);
 
         registerEventProvider(new ComponentEventProvider());
         registerEventProvider(new WindowEventProvider());

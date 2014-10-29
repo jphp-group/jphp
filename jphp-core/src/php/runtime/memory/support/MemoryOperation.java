@@ -3,6 +3,8 @@ package php.runtime.memory.support;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -18,12 +20,15 @@ import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 abstract public class MemoryOperation<T> {
+    protected final static Map<Class<?>, Class<? extends BaseWrapper>> wrappers = new HashMap<Class<?>, Class<? extends BaseWrapper>>();
     protected final static Map<Class<?>, MemoryOperation> operations = new HashMap<Class<?>, MemoryOperation>();
     protected final static Map<ParametrizedClass, MemoryOperation> genericOperations = new HashMap<ParametrizedClass, MemoryOperation>();
 
@@ -48,6 +53,10 @@ abstract public class MemoryOperation<T> {
         return this;
     }
 
+    public static <T> Class<? extends BaseWrapper> getWrapper(Class<T> clazz) {
+        return wrappers.get(clazz);
+    }
+
     @SuppressWarnings("unchecked")
     public static MemoryOperation get(final Class<?> type, Type genericTypes) {
         MemoryOperation operation = null;
@@ -59,6 +68,54 @@ abstract public class MemoryOperation<T> {
             operation = operations.get(type);
 
             if (operation == null) {
+                Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
+                if (wrapperClass != null) {
+                    final Constructor<BaseWrapper> constructor;
+                    try {
+                        constructor = (Constructor<BaseWrapper>) wrapperClass.getConstructor(Environment.class, type);
+                    } catch (NoSuchMethodException e) {
+                        throw new CriticalException(e);
+                    }
+
+                    return new MemoryOperation() {
+                        @Override
+                        public Class<?>[] getOperationClasses() {
+                            return new Class<?>[0];
+                        }
+
+                        @Override
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                            if (arg.isNull()) {
+                                return null;
+                            }
+
+                            return arg.toObject(BaseWrapper.class).getWrappedObject();
+                        }
+
+                        @Override
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                            if (arg == null) {
+                                return Memory.NULL;
+                            }
+
+                            try {
+                                return ObjectMemory.valueOf(constructor.newInstance(env, arg));
+                            } catch (InstantiationException e) {
+                                throw new CriticalException(e);
+                            } catch (IllegalAccessException e) {
+                                throw new CriticalException(e);
+                            } catch (InvocationTargetException e) {
+                                throw new CriticalException(e);
+                            }
+                        }
+
+                        @Override
+                        public void applyTypeHinting(ParameterEntity parameter) {
+                            parameter.setTypeNativeClass(type);
+                        }
+                    };
+                }
+
                 if (IObject.class.isAssignableFrom(type)) {
                     return new MemoryOperation() {
                         @Override
@@ -139,6 +196,10 @@ abstract public class MemoryOperation<T> {
                 operations.put(type, operation);
             }
         }
+    }
+
+    public static <T> void registerWrapper(Class<T> clazz, Class<? extends BaseWrapper<T>> wrapperClass) {
+        wrappers.put(clazz, wrapperClass);
     }
 
     public static class ParametrizedClass<T> {

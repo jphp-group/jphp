@@ -5,10 +5,15 @@ import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.Invoker;
+import php.runtime.lang.BaseWrapper;
+import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.Entity;
+import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.util.JVMStackTracer;
 
 public class ParameterEntity extends Entity {
@@ -22,6 +27,7 @@ public class ParameterEntity extends Entity {
     protected String typeClass;
     protected String typeClassLower;
     protected Class<? extends Enum> typeEnum;
+    protected Class<?> typeNativeClass;
 
     protected boolean mutable = true;
     protected boolean used = true;
@@ -90,6 +96,17 @@ public class ParameterEntity extends Entity {
     public void setTypeClass(String typeClass) {
         this.typeClass = typeClass;
         this.typeClassLower = typeClass == null ? null : typeClass.toLowerCase();
+    }
+
+    public void setTypeNativeClass(Class<?> typeNativeClass) {
+        this.typeNativeClass = typeNativeClass;
+        Class<?> baseWrapper = MemoryOperation.getWrapper(typeNativeClass);
+
+        if (baseWrapper == null) {
+            throw new CriticalException("Support only wrapper classes");
+        }
+
+        setTypeClass(ReflectionUtils.getClassName(baseWrapper));
     }
 
     public void setType(String type){
@@ -198,6 +215,21 @@ public class ParameterEntity extends Entity {
     public boolean checkTypeHinting(Environment env, Memory value){
         if (type != HintType.ANY && type != null) {
             return checkTypeHinting(env, value, type, nullable || (defaultValue != null && defaultValue.isNull()));
+        } else if (typeNativeClass != null) {
+            if (nullable && value.isNull()) {
+                return true;
+            }
+
+            if (value.isObject()) {
+                IObject object = value.toObject(IObject.class);
+                if (object instanceof BaseWrapper) {
+                    return typeNativeClass.isAssignableFrom(((BaseWrapper) object).getWrappedObject().getClass());
+                }
+
+                return false;
+            } else {
+                return false;
+            }
         } else if (typeClass != null) {
             return checkTypeHinting(env, value, typeClass, nullable || (defaultValue != null && defaultValue.isNull()));
         } else if (typeEnum != null && typeEnum != Enum.class) {

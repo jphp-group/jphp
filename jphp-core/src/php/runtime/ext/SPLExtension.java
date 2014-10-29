@@ -23,29 +23,29 @@ public class SPLExtension extends Extension {
     public void onRegister(CompileScope scope) {
         registerFunctions(new SPLFunctions());
 
-        registerNativeClass(scope, Countable.class);
-        registerNativeClass(scope, OuterIterator.class);
-        registerNativeClass(scope, RecursiveIterator.class);
-        registerNativeClass(scope, SeekableIterator.class);
-        registerNativeClass(scope, MultipleIterator.class);
-        registerNativeClass(scope, IteratorIterator.class);
-        registerNativeClass(scope, EmptyIterator.class);
-        registerNativeClass(scope, FilterIterator.class);
-        registerNativeClass(scope, InfiniteIterator.class);
+        registerClass(scope, Countable.class);
+        registerClass(scope, OuterIterator.class);
+        registerClass(scope, RecursiveIterator.class);
+        registerClass(scope, SeekableIterator.class);
+        registerClass(scope, MultipleIterator.class);
+        registerClass(scope, IteratorIterator.class);
+        registerClass(scope, EmptyIterator.class);
+        registerClass(scope, FilterIterator.class);
+        registerClass(scope, InfiniteIterator.class);
 
-        registerNativeClass(scope, LogicException.class);
-        registerNativeClass(scope, BadFunctionCallException.class);
-        registerNativeClass(scope, BadMethodCallException.class);
-        registerNativeClass(scope, DomainException.class);
-        registerNativeClass(scope, InvalidArgumentException.class);
-        registerNativeClass(scope, LengthException.class);
+        registerClass(scope, LogicException.class);
+        registerClass(scope, BadFunctionCallException.class);
+        registerClass(scope, BadMethodCallException.class);
+        registerClass(scope, DomainException.class);
+        registerClass(scope, InvalidArgumentException.class);
+        registerClass(scope, LengthException.class);
 
-        registerNativeClass(scope, RuntimeException.class);
-        registerNativeClass(scope, OutOfBoundsException.class);
-        registerNativeClass(scope, OutOfRangeException.class);
-        registerNativeClass(scope, OverflowException.class);
-        registerNativeClass(scope, RangeException.class);
-        registerNativeClass(scope, UnderflowException.class);
-        registerNativeClass(scope, UnexpectedValueException.class);
+        registerClass(scope, RuntimeException.class);
+        registerClass(scope, OutOfBoundsException.class);
+        registerClass(scope, OutOfRangeException.class);
+        registerClass(scope, OverflowException.class);
+        registerClass(scope, RangeException.class);
+        registerClass(scope, UnderflowException.class);
+        registerClass(scope, UnexpectedValueException.class);
     }
 }

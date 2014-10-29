@@ -3,12 +3,15 @@ package php.runtime.ext.support;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.java.JavaException;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.ext.support.compile.ConstantsContainer;
 import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
+import php.runtime.memory.support.MemoryOperation;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,15 +65,31 @@ abstract public class Extension {
         return classes;
     }
 
+    @Deprecated
     public void registerNativeClass(CompileScope scope, Class<?> clazz) {
+        registerClass(scope, clazz);
+    }
+
+    public void registerClass(CompileScope scope, Class<?> clazz) {
+        if (BaseWrapper.class.isAssignableFrom(clazz)) {
+            throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
+        }
+
         if (classes.put(clazz.getName(), clazz) != null)
-            throw new RuntimeException("Class already registered - " + clazz.getName());
+            throw new CriticalException("Class already registered - " + clazz.getName());
+    }
+
+    public <T> void registerWrapperClass(CompileScope scope, Class<T> clazz, Class<? extends BaseWrapper<T>> wrapperClass) {
+        if (classes.put(clazz.getName(), wrapperClass) != null)
+            throw new CriticalException("Class already registered - " + clazz.getName());
+
+        MemoryOperation.registerWrapper(clazz, wrapperClass);
     }
 
     @SuppressWarnings("unchecked")
     public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
                                       Class<? extends Throwable>... classes) {
-        registerNativeClass(scope, javaClass);
+        registerClass(scope, javaClass);
         if (classes != null)
         for(Class<? extends Throwable> el : classes)
             scope.registerJavaException(javaClass, el);
@@ -78,7 +97,7 @@ abstract public class Extension {
 
     public void registerJavaExceptionForContext(CompileScope scope, Class<? extends JavaException> javaClass,
                                                 Class<? extends IObject> context) {
-        registerNativeClass(scope, javaClass);
+        registerClass(scope, javaClass);
         scope.registerJavaExceptionForContext(javaClass, context);
     }
 

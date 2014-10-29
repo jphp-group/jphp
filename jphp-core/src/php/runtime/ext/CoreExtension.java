@@ -65,64 +65,64 @@ public class CoreExtension extends Extension {
         registerJavaException(scope, WrapJavaExceptions.NumberFormatException.class, NumberFormatException.class);
         registerJavaException(scope, WrapJavaExceptions.InterruptedException.class, InterruptedException.class);
 
-        registerNativeClass(scope, CharUtils.class);
-        registerNativeClass(scope, StrUtils.class);
-        registerNativeClass(scope, BinUtils.class);
-        registerNativeClass(scope, NumUtils.class);
-        registerNativeClass(scope, ItemsUtils.class);
+        registerClass(scope, CharUtils.class);
+        registerClass(scope, StrUtils.class);
+        registerClass(scope, BinUtils.class);
+        registerClass(scope, NumUtils.class);
+        registerClass(scope, ItemsUtils.class);
 
-        registerNativeClass(scope, WrapSettersGetters.class);
+        registerClass(scope, WrapSettersGetters.class);
 
-        registerNativeClass(scope, WrapLocale.class);
-        registerNativeClass(scope, WrapScanner.class);
-        registerNativeClass(scope, WrapFlow.class);
-        registerNativeClass(scope, WrapRegex.class);
+        registerClass(scope, WrapLocale.class);
+        registerClass(scope, WrapScanner.class);
+        registerClass(scope, WrapFlow.class);
+        registerClass(scope, WrapRegex.class);
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
 
-        registerNativeClass(scope, WrapTimeZone.class);
-        registerNativeClass(scope, WrapTimeFormat.class);
-        registerNativeClass(scope, WrapTime.class);
+        registerClass(scope, WrapTimeZone.class);
+        registerClass(scope, WrapTimeFormat.class);
+        registerClass(scope, WrapTime.class);
 
-        registerNativeClass(scope, WrapInvoker.class);
-        registerNativeClass(scope, WrapModule.class);
-        registerNativeClass(scope, WrapEnvironment.class);
-        registerNativeClass(scope, WrapThreadGroup.class);
-        registerNativeClass(scope, WrapThread.class);
-        registerNativeClass(scope, WrapSystem.class);
+        registerClass(scope, WrapInvoker.class);
+        registerClass(scope, WrapModule.class);
+        registerClass(scope, WrapEnvironment.class);
+        registerClass(scope, WrapThreadGroup.class);
+        registerClass(scope, WrapThread.class);
+        registerClass(scope, WrapSystem.class);
 
-        registerNativeClass(scope, Reflector.class);
-        registerNativeClass(scope, Reflection.class);
-        registerNativeClass(scope, ReflectionException.class);
-        registerNativeClass(scope, ReflectionExtension.class);
-        registerNativeClass(scope, ReflectionFunctionAbstract.class);
-        registerNativeClass(scope, ReflectionFunction.class);
-        registerNativeClass(scope, ReflectionParameter.class);
-        registerNativeClass(scope, ReflectionProperty.class);
-        registerNativeClass(scope, ReflectionMethod.class);
-        registerNativeClass(scope, ReflectionClass.class);
-        registerNativeClass(scope, ReflectionObject.class);
+        registerClass(scope, Reflector.class);
+        registerClass(scope, Reflection.class);
+        registerClass(scope, ReflectionException.class);
+        registerClass(scope, ReflectionExtension.class);
+        registerClass(scope, ReflectionFunctionAbstract.class);
+        registerClass(scope, ReflectionFunction.class);
+        registerClass(scope, ReflectionParameter.class);
+        registerClass(scope, ReflectionProperty.class);
+        registerClass(scope, ReflectionMethod.class);
+        registerClass(scope, ReflectionClass.class);
+        registerClass(scope, ReflectionObject.class);
 
         // stream
         registerJavaException(scope, WrapIOException.class, IOException.class);
-        registerNativeClass(scope, FileObject.class);
-        registerNativeClass(scope, Stream.class);
-        registerNativeClass(scope, FileStream.class);
-        registerNativeClass(scope, MiscStream.class);
-        registerNativeClass(scope, MemoryMiscStream.class);
-        registerNativeClass(scope, ResourceStream.class);
+        registerClass(scope, FileObject.class);
+        registerClass(scope, Stream.class);
+        registerClass(scope, FileStream.class);
+        registerClass(scope, MiscStream.class);
+        registerClass(scope, MemoryMiscStream.class);
+        registerClass(scope, ResourceStream.class);
 
         // net
-        registerNativeClass(scope, WrapSocket.class);
-        registerNativeClass(scope, WrapServerSocket.class);
+        registerClass(scope, WrapSocket.class);
+        registerClass(scope, WrapServerSocket.class);
         registerJavaException(scope, WrapSocketException.class, SocketException.class);
 
-        registerNativeClass(scope, WrapExecutorService.class);
-        registerNativeClass(scope, WrapFuture.class);
+        registerClass(scope, WrapExecutorService.class);
+        registerClass(scope, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
-        registerNativeClass(scope, WrapProcessor.class);
+        registerClass(scope, WrapProcessor.class);
 
-        registerNativeClass(scope, WrapProcess.class);
+        registerClass(scope, WrapProcess.class);
     }
 
     @Override

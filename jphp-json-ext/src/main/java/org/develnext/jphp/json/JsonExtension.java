@@ -12,7 +12,7 @@ public class JsonExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerNativeClass(scope, JsonSerializable.class);
-        registerNativeClass(scope, JsonProcessor.class);
+        registerClass(scope, JsonSerializable.class);
+        registerClass(scope, JsonProcessor.class);
     }
 }

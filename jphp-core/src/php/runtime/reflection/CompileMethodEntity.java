@@ -8,29 +8,17 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.stream.FileObject;
-import php.runtime.ext.core.classes.stream.Stream;
-import php.runtime.ext.core.classes.util.WrapRegex;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
-import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
-import php.runtime.lang.spl.Traversable;
-import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 public class CompileMethodEntity extends MethodEntity {
     protected CompileMethod function;
@@ -76,7 +64,7 @@ public class CompileMethodEntity extends MethodEntity {
             ParameterEntity param = new ParameterEntity(context);
             param.setName("arg" + i);
 
-            Annotation[] argAnnotations = method.getParameterAnnotations()[i];
+            Annotation[] argAnnotations = annotations[i];
 
             if (ReflectionUtils.getAnnotation(argAnnotations, Reflection.Nullable.class) != null) {
                 param.setNullable(true);
@@ -90,6 +78,10 @@ public class CompileMethodEntity extends MethodEntity {
 
     @Override
     public Memory invokeDynamic(IObject _this, Environment env, Memory... arguments) throws Throwable {
+        return invokeDynamic((Object)_this, env, arguments);
+    }
+
+    public Memory invokeDynamic(Object _this, Environment env, Memory... arguments) throws Throwable {
         try {
             TraceInfo trace = env.trace();
             if (isAbstract){
@@ -119,8 +111,6 @@ public class CompileMethodEntity extends MethodEntity {
                     return Memory.NULL;
                 }
             }
-
-            ParameterEntity[] parameters = method.parameters;
 
             Class<?>[] types = method.parameterTypes;
             Object[] passed = new Object[ types.length ];

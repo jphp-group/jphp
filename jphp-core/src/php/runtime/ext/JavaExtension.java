@@ -19,11 +19,11 @@ public class JavaExtension extends Extension {
     public void onRegister(CompileScope scope) {
         registerFunctions(new JavaFunctions());
 
-        registerNativeClass(scope, JavaException.class);
-        registerNativeClass(scope, JavaReflection.class);
-        registerNativeClass(scope, JavaObject.class);
-        registerNativeClass(scope, JavaClass.class);
-        registerNativeClass(scope, JavaMethod.class);
-        registerNativeClass(scope, JavaField.class);
+        registerClass(scope, JavaException.class);
+        registerClass(scope, JavaReflection.class);
+        registerClass(scope, JavaObject.class);
+        registerClass(scope, JavaClass.class);
+        registerClass(scope, JavaMethod.class);
+        registerClass(scope, JavaField.class);
     }
 }
