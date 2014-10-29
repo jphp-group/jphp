@@ -1,4 +1,5 @@
 <?php
 
 $foo = new Foobar();
-$foo->hello(123);
+$foo->x = 2;
+$foo->y = 3;

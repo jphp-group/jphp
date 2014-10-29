@@ -2,12 +2,21 @@ package com.example;
 
 import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.zend.ext.ZendExtension;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
+import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
+
+import java.util.List;
+
+import static php.runtime.annotation.Reflection.Nullable;
+import static php.runtime.annotation.Reflection.Signature;
 
 public class ExampleExtension extends Extension {
     @Override
@@ -35,14 +44,13 @@ public class ExampleExtension extends Extension {
     }
 
     public static class Foobar extends BaseObject {
-
         public Foobar(Environment env, ClassEntity clazz) {
             super(env, clazz);
         }
 
-        @Reflection.Signature
-        public void hello(String arg) {
-            System.out.println("Hello " + arg);
+        @Signature
+        public void __set(String name, Memory value) {
+            System.out.println(name + "=" + value);
         }
     }
 }

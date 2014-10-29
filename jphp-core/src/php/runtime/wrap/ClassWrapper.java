@@ -177,8 +177,8 @@ public class ClassWrapper {
 
         entity.addMethod(method);
         if (_entity == null) {
-            classEntity.addMethod(entity, null);
             entity.setClazz(classEntity);
+            classEntity.addMethod(entity, null);
         }
     }
 

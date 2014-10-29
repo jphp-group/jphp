@@ -10,7 +10,7 @@ import php.runtime.memory.support.MemoryOperation;
 public class StringMemoryOperation extends MemoryOperation<String> {
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { Boolean.class, Boolean.TYPE };
+        return new Class<?>[] { String.class };
     }
 
     @Override

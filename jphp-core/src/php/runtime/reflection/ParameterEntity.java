@@ -202,6 +202,10 @@ public class ParameterEntity extends Entity {
             return checkTypeHinting(env, value, typeClass, nullable || (defaultValue != null && defaultValue.isNull()));
         } else if (typeEnum != null && typeEnum != Enum.class) {
             try {
+                if (nullable && value.isNull()) {
+                    return true;
+                }
+
                 Enum.valueOf(typeEnum, value.toString());
                 return true;
             } catch (IllegalArgumentException e) {

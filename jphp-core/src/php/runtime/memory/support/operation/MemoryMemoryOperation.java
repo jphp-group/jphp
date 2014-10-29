@@ -10,7 +10,7 @@ import php.runtime.memory.support.MemoryOperation;
 public class MemoryMemoryOperation extends MemoryOperation<Memory> {
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { Memory.class, ArrayMemory.class };
+        return new Class<?>[] { Memory.class };
     }
 
     @Override

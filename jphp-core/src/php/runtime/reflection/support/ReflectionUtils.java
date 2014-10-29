@@ -3,6 +3,8 @@ package php.runtime.reflection.support;
 import php.runtime.Memory;
 import php.runtime.memory.ObjectMemory;
 
+import java.lang.annotation.Annotation;
+
 import static php.runtime.annotation.Reflection.Name;
 
 final public class ReflectionUtils {
@@ -20,5 +22,15 @@ final public class ReflectionUtils {
             return "an instance of " + value.toValue(ObjectMemory.class).getReflection().getName();
         else
             return value.getRealType().toString();
+    }
+
+    public static <T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> annotationClass) {
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().equals(annotationClass)) {
+                return (T) annotation;
+            }
+        }
+
+        return null;
     }
 }

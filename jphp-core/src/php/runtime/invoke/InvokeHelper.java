@@ -4,6 +4,7 @@ import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
@@ -16,6 +17,9 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.*;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 final public class InvokeHelper {
 
@@ -76,19 +80,40 @@ final public class InvokeHelper {
 
         String method = originMethodName == null ? originClassName : originClassName + "::" + originMethodName;
 
-        if (param.getTypeClass() == null){
-            env.error(
-                    param.getTrace(),
-                    ErrorType.E_RECOVERABLE_ERROR,
-                    "Argument %s passed to %s() must be of the type %s, %s given, called in %s on line %d, position %d and defined",
-                    index,
-                    method,
-                    param.getType().toString(), given,
+        if (param.getTypeClass() == null) {
+            if (param.getTypeEnum() != null && param.getType() == HintType.ANY) {
+                Field[] fields = param.getTypeEnum().getFields();
+                String[] names = new String[fields.length];
 
-                    trace.getFileName(),
-                    trace.getStartLine() + 1,
-                    trace.getStartPosition() + 1
-            );
+                for (int i = 0; i < names.length; i++) {
+                    names[i] = fields[i].getName();
+                }
+
+                env.error(
+                        param.getTrace(),
+                        ErrorType.E_RECOVERABLE_ERROR,
+                        "Argument %s passed to %s() must be a string belonging to the range [" + StringUtils.join(names, ", ") + "] as string, called in %s on line %d, position %d and defined",
+                        index,
+                        method,
+
+                        trace.getFileName(),
+                        trace.getStartLine() + 1,
+                        trace.getStartPosition() + 1
+                );
+            } else {
+                env.error(
+                        param.getTrace(),
+                        ErrorType.E_RECOVERABLE_ERROR,
+                        "Argument %s passed to %s() must be of the type %s, %s given, called in %s on line %d, position %d and defined",
+                        index,
+                        method,
+                        param.getType().toString(), given,
+
+                        trace.getFileName(),
+                        trace.getStartLine() + 1,
+                        trace.getStartPosition() + 1
+                );
+            }
         } else {
             ClassEntity need = env.fetchClass(param.getTypeClass(), false);
             String what = "";

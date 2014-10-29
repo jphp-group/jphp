@@ -6,7 +6,9 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.Memory;
 
-abstract public class ForeachIterator {
+import java.util.Iterator;
+
+abstract public class ForeachIterator implements Iterable<Memory> {
     protected Object currentKey;
     protected Memory currentKeyMemory;
     protected Memory currentValue;
@@ -87,5 +89,36 @@ abstract public class ForeachIterator {
 
     public void setTrace(TraceInfo trace) {
         this.trace = trace;
+    }
+
+    @Override
+    public Iterator<Memory> iterator() {
+        return new Iterator<Memory>() {
+            protected Boolean hasNext;
+
+            @Override
+            public boolean hasNext() {
+                if (hasNext == null) {
+                    hasNext = ForeachIterator.this.next();
+                }
+                return hasNext;
+            }
+
+            @Override
+            public Memory next() {
+                if (hasNext != null) {
+                    hasNext = null;
+                    return ForeachIterator.this.getValue();
+                } else {
+                    ForeachIterator.this.next();
+                    return ForeachIterator.this.getValue();
+                }
+            }
+
+            @Override
+            public void remove() {
+                throw new IllegalStateException("Unsupported remove() method");
+            }
+        };
     }
 }

@@ -5,10 +5,15 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.operation.*;
 import php.runtime.memory.support.operation.array.IntegerArrayMemoryOperation;
-import php.runtime.memory.support.operation.list.MemoryListMemoryOperation;
-import php.runtime.memory.support.operation.list.StringListMemoryOperation;
+import php.runtime.memory.support.operation.collection.HashSetMemoryOperation;
+import php.runtime.memory.support.operation.collection.SetMemoryOperation;
+import php.runtime.memory.support.operation.iterator.IterableMemoryOperation;
+import php.runtime.memory.support.operation.collection.ListMemoryOperation;
+import php.runtime.memory.support.operation.map.HashMapMemoryOperation;
+import php.runtime.memory.support.operation.map.MapMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
@@ -39,11 +44,19 @@ abstract public class MemoryOperation<T> {
         // nop
     }
 
+    protected MemoryOperation<T> instance(Type... genericTypes) {
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
     public static MemoryOperation get(final Class<?> type, Type genericTypes) {
+        MemoryOperation operation = null;
         if (genericTypes instanceof ParameterizedTypeImpl) {
-            return genericOperations.get(new ParametrizedClass(type, ((ParameterizedTypeImpl) genericTypes).getActualTypeArguments()));
-        } else {
-            MemoryOperation operation = operations.get(type);
+            operation = genericOperations.get(new ParametrizedClass(type, ((ParameterizedTypeImpl) genericTypes).getActualTypeArguments()));
+        }
+
+        if (operation == null) {
+            operation = operations.get(type);
 
             if (operation == null) {
                 if (IObject.class.isAssignableFrom(type)) {
@@ -54,12 +67,21 @@ abstract public class MemoryOperation<T> {
                         }
 
                         @Override
+                        @SuppressWarnings("unchecked")
                         public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                            if (arg.isNull()) {
+                                return null;
+                            }
+
                             return arg.toObject((Class<? extends IObject>) type);
                         }
 
                         @Override
                         public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                            if (arg == null) {
+                                return Memory.NULL;
+                            }
+
                             return ObjectMemory.valueOf((IObject) arg);
                         }
 
@@ -68,11 +90,42 @@ abstract public class MemoryOperation<T> {
                             parameter.setType(ReflectionUtils.getClassName(type));
                         }
                     };
-                }
-            }
+                } else if (Enum.class.isAssignableFrom(type)) {
+                    return new MemoryOperation() {
+                        @Override
+                        public Class<?>[] getOperationClasses() {
+                            return new Class<?>[] { Enum.class };
+                        }
 
-            return operation;
+                        @Override
+                        @SuppressWarnings("unchecked")
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                            return arg.isNull() ? null : Enum.valueOf((Class<? extends Enum>)type, arg.toString());
+                        }
+
+                        @Override
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                            return arg == null ? Memory.NULL : StringMemory.valueOf(((Enum) arg).name());
+                        }
+
+                        @Override
+                        public void applyTypeHinting(ParameterEntity parameter) {
+                            parameter.setTypeEnum((Class<? extends Enum>)type);
+                        }
+                    };
+                }
+             }
         }
+
+        if (operation == null) {
+            return null;
+        }
+
+        if (genericTypes instanceof ParameterizedTypeImpl) {
+            return operation.instance(((ParameterizedTypeImpl) genericTypes).getActualTypeArguments());
+        }
+
+        return operation;
     }
 
     @SuppressWarnings("unchecked")
@@ -119,7 +172,9 @@ abstract public class MemoryOperation<T> {
     }
 
     static {
+        register(new VoidMemoryOperation());
         register(new MemoryMemoryOperation());
+        register(new ArrayMemoryMemoryOperation());
 
         register(new BooleanMemoryOperation());
 
@@ -133,8 +188,8 @@ abstract public class MemoryOperation<T> {
 
         register(new StringMemoryOperation());
 
-        register(new EnvironmentMemoryOperation());
         register(new InvokerMemoryOperation());
+        register(new ForeachIteratorMemoryOperation());
 
         register(new InputStreamMemoryOperation());
         register(new OutputStreamMemoryOperation());
@@ -142,11 +197,15 @@ abstract public class MemoryOperation<T> {
         register(new ByteArrayInputStreamMemoryOperation());
 
         register(new PatternMemoryOperation());
-
-        register(new StringListMemoryOperation());
-        register(new MemoryListMemoryOperation());
-
         register(new IntegerArrayMemoryOperation());
-        register(new StringListMemoryOperation());
+
+        register(new IterableMemoryOperation());
+
+        register(new ListMemoryOperation());
+        register(new SetMemoryOperation());
+        register(new HashSetMemoryOperation());
+
+        register(new MapMemoryOperation());
+        register(new HashMapMemoryOperation());
     }
 }

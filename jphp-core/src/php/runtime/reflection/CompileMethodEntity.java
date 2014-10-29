@@ -19,6 +19,7 @@ import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -68,8 +69,18 @@ public class CompileMethodEntity extends MethodEntity {
 
         int i = 0;
         for (Class<?> el : method.getParameterTypes()) {
+            if (el == Environment.class || el == TraceInfo.class) {
+                continue;
+            }
+
             ParameterEntity param = new ParameterEntity(context);
             param.setName("arg" + i);
+
+            Annotation[] argAnnotations = method.getParameterAnnotations()[i];
+
+            if (ReflectionUtils.getAnnotation(argAnnotations, Reflection.Nullable.class) != null) {
+                param.setNullable(true);
+            }
 
             parameters[i++] = param;
         }
@@ -80,6 +91,7 @@ public class CompileMethodEntity extends MethodEntity {
     @Override
     public Memory invokeDynamic(IObject _this, Environment env, Memory... arguments) throws Throwable {
         try {
+            TraceInfo trace = env.trace();
             if (isAbstract){
                 env.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
                 return Memory.NULL;
@@ -93,14 +105,14 @@ public class CompileMethodEntity extends MethodEntity {
                     );
             }
 
-            CompileMethod.Method method = function.find(arguments.length);
+            CompileMethod.Method method = function.find(arguments == null ? 0 : arguments.length);
             if (method == null){
                 env.warning(trace, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
-                        name, function.getMinArgs(), arguments.length
+                        name, function.getMinArgs(), arguments == null ? 0 : arguments.length
                 ));
                 return Memory.NULL;
             } else {
-                if (arguments.length > method.argsCount && !method.isVarArg()) {
+                if (arguments != null && arguments.length > method.argsCount && !method.isVarArg()) {
                     env.warning(trace, Messages.ERR_EXPECT_EXACTLY_PARAMS,
                             name, method.argsCount, arguments.length
                     );
@@ -122,11 +134,15 @@ public class CompileMethodEntity extends MethodEntity {
                 MemoryOperation<?> operation = method.argumentOperations[i];
 
                 if (clazz == Memory.class) {
-                    passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toImmutable() : arguments[j].toValue());
+                    passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toValue() : arguments[j].toImmutable());
                     j++;
                 } else if (operation != null) {
-                    passed[i] = operation.convert(env, trace, arguments[j]);
-                    j++;
+                    if (operation instanceof InjectMemoryOperation) {
+                        passed[i] = operation.convert(env, trace, null);
+                    } else {
+                        passed[i] = operation.convert(env, trace, arguments[j]);
+                        j++;
+                    }
                 } else if (i == types.length - 1 && types[i] == Memory[].class){
                     Memory[] arg = new Memory[arguments.length - i + 1];
                     if (!isRef){
@@ -161,7 +177,24 @@ public class CompileMethodEntity extends MethodEntity {
 
     @Override
     public ParameterEntity[] getParameters(int count) {
-        return function.find(count).parameters;
+        CompileMethod.Method result = function.find(count);
+        if (result == null) {
+            return new ParameterEntity[0];
+        }
+
+        return result.parameters;
+    }
+
+    abstract public static class InjectMemoryOperation extends MemoryOperation {
+        @Override
+        public Class<?>[] getOperationClasses() {
+            return new Class<?>[0];
+        }
+
+        @Override
+        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+            throw new CriticalException("Unsupported unconvert");
+        }
     }
 
     public static class ParameterEntity extends php.runtime.reflection.ParameterEntity {
@@ -209,6 +242,10 @@ public class CompileMethodEntity extends MethodEntity {
                 this.parameters = parameters;
 
                 returnOperation    = MemoryOperation.get(resultType, method.getGenericReturnType());
+                if (returnOperation == null) {
+                    throw new CriticalException("Unsupported type for binding - " + resultType);
+                }
+
                 argumentOperations = new MemoryOperation[parameterTypes.length];
 
                 MemoryOperation op;
@@ -217,6 +254,24 @@ public class CompileMethodEntity extends MethodEntity {
 
                     if (op != null) {
                         op.applyTypeHinting(parameters[i]);
+                    } else {
+                        if (parameterTypes[i] == Environment.class) {
+                            argumentOperations[i] = new InjectMemoryOperation() {
+                                @Override
+                                public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                                    return env;
+                                }
+                            };
+                        } else if (parameterTypes[i] == TraceInfo.class) {
+                            argumentOperations[i] = new InjectMemoryOperation() {
+                                @Override
+                                public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                                    return trace;
+                                }
+                            };
+                        } else {
+                            throw new CriticalException("Unsupported type for binding - " + parameterTypes[i]);
+                        }
                     }
                 }
             }
