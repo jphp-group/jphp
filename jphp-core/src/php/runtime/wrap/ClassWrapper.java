@@ -162,7 +162,7 @@ public class ClassWrapper {
         classEntity.addMethod(entity, null);
     }
 
-    protected void onWrapWrapCompileMethod(ClassEntity classEntity, Method method) {
+    protected MethodEntity onWrapWrapCompileMethod(ClassEntity classEntity, Method method, boolean skipConflicts) {
         MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
 
         WrapCompileMethodEntity entity;
@@ -172,11 +172,13 @@ public class ClassWrapper {
             entity = new WrapCompileMethodEntity(classEntity.getExtension());
         }
 
-        entity.addMethod(method);
+        entity.addMethod(method, skipConflicts);
         if (_entity == null) {
             entity.setClazz(classEntity);
             classEntity.addMethod(entity, null);
         }
+
+        return entity;
     }
 
 
@@ -195,7 +197,7 @@ public class ClassWrapper {
             entity.setAbstract(false);
         }
 
-        entity.addMethod(method);
+        entity.addMethod(method, false);
         if (_entity == null) {
             entity.setClazz(classEntity);
             classEntity.addMethod(entity, null);
@@ -213,9 +215,15 @@ public class ClassWrapper {
                     );
 
                     try {
-                        onWrapWrapCompileMethod(
-                                classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes())
+                        MethodEntity entity = onWrapWrapCompileMethod(
+                                classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes()),
+                                interfaces.skipConflicts()
                         );
+
+                        if (_interface.isInterface()) {
+                            entity.setAbstractable(false);
+                            entity.setAbstract(false);
+                        }
                     } catch (NoSuchMethodException e) {
                         throw new CriticalException(e);
                     }

@@ -79,7 +79,7 @@ abstract public class Extension {
             throw new CriticalException("Class already registered - " + clazz.getName());
     }
 
-    public <T> void registerWrapperClass(CompileScope scope, Class<T> clazz, Class<? extends BaseWrapper<T>> wrapperClass) {
+    public <T> void registerWrapperClass(CompileScope scope, Class<T> clazz, Class<? extends BaseWrapper> wrapperClass) {
         if (classes.put(clazz.getName(), wrapperClass) != null)
             throw new CriticalException("Class already registered - " + clazz.getName());
 

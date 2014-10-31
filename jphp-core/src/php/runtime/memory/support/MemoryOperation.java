@@ -205,7 +205,7 @@ abstract public class MemoryOperation<T> {
         }
     }
 
-    public static <T> void registerWrapper(Class<T> clazz, Class<? extends BaseWrapper<T>> wrapperClass) {
+    public static <T> void registerWrapper(Class<T> clazz, Class<? extends BaseWrapper> wrapperClass) {
         wrappers.put(clazz, wrapperClass);
         wrappersOut.put(wrapperClass, clazz);
     }

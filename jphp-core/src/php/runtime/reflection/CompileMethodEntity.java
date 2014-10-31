@@ -12,7 +12,6 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
-import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -30,7 +29,11 @@ public class CompileMethodEntity extends MethodEntity {
         setExtension(extension);
     }
 
-    public void addMethod(Method method) {
+    public void addMethod(Method method, boolean skipConflicts) {
+        if (skipConflicts && function.find(method.getParameterTypes().length) != null) {
+            return;
+        }
+
         CompileMethod.Method compileMethod = function.addMethod(method);
 
         int mods = method.getModifiers();
@@ -73,7 +76,16 @@ public class CompileMethodEntity extends MethodEntity {
             parameters[i++] = param;
         }
 
-        compileMethod.setParameters(parameters);
+        try {
+            compileMethod.setParameters(parameters);
+        } catch (CriticalException e) {
+            if (skipConflicts) {
+                function.delete(parameters.length);
+                return;
+            }
+
+            throw e;
+        }
     }
 
     @Override
@@ -158,6 +170,14 @@ public class CompileMethodEntity extends MethodEntity {
         } finally {
             unsetArguments(arguments);
         }
+    }
+
+    @Override
+    public void setPrototype(MethodEntity prototype) {
+        if (prototype instanceof CompileMethodEntity) {
+            function.mergeFunction(((CompileMethodEntity) prototype).function);
+        }
+        super.setPrototype(prototype);
     }
 
     @Override

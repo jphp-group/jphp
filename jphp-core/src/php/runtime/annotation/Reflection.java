@@ -24,6 +24,7 @@ public @interface Reflection {
     @Target({TYPE})
     public @interface WrapInterface {
         Class<?>[] value();
+        boolean skipConflicts() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)

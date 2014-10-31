@@ -12,6 +12,7 @@ import php.runtime.memory.support.MemoryUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public class CompileFunction {
     public final String name;
@@ -48,6 +49,25 @@ public class CompileFunction {
 
     public Method addMethod(java.lang.reflect.Method method){
         return addMethod(method, false);
+    }
+
+    public void mergeFunction(CompileFunction function) {
+        if (methods.length < function.methods.length) {
+            methods = Arrays.copyOf(methods, function.methods.length);
+        }
+
+        for (int i = 0; i < function.methods.length; i++) {
+            if (function.methods[i] != null) {
+                methods[i] = function.methods[i];
+            }
+        }
+
+        if (function.methodVarArgs != null) {
+            methodVarArgs = function.methodVarArgs;
+        }
+
+        this.minArgs = Math.min(this.minArgs, function.minArgs);
+        this.maxArgs = Math.max(this.maxArgs, function.maxArgs);
     }
 
     public Method addMethod(java.lang.reflect.Method method, boolean asImmutable){
@@ -129,6 +149,34 @@ public class CompileFunction {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    public boolean delete(int paramCount) {
+        if (paramCount < minArgs)
+            return false;
+
+        Method method = null;
+        if (paramCount < methods.length && paramCount >= 0) {
+            methods[paramCount] = null;
+            return true;
+        }
+
+        if (methodVarArgsCount <= paramCount) {
+            methodVarArgs = null;
+            return true;
+        }
+
+        if (paramCount > maxArgs) {
+            for(int i = methods.length - 1; i >= 0; i--){
+                method = methods[i];
+                if (method != null) {
+                    methods[i] = null;
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public Method find(int paramCount) {
