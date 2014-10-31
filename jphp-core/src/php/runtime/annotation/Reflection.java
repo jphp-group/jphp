@@ -22,7 +22,7 @@ public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE})
-    public @interface WrapInterfaces {
+    public @interface WrapInterface {
         Class<?>[] value();
     }
 

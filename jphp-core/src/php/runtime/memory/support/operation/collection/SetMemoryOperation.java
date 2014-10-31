@@ -26,7 +26,7 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
 
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { List.class };
+        return new Class<?>[] { Set.class, TreeSet.class };
     }
 
     @Override

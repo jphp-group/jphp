@@ -100,6 +100,19 @@ final public class InvokeHelper {
                         trace.getStartLine() + 1,
                         trace.getStartPosition() + 1
                 );
+            } else if (param.getTypeHintingChecker() != null) {
+                env.error(
+                        param.getTrace(),
+                        ErrorType.E_RECOVERABLE_ERROR,
+                        "Argument %s passed to %s() must be %s, called in %s on line %d, position %d and defined",
+                        index,
+                        method,
+                        param.getTypeHintingChecker().getNeeded(env, passed),
+
+                        trace.getFileName(),
+                        trace.getStartLine() + 1,
+                        trace.getStartPosition() + 1
+                );
             } else {
                 env.error(
                         param.getTrace(),
@@ -198,6 +211,30 @@ final public class InvokeHelper {
             i++;
         }
         return passed;
+    }
+
+    public static void checkTypeHinting(Environment env, TraceInfo trace, MethodEntity methodEntity, Memory... args) {
+        if (args == null) {
+            return;
+        }
+
+        ParameterEntity[] parameters = methodEntity.getParameters(args.length);
+
+        int i = 0;
+
+        for (Memory arg : args) {
+            if (i > parameters.length - 1) {
+                break;
+            }
+
+            if (!parameters[i].checkTypeHinting(env, arg)) {
+                invalidTypeHinting(
+                        env, trace, parameters[i], i + 1, arg, methodEntity.getClazzName(), methodEntity.getName()
+                );
+            }
+
+            i++;
+        }
     }
 
     /**

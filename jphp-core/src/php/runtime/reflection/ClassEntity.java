@@ -14,6 +14,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
+import php.runtime.invoke.InvokeHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -1008,6 +1009,8 @@ public class ClassEntity extends Entity implements Cloneable {
                                     trace, object, args, methodMagicGet.getName(), methodMagicSet.getClazz().getName(), name
                             );
                             env.peekCall(0).flags = FLAG_GET;
+
+                            InvokeHelper.checkTypeHinting(env, trace, methodMagicGet, args);
                             o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
                         } finally {
                             env.popCall();
@@ -1020,6 +1023,8 @@ public class ClassEntity extends Entity implements Cloneable {
                     Memory[] args = new Memory[]{memoryProperty, memory};
                     env.pushCall(trace, object, args, methodMagicSet.getName(), methodMagicSet.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_SET;
+
+                    InvokeHelper.checkTypeHinting(env, trace, methodMagicSet, args);
                     methodMagicSet.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -1103,6 +1108,8 @@ public class ClassEntity extends Entity implements Cloneable {
                     Memory[] args = new Memory[]{new StringMemory(property)};
                     env.pushCall(trace, object, args, methodMagicUnset.getName(), methodMagicUnset.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_UNSET;
+
+                    InvokeHelper.checkTypeHinting(env, trace, methodMagicUnset, args);
                     methodMagicUnset.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -1155,6 +1162,8 @@ public class ClassEntity extends Entity implements Cloneable {
                         trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name
                 );
                 env.peekCall(0).flags = FLAG_ISSET;
+
+                InvokeHelper.checkTypeHinting(env, trace, methodMagicIsset, new StringMemory(property));
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -1192,6 +1201,8 @@ public class ClassEntity extends Entity implements Cloneable {
                 Memory[] args = new Memory[]{new StringMemory(property)};
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_ISSET;
+
+                InvokeHelper.checkTypeHinting(env, trace, methodMagicIsset, new StringMemory(property));
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -1315,6 +1326,8 @@ public class ClassEntity extends Entity implements Cloneable {
                 Memory[] args = new Memory[]{new StringMemory(property)};
                 env.pushCall(trace, object, args, methodMagicGet.getName(), methodMagicGet.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_GET;
+
+                InvokeHelper.checkTypeHinting(env, trace, methodMagicGet, args);
                 result = methodMagicGet.invokeDynamic(object, env, args);
             } finally {
                 env.popCall();

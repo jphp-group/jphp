@@ -36,6 +36,10 @@ public class WrapScanner extends BaseObject
         super(env, clazz);
     }
 
+    public Scanner getScanner() {
+        return scanner;
+    }
+
     @Signature({
             @Arg("source"),
             @Arg(value = "charset", optional = @Optional("null"))

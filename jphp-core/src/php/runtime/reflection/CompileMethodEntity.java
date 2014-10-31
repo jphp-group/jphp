@@ -150,12 +150,7 @@ public class CompileMethodEntity extends MethodEntity {
                 i++;
             }
 
-            if (method.resultType == void.class){
-                method.method.invoke(_this, passed);
-                return Memory.NULL;
-            } else
-                return MemoryUtils.valueOf(method.method.invoke(_this, passed));
-
+            return method.returnOperation.unconvert(env, trace, method.method.invoke(_this, passed));
         } catch (InvocationTargetException e){
             return env.__throwException(e);
         } catch (Throwable e) {

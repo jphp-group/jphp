@@ -9,6 +9,7 @@ import php.runtime.lang.StdClass;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -157,8 +158,21 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends IObject> T toObject(Class<T> clazz){
-        return (T) toValue(ObjectMemory.class).value;
+    public <T extends IObject> T toObject(Class<T> clazz) {
+        try {
+            return clazz.cast( toValue(ObjectMemory.class).value );
+        } catch (ClassCastException e) {
+            if (!(this instanceof ObjectMemory)) {
+                throw new ClassCastException(
+                        "Cannot convert '" + toString() + "' to an instance of " + ReflectionUtils.getClassName(clazz) + " class"
+                );
+            } else {
+                throw new ClassCastException(
+                        "Cannot convert instance of " + toValue(ObjectMemory.class).getReflection().getName() + " class"
+                        + " to an instance of " + ReflectionUtils.getClassName(clazz)
+                );
+            }
+        }
     }
 
     public <T extends Enum> T toEnum(Class<T> clazz) {

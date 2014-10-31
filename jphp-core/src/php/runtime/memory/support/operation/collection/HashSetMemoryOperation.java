@@ -16,6 +16,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class HashSetMemoryOperation extends SetMemoryOperation {
+
+    @Override
+    public Class<?>[] getOperationClasses() {
+        return new Class<?>[] { HashSet.class };
+    }
+
     @Override
     protected Set createTreeSet() {
         return new HashSet();

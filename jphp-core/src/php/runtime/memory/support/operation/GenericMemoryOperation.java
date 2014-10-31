@@ -3,6 +3,7 @@ package php.runtime.memory.support.operation;
 import php.runtime.Memory;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.memory.support.MemoryOperation;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -19,10 +20,20 @@ abstract public class GenericMemoryOperation<T> extends MemoryOperation<T> {
             this.operations = new MemoryOperation[genericTypes.length];
 
             for (int i = 0; i < genericTypes.length; i++) {
-                Class<?> genericType = (Class<?>)genericTypes[i];
-                this.operations[i] = MemoryOperation.get(genericType, null);
-                if (this.operations[i] == null) {
-                    throw new CriticalException("Unsupported type binding - " + genericType);
+                if (genericTypes[i] instanceof ParameterizedTypeImpl) {
+                    ParameterizedTypeImpl genericType = ((ParameterizedTypeImpl)genericTypes[i]);
+                    this.operations[i] = MemoryOperation.get(genericType.getRawType(), genericType);
+
+                    if (this.operations[i] == null) {
+                        throw new CriticalException("Unsupported generic type binding - " + genericType);
+                    }
+                } else {
+                    Class<?> genericType = (Class<?>) genericTypes[i];
+                    this.operations[i] = MemoryOperation.get(genericType, null);
+
+                    if (this.operations[i] == null) {
+                        throw new CriticalException("Unsupported type binding - " + genericType);
+                    }
                 }
             }
         }

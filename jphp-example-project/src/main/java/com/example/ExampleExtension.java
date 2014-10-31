@@ -13,7 +13,9 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static php.runtime.annotation.Reflection.Nullable;
 import static php.runtime.annotation.Reflection.Signature;
@@ -40,7 +42,7 @@ public class ExampleExtension extends Extension {
     @Override
     public void onRegister(CompileScope scope) {
         // ...
-        registerNativeClass(scope, Foobar.class);
+        registerClass(scope, Foobar.class);
     }
 
     public static class Foobar extends BaseObject {
@@ -49,8 +51,13 @@ public class ExampleExtension extends Extension {
         }
 
         @Signature
-        public void __set(String name, Memory value) {
-            System.out.println(name + "=" + value);
+        public void __construct(Iterable<List<Date>> value) {
+            for (List<Date> dates : value) {
+                for (Date el : dates) {
+                    System.out.println(el);
+                }
+                System.out.println("-----");
+            }
         }
     }
 }

@@ -1,12 +1,14 @@
 package php.runtime.memory.support.operation.iterator;
 
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.operation.GenericMemoryOperation;
+import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Type;
 import java.util.Iterator;
@@ -66,5 +68,10 @@ public class IterableMemoryOperation extends GenericMemoryOperation<Iterable> {
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Iterable arg) {
         throw new CriticalException("Unsupported operation");
+    }
+
+    @Override
+    public void applyTypeHinting(ParameterEntity parameter) {
+        parameter.setType(HintType.TRAVERSABLE);
     }
 }

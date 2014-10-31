@@ -11,6 +11,7 @@ import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ListMemoryOperation extends GenericMemoryOperation<List> {
@@ -24,7 +25,7 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { List.class };
+        return new Class<?>[] { List.class, ArrayList.class, Collection.class };
     }
 
     @Override

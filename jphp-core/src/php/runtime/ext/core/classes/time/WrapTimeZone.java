@@ -65,6 +65,10 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
         return Memory.NULL;
     }
 
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
     @Signature
     public Memory __debugInfo(Environment env, Memory... args) {
         ArrayMemory r = new ArrayMemory();

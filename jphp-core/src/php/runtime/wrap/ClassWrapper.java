@@ -11,7 +11,9 @@ import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.support.Extension;
+import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
 
@@ -201,12 +203,23 @@ public class ClassWrapper {
     }
 
     protected void onWrapMethods(ClassEntity classEntity) {
-        Reflection.WrapInterfaces interfaces = nativeClass.getAnnotation(Reflection.WrapInterfaces.class);
+        Reflection.WrapInterface interfaces = nativeClass.getAnnotation(Reflection.WrapInterface.class);
 
-        if (interfaces != null)
-        for (Class _interface : interfaces.value()) {
-            for (Method method : _interface.getDeclaredMethods()) {
-                onWrapWrapCompileMethod(classEntity, method);
+        if (interfaces != null && BaseWrapper.class.isAssignableFrom(nativeClass)) {
+            for (Class _interface : interfaces.value()) {
+                for (Method method : _interface.getDeclaredMethods()) {
+                    Class<?> bindClass = MemoryOperation.getClassOfWrapper(
+                            (Class<? extends php.runtime.lang.BaseWrapper<Object>>) nativeClass
+                    );
+
+                    try {
+                        onWrapWrapCompileMethod(
+                                classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes())
+                        );
+                    } catch (NoSuchMethodException e) {
+                        throw new CriticalException(e);
+                    }
+                }
             }
         }
 

@@ -1,6 +1,7 @@
 package php.runtime.reflection;
 
 import php.runtime.Memory;
+import php.runtime.common.Function;
 import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -18,6 +19,11 @@ import php.runtime.util.JVMStackTracer;
 
 public class ParameterEntity extends Entity {
 
+    public interface TypeHintingChecker {
+        boolean call(Environment env, Memory value);
+        String getNeeded(Environment env, Memory value);
+    }
+
     protected ClassEntity clazz;
     protected Memory defaultValue;
     protected String defaultValueConstName;
@@ -28,6 +34,7 @@ public class ParameterEntity extends Entity {
     protected String typeClassLower;
     protected Class<? extends Enum> typeEnum;
     protected Class<?> typeNativeClass;
+    protected TypeHintingChecker typeHintingChecker;
 
     protected boolean mutable = true;
     protected boolean used = true;
@@ -128,6 +135,14 @@ public class ParameterEntity extends Entity {
         this.typeEnum = typeEnum;
     }
 
+    public TypeHintingChecker getTypeHintingChecker() {
+        return typeHintingChecker;
+    }
+
+    public void setTypeHintingChecker(TypeHintingChecker typeHintingChecker) {
+        this.typeHintingChecker = typeHintingChecker;
+    }
+
     public static void validateTypeHinting(Environment env, int index, Memory[] args, HintType type,
                                            boolean nullable) {
         Memory value = args[index - 1];
@@ -213,6 +228,14 @@ public class ParameterEntity extends Entity {
     }
 
     public boolean checkTypeHinting(Environment env, Memory value){
+        if (typeHintingChecker != null) {
+            if (nullable && value.isNull()) {
+                return true;
+            }
+
+            return typeHintingChecker.call(env, value);
+        }
+
         if (type != HintType.ANY && type != null) {
             return checkTypeHinting(env, value, type, nullable || (defaultValue != null && defaultValue.isNull()));
         } else if (typeNativeClass != null) {

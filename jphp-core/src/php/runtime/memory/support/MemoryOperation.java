@@ -29,6 +29,8 @@ import java.util.Map;
 
 abstract public class MemoryOperation<T> {
     protected final static Map<Class<?>, Class<? extends BaseWrapper>> wrappers = new HashMap<Class<?>, Class<? extends BaseWrapper>>();
+    protected final static Map<Class<? extends BaseWrapper>, Class<?>> wrappersOut = new HashMap<Class<? extends BaseWrapper>, Class<?>>();
+
     protected final static Map<Class<?>, MemoryOperation> operations = new HashMap<Class<?>, MemoryOperation>();
     protected final static Map<ParametrizedClass, MemoryOperation> genericOperations = new HashMap<ParametrizedClass, MemoryOperation>();
 
@@ -55,6 +57,11 @@ abstract public class MemoryOperation<T> {
 
     public static <T> Class<? extends BaseWrapper> getWrapper(Class<T> clazz) {
         return wrappers.get(clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getClassOfWrapper(Class<? extends BaseWrapper<T>> clazz) {
+        return (Class<T>) wrappersOut.get(clazz);
     }
 
     @SuppressWarnings("unchecked")
@@ -200,6 +207,7 @@ abstract public class MemoryOperation<T> {
 
     public static <T> void registerWrapper(Class<T> clazz, Class<? extends BaseWrapper<T>> wrapperClass) {
         wrappers.put(clazz, wrapperClass);
+        wrappersOut.put(wrapperClass, clazz);
     }
 
     public static class ParametrizedClass<T> {
@@ -248,6 +256,7 @@ abstract public class MemoryOperation<T> {
         register(new FloatMemoryOperation());
 
         register(new StringMemoryOperation());
+        register(new CharacterMemoryOperation());
 
         register(new InvokerMemoryOperation());
         register(new ForeachIteratorMemoryOperation());
@@ -268,5 +277,22 @@ abstract public class MemoryOperation<T> {
 
         register(new MapMemoryOperation());
         register(new HashMapMemoryOperation());
+
+        register(new UrlMemoryOperation());
+        register(new UriMemoryOperation());
+        register(new BinaryMemoryOperation());
+
+        register(new NumberMemoryOperation());
+        register(new BigDecimalOperation());
+        register(new BigIntegerOperation());
+
+        register(new ClassMemoryOperation());
+        register(new LocaleMemoryOperation());
+        register(new DateMemoryOperation());
+        register(new TimeZoneMemoryOperation());
+        register(new ScannerMemoryOperation());
+
+        register(new ThreadMemoryOperation());
+        register(new ThreadGroupMemoryOperation());
     }
 }

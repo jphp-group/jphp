@@ -1,5 +1,8 @@
 <?php
 
-$foo = new Foobar();
-$foo->x = 2;
-$foo->y = 3;
+use php\time\Time;
+
+$foo = new Foobar([
+    [Time::now(), Time::now()],
+    [Time::today(), Time::today()]
+]);

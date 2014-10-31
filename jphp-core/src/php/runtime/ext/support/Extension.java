@@ -86,6 +86,16 @@ abstract public class Extension {
         MemoryOperation.registerWrapper(clazz, wrapperClass);
     }
 
+    public void registerMemoryOperation(Class<? extends MemoryOperation> clazz) {
+        try {
+            MemoryOperation.register(clazz.newInstance());
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
                                       Class<? extends Throwable>... classes) {
