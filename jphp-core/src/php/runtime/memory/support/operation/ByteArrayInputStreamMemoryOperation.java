@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 public class ByteArrayInputStreamMemoryOperation extends MemoryOperation<ByteArrayInputStream> {
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { Boolean.class, Boolean.TYPE };
+        return new Class<?>[] { ByteArrayInputStream.class };
     }
 
     @Override

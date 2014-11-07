@@ -99,11 +99,63 @@ public class ClassWrapper {
         classEntity.addProperty(entity);
     }
 
+    protected void onWrapCompileProperty(ClassEntity classEntity, Field field, Reflection.Property property) {
+        CompilePropertyEntity entity = new CompilePropertyEntity(classEntity.getContext(), field);
+        entity.setClazz(classEntity);
+
+        if (property.value().isEmpty()) {
+            entity.setName(field.getName());
+        } else {
+            entity.setName(property.value());
+        }
+
+        classEntity.addProperty(entity);
+    }
+
     protected void onWrapProperties(ClassEntity classEntity) {
         Reflection.Signature signature = nativeClass.getAnnotation(Reflection.Signature.class);
         if (signature != null){
             for(Reflection.Arg arg : signature.value()){
                 onWrapProperty(classEntity, arg);
+            }
+        }
+
+        for(Field field : nativeClass.getDeclaredFields()) {
+            Reflection.Property property = field.getAnnotation(Reflection.Property.class);
+
+            if (property != null) {
+                onWrapCompileProperty(classEntity, field, property);
+            }
+        }
+
+        Reflection.WrapInterface interfaces = nativeClass.getAnnotation(Reflection.WrapInterface.class);
+
+        if (interfaces != null && interfaces.wrapFields() && BaseWrapper.class.isAssignableFrom(nativeClass)) {
+            Class<?> bindClass = MemoryOperation.getClassOfWrapper(
+                    (Class<? extends php.runtime.lang.BaseWrapper<Object>>) nativeClass
+            );
+
+            for (Class _interface : interfaces.value()) {
+                for (Field field : _interface.getDeclaredFields()) {
+                    try {
+                        Field _field = bindClass.getDeclaredField(field.getName());
+                        int mods = _field.getModifiers();
+
+                        if ((/*Modifier.isProtected(mods) || */Modifier.isPublic(mods)) && !Modifier.isStatic(mods)) {
+                            if (interfaces.skipConflicts()
+                                    && MemoryOperation.get(_field.getType(), _field.getGenericType()) == null) {
+                                continue;
+                            }
+
+                            PropertyEntity entity = new WrapCompilePropertyEntity(classEntity.getContext(), _field);
+                            entity.setName(_field.getName());
+
+                            classEntity.addProperty(entity);
+                        }
+                    } catch (NoSuchFieldException e) {
+                        throw new CriticalException(e);
+                    }
+                }
             }
         }
     }
@@ -208,11 +260,12 @@ public class ClassWrapper {
         Reflection.WrapInterface interfaces = nativeClass.getAnnotation(Reflection.WrapInterface.class);
 
         if (interfaces != null && BaseWrapper.class.isAssignableFrom(nativeClass)) {
+            Class<?> bindClass = MemoryOperation.getClassOfWrapper(
+                    (Class<? extends php.runtime.lang.BaseWrapper<Object>>) nativeClass
+            );
+
             for (Class _interface : interfaces.value()) {
                 for (Method method : _interface.getDeclaredMethods()) {
-                    Class<?> bindClass = MemoryOperation.getClassOfWrapper(
-                            (Class<? extends php.runtime.lang.BaseWrapper<Object>>) nativeClass
-                    );
 
                     try {
                         MethodEntity entity = onWrapWrapCompileMethod(

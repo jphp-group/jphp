@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class CompileFunction {
-    public final String name;
+    public String name;
 
     public Method[] methods;
 

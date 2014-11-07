@@ -29,6 +29,12 @@ public class CompileMethodEntity extends MethodEntity {
         setExtension(extension);
     }
 
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+        function.name = name + "()";
+    }
+
     public void addMethod(Method method, boolean skipConflicts) {
         if (skipConflicts && function.find(method.getParameterTypes().length) != null) {
             return;
@@ -74,6 +80,10 @@ public class CompileMethodEntity extends MethodEntity {
             }
 
             parameters[i++] = param;
+        }
+
+        if (this.parameters == null || this.parameters.length < parameters.length) {
+            this.parameters = parameters;
         }
 
         try {

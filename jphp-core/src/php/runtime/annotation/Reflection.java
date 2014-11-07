@@ -25,6 +25,7 @@ public @interface Reflection {
     public @interface WrapInterface {
         Class<?>[] value();
         boolean skipConflicts() default false;
+        boolean wrapFields() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -64,6 +65,12 @@ public @interface Reflection {
         boolean root() default false;
         Arg[] value() default {};
         Arg result() default @Arg(type = HintType.ANY);
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({FIELD})
+    public @interface Property {
+        String value() default "";
     }
 
     @Retention(RetentionPolicy.RUNTIME)

@@ -1068,12 +1068,15 @@ public class ClassEntity extends Entity implements Cloneable {
 
                 return props == null
                         ? Memory.NULL
-                        : object.getProperties().refOfIndex(name).assign(memory);
+                        : (entity == null ? props.refOfIndex(name).assign(memory) : entity.assignValue(env, trace, object, name, memory));
             }
         } else {
             if (callback != null)
                 memory = callback.invoke(value, memory);
 
+            if (entity instanceof CompilePropertyEntity) {
+                return entity.assignValue(env, trace, object, property, memory);
+            }
             return value.assign(memory);
         }
         return memory;
@@ -1281,7 +1284,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
             throws Throwable {
-        ReferenceMemory value;
+        Memory value;
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
 
@@ -1303,9 +1306,11 @@ public class ClassEntity extends Entity implements Cloneable {
             value = null;
         } else {
             ArrayMemory props = object.getProperties();
-            value = props == null ? null : props.getByScalar(entity == null ? property : entity.specificName);
-            if (value == null && props != null && entity != null && entity.isProtected()){ // try get public property
-                value = props.getByScalar(property);
+
+            if (entity != null) {
+                value = entity.getValue(env, trace, object);
+            } else {
+                value = props == null ? null : props.getByScalar(property);
             }
         }
 

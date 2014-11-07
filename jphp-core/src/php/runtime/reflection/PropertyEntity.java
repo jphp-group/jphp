@@ -7,6 +7,8 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.Memory;
+import php.runtime.lang.IObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.support.Entity;
 
 import java.lang.reflect.Field;
@@ -211,5 +213,20 @@ public class PropertyEntity extends Entity {
         propertyEntity.setPrototype(propertyEntity);
         propertyEntity.setTrace(trace);
         return propertyEntity;
+    }
+
+    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) throws IllegalAccessException {
+        return ((IObject) object).getProperties().refOfIndex(name).assign(value);
+    }
+
+    public Memory getValue(Environment env, TraceInfo trace, Object object) throws IllegalAccessException {
+        ArrayMemory props = ((IObject) object).getProperties();
+
+        Memory result = props.getByScalar(specificName);
+        if (result == null) {
+            result = props.getByScalar(name);
+        }
+
+        return result;
     }
 }

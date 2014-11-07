@@ -20,6 +20,7 @@ import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
