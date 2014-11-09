@@ -1,6 +1,7 @@
 package php.runtime.invoke;
 
 import php.runtime.common.Messages;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -8,6 +9,7 @@ import php.runtime.ext.core.classes.WrapInvoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.Memory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 
 abstract public class Invoker {
@@ -50,6 +52,25 @@ abstract public class Invoker {
         /*} finally {
             popCall();
         }*/
+    }
+
+    final public Memory callAny(Object... args) {
+        if (args != null && args.length > 0) {
+            Memory[] passed = new Memory[args.length];
+
+            for (int i = 0; i < passed.length; i++) {
+                MemoryOperation operation = MemoryOperation.get(args[i].getClass(), args[i].getClass().getGenericSuperclass());
+                if (operation == null) {
+                    throw new CriticalException("Unsupported bind type - " + args[i].getClass().toString());
+                }
+
+                passed[i] = operation.unconvert(env, trace, args[i]);
+            }
+
+            return callNoThrow(passed);
+        } else {
+            return callNoThrow();
+        }
     }
 
     public Memory callNoThrow(Memory... args){
