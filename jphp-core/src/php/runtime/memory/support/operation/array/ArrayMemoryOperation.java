@@ -1,11 +1,13 @@
 package php.runtime.memory.support.operation.array;
 
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.support.MemoryOperation;
+import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class ArrayMemoryOperation extends MemoryOperation {
             r[i] = tmp.get(i);
         }
 
-        return arrayClass.cast(r);
+        return r;
     }
 
     @Override
@@ -56,5 +58,10 @@ public class ArrayMemoryOperation extends MemoryOperation {
         }
 
         return r.toConstant();
+    }
+
+    @Override
+    public void applyTypeHinting(ParameterEntity parameter) {
+        parameter.setType(HintType.TRAVERSABLE);
     }
 }

@@ -9,7 +9,7 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.operation.*;
-import php.runtime.memory.support.operation.array.ArrayMemoryOperation;
+import php.runtime.memory.support.operation.array.*;
 import php.runtime.memory.support.operation.collection.HashSetMemoryOperation;
 import php.runtime.memory.support.operation.collection.ListMemoryOperation;
 import php.runtime.memory.support.operation.collection.SetMemoryOperation;
@@ -20,7 +20,6 @@ import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -178,7 +177,7 @@ abstract public class MemoryOperation<T> {
                             parameter.setTypeEnum((Class<? extends Enum>)type);
                         }
                     };
-                } else if (Array.class.isAssignableFrom(type)) {
+                } else if (type.isArray()) {
                     MemoryOperation arrayMemoryOperation = new ArrayMemoryOperation(type);
                     register(arrayMemoryOperation);
 
@@ -299,5 +298,13 @@ abstract public class MemoryOperation<T> {
 
         register(new ThreadMemoryOperation());
         register(new ThreadGroupMemoryOperation());
+
+        register(new FloatArrayMemoryOperation());
+        register(new DoubleArrayMemoryOperation());
+        register(new LongArrayMemoryOperation());
+        register(new IntegerArrayMemoryOperation());
+        register(new ShortArrayMemoryOperation());
+        register(new BooleanArrayMemoryOperation());
+        register(new CharArrayMemoryOperation());
     }
 }
