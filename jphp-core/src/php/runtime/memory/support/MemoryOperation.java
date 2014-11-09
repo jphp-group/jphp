@@ -9,11 +9,11 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.operation.*;
-import php.runtime.memory.support.operation.array.IntegerArrayMemoryOperation;
+import php.runtime.memory.support.operation.array.ArrayMemoryOperation;
 import php.runtime.memory.support.operation.collection.HashSetMemoryOperation;
+import php.runtime.memory.support.operation.collection.ListMemoryOperation;
 import php.runtime.memory.support.operation.collection.SetMemoryOperation;
 import php.runtime.memory.support.operation.iterator.IterableMemoryOperation;
-import php.runtime.memory.support.operation.collection.ListMemoryOperation;
 import php.runtime.memory.support.operation.map.HashMapMemoryOperation;
 import php.runtime.memory.support.operation.map.MapMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
@@ -178,6 +178,11 @@ abstract public class MemoryOperation<T> {
                             parameter.setTypeEnum((Class<? extends Enum>)type);
                         }
                     };
+                } else if (Array.class.isAssignableFrom(type)) {
+                    MemoryOperation arrayMemoryOperation = new ArrayMemoryOperation(type);
+                    register(arrayMemoryOperation);
+
+                    return arrayMemoryOperation;
                 }
              }
         }
@@ -268,7 +273,6 @@ abstract public class MemoryOperation<T> {
         register(new ByteArrayInputStreamMemoryOperation());
 
         register(new PatternMemoryOperation());
-        register(new IntegerArrayMemoryOperation());
 
         register(new IterableMemoryOperation());
 
