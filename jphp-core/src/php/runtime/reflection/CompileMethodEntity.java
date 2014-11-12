@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 public class CompileMethodEntity extends MethodEntity {
     protected CompileMethod function;
@@ -80,6 +81,10 @@ public class CompileMethodEntity extends MethodEntity {
             }
 
             parameters[i++] = param;
+        }
+
+        if (i < parameters.length) {
+            parameters = Arrays.copyOf(parameters, i);
         }
 
         if (this.parameters == null || this.parameters.length < parameters.length) {
@@ -268,7 +273,9 @@ public class CompileMethodEntity extends MethodEntity {
                     op = argumentOperations[i] = MemoryOperation.get(parameterTypes[i], method.getGenericParameterTypes()[i]);
 
                     if (op != null) {
-                        op.applyTypeHinting(parameters[i]);
+                        if (i < parameters.length - 1) {
+                            op.applyTypeHinting(parameters[i]);
+                        }
                     } else {
                         if (parameterTypes[i] == Environment.class) {
                             argumentOperations[i] = new InjectMemoryOperation() {

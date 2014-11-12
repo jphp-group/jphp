@@ -98,8 +98,12 @@ public class CompileScope {
     }
 
     public CompileScope() {
+        this(new RuntimeClassLoader(Thread.currentThread().getContextClassLoader()));
+    }
+
+    public CompileScope(RuntimeClassLoader classLoader) {
         id = scopeCount.getAndIncrement();
-        classLoader = new RuntimeClassLoader(Thread.currentThread().getContextClassLoader());
+        this.classLoader = classLoader;
 
         moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
         moduleIndexMap = new ConcurrentHashMap<String, ModuleEntity>();

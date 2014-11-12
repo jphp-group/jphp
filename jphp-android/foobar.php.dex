@@ -1,0 +1,721 @@
+000000: 6465 780a 3033|magic: "dex\n035\0"
+000006: 3500          |
+000008: d917 c2a7     |checksum
+00000c: 5c2b 62f1 c26e|signature
+000012: ba1b 9dcb 84b3|
+000018: 3400 33c4 a71b|
+00001e: 7f40          |
+000020: 2c06 0000     |file_size:       0000062c
+000024: 7000 0000     |header_size:     00000070
+000028: 7856 3412     |endian_tag:      12345678
+00002c: 0000 0000     |link_size:       0
+000030: 0000 0000     |link_off:        0
+000034: 8005 0000     |map_off:         00000580
+000038: 2000 0000     |string_ids_size: 00000020
+00003c: 7000 0000     |string_ids_off:  00000070
+000040: 0f00 0000     |type_ids_size:   0000000f
+000044: f000 0000     |type_ids_off:    000000f0
+000048: 0500 0000     |proto_ids_size:  00000005
+00004c: 2c01 0000     |proto_ids_off:   0000012c
+000050: 0600 0000     |field_ids_size:  00000006
+000054: 6801 0000     |field_ids_off:   00000168
+000058: 0800 0000     |method_ids_size: 00000008
+00005c: 9801 0000     |method_ids_off:  00000198
+000060: 0100 0000     |class_defs_size: 00000001
+000064: d801 0000     |class_defs_off:  000001d8
+000068: 3404 0000     |data_size:       00000434
+00006c: f801 0000     |data_off:        000001f8
+                      |
+                      |string_ids:
+                      |[0] "$CALL_FUNC_CACHE"
+000070: b802 0000     |  string_data_off: 000002b8
+                      |[1] "$CALL_METH_CACHE"
+000074: ca02 0000     |  string_data_off: 000002ca
+                      |[2] "$CL"
+000078: dc02 0000     |  string_data_off: 000002dc
+                      |[3] "$FN"
+00007c: e102 0000     |  string_data_off: 000002e1
+                      |[4] "$TRC"
+000080: e602 0000     |  string_data_off: 000002e6
+                      |[5] "$_php_module_d74a0080e07e44ce8fd23b32aec29646"
+000084: ec02 0000     |  string_data_off: 000002ec
+                      |[6] "<clinit>"
+000088: 1b03 0000     |  string_data_off: 0000031b
+                      |[7] "<init>"
+00008c: 2503 0000     |  string_data_off: 00000325
+                      |[8] "L$_php_module_d74a0080e07e44ce8fd23b32aec29646;"
+000090: 2d03 0000     |  string_data_off: 0000032d
+                      |[9] "LL"
+000094: 5e03 0000     |  string_data_off: 0000035e
+                      |[a] "LLLL"
+000098: 6203 0000     |  string_data_off: 00000362
+                      |[b] "Ljava/lang/String;"
+00009c: 6803 0000     |  string_data_off: 00000368
+                      |[c] "Ljava/lang/Throwable;"
+0000a0: 7c03 0000     |  string_data_off: 0000037c
+                      |[d] "Lphp/runtime/Memory;"
+0000a4: 9303 0000     |  string_data_off: 00000393
+                      |[e] "Lphp/runtime/env/Environment;"
+0000a8: a903 0000     |  string_data_off: 000003a9
+                      |[f] "Lphp/runtime/env/TraceInfo;"
+0000ac: c803 0000     |  string_data_off: 000003c8
+                      |[10] "Lphp/runtime/invoke/cache/FunctionCallCache;"
+0000b0: e503 0000     |  string_data_off: 000003e5
+                      |[11] "Lphp/runtime/invoke/cache/MethodCallCache;"
+0000b4: 1304 0000     |  string_data_off: 00000413
+                      |[12] "Lphp/runtime/lang/BaseObject;"
+0000b8: 3f04 0000     |  string_data_off: 0000043f
+                      |[13] "Lphp/runtime/memory/ArrayMemory;"
+0000bc: 5e04 0000     |  string_data_off: 0000045e
+                      |[14] "Lphp/runtime/memory/StringMemory;"
+0000c0: 8004 0000     |  string_data_off: 00000480
+                      |[15] "Lphp/runtime/reflection/ClassEntity;"
+0000c4: a304 0000     |  string_data_off: 000004a3
+                      |[16] "NULL"
+0000c8: c904 0000     |  string_data_off: 000004c9
+                      |[17] "V"
+0000cc: cf04 0000     |  string_data_off: 000004cf
+                      |[18] "VLL"
+0000d0: d204 0000     |  string_data_off: 000004d2
+                      |[19] "[Lphp/runtime/Memory;"
+0000d4: d704 0000     |  string_data_off: 000004d7
+                      |[1a] "[Lphp/runtime/env/TraceInfo;"
+0000d8: ee04 0000     |  string_data_off: 000004ee
+                      |[1b] "__include"
+0000dc: 0c05 0000     |  string_data_off: 0000050c
+                      |[1c] "foobar.php"
+0000e0: 1705 0000     |  string_data_off: 00000517
+                      |[1d] "hello world"
+0000e4: 2305 0000     |  string_data_off: 00000523
+                      |[1e] "valueOf"
+0000e8: 3005 0000     |  string_data_off: 00000530
+                      |[1f] "valueOfRef"
+0000ec: 3905 0000     |  string_data_off: 00000539
+                      |
+                      |type_ids:
+                      |[0] L$_php_module_d74a0080e07e44ce8fd23b32aec29646;
+0000f0: 0800 0000     |  descriptor_idx: 00000008
+                      |[1] Ljava/lang/String;
+0000f4: 0b00 0000     |  descriptor_idx: 0000000b
+                      |[2] Ljava/lang/Throwable;
+0000f8: 0c00 0000     |  descriptor_idx: 0000000c
+                      |[3] Lphp/runtime/Memory;
+0000fc: 0d00 0000     |  descriptor_idx: 0000000d
+                      |[4] Lphp/runtime/env/Environment;
+000100: 0e00 0000     |  descriptor_idx: 0000000e
+                      |[5] Lphp/runtime/env/TraceInfo;
+000104: 0f00 0000     |  descriptor_idx: 0000000f
+                      |[6] Lphp/runtime/invoke/cache/FunctionCallCache;
+000108: 1000 0000     |  descriptor_idx: 00000010
+                      |[7] Lphp/runtime/invoke/cache/MethodCallCache;
+00010c: 1100 0000     |  descriptor_idx: 00000011
+                      |[8] Lphp/runtime/lang/BaseObject;
+000110: 1200 0000     |  descriptor_idx: 00000012
+                      |[9] Lphp/runtime/memory/ArrayMemory;
+000114: 1300 0000     |  descriptor_idx: 00000013
+                      |[a] Lphp/runtime/memory/StringMemory;
+000118: 1400 0000     |  descriptor_idx: 00000014
+                      |[b] Lphp/runtime/reflection/ClassEntity;
+00011c: 1500 0000     |  descriptor_idx: 00000015
+                      |[c] V
+000120: 1700 0000     |  descriptor_idx: 00000017
+                      |[d] [Lphp/runtime/Memory;
+000124: 1900 0000     |  descriptor_idx: 00000019
+                      |[e] [Lphp/runtime/env/TraceInfo;
+000128: 1a00 0000     |  descriptor_idx: 0000001a
+                      |
+                      |proto_ids:
+                      |[0] php.runtime.Memory proto(java.lang.String)
+00012c: 0900 0000     |  shorty_idx:      00000009 // "LL"
+000130: 0300 0000     |  return_type_idx: 00000003 // php.runtime.Memory
+000134: 9402 0000     |  parameters_off:  00000294
+                      |[1] php.runtime.Memory proto(php.runtime.env.Environment
+                      |, php.runtime.Memory[], php.runtime.memory.ArrayMemory)
+000138: 0a00 0000     |  shorty_idx:      0000000a // "LLLL"
+00013c: 0300 0000     |  return_type_idx: 00000003 // php.runtime.Memory
+000140: 9c02 0000     |  parameters_off:  0000029c
+                      |[2] php.runtime.memory.ArrayMemory proto(php.runtime.mem
+                      |ory.ArrayMemory)
+000144: 0900 0000     |  shorty_idx:      00000009 // "LL"
+000148: 0900 0000     |  return_type_idx: 00000009 // php.runtime.memory.ArrayM
+                      |  emory
+00014c: a802 0000     |  parameters_off:  000002a8
+                      |[3] void proto()
+000150: 1700 0000     |  shorty_idx:      00000017 // "V"
+000154: 0c00 0000     |  return_type_idx: 0000000c // void
+000158: 0000 0000     |  parameters_off:  00000000
+                      |[4] void proto(php.runtime.env.Environment, php.runtime.
+                      |reflection.ClassEntity)
+00015c: 1800 0000     |  shorty_idx:      00000018 // "VLL"
+000160: 0c00 0000     |  return_type_idx: 0000000c // void
+000164: b002 0000     |  parameters_off:  000002b0
+                      |
+                      |field_ids:
+                      |[0] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CALL_
+                      |FUNC_CACHE:Lphp/runtime/invoke/cache/FunctionCallCache;
+000168: 0000          |  class_idx: 0000
+00016a: 0600          |  type_idx:  0006
+00016c: 0000 0000     |  name_idx:  00000000
+                      |[1] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CALL_
+                      |METH_CACHE:Lphp/runtime/invoke/cache/MethodCallCache;
+000170: 0000          |  class_idx: 0000
+000172: 0700          |  type_idx:  0007
+000174: 0100 0000     |  name_idx:  00000001
+                      |[2] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CL:Lj
+                      |ava/lang/String;
+000178: 0000          |  class_idx: 0000
+00017a: 0100          |  type_idx:  0001
+00017c: 0200 0000     |  name_idx:  00000002
+                      |[3] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$FN:Lj
+                      |ava/lang/String;
+000180: 0000          |  class_idx: 0000
+000182: 0100          |  type_idx:  0001
+000184: 0300 0000     |  name_idx:  00000003
+                      |[4] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$TRC:[
+                      |Lphp/runtime/env/TraceInfo;
+000188: 0000          |  class_idx: 0000
+00018a: 0e00          |  type_idx:  000e
+00018c: 0400 0000     |  name_idx:  00000004
+                      |[5] php.runtime.Memory.NULL:Lphp/runtime/Memory;
+000190: 0300          |  class_idx: 0003
+000192: 0300          |  type_idx:  0003
+000194: 1600 0000     |  name_idx:  00000016
+                      |
+                      |method_ids:
+                      |[0] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<clini
+                      |t>:()V
+000198: 0000          |  class_idx: 0000
+00019a: 0300          |  proto_idx: 0003
+00019c: 0600 0000     |  name_idx:  00000006
+                      |[1] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<init>
+                      |:(Lphp/runtime/env/Environment;Lphp/runtime/reflection/C
+                      |lassEntity;)V
+0001a0: 0000          |  class_idx: 0000
+0001a2: 0400          |  proto_idx: 0004
+0001a4: 0700 0000     |  name_idx:  00000007
+                      |[2] $_php_module_d74a0080e07e44ce8fd23b32aec29646.__incl
+                      |ude:(Lphp/runtime/env/Environment;[Lphp/runtime/Memory;L
+                      |php/runtime/memory/ArrayMemory;)Lphp/runtime/Memory;
+0001a8: 0000          |  class_idx: 0000
+0001aa: 0100          |  proto_idx: 0001
+0001ac: 1b00 0000     |  name_idx:  0000001b
+                      |[3] php.runtime.invoke.cache.FunctionCallCache.<init>:()
+                      |V
+0001b0: 0600          |  class_idx: 0006
+0001b2: 0300          |  proto_idx: 0003
+0001b4: 0700 0000     |  name_idx:  00000007
+                      |[4] php.runtime.invoke.cache.MethodCallCache.<init>:()V
+0001b8: 0700          |  class_idx: 0007
+0001ba: 0300          |  proto_idx: 0003
+0001bc: 0700 0000     |  name_idx:  00000007
+                      |[5] php.runtime.lang.BaseObject.<init>:(Lphp/runtime/env
+                      |/Environment;Lphp/runtime/reflection/ClassEntity;)V
+0001c0: 0800          |  class_idx: 0008
+0001c2: 0400          |  proto_idx: 0004
+0001c4: 0700 0000     |  name_idx:  00000007
+                      |[6] php.runtime.memory.ArrayMemory.valueOfRef:(Lphp/runt
+                      |ime/memory/ArrayMemory;)Lphp/runtime/memory/ArrayMemory;
+0001c8: 0900          |  class_idx: 0009
+0001ca: 0200          |  proto_idx: 0002
+0001cc: 1f00 0000     |  name_idx:  0000001f
+                      |[7] php.runtime.memory.StringMemory.valueOf:(Ljava/lang/
+                      |String;)Lphp/runtime/Memory;
+0001d0: 0a00          |  class_idx: 000a
+0001d2: 0000          |  proto_idx: 0000
+0001d4: 1e00 0000     |  name_idx:  0000001e
+                      |
+                      |class_defs:
+                      |[0] $_php_module_d74a0080e07e44ce8fd23b32aec29646
+0001d8: 0000 0000     |  class_idx:           00000000
+0001dc: 0100 0000     |  access_flags:        public
+0001e0: 0800 0000     |  superclass_idx:      00000008 // php.runtime.lang.Base
+                      |  Object
+0001e4: 0000 0000     |  interfaces_off:      00000000
+0001e8: 1c00 0000     |  source_file_idx:     0000001c // foobar.php
+0001ec: 0000 0000     |  annotations_off:     00000000
+0001f0: 6005 0000     |  class_data_off:      00000560
+0001f4: 5905 0000     |  static_values_off:   00000559
+                      |
+                      |word_data:
+                      |[1f8] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<cli
+                      |nit>:()V
+0001f8: 0300          |  registers_size: 0003
+0001fa: 0000          |  ins_size:       0000
+0001fc: 0100          |  outs_size:      0001
+0001fe: 0000          |  tries_size:     0000
+000200: 4505 0000     |  debug_off:      00000545
+000204: 1a00 0000     |  insns_size:     0000001a
+000208: 1200          |  0000: const/4 v0, #int 0 // #0
+00020a: 2300 0e00     |  0001: new-array v0, v0, php.runtime.env.TraceInfo[] //
+                      |         type@000e
+00020e: 6900 0400     |  0003: sput-object v0, $_php_module_d74a0080e07e44ce8fd
+                      |        23b32aec29646.$TRC:[Lphp/runtime/env/TraceInfo; 
+                      |        // field@0004
+000212: 2200 0600     |  0005: new-instance v0, php.runtime.invoke.cache.Functi
+                      |        onCallCache // type@0006
+000216: 0702          |  0007: move-object v2, v0
+000218: 0720          |  0008: move-object v0, v2
+00021a: 0721          |  0009: move-object v1, v2
+00021c: 7010 0300 0100|  000a: invoke-direct {v1}, php.runtime.invoke.cache.Fun
+                      |        ctionCallCache.<init>:()V // method@0003
+000222: 6900 0000     |  000d: sput-object v0, $_php_module_d74a0080e07e44ce8fd
+                      |        23b32aec29646.$CALL_FUNC_CACHE:Lphp/runtime/invo
+                      |        ke/cache/FunctionCallCache; // field@0000
+000226: 2200 0700     |  000f: new-instance v0, php.runtime.invoke.cache.Method
+                      |        CallCache // type@0007
+00022a: 0702          |  0011: move-object v2, v0
+00022c: 0720          |  0012: move-object v0, v2
+00022e: 0721          |  0013: move-object v1, v2
+000230: 7010 0400 0100|  0014: invoke-direct {v1}, php.runtime.invoke.cache.Met
+                      |        hodCallCache.<init>:()V // method@0004
+000236: 6900 0100     |  0017: sput-object v0, $_php_module_d74a0080e07e44ce8fd
+                      |        23b32aec29646.$CALL_METH_CACHE:Lphp/runtime/invo
+                      |        ke/cache/MethodCallCache; // field@0001
+00023a: 0e00          |  0019: return-void
+                      |  debug info
+                      |    line_start: 0
+                      |    parameters_size: 0000
+                      |    0000: prologue end
+                      |    0000: line 0
+                      |    end sequence
+                      |
+                      |[23c] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<ini
+                      |t>:(Lphp/runtime/env/Environment;Lphp/runtime/reflection
+                      |/ClassEntity;)V
+00023c: 0900          |  registers_size: 0009
+00023e: 0300          |  ins_size:       0003
+000240: 0300          |  outs_size:      0003
+000242: 0000          |  tries_size:     0000
+000244: 4a05 0000     |  debug_off:      0000054a
+000248: 0a00 0000     |  insns_size:     0000000a
+00024c: 0760          |  0000: move-object v0, v6
+00024e: 0771          |  0001: move-object v1, v7
+000250: 0782          |  0002: move-object v2, v8
+000252: 0703          |  0003: move-object v3, v0
+000254: 0714          |  0004: move-object v4, v1
+000256: 0725          |  0005: move-object v5, v2
+000258: 7030 0500 4305|  0006: invoke-direct {v3, v4, v5}, php.runtime.lang.Bas
+                      |        eObject.<init>:(Lphp/runtime/env/Environment;Lph
+                      |        p/runtime/reflection/ClassEntity;)V // method@00
+                      |        05
+00025e: 0e00          |  0009: return-void
+                      |  debug info
+                      |    line_start: 0
+                      |    parameters_size: 0002
+                      |    parameter <unnamed> v7
+                      |    parameter <unnamed> v8
+                      |    0000: prologue end
+                      |    0000: line 0
+                      |    end sequence
+                      |
+                      |[260] $_php_module_d74a0080e07e44ce8fd23b32aec29646.__in
+                      |clude:(Lphp/runtime/env/Environment;[Lphp/runtime/Memory
+                      |;Lphp/runtime/memory/ArrayMemory;)Lphp/runtime/Memory;
+000260: 0800          |  registers_size: 0008
+000262: 0300          |  ins_size:       0003
+000264: 0100          |  outs_size:      0001
+000266: 0000          |  tries_size:     0000
+000268: 5105 0000     |  debug_off:      00000551
+00026c: 1100 0000     |  insns_size:     00000011
+000270: 0750          |  0000: move-object v0, v5
+000272: 0761          |  0001: move-object v1, v6
+000274: 0772          |  0002: move-object v2, v7
+000276: 0724          |  0003: move-object v4, v2
+000278: 7110 0600 0400|  0004: invoke-static {v4}, php.runtime.memory.ArrayMemo
+                      |        ry.valueOfRef:(Lphp/runtime/memory/ArrayMemory;)
+                      |        Lphp/runtime/memory/ArrayMemory; // method@0006
+00027e: 0c04          |  0007: move-result-object v4
+000280: 0743          |  0008: move-object v3, v4
+000282: 1a04 1d00     |  0009: const-string v4, "hello world" // utf8@001d
+000286: 7110 0700 0400|  000b: invoke-static {v4}, php.runtime.memory.StringMem
+                      |        ory.valueOf:(Ljava/lang/String;)Lphp/runtime/Mem
+                      |        ory; // method@0007
+00028c: 0c04          |  000e: move-result-object v4
+00028e: 0740          |  000f: move-object v0, v4
+000290: 1100          |  0010: return-object v0
+                      |  debug info
+                      |    line_start: 0
+                      |    parameters_size: 0003
+                      |    parameter <unnamed> v5
+                      |    parameter <unnamed> v6
+                      |    parameter <unnamed> v7
+                      |    0000: prologue end
+                      |    0000: line 0
+                      |    end sequence
+000292: 0000          |
+                      |
+                      |[294] type_list
+000294: 0100 0000     |  size: 00000001
+000298: 0100          |  0001 // java.lang.String
+                      |
+00029a: 0000          |
+                      |[29c] type_list
+00029c: 0300 0000     |  size: 00000003
+0002a0: 0400          |  0004 // php.runtime.env.Environment
+0002a2: 0d00          |  000d // php.runtime.Memory[]
+0002a4: 0900          |  0009 // php.runtime.memory.ArrayMemory
+                      |
+0002a6: 0000          |
+                      |[2a8] type_list
+0002a8: 0100 0000     |  size: 00000001
+0002ac: 0900          |  0009 // php.runtime.memory.ArrayMemory
+                      |
+0002ae: 0000          |
+                      |[2b0] type_list
+0002b0: 0200 0000     |  size: 00000002
+0002b4: 0400          |  0004 // php.runtime.env.Environment
+0002b6: 0b00          |  000b // php.runtime.reflection.ClassEntity
+                      |
+                      |string_data:
+0002b8: 10            |utf16_size: 00000010
+0002b9: 2443 414c 4c5f|"$CALL_FUNC_CACHE"
+0002bf: 4655 4e43 5f43|
+0002c5: 4143 4845 00  |
+                      |
+0002ca: 10            |utf16_size: 00000010
+0002cb: 2443 414c 4c5f|"$CALL_METH_CACHE"
+0002d1: 4d45 5448 5f43|
+0002d7: 4143 4845 00  |
+                      |
+0002dc: 03            |utf16_size: 00000003
+0002dd: 2443 4c00     |"$CL"
+                      |
+0002e1: 03            |utf16_size: 00000003
+0002e2: 2446 4e00     |"$FN"
+                      |
+0002e6: 04            |utf16_size: 00000004
+0002e7: 2454 5243 00  |"$TRC"
+                      |
+0002ec: 2d            |utf16_size: 0000002d
+0002ed: 245f 7068 705f|"$_php_module_d74a0080e07e44ce8fd23b32aec29646"
+0002f3: 6d6f 6475 6c65|
+0002f9: 5f64 3734 6130|
+0002ff: 3038 3065 3037|
+000305: 6534 3463 6538|
+00030b: 6664 3233 6233|
+000311: 3261 6563 3239|
+000317: 3634 3600     |
+                      |
+00031b: 08            |utf16_size: 00000008
+00031c: 3c63 6c69 6e69|"<clinit>"
+000322: 743e 00       |
+                      |
+000325: 06            |utf16_size: 00000006
+000326: 3c69 6e69 743e|"<init>"
+00032c: 00            |
+                      |
+00032d: 2f            |utf16_size: 0000002f
+00032e: 4c24 5f70 6870|"L$_php_module_d74a0080e07e44ce8fd23b32aec29646;"
+000334: 5f6d 6f64 756c|
+00033a: 655f 6437 3461|
+000340: 3030 3830 6530|
+000346: 3765 3434 6365|
+00034c: 3866 6432 3362|
+000352: 3332 6165 6332|
+000358: 3936 3436 3b00|
+                      |
+00035e: 02            |utf16_size: 00000002
+00035f: 4c4c 00       |"LL"
+                      |
+000362: 04            |utf16_size: 00000004
+000363: 4c4c 4c4c 00  |"LLLL"
+                      |
+000368: 12            |utf16_size: 00000012
+000369: 4c6a 6176 612f|"Ljava/lang/String;"
+00036f: 6c61 6e67 2f53|
+000375: 7472 696e 673b|
+00037b: 00            |
+                      |
+00037c: 15            |utf16_size: 00000015
+00037d: 4c6a 6176 612f|"Ljava/lang/Throwable;"
+000383: 6c61 6e67 2f54|
+000389: 6872 6f77 6162|
+00038f: 6c65 3b00     |
+                      |
+000393: 14            |utf16_size: 00000014
+000394: 4c70 6870 2f72|"Lphp/runtime/Memory;"
+00039a: 756e 7469 6d65|
+0003a0: 2f4d 656d 6f72|
+0003a6: 793b 00       |
+                      |
+0003a9: 1d            |utf16_size: 0000001d
+0003aa: 4c70 6870 2f72|"Lphp/runtime/env/Environment;"
+0003b0: 756e 7469 6d65|
+0003b6: 2f65 6e76 2f45|
+0003bc: 6e76 6972 6f6e|
+0003c2: 6d65 6e74 3b00|
+                      |
+0003c8: 1b            |utf16_size: 0000001b
+0003c9: 4c70 6870 2f72|"Lphp/runtime/env/TraceInfo;"
+0003cf: 756e 7469 6d65|
+0003d5: 2f65 6e76 2f54|
+0003db: 7261 6365 496e|
+0003e1: 666f 3b00     |
+                      |
+0003e5: 2c            |utf16_size: 0000002c
+0003e6: 4c70 6870 2f72|"Lphp/runtime/invoke/cache/FunctionCallCache;"
+0003ec: 756e 7469 6d65|
+0003f2: 2f69 6e76 6f6b|
+0003f8: 652f 6361 6368|
+0003fe: 652f 4675 6e63|
+000404: 7469 6f6e 4361|
+00040a: 6c6c 4361 6368|
+000410: 653b 00       |
+                      |
+000413: 2a            |utf16_size: 0000002a
+000414: 4c70 6870 2f72|"Lphp/runtime/invoke/cache/MethodCallCache;"
+00041a: 756e 7469 6d65|
+000420: 2f69 6e76 6f6b|
+000426: 652f 6361 6368|
+00042c: 652f 4d65 7468|
+000432: 6f64 4361 6c6c|
+000438: 4361 6368 653b|
+00043e: 00            |
+                      |
+00043f: 1d            |utf16_size: 0000001d
+000440: 4c70 6870 2f72|"Lphp/runtime/lang/BaseObject;"
+000446: 756e 7469 6d65|
+00044c: 2f6c 616e 672f|
+000452: 4261 7365 4f62|
+000458: 6a65 6374 3b00|
+                      |
+00045e: 20            |utf16_size: 00000020
+00045f: 4c70 6870 2f72|"Lphp/runtime/memory/ArrayMemory;"
+000465: 756e 7469 6d65|
+00046b: 2f6d 656d 6f72|
+000471: 792f 4172 7261|
+000477: 794d 656d 6f72|
+00047d: 793b 00       |
+                      |
+000480: 21            |utf16_size: 00000021
+000481: 4c70 6870 2f72|"Lphp/runtime/memory/StringMemory;"
+000487: 756e 7469 6d65|
+00048d: 2f6d 656d 6f72|
+000493: 792f 5374 7269|
+000499: 6e67 4d65 6d6f|
+00049f: 7279 3b00     |
+                      |
+0004a3: 24            |utf16_size: 00000024
+0004a4: 4c70 6870 2f72|"Lphp/runtime/reflection/ClassEntity;"
+0004aa: 756e 7469 6d65|
+0004b0: 2f72 6566 6c65|
+0004b6: 6374 696f 6e2f|
+0004bc: 436c 6173 7345|
+0004c2: 6e74 6974 793b|
+0004c8: 00            |
+                      |
+0004c9: 04            |utf16_size: 00000004
+0004ca: 4e55 4c4c 00  |"NULL"
+                      |
+0004cf: 01            |utf16_size: 00000001
+0004d0: 5600          |"V"
+                      |
+0004d2: 03            |utf16_size: 00000003
+0004d3: 564c 4c00     |"VLL"
+                      |
+0004d7: 15            |utf16_size: 00000015
+0004d8: 5b4c 7068 702f|"[Lphp/runtime/Memory;"
+0004de: 7275 6e74 696d|
+0004e4: 652f 4d65 6d6f|
+0004ea: 7279 3b00     |
+                      |
+0004ee: 1c            |utf16_size: 0000001c
+0004ef: 5b4c 7068 702f|"[Lphp/runtime/env/TraceInfo;"
+0004f5: 7275 6e74 696d|
+0004fb: 652f 656e 762f|
+000501: 5472 6163 6549|
+000507: 6e66 6f3b 00  |
+                      |
+00050c: 09            |utf16_size: 00000009
+00050d: 5f5f 696e 636c|"__include"
+000513: 7564 6500     |
+                      |
+000517: 0a            |utf16_size: 0000000a
+000518: 666f 6f62 6172|"foobar.php"
+00051e: 2e70 6870 00  |
+                      |
+000523: 0b            |utf16_size: 0000000b
+000524: 6865 6c6c 6f20|"hello world"
+00052a: 776f 726c 6400|
+                      |
+000530: 07            |utf16_size: 00000007
+000531: 7661 6c75 654f|"valueOf"
+000537: 6600          |
+                      |
+000539: 0a            |utf16_size: 0000000a
+00053a: 7661 6c75 654f|"valueOfRef"
+000540: 6652 6566 00  |
+                      |
+                      |byte_data:
+                      |[545] debug info
+000545: 00            |line_start: 0
+000546: 00            |parameters_size: 0000
+000547: 07            |0000: prologue end
+000548: 0e            |0000: line 0
+000549: 00            |end sequence
+                      |
+                      |[54a] debug info
+00054a: 00            |line_start: 0
+00054b: 02            |parameters_size: 0002
+00054c: 00            |parameter <unnamed> v7
+00054d: 00            |parameter <unnamed> v8
+00054e: 07            |0000: prologue end
+00054f: 0e            |0000: line 0
+000550: 00            |end sequence
+                      |
+                      |[551] debug info
+000551: 00            |line_start: 0
+000552: 03            |parameters_size: 0003
+000553: 00            |parameter <unnamed> v5
+000554: 00            |parameter <unnamed> v6
+000555: 00            |parameter <unnamed> v7
+000556: 07            |0000: prologue end
+000557: 0e            |0000: line 0
+000558: 00            |end sequence
+                      |
+                      |[559] encoded array
+000559: 04            |  size: 00000004
+00055a: 1e            |  [0] null
+00055b: 1e            |  [1] null
+00055c: 1705          |  [2] utf8 $_php_module_d74a0080e07e44ce8fd23b32aec29646
+00055e: 171c          |  [3] utf8 foobar.php
+                      |
+                      |[560] class data for $_php_module_d74a0080e07e44ce8fd23b
+                      |32aec29646
+000560: 05            |  static_fields_size:   00000005
+000561: 00            |  instance_fields_size: 00000000
+000562: 03            |  direct_methods_size:  00000003
+000563: 00            |  virtual_methods_size: 00000000
+                      |  static_fields:
+                      |  [0] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CAL
+                      |  L_FUNC_CACHE:Lphp/runtime/invoke/cache/FunctionCallCac
+                      |  he;
+000564: 00            |    field_idx:    00000000
+000565: 0c            |    access_flags: protected|static
+                      |  [1] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CAL
+                      |  L_METH_CACHE:Lphp/runtime/invoke/cache/MethodCallCache
+                      |  ;
+000566: 01            |    field_idx:    00000001
+000567: 0c            |    access_flags: protected|static
+                      |  [2] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$CL:
+                      |  Ljava/lang/String;
+000568: 01            |    field_idx:    00000002
+000569: 19            |    access_flags: public|static|final
+                      |  [3] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$FN:
+                      |  Ljava/lang/String;
+00056a: 01            |    field_idx:    00000003
+00056b: 1c            |    access_flags: protected|static|final
+                      |  [4] $_php_module_d74a0080e07e44ce8fd23b32aec29646.$TRC
+                      |  :[Lphp/runtime/env/TraceInfo;
+00056c: 01            |    field_idx:    00000004
+00056d: 0c            |    access_flags: protected|static
+                      |  direct_methods:
+                      |  [0] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<cli
+                      |  nit>:()V
+00056e: 00            |    method_idx:   00000000
+00056f: 8880 04       |    access_flags: static|constructor
+000572: f803          |    code_off:     000001f8
+                      |  [1] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<ini
+                      |  t>:(Lphp/runtime/env/Environment;Lphp/runtime/reflecti
+                      |  on/ClassEntity;)V
+000574: 01            |    method_idx:   00000001
+000575: 8180 04       |    access_flags: public|constructor
+000578: bc04          |    code_off:     0000023c
+                      |  [2] $_php_module_d74a0080e07e44ce8fd23b32aec29646.__in
+                      |  clude:(Lphp/runtime/env/Environment;[Lphp/runtime/Memo
+                      |  ry;Lphp/runtime/memory/ArrayMemory;)Lphp/runtime/Memor
+                      |  y;
+00057a: 01            |    method_idx:   00000002
+00057b: 19            |    access_flags: public|static|final
+00057c: e004          |    code_off:     00000260
+00057e: 0000          |
+                      |
+                      |map:
+                      |[580] map list
+000580: 0e00 0000     |  size: 0000000e
+                      |[584] header_item map
+000584: 0000          |  type:   0000 // TYPE_HEADER_ITEM
+000586: 0000          |  unused: 0
+000588: 0100 0000     |  size:   00000001
+00058c: 0000 0000     |  offset: 00000000
+                      |[590] string_id_item map
+000590: 0100          |  type:   0001 // TYPE_STRING_ID_ITEM
+000592: 0000          |  unused: 0
+000594: 2000 0000     |  size:   00000020
+000598: 7000 0000     |  offset: 00000070
+                      |[59c] type_id_item map
+00059c: 0200          |  type:   0002 // TYPE_TYPE_ID_ITEM
+00059e: 0000          |  unused: 0
+0005a0: 0f00 0000     |  size:   0000000f
+0005a4: f000 0000     |  offset: 000000f0
+                      |[5a8] proto_id_item map
+0005a8: 0300          |  type:   0003 // TYPE_PROTO_ID_ITEM
+0005aa: 0000          |  unused: 0
+0005ac: 0500 0000     |  size:   00000005
+0005b0: 2c01 0000     |  offset: 0000012c
+                      |[5b4] field_id_item map
+0005b4: 0400          |  type:   0004 // TYPE_FIELD_ID_ITEM
+0005b6: 0000          |  unused: 0
+0005b8: 0600 0000     |  size:   00000006
+0005bc: 6801 0000     |  offset: 00000168
+                      |[5c0] method_id_item map
+0005c0: 0500          |  type:   0005 // TYPE_METHOD_ID_ITEM
+0005c2: 0000          |  unused: 0
+0005c4: 0800 0000     |  size:   00000008
+0005c8: 9801 0000     |  offset: 00000198
+                      |[5cc] class_def_item map
+0005cc: 0600          |  type:   0006 // TYPE_CLASS_DEF_ITEM
+0005ce: 0000          |  unused: 0
+0005d0: 0100 0000     |  size:   00000001
+0005d4: d801 0000     |  offset: 000001d8
+                      |[5d8] code_item map
+0005d8: 0120          |  type:   2001 // TYPE_CODE_ITEM
+0005da: 0000          |  unused: 0
+0005dc: 0300 0000     |  size:   00000003
+0005e0: f801 0000     |  offset: 000001f8
+                      |[5e4] type_list map
+0005e4: 0110          |  type:   1001 // TYPE_TYPE_LIST
+0005e6: 0000          |  unused: 0
+0005e8: 0400 0000     |  size:   00000004
+0005ec: 9402 0000     |  offset: 00000294
+                      |[5f0] string_data_item map
+0005f0: 0220          |  type:   2002 // TYPE_STRING_DATA_ITEM
+0005f2: 0000          |  unused: 0
+0005f4: 2000 0000     |  size:   00000020
+0005f8: b802 0000     |  offset: 000002b8
+                      |[5fc] debug_info_item map
+0005fc: 0320          |  type:   2003 // TYPE_DEBUG_INFO_ITEM
+0005fe: 0000          |  unused: 0
+000600: 0300 0000     |  size:   00000003
+000604: 4505 0000     |  offset: 00000545
+                      |[608] encoded_array_item map
+000608: 0520          |  type:   2005 // TYPE_ENCODED_ARRAY_ITEM
+00060a: 0000          |  unused: 0
+00060c: 0100 0000     |  size:   00000001
+000610: 5905 0000     |  offset: 00000559
+                      |[614] class_data_item map
+000614: 0020          |  type:   2000 // TYPE_CLASS_DATA_ITEM
+000616: 0000          |  unused: 0
+000618: 0100 0000     |  size:   00000001
+00061c: 6005 0000     |  offset: 00000560
+                      |[620] map_list map
+000620: 0010          |  type:   1000 // TYPE_MAP_LIST
+000622: 0000          |  unused: 0
+000624: 0100 0000     |  size:   00000001
+000628: 8005 0000     |  offset: 00000580
+                      |
+                      |method code index:
+                      |
+                      |[1f8] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<cli
+                      |nit>:()V
+                      |[23c] $_php_module_d74a0080e07e44ce8fd23b32aec29646.<ini
+                      |t>:(Lphp/runtime/env/Environment;Lphp/runtime/reflection
+                      |/ClassEntity;)V
+                      |[260] $_php_module_d74a0080e07e44ce8fd23b32aec29646.__in
+                      |clude:(Lphp/runtime/env/Environment;[Lphp/runtime/Memory
+                      |;Lphp/runtime/memory/ArrayMemory;)Lphp/runtime/Memory;
+                      |
+                      |statistics:
+                      |  class data: 1 item; 30 bytes total
+                      |    30 bytes/item
+               

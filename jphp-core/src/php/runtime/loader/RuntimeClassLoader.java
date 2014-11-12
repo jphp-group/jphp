@@ -20,6 +20,10 @@ public class RuntimeClassLoader extends ClassLoader {
     protected Map<String, FunctionEntity> internalFunctions = new HashMap<String, FunctionEntity>();
     protected Map<String, ModuleEntity> internalModules = new HashMap<String, ModuleEntity>();
 
+    public RuntimeClassLoader() {
+        this(Thread.currentThread().getContextClassLoader());
+    }
+
     public RuntimeClassLoader(ClassLoader parent) {
         super(parent);
     }
@@ -37,7 +41,7 @@ public class RuntimeClassLoader extends ClassLoader {
     }
 
     public Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
-        byte[] data = clazz.getData();
+        byte[] data = translateData(clazz.getInternalName(), clazz.getData());
         Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
 
         clazz.setNativeClazz(result);
@@ -59,7 +63,7 @@ public class RuntimeClassLoader extends ClassLoader {
     }
 
     protected Class<?> loadFunction(FunctionEntity function) throws NoSuchMethodException {
-        byte[] data = function.getData();
+        byte[] data = translateData(function.getInternalName(), function.getData());
         String className = function.getInternalName();
 
         Class<?> result = defineClass(className, data, 0, data.length);
@@ -108,8 +112,9 @@ public class RuntimeClassLoader extends ClassLoader {
             ret = true;
         }
 
+        byte[] data = translateData(internal, module.getData());
         Class<?> result = defineClass(
-                internal, module.getData(), 0, module.getData().length
+                internal, data, 0, module.getData().length
         );
         module.setNativeClazz(result);
 
@@ -123,5 +128,9 @@ public class RuntimeClassLoader extends ClassLoader {
         }
 
         return ret;
+    }
+
+    protected byte[] translateData(String internalName, byte[] data) {
+        return data;
     }
 }

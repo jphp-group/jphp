@@ -82,6 +82,7 @@ configure(subprojects.findAll { it.name.endsWith("-ext") }) {
 // for deploy
 configure([
         project(':jphp-core'),
+        project(':jphp-android'),
         project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),

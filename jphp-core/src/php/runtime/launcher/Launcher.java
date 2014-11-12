@@ -262,6 +262,10 @@ public class Launcher {
         return compileScope;
     }
 
+    public Environment getEnvironment() {
+        return environment;
+    }
+
     public static Launcher current() {
         return current;
     }

@@ -12,6 +12,7 @@ import php.runtime.lang.StdClass;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
 import php.runtime.memory.helper.ShortcutMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
@@ -45,15 +46,33 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ArrayMemory(Collection collection){
         this();
-        for(Object el : collection){
-            add(MemoryUtils.valueOf(el));
+        for(Object el : collection) {
+            if (el == null) {
+                add(NULL);
+                continue;
+            }
+
+            MemoryOperation operation = MemoryOperation.get(el.getClass(), null);
+
+            if (operation != null) {
+                add(operation.unconvert(null, null, el));
+            }
         }
     }
 
     public ArrayMemory(Object... array){
         this();
-        for(Object el : array){
-            list.add(new ReferenceMemory(MemoryUtils.valueOf(el)));
+        for(Object el : array) {
+            if (el == null) {
+                list.add(new ReferenceMemory());
+                continue;
+            }
+
+            MemoryOperation operation = MemoryOperation.get(el.getClass(), null);
+
+            if (operation != null) {
+                list.add(new ReferenceMemory(operation.unconvert(null, null, el)));
+            }
         }
         size = array.length;
         lastLongIndex = size - 1;
@@ -74,7 +93,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ArrayMemory(String[] array){
         this();
         for(String el : array) {
-            list.add(new ReferenceMemory(new StringMemory(el)));
+            list.add(new ReferenceMemory(StringMemory.valueOf(el)));
         }
         size = array.length;
         lastLongIndex = size - 1;
