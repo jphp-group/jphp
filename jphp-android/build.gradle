@@ -6,14 +6,3 @@ dependencies {
     testCompile 'junit:junit:4.+'
 }
 
-
-task dist(dependsOn: buildPortableDef) {
-    // ...
-    copy {
-        from 'shell/jphp-android'
-        from 'shell/jphp-android.bat'
-        from 'shell/jphp-android.conf'
-
-        into project.ext.distPath
-    }
-}

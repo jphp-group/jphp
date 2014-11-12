@@ -4,6 +4,7 @@ import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.zend.ext.ZendExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Property;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
@@ -46,18 +47,11 @@ public class ExampleExtension extends Extension {
     }
 
     public static class Foobar extends BaseObject {
+        @Property
+        public int x;
+
         public Foobar(Environment env, ClassEntity clazz) {
             super(env, clazz);
-        }
-
-        @Signature
-        public void __construct(Iterable<List<Date>> value) {
-            for (List<Date> dates : value) {
-                for (Date el : dates) {
-                    System.out.println(el);
-                }
-                System.out.println("-----");
-            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.develnext.jphp.android;
+package org.develnext.jphp.android.tools;
 
 import com.android.dex.DexFormat;
 import com.android.dx.cf.direct.DirectClassFile;
@@ -12,7 +12,9 @@ import com.android.dx.dex.file.ClassDefItem;
 import com.android.dx.dex.file.DexFile;
 import php.runtime.exceptions.CriticalException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 public class DexClient {
@@ -63,5 +65,16 @@ public class DexClient {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public byte[] write() {
+        byte[] outArray = null;
+        OutputStreamWriter out = new OutputStreamWriter(new ByteArrayOutputStream());
+        try {
+            outArray = outputDex.toDex(out, false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return outArray;
     }
 }

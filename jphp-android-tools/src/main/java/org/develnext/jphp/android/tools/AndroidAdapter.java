@@ -1,4 +1,4 @@
-package org.develnext.jphp.android;
+package org.develnext.jphp.android.tools;
 
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;

@@ -2,7 +2,6 @@
 
 use php\time\Time;
 
-$foo = new Foobar([
-    [Time::now(), Time::now()],
-    [Time::today(), Time::today()]
-]);
+$foo = new Foobar();
+$foo->x = 20;
+echo $foo->x;
