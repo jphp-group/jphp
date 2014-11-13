@@ -357,20 +357,37 @@ public class CompileScope {
         return exceptionMapForContext.get(className);
     }
 
-    public ModuleEntity loadModule(String name){
+    /**
+     * Loads a module by name (filename) for classLoader
+     * @param name a filename
+     * @return
+     */
+    public ModuleEntity loadModule(String name, boolean withBytecode) {
         ModuleEntity entity = findUserModule(name);
         if (entity == null)
             return null;
 
-        classLoader.loadModule(entity);
+        classLoader.loadModule(entity, withBytecode);
         return entity;
     }
 
-    public void loadModule(ModuleEntity module){
-        classLoader.loadModule(module);
+    public ModuleEntity loadModule(String name) {
+        return loadModule(name, true);
     }
 
-    public JVMStackTracer getStackTracer(StackTraceElement[] elements){
+    /**
+     * Loads a module for classLoader
+     * @param module a module
+     */
+    public void loadModule(ModuleEntity module, boolean withBytecode) {
+        classLoader.loadModule(module, withBytecode);
+    }
+
+    public void loadModule(ModuleEntity module) {
+        loadModule(module, true);
+    }
+
+    public JVMStackTracer getStackTracer(StackTraceElement[] elements) {
         return new JVMStackTracer(classLoader, elements);
     }
 

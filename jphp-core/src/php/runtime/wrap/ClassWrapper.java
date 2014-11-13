@@ -413,7 +413,7 @@ public class ClassWrapper {
             classEntity.setData(classWriter.toByteArray());
 
             try {
-                scope.getClassLoader().loadClass(classEntity);
+                scope.getClassLoader().loadClass(classEntity, classEntity.getNativeClazz() == null);
             } catch (NoSuchMethodException e) {
                 throw new CriticalException(e);
             } catch (NoSuchFieldException e) {

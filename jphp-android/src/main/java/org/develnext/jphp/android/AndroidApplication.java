@@ -68,7 +68,7 @@ public class AndroidApplication {
                 ModuleEntity moduleEntity = moduleDumper.load(new ByteArrayInputStream(data));
                 loadModule(moduleEntity, dexClassLoader);
 
-                scope.loadModule(moduleEntity);
+                scope.loadModule(moduleEntity, false);
                 env.registerModule(moduleEntity);
 
                 result.add(moduleEntity);

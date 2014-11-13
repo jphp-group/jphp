@@ -40,47 +40,55 @@ public class RuntimeClassLoader extends ClassLoader {
         return internalModules.get(internalName);
     }
 
-    public Class<?> loadClass(ClassEntity clazz) throws NoSuchMethodException, NoSuchFieldException {
-        byte[] data = translateData(clazz.getInternalName(), clazz.getData());
-        Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
+    public Class<?> loadClass(ClassEntity clazz, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {
+        if (withBytecode) {
+            byte[] data = translateData(clazz.getInternalName(), clazz.getData());
+            Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
 
-        clazz.setNativeClazz(result);
+            clazz.setNativeClazz(result);
+        }
+
         for(MethodEntity method : clazz.getMethods().values()){
             if (method.getNativeMethod() == null && !method.isAbstractable()){
                 method.setNativeMethod(
-                        result.getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
+                        clazz.getNativeClazz().getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );
                 method.getNativeMethod().setAccessible(true);
             }
         }
 
         internalClasses.put(clazz.getInternalName(), clazz);
-        return result;
+        return clazz.getNativeClazz();
     }
 
-    protected Class<?> loadClosure(ClosureEntity closure) throws NoSuchMethodException, NoSuchFieldException {
-        return loadClass(closure);
+    protected Class<?> loadClosure(ClosureEntity closure, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {
+        return loadClass(closure, withBytecode);
     }
 
-    protected Class<?> loadFunction(FunctionEntity function) throws NoSuchMethodException {
-        byte[] data = translateData(function.getInternalName(), function.getData());
+    protected Class<?> loadFunction(FunctionEntity function, boolean withBytecode) throws NoSuchMethodException {
         String className = function.getInternalName();
+        if (withBytecode) {
+            byte[] data = translateData(function.getInternalName(), function.getData());
 
-        Class<?> result = defineClass(className, data, 0, data.length);
-        function.setNativeClazz(result);
-        Method method = result.getDeclaredMethod(
+            Class<?> result = defineClass(className, data, 0, data.length);
+
+            function.setNativeClazz(result);
+        }
+
+        Method method = function.getNativeClazz().getDeclaredMethod(
                 "__invoke", Environment.class, Memory[].class
         );
         function.setNativeMethod(method);
         internalFunctions.put(className, function);
-        return result;
+
+        return function.getNativeClazz();
     }
 
-    protected Class<?> loadGenerator(GeneratorEntity generator) throws NoSuchMethodException, NoSuchFieldException {
-        return loadClass(generator);
+    protected Class<?> loadGenerator(GeneratorEntity generator, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {
+        return loadClass(generator, withBytecode);
     }
 
-    public boolean loadModule(ModuleEntity module){
+    public boolean loadModule(ModuleEntity module, boolean withBytecode){
         String internal = module.getInternalName();
 
         boolean ret = false;
@@ -88,18 +96,18 @@ public class RuntimeClassLoader extends ClassLoader {
             internalModules.put(internal, module);
             try {
                 for(ClosureEntity closure : module.getClosures())
-                    loadClosure(closure);
+                    loadClosure(closure, withBytecode);
 
                 for(GeneratorEntity generator : module.getGenerators())
-                    loadGenerator(generator);
+                    loadGenerator(generator, withBytecode);
 
                 for(ClassEntity clazz : module.getClasses()){
                     if (clazz.getType() != ClassEntity.Type.INTERFACE)
-                        loadClass(clazz);
+                        loadClass(clazz, withBytecode);
                 }
 
                 for(FunctionEntity function : module.getFunctions()){
-                    loadFunction(function);
+                    loadFunction(function, withBytecode);
                 }
 
             } catch (NoSuchMethodException e){
@@ -112,14 +120,16 @@ public class RuntimeClassLoader extends ClassLoader {
             ret = true;
         }
 
-        byte[] data = translateData(internal, module.getData());
-        Class<?> result = defineClass(
-                internal, data, 0, module.getData().length
-        );
-        module.setNativeClazz(result);
+        if (withBytecode) {
+            byte[] data = translateData(internal, module.getData());
+            Class<?> result = defineClass(
+                    internal, data, 0, module.getData().length
+            );
+            module.setNativeClazz(result);
+        }
 
         try {
-            Method method = result.getDeclaredMethod(
+            Method method = module.getNativeClazz().getDeclaredMethod(
                     "__include", Environment.class, Memory[].class, ArrayMemory.class
             );
             module.setNativeMethod(method);
