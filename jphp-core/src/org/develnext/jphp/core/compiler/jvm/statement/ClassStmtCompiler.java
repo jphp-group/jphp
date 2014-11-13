@@ -16,13 +16,16 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import php.runtime.Memory;
+import php.runtime.common.Function;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.FunctionCallCache;
@@ -31,6 +34,7 @@ import php.runtime.lang.BaseObject;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -625,7 +629,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     protected void writeCopiedMethod(ClassStmtToken.Alias alias, String methodName, ClassEntity trait) {
-        MethodEntity methodEntity = fetchClassAndCheck(alias.getTrait()).findMethod(methodName.toLowerCase());
+        final MethodEntity methodEntity = fetchClassAndCheck(alias.getTrait()).findMethod(methodName.toLowerCase());
 
         String name = alias.getName();
         if (name == null)
@@ -663,11 +667,44 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         if (alias.getModifier() != null)
             dup.setModifier(alias.getModifier());
 
-        MethodNodeImpl methodNode = MethodNodeImpl.duplicate(methodEntity.getMethodNode());
+        MethodNodeImpl methodNode = MethodNodeImpl.duplicate(methodEntity.getAdditionalData("methodNode", MethodNode.class, new Function<MethodNode>() {
+            @Override
+            public MethodNode call() {
+                ClassNode classNode = methodEntity.getClazz().getAdditionalData("classNode", ClassNode.class, new Function<ClassNode>() {
+                    @Override
+                    public ClassNode call() {
+                        ClassReader classReader;
+                        if (methodEntity.getClazz().getData() != null)
+                            classReader = new ClassReader(methodEntity.getClazz().getData());
+                        else {
+                            try {
+                                classReader = new ClassReader(methodEntity.getClazz().getName());
+                            } catch (IOException e) {
+                                throw new CriticalException(e);
+                            }
+                        }
+                        ClassNode classNode = new ClassNode();
+                        classReader.accept(classNode, 0);
+
+                        return classNode;
+                    }
+                });
+
+                for (Object m : classNode.methods) {
+                    MethodNode method = (MethodNode) m;
+                    if (method.name.equals(methodEntity.getInternalName())) {
+                        return method;
+                    }
+                }
+
+                throw new CriticalException("Cannot find MethodNode for method - " + methodEntity.getName() + "(" + methodEntity.getSignatureString(true) + ")");
+            }
+        }));
 
         if (origin != null) {
             dup.setPrototype(origin);
         }
+
         dup.setInternalName(dup.getName() + "$" + entity.nextMethodIndex());
         methodNode.name = dup.getInternalName();
 

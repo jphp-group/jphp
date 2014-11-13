@@ -1,6 +1,6 @@
 package org.develnext.jphp.genapi;
 
-import org.develnext.jphp.core.tokenizer.GrammarUtils;
+import org.develnext.jphp.core.common.GrammarUtils;
 
 import java.util.*;
 

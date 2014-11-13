@@ -9,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.common.GrammarUtils;
 
 import java.util.HashMap;
 

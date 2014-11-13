@@ -1,0 +1,11 @@
+sourceSets {
+    main.java.srcDirs = ['src']
+}
+
+dependencies {
+
+}
+
+task dist(dependsOn: buildPortableDef) {
+    // ...
+}

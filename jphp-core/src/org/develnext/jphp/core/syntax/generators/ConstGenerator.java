@@ -1,7 +1,7 @@
 package org.develnext.jphp.core.syntax.generators;
 
 
-import php.runtime.common.Separator;
+import org.develnext.jphp.core.common.Separator;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.TokenType;

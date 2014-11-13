@@ -13,7 +13,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import php.runtime.common.Separator;
+import org.develnext.jphp.core.common.Separator;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.reflection.ClassEntity;

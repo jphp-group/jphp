@@ -12,7 +12,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
-import php.runtime.opcode.ModuleOpcodePrinter;
+import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ModuleEntity;
 
 import java.io.*;

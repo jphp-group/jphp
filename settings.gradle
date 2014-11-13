@@ -1,5 +1,6 @@
 
-include 'jphp-core',
+include 'jphp-runtime',
+        'jphp-core',
         'jphp-cli',
         'jphp-android-tools',
         'jphp-android',

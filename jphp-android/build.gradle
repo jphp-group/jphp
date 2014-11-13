@@ -1,6 +1,6 @@
 
 dependencies {
-    compile project(':jphp-core')
+    compile project(':jphp-runtime')
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     testCompile 'junit:junit:4.+'

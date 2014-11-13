@@ -22,7 +22,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
 import php.runtime.common.Callback;
 import php.runtime.common.Messages;
-import php.runtime.common.Separator;
+import org.develnext.jphp.core.common.Separator;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.ParseException;
 

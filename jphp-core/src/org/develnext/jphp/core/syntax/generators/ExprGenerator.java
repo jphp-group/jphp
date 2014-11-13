@@ -2,7 +2,7 @@ package org.develnext.jphp.core.syntax.generators;
 
 import org.develnext.jphp.core.tokenizer.token.expr.*;
 import php.runtime.common.Messages;
-import php.runtime.common.Separator;
+import org.develnext.jphp.core.common.Separator;
 import php.runtime.exceptions.FatalException;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;

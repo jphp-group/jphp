@@ -8,7 +8,7 @@ import php.runtime.reflection.*;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import org.develnext.jphp.core.compiler.AbstractCompiler;
+import php.runtime.common.AbstractCompiler;
 import org.develnext.jphp.core.compiler.jvm.statement.*;
 import php.runtime.exceptions.CompileException;
 import php.runtime.exceptions.support.ErrorType;
@@ -32,6 +32,9 @@ public class JvmCompiler extends AbstractCompiler {
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
 
+    protected final SyntaxAnalyzer analyzer;
+    protected final List<Token> tokens;
+
     protected YieldExprToken lastYield;
 
     public JvmCompiler(Environment environment, Context context) throws IOException {
@@ -39,10 +42,19 @@ public class JvmCompiler extends AbstractCompiler {
     }
 
     public JvmCompiler(Environment environment, Context context, SyntaxAnalyzer analyzer) {
-        super(environment, context, analyzer);
+        super(environment, context);
         this.classes = new ArrayList<ClassStmtCompiler>();
         this.module = new ModuleEntity(context, getLangMode());
         this.module.setId( scope.nextModuleIndex() );
+
+        this.tokens = analyzer.getTree();
+        this.analyzer = analyzer;
+
+        this.langMode = analyzer.getLangMode();
+    }
+
+    public SyntaxAnalyzer getAnalyzer() {
+        return analyzer;
     }
 
     public ConstantEntity findConstant(String fullName){

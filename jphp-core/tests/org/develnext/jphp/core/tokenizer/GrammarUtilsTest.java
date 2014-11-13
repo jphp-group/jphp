@@ -1,10 +1,11 @@
 package org.develnext.jphp.core.tokenizer;
 
+import org.develnext.jphp.core.common.GrammarUtils;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 
 
 @RunWith(JUnit4.class)
