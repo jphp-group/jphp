@@ -1,6 +1,7 @@
 package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
@@ -15,7 +16,10 @@ import php.runtime.reflection.ClassEntity;
 
 import java.util.*;
 
-import static php.runtime.annotation.Reflection.*;
+import static php.runtime.annotation.Reflection.Name;
+import static php.runtime.annotation.Reflection.Signature;
+import static php.runtime.annotation.Reflection.Arg;
+import static php.runtime.annotation.Reflection.Optional;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\lib\\items")
