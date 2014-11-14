@@ -35,6 +35,7 @@ Our project started in October 2013. There were a few reasons for that:
 + GUI (based on Swing, improved - more flexible layouts)
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions
++ Ability to use on **Android** OS
 
 
 ### Language Features
