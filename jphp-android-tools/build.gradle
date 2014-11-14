@@ -1,11 +1,24 @@
+apply plugin: 'groovy'
 
 dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
     compile project(':jphp-core')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile files('libs/dx.jar')
 
     testCompile 'junit:junit:4.+'
 }
 
+jar {
+    from {
+        configurations.compile.findAll {
+            it.name == "dx.jar" || it.isDirectory()
+        }.collect {
+            return it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
 
 task dist(dependsOn: buildPortableDef) {
     // ...
