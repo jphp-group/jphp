@@ -18,10 +18,10 @@ import php.runtime.memory.support.operation.map.HashMapMemoryOperation;
 import php.runtime.memory.support.operation.map.MapMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,8 +67,8 @@ abstract public class MemoryOperation<T> {
     @SuppressWarnings("unchecked")
     public static MemoryOperation get(final Class<?> type, Type genericTypes) {
         MemoryOperation operation = null;
-        if (genericTypes instanceof ParameterizedTypeImpl) {
-            operation = genericOperations.get(new ParametrizedClass(type, ((ParameterizedTypeImpl) genericTypes).getActualTypeArguments()));
+        if (genericTypes instanceof ParameterizedType) {
+            operation = genericOperations.get(new ParametrizedClass(type, ((ParameterizedType) genericTypes).getActualTypeArguments()));
         }
 
         if (operation == null) {
@@ -190,8 +190,8 @@ abstract public class MemoryOperation<T> {
             return null;
         }
 
-        if (genericTypes instanceof ParameterizedTypeImpl) {
-            return operation.instance(((ParameterizedTypeImpl) genericTypes).getActualTypeArguments());
+        if (genericTypes instanceof ParameterizedType) {
+            return operation.instance(((ParameterizedType) genericTypes).getActualTypeArguments());
         }
 
         return operation;

@@ -7,7 +7,7 @@ import org.gradle.api.Project
 class GradlePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        def task = project.task("jphpAndroid") << {
+        def task = project.task("buildPhpForAndroid") << {
             def androidAppCreator = new AndroidApplicationCreator();
 
             if (!project.hasProperty("phpSrcDirs")) {
@@ -21,12 +21,17 @@ class GradlePlugin implements Plugin<Project> {
                 androidAppCreator.addFile(project.file(phpSrcDir));
             }
 
-            def appFile = new File(project.buildDir.path + "/application.jar");
+            def appFile = new File(project.projectDir.path + "/src/main/assets/application.jar");
+
+            if (!appFile.parentFile.exists()) {
+                appFile.parentFile.mkdirs();
+            }
+
             androidAppCreator.saveTo(appFile);
 
             println("Dex library jar has been compiled to: " + appFile);
         }
 
-        task.dependsOn("build");
+        project.tasks.getByPath("preBuild").dependsOn("buildPhpForAndroid");
     }
 }

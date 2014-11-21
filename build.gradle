@@ -1,13 +1,6 @@
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
     apply plugin: 'idea'
     apply plugin: 'signing'
-
-    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
-
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
 
     project.group = 'org.develnext'
     project.version = '0.5'
@@ -21,27 +14,24 @@ allprojects {
         mavenCentral()
     }
 
-    sourceSets {
-        main.java.srcDirs = ['src/main/java']
-        main.resources.srcDirs = ['src/main/resources']
-
-        test.java.srcDirs = ["src/main/tests"]
-        test.resources.srcDirs = ["src/main/tests"]
-    }
-
     // dist
     ext.distPath = "$rootProject.buildDir/dist-" + project.version
 
-    task collectJars(type: Copy, overwrite: true){
-        into "$project.ext.distPath/libs"
-        from configurations.runtime
-        exclude "jphp-*"
-    }
+    if (configurations.hasProperty("runtime")) {
+        task collectJars(type: Copy, overwrite: true) {
+            into "$project.ext.distPath/libs"
+            from configurations.runtime
+            exclude "jphp-*"
+        }
 
-    task copyRuntimeLibs(type: Copy, dependsOn: "jar", overwrite: true) {
-        into "$project.ext.distPath/libs"
-        from "$libsDir/" + jar.archiveName
-        rename jar.archiveName, "$jar.baseName." + jar.extension
+        task copyRuntimeLibs(type: Copy, dependsOn: "jar", overwrite: true) {
+            into "$project.ext.distPath/libs"
+            from "$libsDir/" + jar.archiveName
+            rename jar.archiveName, "$jar.baseName." + jar.extension
+        }
+    } else {
+        task collectJars(type: Copy, overwrite: true) {  }
+        task copyRuntimeLibs(type: Copy, dependsOn: "jar", overwrite: true) {  }
     }
 
     task buildPortableDef(dependsOn: [copyRuntimeLibs, collectJars], overwrite: true) {
@@ -61,6 +51,24 @@ task distZip (type: Zip) {
     archiveName "dist-" + version + ".zip"
     from project.ext.distPath
     destinationDir buildDir
+}
+
+configure(subprojects) {
+    apply plugin: 'maven'
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    sourceSets {
+        main.java.srcDirs = ['src/main/java']
+        main.resources.srcDirs = ['src/main/resources']
+
+        test.java.srcDirs = ["src/main/tests"]
+        test.resources.srcDirs = ["src/main/tests"]
+    }
+
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 }
 
 // extensions

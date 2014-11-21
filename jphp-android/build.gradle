@@ -1,5 +1,6 @@
 
 dependencies {
+    compile 'com.google.android:android:4.1+'
     compile project(':jphp-runtime')
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
