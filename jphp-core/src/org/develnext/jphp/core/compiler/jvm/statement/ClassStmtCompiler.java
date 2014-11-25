@@ -876,7 +876,6 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
     }
 
-
     @Override
     public ClassEntity compile() {
         entity = new ClassEntity(compiler.getContext());
@@ -911,10 +910,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             }
         }
 
-        if (!isSystem)
-            entity.setInternalName(
-                    compiler.getModule().getInternalName() + "_class" + compiler.getModule().getClasses().size()
-            );
+        if (!isSystem) {
+            if (entity.isUseJavaLikeNames()) {
+                entity.setInternalName(
+                        entity.getName().replace('\\', '/')
+                );
+            } else {
+                entity.setInternalName(
+                        compiler.getModule().getInternalName() + "_class" + compiler.getModule().getClasses().size()
+                );
+            }
+        }
 
         if (compiler.getModule().findClass(entity.getLowerName()) != null
                 || compiler.getEnvironment().isLoadedClass(entity.getLowerName())) {
@@ -932,6 +938,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     : entity.getParent().getInternalName();
 
             node.sourceFile = compiler.getSourceFile();
+
+            /*if (!isSystem) {
+                AnnotationNode annotationNode = new AnnotationNode(Type.getInternalName(Reflection.Name.class));
+                annotationNode.values = Arrays.asList("value", entity.getName());
+
+                node.visibleAnnotations.add(annotationNode);
+            } */
 
             writeSystemInfo();
             writeConstructor();

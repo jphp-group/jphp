@@ -3,21 +3,19 @@ package org.develnext.jphp.android;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.Toast;
 import org.develnext.jphp.android.ext.AndroidExtension;
-import php.runtime.common.Function;
+import php.runtime.annotation.Reflection.Name;
 import php.runtime.env.CompileScope;
 
 import java.io.*;
 
+@Name(AndroidExtension.NAMESPACE + "app\\BootstrapActivity")
 public class BootstrapActivity extends Activity {
     protected final static String LIBRARY_DEX_JAR = "application.jar";
     protected final int BUF_SIZE = 1024;
 
     protected AndroidApplication application;
     protected CompileScope scope;
-
-    protected Function<Void> onCreate = null;
 
     public BootstrapActivity() {
         super();

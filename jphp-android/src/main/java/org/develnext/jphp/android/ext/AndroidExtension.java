@@ -1,18 +1,21 @@
 package org.develnext.jphp.android.ext;
 
-import android.app.Activity;
-import android.widget.Toast;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.*;
 import org.develnext.jphp.android.BootstrapActivity;
-import org.develnext.jphp.android.ext.classes.WrapActivity;
-import org.develnext.jphp.android.ext.classes.WrapToast;
+import org.develnext.jphp.android.ext.classes.WrapAndroid;
+import org.develnext.jphp.android.ext.classes.WrapR;
+import org.develnext.jphp.android.ext.classes.app.WrapActivity;
+import org.develnext.jphp.android.ext.classes.view.WrapView;
+import org.develnext.jphp.android.ext.classes.view.WrapViewGroup;
+import org.develnext.jphp.android.ext.classes.widget.*;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
-import php.runtime.memory.ObjectMemory;
 
 public class AndroidExtension extends Extension {
     public final static String NAMESPACE = "android\\";
-
 
     protected final BootstrapActivity bootstrapActivity;
 
@@ -27,12 +30,23 @@ public class AndroidExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerWrapperClass(scope, Activity.class, WrapActivity.class);
+        registerClass(scope, WrapR.class);
+
+        registerWrapperClass(scope, View.class, WrapView.class);
+        registerWrapperClass(scope, ViewGroup.class, WrapViewGroup.class);
+        registerWrapperClass(scope, FrameLayout.class, WrapFrameLayout.class);
+        registerWrapperClass(scope, LinearLayout.class, WrapLinearLayout.class);
+        registerWrapperClass(scope, RelativeLayout.class, WrapRelativeLayout.class);
+        registerWrapperClass(scope, TextView.class, WrapTextView.class);
+
+        registerClass(scope, WrapActivity.class);
         registerWrapperClass(scope, Toast.class, WrapToast.class);
+
+        registerClass(scope, WrapAndroid.class);
     }
 
     @Override
     public void onLoad(Environment env) {
-        env.getGlobals().put("bootstrapActivity", new ObjectMemory(new WrapActivity(env, bootstrapActivity)));
+
     }
 }

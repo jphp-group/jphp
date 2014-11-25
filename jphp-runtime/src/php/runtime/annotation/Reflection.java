@@ -11,6 +11,9 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 public @interface Reflection {
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE})
+    public @interface UseJavaLikeNames {}
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD, FIELD})

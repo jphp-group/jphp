@@ -33,6 +33,7 @@ public class AndroidApplication {
 
     protected AndroidConfiguration configuration;
 
+    protected ModuleEntity bootstrapModule;
     protected final List<ModuleEntity> modules = new ArrayList<ModuleEntity>();
 
     public AndroidApplication(CompileScope scope) {
@@ -97,6 +98,10 @@ public class AndroidApplication {
             env.registerModule(moduleEntity);
 
             result.add(moduleEntity);
+
+            if (moduleEntity.getContext().getModuleName().endsWith("bootstrap.php")) {
+                bootstrapModule = moduleEntity;
+            }
         }
 
         modules.addAll(result);
@@ -104,7 +109,11 @@ public class AndroidApplication {
     }
 
     public void start() {
-        modules.get(0).includeNoThrow(env);
+        if (bootstrapModule != null) {
+            bootstrapModule.includeNoThrow(env);
+        } else {
+            modules.get(0).includeNoThrow(env);
+        }
     }
 
     protected ClassLoader getClassLoader(File dexFile) {

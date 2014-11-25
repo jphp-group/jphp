@@ -7,7 +7,6 @@ import php.runtime.env.DieException;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.lang.BaseException;
-import php.runtime.lang.UncaughtException;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
@@ -91,7 +90,8 @@ public class ModuleEntity extends Entity {
         } catch (ErrorException e){
             throw e;
         } catch (BaseException e){
-            throw new UncaughtException(e);
+            env.catchUncaught(e);
+            return Memory.NULL;
         } catch (Exception e) {
             env.catchUncaught(e);
             return Memory.NULL;

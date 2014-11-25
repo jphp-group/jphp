@@ -5,6 +5,7 @@ dependencies {
     compile localGroovy()
 
     compile project(':jphp-core')
+    compile project(':jphp-android')
     compile files('libs/dx.jar')
 
     testCompile 'junit:junit:4.+'

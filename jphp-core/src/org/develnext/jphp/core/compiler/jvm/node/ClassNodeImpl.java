@@ -11,5 +11,6 @@ public class ClassNodeImpl extends ClassNode {
         super(Opcodes.ASM5);
         version = Opcodes.V1_6; // todo: available to switch this value
         this.interfaces = new ArrayList();
+        this.visibleAnnotations = new ArrayList();
     }
 }

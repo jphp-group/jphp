@@ -2,6 +2,7 @@ package org.develnext.jphp.android.tools;
 
 
 import com.android.dx.Version;
+import org.develnext.jphp.android.ext.AndroidExtension;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
@@ -37,6 +38,9 @@ public class AndroidApplicationCreator {
 
     public AndroidApplicationCreator(CompileScope scope) {
         this.scope = scope;
+
+        scope.registerExtension(new AndroidExtension(null));
+
         this.env   = new Environment(scope);
         this.modules = new ArrayList<ModuleEntity>();
     }

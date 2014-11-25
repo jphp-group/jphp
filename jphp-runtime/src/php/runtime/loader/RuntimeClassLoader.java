@@ -3,10 +3,7 @@ package php.runtime.loader;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.FunctionEntity;
-import php.runtime.reflection.MethodEntity;
-import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.*;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
 
@@ -43,13 +40,13 @@ public class RuntimeClassLoader extends ClassLoader {
     public Class<?> loadClass(ClassEntity clazz, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {
         if (withBytecode) {
             byte[] data = translateData(clazz.getInternalName(), clazz.getData());
-            Class<?> result = defineClass(clazz.getInternalName(), data, 0, data.length);
+            Class<?> result = defineClass(null, data, 0, data.length);
 
             clazz.setNativeClazz(result);
         }
 
         for(MethodEntity method : clazz.getMethods().values()){
-            if (method.getNativeMethod() == null && !method.isAbstractable()){
+            if (!(method instanceof CompileMethodEntity) && method.getNativeMethod() == null && !method.isAbstractable()){
                 method.setNativeMethod(
                         clazz.getNativeClazz().getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );

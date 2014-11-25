@@ -423,6 +423,10 @@ ClassReader classReader;
 
         this.parent = parent;
         if (parent != null){
+            if (parent.useJavaLikeNames) {
+                this.useJavaLikeNames = true;
+            }
+
             this.methodCounts = parent.methodCounts;
 
             this.instanceOfList.add(parent.getLowerName());
@@ -638,6 +642,11 @@ ClassReader classReader;
 
     public void setNativeClazz(Class<?> nativeClazz) {
         this.nativeClazz = nativeClazz;
+
+        if (nativeClazz.getAnnotation(Reflection.UseJavaLikeNames.class) != null) {
+            useJavaLikeNames = true;
+        }
+
         if (!nativeClazz.isInterface()){
             try {
                 this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class);

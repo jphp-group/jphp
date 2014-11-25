@@ -24,8 +24,14 @@ abstract public class Entity {
 
     protected byte[] data;
 
+    protected boolean useJavaLikeNames = false;
+
     public Entity(Context context) {
         this.context = context;
+    }
+
+    public boolean isUseJavaLikeNames() {
+        return useJavaLikeNames;
     }
 
     public boolean isLoaded(){

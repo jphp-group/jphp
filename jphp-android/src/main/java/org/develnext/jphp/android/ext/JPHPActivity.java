@@ -2,7 +2,7 @@ package org.develnext.jphp.android.ext;
 
 
 import android.app.Activity;
-import org.develnext.jphp.android.ext.classes.WrapActivity;
+import org.develnext.jphp.android.ext.classes.app.WrapActivity;
 
 public class JPHPActivity extends Activity {
     protected final WrapActivity wrapActivity;

@@ -1,5 +1,6 @@
 <?php
 namespace android\app;
+use android\view\View;
 
 /**
  * Class Activity
@@ -7,6 +8,27 @@ namespace android\app;
 class Activity {
     /**  */
     public function __construct() { }
+
+    /**
+     * @param View $view
+     */
+    public function setContentView(View $view) { }
+
+    /**
+     * @return View
+     */
+    public function getContentView() { }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title) { }
+
+    /**
+     * @param int $id
+     * @return View
+     */
+    public function findViewById($id) { }
 
     /**
      * @return bool

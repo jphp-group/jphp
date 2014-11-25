@@ -261,6 +261,7 @@ abstract public class MemoryOperation<T> {
         register(new FloatMemoryOperation());
 
         register(new StringMemoryOperation());
+        register(new CharSequenceMemoryOperation());
         register(new CharacterMemoryOperation());
 
         register(new InvokerMemoryOperation());
