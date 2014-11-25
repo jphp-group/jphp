@@ -1,25 +1,26 @@
 package org.develnext.jphp.android.tools;
 
-
-import com.android.dx.Version;
-import org.develnext.jphp.android.ext.AndroidExtension;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
+import php.runtime.Information;
+import php.runtime.common.StringUtils;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class AndroidApplicationCreator {
     private static final String DEX_IN_JAR_NAME = "classes.dex";
@@ -27,20 +28,17 @@ public class AndroidApplicationCreator {
 
     protected final CompileScope scope;
     protected final Environment env;
-    protected final AndroidAdapter androidAdapter = new AndroidAdapter();
 
-    protected DexClient dexClient;
     protected List<ModuleEntity> modules;
 
     public AndroidApplicationCreator() {
-        this(new CompileScope());
+        scope = new CompileScope();
+        env   = new Environment(scope);
+        modules = new ArrayList<ModuleEntity>();
     }
 
     public AndroidApplicationCreator(CompileScope scope) {
         this.scope = scope;
-
-        scope.registerExtension(new AndroidExtension(null));
-
         this.env   = new Environment(scope);
         this.modules = new ArrayList<ModuleEntity>();
     }
@@ -51,6 +49,36 @@ public class AndroidApplicationCreator {
 
     public Environment getEnvironment() {
         return env;
+    }
+
+    public void registerExtensionJar(File file) {
+        try {
+            ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ);
+            ZipEntry entry = zipFile.getEntry("JPHP-ANDROID-INF/extensions.list");
+
+            if (entry != null) {
+                Scanner scanner = new Scanner(zipFile.getInputStream(entry));
+                while (scanner.hasNext()) {
+                    String line = scanner.nextLine().trim();
+
+                    if (!line.isEmpty()) {
+                        try {
+                            Extension extension = (Extension) Class.forName(line).newInstance();
+                            scope.registerExtension(extension);
+                        } catch (ClassNotFoundException e) {
+                            // nop.
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+
+
+            zipFile.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean saveTo(File file) throws IOException {
@@ -66,7 +94,19 @@ public class AndroidApplicationCreator {
             OutputStream out = new FileOutputStream(file);
             JarOutputStream jarOut = new JarOutputStream(out, manifest);
 
-            outputResources.put(DEX_IN_JAR_NAME, dexClient.write());
+            for (ModuleEntity moduleEntity : modules) {
+                outputResources.put(moduleEntity.getInternalName() + ".class", moduleEntity.getData());
+
+                for (ClassEntity classEntity : moduleEntity.getClasses()) {
+                    outputResources.put(classEntity.getInternalName() + ".class", classEntity.getData());
+                }
+
+                for (FunctionEntity functionEntity : moduleEntity.getFunctions()) {
+                    outputResources.put(functionEntity.getInternalName() + ".class", functionEntity.getData());
+                }
+            }
+
+            //outputResources.put(DEX_IN_JAR_NAME, dexClient.write());
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             DataOutputStream dataOutput  = new DataOutputStream(output);
@@ -83,6 +123,7 @@ public class AndroidApplicationCreator {
                 dataOutput.write(oneOutput.toByteArray());
             }
             outputResources.put("classes.dump", output.toByteArray());
+            outputResources.put("JPHP-INF/extensions.list", StringUtils.join(scope.getExtensions(), "\n").getBytes());
 
             try {
                 for (Map.Entry<String, byte[]> e : outputResources.entrySet()) {
@@ -112,7 +153,7 @@ public class AndroidApplicationCreator {
     }
 
     public void addModule(ModuleEntity moduleEntity) {
-        dexClient = androidAdapter.adapt(moduleEntity);
+        //dexClient = androidAdapter.adapt(moduleEntity);
         modules.add(moduleEntity);
     }
 
@@ -148,7 +189,7 @@ public class AndroidApplicationCreator {
         Manifest manifest = new Manifest();
         Attributes attribs = manifest.getMainAttributes();
         attribs.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        attribs.put(CREATED_BY, "dx " + Version.VERSION);
+        attribs.put(CREATED_BY, "jphp " + Information.CORE_VERSION);
         attribs.putValue("Dex-Location", DEX_IN_JAR_NAME);
         return manifest;
     }

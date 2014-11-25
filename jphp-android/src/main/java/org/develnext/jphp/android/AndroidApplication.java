@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class AndroidApplication {
 
@@ -29,7 +31,7 @@ public class AndroidApplication {
     protected Activity mainActivity;
     protected AssetManager assetManager;
 
-    protected Class<?> dalvikClassLoader;
+    protected ClassLoader dalvikClassLoader;
 
     protected AndroidConfiguration configuration;
 
@@ -48,18 +50,8 @@ public class AndroidApplication {
         this.mainActivity = mainActivity;
         this.assetManager = mainActivity.getAssets();
 
-        try {
-            dalvikClassLoader = Class.forName("dalvik.system.DexClassLoader");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        configuration = new AndroidConfiguration();
-        try {
-            configuration.load(assetManager.open("JPHP-INF/android.conf", AssetManager.ACCESS_STREAMING));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dalvikClassLoader = mainActivity.getClassLoader();
+        configuration     = new AndroidConfiguration();
     }
 
     public Environment getEnvironment() {
@@ -74,11 +66,26 @@ public class AndroidApplication {
         return mainActivity.getApplicationContext();
     }
 
-    public List<ModuleEntity> loadLibrary(File dexFile) throws IOException {
+    public List<ModuleEntity> loadLibrary() throws IOException {
+        Scanner scanner = new Scanner(dalvikClassLoader.getResourceAsStream("JPHP-ANDROID-INF/extensions.list"));
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+
+            if (!line.isEmpty()) {
+                try {
+                    scope.registerExtension((Extension) Class.forName(line).newInstance());
+                } catch (ClassNotFoundException e) {
+                    // nop.
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
         List<ModuleEntity> result = new ArrayList<ModuleEntity>();
 
-        ClassLoader dexClassLoader  = getClassLoader(dexFile);
-        DataInputStream classesDump = new DataInputStream(dexClassLoader.getResourceAsStream("classes.dump"));
+        DataInputStream classesDump = new DataInputStream(dalvikClassLoader.getResourceAsStream("classes.dump"));
 
         int classSize = classesDump.readInt();
 
@@ -92,7 +99,7 @@ public class AndroidApplication {
             ModuleDumper moduleDumper = new ModuleDumper(new Context(new File(moduleName)), env, true);
 
             ModuleEntity moduleEntity = moduleDumper.load(new ByteArrayInputStream(data));
-            loadModule(moduleEntity, dexClassLoader);
+            loadModule(moduleEntity, dalvikClassLoader);
 
             scope.loadModule(moduleEntity, false);
             env.registerModule(moduleEntity);
@@ -113,23 +120,6 @@ public class AndroidApplication {
             bootstrapModule.includeNoThrow(env);
         } else {
             modules.get(0).includeNoThrow(env);
-        }
-    }
-
-    protected ClassLoader getClassLoader(File dexFile) {
-        updateCachePath();
-
-        String cachePath = System.getProperty("jphp.class.cache.path");
-        if (cachePath == null) {
-            throw new RuntimeException("cachePath is null");
-        }
-
-        try {
-            return (ClassLoader) dalvikClassLoader.getConstructor(
-                    String.class, String.class, String.class, ClassLoader.class
-            ).newInstance(dexFile.getPath(), cachePath, null, classLoader);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -162,15 +152,6 @@ public class AndroidApplication {
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    protected void updateCachePath() {
-        if (System.getProperty("jphp.class.cache.path") == null) {
-            System.setProperty(
-                    "jphp.class.cache.path",
-                    mainActivity.getApplicationContext().getDir("dex", 0).getAbsolutePath()
-            );
         }
     }
 }

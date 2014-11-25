@@ -35,6 +35,7 @@ import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -174,6 +175,65 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             destructor.instructions.add(new InsnNode(Opcodes.RETURN));
             methodCompiler.writeFooter();
             node.methods.add(destructor);
+        }
+    }
+
+    protected void writeDefaultConstructors()
+    {
+        if (!isSystem && !isClosure() && entity.getParent() != null
+                && entity.getParent().getNativeClazz() != null
+                && !BaseObject.class.isAssignableFrom(entity.getParent().getNativeClazz())) {
+            for (Constructor el : entity.getParent().getNativeClazz().getConstructors()) {
+                Class<?>[] parameterTypes = el.getParameterTypes();
+
+                if (parameterTypes.length == 2
+                        && parameterTypes[0] == Environment.class && parameterTypes[1] == ClassEntity.class) {
+                    continue;
+                }
+
+                MethodNode constructor = new MethodNodeImpl();
+                constructor.name       = Constants.INIT_METHOD;
+                constructor.access     = el.getModifiers();
+                constructor.exceptions = new ArrayList();
+
+                MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, constructor);
+                ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
+
+                LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
+                methodCompiler.addLocalVariable("~this", l0);
+
+                Type[] argumentTypes = new Type[parameterTypes.length];
+
+                int i = 0;
+                for (Class type : parameterTypes) {
+                    argumentTypes[i++] = Type.getType(type);
+
+                    methodCompiler.addLocalVariable("arg" + i, l0, type);
+                }
+
+                constructor.desc = Type.getMethodDescriptor(
+                        Type.getType(void.class), argumentTypes
+                );
+
+                methodCompiler.writeHeader();
+
+                expressionCompiler.writeVarLoad("~this");
+                for (i = 0; i < argumentTypes.length; i++) {
+                    expressionCompiler.writeVarLoad("arg" + (i + 1));
+                }
+
+                constructor.instructions.add(new MethodInsnNode(
+                        INVOKESPECIAL,
+                        node.superName,
+                        Constants.INIT_METHOD,
+                        constructor.desc,
+                        false
+                ));
+
+                methodCompiler.writeFooter();
+                constructor.instructions.add(new InsnNode(RETURN));
+                node.methods.add(constructor);
+            }
         }
     }
 
@@ -917,7 +977,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 );
             } else {
                 entity.setInternalName(
-                        compiler.getModule().getInternalName() + "_class" + compiler.getModule().getClasses().size()
+                        compiler.getModule().getInternalName() + "/class" + compiler.getModule().getClasses().size()
                 );
             }
         }
@@ -948,6 +1008,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             writeSystemInfo();
             writeConstructor();
+            writeDefaultConstructors();
         }
 
         // constants

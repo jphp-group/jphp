@@ -210,7 +210,7 @@ public class JvmCompiler extends AbstractCompiler {
     @Override
     public ModuleEntity compile(boolean autoRegister) {
         this.classes = new ArrayList<ClassStmtCompiler>();
-        module.setInternalName("$_php_module_" + UUID.randomUUID().toString().replace("-", ""));
+        module.setInternalName("$php/module/" + UUID.randomUUID().toString().replace("-", ""));
 
         List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());
 

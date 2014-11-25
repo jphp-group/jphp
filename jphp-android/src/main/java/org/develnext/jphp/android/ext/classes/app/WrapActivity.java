@@ -9,6 +9,7 @@ import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.UseJavaLikeNames;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
@@ -36,11 +37,32 @@ public class WrapActivity extends Activity implements IObject {
         super.setTitle(title);
     }
 
+    @Signature
+    public void onCreate() {
+        // nop.
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        onCreateClearly(savedInstanceState);
+
+        __env__.get().invokeMethodNoThrow(this, "onCreate");
+    }
+
+    final protected void onCreateClearly(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         __env__   = new WeakReference<Environment>( AndroidApplication.INSTANCE.getEnvironment() );
-        __class__ = __env__.get().fetchClass(getClass());
+
+        try {
+            __class__ = getEnvironment().fetchClass(getClass().getField("$CL").get(null).toString());
+        } catch (NoSuchFieldException e) {
+            throw new CriticalException(e);
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
+        } catch (IllegalArgumentException e) {
+            throw new CriticalException(e);
+        }
     }
 
     @Override

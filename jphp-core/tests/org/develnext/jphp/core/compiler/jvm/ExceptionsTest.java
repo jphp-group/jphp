@@ -25,7 +25,7 @@ public class ExceptionsTest extends JvmCompilerCase {
         Assert.assertEquals("success", memory.toString());
     }
 
-    @Test(expected = UncaughtException.class)
+    @Test
     public void testUncaught(){
         includeResource("exceptions/uncaught.php");
     }

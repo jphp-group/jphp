@@ -3,7 +3,7 @@ package org.develnext.jphp.android.ext;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import org.develnext.jphp.android.BootstrapActivity;
+import org.develnext.jphp.android.ext.classes.app.BootstrapActivity;
 import org.develnext.jphp.android.ext.classes.WrapAndroid;
 import org.develnext.jphp.android.ext.classes.WrapR;
 import org.develnext.jphp.android.ext.classes.app.WrapActivity;
@@ -18,6 +18,10 @@ public class AndroidExtension extends Extension {
     public final static String NAMESPACE = "android\\";
 
     protected final BootstrapActivity bootstrapActivity;
+
+    public AndroidExtension() {
+        this(null);
+    }
 
     public AndroidExtension(BootstrapActivity activity) {
         bootstrapActivity = activity;
@@ -40,6 +44,7 @@ public class AndroidExtension extends Extension {
         registerWrapperClass(scope, TextView.class, WrapTextView.class);
 
         registerClass(scope, WrapActivity.class);
+        registerClass(scope, BootstrapActivity.class);
         registerWrapperClass(scope, Toast.class, WrapToast.class);
 
         registerClass(scope, WrapAndroid.class);

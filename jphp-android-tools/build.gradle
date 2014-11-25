@@ -6,28 +6,6 @@ dependencies {
 
     compile project(':jphp-core')
     compile project(':jphp-android')
-    compile files('libs/dx.jar')
 
     testCompile 'junit:junit:4.+'
-}
-
-jar {
-    from {
-        configurations.compile.findAll {
-            it.name == "dx.jar" || it.isDirectory()
-        }.collect {
-            return it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
-
-task dist(dependsOn: buildPortableDef) {
-    // ...
-    copy {
-        from 'shell/jphp-android'
-        from 'shell/jphp-android.bat'
-        from 'shell/jphp-android.conf'
-
-        into project.ext.distPath
-    }
 }

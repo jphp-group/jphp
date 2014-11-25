@@ -31,6 +31,8 @@ public class Launcher {
 
     private static Launcher current;
 
+    private ClassLoader classLoader = Launcher.class.getClassLoader();
+
     private long startTime = System.currentTimeMillis();
 
     public Launcher(String pathToConf, String[] args) {
@@ -44,6 +46,11 @@ public class Launcher {
 
     public Launcher(String[] args) {
         this(null, args);
+    }
+
+    public Launcher(ClassLoader classLoader) {
+        this();
+        this.classLoader = classLoader;
     }
 
     public Launcher() {
@@ -69,7 +76,7 @@ public class Launcher {
     public Collection<InputStream> getResources(String name) {
         List<InputStream> result = new ArrayList<InputStream>();
         try {
-            Enumeration<URL> urls = Launcher.class.getClassLoader().getResources(name);
+            Enumeration<URL> urls = classLoader.getResources(name);
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
                 result.add(url.openStream());
@@ -82,7 +89,7 @@ public class Launcher {
     }
 
     public InputStream getResource(String name){
-        InputStream stream = Launcher.class.getClassLoader().getResourceAsStream(name);
+        InputStream stream = classLoader.getResourceAsStream(name);
         if (stream == null) {
             try {
                 return new FileInputStream(name);

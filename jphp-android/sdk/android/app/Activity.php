@@ -39,4 +39,7 @@ class Activity {
      * @return Activity
      */
     public function getParent() { }
+
+    public function onCreate() {
+    }
 }

@@ -67,7 +67,7 @@ public class RuntimeClassLoader extends ClassLoader {
         if (withBytecode) {
             byte[] data = translateData(function.getInternalName(), function.getData());
 
-            Class<?> result = defineClass(className, data, 0, data.length);
+            Class<?> result = defineClass(null, data, 0, data.length);
 
             function.setNativeClazz(result);
         }
@@ -120,7 +120,7 @@ public class RuntimeClassLoader extends ClassLoader {
         if (withBytecode) {
             byte[] data = translateData(internal, module.getData());
             Class<?> result = defineClass(
-                    internal, data, 0, module.getData().length
+                    null, data, 0, module.getData().length
             );
             module.setNativeClazz(result);
         }

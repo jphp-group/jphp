@@ -1,7 +1,10 @@
 <?php
 
-use php\time\Time;
+class X extends Exception { }
+class Y extends Exception { }
 
-$foo = new Foobar();
-$foo->x = 20;
-echo $foo->x;
+try {
+    throw new X;
+} catch (Y $e){
+    return 'fail';
+}
