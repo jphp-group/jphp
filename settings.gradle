@@ -11,4 +11,6 @@ include 'jphp-runtime',
         'jphp-gen-api',
         'jphp-example-project',
         'jphp-scripting',
-        'jphp-scripting-example'
+        'jphp-scripting-example',
+
+        'jphp-gradle-plugin'

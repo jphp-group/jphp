@@ -97,7 +97,8 @@ configure([
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),
         project(':jphp-http-ext'),
-        project(':jphp-scripting')
+        project(':jphp-scripting'),
+        project(':jphp-gradle-plugin'),
 ]) {
 
     if (!project.ext.isSnapshot) {
