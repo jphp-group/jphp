@@ -405,15 +405,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (memory instanceof FalseMemory){
             writePushConstBoolean(false);
             return;
-            /*code.add(new FieldInsnNode(
-                    GETSTATIC, Type.getInternalName(Memory.class), "FALSE", Type.getDescriptor(Memory.class)
-            )); */
         } else if (memory instanceof TrueMemory){
             writePushConstBoolean(true);
             return;
-            /*code.add(new FieldInsnNode(
-                    GETSTATIC, Type.getInternalName(Memory.class), "TRUE", Type.getDescriptor(Memory.class)
-            ));*/
         } else if (memory instanceof KeyValueMemory){
             writePushMemory(((KeyValueMemory) memory).key);
             writePopBoxing();
@@ -480,6 +474,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return writePopBoxing(stackPeek().type, asImmutable);
     }
 
+    public boolean writePopBoxing(boolean asImmutable, boolean useConstants){
+        return writePopBoxing(stackPeek().type, asImmutable, useConstants);
+    }
+
     public boolean writePopBoxing(){
         return writePopBoxing(false);
     }
@@ -497,6 +495,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public boolean writePopBoxing(StackItem.Type type, boolean asImmutable){
+        return writePopBoxing(type, asImmutable, true);
+    }
+
+    public boolean writePopBoxing(StackItem.Type type, boolean asImmutable, boolean useConstants){
         switch (type){
             case BOOL:
                 writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, type.toClass());
@@ -516,7 +518,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 return true;
             }
             case STRING: {
-                writeSysStaticCall(StringMemory.class, "valueOf", Memory.class, String.class);
+                if (useConstants) {
+                    writePushConstantMemory(StringMemory.valueOf(((LdcInsnNode) code.getLast()).cst.toString()));
+                    code.remove(code.getLast());
+                } else {
+                    writeSysStaticCall(StringMemory.class, "valueOf", Memory.class, String.class);
+                }
+
                 setStackPeekAsImmutable();
                 return true;
             }
@@ -1524,7 +1532,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return method.clazz.addTraceInfo(token);
     }
 
-    int writePushTraceInfo(int line, int position){
+    int writePushTraceInfo(int line, int position) {
         int index = method.clazz.addTraceInfo(line, position);
         writePushTraceInfo(index);
         return index;
@@ -1540,6 +1548,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushMemory(LongMemory.valueOf(line));
         writePushMemory(LongMemory.valueOf(position));
         writeSysStaticCall(TraceInfo.class, "valueOf", TraceInfo.class, String.class, Long.TYPE, Long.TYPE);
+    }
+
+    int writePushConstantMemory(Memory memory) {
+        int index = method.clazz.addMemoryConstant(memory);
+
+        writeGetStatic("$MEMORY_CONSTANTS", Memory[].class);
+        writePushGetFromArray(index, Memory.class);
+
+        return index;
     }
 
     Memory tryWritePushMacro(MacroToken macro, boolean writeOpcode){

@@ -45,6 +45,8 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public final ClassNode node;
     public final ClassStmtToken statement;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
+    public final List<Memory> memoryConstants = new ArrayList<Memory>();
+
     private boolean external = false;
     private boolean isSystem = false;
     private boolean isInterfaceCheck = true;
@@ -125,6 +127,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     int addTraceInfo(Token token) {
         traceList.add(token.toTraceInfo(compiler.getContext()));
         return traceList.size() - 1;
+    }
+
+    int addMemoryConstant(Memory memory) {
+        memoryConstants.add(memory);
+        return memoryConstants.size() - 1;
     }
 
     @SuppressWarnings("unchecked")
@@ -405,6 +412,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
 
         node.fields.add(new FieldNode(
+                ACC_PROTECTED + ACC_STATIC, "$MEMORY_CONSTANTS",
+                Type.getDescriptor(Memory[].class),
+                null,
+                null
+        ));
+
+        node.fields.add(new FieldNode(
                 ACC_PROTECTED + ACC_STATIC, "$CALL_FUNC_CACHE",
                 Type.getDescriptor(FunctionCallCache.class),
                 null,
@@ -549,6 +563,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
         methodCompiler.writeHeader();
 
+        // trace list
         expressionCompiler.writePushSmallInt(traceList.size());
         node.instructions.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(TraceInfo.class)));
         expressionCompiler.stackPush(Memory.Type.REFERENCE);
@@ -565,6 +580,27 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             i++;
         }
         expressionCompiler.writePutStatic("$TRC", TraceInfo[].class);
+
+        // memory constants
+        expressionCompiler.writePushSmallInt(memoryConstants.size());
+        node.instructions.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
+        expressionCompiler.stackPush(Memory.Type.REFERENCE);
+
+        i = 0;
+        for (Memory memory : memoryConstants) {
+            expressionCompiler.writePushDup();
+            expressionCompiler.writePushSmallInt(i);
+
+            expressionCompiler.writePushMemory(memory);
+            expressionCompiler.writePopBoxing(true, false);
+
+            node.instructions.add(new InsnNode(AASTORE));
+            expressionCompiler.stackPop();
+            expressionCompiler.stackPop();
+
+            i++;
+        }
+        expressionCompiler.writePutStatic("$MEMORY_CONSTANTS", Memory[].class);
 
         // cached calls
         expressionCompiler.writePushNewObject(FunctionCallCache.class);

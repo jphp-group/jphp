@@ -6,15 +6,24 @@ import org.gradle.api.Project
 class GradlePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        def sourceSets = project.container(SourceSet);
+        project.extensions.create('php', PhpGradleExtension);
 
-        def phpSourceSet = sourceSets.find {
-            it.name == "php"
+        def compilePhpTask = project.task("compilePhp") << {
+            GradlePhpProject phpProject = new GradlePhpProject(project);
+            phpProject.compile();
         }
 
-        if (phpSourceSet == null) {
-            phpSourceSet = new SourceSet("php");
-            phpSourceSet.srcDir = project.file('src/main/php');
+        def buildPhpTask = project.task("buildPhp") << {
+            GradlePhpProject phpProject = new GradlePhpProject(project);
+            phpProject.build();
         }
+
+        def buildPortablePhp = project.task("buildPortablePhp") << {
+            GradlePhpProject phpProject = new GradlePhpProject(project);
+            phpProject.buildPortable();
+        }
+
+        buildPhpTask.dependsOn(compilePhpTask);
+        buildPortablePhp.dependsOn(compilePhpTask);
     }
 }

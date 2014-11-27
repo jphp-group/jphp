@@ -54,7 +54,7 @@ public class AndroidApplicationCreator {
     public void registerExtensionJar(File file) {
         try {
             ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ);
-            ZipEntry entry = zipFile.getEntry("JPHP-ANDROID-INF/extensions.list");
+            ZipEntry entry = zipFile.getEntry("JPHP-INF/extensions.list");
 
             if (entry != null) {
                 Scanner scanner = new Scanner(zipFile.getInputStream(entry));
@@ -123,7 +123,7 @@ public class AndroidApplicationCreator {
                 dataOutput.write(oneOutput.toByteArray());
             }
             outputResources.put("classes.dump", output.toByteArray());
-            outputResources.put("JPHP-INF/extensions.list", StringUtils.join(scope.getExtensions(), "\n").getBytes());
+            outputResources.put("JPHP-ANDROID-INF/extensions.list", StringUtils.join(scope.getExtensions(), "\n").getBytes());
 
             try {
                 for (Map.Entry<String, byte[]> e : outputResources.entrySet()) {

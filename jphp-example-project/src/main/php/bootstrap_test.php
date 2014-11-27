@@ -1,2 +1,4 @@
 <?php
 
+
+echo "foobar";

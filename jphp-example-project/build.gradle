@@ -11,6 +11,12 @@ buildscript {
 
 apply plugin: 'php'
 
+php {
+    srcDir  = 'src/main/php'
+    charset = 'UTF-8'
+    extensions = ['php', 'inc']
+}
+
 sourceSets {
     main {
         java {
