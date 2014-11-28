@@ -13,6 +13,8 @@ abstract public class Dumper<T extends Entity> {
     protected final boolean debugInformation;
     protected final Environment env;
 
+    protected boolean includeData = true;
+
     protected Dumper(Context context, Environment env, boolean debugInformation) {
         this.context = context;
         this.env = env;
@@ -25,4 +27,12 @@ abstract public class Dumper<T extends Entity> {
 
     abstract public void save(T entity, OutputStream output) throws IOException;
     abstract public T load(InputStream input) throws IOException;
+
+    public boolean isIncludeData() {
+        return includeData;
+    }
+
+    public void setIncludeData(boolean includeData) {
+        this.includeData = includeData;
+    }
 }

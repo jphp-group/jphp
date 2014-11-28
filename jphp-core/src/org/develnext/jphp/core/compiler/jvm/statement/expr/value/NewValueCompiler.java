@@ -48,6 +48,8 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
                 String.class, String.class, TraceInfo.class, Memory[].class
         );
 
+        expr.setStackPeekAsImmutable();
+
         if (!returnValue)
             expr.writePopAll(1);
     }

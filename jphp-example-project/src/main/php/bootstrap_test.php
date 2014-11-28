@@ -1,4 +1,7 @@
 <?php
 
+$arr = [];
 
-echo "foobar";
+foreach ($arr as $key => &$value) {
+
+}

@@ -52,8 +52,11 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
                 parameterDumper.save(param, output);
             }
 
-        data.writeInt(entity.getData().length);
-        data.write(entity.getData());
+        if (includeData) {
+            data.writeRawData(entity.getData());
+        } else {
+            data.writeRawData(null);
+        }
 
         data.writeRawData(null);
     }

@@ -51,7 +51,11 @@ public class ClosureDumper extends Dumper<ClosureEntity> {
                 parameterDumper.save(param, output);
             }
 
-        data.writeRawData(entity.getData(), Integer.MAX_VALUE);
+        if (includeData) {
+            data.writeRawData(entity.getData(), Integer.MAX_VALUE);
+        } else {
+            data.writeRawData(null);
+        }
     }
 
     @Override

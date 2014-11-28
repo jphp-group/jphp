@@ -67,7 +67,7 @@ public class AndroidApplication {
     }
 
     public List<ModuleEntity> loadLibrary() throws IOException {
-        Scanner scanner = new Scanner(dalvikClassLoader.getResourceAsStream("JPHP-ANDROID-INF/extensions.list"));
+        Scanner scanner = new Scanner(dalvikClassLoader.getResourceAsStream("JPHP-INF/standalone.extensions.list"));
 
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
@@ -75,8 +75,6 @@ public class AndroidApplication {
             if (!line.isEmpty()) {
                 try {
                     scope.registerExtension((Extension) Class.forName(line).newInstance());
-                } catch (ClassNotFoundException e) {
-                    // nop.
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -85,7 +83,7 @@ public class AndroidApplication {
 
         List<ModuleEntity> result = new ArrayList<ModuleEntity>();
 
-        DataInputStream classesDump = new DataInputStream(dalvikClassLoader.getResourceAsStream("classes.dump"));
+        DataInputStream classesDump = new DataInputStream(dalvikClassLoader.getResourceAsStream("JPHP-INF/classes.dump"));
 
         int classSize = classesDump.readInt();
 

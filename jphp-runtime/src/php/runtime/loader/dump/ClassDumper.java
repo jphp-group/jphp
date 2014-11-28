@@ -110,7 +110,11 @@ public class ClassDumper extends Dumper<ClassEntity> {
             printer.writeName(el.getName());
         }
 
-        printer.writeRawData(entity.getData(), Integer.MAX_VALUE);
+        if (includeData) {
+            printer.writeRawData(entity.getData(), Integer.MAX_VALUE);
+        } else {
+            printer.writeRawData(null);
+        }
 
         // addition raw data
         printer.writeRawData(null);

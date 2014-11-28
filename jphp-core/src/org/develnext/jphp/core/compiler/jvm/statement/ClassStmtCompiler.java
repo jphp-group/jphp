@@ -46,6 +46,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     public final ClassStmtToken statement;
     public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
     public final List<Memory> memoryConstants = new ArrayList<Memory>();
+    public final List<Collection<Memory>> memoryArrayConstants = new ArrayList<Collection<Memory>>();
 
     private boolean external = false;
     private boolean isSystem = false;
@@ -132,6 +133,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     int addMemoryConstant(Memory memory) {
         memoryConstants.add(memory);
         return memoryConstants.size() - 1;
+    }
+
+    int addMemoryArray(Collection<Memory> memories) {
+        memoryArrayConstants.add(memories);
+        return memoryArrayConstants.size() - 1;
     }
 
     @SuppressWarnings("unchecked")
@@ -412,8 +418,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$MEMORY_CONSTANTS",
+                ACC_PROTECTED + ACC_STATIC, "$MEM",
                 Type.getDescriptor(Memory[].class),
+                null,
+                null
+        ));
+
+        node.fields.add(new FieldNode(
+                ACC_PROTECTED + ACC_STATIC, "$AMEM",
+                Type.getDescriptor(Memory[][].class),
                 null,
                 null
         ));
@@ -600,7 +613,27 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             i++;
         }
-        expressionCompiler.writePutStatic("$MEMORY_CONSTANTS", Memory[].class);
+        expressionCompiler.writePutStatic("$MEM", Memory[].class);
+
+        // memory array constants
+        expressionCompiler.writePushSmallInt(memoryArrayConstants.size());
+        node.instructions.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory[].class)));
+        expressionCompiler.stackPush(Memory.Type.REFERENCE);
+
+        i = 0;
+        for (Collection<Memory> memories : memoryArrayConstants) {
+            expressionCompiler.writePushDup();
+            expressionCompiler.writePushSmallInt(i);
+
+            expressionCompiler.writePushParameters(memories);
+
+            node.instructions.add(new InsnNode(AASTORE));
+            expressionCompiler.stackPop();
+            expressionCompiler.stackPop();
+
+            i++;
+        }
+        expressionCompiler.writePutStatic("$AMEM", Memory[][].class);
 
         // cached calls
         expressionCompiler.writePushNewObject(FunctionCallCache.class);

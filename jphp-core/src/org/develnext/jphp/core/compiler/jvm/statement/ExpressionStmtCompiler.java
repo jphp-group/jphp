@@ -974,11 +974,55 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
-    public void writePushParameters(Collection<ExprStmtToken> parameters, Memory... additional){
+    public void writePushParameters(Collection<Memory> memories) {
+        writePushSmallInt(memories.size());
+        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
+        stackPop();
+        stackPush(Memory.Type.REFERENCE);
+
+        int i = 0;
+        for(Memory param : memories){
+            writePushDup();
+            writePushSmallInt(i);
+
+            writePushMemory(param);
+            writePopBoxing(true, false);
+
+            code.add(new InsnNode(AASTORE));
+            stackPop();
+            stackPop();
+            stackPop();
+            i++;
+        }
+    }
+
+    public void writePushParameters(Collection<ExprStmtToken> parameters, Memory... additional) {
+        writePushParameters(parameters, true, additional);
+    }
+
+    public void writePushParameters(Collection<ExprStmtToken> parameters, boolean useConstants, Memory... additional) {
         if (parameters.isEmpty()){
             code.add(new InsnNode(ACONST_NULL));
             stackPush(Memory.Type.REFERENCE);
             return;
+        }
+
+        if (useConstants && additional == null || additional.length == 0) {
+            List<Memory> constantParameters = new ArrayList<Memory>();
+
+            for (ExprStmtToken param : parameters) {
+                Memory paramMemory = writeExpression(param, true, true, false);
+                if (paramMemory == null || paramMemory.isArray()) { // skip arrays.
+                    break;
+                }
+
+                constantParameters.add(paramMemory);
+            }
+
+            if (constantParameters.size() == parameters.size()) {
+                writePushConstantMemoryArray(constantParameters);
+                return;
+            }
         }
 
         writePushSmallInt(parameters.size() + (additional == null ? 0 : additional.length));
@@ -1581,8 +1625,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     int writePushConstantMemory(Memory memory) {
         int index = method.clazz.addMemoryConstant(memory);
 
-        writeGetStatic("$MEMORY_CONSTANTS", Memory[].class);
+        writeGetStatic("$MEM", Memory[].class);
         writePushGetFromArray(index, Memory.class);
+
+        return index;
+    }
+
+    int writePushConstantMemoryArray(Collection<Memory> memories) {
+        int index = method.clazz.addMemoryArray(memories);
+
+        writeGetStatic("$AMEM", Memory[][].class);
+        writePushGetFromArray(index, Memory[].class);
 
         return index;
     }

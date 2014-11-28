@@ -28,6 +28,12 @@ public class GeneratorDumper extends Dumper<GeneratorEntity> {
     }
 
     @Override
+    public void setIncludeData(boolean includeData) {
+        super.setIncludeData(includeData);
+        classDumper.setIncludeData(includeData);
+    }
+
+    @Override
     public void save(GeneratorEntity entity, OutputStream output) throws IOException {
         classDumper.save(entity, output);
 

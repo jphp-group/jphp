@@ -26,8 +26,19 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
     protected ClassDumper classDumper = new ClassDumper(context, null, env, debugInformation);
     protected GeneratorDumper generatorDumper = new GeneratorDumper(context, env, debugInformation);
 
+
     public ModuleDumper(Context context, Environment env, boolean debugInformation) {
         super(context, env, debugInformation);
+    }
+
+    @Override
+    public void setIncludeData(boolean includeData) {
+        super.setIncludeData(includeData);
+        constantDumper.setIncludeData(includeData);
+        closureDumper.setIncludeData(includeData);
+        functionDumper.setIncludeData(includeData);
+        classDumper.setIncludeData(includeData);
+        generatorDumper.setIncludeData(includeData);
     }
 
     @Override
@@ -84,9 +95,13 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
             classDumper.save(e, output);
         }
 
-        // byte code
-        data.writeInt(entity.getData().length);
-        data.write(entity.getData());
+        if (includeData) {
+            // byte code
+            data.writeInt(entity.getData().length);
+            data.write(entity.getData());
+        } else {
+            data.writeInt(0);
+        }
 
         data.writeRawData(null, 1024 * 1024 * 5); // 5 mb
     }
