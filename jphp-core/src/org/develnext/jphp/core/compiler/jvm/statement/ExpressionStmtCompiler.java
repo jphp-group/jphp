@@ -508,19 +508,47 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             case BYTE:
             case LONG:
             case INT: {
-                writeSysStaticCall(LongMemory.class, "valueOf", Memory.class, type.toClass());
+                if (useConstants && code.getLast() instanceof LdcInsnNode) {
+                    LdcInsnNode node = (LdcInsnNode) code.getLast();
+                    code.remove(node);
+
+                    stackPop();
+
+                    writePushConstantMemory(LongMemory.valueOf((Long)node.cst));
+                } else {
+                    writeSysStaticCall(LongMemory.class, "valueOf", Memory.class, type.toClass());
+                }
+
                 setStackPeekAsImmutable();
             } return true;
             case FLOAT:
             case DOUBLE: {
-                writeSysStaticCall(DoubleMemory.class, "valueOf", Memory.class, type.toClass());
+                if (useConstants && code.getLast() instanceof LdcInsnNode) {
+                    LdcInsnNode node = (LdcInsnNode) code.getLast();
+                    code.remove(node);
+
+                    stackPop();
+
+                    if (type == StackItem.Type.FLOAT) {
+                        writePushConstantMemory(DoubleMemory.valueOf((Float)node.cst));
+                    } else {
+                        writePushConstantMemory(DoubleMemory.valueOf((Double)node.cst));
+                    }
+                } else {
+                    writeSysStaticCall(DoubleMemory.class, "valueOf", Memory.class, type.toClass());
+                }
+
                 setStackPeekAsImmutable();
                 return true;
             }
             case STRING: {
-                if (useConstants) {
-                    writePushConstantMemory(StringMemory.valueOf(((LdcInsnNode) code.getLast()).cst.toString()));
-                    code.remove(code.getLast());
+                if (useConstants && code.getLast() instanceof LdcInsnNode) {
+                    LdcInsnNode node = (LdcInsnNode) code.getLast();
+                    code.remove(node);
+
+                    stackPop();
+
+                    writePushConstantMemory(StringMemory.valueOf(node.cst.toString()));
                 } else {
                     writeSysStaticCall(StringMemory.class, "valueOf", Memory.class, String.class);
                 }
