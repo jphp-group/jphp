@@ -3,18 +3,6 @@ buildscript {
         mavenCentral()
         mavenLocal()
     }
-
-    dependencies {
-        classpath project(':jphp-gradle-plugin')
-    }
-}
-
-apply plugin: 'php'
-
-php {
-    srcDir  = 'src/main/php'
-    charset = 'UTF-8'
-    extensions = ['php', 'inc']
 }
 
 sourceSets {
