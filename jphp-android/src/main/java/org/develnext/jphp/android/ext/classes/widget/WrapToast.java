@@ -2,7 +2,7 @@ package org.develnext.jphp.android.ext.classes.widget;
 
 
 import android.widget.Toast;
-import org.develnext.jphp.android.AndroidApplication;
+import org.develnext.jphp.android.AndroidStandaloneLoader;
 import org.develnext.jphp.android.ext.AndroidExtension;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Signature;
@@ -26,12 +26,12 @@ public class WrapToast extends BaseWrapper<Toast> {
 
     @Signature
     private void __construct() {
-        __wrappedObject = new Toast(AndroidApplication.INSTANCE.getContext());
+        __wrappedObject = new Toast(AndroidStandaloneLoader.getContext());
     }
 
     @Signature
     public static Toast makeText(String value) {
-        return Toast.makeText(AndroidApplication.INSTANCE.getContext(), value, Toast.LENGTH_LONG);
+        return Toast.makeText(AndroidStandaloneLoader.getContext(), value, Toast.LENGTH_LONG);
     }
 
     interface Methods {

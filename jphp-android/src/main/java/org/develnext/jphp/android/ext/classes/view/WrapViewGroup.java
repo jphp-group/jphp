@@ -1,8 +1,10 @@
 package org.develnext.jphp.android.ext.classes.view;
 
+import android.view.View;
 import android.view.ViewGroup;
 import org.develnext.jphp.android.ext.AndroidExtension;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.reflection.ClassEntity;
 
@@ -19,5 +21,20 @@ public class WrapViewGroup extends WrapView {
     @Override
     public ViewGroup getWrappedObject() {
         return (ViewGroup) super.getWrappedObject();
+    }
+
+    @Signature
+    public void addView(View view) {
+        getWrappedObject().addView(view);
+    }
+
+    @Signature
+    public void addView(View view, int index) {
+        getWrappedObject().addView(view, index);
+    }
+
+    @Signature
+    public void addView(View view, int width, int height) {
+        getWrappedObject().addView(view, width, height);
     }
 }

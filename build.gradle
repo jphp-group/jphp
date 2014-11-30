@@ -43,7 +43,7 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "1.11";
+    gradleVersion = "2.1";
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
 }
 
@@ -138,6 +138,7 @@ configure([
                     repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
                         authentication(userName: rootProject.username, password: rootProject.password);
                     }
+
                     snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
                         authentication(userName: rootProject.username, password: rootProject.password);
                     }

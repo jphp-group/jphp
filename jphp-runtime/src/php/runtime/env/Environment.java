@@ -85,9 +85,9 @@ public class Environment {
     protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
-    public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
-    public final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
-    public final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
+    protected final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
+    protected final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
+    protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
     // call stack
     protected final static int CALL_STACK_INIT_SIZE = 255;
@@ -387,6 +387,14 @@ public class Environment {
         return scope;
     }
 
+    public Collection<FunctionEntity> getFunctions() {
+        return functionMap.values();
+    }
+
+    public Collection<ClassEntity> getClasses() {
+        return classMap.values();
+    }
+
     public ArrayMemory getGlobals() {
         return globals;
     }
@@ -515,6 +523,38 @@ public class Environment {
                 }
                 return null;
             }*/
+        }
+    }
+
+    public FunctionEntity fetchFunction(String name) {
+        return fetchFunction(name, name.toLowerCase());
+    }
+
+    public FunctionEntity fetchFunction(String name, String nameL) {
+        FunctionEntity r = functionMap.get(nameL);
+        if (r == null) {
+            r = scope.findUserFunction(name);
+        }
+
+        return r;
+    }
+
+    public void registerFunction(FunctionEntity entity) {
+        synchronized (functionMap){
+            if (functionMap.containsKey(entity.getLowerName()))
+                exception("Function '%s' already registered", entity.getName());
+
+            functionMap.put(entity.getLowerName(), entity);
+        }
+    }
+
+    public void registerClass(ClassEntity entity) {
+        synchronized (classMap){
+            if (classMap.containsKey(entity.getLowerName()))
+                exception("Class '%s' already registered", entity.getName());
+
+            classMap.put(entity.getLowerName(), entity);
+            entity.initEnvironment(this);
         }
     }
 
@@ -1279,8 +1319,9 @@ public class Environment {
     public Memory invokeMethodNoThrow(IObject object, String name, Memory... args) {
         try {
             return invokeMethod(object, name, args);
-        } catch (RuntimeException e){
-            throw e;
+        } catch (Exception e){
+            this.catchUncaught(e);
+            return Memory.NULL;
         } catch (Throwable e){
             throw new RuntimeException(e);
         }

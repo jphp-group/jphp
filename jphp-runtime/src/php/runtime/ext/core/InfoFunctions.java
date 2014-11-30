@@ -94,7 +94,7 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory get_declared_classes(Environment env){
         ArrayMemory array = new ArrayMemory();
-        for(ClassEntity classEntity : env.classMap.values()){
+        for(ClassEntity classEntity : env.getClasses()){
             if (classEntity.getType() == ClassEntity.Type.CLASS)
                 array.add(new StringMemory(classEntity.getName()));
         }
@@ -104,7 +104,7 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static Memory get_declared_interfaces(Environment env){
         ArrayMemory array = new ArrayMemory();
-        for(ClassEntity classEntity : env.classMap.values()){
+        for(ClassEntity classEntity : env.getClasses()){
             if (classEntity.getType() == ClassEntity.Type.INTERFACE)
                 array.add(new StringMemory(classEntity.getName()));
         }
@@ -115,7 +115,7 @@ public class InfoFunctions extends FunctionsContainer {
     public static Memory get_defined_functions(Environment env){
         ArrayMemory array = new ArrayMemory();
         ArrayMemory item = (ArrayMemory)array.refOfIndex("internal").assign(new ArrayMemory());
-        for(FunctionEntity entity : env.functionMap.values()){
+        for(FunctionEntity entity : env.getFunctions()){
             if (entity.isInternal())
                 item.add(new StringMemory(entity.getName()));
         }

@@ -325,7 +325,7 @@ final public class InvokeHelper {
             function = callCache.get(env, cacheIndex);
 
         if (function == null) {
-            function = env.functionMap.get(sign);
+            function = env.fetchFunction(originName, sign);
             if (function != null && callCache != null) {
                 callCache.put(env, cacheIndex, function);
             }
@@ -335,7 +335,7 @@ final public class InvokeHelper {
             if (!sign.isEmpty() && sign.charAt(0) != Information.NAMESPACE_SEP_CHAR) { // for global style invoke
                 int p = sign.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
                 if (p > -1)
-                    function = env.functionMap.get(sign.substring(p + 1));
+                    function = env.fetchFunction(originName.substring(p + 1), sign.substring(p + 1));
             }
 
             if (function == null) {

@@ -48,7 +48,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
             closure = (Closure)name.toValue(ObjectMemory.class).value;
             closureEntity = (ClosureEntity)closure.getReflection();
         } else {
-            functionEntity = env.functionMap.get(name.toString().toLowerCase());
+            functionEntity = env.fetchFunction(name.toString());
             if (functionEntity == null)
                 exception(env, "Function %s does not exist", name.toString());
 

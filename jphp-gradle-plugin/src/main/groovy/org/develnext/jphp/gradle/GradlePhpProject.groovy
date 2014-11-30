@@ -1,12 +1,8 @@
 package org.develnext.jphp.gradle
-
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.FileCollectionDependency
-import org.gradle.api.tasks.TaskDependency
 import php.runtime.env.CompileScope
 import php.runtime.env.Context
 import php.runtime.env.Environment
@@ -16,10 +12,8 @@ import php.runtime.reflection.ModuleEntity
 import php.runtime.reflection.support.Entity
 
 import java.nio.charset.Charset
-import java.util.jar.JarFile
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class GradlePhpProject {
@@ -107,13 +101,6 @@ class GradlePhpProject {
             classFiles.addAll(writeToClasses(module));
         }
 
-        def writer = new PrintWriter(phpClassesFile);
-        try {
-            classFiles.each { writer.write(it.path + "\n"); }
-        } finally {
-            writer.close();
-        }
-
         // Save reflection info.
         def classesDump = new DataOutputStream(new FileOutputStream(new File(tmpBuildDir, '/$php_classes.dump')));
 
@@ -123,7 +110,46 @@ class GradlePhpProject {
             def moduleDumper = new ModuleDumper(it.context, env, true);
             moduleDumper.includeData = false;
 
-            moduleDumper.save(it, classesDump);
+            def oneOutput = new ByteArrayOutputStream();
+            moduleDumper.save(it, oneOutput);
+
+            def name = it.name
+                    .replace('\\', '/')
+                    .replace(project.file(config.srcDir).path.toLowerCase().replace('\\', '/') + '/', '');
+
+            classesDump.writeUTF(name);
+            classesDump.writeUTF(it.internalName);
+
+            // write classes.
+            classesDump.writeInt(it.classes.size());
+            for (cl in it.classes) {
+                classesDump.writeUTF(cl.name);
+            }
+
+            // write functions.
+            classesDump.writeInt(it.functions.size());
+            for (fn in it.functions) {
+                classesDump.writeUTF(fn.name);
+            }
+
+            // write constants.
+            classesDump.writeInt(it.constants.size());
+            for (cst in it.constants) {
+                classesDump.writeUTF(cst.name);
+            }
+
+            File file = getClassFileOfEntity(it, ".dump");
+
+            moduleDumper.save(it, new FileOutputStream(file));
+            classFiles.add(file)
+        }
+
+
+        def writer = new PrintWriter(phpClassesFile);
+        try {
+            classFiles.each { writer.write(it.path + "\n"); }
+        } finally {
+            writer.close();
         }
 
         classesDump.close();
@@ -212,8 +238,8 @@ class GradlePhpProject {
         }
     }
 
-    def protected getClassFileOfEntity(Entity entity) {
-        def file = new File(classesBuildDir, "/" + entity.internalName + ".class");
+    def protected getClassFileOfEntity(Entity entity, String extension = ".class") {
+        def file = new File(classesBuildDir, "/" + entity.internalName + extension);
 
         if (file.parentFile != null && !file.parentFile.exists()) {
             file.parentFile.mkdirs();
@@ -267,7 +293,9 @@ class GradlePhpProject {
         Configuration compileConfiguration = getOrCreateConfiguration("compile");
 
         compileConfiguration.each {
-            registerExtensionJar(it);
+            if (it.exists()) {
+                registerExtensionJar(it);
+            }
         }
     }
 

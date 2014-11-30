@@ -2,7 +2,8 @@ package org.develnext.jphp.android.ext.classes.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import org.develnext.jphp.android.AndroidApplication;
+import android.view.View;
+import org.develnext.jphp.android.AndroidStandaloneLoader;
 import org.develnext.jphp.android.ext.AndroidExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
@@ -14,22 +15,29 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.lang.ref.WeakReference;
-
 @UseJavaLikeNames
 @Name(AndroidExtension.NAMESPACE + "app\\Activity")
 public class WrapActivity extends Activity implements IObject {
     private boolean isFinalized = false;
     private ClassEntity __class__;
-    private WeakReference<Environment> __env__;
     private ArrayMemory __props__ = new ArrayMemory();
 
     public WrapActivity() {
+        super();
+    }
+
+    public WrapActivity(Environment env, ClassEntity clazz) {
+        throw new RuntimeException("Unable to create object");
     }
 
     @Signature
     public Memory __construct(Environment env, Memory... args) {
         return Memory.NULL;
+    }
+
+    @Signature
+    public void setContentView(View view) {
+        super.setContentView(view);
     }
 
     @Signature
@@ -44,29 +52,32 @@ public class WrapActivity extends Activity implements IObject {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        onCreateClearly(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-        __env__.get().invokeMethodNoThrow(this, "onCreate");
+        getEnvironment().invokeMethodNoThrow(this, "onCreate");
     }
 
     final protected void onCreateClearly(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        __env__   = new WeakReference<Environment>( AndroidApplication.INSTANCE.getEnvironment() );
-
-        try {
-            __class__ = getEnvironment().fetchClass(getClass().getField("$CL").get(null).toString());
-        } catch (NoSuchFieldException e) {
-            throw new CriticalException(e);
-        } catch (IllegalAccessException e) {
-            throw new CriticalException(e);
-        } catch (IllegalArgumentException e) {
-            throw new CriticalException(e);
-        }
     }
 
     @Override
     public ClassEntity getReflection() {
+        if (__class__ != null) {
+            return __class__;
+        }
+
+        Environment env = getEnvironment();
+        if (env != null) {
+            try {
+                __class__ = env.fetchClass(getClass().getField("$CL").get(null).toString());
+            } catch (IllegalAccessException e) {
+                throw new CriticalException(e);
+            } catch (NoSuchFieldException e) {
+                throw new CriticalException(e);
+            }
+        }
+
         return __class__;
     }
 
@@ -77,7 +88,7 @@ public class WrapActivity extends Activity implements IObject {
 
     @Override
     public Environment getEnvironment() {
-        return __env__.get();
+        return AndroidStandaloneLoader.getEnvironment();
     }
 
     @Override

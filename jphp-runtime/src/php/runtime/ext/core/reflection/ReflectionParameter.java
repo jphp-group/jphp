@@ -20,7 +20,7 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("ReflectionParameter")
 @Signature(
-    @Arg(value = "name", type = HintType.STRING, readOnly = true)
+        @Arg(value = "name", type = HintType.STRING, readOnly = true)
 )
 public class ReflectionParameter extends Reflection implements Reflector {
     private ParameterEntity entity;
@@ -33,36 +33,36 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature({@Arg("function"), @Arg("parameter")})
-    public Memory __construct(Environment env, Memory... args){
+    public Memory __construct(Environment env, Memory... args) {
         ParameterEntity[] parameters = null;
-        if (args[0].isClosure()){
-            ClosureEntity tmp = (ClosureEntity)args[0].toValue(ObjectMemory.class).getReflection();
+        if (args[0].isClosure()) {
+            ClosureEntity tmp = (ClosureEntity) args[0].toValue(ObjectMemory.class).getReflection();
             parameters = tmp.parameters;
-        } else if (args[0].isArray()){
+        } else if (args[0].isArray()) {
             Invoker invoker = Invoker.valueOf(env, null, args[0]);
-            if (invoker == null){
+            if (invoker == null) {
                 exception(env, "%s does not exists", args[0].toString());
                 return Memory.NULL;
             }
             parameters = invoker.getParameters();
         } else {
             String name = args[0].toString();
-            if (name.contains("::")){
+            if (name.contains("::")) {
                 Invoker invoker = Invoker.valueOf(env, null, args[0]);
-                if (invoker == null){
+                if (invoker == null) {
                     exception(env, "%s does not exists", args[0].toString());
                     return Memory.NULL;
                 }
                 parameters = invoker.getParameters();
             } else {
-                FunctionEntity tmp = env.functionMap.get(name);
+                FunctionEntity tmp = env.fetchFunction(name);
                 functionEntity = tmp;
-                if (tmp == null){
+                if (tmp == null) {
                     exception(env, "Function %s does not exist", args[0].toString());
                     return Memory.NULL;
                 }
-                if (tmp.isInternal()){
-                    exception(env, "cos(): ReflectionParameter does not support internal functions", tmp.getName());
+                if (tmp.isInternal()) {
+                    exception(env, "%s(): ReflectionParameter does not support internal functions", tmp.getName());
                     return Memory.NULL;
                 }
                 parameters = tmp.getParameters();
@@ -71,17 +71,17 @@ public class ReflectionParameter extends Reflection implements Reflector {
         entity = null;
 
         String name = args[1].toString();
-        if (parameters != null){
-            if (args[1].isNumber()){
+        if (parameters != null) {
+            if (args[1].isNumber()) {
                 int index = args[1].toInteger();
-                if (index >= 0 && index < parameters.length){
+                if (index >= 0 && index < parameters.length) {
                     entity = parameters[index];
                     position = index;
                 }
             } else {
                 int i = 0;
-                for(ParameterEntity e : parameters){
-                    if (e.getName().equals(name)){
+                for (ParameterEntity e : parameters) {
+                    if (e.getName().equals(name)) {
                         entity = e;
                         position = i;
                         break;
@@ -111,7 +111,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory allowsNull(Environment env, Memory... args){
+    public Memory allowsNull(Environment env, Memory... args) {
         if (entity.getType() == HintType.OBJECT && entity.getDefaultValue() == null)
             return Memory.FALSE;
 
@@ -119,12 +119,12 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory canBePassedByValue(Environment env, Memory... args){
+    public Memory canBePassedByValue(Environment env, Memory... args) {
         return entity.canBePassedByValue() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory getDefaultValue(Environment env, Memory... args){
+    public Memory getDefaultValue(Environment env, Memory... args) {
         if (entity.getDefaultValue() == null) {
             exception(env, "Parameter has no default value");
             return Memory.NULL;
@@ -134,7 +134,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory getDefaultValueConstantName(Environment env, Memory... args){
+    public Memory getDefaultValueConstantName(Environment env, Memory... args) {
         if (entity.getDefaultValueConstName() == null)
             return Memory.FALSE;
         else
@@ -142,89 +142,89 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory getName(Environment env, Memory... args){
+    public Memory getName(Environment env, Memory... args) {
         return new StringMemory(entity.getName());
     }
 
     @Signature
-    public Memory getPosition(Environment env, Memory... args){
+    public Memory getPosition(Environment env, Memory... args) {
         return LongMemory.valueOf(position);
     }
 
     @Signature
-    public Memory isArray(Environment env, Memory... args){
+    public Memory isArray(Environment env, Memory... args) {
         return entity.getType() == HintType.ARRAY ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isCallable(Environment env, Memory... args){
+    public Memory isCallable(Environment env, Memory... args) {
         return entity.getType() == HintType.CALLABLE ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isScalar(Environment env, Memory... args){
+    public Memory isScalar(Environment env, Memory... args) {
         return entity.getType() == HintType.SCALAR ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isString(Environment env, Memory... args){
+    public Memory isString(Environment env, Memory... args) {
         return entity.getType() == HintType.STRING ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isBoolean(Environment env, Memory... args){
+    public Memory isBoolean(Environment env, Memory... args) {
         return entity.getType() == HintType.BOOLEAN ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isNumber(Environment env, Memory... args){
+    public Memory isNumber(Environment env, Memory... args) {
         return entity.getType() == HintType.NUMBER ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isInteger(Environment env, Memory... args){
+    public Memory isInteger(Environment env, Memory... args) {
         return entity.getType() == HintType.INT ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isDouble(Environment env, Memory... args){
+    public Memory isDouble(Environment env, Memory... args) {
         return entity.getType() == HintType.DOUBLE ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isObject(Environment env, Memory... args){
+    public Memory isObject(Environment env, Memory... args) {
         return entity.getType() == HintType.OBJECT ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory getHintType(Environment env, Memory... args){
+    public Memory getHintType(Environment env, Memory... args) {
         return LongMemory.valueOf(entity.getType().ordinal());
     }
 
     @Signature
-    public Memory isDefaultValueAvailable(Environment env, Memory... args){
+    public Memory isDefaultValueAvailable(Environment env, Memory... args) {
         return entity.getDefaultValue() != null ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isDefaultValueConstant(Environment env, Memory... args){
+    public Memory isDefaultValueConstant(Environment env, Memory... args) {
         return entity.getDefaultValue() instanceof ConstantMemory
                 || entity.getDefaultValue() instanceof ClassConstantMemory ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isOptional(Environment env, Memory... args){
+    public Memory isOptional(Environment env, Memory... args) {
         return entity.isOptional() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory isPassedByReference(Environment env, Memory... args){
+    public Memory isPassedByReference(Environment env, Memory... args) {
         return entity.isPassedByReference() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
     @Name("getClass")
-    public Memory _getClass(Environment env, Memory... args){
+    public Memory _getClass(Environment env, Memory... args) {
         if (entity.getTypeClass() == null)
             return Memory.NULL;
 
@@ -240,14 +240,14 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory getDeclaringClass(Environment env, Memory... args){
+    public Memory getDeclaringClass(Environment env, Memory... args) {
         if (functionEntity == null)
             return Memory.NULL;
 
         if (functionEntity instanceof FunctionEntity)
             return Memory.NULL;
 
-        MethodEntity method = (MethodEntity)functionEntity;
+        MethodEntity method = (MethodEntity) functionEntity;
 
         ClassEntity classEntity = env.fetchClass("ReflectionClass");
         ReflectionClass r = new ReflectionClass(env, classEntity);
@@ -264,10 +264,10 @@ public class ReflectionParameter extends Reflection implements Reflector {
         if (functionEntity == null)
             return Memory.NULL;
 
-        if (functionEntity instanceof FunctionEntity){
+        if (functionEntity instanceof FunctionEntity) {
             ClassEntity classEntity = env.fetchClass("ReflectionFunction");
             ReflectionFunction e = new ReflectionFunction(env, classEntity);
-            e.setFunctionEntity((FunctionEntity)functionEntity);
+            e.setFunctionEntity((FunctionEntity) functionEntity);
             return cachedFunction = new ObjectMemory(e);
         } else {
             ClassEntity classEntity = env.fetchClass("ReflectionMethod");

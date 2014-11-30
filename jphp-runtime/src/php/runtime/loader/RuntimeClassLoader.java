@@ -25,15 +25,15 @@ public class RuntimeClassLoader extends ClassLoader {
         super(parent);
     }
 
-    public ClassEntity getClass(String internalName){
+    public ClassEntity getClass(String internalName) {
         return internalClasses.get(internalName);
     }
 
-    public FunctionEntity getFunction(String internalName){
+    public FunctionEntity getFunction(String internalName) {
         return internalFunctions.get(internalName);
     }
 
-    public ModuleEntity getModule(String internalName){
+    public ModuleEntity getModule(String internalName) {
         return internalModules.get(internalName);
     }
 
@@ -45,8 +45,8 @@ public class RuntimeClassLoader extends ClassLoader {
             clazz.setNativeClazz(result);
         }
 
-        for(MethodEntity method : clazz.getMethods().values()){
-            if (!(method instanceof CompileMethodEntity) && method.getNativeMethod() == null && !method.isAbstractable()){
+        for (MethodEntity method : clazz.getMethods().values()) {
+            if (!(method instanceof CompileMethodEntity) && method.getNativeMethod() == null && !method.isAbstractable()) {
                 method.setNativeMethod(
                         clazz.getNativeClazz().getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );
@@ -85,29 +85,29 @@ public class RuntimeClassLoader extends ClassLoader {
         return loadClass(generator, withBytecode);
     }
 
-    public boolean loadModule(ModuleEntity module, boolean withBytecode){
+    public boolean loadModule(ModuleEntity module, boolean withBytecode) {
         String internal = module.getInternalName();
 
         boolean ret = false;
-        if (!module.isLoaded()){
+        if (!module.isLoaded()) {
             internalModules.put(internal, module);
             try {
-                for(ClosureEntity closure : module.getClosures())
+                for (ClosureEntity closure : module.getClosures())
                     loadClosure(closure, withBytecode);
 
-                for(GeneratorEntity generator : module.getGenerators())
+                for (GeneratorEntity generator : module.getGenerators())
                     loadGenerator(generator, withBytecode);
 
-                for(ClassEntity clazz : module.getClasses()){
+                for (ClassEntity clazz : module.getClasses()) {
                     if (clazz.getType() != ClassEntity.Type.INTERFACE)
                         loadClass(clazz, withBytecode);
                 }
 
-                for(FunctionEntity function : module.getFunctions()){
+                for (FunctionEntity function : module.getFunctions()) {
                     loadFunction(function, withBytecode);
                 }
 
-            } catch (NoSuchMethodException e){
+            } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);

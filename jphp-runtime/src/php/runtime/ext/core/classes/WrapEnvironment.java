@@ -92,13 +92,7 @@ public class WrapEnvironment extends BaseObject {
             return Memory.NULL;
         }
 
-        synchronized (env.classMap){
-            if (env.classMap.containsKey(classEntity.getLowerName()))
-                env.exception("Class '%s' already registered", classEntity.getName());
-
-            env.classMap.put(classEntity.getLowerName(), classEntity);
-            classEntity.initEnvironment(env);
-        }
+        env.registerClass(classEntity);
         return Memory.NULL;
     }
 
@@ -110,49 +104,31 @@ public class WrapEnvironment extends BaseObject {
             return Memory.NULL;
         }
 
-        synchronized (environment.classMap){
-            if (environment.classMap.containsKey(classEntity.getLowerName()))
-                env.exception("Class '%s' already registered", classEntity.getName());
-
-            environment.classMap.put(classEntity.getLowerName(), classEntity);
-            classEntity.initEnvironment(environment);
-        }
+        environment.registerClass(classEntity);
         return Memory.NULL;
     }
 
     @Signature(@Arg("functionName"))
     public Memory importFunction(Environment env, Memory... args){
-        FunctionEntity functionEntity = env.functionMap.get(args[0].toString().toLowerCase());
+        FunctionEntity functionEntity = env.fetchFunction(args[0].toString());
         if (functionEntity == null) {
             env.exception(Messages.ERR_FUNCTION_NOT_FOUND.fetch(args[0]));
             return Memory.NULL;
         }
 
-        synchronized (environment.functionMap){
-            if (environment.functionMap.containsKey(functionEntity.getLowerName()))
-                env.exception("Function '%s' already registered", functionEntity.getName());
-
-            environment.functionMap.put(functionEntity.getLowerName(), functionEntity);
-        }
-
+        environment.registerFunction(functionEntity);
         return Memory.NULL;
     }
 
     @Signature(@Arg("functionName"))
     public Memory exportFunction(Environment env, Memory... args){
-        FunctionEntity functionEntity = environment.functionMap.get(args[0].toString().toLowerCase());
+        FunctionEntity functionEntity = environment.fetchFunction(args[0].toString());
         if (functionEntity == null) {
             env.exception(Messages.ERR_FUNCTION_NOT_FOUND.fetch(args[0]));
             return Memory.NULL;
         }
 
-        synchronized (env.functionMap){
-            if (env.functionMap.containsKey(functionEntity.getLowerName()))
-                env.exception("Function '%s' already registered", functionEntity.getName());
-
-            env.functionMap.put(functionEntity.getLowerName(), functionEntity);
-        }
-
+        env.registerFunction(functionEntity);
         return Memory.NULL;
     }
 

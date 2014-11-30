@@ -2,8 +2,10 @@ package org.develnext.jphp.android.ext.classes.widget;
 
 import android.widget.FrameLayout;
 import org.develnext.jphp.android.ext.AndroidExtension;
+import org.develnext.jphp.android.ext.classes.app.WrapActivity;
 import org.develnext.jphp.android.ext.classes.view.WrapViewGroup;
 import php.runtime.annotation.Reflection.Name;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.reflection.ClassEntity;
 
@@ -21,4 +23,11 @@ public class WrapFrameLayout extends WrapViewGroup {
     public FrameLayout getWrappedObject() {
         return (FrameLayout) super.getWrappedObject();
     }
+
+
+    @Signature
+    public void __construct(WrapActivity activity) {
+        __wrappedObject = new FrameLayout(activity);
+    }
+
 }

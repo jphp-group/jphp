@@ -93,7 +93,7 @@ public class MemoryUtils {
         put(Memory[].class, new Unconverter<Memory[]>() {
             @Override
             public Memory run(Memory[] value) {
-                return new ArrayMemory(value);
+                return new ArrayMemory(false, value);
             }
         });
     }};

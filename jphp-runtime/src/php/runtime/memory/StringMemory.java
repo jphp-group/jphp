@@ -150,18 +150,29 @@ public class StringMemory extends Memory {
             if (len == 1 || len == 0)
                 return def;
 
-            if (len == i && start == 0)
-                return new DoubleMemory(Double.parseDouble(value));
-            else
-                return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
+            try {
+                if (len == i && start == 0)
+                    return new DoubleMemory(Double.parseDouble(value));
+                else
+                    return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
+            } catch (NumberFormatException e) {
+                return def;
+            }
         } else {
             if (len == 0)
                 return def;
 
-            if (len == i && start == 0){
-                return LongMemory.valueOf(Long.parseLong(value));
-            } else {
-                return LongMemory.valueOf(Long.parseLong(value.substring(start, i)));
+            try {
+                if (len == i && start == 0) {
+                    return LongMemory.valueOf(Long.parseLong(value));
+                } else {
+                    return LongMemory.valueOf(Long.parseLong(value.substring(start, i)));
+                }
+            } catch (NumberFormatException e) {
+                if (len == i && start == 0)
+                    return new DoubleMemory(Double.parseDouble(value));
+                else
+                    return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
             }
         }
     }

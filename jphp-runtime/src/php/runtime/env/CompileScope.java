@@ -5,6 +5,8 @@ import php.runtime.annotation.Reflection;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.CompilerFactory;
 import php.runtime.common.LangMode;
+import php.runtime.common.Messages;
+import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.ConflictException;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.CoreExtension;
@@ -59,6 +61,10 @@ public class CompileScope {
     protected Map<String, CompileClass> compileClassMap;
 
     protected CompilerFactory compilerFactory;
+
+    protected EntityFetchHandler classEntityFetchHandler;
+    protected EntityFetchHandler functionEntityFetchHandler;
+    protected EntityFetchHandler constantEntityFetchHandler;
 
     public Map<String, Memory> configuration;
 
@@ -307,6 +313,18 @@ public class CompileScope {
         return extensions.keySet();
     }
 
+    public void setClassEntityFetchHandler(EntityFetchHandler classEntityFetchHandler) {
+        this.classEntityFetchHandler = classEntityFetchHandler;
+    }
+
+    public void setFunctionEntityFetchHandler(EntityFetchHandler functionEntityFetchHandler) {
+        this.functionEntityFetchHandler = functionEntityFetchHandler;
+    }
+
+    public void setConstantEntityFetchHandler(EntityFetchHandler constantEntityFetchHandler) {
+        this.constantEntityFetchHandler = constantEntityFetchHandler;
+    }
+
     public void registerJavaException(Class<? extends JavaException> clazz, Class<? extends Throwable> throwClazz) {
         exceptionMap.put(throwClazz, clazz);
     }
@@ -319,8 +337,34 @@ public class CompileScope {
             exceptionMapForContext.put(name.value().toLowerCase(), clazz);
     }
 
-    public void registerClass(ClassEntity clazz){
+    public void registerClass(ClassEntity clazz) {
         classMap.put(clazz.getLowerName(), clazz);
+    }
+
+    public void registerModule(ModuleEntity module) {
+        addUserModule(module);
+
+        for(ClassEntity entity : module.getClasses()) {
+            if (entity.isStatic()){
+                if (classMap.put(entity.getLowerName(), entity) != null) {
+                    throw new CriticalException(Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()));
+                }
+            }
+        }
+
+        for(FunctionEntity entity : module.getFunctions()) {
+            if (entity.isStatic()) {
+                if (functionMap.put(entity.getLowerName(), entity) != null) {
+                    throw new CriticalException(Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()));
+                }
+            }
+        }
+
+        for(ConstantEntity entity : module.getConstants()) {
+            if (constantMap.put(entity.getLowerName(), entity) != null) {
+                throw new CriticalException(Messages.ERR_CANNOT_REDECLARE_CONSTANT.fetch(entity.getName()));
+            }
+        }
     }
 
     public void addUserModule(ModuleEntity module){
@@ -347,9 +391,16 @@ public class CompileScope {
 
     public ClassEntity fetchUserClass(String name) {
         name = name.toLowerCase();
-        ClassEntity entity = classMap.get(name);
-        if (entity != null)
+        ClassEntity entity;
+
+        if (classEntityFetchHandler != null) {
+            classEntityFetchHandler.fetch(this, name);
+        }
+
+        entity = classMap.get(name);
+        if (entity != null) {
             return entity;
+        }
 
         CompileClass compileClass = compileClassMap.get(name);
         if (compileClass == null)
@@ -362,15 +413,34 @@ public class CompileScope {
         synchronized (classMap) {
             classMap.put(name, entity);
         }
+
         return entity;
     }
 
-    public FunctionEntity findUserFunction(String name){
-        return functionMap.get(name.toLowerCase());
+    public FunctionEntity findUserFunction(String name) {
+        name = name.toLowerCase();
+
+        FunctionEntity entity = functionMap.get(name);
+
+        if (entity == null && functionEntityFetchHandler != null) {
+            functionEntityFetchHandler.fetch(this, name);
+            entity = functionMap.get(name);
+        }
+
+        return entity;
     }
 
     public ConstantEntity findUserConstant(String name){
-        return constantMap.get(name.toLowerCase());
+        name = name.toLowerCase();
+
+        ConstantEntity entity = constantMap.get(name.toLowerCase());
+
+        if (entity == null && constantEntityFetchHandler != null) {
+            constantEntityFetchHandler.fetch(this, name);
+            entity = constantMap.get(name);
+        }
+
+        return entity;
     }
 
     public Collection<ConstantEntity> getConstants(){

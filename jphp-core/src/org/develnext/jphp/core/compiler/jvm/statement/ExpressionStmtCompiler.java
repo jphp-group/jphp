@@ -1302,7 +1302,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             // try find system function, like max, sin, cos, etc.
             if (compileFunction == null
                     && name instanceof FulledNameToken
-                    && compiler.getEnvironment().functionMap.get(realName.toLowerCase()) == null
+                    && compiler.getEnvironment().fetchFunction(realName) == null
                     && compiler.findFunction(realName) == null){
                 String tryName = ((FulledNameToken) name).getLastName().getName();
                 compileFunction = compiler.getScope().findCompileFunction(tryName);
