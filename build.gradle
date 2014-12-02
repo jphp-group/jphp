@@ -15,7 +15,6 @@ allprojects {
         mavenCentral()
     }
 
-    // dist
     ext.distPath = "$rootProject.buildDir/dist"
 
     task collectJars(type: Copy, overwrite: true) {
