@@ -404,7 +404,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     @SuppressWarnings("unchecked")
     protected void writeSystemInfo() {
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_FINAL + ACC_STATIC, "$FN",
+                ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$FN",
                 Type.getDescriptor(String.class),
                 null,
                 compiler.getSourceFile()
@@ -418,28 +418,28 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$MEM",
+                ACC_PUBLIC + ACC_STATIC, "$MEM",
                 Type.getDescriptor(Memory[].class),
                 null,
                 null
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$AMEM",
+                ACC_PUBLIC + ACC_STATIC, "$AMEM",
                 Type.getDescriptor(Memory[][].class),
                 null,
                 null
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$CALL_FUNC_CACHE",
+                ACC_PUBLIC + ACC_STATIC, "$CALL_FUNC_CACHE",
                 Type.getDescriptor(FunctionCallCache.class),
                 null,
                 null
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$CALL_METH_CACHE",
+                ACC_PUBLIC + ACC_STATIC, "$CALL_METH_CACHE",
                 Type.getDescriptor(MethodCallCache.class),
                 null,
                 null

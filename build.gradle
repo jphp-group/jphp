@@ -15,7 +15,7 @@ allprojects {
         mavenCentral()
     }
 
-    ext.distPath ="$rootProject.buildDir/dist"
+    ext.distPath = "$rootProject.buildDir/dist"
 
     task collectJars(type: Copy, overwrite: true) {
         into "$project.ext.distPath/libs"
@@ -121,8 +121,19 @@ configure([
 
     task deploy << {
         rootProject.ext {
-            username = rootProject.hasProperty('username') ? rootProject.username : System.console().readLine("\nusername: ")
-            password = rootProject.hasProperty('password') ? rootProject.password : System.console().readPassword("password: ").toString()
+            if (System.getProperty("deployUsername", null)) {
+                username = System.getProperty("deployUsername", null)
+                println "user: $username"
+            } else {
+                username = rootProject.hasProperty('username') ? rootProject.username : System.console().readLine("\nusername: ")
+            }
+
+            if (System.getProperty("deployPassword", null)) {
+                password = System.getProperty("deployPassword", null)
+                println()
+            } else {
+                password = rootProject.hasProperty('password') ? rootProject.password : System.console().readPassword("password: ").toString()
+            }
         }
 
         uploadArchives {
