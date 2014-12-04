@@ -5,7 +5,7 @@ allprojects {
 
     project.group = 'org.develnext'
     project.version = '0.5'
-    project.ext.isSnapshot = System.getProperty("release", "0") == "0";
+    project.ext.isSnapshot = System.getProperty("release", "0") in ["0", "false"];
 
     if (project.ext.isSnapshot) {
         version += '-SNAPSHOT'
