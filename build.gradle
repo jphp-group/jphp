@@ -12,6 +12,7 @@ allprojects {
     }
 
     repositories {
+        jcenter()
         mavenCentral()
     }
 
@@ -38,14 +39,32 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.1";
+    gradleVersion = "2.2";
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
 }
 
-task distZip (type: Zip) {
+task distZip (type: Zip, dependsOn: "unzipTools") {
     archiveName "dist-" + version + ".zip"
     from project.ext.distPath
     destinationDir buildDir
+}
+
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadTools(type: Download) {
+    src 'https://bitbucket.org/develnext/develnext/downloads/tools.zip'
+    dest project.ext.distPath
+}
+
+task unzipTools(type: Copy, depenedsOn: "downloadTools") {
+    def zipFile = new File(project.ext.distPath, "/tools.zip")
+
+    from zipTree(zipFile)
+    into project.ext.distPath
+
+    doLast {
+        zipFile.delete()
+    }
 }
 
 configure(subprojects) {
