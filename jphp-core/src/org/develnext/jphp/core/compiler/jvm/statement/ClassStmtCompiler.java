@@ -411,7 +411,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         ));
 
         node.fields.add(new FieldNode(
-                ACC_PROTECTED + ACC_STATIC, "$TRC",
+                ACC_PUBLIC + ACC_STATIC, "$TRC",
                 Type.getDescriptor(TraceInfo[].class),
                 null,
                 null

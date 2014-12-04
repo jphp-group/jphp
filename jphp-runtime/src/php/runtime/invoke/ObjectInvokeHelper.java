@@ -35,7 +35,7 @@ final public class ObjectInvokeHelper {
 
         IObject iObject = ((ObjectMemory)object).value;
         ClassEntity childClazz = iObject.getReflection();
-        ClassEntity clazz = childClazz.getParent();
+        ClassEntity clazz = env.getLastClassOnStack().getParent();
         MethodEntity method;
 
         if (clazz == null){
