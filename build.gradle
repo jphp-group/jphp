@@ -121,16 +121,14 @@ configure([
 
     task deploy << {
         rootProject.ext {
-            if (System.getProperty("deployUsername", null)) {
-                username = System.getProperty("deployUsername", null)
-                println "user: $username"
+            if (rootProject.hasProperty('deployUserName')) {
+                username = rootProject.deployUserName
             } else {
                 username = rootProject.hasProperty('username') ? rootProject.username : System.console().readLine("\nusername: ")
             }
 
-            if (System.getProperty("deployPassword", null)) {
-                password = System.getProperty("deployPassword", null)
-                println()
+            if (rootProject.hasProperty('deployPassword')) {
+                password = rootProject.deployPassword
             } else {
                 password = rootProject.hasProperty('password') ? rootProject.password : System.console().readPassword("password: ").toString()
             }
