@@ -197,7 +197,7 @@ class File {
      */
     public function find(callable $filter = null) { return array(); }
     /**
-     * @param callable $filter
+     * @param callable $filter (File $directory, $name)
      * @return File[]
      * @throws IOException
      */
@@ -220,4 +220,10 @@ class File {
      * @return File[]
      */
     public static function listRoots() { return []; }
+
+    /**
+     * @param string $path
+     * @return File
+     */
+    public static function of($path) { }
 }

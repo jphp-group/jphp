@@ -3,7 +3,7 @@ package org.develnext.jphp.swing.loader.support;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
-import php.runtime.launcher.Launcher;
+import php.runtime.launcher.StandaloneLauncher;
 import php.runtime.memory.support.MemoryUtils;
 
 import javax.imageio.ImageIO;
@@ -91,7 +91,7 @@ public class Value {
     }
 
     public InputStream asResource() {
-        return Launcher.current().getResource(value);
+        return StandaloneLauncher.class.getClassLoader().getResourceAsStream(value);
     }
 
     public ImageIcon asIcon(){

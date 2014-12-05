@@ -17,6 +17,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 public class StandaloneLoader {
@@ -32,6 +33,7 @@ public class StandaloneLoader {
     public StandaloneLoader() {
         scope = new CompileScope();
         env = new Environment(scope, System.out);
+        env.getDefaultBuffer().setImplicitFlush(true);
 
         classes = new HashMap<String, Module>();
         functions = new HashMap<String, Module>();
@@ -92,23 +94,48 @@ public class StandaloneLoader {
         this.classLoader = classLoader;
     }
 
+    public Collection<InputStream> getResources(String name) {
+        List<InputStream> result = new ArrayList<InputStream>();
+        try {
+            Enumeration<URL> urls = classLoader.getResources(name);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                result.add(url.openStream());
+            }
+            return result;
+        } catch (IOException e) {
+            return Collections.emptyList();
+            //throw new LaunchException(e.getMessage());
+        }
+    }
+
+    protected void loadExtension(InputStream stream) {
+        if (stream != null) {
+            Scanner scanner = new Scanner(stream);
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+
+                if (!line.isEmpty()) {
+                    try {
+                        scope.registerExtension((Extension) Class.forName(line).newInstance());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+
     public void loadExtensions() {
         if (classLoader == null) {
             throw new NullPointerException("classLoader is null");
         }
 
-        Scanner scanner = new Scanner(classLoader.getResourceAsStream("JPHP-INF/standalone.extensions.list"));
+        loadExtension(classLoader.getResourceAsStream("JPHP-INF/standalone.extensions.list"));
 
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
-
-            if (!line.isEmpty()) {
-                try {
-                    scope.registerExtension((Extension) Class.forName(line).newInstance());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        for (InputStream stream : getResources("JPHP-INF/extensions.list")) {
+            loadExtension(stream);
         }
     }
 

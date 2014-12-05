@@ -30,7 +30,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setModule(module);
         entity.setName(statement.getFulledName());
         entity.setReturnReference(statement.isReturnReference());
-        entity.setInternalName(compiler.getModule().getInternalName() + "/func" + statement.getId());
+        entity.setInternalName(compiler.getModule().getInternalName() + "_func" + statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 
         if (statement.getDocComment() != null)

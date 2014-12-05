@@ -4,7 +4,7 @@ import org.w3c.dom.Node;
 import org.develnext.jphp.swing.loader.support.BaseTag;
 import org.develnext.jphp.swing.loader.support.ElementItem;
 import org.develnext.jphp.swing.loader.support.Tag;
-import php.runtime.launcher.Launcher;
+import php.runtime.launcher.StandaloneLauncher;
 
 import java.awt.*;
 
@@ -16,7 +16,7 @@ public class IncludeTag extends BaseTag<Component> {
         if (src == null)
             throw new IllegalArgumentException("Attribute `src` is required");
 
-        Component cmp = uiReader.read(Launcher.current().getResource(src));
+        Component cmp = uiReader.read(StandaloneLauncher.class.getClassLoader().getResourceAsStream(src));
         return cmp;
     }
 

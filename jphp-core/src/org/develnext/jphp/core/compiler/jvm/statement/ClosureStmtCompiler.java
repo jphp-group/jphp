@@ -27,7 +27,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
     public ClosureEntity compile() {
         ClosureEntity entity = new ClosureEntity(getCompiler().getContext());
         entity.setReturnReference(statement.getFunction().isReturnReference());
-        entity.setInternalName(compiler.getModule().getInternalName() + "/closure" + statement.getId());
+        entity.setInternalName(compiler.getModule().getInternalName() + "_closure" + statement.getId());
         entity.setId(statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 

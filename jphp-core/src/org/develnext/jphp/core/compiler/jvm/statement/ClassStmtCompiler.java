@@ -1046,7 +1046,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 );
             } else {
                 entity.setInternalName(
-                        compiler.getModule().getInternalName() + "/class" + compiler.getModule().getClasses().size()
+                        compiler.getModule().getInternalName() + "_class" + compiler.getModule().getClasses().size()
                 );
             }
         }

@@ -368,6 +368,11 @@ public class FileObject extends BaseObject {
         return r.toConstant();
     }
 
+    @Signature
+    public static File of(String path) {
+        return new File(path);
+    }
+
     public static File valueOf(Memory arg) {
         if (arg.instanceOf(FileObject.class))
             return arg.toObject(FileObject.class).getFile();
