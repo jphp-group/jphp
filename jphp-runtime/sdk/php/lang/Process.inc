@@ -9,12 +9,12 @@ use php\io\Stream;
  * @package php\lang
  */
 class Process {
-
     /**
      * @param array $commands
      * @param null|string|File $directory
+     * @param array $environment
      */
-    public function __construct(array $commands, $directory = null) { }
+    public function __construct(array $commands, $directory = null, array $environment = null) { }
 
     /**
      * @return Process

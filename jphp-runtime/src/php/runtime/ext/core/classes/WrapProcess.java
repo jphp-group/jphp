@@ -6,12 +6,14 @@ import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.FileObject;
 import php.runtime.ext.core.classes.stream.MiscStream;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -31,7 +33,8 @@ public class WrapProcess extends BaseObject {
 
     @Signature({
             @Arg(value = "commands", type = HintType.ARRAY),
-            @Arg(value = "directory", optional = @Optional("NULL"))
+            @Arg(value = "directory", optional = @Optional("NULL")),
+            @Arg(value = "environment", type = HintType.ARRAY, optional = @Optional("NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
         if (args[0].isNull())
@@ -39,8 +42,17 @@ public class WrapProcess extends BaseObject {
         else
             processBuilder = new ProcessBuilder(args[0].toValue(ArrayMemory.class).toStringArray());
 
-        if (!args[1].isNull())
+        if (!args[1].isNull()) {
             processBuilder.directory(FileObject.valueOf(args[1]));
+        }
+
+        if (!args[2].isNull()) {
+            ForeachIterator iterator = args[2].getNewIterator(env);
+
+            while (iterator.next()) {
+                processBuilder.environment().put(iterator.getKey().toString(), iterator.getValue().toString());
+            }
+        }
 
         return Memory.NULL;
     }
@@ -94,11 +106,5 @@ public class WrapProcess extends BaseObject {
     @Signature
     public Memory getError(Environment env, Memory... args) {
         return new ObjectMemory(new MiscStream(env, getProcess().getErrorStream()));
-    }
-
-    @Signature
-    public Memory destroy(Environment env, Memory... args) {
-        getProcess().destroy();
-        return Memory.NULL;
     }
 }
