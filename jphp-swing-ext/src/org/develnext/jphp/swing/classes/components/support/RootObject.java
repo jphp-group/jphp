@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.classes.components.support;
 
+import org.develnext.jphp.swing.classes.WrapScopeValue;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
@@ -48,7 +49,14 @@ public class RootObject extends BaseObject {
         String name = args[0].toString();
         MethodEntity methodEntity = __class__.findMethod("__set" + name.toLowerCase());
         if (methodEntity != null){
-            ObjectInvokeHelper.invokeMethod(this, methodEntity, env, env.trace(), new Memory[]{args[1]});
+            Memory value = args[1];
+
+            if (value.instanceOf(WrapScopeValue.class)) {
+                value.toObject(WrapScopeValue.class).bind(env, this, name);
+                value = value.toObject(WrapScopeValue.class).getValue(env);
+            }
+
+            ObjectInvokeHelper.invokeMethod(this, methodEntity, env, env.trace(), new Memory[]{value});
         } else
             env.exception(env.trace(), "setting: Unknown property - " + args[0].toString());
         return Memory.NULL;

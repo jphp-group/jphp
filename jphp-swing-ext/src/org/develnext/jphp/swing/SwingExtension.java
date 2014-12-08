@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SwingExtension extends Extension {
     public final static String NAMESPACE = "php\\swing\\";
 
+    public final static Scope scope = new Scope();
+
     public final static AtomicLong componentIndex = new AtomicLong();
     public final static WeakHashMap<String, ComponentProperties> allComponents =
             new WeakHashMap<String, ComponentProperties>();
@@ -87,6 +89,8 @@ public class SwingExtension extends Extension {
         registerClass(scope, WrapSwingUtilities.class);
         registerClass(scope, RootObject.class);
         registerClass(scope, WrapSwingWorker.class);
+        registerClass(scope, WrapScopeValue.class);
+        registerWrapperClass(scope, Scope.class, WrapScope.class);
 
         registerClass(scope, WrapTimer.class);
         registerClass(scope, WrapFont.class);

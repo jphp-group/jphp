@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.loader;
 
+import org.develnext.jphp.swing.Scope;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import org.develnext.jphp.swing.SwingExtension;
@@ -29,6 +30,8 @@ public class UIReader {
 
     protected boolean useInternalForms;
 
+    protected Map<String, Scope> scopes;
+
     public UIReader() {
         builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setIgnoringComments(true);
@@ -38,6 +41,8 @@ public class UIReader {
 
         readers = SwingExtension.readers;
         tags = SwingExtension.readerTags;
+
+        scopes = new HashMap<String, Scope>();
     }
 
     public TranslateHandler getTranslateHandler() {
@@ -149,8 +154,9 @@ public class UIReader {
 
                     if (reader.isPostRead())
                         postRead.add(new Object[]{ reader, attr.getKey(), value });
-                    else
+                    else {
                         reader.read(tag.applyProperty(attr.getKey(), component), value);
+                    }
                 }
             }
             tag.afterRead(item, component, element, this);

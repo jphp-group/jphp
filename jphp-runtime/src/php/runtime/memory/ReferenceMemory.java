@@ -7,7 +7,6 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 
 public class ReferenceMemory extends Memory {
-
     public Memory value;
 
     protected ReferenceMemory(Type type, Memory value) {

@@ -25,6 +25,8 @@ import php.runtime.common.Messages;
 import org.develnext.jphp.core.common.Separator;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.ParseException;
+import php.runtime.ext.core.classes.lib.PromiseUtils;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.*;
 
@@ -37,6 +39,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         add("compact");
         add("get_defined_vars");
         add("eval");
+    }};
+    private static final Set<String> dynamicLocalClasses = new HashSet<String>(){{
+        add(ReflectionUtils.getClassName(PromiseUtils.class).toLowerCase());
     }};
 
     public SimpleExprGenerator(SyntaxAnalyzer analyzer) {

@@ -70,6 +70,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, BinUtils.class);
         registerClass(scope, NumUtils.class);
         registerClass(scope, ItemsUtils.class);
+        registerClass(scope, PromiseUtils.class);
 
         registerClass(scope, WrapSettersGetters.class);
 

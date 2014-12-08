@@ -17,10 +17,12 @@ class GradlePlugin implements Plugin<Project> {
         GradlePhpProject phpProject = new GradlePhpProject(project);
 
         def compilePhpTask = project.task("compilePhp") << {
+            phpProject.update();
             phpProject.compile();
         }
 
         def buildPhpTask = project.task("buildPhp") << {
+            phpProject.update();
             phpProject.build();
         }
 

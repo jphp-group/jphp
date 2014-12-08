@@ -20,24 +20,45 @@ class GradlePhpProject {
     final static COMPILED_JAR_NAME = "libs/jphp.compiled.jar";
 
     final Project project;
-    final PhpGradleExtension config;
+    PhpGradleExtension config;
 
-    final File buildDir;
-    final File classesBuildDir;
-    final File libsBuildDir;
-    final File resourcesBuildDir;
-    final File tmpBuildDir;
+    File buildDir;
+    File classesBuildDir;
+    File libsBuildDir;
+    File resourcesBuildDir;
+    File tmpBuildDir;
 
     List<File> includePaths;
 
-    final Set<String> extensions;
+    Set<String> extensions;
 
     final CompileScope compileScope;
-
-    final Set<String> jphpExtensions;
+    Set<String> jphpExtensions;
 
     GradlePhpProject(Project project) {
         this.project = project;
+
+        update();
+
+        compileScope = new CompileScope();
+
+        def compileConfiguration = getOrCreateConfiguration("compile");
+
+        def file = new File(project.projectDir, "/" + COMPILED_JAR_NAME);
+
+        if (!file.exists()) {
+            if (!file.parentFile.exists()) {
+                file.parentFile.mkdirs();
+            }
+
+            def zipFile = new ZipOutputStream(new FileOutputStream(file));
+            zipFile.close();
+        }
+
+        compileConfiguration.dependencies.add(project.dependencies.create(project.files(COMPILED_JAR_NAME)));
+    }
+
+    def update() {
         this.config  = project.php;
 
         includePaths    = [project.file(config.srcDir)];
@@ -54,24 +75,6 @@ class GradlePhpProject {
         config.extensions.each {
             extensions.add(it.toLowerCase());
         }
-
-        compileScope = new CompileScope();
-
-
-        def compileConfiguration = getOrCreateConfiguration("compile");
-
-        def file = new File(project.projectDir, "/" + COMPILED_JAR_NAME);
-
-        if (!file.exists()) {
-            if (!file.parentFile.exists()) {
-                file.parentFile.mkdirs();
-            }
-
-            def zipFile = new ZipOutputStream(new FileOutputStream(file));
-            zipFile.close();
-        }
-
-        compileConfiguration.dependencies.add(project.dependencies.create(project.files(COMPILED_JAR_NAME)));
     }
 
     /**
