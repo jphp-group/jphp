@@ -193,6 +193,7 @@ public class StandaloneLoader {
         if (entity != null) {
             loadModule(entity);
             scope.loadModule(entity, false);
+            scope.addUserModule(entity);
         }
 
         return entity;
