@@ -37,8 +37,6 @@ allprojects {
             into "$project.ext.distPath/sdk"
         }
     }
-
-    project.tasks.getByPath("processResources").dependsOn.add("buildSdk");
 }
 
 task wrapper(type: Wrapper) {
