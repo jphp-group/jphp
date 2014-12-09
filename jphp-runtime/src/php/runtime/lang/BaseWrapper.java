@@ -1,6 +1,7 @@
 package php.runtime.lang;
 
 import php.runtime.env.Environment;
+import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -11,7 +12,7 @@ import static php.runtime.annotation.Reflection.Ignore;
 
 @Ignore
 @BaseType
-abstract public class BaseWrapper<T> implements IObject {
+abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseWrapper> {
     protected final ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
     protected final WeakReference<Environment> __env__;
@@ -74,5 +75,35 @@ abstract public class BaseWrapper<T> implements IObject {
     @Override
     public void setAsMock() {
         __class__ = null;
+    }
+
+    @Override
+    public boolean __equal(BaseWrapper iObject) {
+        return iObject.getWrappedObject() == getWrappedObject();
+    }
+
+    @Override
+    public boolean __identical(BaseWrapper iObject) {
+        return iObject.getWrappedObject() == getWrappedObject();
+    }
+
+    @Override
+    public boolean __greater(BaseWrapper iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __greaterEq(BaseWrapper iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smaller(BaseWrapper iObject) {
+        return false;
+    }
+
+    @Override
+    public boolean __smallerEq(BaseWrapper iObject) {
+        return false;
     }
 }
