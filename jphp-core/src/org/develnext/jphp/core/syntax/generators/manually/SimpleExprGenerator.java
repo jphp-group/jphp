@@ -464,8 +464,17 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected ExprStmtToken processNewExpr(Token next, BraceExprToken.Kind closedBrace, int braceOpened,
             ListIterator<Token> iterator, boolean first) {
         List<Token> tmp = new ArrayList<Token>();
-        if (first)
+        if (first) {
+            if (next instanceof VariableExprToken) {
+                analyzer.getScope().addVariable((VariableExprToken) next);
+                if (analyzer.getFunction() != null) {
+                    analyzer.getFunction().setVarsExists(true);
+                    analyzer.getFunction().variable((VariableExprToken) next).setUsed(true);
+                }
+            }
+
             tmp.add(next);
+        }
 
         Token previous = next;
         Token token = nextToken(iterator);
