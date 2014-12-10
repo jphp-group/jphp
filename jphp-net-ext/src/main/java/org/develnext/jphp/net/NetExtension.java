@@ -23,13 +23,6 @@ public class NetExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerClass(scope, WrapHttpClient.class);
-        registerClass(scope, WrapHttpRequest.class);
-        registerClass(scope, WrapHttpResponse.class);
-        registerClass(scope, WrapHttpEntity.class);
-        registerClass(scope, WrapHttpFileEntity.class);
-        registerClass(scope, WrapHttpUrlEncodingFormEntity.class);
-
         registerClass(scope, WrapNetStream.class);
 
         registerWrapperClass(scope, Proxy.class, WrapProxy.class);
