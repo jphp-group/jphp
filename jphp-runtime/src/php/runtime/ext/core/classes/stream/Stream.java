@@ -13,9 +13,16 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static php.runtime.annotation.Reflection.*;
 
 @Name(Stream.CLASS_NAME)
@@ -24,6 +31,11 @@ import static php.runtime.annotation.Reflection.*;
         @Arg(value = "mode", modifier = Modifier.PRIVATE, readOnly = true)
 })
 abstract public class Stream extends BaseObject implements Resource {
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE})
+    public @interface UsePathWithProtocols {}
+
     @Ignore
     public final static String CLASS_NAME = "php\\io\\Stream";
 
@@ -131,6 +143,10 @@ abstract public class Stream extends BaseObject implements Resource {
 
         ClassEntity classEntity = env.fetchClass(className);
 
+        if (classEntity.getNativeClazz().getAnnotation(UsePathWithProtocols.class) != null) {
+            path = protocol + "://" + path;
+        }
+
         return new ObjectMemory(
                 classEntity.newObject(env, env.trace(), true, new StringMemory(path), args[1])
         );
@@ -169,9 +185,9 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     public static void initEnvironment(Environment env) {
-        env.setUserValue(Stream.class.getName() + "#file", "php\\io\\FileStream");
-        env.setUserValue(Stream.class.getName() + "#php", "php\\io\\MiscStream");
-        env.setUserValue(Stream.class.getName() + "#res", "php\\io\\ResourceStream");
+        registerProtocol(env, "file", FileStream.class);
+        registerProtocol(env, "php", MiscStream.class);
+        registerProtocol(env, "res", ResourceStream.class);
     }
 
     @Override
@@ -183,6 +199,10 @@ abstract public class Stream extends BaseObject implements Resource {
     public Memory __destruct(Environment env, Memory... args) throws IOException {
         close(env, args);
         return Memory.NULL;
+    }
+
+    public static void registerProtocol(Environment env, String protocol, Class<? extends Stream> clazz) {
+        env.setUserValue(Stream.class.getName() + "#" + protocol, ReflectionUtils.getClassName(clazz));
     }
 
     public static OutputStream getOutputStream(Environment env, Memory arg){

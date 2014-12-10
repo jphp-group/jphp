@@ -3,6 +3,7 @@ package php.runtime;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
@@ -177,6 +178,16 @@ abstract public class Memory implements Comparable<Memory> {
 
     public <T extends Enum> T toEnum(Class<T> clazz) {
         return (T) Enum.valueOf(clazz, toString());
+    }
+
+    public Invoker toInvoker(Environment env) {
+        Invoker invoker = Invoker.valueOf(env, null, this);
+        if (invoker != null) {
+            invoker.setTrace(env.trace());
+            return invoker;
+        }
+
+        return null;
     }
 
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {

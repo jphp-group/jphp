@@ -64,6 +64,16 @@ class URL {
     public function getFile() { }
 
     /**
+     * @return string
+     */
+    public function getPath() { }
+
+    /**
+     * @return string
+     */
+    public function getQuery() { }
+
+    /**
      * Gets the anchor (also known as the "reference") of this URL
      * @return string
      */
@@ -95,4 +105,9 @@ class URL {
      * @return Stream
      */
     public function openStream() { }
+
+    /**
+     * @return string
+     */
+    public function __toString() { return $this->getRef(); }
 }

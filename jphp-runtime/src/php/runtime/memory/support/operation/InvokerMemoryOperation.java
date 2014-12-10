@@ -17,7 +17,7 @@ public class InvokerMemoryOperation extends MemoryOperation<Invoker> {
 
     @Override
     public Invoker convert(Environment env, TraceInfo trace, Memory arg) {
-        return arg.isNull() ? null : Invoker.valueOf(env, trace, arg);
+        return arg.toInvoker(env);
     }
 
     @Override

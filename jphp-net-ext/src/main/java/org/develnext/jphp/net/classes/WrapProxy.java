@@ -1,6 +1,6 @@
-package org.develnext.jphp.http.classes;
+package org.develnext.jphp.net.classes;
 
-import org.develnext.jphp.http.NetExtension;
+import org.develnext.jphp.net.NetExtension;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;

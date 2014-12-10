@@ -1,6 +1,8 @@
 package php.runtime.memory;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.invoke.Invoker;
 
 public class FalseMemory extends Memory {
 
@@ -233,5 +235,10 @@ public class FalseMemory extends Memory {
     @Override
     public boolean identical(String value) {
         return false;
+    }
+
+    @Override
+    public Invoker toInvoker(Environment env) {
+        return null;
     }
 }

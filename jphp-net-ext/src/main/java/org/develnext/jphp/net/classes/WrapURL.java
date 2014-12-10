@@ -1,6 +1,6 @@
-package org.develnext.jphp.http.classes;
+package org.develnext.jphp.net.classes;
 
-import org.develnext.jphp.http.NetExtension;
+import org.develnext.jphp.net.NetExtension;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.WrapInterface;
@@ -25,5 +25,10 @@ public class WrapURL extends BaseWrapper<URL> {
     @Signature
     public void __construct(String url) throws MalformedURLException {
         __wrappedObject = new URL(url);
+    }
+
+    @Signature
+    public String __toString() {
+        return getWrappedObject().getRef();
     }
 }

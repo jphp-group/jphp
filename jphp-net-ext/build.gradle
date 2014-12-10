@@ -1,9 +1,7 @@
 ext.isExtension = true;
 
 dependencies {
-    compile project(':jphp-core')
-    compile 'org.apache.httpcomponents:httpclient:4.3.4'
-
+    compile project(':jphp-runtime')
     testCompile 'junit:junit:4.+'
 }
 
