@@ -1,9 +1,6 @@
 package org.develnext.jphp.net;
 
 import org.develnext.jphp.net.classes.*;
-import org.develnext.jphp.net.classes.entity.WrapHttpEntity;
-import org.develnext.jphp.net.classes.entity.WrapHttpFileEntity;
-import org.develnext.jphp.net.classes.entity.WrapHttpUrlEncodingFormEntity;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.Stream;
