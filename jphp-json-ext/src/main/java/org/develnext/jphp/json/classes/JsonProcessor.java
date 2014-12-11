@@ -2,17 +2,21 @@ package org.develnext.jphp.json.classes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
 import org.develnext.jphp.json.gson.MemoryDeserializer;
 import org.develnext.jphp.json.gson.MemorySerializer;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.format.WrapProcessor;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 import php.runtime.reflection.ClassEntity;
 
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +33,7 @@ public class JsonProcessor extends WrapProcessor {
     protected MemorySerializer memorySerializer;
     protected MemoryDeserializer memoryDeserializer;
 
-    protected final static List<Class<? extends Memory>> memClasses = new ArrayList<Class<? extends Memory>>(){{
+    protected final static List<Class<? extends Memory>> memClasses = new ArrayList<Class<? extends Memory>>() {{
         add(Memory.class);
         add(NullMemory.class);
         add(UndefinedMemory.class);
@@ -90,18 +94,33 @@ public class JsonProcessor extends WrapProcessor {
         return Memory.NULL;
     }
 
-    @Signature(@Arg("jsonString"))
+    @Override
+    @Signature
     public Memory parse(Environment env, Memory... args) {
-        Memory r = gson.fromJson(args[0].toString(), Memory.class);
+        Memory r;
+        if (args[0].instanceOf(Stream.class)) {
+            r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0])), Memory.class);
+        } else {
+            r = gson.fromJson(args[0].toString(), Memory.class);
+        }
+
         if (r == null)
             return Memory.NULL;
 
         return r;
     }
 
-    @Signature(@Arg("value"))
+    @Override
+    @Signature
     public Memory format(Environment env, Memory... args) {
         return StringMemory.valueOf(gson.toJson(args[0]));
+    }
+
+    @Override
+    @Signature
+    public Memory formatTo(Environment env, Memory... args) {
+        gson.toJson(args[0], Memory.class, new JsonWriter(new OutputStreamWriter(Stream.getOutputStream(env, args[1]))));
+        return Memory.NULL;
     }
 
     @Signature({

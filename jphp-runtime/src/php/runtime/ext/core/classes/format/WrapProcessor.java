@@ -2,6 +2,7 @@ package php.runtime.ext.core.classes.format;
 
 import php.runtime.Memory;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.reflection.ClassEntity;
 
@@ -22,4 +23,7 @@ abstract public class WrapProcessor extends BaseObject {
 
     @Signature(@Arg("string"))
     abstract public Memory format(Environment env, Memory... args);
+
+    @Signature({@Arg("string"), @Arg(value = "output", nativeType = Stream.class)})
+    abstract public Memory formatTo(Environment env, Memory... args);
 }

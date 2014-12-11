@@ -1,5 +1,6 @@
 <?php
 namespace php\format;
+use php\io\Stream;
 
 /**
  * Class JsonProcessor
@@ -16,16 +17,22 @@ class JsonProcessor extends Processor {
     public function __construct($flags = 0) { }
 
     /**
-     * @param string $jsonString
+     * @param string|Stream $json
      * @return mixed
      */
-    public function parse($jsonString) { return []; }
+    public function parse($json) { return []; }
 
     /**
      * @param mixed $value
      * @return string
      */
     public function format($value) { return ''; }
+
+    /**
+     * @param mixed $value
+     * @param Stream $output
+     */
+    public function formatTo($value, Stream $output) { }
 
     /**
      * @param string $nameOfType - null, int, float, string, bool, object, array
