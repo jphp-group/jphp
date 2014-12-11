@@ -676,6 +676,27 @@ abstract public class UIElement extends RootObject {
         return Memory.NULL;
     }
 
+    @Signature
+    protected Memory __getOwner(Environment env, Memory... args) {
+        Container owner = getComponent().getParent();
+
+        while (true) {
+            for (Component component : owner.getComponents()) {
+                if (component == this.getComponent()) {
+                    return new ObjectMemory(UIElement.of(env, component));
+                }
+            }
+
+            owner = owner.getParent();
+
+            if (owner == null) {
+                break;
+            }
+        }
+
+        return Memory.NULL;
+    }
+
     @Signature({
             @Arg("keyString"),
             @Arg("actionName")

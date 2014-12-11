@@ -158,6 +158,11 @@ abstract class UIElement {
     public $padding;
 
     /**
+     * @var UIContainer
+     */
+    public $owner;
+
+    /**
      *
      */
     public function __construct() { }
