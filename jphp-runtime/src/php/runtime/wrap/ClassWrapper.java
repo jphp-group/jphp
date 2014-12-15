@@ -188,6 +188,11 @@ public class ClassWrapper {
             entity.setFinal(true);
         }
 
+        if (method.isAnnotationPresent(Reflection.Abstract.class)) {
+            entity.setAbstract(true);
+            entity.setAbstractable(true);
+        }
+
         entity.setInternalName(method.getName());
 
         Reflection.Name name = method.getAnnotation(Reflection.Name.class);
@@ -352,6 +357,10 @@ public class ClassWrapper {
 
         if (nativeClass.isAnnotationPresent(Reflection.Final.class)) {
             classEntity.setFinal(true);
+        }
+
+        if (nativeClass.isAnnotationPresent(Reflection.Abstract.class)) {
+            classEntity.setAbstract(true);
         }
 
         this.onWrapName(classEntity);

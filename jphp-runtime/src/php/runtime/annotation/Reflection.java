@@ -37,6 +37,10 @@ public @interface Reflection {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD})
+    public @interface Abstract {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE, METHOD})
     public @interface Name {
         String value();
     }
