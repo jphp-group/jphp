@@ -1,24 +1,16 @@
 <?php
 
-use php\swing\Scope;
-use php\swing\ScopeValue;
-use php\swing\UIForm;
+use php\lib\mirror;
+use php\lib\str;
 
-/**
- * Class FormScope
- * @property $title
- * @property FormScope $sub
- */
-class FormScope extends Scope {
+$t = microtime(1);
+$std = 'stdClass';
 
+for ($i = 0; $i < 10000000; $i++) {
+    $obj = new
+    $obj = mirror::newInstance('stdClass');
+    //$class = mirror::typeOf($std, true);
+    //$class = str::lower(get_class($std));
 }
 
-$scope = new FormScope();
-
-$form = new UIForm();
-$form->title = $scope->sub->title;
-$form->size = [500, 500];
-
-$form->visible = true;
-
-$scope->sub->title = 'Ура!!!!';
+var_dump(microtime(1) - $t);

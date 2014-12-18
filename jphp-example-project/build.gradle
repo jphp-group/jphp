@@ -21,6 +21,7 @@ dependencies {
     compile project(':jphp-core')
     compile project(':jphp-swing-ext')
     compile project(':jphp-zend-ext')
+    compile project(':jphp-net-ext')
 }
 
 

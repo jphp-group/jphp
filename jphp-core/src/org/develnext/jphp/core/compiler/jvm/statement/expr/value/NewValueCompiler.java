@@ -4,6 +4,7 @@ import org.develnext.jphp.core.compiler.jvm.statement.ExpressionStmtCompiler;
 import org.develnext.jphp.core.compiler.jvm.statement.expr.BaseExprCompiler;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NewExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.SelfExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StaticExprToken;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
@@ -34,12 +35,18 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
             if (token.getName() instanceof StaticExprToken){
                 expr.writePushStatic();
                 expr.writePushDupLowerCase();
+            } else if (token.getName() instanceof SelfExprToken) {
+                expr.writePushEnv();
+                expr.writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+                expr.writePopString();
+                expr.writePushDupLowerCase();
             } else {
                 FulledNameToken name = (FulledNameToken) token.getName();
                 expr.writePushString(name.getName());
                 expr.writePushString(name.getName().toLowerCase());
             }
         }
+
         expr.writePushTraceInfo(token);
         expr.writePushParameters(token.getParameters());
         expr.writeSysDynamicCall(
