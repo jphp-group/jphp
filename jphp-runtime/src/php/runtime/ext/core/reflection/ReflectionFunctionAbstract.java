@@ -22,6 +22,10 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
         super(env, clazz);
     }
 
+    public ReflectionFunctionAbstract(Environment env) {
+        super(env);
+    }
+
     protected IObject getInstance() { return null; }
     abstract protected AbstractFunctionEntity getEntity();
     protected ClosureEntity getClosureEntity() { return null; }

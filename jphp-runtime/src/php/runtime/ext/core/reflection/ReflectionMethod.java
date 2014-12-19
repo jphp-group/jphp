@@ -1,7 +1,6 @@
 package php.runtime.ext.core.reflection;
 
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
@@ -15,9 +14,7 @@ import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
 
-import static php.runtime.annotation.Reflection.Arg;
-import static php.runtime.annotation.Reflection.Name;
-import static php.runtime.annotation.Reflection.Signature;
+import static php.runtime.annotation.Reflection.*;
 
 @Name("ReflectionMethod")
 @Signature({
@@ -35,6 +32,11 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
     protected MethodEntity methodEntity;
     protected ArrayMemory cachedParameters;
     protected boolean hackAccess = false;
+
+    public ReflectionMethod(Environment env, MethodEntity methodEntity) {
+        super(env);
+        this.methodEntity = methodEntity;
+    }
 
     public ReflectionMethod(Environment env, ClassEntity clazz) {
         super(env, clazz);
