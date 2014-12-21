@@ -15,6 +15,22 @@ abstract class Stream {
     private $mode;
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMode()
+    {
+        return $this->mode;
+    }
+
+    /**
      * @param int $length - count of bytes
      * @throws IOException
      * @return mixed

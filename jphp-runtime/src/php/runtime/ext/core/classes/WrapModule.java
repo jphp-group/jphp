@@ -5,7 +5,6 @@ import php.runtime.common.AbstractCompiler;
 import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
-import php.runtime.exceptions.CustomErrorException;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
@@ -75,6 +74,11 @@ public class WrapModule extends BaseObject {
         env.registerModule(module);
 
         registered = true;
+    }
+
+    @Signature
+    public String getName() {
+        return module.getName();
     }
 
     @Signature(@Arg(value = "variables", type = HintType.ARRAY, optional = @Optional("NULL")))

@@ -19,6 +19,11 @@ class Module {
     public function __construct($source, $compiled = false, $debugInformation = true) { }
 
     /**
+     * @return string
+     */
+    public function getName() {}
+
+    /**
      * Include module and return result
      * @param array $variables
      * @return mixed

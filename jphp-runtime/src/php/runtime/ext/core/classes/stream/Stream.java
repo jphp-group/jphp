@@ -70,6 +70,7 @@ abstract public class Stream extends BaseObject implements Resource {
         return context;
     }
 
+    @Signature
     public String getPath() {
         return path;
     }
@@ -79,6 +80,7 @@ abstract public class Stream extends BaseObject implements Resource {
         this.path = path;
     }
 
+    @Signature
     public String getMode() {
         return mode;
     }
