@@ -245,7 +245,9 @@ public class Launcher {
                 } catch (Exception e){
                     environment.catchUncaught(e);
                 } finally {
-                    environment.doFinal();
+                    if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
+                        environment.doFinal();
+                    }
                 }
 
             } catch (IOException e) {
