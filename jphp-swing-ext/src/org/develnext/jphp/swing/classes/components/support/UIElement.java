@@ -51,21 +51,24 @@ abstract public class UIElement extends RootObject {
     public JComponent getJComponent() {
         Component component = getComponent();
         if (component instanceof JComponent)
-            return (JComponent)component;
+            return (JComponent) component;
 
         throw new IllegalArgumentException("Unsupported operation");
     }
 
-    public Component getContentComponent() { return getComponent(); }
+    public Component getContentComponent() {
+        return getComponent();
+    }
 
     abstract public void setComponent(Component component);
+
     abstract protected void onInit(Environment env, Memory... args);
 
     protected void onAfterInit(Environment env, Memory... args) {
         SwingExtension.registerComponent(getComponent());
     }
 
-    protected EventContainer getEventContainer(){
+    protected EventContainer getEventContainer() {
         if (cacheEventContainer != null)
             return cacheEventContainer;
 
@@ -74,7 +77,7 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
-    public Memory __construct(Environment env, Memory... args){
+    public Memory __construct(Environment env, Memory... args) {
         onInit(env, args);
         onAfterInit(env, args);
         return Memory.NULL;
@@ -101,7 +104,7 @@ abstract public class UIElement extends RootObject {
     @Signature({@Arg("name"), @Arg("callback"), @Arg(value = "group", optional = @Optional("general"))})
     public Memory on(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(env, null, args[1]);
-        if (invoker == null){
+        if (invoker == null) {
             env.exception(env.trace(), "Argument 2 must be callable");
             return Memory.NULL;
         }
@@ -125,8 +128,8 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature({@Arg("name"), @Arg(value = "group", optional = @Optional("NULL"))})
-    public Memory off(Environment env, Memory... args){
-        if (args[1].isNull()){
+    public Memory off(Environment env, Memory... args) {
+        if (args[1].isNull()) {
             return getEventContainer().clearEvent(args[0].toString()) == null ? Memory.FALSE : Memory.TRUE;
         } else {
             return getEventContainer().clearEvent(args[0].toString(), args[1].toString()) == null
@@ -137,7 +140,7 @@ abstract public class UIElement extends RootObject {
     @Signature({@Arg("name")})
     public Memory trigger(Environment env, Memory... args) throws Throwable {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
-        if (args.length == 1){
+        if (args.length == 1) {
             properties.triggerEvent(args[0].toString().toLowerCase());
         } else {
             Memory[] passed = new Memory[args.length - 1];
@@ -160,20 +163,20 @@ abstract public class UIElement extends RootObject {
 
 
     @Signature(@Arg("value"))
-    protected Memory __setAutosize(Environment env, Memory... args){
+    protected Memory __setAutosize(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         properties.setAutoSize(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getAutosize(Environment env, Memory... args){
+    protected Memory __getAutosize(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         return properties.isAutoSize() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    protected Memory __getAlign(Environment env, Memory... args){
+    protected Memory __getAlign(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
 
         if (properties != null)
@@ -183,33 +186,33 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setAlign(Environment env, Memory... args){
+    protected Memory __setAlign(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         properties.setAlign(Align.valueOf(args[0].toString().toUpperCase()));
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getAnchors(Environment env, Memory... args){
+    protected Memory __getAnchors(Environment env, Memory... args) {
         ArrayMemory result = new ArrayMemory();
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
 
         if (properties != null)
-        for(Anchor anchor : properties.anchors){
-            result.add(new StringMemory(anchor.name()));
-        }
+            for (Anchor anchor : properties.anchors) {
+                result.add(new StringMemory(anchor.name()));
+            }
 
         return result.toConstant();
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setAnchors(Environment env, Memory... args){
+    protected Memory __setAnchors(Environment env, Memory... args) {
         ComponentProperties data = SwingExtension.getProperties(getComponent());
         data.anchors.clear();
 
-        if (args[0].isArray()){
+        if (args[0].isArray()) {
             ForeachIterator iterator = args[0].getNewIterator(env, false, false);
-            while (iterator.next()){
+            while (iterator.next()) {
                 Anchor anchor = Anchor.valueOf(iterator.getValue().toString().toUpperCase());
                 if (anchor == null)
                     env.exception(env.trace(), "Invalid anchor value - " + iterator.getValue());
@@ -221,7 +224,7 @@ abstract public class UIElement extends RootObject {
                 env.exception(env.trace(), "Invalid anchor value - " + args[0]);
         }
 
-        if (getComponent().getParent() != null){
+        if (getComponent().getParent() != null) {
             LayoutManager layout = getComponent().getParent().getLayout();
             if (!(layout instanceof XYLayout))
                 env.exception(env.trace(), "Layout must be an instance of XYLayout");
@@ -269,44 +272,44 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
-    protected Memory __getSize(Environment env, Memory... args){
+    protected Memory __getSize(Environment env, Memory... args) {
         return new ArrayMemory(getComponent().getWidth(), getComponent().getHeight());
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
-    protected Memory __setSize(Environment env, Memory... args){
+    protected Memory __setSize(Environment env, Memory... args) {
         Memory[] size = args[0].toValue(ArrayMemory.class).values(false);
-        if (size.length >= 2){
+        if (size.length >= 2) {
             getComponent().setSize(size[0].toInteger(), size[1].toInteger());
         }
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getPreferredSize(Environment env, Memory... args){
+    protected Memory __getPreferredSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getPreferredSize();
-        return new ArrayMemory((int)dimension.getWidth(), (int)dimension.getHeight());
+        return new ArrayMemory((int) dimension.getWidth(), (int) dimension.getHeight());
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
-    protected Memory __setPreferredSize(Environment env, Memory... args){
+    protected Memory __setPreferredSize(Environment env, Memory... args) {
         Memory[] size = args[0].toValue(ArrayMemory.class).values(false);
-        if (size.length >= 2){
+        if (size.length >= 2) {
             getComponent().setPreferredSize(new Dimension(size[0].toInteger(), size[1].toInteger()));
         }
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getMinSize(Environment env, Memory... args){
+    protected Memory __getMinSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getMinimumSize();
         return new ArrayMemory(dimension.getWidth(), dimension.getHeight());
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
-    protected Memory __setMinSize(Environment env, Memory... args){
+    protected Memory __setMinSize(Environment env, Memory... args) {
         Memory[] size = args[0].toValue(ArrayMemory.class).values(false);
-        if (size.length >= 2){
+        if (size.length >= 2) {
             getComponent().setMinimumSize(new Dimension(
                     size[0].toInteger(), size[1].toInteger()
             ));
@@ -315,12 +318,32 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
-    protected Memory __getPosition(Environment env, Memory... args){
-        return new ArrayMemory(getComponent().getX(), getComponent().getY());
+    protected Memory __getPosition(Environment env, Memory... args) {
+        return ArrayMemory.of(getComponent().getX(), getComponent().getY());
+    }
+
+    @Signature
+    protected Memory __getScreenPosition(Environment env, Memory... args) {
+        Point pt = getComponent().getLocationOnScreen();
+        return ArrayMemory.of(pt.x, pt.y);
     }
 
     @Signature({@Arg(value = "position", type = HintType.ARRAY)})
-    public Memory __setPosition(Environment env, Memory... args){
+    protected Memory __setScreenPosition(Environment env, Memory... args) {
+        Memory[] size = args[0].toValue(ArrayMemory.class).values(false);
+        if (size.length >= 2) {
+            Point pt = new Point(size[0].toInteger(), size[1].toInteger());
+
+            SwingUtilities.convertPointFromScreen(pt, getComponent());
+
+            getComponent().setLocation(pt.x, pt.y);
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature({@Arg(value = "position", type = HintType.ARRAY)})
+    public Memory __setPosition(Environment env, Memory... args) {
         Memory[] size = args[0].toValue(ArrayMemory.class).values(false);
         if (size.length >= 2)
             getComponent().setLocation(size[0].toInteger(), size[1].toInteger());
@@ -328,148 +351,148 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
-    protected Memory __getW(Environment env, Memory... args){
+    protected Memory __getW(Environment env, Memory... args) {
         return new LongMemory(getComponent().getWidth());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setW(Environment env, Memory... args){
+    protected Memory __setW(Environment env, Memory... args) {
         getComponent().setSize(args[0].toInteger(), getComponent().getHeight());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getH(Environment env, Memory... args){
+    protected Memory __getH(Environment env, Memory... args) {
         return new LongMemory(getComponent().getHeight());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setH(Environment env, Memory... args){
+    protected Memory __setH(Environment env, Memory... args) {
         getComponent().setSize(getComponent().getWidth(), args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getX(Environment env, Memory... args){
-        return new LongMemory(getComponent().getX());
+    protected Memory __getX(Environment env, Memory... args) {
+        return LongMemory.valueOf(getComponent().getX());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setX(Environment env, Memory... args){
+    protected Memory __setX(Environment env, Memory... args) {
         getComponent().setLocation(args[0].toInteger(), getComponent().getY());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getY(Environment env, Memory... args){
-        return new LongMemory(getComponent().getY());
+    protected Memory __getY(Environment env, Memory... args) {
+        return LongMemory.valueOf(getComponent().getY());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setY(Environment env, Memory... args){
+    protected Memory __setY(Environment env, Memory... args) {
         getComponent().setLocation(getComponent().getX(), args[0].toInteger());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getVisible(Environment env, Memory... args){
+    protected Memory __getVisible(Environment env, Memory... args) {
         return getComponent().isVisible() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setVisible(Environment env, Memory... args){
+    protected Memory __setVisible(Environment env, Memory... args) {
         getComponent().setVisible(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getEnabled(Environment env, Memory... args){
+    protected Memory __getEnabled(Environment env, Memory... args) {
         return getComponent().isEnabled() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setEnabled(Environment env, Memory... args){
+    protected Memory __setEnabled(Environment env, Memory... args) {
         getComponent().setEnabled(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getFocusable(Environment env, Memory... args){
+    protected Memory __getFocusable(Environment env, Memory... args) {
         return getComponent().isFocusable() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setFocusable(Environment env, Memory... args){
+    protected Memory __setFocusable(Environment env, Memory... args) {
         getComponent().setFocusable(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getUid(Environment env, Memory... args){
+    protected Memory __getUid(Environment env, Memory... args) {
         return StringMemory.valueOf(getComponent().getName());
     }
 
     @Signature
-    protected Memory __getGroup(Environment env, Memory... args){
+    protected Memory __getGroup(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         return new StringMemory(properties.getOriginGroups());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setGroup(Environment env, Memory... args){
+    protected Memory __setGroup(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         properties.setGroups(args[0].toString());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getFont(Environment env, Memory... args){
+    protected Memory __getFont(Environment env, Memory... args) {
         return new ObjectMemory(new WrapFont(env, getComponent().getFont()));
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setFont(Environment env, Memory... args){
+    protected Memory __setFont(Environment env, Memory... args) {
         getComponent().setFont(WrapFont.of(args[0]));
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getBorder(Environment env, Memory... args){
+    protected Memory __getBorder(Environment env, Memory... args) {
         if (getJComponent().getBorder() == null)
             return Memory.NULL;
         return new ObjectMemory(new WrapBorder(env, getJComponent().getBorder()));
     }
 
     @Signature(@Arg(value = "border", typeClass = SwingExtension.NAMESPACE + "Border", optional = @Optional("NULL")))
-    protected Memory __setBorder(Environment env, Memory... args){
+    protected Memory __setBorder(Environment env, Memory... args) {
         getJComponent().setBorder(args[0].isNull() ? null : args[0].toObject(WrapBorder.class).getBorder());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getBackground(Environment env, Memory... args){
+    protected Memory __getBackground(Environment env, Memory... args) {
         return new ObjectMemory(new WrapColor(env, getContentComponent().getBackground()));
     }
 
     @Signature(@Arg("color"))
-    protected Memory __setBackground(Environment env, Memory... args){
+    protected Memory __setBackground(Environment env, Memory... args) {
         getContentComponent().setBackground(WrapColor.of(args[0]));
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getForeground(Environment env, Memory... args){
+    protected Memory __getForeground(Environment env, Memory... args) {
         return new ObjectMemory(new WrapColor(env, getContentComponent().getForeground()));
     }
 
     @Signature(@Arg("color"))
-    protected Memory __setForeground(Environment env, Memory... args){
+    protected Memory __setForeground(Environment env, Memory... args) {
         getContentComponent().setForeground(WrapColor.of(args[0]));
         return Memory.NULL;
     }
 
     @Signature
-    public Memory getGraphics(Environment env, Memory... args){
+    public Memory getGraphics(Environment env, Memory... args) {
         Graphics graphics = getContentComponent().getGraphics();
         if (graphics == null)
             return Memory.NULL;
@@ -478,132 +501,132 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
-    public Memory updateUI(Environment env, Memory... args){
+    public Memory updateUI(Environment env, Memory... args) {
         getJComponent().updateUI();
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getTooltipText(Environment env, Memory... args){
+    protected Memory __getTooltipText(Environment env, Memory... args) {
         return new StringMemory(getJComponent().getToolTipText());
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setTooltipText(Environment env, Memory... args){
+    protected Memory __setTooltipText(Environment env, Memory... args) {
         getJComponent().setToolTipText(args[0].toString());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getDoubleBuffered(Environment env, Memory... args){
+    protected Memory __getDoubleBuffered(Environment env, Memory... args) {
         return getJComponent().isDoubleBuffered() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setDoubleBuffered(Environment env, Memory... args){
+    protected Memory __setDoubleBuffered(Environment env, Memory... args) {
         getJComponent().setDoubleBuffered(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getOpaque(Environment env, Memory... args){
+    protected Memory __getOpaque(Environment env, Memory... args) {
         return getJComponent().isOpaque() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setOpaque(Environment env, Memory... args){
+    protected Memory __setOpaque(Environment env, Memory... args) {
         getJComponent().setOpaque(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getAutoscrolls(Environment env, Memory... args){
+    protected Memory __getAutoscrolls(Environment env, Memory... args) {
         return getJComponent().getAutoscrolls() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setAutoscrolls(Environment env, Memory... args){
+    protected Memory __setAutoscrolls(Environment env, Memory... args) {
         getJComponent().setAutoscrolls(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getIgnoreRepaint(Environment env, Memory... args){
+    protected Memory __getIgnoreRepaint(Environment env, Memory... args) {
         return getComponent().getIgnoreRepaint() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature(@Arg("value"))
-    protected Memory __setIgnoreRepaint(Environment env, Memory... args){
+    protected Memory __setIgnoreRepaint(Environment env, Memory... args) {
         getComponent().setIgnoreRepaint(args[0].toBoolean());
         return Memory.NULL;
     }
 
     @Signature
-    protected Memory __getUIClassId(Environment env, Memory... args){
+    protected Memory __getUIClassId(Environment env, Memory... args) {
         return new StringMemory(getJComponent().getUIClassID());
     }
 
     @Signature
-    public Memory invalidate(Environment env, Memory... args){
+    public Memory invalidate(Environment env, Memory... args) {
         getComponent().invalidate();
         return Memory.NULL;
     }
 
     @Signature(@Arg(value = "canvas", typeClass = SwingExtension.NAMESPACE + "Graphics"))
-    public Memory printOne(Environment env, Memory... args){
+    public Memory printOne(Environment env, Memory... args) {
         getComponent().print(args[0].toObject(WrapGraphics.class).getGraphics());
         return Memory.NULL;
     }
 
     @Signature(@Arg(value = "canvas", typeClass = SwingExtension.NAMESPACE + "Graphics"))
-    public Memory printAll(Environment env, Memory... args){
+    public Memory printAll(Environment env, Memory... args) {
         getComponent().printAll(args[0].toObject(WrapGraphics.class).getGraphics());
         return Memory.NULL;
     }
 
     @Signature(@Arg(value = "canvas", typeClass = SwingExtension.NAMESPACE + "Graphics"))
-    public Memory paintOne(Environment env, Memory... args){
+    public Memory paintOne(Environment env, Memory... args) {
         getComponent().paint(args[0].toObject(WrapGraphics.class).getGraphics());
         return Memory.NULL;
     }
 
     @Signature(@Arg(value = "canvas", typeClass = SwingExtension.NAMESPACE + "Graphics"))
-    public Memory paintAll(Environment env, Memory... args){
+    public Memory paintAll(Environment env, Memory... args) {
         getComponent().paintAll(args[0].toObject(WrapGraphics.class).getGraphics());
         return Memory.NULL;
     }
 
     @Signature
-    public Memory hasFocus(Environment env, Memory... args){
+    public Memory hasFocus(Environment env, Memory... args) {
         return getComponent().hasFocus() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature
-    public Memory repaint(Environment env, Memory... args){
+    public Memory repaint(Environment env, Memory... args) {
         getComponent().repaint();
         return Memory.NULL;
     }
 
     @Signature({@Arg("x"), @Arg("y"), @Arg("w"), @Arg("h")})
-    public Memory repaintRegion(Environment env, Memory... args){
+    public Memory repaintRegion(Environment env, Memory... args) {
         getComponent().repaint(args[0].toInteger(), args[1].toInteger(), args[2].toInteger(), args[3].toInteger());
         return Memory.NULL;
     }
 
     @Signature
-    public Memory grabFocus(Environment env, Memory... args){
+    public Memory grabFocus(Environment env, Memory... args) {
         getJComponent().grabFocus();
         return Memory.NULL;
     }
 
     @Signature
-    public Memory revalidate(Environment env, Memory... args){
+    public Memory revalidate(Environment env, Memory... args) {
         getJComponent().revalidate();
         return Memory.NULL;
     }
 
     @Signature(@Arg("uid"))
-    public static Memory getByUid(Environment env, Memory... args){
+    public static Memory getByUid(Environment env, Memory... args) {
         ComponentProperties properties = SwingExtension.getProperties(args[0].toString());
         if (properties == null || !properties.isValid())
             return Memory.NULL;
@@ -611,8 +634,8 @@ abstract public class UIElement extends RootObject {
         return new ObjectMemory(UIElement.of(env, properties.getComponent()));
     }
 
-    protected static UIElement unwrap(Memory arg){
-        return ((UIElement)arg.toValue(ObjectMemory.class).value);
+    protected static UIElement unwrap(Memory arg) {
+        return ((UIElement) arg.toValue(ObjectMemory.class).value);
     }
 
     @Signature({@Arg("x"), @Arg("y")})
@@ -710,12 +733,22 @@ abstract public class UIElement extends RootObject {
         return Memory.NULL;
     }
 
+    @Signature(@Arg("str"))
+    public Memory getTextWidth(Environment env, Memory... args){
+        return LongMemory.valueOf(getComponent().getFontMetrics(getComponent().getFont()).stringWidth(args[0].toString()));
+    }
+
+    @Signature
+    public Memory getTextHeight(Environment env, Memory... args){
+        return LongMemory.valueOf(getComponent().getFontMetrics(getComponent().getFont()).getHeight());
+    }
+
     @Signature
     protected Memory __getCursor(Environment env, Memory... args) {
         return StringMemory.valueOf(getComponent().getCursor().getName());
     }
 
-    public static UIElement of(Environment env, Component component){
+    public static UIElement of(Environment env, Component component) {
         Class<?> clazz = component.getClass();
         Class<? extends UIElement> uiClass = SwingExtension.swingClasses.get(clazz);
         if (uiClass == null)
@@ -726,7 +759,7 @@ abstract public class UIElement extends RootObject {
                     .newInstance(env, env.fetchClass(uiClass));
             el.setComponent(component);
             return el;
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);

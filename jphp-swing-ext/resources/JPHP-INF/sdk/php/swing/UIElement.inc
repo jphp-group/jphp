@@ -66,6 +66,12 @@ abstract class UIElement {
     public $position;
 
     /**
+     * Screen Position (x and y), [int, int]
+     * @var array
+     */
+    public $screenPosition;
+
+    /**
      * @var bool
      */
     public $visible;
@@ -312,6 +318,19 @@ abstract class UIElement {
      * Component's top-level ancestor become the focused Window.
      */
     public function grabFocus() { }
+
+    /**
+     * Return width of str for drawText + current font
+     * @param $str
+     * @return int
+     */
+    public function getTextWidth($str) { }
+
+    /**
+     * Return height of one line text with current font
+     * @return int
+     */
+    public function getTextHeight() { }
 
     /**
      * Get component by unique id
