@@ -44,6 +44,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         this(false);
     }
 
+    @Deprecated
     public ArrayMemory(Collection collection){
         this();
         for(Object el : collection) {
@@ -60,6 +61,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
+    @Deprecated
     public ArrayMemory(Object... array){
         this();
         for(Object el : array) {
@@ -78,6 +80,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         lastLongIndex = size - 1;
     }
 
+    @Deprecated
     public ArrayMemory(boolean toImmutable, Memory... array){
         this();
         if (array != null){
@@ -90,6 +93,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
+    @Deprecated
     public ArrayMemory(String[] array){
         this();
         for(String el : array) {
@@ -99,6 +103,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         lastLongIndex = size - 1;
     }
 
+    @Deprecated
     public ArrayMemory(Map map){
         this();
         for(Object key : map.keySet()){

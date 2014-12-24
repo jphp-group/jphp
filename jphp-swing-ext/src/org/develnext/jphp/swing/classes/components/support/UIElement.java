@@ -91,8 +91,8 @@ abstract public class UIElement extends RootObject {
         ArrayMemory result = new ArrayMemory();
         result.refOfIndex("uid").assign(getComponent().getName());
 
-        result.refOfIndex("position").assign(new ArrayMemory(getComponent().getX(), getComponent().getY()));
-        result.refOfIndex("size").assign(new ArrayMemory(getComponent().getWidth(), getComponent().getHeight()));
+        result.refOfIndex("position").assign(ArrayMemory.of(getComponent().getX(), getComponent().getY()));
+        result.refOfIndex("size").assign(ArrayMemory.of(getComponent().getWidth(), getComponent().getHeight()));
 
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         if (properties.getOriginGroups() != null)
@@ -268,12 +268,12 @@ abstract public class UIElement extends RootObject {
         if (properties == null)
             return Memory.NULL;
 
-        return new ArrayMemory(properties.getPadding()).toConstant();
+        return ArrayMemory.of(properties.getPadding()).toConstant();
     }
 
     @Signature
     protected Memory __getSize(Environment env, Memory... args) {
-        return new ArrayMemory(getComponent().getWidth(), getComponent().getHeight());
+        return ArrayMemory.of(getComponent().getWidth(), getComponent().getHeight()).toConstant();
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -288,7 +288,7 @@ abstract public class UIElement extends RootObject {
     @Signature
     protected Memory __getPreferredSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getPreferredSize();
-        return new ArrayMemory((int) dimension.getWidth(), (int) dimension.getHeight());
+        return ArrayMemory.of((int) dimension.getWidth(), (int) dimension.getHeight()).toConstant();
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -303,7 +303,7 @@ abstract public class UIElement extends RootObject {
     @Signature
     protected Memory __getMinSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getMinimumSize();
-        return new ArrayMemory(dimension.getWidth(), dimension.getHeight());
+        return ArrayMemory.of(dimension.getWidth(), dimension.getHeight());
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -319,13 +319,54 @@ abstract public class UIElement extends RootObject {
 
     @Signature
     protected Memory __getPosition(Environment env, Memory... args) {
-        return ArrayMemory.of(getComponent().getX(), getComponent().getY());
+        return ArrayMemory.of(getComponent().getX(), getComponent().getY()).toConstant();
     }
 
     @Signature
     protected Memory __getScreenPosition(Environment env, Memory... args) {
         Point pt = getComponent().getLocationOnScreen();
-        return ArrayMemory.of(pt.x, pt.y);
+        return ArrayMemory.of(pt.x, pt.y).toConstant();
+    }
+
+    @Signature
+    protected Memory __getParent(Environment env, Memory... args) {
+        if (getComponent().getParent() != null) {
+            return ObjectMemory.valueOf(UIElement.of(env, getComponent().getParent()));
+        }
+
+        return null;
+    }
+
+    @Signature
+    protected Memory __getFirstParent(Environment env, Memory... args) {
+        Container parent = getComponent().getParent();
+
+        while (parent != null) {
+            if (parent.getParent() == null) break;
+
+            parent = parent.getParent();
+        }
+
+        return parent == null ? Memory.NULL : ObjectMemory.valueOf(UIElement.of(env, parent));
+    }
+
+    @Signature
+    protected Memory __getAbsolutePosition(Environment env, Memory... args) {
+        int x = getComponent().getX();
+        int y = getComponent().getY();
+
+        Container parent = getComponent().getParent();
+
+        while (parent != null) {
+            if (parent instanceof Window) break;
+
+            x += parent.getX();
+            y += parent.getY();
+
+            parent = parent.getParent();
+        }
+
+        return ArrayMemory.of(x, y).toConstant();
     }
 
     @Signature({@Arg(value = "position", type = HintType.ARRAY)})
@@ -699,25 +740,31 @@ abstract public class UIElement extends RootObject {
         return Memory.NULL;
     }
 
-    @Signature
-    protected Memory __getOwner(Environment env, Memory... args) {
+    public Container getOwner() {
         Container owner = getComponent().getParent();
 
-        while (true) {
+        while (owner != null) {
             for (Component component : owner.getComponents()) {
                 if (component == this.getComponent()) {
-                    return new ObjectMemory(UIElement.of(env, component));
+                    return owner;
                 }
             }
 
             owner = owner.getParent();
-
-            if (owner == null) {
-                break;
-            }
         }
 
-        return Memory.NULL;
+        return  null;
+    }
+
+    @Signature
+    protected Memory __getOwner(Environment env, Memory... args) {
+        Container owner = getOwner();
+
+        if (owner == null) {
+            return Memory.NULL;
+        } else {
+            return new ObjectMemory(UIElement.of(env, owner));
+        }
     }
 
     @Signature({
@@ -744,11 +791,45 @@ abstract public class UIElement extends RootObject {
     }
 
     @Signature
+    public void show() {
+        getComponent().setVisible(true);
+    }
+
+    @Signature
+    public void hide() {
+        getComponent().setVisible(false);
+    }
+
+    @Signature
+    public void toggle() {
+        if (getComponent().isVisible()) {
+            show();
+        } else {
+            hide();
+        }
+    }
+
+    @Signature
+    public boolean removeSelf() {
+        Container owner = getOwner();
+
+        if (owner != null) {
+            owner.remove(getComponent());
+        }
+
+        return owner != null;
+    }
+
+    @Signature
     protected Memory __getCursor(Environment env, Memory... args) {
         return StringMemory.valueOf(getComponent().getCursor().getName());
     }
 
     public static UIElement of(Environment env, Component component) {
+        if (component == null) {
+            return null;
+        }
+
         Class<?> clazz = component.getClass();
         Class<? extends UIElement> uiClass = SwingExtension.swingClasses.get(clazz);
         if (uiClass == null)

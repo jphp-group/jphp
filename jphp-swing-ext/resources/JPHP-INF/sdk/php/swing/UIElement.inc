@@ -72,6 +72,13 @@ abstract class UIElement {
     public $screenPosition;
 
     /**
+     * Absolute Position (x and y), [int, int]
+     * @readonly
+     * @var array
+     */
+    public $absolutePosition;
+
+    /**
      * @var bool
      */
     public $visible;
@@ -167,6 +174,16 @@ abstract class UIElement {
      * @var UIContainer
      */
     public $owner;
+
+    /**
+     * @var UIContainer
+     */
+    public $parent;
+
+    /**
+     * @var UIContainer
+     */
+    public $firstParent;
 
     /**
      *
@@ -331,6 +348,26 @@ abstract class UIElement {
      * @return int
      */
     public function getTextHeight() { }
+
+    /**
+     * Set visible = true
+     */
+    public function show() {}
+
+    /**
+     * Set visible = false
+     */
+    public function hide() {}
+
+    /**
+     * Set visible = !visible
+     */
+    public function toggle() {}
+
+    /**
+     * Remove itself from owner
+     */
+    public function removeSelf() {}
 
     /**
      * Get component by unique id
