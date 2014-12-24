@@ -8,11 +8,14 @@ import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -554,6 +557,43 @@ public class WrapFlow extends BaseObject implements Iterator {
                 key = Memory.CONST_INT_M1;
             }
         }));
+    }
+
+    @Signature
+    public IObject onlyKeys(Environment env, ForeachIterator iterator) {
+        return onlyKeys(env, iterator, false);
+    }
+
+    @Signature
+    public IObject onlyKeys(Environment env, ForeachIterator iterator, final boolean ignoreCase) {
+        final Set<String> keys = new HashSet<String>();
+
+        for (Memory el : iterator) {
+            if (ignoreCase) {
+                keys.add(el.toString());
+            } else {
+                keys.add(el.toString().toLowerCase());
+            }
+        }
+
+        return new WrapFlow(env, getSelfIterator(env), new Worker() {
+            @Override
+            public boolean next(Environment env) {
+                while (iterator.next()) {
+                    String key = iterator.getKey().toString();
+
+                    if (ignoreCase) {
+                        key = key.toLowerCase();
+                    }
+
+                    if (keys.contains(key)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        });
     }
 
     @Signature(@Arg(value = "filter", type = HintType.CALLABLE, optional = @Optional("NULL")))

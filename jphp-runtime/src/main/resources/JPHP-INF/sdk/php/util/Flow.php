@@ -3,6 +3,7 @@ namespace php\util;
 
 use Iterator;
 use php\io\Stream;
+use Traversable;
 
 /**
  * A special class to work with arrays and iterators under flows.
@@ -24,6 +25,13 @@ class Flow implements Iterator {
      * @return Flow
      */
     public function withKeys() { return $this; }
+
+    /**
+     * @param array|Traversable $keys
+     * @param bool $ignoreCase
+     * @return Flow
+     */
+    public function onlyKeys($keys, $ignoreCase = false) { return new Flow([]); }
 
     /**
      * Appends a new collection to the current flow,
