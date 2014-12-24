@@ -260,6 +260,10 @@ public class SwingExtension extends Extension {
     }
 
     public static ComponentProperties getProperties(Component component, boolean autoCreated){
+        if (component.getName() == null) {
+            return null;
+        }
+
         ComponentProperties properties = allComponents.get(component.getName());
         if (properties == null && autoCreated) {
             registerComponent(component);
