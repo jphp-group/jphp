@@ -20,6 +20,18 @@ public @interface Reflection {
     public @interface Ignore {}
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({METHOD})
+    public @interface Getter {
+        String value() default "";
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({METHOD})
+    public @interface Setter {
+        String value() default "";
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE})
     public @interface BaseType {}
 
@@ -75,7 +87,7 @@ public @interface Reflection {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({FIELD})
+    @Target({FIELD, METHOD})
     public @interface Property {
         String value() default "";
     }

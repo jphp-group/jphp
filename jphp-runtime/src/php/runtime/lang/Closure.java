@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.support.IStaticVariables;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;

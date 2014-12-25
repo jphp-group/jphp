@@ -35,7 +35,7 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
 
     public ReflectionMethod(Environment env, MethodEntity methodEntity) {
         super(env);
-        this.methodEntity = methodEntity;
+        setEntity(methodEntity);
     }
 
     public ReflectionMethod(Environment env, ClassEntity clazz) {

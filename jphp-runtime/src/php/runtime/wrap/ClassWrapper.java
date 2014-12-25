@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+@Reflection.Signature
 public class ClassWrapper {
     protected final Extension extension;
     protected final CompileScope scope;
@@ -168,6 +169,89 @@ public class ClassWrapper {
         }
     }
 
+    protected PropertyEntity getPropertyOfMethod(MethodEntity entity, String name) {
+        PropertyEntity propertyEntity;
+
+        if (entity.isStatic()) {
+            throw new CriticalException("Cannot use static methods for Getters and Setters");
+        } else {
+            propertyEntity = entity.getClazz().findProperty(name.toLowerCase());
+        }
+
+        if (propertyEntity == null || propertyEntity.getClazz() != entity.getClazz()) {
+            PropertyEntity prototype = propertyEntity;
+
+            propertyEntity = new PropertyEntity(entity.getContext());
+            propertyEntity.setClazz(entity.getClazz());
+            propertyEntity.setTrace(entity.getTrace());
+
+            propertyEntity.setPrototype(prototype);
+            propertyEntity.setName(name);
+
+            propertyEntity.setStatic(entity.isStatic());
+
+            entity.getClazz().addProperty(propertyEntity).check(null);
+        }
+
+        return propertyEntity;
+    }
+
+    protected void onWrapGetterSetterProperty(MethodEntity entity, Method method) {
+        if (method.isAnnotationPresent(Reflection.Getter.class)) {
+            String name = method.getAnnotation(Reflection.Getter.class).value();
+
+            if (name.isEmpty()) {
+                name = method.getName();
+
+                if (name.startsWith("__get")) {
+                    name = name.substring(5);
+                } else if (name.startsWith("get")) {
+                    name = name.substring(3);
+                }
+
+                name = name.substring(0, 1).toLowerCase() + name.substring(1);
+            }
+
+            PropertyEntity propertyEntity = getPropertyOfMethod(
+                    entity, name
+            );
+
+            method.setAccessible(true);
+            propertyEntity.setGetter(entity);
+
+            if (entity.isPublic()) {
+                entity.setModifier(php.runtime.common.Modifier.PROTECTED);
+            }
+        }
+
+        if (method.isAnnotationPresent(Reflection.Setter.class)) {
+            String name = method.getAnnotation(Reflection.Setter.class).value();
+
+            if (name.isEmpty()) {
+                name = method.getName();
+
+                if (name.startsWith("__set")) {
+                    name = name.substring(5);
+                } else if (name.startsWith("set")) {
+                    name = name.substring(3);
+                }
+
+                name = name.substring(0, 1).toLowerCase() + name.substring(1);
+            }
+
+            PropertyEntity propertyEntity = getPropertyOfMethod(
+                    entity, name
+            );
+
+            method.setAccessible(true);
+            propertyEntity.setSetter(entity);
+
+            if (entity.isPublic()) {
+                entity.setModifier(php.runtime.common.Modifier.PROTECTED);
+            }
+        }
+    }
+
     protected void onWrapMethod(ClassEntity classEntity, Method method) {
         MethodEntity entity = new MethodEntity(extension, method);
         entity.setClazz(classEntity);
@@ -199,6 +283,11 @@ public class ClassWrapper {
         entity.setName(name == null ? method.getName() : name.value());
 
         Reflection.Signature sign = method.getAnnotation(Reflection.Signature.class);
+
+        if (sign == null) {
+            sign = getClass().getAnnotation(Reflection.Signature.class);
+        }
+
         ParameterEntity[] params = new ParameterEntity[sign.value().length];
 
         int i = 0;
@@ -210,9 +299,11 @@ public class ClassWrapper {
 
         entity.setParameters(params);
         classEntity.addMethod(entity, null);
+
+        onWrapGetterSetterProperty(entity, method);
     }
 
-    protected MethodEntity onWrapWrapCompileMethod(ClassEntity classEntity, Method method, boolean skipConflicts) {
+    protected MethodEntity onWrapWrapCompileMethod(ClassEntity classEntity, Method method, Method interfaceMethod, boolean skipConflicts) {
         MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
 
         WrapCompileMethodEntity entity;
@@ -227,6 +318,8 @@ public class ClassWrapper {
             entity.setClazz(classEntity);
             classEntity.addMethod(entity, null);
         }
+
+        onWrapGetterSetterProperty(entity, interfaceMethod);
 
         return entity;
     }
@@ -252,6 +345,8 @@ public class ClassWrapper {
             entity.setClazz(classEntity);
             classEntity.addMethod(entity, null);
         }
+
+        onWrapGetterSetterProperty(entity, method);
     }
 
     protected void onWrapMethods(ClassEntity classEntity) {
@@ -266,14 +361,69 @@ public class ClassWrapper {
                 for (Method method : _interface.getDeclaredMethods()) {
 
                     try {
-                        MethodEntity entity = onWrapWrapCompileMethod(
-                                classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes()),
-                                interfaces.skipConflicts()
-                        );
+                        if (method.isAnnotationPresent(Reflection.Property.class)) {
+                            String name = method.getName();
 
-                        if (_interface.isInterface()) {
-                            entity.setAbstractable(false);
-                            entity.setAbstract(false);
+                            MethodEntity getterEntity;
+                            try {
+                                getterEntity = onWrapWrapCompileMethod(
+                                        classEntity, bindClass.getDeclaredMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
+                                        false
+                                );
+                            } catch (NoSuchMethodException e) {
+                                if (method.getReturnType() == Boolean.TYPE || method.getReturnType() == Boolean.class) {
+                                    getterEntity = onWrapWrapCompileMethod(
+                                            classEntity, bindClass.getDeclaredMethod("is" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
+                                            false
+                                    );
+                                } else {
+                                    throw e;
+                                }
+                            }
+
+                            MethodEntity setterEntity = null;
+                            try {
+                                setterEntity = onWrapWrapCompileMethod(
+                                        classEntity, bindClass.getDeclaredMethod("set" + name.substring(0, 1).toUpperCase() + name.substring(1), method.getReturnType()), method,
+                                        false
+                                );
+                            } catch (NoSuchMethodException e) {
+                                // nop
+                            }
+
+                            PropertyEntity propertyEntity = getPropertyOfMethod(getterEntity, name);
+                            propertyEntity.setGetter(getterEntity);
+                            propertyEntity.setSetter(setterEntity);
+
+                            if (_interface.isInterface()) {
+                                getterEntity.setAbstractable(false);
+                                getterEntity.setAbstract(false);
+
+                                if (getterEntity.isPublic()) {
+                                    getterEntity.setModifier(php.runtime.common.Modifier.PROTECTED);
+                                }
+
+                                if (setterEntity != null) {
+                                    setterEntity.setAbstractable(false);
+                                    setterEntity.setAbstract(false);
+
+                                    if (setterEntity.isPublic()) {
+                                        setterEntity.setModifier(php.runtime.common.Modifier.PROTECTED);
+                                    }
+                                }
+                            }
+
+                            classEntity.addProperty(propertyEntity).check(null);
+                        } else {
+                            MethodEntity entity = onWrapWrapCompileMethod(
+                                    classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes()), method,
+                                    interfaces.skipConflicts()
+                            );
+
+                            if (_interface.isInterface()) {
+                                entity.setAbstractable(false);
+                                entity.setAbstract(false);
+                            }
                         }
                     } catch (NoSuchMethodException e) {
                         throw new CriticalException(e);
@@ -283,7 +433,9 @@ public class ClassWrapper {
         }
 
         for (Method method : nativeClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(Reflection.Signature.class)){
+            if (method.isAnnotationPresent(Reflection.Signature.class)
+                    || method.isAnnotationPresent(Reflection.Getter.class)
+                    || method.isAnnotationPresent(Reflection.Setter.class)){
                 Class<?>[] types = method.getParameterTypes();
 
                 if (method.getReturnType() == Memory.class

@@ -27,6 +27,9 @@ public class PropertyEntity extends Entity {
     protected PropertyEntity prototype;
     protected boolean isDefault;
 
+    protected MethodEntity getter;
+    protected MethodEntity setter;
+
     public PropertyEntity(Context context) {
         super(context);
     }
@@ -163,6 +166,22 @@ public class PropertyEntity extends Entity {
         return canAccess(env, null);
     }
 
+    public MethodEntity getGetter() {
+        return getter;
+    }
+
+    public void setGetter(MethodEntity getter) {
+        this.getter = getter;
+    }
+
+    public MethodEntity getSetter() {
+        return setter;
+    }
+
+    public void setSetter(MethodEntity setter) {
+        this.setter = setter;
+    }
+
     /**
      * 0 - success
      * 1 - invalid protected
@@ -202,6 +221,10 @@ public class PropertyEntity extends Entity {
         return true;
     }
 
+    public boolean isReadOnly() {
+        return getter == null && setter != null;
+    }
+
     public PropertyEntity duplicate() {
         PropertyEntity propertyEntity = new PropertyEntity(context);
         propertyEntity.setStatic(isStatic);
@@ -212,6 +235,8 @@ public class PropertyEntity extends Entity {
         propertyEntity.setModifier(modifier);
         propertyEntity.setPrototype(propertyEntity);
         propertyEntity.setTrace(trace);
+        propertyEntity.setGetter(getter);
+        propertyEntity.setSetter(setter);
         return propertyEntity;
     }
 

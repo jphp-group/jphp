@@ -986,6 +986,19 @@ ClassReader classReader;
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
+
+        if (entity != null) {
+            if (entity.setter != null) {
+                if (callback != null)
+                    memory = callback.invoke(getProperty(env, trace, object, property), memory);
+
+                ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
+                return memory;
+            } else if (entity.getter != null) {
+                env.error(trace, ErrorType.E_RECOVERABLE_ERROR, Messages.ERR_READONLY_PROPERTY.fetch(entity.getClazz().getName(), property));
+            }
+        }
+
         value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
 
         if (value == null) {
@@ -1074,6 +1087,7 @@ ClassReader classReader;
             if (entity instanceof CompilePropertyEntity) {
                 return entity.assignValue(env, trace, object, property, memory);
             }
+
             return value.assign(memory);
         }
         return memory;
@@ -1305,7 +1319,11 @@ ClassReader classReader;
             ArrayMemory props = object.getProperties();
 
             if (entity != null) {
-                value = entity.getValue(env, trace, object);
+                if (entity.getter != null) {
+                    value = ObjectInvokeHelper.invokeMethod(object, entity.getter, env, trace, null, false);
+                } else {
+                    value = entity.getValue(env, trace, object);
+                }
             } else {
                 value = props == null ? null : props.getByScalar(property);
             }

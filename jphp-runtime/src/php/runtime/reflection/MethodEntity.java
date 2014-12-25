@@ -20,6 +20,7 @@ import php.runtime.reflection.support.AbstractFunctionEntity;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Reflection.Signature
 public class MethodEntity extends AbstractFunctionEntity {
     protected ClassEntity clazz;
     protected ClassEntity trait;
@@ -68,6 +69,11 @@ public class MethodEntity extends AbstractFunctionEntity {
         this.usesStackTrace = true;
 
         Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
+
+        if (signature == null) {
+            signature = getClass().getAnnotation(Reflection.Signature.class);
+        }
+
         do {
             if (signature != null)
                 break;
