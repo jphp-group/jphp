@@ -367,13 +367,13 @@ public class ClassWrapper {
                             MethodEntity getterEntity;
                             try {
                                 getterEntity = onWrapWrapCompileMethod(
-                                        classEntity, bindClass.getDeclaredMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
+                                        classEntity, bindClass.getMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
                                         false
                                 );
                             } catch (NoSuchMethodException e) {
                                 if (method.getReturnType() == Boolean.TYPE || method.getReturnType() == Boolean.class) {
                                     getterEntity = onWrapWrapCompileMethod(
-                                            classEntity, bindClass.getDeclaredMethod("is" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
+                                            classEntity, bindClass.getMethod("is" + name.substring(0, 1).toUpperCase() + name.substring(1)), method,
                                             false
                                     );
                                 } else {
@@ -384,14 +384,20 @@ public class ClassWrapper {
                             MethodEntity setterEntity = null;
                             try {
                                 setterEntity = onWrapWrapCompileMethod(
-                                        classEntity, bindClass.getDeclaredMethod("set" + name.substring(0, 1).toUpperCase() + name.substring(1), method.getReturnType()), method,
+                                        classEntity, bindClass.getMethod("set" + name.substring(0, 1).toUpperCase() + name.substring(1), method.getReturnType()), method,
                                         false
                                 );
                             } catch (NoSuchMethodException e) {
                                 // nop
                             }
 
-                            PropertyEntity propertyEntity = getPropertyOfMethod(getterEntity, name);
+                            String propertyName = method.getAnnotation(Reflection.Property.class).value();
+
+                            if (propertyName.isEmpty()) {
+                                propertyName = name;
+                            }
+
+                            PropertyEntity propertyEntity = getPropertyOfMethod(getterEntity, propertyName);
                             propertyEntity.setGetter(getterEntity);
                             propertyEntity.setSetter(setterEntity);
 

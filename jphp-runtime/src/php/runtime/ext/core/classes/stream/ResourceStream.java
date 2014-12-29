@@ -22,6 +22,8 @@ public class ResourceStream extends Stream {
     protected long position = 0;
     protected boolean eof = false;
 
+    protected URL url;
+
     public ResourceStream(Environment env, InputStream stream) {
         super(env);
         this.stream = stream;
@@ -31,16 +33,21 @@ public class ResourceStream extends Stream {
         super(env, clazz);
     }
 
+    public URL getUrl() {
+        return url;
+    }
+
     @Override
     @Signature({@Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args);
         setPath("res://" + this.getPath());
 
-        stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(args[0].toString());
-        if (stream == null)
+        url = Thread.currentThread().getContextClassLoader().getResource(args[0].toString());
+        if (url == null)
             throw new IOException("Resource not found - " + args[0]);
 
+        stream = url.openStream();
         return Memory.NULL;
     }
 
