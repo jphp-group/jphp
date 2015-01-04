@@ -116,6 +116,11 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testStaticCallByVar() {
+        check("classes/static_call_by_var.php");
+    }
+
+    @Test
     public void testBugs() {
         check("classes/bug107.php");
         check("classes/bug123.php");

@@ -16,6 +16,9 @@ import php.runtime.reflection.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Reflection.Signature
 public class ClassWrapper {
@@ -352,12 +355,33 @@ public class ClassWrapper {
     protected void onWrapMethods(ClassEntity classEntity) {
         Reflection.WrapInterface interfaces = nativeClass.getAnnotation(Reflection.WrapInterface.class);
 
-        if (interfaces != null && BaseWrapper.class.isAssignableFrom(nativeClass)) {
+        Set<Class<?>> wrapInterfaces = new HashSet<Class<?>>();
+
+        if (interfaces != null) {
+            wrapInterfaces.addAll(Arrays.asList(interfaces.value()));
+        }
+
+        for (Class<?> cls : nativeClass.getDeclaredClasses()) {
+            if (cls.getSimpleName().equals("WrappedInterface") && cls.getDeclaringClass() == nativeClass) {
+                if (!cls.isInterface()) {
+                    throw new CriticalException("WrappedInterface class must be interface");
+                }
+
+                if (!BaseWrapper.class.isAssignableFrom(nativeClass)) {
+                    throw new CriticalException("To use WrappedInterface, your class must be inheritances from the BaseWrapper class");
+                }
+
+                wrapInterfaces.add(cls);
+                break;
+            }
+        }
+
+        if (!wrapInterfaces.isEmpty() && BaseWrapper.class.isAssignableFrom(nativeClass)) {
             Class<?> bindClass = MemoryOperation.getClassOfWrapper(
                     (Class<? extends php.runtime.lang.BaseWrapper<Object>>) nativeClass
             );
 
-            for (Class _interface : interfaces.value()) {
+            for (Class _interface : wrapInterfaces) {
                 for (Method method : _interface.getDeclaredMethods()) {
 
                     try {
@@ -423,7 +447,7 @@ public class ClassWrapper {
                         } else {
                             MethodEntity entity = onWrapWrapCompileMethod(
                                     classEntity, bindClass.getDeclaredMethod(method.getName(), method.getParameterTypes()), method,
-                                    interfaces.skipConflicts()
+                                    interfaces != null && interfaces.skipConflicts()
                             );
 
                             if (_interface.isInterface()) {

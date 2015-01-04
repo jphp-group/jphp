@@ -1264,7 +1264,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             writePushParameters(function.getParameters());
 
-            if (clazz instanceof StaticExprToken || method.clazz.statement.isTrait()) {
+            if (clazz instanceof StaticExprToken || method.clazz.statement.isTrait()
+                    || clazz instanceof VariableExprToken) {
                 writePushConstNull();
                 writePushConstInt(0);
             } else {

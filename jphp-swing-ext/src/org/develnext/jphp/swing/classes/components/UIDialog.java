@@ -99,6 +99,12 @@ public class UIDialog extends UIWindow {
         return Memory.NULL;
     }
 
+    @Signature
+    public void showModal() {
+        component.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        component.setVisible(true);
+    }
+
     @Signature({
             @Arg("message"),
             @Arg(value = "title"),

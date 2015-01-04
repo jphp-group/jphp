@@ -4,12 +4,14 @@ import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;
+import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.HashMap;
@@ -747,6 +749,49 @@ abstract public class Memory implements Comparable<Memory> {
     public static Memory assignBitXorRight(boolean value, Memory memory){ return memory.assignBitXor(value); }
     public static Memory assignBitXorRight(String value, Memory memory){ return memory.assignBitXor(value); }
     ////
+
+    public static Object unwrap(Environment env, Memory memory) {
+        if (memory.isObject()) {
+            IObject iObject = memory.toValue(ObjectMemory.class).value;
+
+            if (iObject instanceof BaseWrapper) {
+                return ((BaseWrapper) iObject).getWrappedObject();
+            } else {
+                return iObject;
+            }
+        } else {
+            switch (memory.getRealType()) {
+                case BOOL:
+                    return memory.toBoolean();
+                case INT:
+                    return memory.toLong();
+                case DOUBLE:
+                    return memory.toDouble();
+                case STRING:
+                    return memory.toString();
+                case NULL:
+                    return null;
+                case ARRAY:
+                    return memory.toValue(ArrayMemory.class);
+            }
+            return memory;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Memory wrap(Environment env, Object o) {
+        if (o == null) {
+            return NULL;
+        }
+
+        MemoryOperation operation = MemoryOperation.get(o.getClass(), null);
+
+        if (operation != null) {
+            return operation.unconvert(env, env.trace(), o);
+        } else {
+            return NULL;
+        }
+    }
 
     public static String boolToString(boolean value){
         return value ? "1" : "";

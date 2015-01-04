@@ -38,6 +38,10 @@ class UIDialog extends UIWindow {
      */
     public function __construct(UIWindow $owner = null) { }
 
+    /**
+     * Show modal dialog
+     */
+    public function showModal() {}
 
     /**
      * Show basic message
