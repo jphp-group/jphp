@@ -1498,66 +1498,45 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return r;
     }
 
-    public static ArrayMemory of(short... array) {
-        ArrayMemory result = new ArrayMemory();
-        for (short el : array) result.add(el);
-
-        return  result;
-    }
-
-    public static ArrayMemory of(byte... array) {
-        ArrayMemory result = new ArrayMemory();
-        for (short el : array) result.add(el);
-
-        return  result;
-    }
-
-    public static ArrayMemory of(int... array) {
-        ArrayMemory result = new ArrayMemory();
-        for (int el : array) result.add(el);
-
-        return  result;
-    }
-
     public static ArrayMemory of(long... array) {
         ArrayMemory result = new ArrayMemory();
         for (long el : array) result.add(el);
 
-        return  result;
-    }
-
-    public static ArrayMemory of(float... array) {
-        ArrayMemory result = new ArrayMemory();
-        for (float el : array) result.add(el);
-
-        return  result;
+        return result;
     }
 
     public static ArrayMemory of(double... array) {
         ArrayMemory result = new ArrayMemory();
         for (double el : array) result.add(el);
 
-        return  result;
+        return result;
     }
 
     public static ArrayMemory of(boolean... array) {
         ArrayMemory result = new ArrayMemory();
         for (boolean el : array) result.add(el);
 
-        return  result;
+        return result;
     }
 
     public static ArrayMemory of(char... array) {
         ArrayMemory result = new ArrayMemory();
         for (char el : array) result.add(StringMemory.valueOf(el));
 
-        return  result;
+        return result;
     }
 
     public static ArrayMemory of(String... array) {
         ArrayMemory result = new ArrayMemory();
         for (String el : array) result.add(el);
 
-        return  result;
+        return result;
+    }
+
+    public static ArrayMemory of(IObject... array) {
+        ArrayMemory result = new ArrayMemory();
+        for (IObject el : array) result.add(el);
+
+        return result;
     }
 }
