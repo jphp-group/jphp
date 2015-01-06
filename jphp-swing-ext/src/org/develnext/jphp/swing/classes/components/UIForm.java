@@ -14,6 +14,13 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name(SwingExtension.NAMESPACE + "UIForm")
 public class UIForm extends UIWindow {
+    // UIForm.setDefaultCloseOperation(define)
+    public final static int DO_NOTHING_ON_CLOSE = JFrameX.DO_NOTHING_ON_CLOSE;
+    public final static int HIDE_ON_CLOSE       = JFrameX.HIDE_ON_CLOSE;
+    public final static int DISPOSE_ON_CLOSE    = JFrameX.DISPOSE_ON_CLOSE;
+    public final static int EXIT_ON_CLOSE       = JFrameX.EXIT_ON_CLOSE;
+
+
     protected JFrameX frame;
 
     public UIForm(Environment env, JFrameX frame) {
