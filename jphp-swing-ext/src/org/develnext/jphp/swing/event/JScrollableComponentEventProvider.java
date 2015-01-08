@@ -18,7 +18,7 @@ public class JScrollableComponentEventProvider extends EventProvider<JScrollable
         add("blur");
         add("mousedrag");
         add("mousemove");
-        add("mousewheel");
+       // add("mousewheel");
         add("click");
         add("mousepress");
         add("mouserelease");
@@ -82,13 +82,13 @@ public class JScrollableComponentEventProvider extends EventProvider<JScrollable
             }
         });
 
-        component.getContent().addMouseWheelListener(new MouseWheelListener() {
+        /*component.getContent().addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 e.setSource(component);
                 triggerMouseWheel(env, properties, "mousewheel", e);
             }
-        });
+        });*/
 
         component.getContent().addMouseListener(new MouseAdapter() {
             @Override

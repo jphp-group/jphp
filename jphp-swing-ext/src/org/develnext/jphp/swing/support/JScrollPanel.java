@@ -1,10 +1,28 @@
 package org.develnext.jphp.swing.support;
 
 import javax.swing.*;
+import java.awt.event.MouseWheelEvent;
 
 public class JScrollPanel extends JScrollPane {
 
     public enum ScrollPolicy { ALWAYS, HIDDEN, AUTO }
+
+    public JScrollPanel() {
+        super(null);
+        setWheelScrollingEnabled(true);
+    }
+
+    @Override
+    protected void processMouseWheelEvent(MouseWheelEvent e) {
+        if (!isWheelScrollingEnabled()) {
+            if (getParent() != null)
+                getParent().dispatchEvent(
+                        SwingUtilities.convertMouseEvent(this, e, getParent()));
+            return;
+        }
+
+        super.processMouseWheelEvent(e);
+    }
 
     public void setVerScrollPolicy(ScrollPolicy type) {
         switch (type) {
