@@ -78,10 +78,13 @@ public class UIForm extends UIWindow {
     }
 
 
-    @Signature(@Arg(value = "image", typeClass = SwingExtension.NAMESPACE + "Image"))
+    @Signature(@Arg(value = "image", typeClass = SwingExtension.NAMESPACE + "Image", nullable = true))
     public Memory setIconImage(Environment env, Memory... args) {
-        Image icon = (Image)args[0].toObject(WrapImage.class).getImage();
-        this.frame.setIconImage(icon);
+        this.frame.setIconImage(
+            args[0].toBoolean()
+                ? args[0].toObject(WrapImage.class).getImage()
+                : null
+        );
 
         return Memory.NULL;
     }
