@@ -756,4 +756,86 @@ public class ArrayFunctions extends FunctionsContainer {
         } else
             return Memory.NULL;
     }
+
+    private static Memory _range_double(Environment env, TraceInfo trace, double low, double high, double step){
+	ArrayMemory result = new ArrayMemory();
+	double value;
+	long i = 0;
+	boolean error_occurred = false;
+
+	if (step < 0.0) {
+	    step *= -1;
+	}
+
+	if (low > high) {    /* Negative steps */
+	    if (low - high < step || step <= 0) {
+		error_occurred = true;
+	    } else {
+		for (value = low; value >= high; value = low - (++i * step)) {
+		    result.add(value);
+		}
+	    }
+	} else if (high > low) {        /* Positive steps */
+	    if (high - low < step || step <= 0) {
+		error_occurred = true;
+	    } else {
+		for (value = low; value <= high; value = low + (++i * step)) {
+		    result.add(value);
+		}
+	    }
+	} else {
+            result.add(low);
+	}
+	if (error_occurred) {
+	    env.warning(trace, "range(): step exceeds the specified range");
+	    return Memory.FALSE;
+	}
+	return result.toConstant();
+    }
+
+    private static Memory _range_long(Environment env, TraceInfo trace, long low, long high, long step){
+	ArrayMemory result = new ArrayMemory();
+	boolean error_occurred = false;
+
+	if (step < 0) {
+	    step *= -1;
+	}
+
+	if (low > high) {               /* Negative steps */
+	    if (low - high < step || step <= 0) {
+		error_occurred = true;
+	    } else {
+		for (; low >= high; low -= step) {
+		    result.add(low);
+		}
+	    }
+	} else if (high > low) {        /* Positive steps */
+	    if (high - low < step || step <= 0) {
+		error_occurred = true;
+	    } else {
+		for (; low <= high; low += step) {
+		    result.add(low);
+		}
+	    }
+	} else {
+	    result.add(low);
+	}
+	if (error_occurred) {
+	    env.warning(trace, "range(): step exceeds the specified range");
+	    return Memory.FALSE;
+	}
+	return result.toConstant();
+    }
+
+    public static Memory range(Environment env, TraceInfo trace, Memory low, Memory high, Memory step){
+	if (low.getRealType() == Memory.Type.DOUBLE || high.getRealType() == Memory.Type.DOUBLE || step.getRealType() == Memory.Type.DOUBLE) {
+	    return _range_double(env, trace, low.toDouble(), high.toDouble(), step.toDouble());
+	} else {
+	    return _range_long(env, trace, low.toLong(), high.toLong(), step.toLong());
+	}
+    }
+
+    public static Memory range(Environment env, TraceInfo trace, Memory low, Memory high){
+        return range(env, trace, low, high, Memory.CONST_INT_1);
+    }
 }
