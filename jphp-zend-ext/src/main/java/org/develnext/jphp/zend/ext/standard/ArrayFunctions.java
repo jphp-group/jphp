@@ -828,11 +828,12 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory range(Environment env, TraceInfo trace, Memory low, Memory high, Memory step){
-	if (low.getRealType() == Memory.Type.DOUBLE || high.getRealType() == Memory.Type.DOUBLE || step.getRealType() == Memory.Type.DOUBLE) {
-	    return _range_double(env, trace, low.toDouble(), high.toDouble(), step.toDouble());
-	} else {
-	    return _range_long(env, trace, low.toLong(), high.toLong(), step.toLong());
-	}
+	    int err = 0;
+    	if (low.getRealType() == Memory.Type.DOUBLE || high.getRealType() == Memory.Type.DOUBLE || step.getRealType() == Memory.Type.DOUBLE) {
+	        return _range_double(env, trace, low.toDouble(), high.toDouble(), step.toDouble());
+	    } else {
+	        return _range_long(env, trace, low.toLong(), high.toLong(), step.toLong());
+	    }
     }
 
     public static Memory range(Environment env, TraceInfo trace, Memory low, Memory high){
