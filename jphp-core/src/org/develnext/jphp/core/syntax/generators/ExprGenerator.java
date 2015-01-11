@@ -291,8 +291,23 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         result.setInitLocal(analyzer.removeScope().getVariables());
         analyzer.addScope().setLevelForGoto(true);
 
-        ExprStmtToken condition = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(nextToken(iterator), iterator, Separator.SEMICOLON, null);
+        // CONDITIONS
+        List<ExprStmtToken> conditions = new ArrayList<ExprStmtToken>();
+
+        do {
+            ExprStmtToken conditionExpr = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null);
+            if (conditionExpr == null)
+                break;
+
+            conditions.add(conditionExpr);
+
+            if (iterator.previous() instanceof SemicolonToken) {
+                iterator.next();
+                break;
+            }
+            iterator.next();
+        } while (true);
 
         // ITERATIONS
         List<ExprStmtToken> iterations = new ArrayList<ExprStmtToken>();
@@ -322,7 +337,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             iterator.next();
 
         result.setInitExpr(inits);
-        result.setCondition(condition);
+        result.setConditionExpr(conditions);
         result.setIterationExpr(iterations);
         result.setBody(body);
         result.setLocal(analyzer.removeScope().getVariables());
