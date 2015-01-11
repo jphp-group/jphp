@@ -246,6 +246,8 @@ abstract public class MemoryOperation<T> {
     }
 
     static {
+        register(new ObjectMemoryOperation());
+
         register(new VoidMemoryOperation());
         register(new MemoryMemoryOperation());
         register(new ArrayMemoryMemoryOperation());
