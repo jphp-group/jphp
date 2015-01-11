@@ -1,5 +1,6 @@
 package org.develnext.jphp.swing.classes.components;
 
+import org.develnext.jphp.swing.classes.WrapImage;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import org.develnext.jphp.swing.SwingExtension;
@@ -72,6 +73,18 @@ public class UIForm extends UIWindow {
         } else {
             frame.setExtendedState(Frame.NORMAL);
         }
+
+        return Memory.NULL;
+    }
+
+
+    @Signature(@Arg(value = "image", typeClass = SwingExtension.NAMESPACE + "Image", nullable = true))
+    public Memory setIconImage(Environment env, Memory... args) {
+        this.frame.setIconImage(
+            args[0].toBoolean()
+                ? args[0].toObject(WrapImage.class).getImage()
+                : null
+        );
 
         return Memory.NULL;
     }

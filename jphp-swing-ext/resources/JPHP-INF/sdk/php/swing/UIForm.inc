@@ -14,4 +14,9 @@ class UIForm extends UIWindow {
      * @param int $action
      */
     public function setDefaultCloseOperation($action){ }
+
+    /**
+     * @param Image|null $image
+     */
+    public function setIconImage(Image $image = null){ }
 }
