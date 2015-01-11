@@ -5,7 +5,7 @@ allprojects {
     apply plugin: 'maven'
 
     project.group = 'org.develnext'
-    project.version = '0.5'
+    project.version = '0.6'
     project.ext.isSnapshot = System.getProperty("release", "0") in ["0", "false"];
 
     if (project.ext.isSnapshot) {
@@ -103,6 +103,8 @@ configure([
             from sourceSets.main.allSource
         }
 
+        javadoc.failOnError = false
+
         task javadocJar(type: Jar, dependsOn: javadoc) {
             classifier = 'javadoc'
             from javadoc.destinationDir
@@ -140,11 +142,11 @@ configure([
                 mavenDeployer {
                     beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                    repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+                    repository(url: 'http://repo.develnext.org/repository/internal') {
                         authentication(userName: rootProject.username, password: rootProject.password);
                     }
 
-                    snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+                    snapshotRepository(url: 'http://repo.develnext.org/repository/snapshots') {
                         authentication(userName: rootProject.username, password: rootProject.password);
                     }
 
