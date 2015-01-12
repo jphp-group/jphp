@@ -51,6 +51,7 @@ public class LangTest extends ZendJvmTestCase {
         check("zend/lang/037.php");
 
         check("zend/lang/040.php");
+        check("zend/lang/041.php");
 
 
         check("zend/lang/array_shortcut_001.php");
