@@ -12,7 +12,7 @@ public class ForStmtToken extends StmtToken {
     private Set<VariableExprToken> initLocal;
     private Set<VariableExprToken> iterationLocal;
     private List<ExprStmtToken> initExpr;
-    private ExprStmtToken condition;
+    private List<ExprStmtToken> conditionExpr;
     private List<ExprStmtToken> iterationExpr;
 
     private BodyStmtToken body;
@@ -29,12 +29,12 @@ public class ForStmtToken extends StmtToken {
         this.initExpr = initExpr;
     }
 
-    public ExprStmtToken getCondition() {
-        return condition;
+    public List<ExprStmtToken> getConditionExpr() {
+        return conditionExpr;
     }
 
-    public void setCondition(ExprStmtToken condition) {
-        this.condition = condition;
+    public void setConditionExpr(List<ExprStmtToken> conditionExpr) {
+        this.conditionExpr = conditionExpr;
     }
 
     public List<ExprStmtToken> getIterationExpr() {
