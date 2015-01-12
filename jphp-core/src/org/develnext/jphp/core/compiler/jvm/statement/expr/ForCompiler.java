@@ -1,5 +1,7 @@
 package org.develnext.jphp.core.compiler.jvm.statement.expr;
 
+import java.util.Iterator;
+
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.statement.ExpressionStmtCompiler;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
@@ -37,11 +39,18 @@ public class ForCompiler extends BaseStatementCompiler<ForStmtToken> {
         LabelNode iter = new LabelNode();
         LabelNode end = new LabelNode();
 
-        expr.writeExpression(token.getCondition(), true, false);
-        expr.writePopBoolean();
+	for (Iterator<ExprStmtToken> i = token.getConditionExpr().iterator(); i.hasNext();) {
+	    ExprStmtToken expr = i.next();
+	    if (i.hasNext()) {
+		this.expr.writeExpression(expr, false, false);
+	    } else {
+		this.expr.writeExpression(expr, true, false);
+		this.expr.writePopBoolean();
 
-        add(new JumpInsnNode(IFEQ, end));
-        expr.stackPop();
+		add(new JumpInsnNode(IFEQ, end));
+		this.expr.stackPop();
+	    }
+        }
 
         method.pushJump(end, iter);
         expr.write(BodyStmtToken.class, token.getBody());
