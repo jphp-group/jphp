@@ -20,8 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static php.runtime.annotation.Reflection.*;
 
@@ -145,7 +143,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
         ClassEntity classEntity = env.fetchClass(className);
 
-        if (classEntity.getNativeClazz().getAnnotation(UsePathWithProtocols.class) != null) {
+        if (classEntity.getNativeClass().getAnnotation(UsePathWithProtocols.class) != null) {
             path = protocol + "://" + path;
         }
 

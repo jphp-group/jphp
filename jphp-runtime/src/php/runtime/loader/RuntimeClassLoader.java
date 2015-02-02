@@ -48,14 +48,14 @@ public class RuntimeClassLoader extends ClassLoader {
         for (MethodEntity method : clazz.getMethods().values()) {
             if (!(method instanceof CompileMethodEntity) && method.getNativeMethod() == null && !method.isAbstractable()) {
                 method.setNativeMethod(
-                        clazz.getNativeClazz().getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
+                        clazz.getNativeClass().getDeclaredMethod(method.getInternalName(), Environment.class, Memory[].class)
                 );
                 method.getNativeMethod().setAccessible(true);
             }
         }
 
         internalClasses.put(clazz.getInternalName(), clazz);
-        return clazz.getNativeClazz();
+        return clazz.getNativeClass();
     }
 
     protected Class<?> loadClosure(ClosureEntity closure, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {

@@ -623,6 +623,11 @@ ClassReader classReader;
         this.docComment = docComment;
     }
 
+    public Class<?> getNativeClass() {
+        return nativeClazz;
+    }
+
+    @Deprecated
     public Class<?> getNativeClazz() {
         return nativeClazz;
     }
@@ -653,7 +658,7 @@ ClassReader classReader;
                 this.nativeConstructor.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 this.nativeConstructor = null;
-                //if (IObject.class.isAssignableFrom(getNativeClazz().getClass()))
+                //if (IObject.class.isAssignableFrom(getNativeClass().getClass()))
                   //  throw new CriticalException(e);
             }
 

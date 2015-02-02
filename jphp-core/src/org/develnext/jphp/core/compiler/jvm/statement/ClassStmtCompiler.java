@@ -194,9 +194,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected void writeDefaultConstructors()
     {
         if (!isSystem && !isClosure() && entity.getParent() != null
-                && entity.getParent().getNativeClazz() != null
-                && !BaseObject.class.isAssignableFrom(entity.getParent().getNativeClazz())) {
-            for (Constructor el : entity.getParent().getNativeClazz().getConstructors()) {
+                && entity.getParent().getNativeClass() != null
+                && !BaseObject.class.isAssignableFrom(entity.getParent().getNativeClass())) {
+            for (Constructor el : entity.getParent().getNativeClass().getConstructors()) {
                 Class<?>[] parameterTypes = el.getParameterTypes();
 
                 if (parameterTypes.length == 2

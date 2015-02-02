@@ -24,7 +24,7 @@ public class WrapAndroid extends BaseObject {
             return;
         }
 
-        Intent intent = new Intent(AndroidStandaloneLoader.getContext(), entity.getNativeClazz());
+        Intent intent = new Intent(AndroidStandaloneLoader.getContext(), entity.getNativeClass());
 
         AndroidStandaloneLoader.getMainActivity().startActivity(intent);
     }
