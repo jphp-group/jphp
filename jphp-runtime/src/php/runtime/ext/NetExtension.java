@@ -1,9 +1,12 @@
-package org.develnext.jphp.net;
+package php.runtime.ext;
 
-import org.develnext.jphp.net.classes.*;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.net.WrapNetStream;
+import php.runtime.ext.net.WrapProxy;
+import php.runtime.ext.net.WrapURL;
+import php.runtime.ext.net.WrapURLConnection;
 import php.runtime.ext.support.Extension;
 
 import java.net.Proxy;

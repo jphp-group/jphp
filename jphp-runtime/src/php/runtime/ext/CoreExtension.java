@@ -41,6 +41,13 @@ public class CoreExtension extends Extension {
     }
 
     @Override
+    public String[] getOptionalExtensions() {
+        return new String[] {
+            NetExtension.class.getName()
+        };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerConstants(new LangConstants());
         registerFunctions(new LangFunctions());

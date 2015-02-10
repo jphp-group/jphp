@@ -92,7 +92,6 @@ configure([
         project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),
-        project(':jphp-net-ext'),
         project(':jphp-scripting'),
         project(':jphp-gradle-plugin'),
 ]) {

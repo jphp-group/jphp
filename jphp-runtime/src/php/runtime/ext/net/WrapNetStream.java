@@ -1,15 +1,12 @@
-package org.develnext.jphp.net.classes;
+package php.runtime.ext.net;
 
-import org.develnext.jphp.net.NetExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
-import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.ext.NetExtension;
 import php.runtime.ext.core.classes.stream.Stream;
-import php.runtime.invoke.Invoker;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.ByteArrayOutputStream;
