@@ -1,7 +1,7 @@
 <?php
 namespace php\swing;
 
-class UIWindow extends UIContainer {
+abstract class UIWindow extends UIContainer {
     /**
      * @var string
      */
