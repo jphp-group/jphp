@@ -1,0 +1,13 @@
+ext.isExtension = true;
+
+dependencies {
+    compile project(':jphp-runtime')
+
+    compile 'javax.servlet:javax.servlet-api:3.0.+'
+
+    testCompile 'junit:junit:4.+'
+}
+
+task dist(dependsOn: buildPortableDef) {
+    // ...
+}

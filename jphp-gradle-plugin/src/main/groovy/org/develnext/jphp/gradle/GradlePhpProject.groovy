@@ -16,10 +16,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-class GradlePhpProject {
+class GradlePhpProject extends GradleBaseProject {
     final static COMPILED_JAR_NAME = "libs/jphp.compiled.jar";
 
-    final Project project;
     PhpGradleExtension config;
 
     File buildDir;
@@ -36,7 +35,7 @@ class GradlePhpProject {
     Set<String> jphpExtensions;
 
     GradlePhpProject(Project project) {
-        this.project = project;
+        super(project);
 
         update();
 
@@ -354,10 +353,5 @@ class GradlePhpProject {
                 }
             }
         }
-    }
-
-    protected Configuration getOrCreateConfiguration(String name) {
-        ConfigurationContainer container = project.configurations
-        container.findByName(name) ?: container.create(name)
     }
 }

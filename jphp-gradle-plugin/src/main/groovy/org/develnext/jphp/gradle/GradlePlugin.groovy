@@ -2,6 +2,7 @@ package org.develnext.jphp.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import php.runtime.Information
 
 class GradlePlugin implements Plugin<Project> {
     @Override
@@ -24,6 +25,12 @@ class GradlePlugin implements Plugin<Project> {
         def buildPhpTask = project.task("buildPhp") << {
             phpProject.update();
             phpProject.build();
+        }
+
+        def phpVersion = project.task("phpVersion") << {
+            println "JPHP v" + Information.CORE_VERSION
+            println "Like PHP v" + Information.LIKE_PHP_VERSION;
+            println "Copyright " + Information.COPYRIGHT;
         }
 
         if (!isAndroid) {
