@@ -70,7 +70,7 @@ final public class InvokeHelper {
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
-                                       TraceInfo trace){
+                                       TraceInfo trace) {
         return InvokeArgumentHelper.makeArguments(env, args, parameters, originClassName, originMethodName, trace);
     }
 
