@@ -11,11 +11,13 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
+import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.reflection.*;
 
 import java.lang.reflect.Field;
@@ -151,6 +153,33 @@ final public class InvokeHelper {
         }
     }
 
+    private static Memory _makeArgumentValue(ParameterEntity param, Memory arg, Environment env, TraceInfo trace) {
+        if (param.isReference()) {
+            if (!arg.isReference() && !arg.isObject()) {
+                env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
+                arg = new ReferenceMemory(arg);
+            }
+        } else {
+            arg = param.isMutable() ? arg.toImmutable() : arg.toValue();
+        }
+
+        return arg;
+    }
+
+    private static void _makeVariadic(ForeachIterator iterator, ArrayMemory variadicArray, ParameterEntity param,
+                                      Environment env, TraceInfo trace, int index, String originClassName,
+                                      String originMethodName) {
+        while (iterator.next()) {
+            Memory arg = iterator.getValue();
+
+            if (!param.checkTypeHinting(env, arg)) {
+                invalidTypeHinting(env, trace, param, index + 1, arg, originClassName, originMethodName);
+            }
+
+            variadicArray.add(_makeArgumentValue(param, iterator.getValue(), env, trace));
+        }
+    }
+
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                        ParameterEntity[] parameters,
                                        String originClassName, String originMethodName,
@@ -167,47 +196,94 @@ final public class InvokeHelper {
         }
 
         int i = 0;
-        if (passed != null)
-        for(ParameterEntity param : parameters){
-            if (!param.isUsed() && param.getType() == HintType.ANY) {
-                i++;
-                continue;
-            }
 
-            Memory arg = passed[i];
-            if (arg == null) {
-                Memory def = param.getDefaultValue();
-                if (def != null){
-                    if (!param.isReference()) {
-                        passed[i] = param.isMutable() ? def.toImmutable(env, trace) : def;
-                    } else
-                        passed[i] = new ReferenceMemory(param.isMutable() ? def.toImmutable(env, trace) : def);
-
-                } else {
-                    if (param.getTypeClass() != null)
-                        invalidTypeHinting(env, trace, param, i + 1, null, originClassName, originMethodName);
-
-                    env.error(trace, ErrorType.E_ERROR,
-                            Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
-                            originMethodName == null ? originClassName : originClassName + "::" + originMethodName
-                    );
-                    passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
+        if (passed != null) {
+            for (ParameterEntity param : parameters) {
+                if (!param.isUsed() && param.getType() == HintType.ANY) {
+                    i++;
+                    continue;
                 }
-            } else {
-                if (param.isReference()) {
-                    if (!arg.isReference() && !arg.isObject()){
-                        env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
-                        passed[i] = new ReferenceMemory(arg);
+
+                Memory arg = passed[i];
+
+                if (param.isVariadic()) {
+                    ArrayMemory variadicArgs = new ArrayMemory();
+
+                    int _i = i;
+                    boolean variadicMemoryExists = false;
+
+                    while (arg != null) {
+                        if (arg instanceof VariadicMemory) {
+                            variadicMemoryExists = true;
+
+                            ForeachIterator iterator = arg.getNewIterator(env, param.isReference(), false);
+
+                            if (iterator == null) {
+                                env.warning(trace, "Only arrays and Traversables can be unpacked");
+                            }
+
+                            _makeVariadic(iterator, variadicArgs, param, env, trace, _i, originClassName, originMethodName);
+                        } else {
+                            if (variadicMemoryExists) {
+                                env.error(trace, "Cannot use positional argument after argument unpacking");
+                            }
+
+                            if (!param.checkTypeHinting(env, arg)) {
+                                invalidTypeHinting(env, trace, param, _i + 1, arg, originClassName, originMethodName);
+                            }
+
+                            variadicArgs.add(_makeArgumentValue(param, arg, env, trace));
+                        }
+
+                        i++;
+                        if (i < passed.length) {
+                            arg = passed[i];
+                        } else {
+                            break;
+                        }
+                    }
+
+                    passed[_i] = variadicArgs;
+
+                    break;
+                }
+
+                if (arg == null) {
+                    Memory def = param.getDefaultValue();
+
+                    if (def != null) {
+                        if (!param.isReference()) {
+                            passed[i] = param.isMutable() ? def.toImmutable(env, trace) : def;
+                        } else {
+                            passed[i] = new ReferenceMemory(param.isMutable() ? def.toImmutable(env, trace) : def);
+                        }
+                    } else {
+                        if (param.getTypeClass() != null) {
+                            invalidTypeHinting(env, trace, param, i + 1, null, originClassName, originMethodName);
+                        }
+
+                        env.error(trace, ErrorType.E_ERROR,
+                                Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
+                                originMethodName == null ? originClassName : originClassName + "::" + originMethodName
+                        );
+                        passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
                     }
                 } else {
+                    if (param.isReference()) {
+                        if (!arg.isReference() && !arg.isObject()) {
+                            env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
+                            passed[i] = new ReferenceMemory(arg);
+                        }
+                    } else {
                         passed[i] = param.isMutable() ? arg.toImmutable() : arg.toValue();
+                    }
                 }
-            }
 
-            if (!param.checkTypeHinting(env, passed[i])){
-                invalidTypeHinting(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
+                if (!param.checkTypeHinting(env, passed[i])) {
+                    invalidTypeHinting(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
+                }
+                i++;
             }
-            i++;
         }
         return passed;
     }

@@ -8,6 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 
 public class ArgumentStmtToken extends StmtToken {
     private boolean reference;
+    private boolean variadic;
     private HintType hintType;
     private NameToken hintTypeClass;
     private VariableExprToken name;
@@ -55,5 +56,13 @@ public class ArgumentStmtToken extends StmtToken {
 
     public void setReference(boolean reference) {
         this.reference = reference;
+    }
+
+    public boolean isVariadic() {
+        return variadic;
+    }
+
+    public void setVariadic(boolean variadic) {
+        this.variadic = variadic;
     }
 }

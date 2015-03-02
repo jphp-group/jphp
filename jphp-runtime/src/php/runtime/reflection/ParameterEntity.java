@@ -38,6 +38,7 @@ public class ParameterEntity extends Entity {
     protected boolean mutable = true;
     protected boolean used = true;
     protected boolean nullable = false;
+    protected boolean variadic = false;
 
     public ParameterEntity(Context context) {
         super(context);
@@ -322,6 +323,14 @@ public class ParameterEntity extends Entity {
 
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    public boolean isVariadic() {
+        return variadic;
+    }
+
+    public void setVariadic(boolean variadic) {
+        this.variadic = variadic;
     }
 
     @Override
