@@ -105,10 +105,10 @@ public class DocGenerator {
         for(File file : root.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.isDirectory() && new File(pathname, "sdk/").isDirectory();
+                return pathname.isDirectory() && new File(pathname, "resources/JPHP-INF/sdk/").isDirectory();
             }
         })) {
-            generator.addDirectory(new File(file, "sdk/"), true);
+            generator.addDirectory(new File(file, "resources/JPHP-INF/sdk/"), true);
         }
 
         for(Map.Entry<String, String> entry : languages.entrySet()) {

@@ -240,11 +240,11 @@ public class PropertyEntity extends Entity {
         return propertyEntity;
     }
 
-    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) throws IllegalAccessException {
+    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) {
         return ((IObject) object).getProperties().refOfIndex(name).assign(value);
     }
 
-    public Memory getValue(Environment env, TraceInfo trace, Object object) throws IllegalAccessException {
+    public Memory getValue(Environment env, TraceInfo trace, Object object) {
         ArrayMemory props = ((IObject) object).getProperties();
 
         Memory result = props.getByScalar(specificName);

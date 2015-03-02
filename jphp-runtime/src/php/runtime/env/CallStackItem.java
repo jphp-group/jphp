@@ -5,6 +5,7 @@ import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.memory.output.PlainPrinter;
 import php.runtime.reflection.ClassEntity;
 
@@ -105,6 +106,27 @@ public class CallStackItem {
             el.refOfIndex("position").assign(trace.getStartPosition() + 1);
 
         return el;
+    }
+
+    public static String toString(CallStackItem[] items, boolean withArgs) {
+        int i = 0;
+
+        StringBuilder sb = new StringBuilder();
+        if (items != null){
+            for (CallStackItem e : items){
+                if (i != 0)
+                    sb.append("\n");
+
+                sb.append("#").append(i).append(" ").append(e.toString(withArgs));
+                i++;
+            }
+            if (i != 0)
+                sb.append("\n");
+
+            sb.append("#").append(i).append(" {main}");
+        }
+
+        return sb.toString();
     }
 
     public String toString(boolean withArgs) {

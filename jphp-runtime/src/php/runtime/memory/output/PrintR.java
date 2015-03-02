@@ -4,10 +4,12 @@ import php.runtime.Memory;
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.PropertyEntity;
 
 import java.io.Writer;
 import java.util.Set;
@@ -164,7 +166,7 @@ public class PrintR extends Printer {
             } else
                 props = value.getProperties();
 
-            if (props != null){
+            if (props != null) {
                 ForeachIterator iterator = props.foreachIterator(false, false);
                 int i = 0;
                 int size = classEntity.properties.size();

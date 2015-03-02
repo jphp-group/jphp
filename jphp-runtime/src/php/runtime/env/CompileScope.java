@@ -95,8 +95,14 @@ public class CompileScope {
         superGlobals.addAll(parent.superGlobals);
 
         classMap.putAll(parent.classMap);
+        compileClassMap.putAll(parent.compileClassMap);
+
         functionMap.putAll(parent.functionMap);
+        compileFunctionMap.putAll(parent.compileFunctionMap);
+
         constantMap.putAll(parent.constantMap);
+        compileConstantMap.putAll(parent.compileConstantMap);
+
         exceptionMap.putAll(parent.exceptionMap);
 
         moduleMap.putAll(parent.moduleMap);
@@ -107,6 +113,10 @@ public class CompileScope {
         methodCount.set(parent.methodCount.longValue());
 
         compilerFactory = parent.compilerFactory;
+
+        classEntityFetchHandler = parent.classEntityFetchHandler;
+        functionEntityFetchHandler = parent.functionEntityFetchHandler;
+        constantEntityFetchHandler = parent.constantEntityFetchHandler;
 
         extensions.putAll(parent.extensions);
     }
@@ -151,16 +161,8 @@ public class CompileScope {
 
             compilerFactory = new CompilerFactory() {
                 @Override
-                public AbstractCompiler getCompiler(Environment env, Context context) {
-                    try {
-                        return (AbstractCompiler) jvmConstructor.newInstance(env, context);
-                    } catch (InstantiationException e) {
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e.getCause());
-                    }
+                public AbstractCompiler getCompiler(Environment env, Context context) throws Throwable {
+                    return (AbstractCompiler) jvmConstructor.newInstance(env, context);
                 }
             };
         } catch (ClassNotFoundException e) {
@@ -199,12 +201,17 @@ public class CompileScope {
         registerExtension(extension);
     }
 
-    public AbstractCompiler createCompiler(Environment env, Context context) {
+    public AbstractCompiler createCompiler(Environment env, Context context) throws Throwable {
         if (compilerFactory == null) {
             throw new NullPointerException("compilerFactory is not set");
         }
 
-        return compilerFactory.getCompiler(env, context);
+        try {
+            return compilerFactory.getCompiler(env, context);
+        } catch (InvocationTargetException e) {
+            env.__throwException(e);
+            return null;
+        }
     }
 
     public RuntimeClassLoader getClassLoader() {

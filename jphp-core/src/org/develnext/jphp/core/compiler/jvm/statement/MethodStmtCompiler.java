@@ -326,8 +326,15 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 expressionCompiler.writeVarLoad("~this");
                 expressionCompiler.writeGetDynamic("uses", Memory[].class);
 
-                for (ArgumentStmtToken argument : statement.getUses()){
-                    LocalVariable local = addLocalVariable(argument.getName().getName(), label, Memory.class);
+                for (ArgumentStmtToken argument : statement.getUses()) {
+                    LocalVariable local;
+                    if (statement.isDynamicLocal()) {
+                        expressionCompiler.writeDefineVariable(argument.getName());
+                        local = getLocalVariable(argument.getName().getName());
+                    } else {
+                        local = addLocalVariable(argument.getName().getName(), label, Memory.class);
+                    }
+
                     if (argument.isReference()){
                         local.setReference(true);
                         statement.variable(argument.getName()).setUnstable(true);
@@ -335,7 +342,13 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                     expressionCompiler.writePushDup();
                     expressionCompiler.writePushGetFromArray(i, Memory.class);
-                    expressionCompiler.writeVarStore(local, false, false);
+
+                    if (statement.isDynamicLocal()) {
+                        expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
+                    } else {
+                        expressionCompiler.writeVarStore(local, false, false);
+                    }
+
                     local.pushLevel();
                     i++;
                 }
