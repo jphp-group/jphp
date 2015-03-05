@@ -5,6 +5,11 @@ dependencies {
 
     compile 'javax.servlet:javax.servlet-api:3.0.+'
 
+    compile 'net.sf.ehcache:ehcache-core:2.5.+'
+    compile 'org.apache.shiro:shiro-core:1.2.+'
+    compile 'org.apache.shiro:shiro-web:1.2.+'
+    compile 'org.quartz-scheduler:quartz:2.2.1'
+
     testCompile 'junit:junit:4.+'
 }
 

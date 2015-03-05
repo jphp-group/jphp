@@ -11,4 +11,9 @@ abstract class HttpServletResponse
      * @var int
      */
     public $status;
+
+    /**
+     * @param Cookie $cookie
+     */
+    public function addCookie(Cookie $cookie) {}
 }
