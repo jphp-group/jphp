@@ -7,12 +7,17 @@ import php.runtime.env.Environment;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Abstract
 @Name(FrameworkExtension.NS + "web\\HttpServletResponse")
 public class WrapHttpServletResponse extends BaseWrapper<HttpServletResponse> {
+    interface WrappedInterface {
+        void addCookie(Cookie cookie);
+    }
+
     public WrapHttpServletResponse(Environment env, HttpServletResponse wrappedObject) {
         super(env, wrappedObject);
     }
