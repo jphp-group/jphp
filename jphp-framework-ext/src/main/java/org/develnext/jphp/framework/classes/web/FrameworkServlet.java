@@ -25,8 +25,7 @@ public class FrameworkServlet extends HttpServlet {
         loader.run(".init");
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Environment env = new Environment(loader.getScope(), resp.getOutputStream());
 
         try {
@@ -47,27 +46,44 @@ public class FrameworkServlet extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doGet(req, resp);
+        doRequest(req, resp);
+    }
+
+    @Override
     protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doHead(req, resp);
+        doRequest(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPost(req, resp);
+        doRequest(req, resp);
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPut(req, resp);
+        doRequest(req, resp);
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doDelete(req, resp);
+        doRequest(req, resp);
     }
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doOptions(req, resp);
+        doRequest(req, resp);
+    }
+
+    @Override
+    protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doTrace(req, resp);
+        doRequest(req, resp);
     }
 }

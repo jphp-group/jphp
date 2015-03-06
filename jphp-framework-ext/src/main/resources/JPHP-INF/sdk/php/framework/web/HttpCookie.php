@@ -5,7 +5,7 @@ namespace php\framework\web;
  * Class Cookie
  * @package php\framework\web
  */
-class Cookie
+class HttpCookie
 {
     /** @var string */
     public $name;

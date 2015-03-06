@@ -11,8 +11,8 @@ import php.runtime.reflection.ClassEntity;
 
 import javax.servlet.http.Cookie;
 
-@Name(FrameworkExtension.NS + "web\\Cookie")
-public class WrapCookie extends BaseWrapper<Cookie> {
+@Name(FrameworkExtension.NS + "web\\HttpCookie")
+public class WrapHttpCookie extends BaseWrapper<Cookie> {
     interface WrappedInterface {
         @Property String domain();
         @Property int version();
@@ -26,11 +26,11 @@ public class WrapCookie extends BaseWrapper<Cookie> {
         @Property String name();
     }
 
-    public WrapCookie(Environment env, Cookie wrappedObject) {
+    public WrapHttpCookie(Environment env, Cookie wrappedObject) {
         super(env, wrappedObject);
     }
 
-    public WrapCookie(Environment env, ClassEntity clazz) {
+    public WrapHttpCookie(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
