@@ -1029,7 +1029,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, String index) {
-        Memory e = getByScalar(index);
+        Memory number = StringMemory.toLong(index);
+        Memory e = number == null ? getByScalar(index) : getByScalar(number);
         return e == null ? UNDEFINED : e;
     }
 

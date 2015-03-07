@@ -1,10 +1,10 @@
-package org.develnext.jphp.net.classes;
+package php.runtime.ext.net;
 
-import org.develnext.jphp.net.NetExtension;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.WrapInterface;
 import php.runtime.env.Environment;
+import php.runtime.ext.NetExtension;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 

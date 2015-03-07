@@ -27,13 +27,19 @@ public class ReflectionClass extends Reflection {
 
     protected ClassEntity entity;
 
+    protected ReflectionClass(Environment env) {
+        super(env);
+    }
+
     public ReflectionClass(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
-    public void setEntity(ClassEntity entity) {
+    public ReflectionClass setEntity(ClassEntity entity) {
         this.entity = entity;
         getProperties().put("name", new StringMemory(entity.getName()));
+
+        return this;
     }
 
     @Signature(@Arg("argument"))
@@ -340,6 +346,28 @@ public class ReflectionClass extends Reflection {
         ReflectionClass result = new ReflectionClass(env, classEntity);
         result.setEntity(entity.getParent());
         return new ObjectMemory(result);
+    }
+
+    @Signature
+    public Memory getTraits(Environment env, Memory... args) {
+        ArrayMemory result = new ArrayMemory();
+
+        for (ClassEntity el : entity.getTraits().values()) {
+            result.add(new ReflectionClass(env).setEntity(el));
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
+    public Memory getTraitNames(Environment env, Memory... args) {
+        ArrayMemory result = new ArrayMemory();
+
+        for (ClassEntity el : entity.getTraits().values()) {
+            result.add(el.getName());
+        }
+
+        return result.toConstant();
     }
 
     @Signature
