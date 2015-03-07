@@ -39,13 +39,21 @@ public class CompilePropertyEntity extends PropertyEntity {
     }
 
     @Override
-    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) throws IllegalAccessException {
-        field.set(object, operation.convert(env, trace, value));
+    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) {
+        try {
+            field.set(object, operation.convert(env, trace, value));
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
+        }
         return value;
     }
 
     @Override
-    public Memory getValue(Environment env, TraceInfo trace, Object object) throws IllegalAccessException {
-        return operation.unconvert(env, trace, field.get(object));
+    public Memory getValue(Environment env, TraceInfo trace, Object object) {
+        try {
+            return operation.unconvert(env, trace, field.get(object));
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
+        }
     }
 }

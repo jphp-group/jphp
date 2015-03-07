@@ -1,7 +1,6 @@
 package com.example;
 
 import php.runtime.ext.NetExtension;
-import org.develnext.jphp.swing.SwingExtension;
 import org.develnext.jphp.zend.ext.ZendExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
@@ -21,14 +20,6 @@ public class ExampleExtension extends Extension {
     @Override
     public String getVersion() {
         return "1.0";
-    }
-
-    @Override
-    public String[] getRequiredExtensions() {
-        return new String[] {
-                SwingExtension.class.getName(),
-                ZendExtension.class.getName()
-        };
     }
 
     @Override

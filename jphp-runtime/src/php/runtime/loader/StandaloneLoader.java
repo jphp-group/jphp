@@ -148,12 +148,16 @@ public class StandaloneLoader {
     }
 
     public void run() {
+        run("bootstrap");
+    }
+
+    public void run(String bootstrapScriptName) {
         loadExtensions();
 
         try {
             loadLibrary();
 
-            ModuleEntity bootstrap = fetchModule("bootstrap");
+            ModuleEntity bootstrap = fetchModule(bootstrapScriptName);
 
             if (bootstrap != null) {
                 bootstrap.includeNoThrow(env);
@@ -209,6 +213,10 @@ public class StandaloneLoader {
 
     public ModuleEntity fetchConstant(String name) {
         return _fetch(name, constants);
+    }
+
+    public CompileScope getScope() {
+        return scope;
     }
 
     protected void loadClassesDump(InputStream input) throws IOException {

@@ -5,6 +5,7 @@ dependencies {
     compile localGroovy()
 
     compile project(':jphp-core')
+    compile project(':jphp-gen-api')
 
     testCompile 'junit:junit:4.+'
 }

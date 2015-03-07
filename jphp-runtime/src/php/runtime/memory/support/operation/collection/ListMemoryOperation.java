@@ -10,9 +10,8 @@ import php.runtime.memory.support.operation.GenericMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ListMemoryOperation extends GenericMemoryOperation<List> {
     public ListMemoryOperation(Type... genericTypes) {
@@ -25,7 +24,15 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { List.class, ArrayList.class, Collection.class };
+        return new Class<?>[] {
+                List.class,
+                ArrayList.class,
+                LinkedList.class,
+                Collection.class,
+                Stack.class,
+                Vector.class,
+                CopyOnWriteArrayList.class
+        };
     }
 
     @Override

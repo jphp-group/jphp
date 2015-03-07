@@ -750,12 +750,25 @@ public class Environment {
             echo("\n    at line " + (er.getTraceInfo().getStartLine() + 1));
             echo(", position " + (er.getTraceInfo().getStartPosition() + 1));
             echo("\n");
-            echo("\n    in '" + er.getTraceInfo().getFileName() + "'");
+            echo("\n    in '" + er.getTraceInfo().getFileName() + "'\n");
 
             JVMStackTracer tracer = scope.getStackTracer(e);
+
+            int i = 0;
             for (JVMStackTracer.Item el : tracer) {
-                echo("\n\tat " + (el.isInternal() ? "" : "-> ") + el);
+                if (!el.isInternal()) {
+                    echo("\n\t #" + (i++) + " " + el);
+                }
             }
+
+            echo("\n");
+
+            for (JVMStackTracer.Item el : tracer) {
+                if (!el.isSystem()) {
+                    echo("\n\t " + (el.isInternal() ? "" : "->") + " " + el);
+                }
+            }
+
             return true;
         } else if (e instanceof FinallyException) {
             // nop

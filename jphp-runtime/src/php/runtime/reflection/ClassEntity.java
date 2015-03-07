@@ -776,7 +776,7 @@ ClassReader classReader;
         ArrayMemory props = object.getProperties();
 
         for(PropertyEntity property : getProperties()) {
-            if (id == property.clazz.getId()){
+            if (id == property.clazz.getId() && property.getGetter() == null){
                 props.putAsKeyString(
                         property.getSpecificName(),
                         property.getDefaultValue(env).toImmutable()
@@ -788,7 +788,7 @@ ClassReader classReader;
         while (tmp != null){
             long otherId = tmp.getId();
             for(PropertyEntity property : tmp.getProperties()) {
-                if (property.getClazz().getId() == otherId) {
+                if (property.getClazz().getId() == otherId && property.getGetter() == null) {
                     if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
                         props.getByScalarOrCreate(
                                 property.getSpecificName(),
@@ -1324,11 +1324,7 @@ ClassReader classReader;
             ArrayMemory props = object.getProperties();
 
             if (entity != null) {
-                if (entity.getter != null) {
-                    value = ObjectInvokeHelper.invokeMethod(object, entity.getter, env, trace, null, false);
-                } else {
-                    value = entity.getValue(env, trace, object);
-                }
+                value = entity.getValue(env, trace, object);
             } else {
                 value = props == null ? null : props.getByScalar(property);
             }

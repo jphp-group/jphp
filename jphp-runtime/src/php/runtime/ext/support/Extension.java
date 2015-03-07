@@ -21,9 +21,13 @@ abstract public class Extension {
         return getClass().getName();
     }
 
-    public String getNamespace() { return ""; }
+    public String getNamespace() {
+        return "";
+    }
 
-    abstract public String getVersion();
+    public String getVersion() {
+        return "~";
+    }
 
     public String[] getRequiredExtensions(){
         return new String[0];

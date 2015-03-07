@@ -7,6 +7,7 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.support.Entity;
@@ -240,11 +241,15 @@ public class PropertyEntity extends Entity {
         return propertyEntity;
     }
 
-    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) throws IllegalAccessException {
+    public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) {
         return ((IObject) object).getProperties().refOfIndex(name).assign(value);
     }
 
-    public Memory getValue(Environment env, TraceInfo trace, Object object) throws IllegalAccessException {
+    public Memory getValue(Environment env, TraceInfo trace, Object object) throws Throwable {
+        if (getter != null && object instanceof IObject) {
+            return ObjectInvokeHelper.invokeMethod((IObject) object, getter, env, trace, null, false);
+        }
+
         ArrayMemory props = ((IObject) object).getProperties();
 
         Memory result = props.getByScalar(specificName);

@@ -4,10 +4,13 @@ import php.runtime.Memory;
 import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.PropertyEntity;
 
 import java.io.Writer;
 import java.util.Set;
@@ -161,13 +164,36 @@ public class PrintR extends Printer {
                 } catch (Throwable throwable) {
                     throw new RuntimeException(throwable);
                 }
-            } else
+            } else {
                 props = value.getProperties();
+            }
 
-            if (props != null){
+            for (PropertyEntity entity : classEntity.getProperties()) {
+                if (entity.getGetter() != null) {
+                    printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
+
+                    printer.write("[");
+                    printer.write(entity.getName());
+                    printer.write(":getter] => ");
+
+                    try {
+                        print(entity.getValue(env, TraceInfo.UNKNOWN, value.value));
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } catch (Throwable throwable) {
+                        throw new RuntimeException(throwable);
+                    }
+
+                    writeSeparator(false);
+                }
+            }
+
+            if (props != null) {
+
                 ForeachIterator iterator = props.foreachIterator(false, false);
                 int i = 0;
                 int size = classEntity.properties.size();
+
                 while (iterator.next()){
                     printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
@@ -178,13 +204,15 @@ public class PrintR extends Printer {
                     int pos;
                     Modifier modifier = Modifier.PUBLIC;
                     String className = "";
+
                     if ((pos = realKey.lastIndexOf("\0")) > -1){
-                        if (realKey.startsWith("\0*\0")){
+                        if (realKey.startsWith("\0*\0")) {
                             modifier = Modifier.PROTECTED;
                         } else {
                             modifier = Modifier.PRIVATE;
                             className = realKey.substring(1, pos);
                         }
+
                         realKey = realKey.substring(pos + 1);
                     }
 
