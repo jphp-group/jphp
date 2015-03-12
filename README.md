@@ -1,6 +1,8 @@
 PHP Compiler for JVM
 ====================
 
+[![Join the chat at https://gitter.im/jphp-compiler/jphp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jphp-compiler/jphp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](http://ci.develnext.org/buildStatus/icon?job=jphp)](http://ci.develnext.org/job/jphp/)
 
 JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.5+).
