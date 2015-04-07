@@ -1,5 +1,4 @@
-package org.jphp.std;
-
+package php.runtime.ext.core.classes.util;
 
 import static php.runtime.annotation.Reflection.*;
 
