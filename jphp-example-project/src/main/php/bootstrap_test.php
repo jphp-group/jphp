@@ -7,7 +7,7 @@ $t = microtime(1);
 $std = 'stdClass';
 
 for ($i = 0; $i < 10000000; $i++) {
-    $obj = new
+    $obj = new $std;
     $obj = mirror::newInstance('stdClass');
     //$class = mirror::typeOf($std, true);
     //$class = str::lower(get_class($std));
