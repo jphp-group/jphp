@@ -1848,8 +1848,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return StackItem.Type.STRING;
         else if (value instanceof CallExprToken) {
             PushCallStatistic statistic = new PushCallStatistic();
-            writePushCall((CallExprToken)value, true, false, statistic);
+            writePushCall((CallExprToken) value, true, false, statistic);
             return statistic.returnType;
+        } else if (value instanceof NameToken){
+            Memory tmpMemory = writePushName((NameToken) value, true, false);
+            return tmpMemory == null ? StackItem.Type.REFERENCE : StackItem.Type.valueOf(tmpMemory.type);
         } else
             return StackItem.Type.REFERENCE;
     }
