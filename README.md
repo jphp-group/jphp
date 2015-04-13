@@ -48,12 +48,12 @@ Our project started in October 2013. There were a few reasons for that:
 + `__debugInfo` for var_dump (php 5.6)
 + `**` power operator (php 5.6)
 + Constant Scalar Expressions (with constants) (php 5.6)
-+ Importing namespaced functions (php 5.6)
 + Dedicated syntax for variadic functions (php 5.6)
++ Argument unpacking (php 5.6)
 
 **What JPHP does not yet support?**
 
-+ Argument unpacking (php 5.6)
++ Importing namespaced functions (php 5.6)
 
 ### Documentation
 
