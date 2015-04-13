@@ -23,4 +23,9 @@ public class ArgUnpackTest extends JvmCompilerCase {
     public void testBasic() {
         check("arg_unpack/basic.php");
     }
+
+    @Test
+    public void testByRef() {
+        check("arg_unpack/by_ref.php");
+    }
 }

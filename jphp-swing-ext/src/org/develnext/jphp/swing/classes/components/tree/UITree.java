@@ -200,7 +200,7 @@ public class UITree extends UIContainer {
 
     @Signature
     protected Memory __getSelectionRows(Environment env, Memory... args) {
-        return new ArrayMemory(component.getContent().getSelectionRows()).toConstant();
+        return ArrayMemory.ofIntegers(component.getContent().getSelectionRows()).toConstant();
     }
 
     @Signature(@Arg(value = "value", type = HintType.ARRAY))

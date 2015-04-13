@@ -276,7 +276,7 @@ public class FileObject extends BaseObject {
     @Signature(@Arg(value = "filter", optional = @Optional("NULL")))
     public Memory find(final Environment env, Memory... args){
         if (args[0].isNull()){
-            return new ArrayMemory(file.list()).toConstant();
+            return ArrayMemory.ofStrings(file.list()).toConstant();
         } else {
             final Invoker invoker = Invoker.valueOf(env, null, args[0]);
             if (invoker == null) {
@@ -295,7 +295,8 @@ public class FileObject extends BaseObject {
                     return invoker.callNoThrow(args).toBoolean();
                 }
             });
-            return new ArrayMemory(result);
+
+            return ArrayMemory.ofStrings(result);
         }
     }
 

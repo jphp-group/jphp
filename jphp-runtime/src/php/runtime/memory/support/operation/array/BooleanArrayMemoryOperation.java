@@ -21,7 +21,7 @@ public class BooleanArrayMemoryOperation extends MemoryOperation<boolean[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, boolean[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofBooleans(arg).toConstant();
     }
 
     @Override

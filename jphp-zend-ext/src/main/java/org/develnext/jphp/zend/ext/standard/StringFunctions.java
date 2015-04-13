@@ -780,7 +780,8 @@ public class StringFunctions extends FunctionsContainer {
             result = Arrays.copyOfRange(result, 0, result.length + limit);
         } else
             result = StringUtils.split(string, delimiter, limit);
-        return new ArrayMemory(result);
+
+        return ArrayMemory.ofStrings(result);
     }
 
     public static Memory explode(String delimiter, String string){

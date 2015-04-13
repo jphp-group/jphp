@@ -130,7 +130,7 @@ abstract public class WrapSwingWorker extends BaseObject {
                         WrapSwingWorker.this.getReflection().findMethod("process"),
                         env,
                         TraceInfo.UNKNOWN,
-                        new Memory[]{ new ArrayMemory(chunks) },
+                        new Memory[]{ ArrayMemory.ofCollection(chunks) },
                         false
                 );
             } catch (RuntimeException e) {

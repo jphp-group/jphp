@@ -28,7 +28,7 @@ public class CharArrayMemoryOperation extends MemoryOperation<char[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, char[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofChars(arg).toConstant();
     }
 
     @Override

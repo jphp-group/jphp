@@ -21,7 +21,7 @@ public class DoubleArrayMemoryOperation extends MemoryOperation<double[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, double[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofDoubles(arg).toConstant();
     }
 
     @Override

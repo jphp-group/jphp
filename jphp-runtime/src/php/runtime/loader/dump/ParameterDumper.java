@@ -33,6 +33,18 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
         // & ref
         print.writeBoolean(entity.isReference());
 
+        // mutable
+        print.writeBoolean(entity.isMutable());
+
+        // used
+        print.writeBoolean(entity.isUsed());
+
+        // variadic
+        print.writeBoolean(entity.isVariadic());
+
+        // nullable
+        print.writeBoolean(entity.isNullable());
+
         // name
         print.writeName(entity.getName());
 
@@ -55,6 +67,12 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
         entity.setType(data.readHintType());
         entity.setTypeClass(data.readName());
         entity.setReference(data.readBoolean());
+
+        entity.setMutable(data.readBoolean());
+        entity.setUsed(data.readBoolean());
+        entity.setVariadic(data.readBoolean());
+        entity.setNullable(data.readBoolean());
+
         entity.setName(data.readName());
         entity.setTrace(data.readTrace(context));
 

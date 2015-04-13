@@ -36,7 +36,7 @@ final public class WrapSwingUtilities extends BaseObject {
     @Signature
     public static Memory getScreenSize(Environment env, Memory... args) {
         Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        return new ArrayMemory(dimension.getWidth(), dimension.getHeight());
+        return ArrayMemory.ofDoubles(dimension.getWidth(), dimension.getHeight());
     }
 
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE, optional = @Optional("NULL")))

@@ -91,8 +91,8 @@ abstract public class UIElement extends RootObject {
         ArrayMemory result = new ArrayMemory();
         result.refOfIndex("uid").assign(getComponent().getName());
 
-        result.refOfIndex("position").assign(ArrayMemory.of(getComponent().getX(), getComponent().getY()));
-        result.refOfIndex("size").assign(ArrayMemory.of(getComponent().getWidth(), getComponent().getHeight()));
+        result.refOfIndex("position").assign(ArrayMemory.ofIntegers(getComponent().getX(), getComponent().getY()));
+        result.refOfIndex("size").assign(ArrayMemory.ofIntegers(getComponent().getWidth(), getComponent().getHeight()));
 
         ComponentProperties properties = SwingExtension.getProperties(getComponent());
         if (properties.getOriginGroups() != null)
@@ -268,12 +268,12 @@ abstract public class UIElement extends RootObject {
         if (properties == null)
             return Memory.NULL;
 
-        return ArrayMemory.of(properties.getPadding()).toConstant();
+        return ArrayMemory.ofIntegers(properties.getPadding()).toConstant();
     }
 
     @Signature
     protected Memory __getSize(Environment env, Memory... args) {
-        return ArrayMemory.of(getComponent().getWidth(), getComponent().getHeight()).toConstant();
+        return ArrayMemory.ofIntegers(getComponent().getWidth(), getComponent().getHeight()).toConstant();
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -288,7 +288,7 @@ abstract public class UIElement extends RootObject {
     @Signature
     protected Memory __getPreferredSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getPreferredSize();
-        return ArrayMemory.of((int) dimension.getWidth(), (int) dimension.getHeight()).toConstant();
+        return ArrayMemory.ofIntegers((int) dimension.getWidth(), (int) dimension.getHeight()).toConstant();
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -303,7 +303,7 @@ abstract public class UIElement extends RootObject {
     @Signature
     protected Memory __getMinSize(Environment env, Memory... args) {
         Dimension dimension = getComponent().getMinimumSize();
-        return ArrayMemory.of(dimension.getWidth(), dimension.getHeight());
+        return ArrayMemory.ofDoubles(dimension.getWidth(), dimension.getHeight());
     }
 
     @Signature({@Arg(value = "size", type = HintType.ARRAY)})
@@ -319,13 +319,13 @@ abstract public class UIElement extends RootObject {
 
     @Signature
     protected Memory __getPosition(Environment env, Memory... args) {
-        return ArrayMemory.of(getComponent().getX(), getComponent().getY()).toConstant();
+        return ArrayMemory.ofIntegers(getComponent().getX(), getComponent().getY()).toConstant();
     }
 
     @Signature
     protected Memory __getScreenPosition(Environment env, Memory... args) {
         Point pt = getComponent().getLocationOnScreen();
-        return ArrayMemory.of(pt.x, pt.y).toConstant();
+        return ArrayMemory.ofIntegers(pt.x, pt.y).toConstant();
     }
 
     @Signature
@@ -366,7 +366,7 @@ abstract public class UIElement extends RootObject {
             parent = parent.getParent();
         }
 
-        return ArrayMemory.of(x, y).toConstant();
+        return ArrayMemory.ofIntegers(x, y).toConstant();
     }
 
     @Signature({@Arg(value = "position", type = HintType.ARRAY)})
