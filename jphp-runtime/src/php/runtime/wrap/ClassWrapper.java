@@ -49,7 +49,7 @@ public class ClassWrapper {
     }
 
     protected void onWrapName(ClassEntity classEntity) {
-        String namespace = extension == null ? "" : extension.getNamespace();
+        String namespace = "";
 
         if (nativeClass.isAnnotationPresent(Reflection.Name.class)){
             Reflection.Name name = nativeClass.getAnnotation(Reflection.Name.class);

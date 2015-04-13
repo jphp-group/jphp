@@ -32,6 +32,11 @@ public class JsonExtension extends Extension {
     }
 
     @Override
+    public Status getStatus() {
+        return Status.ZEND_LEGACY;
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerConstants(new JsonConstants());
         registerFunctions(new JsonFunctions());

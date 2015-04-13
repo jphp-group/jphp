@@ -2,34 +2,8 @@ sourceSets {
     main.java.srcDirs = ['src']
 }
 
-/*jar {
-    jar.archiveName = 'jphp-cli.jar'
-
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    manifest { attributes 'Main-Class': 'org.develnext.jphp.cli.CLI' }
-
-    copy {
-        from 'shell/jphp'
-        from 'shell/jphp.bat'
-        from 'shell/jphp.conf'
-
-        into "$libsDir"
-    }
-}*/
-
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-zend-ext')
     compile 'com.beust:jcommander:1.32'
-}
-
-task dist(dependsOn: buildPortableDef) {
-    // ...
-    copy {
-        from 'shell/jphp'
-        from 'shell/jphp.bat'
-        from 'shell/jphp.conf'
-
-        into project.ext.distPath
-    }
 }

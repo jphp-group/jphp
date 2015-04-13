@@ -20,12 +20,13 @@ class GradlePlugin implements Plugin<Project> {
         def compilePhpTask = project.task("compilePhp") << {
             phpProject.update();
             phpProject.compile();
-        }
-
-        def buildPhpTask = project.task("buildPhp") << {
-            phpProject.update();
             phpProject.build();
         }
+
+        /*def buildPhpTask = project.task("buildPhp") << {
+            phpProject.update();
+            phpProject.build();
+        } */
 
         def phpVersion = project.task("phpVersion") << {
             println "JPHP v" + Information.CORE_VERSION
@@ -37,7 +38,7 @@ class GradlePlugin implements Plugin<Project> {
             project.tasks.getByPath("compileJava").dependsOn(compilePhpTask);
         }
 
-        buildPhpTask.dependsOn(compilePhpTask);
-        project.tasks.getByPath("build").dependsOn(buildPhpTask);
+        //buildPhpTask.dependsOn(compilePhpTask);
+        //project.tasks.getByPath("build").dependsOn(buildPhpTask);
     }
 }

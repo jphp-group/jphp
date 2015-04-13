@@ -4,9 +4,10 @@ import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
 
 public class StandardExtension extends Extension {
+
     @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.ZEND_LEGACY;
     }
 
     @Override

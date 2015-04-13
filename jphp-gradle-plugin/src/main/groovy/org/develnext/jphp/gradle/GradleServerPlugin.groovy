@@ -27,7 +27,7 @@ class GradleServerPlugin implements Plugin<Project> {
             phpServerProject.run();
         }
 
-        phpServerRun.dependsOn("buildPhp");
+        phpServerRun.dependsOn("compilePhp");
 
         project.tasks.getByPath("jettyRun").dependsOn(phpServerRun);
         project.tasks.getByPath("jettyRunWar").dependsOn(phpServerRun);

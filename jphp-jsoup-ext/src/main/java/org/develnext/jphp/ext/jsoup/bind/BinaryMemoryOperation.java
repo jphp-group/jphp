@@ -1,0 +1,25 @@
+package org.develnext.jphp.ext.jsoup.bind;
+
+import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.support.MemoryOperation;
+
+
+public class BinaryMemoryOperation extends MemoryOperation<byte[]> {
+    @Override
+    public Class<?>[] getOperationClasses() {
+        return new Class<?>[] { byte[].class };
+    }
+
+    @Override
+    public byte[] convert(Environment environment, TraceInfo traceInfo, Memory memory) {
+        return memory.getBinaryBytes();
+    }
+
+    @Override
+    public Memory unconvert(Environment environment, TraceInfo traceInfo, byte[] bytes) {
+        return new BinaryMemory(bytes);
+    }
+}

@@ -1,5 +1,6 @@
 package php.runtime.ext.support;
 
+import php.runtime.Information;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
@@ -17,26 +18,33 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 abstract public class Extension {
+    public enum Status { EXPERIMENTAL, BETA, STABLE, LEGACY, ZEND_LEGACY, DEPRECATED }
+
+    protected final Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
+    protected final Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
+    protected final Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
+
     public String getName() {
         return getClass().getName();
     }
 
-    public String getNamespace() {
-        return "";
-    }
-
     public String getVersion() {
-        return "~";
+        return Information.CORE_VERSION;
     }
 
+    abstract public Status getStatus();
+
+    @Deprecated
     public String[] getRequiredExtensions(){
         return new String[0];
     }
 
+    @Deprecated
     public String[] getOptionalExtensions(){
         return new String[0];
     }
 
+    @Deprecated
     public String[] getConflictExtensions(){
         return new String[0];
     }
@@ -45,17 +53,11 @@ abstract public class Extension {
         return new HashedMap<String, String>();
     }
 
-    public void onRegister(CompileScope scope){
-        // nop
-    }
+    abstract public void onRegister(CompileScope scope);
 
     public void onLoad(Environment env){
         // nop
     }
-
-    protected Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
-    protected Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
-    protected Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
 
     public Map<String, CompileConstant> getConstants() {
         return constants;

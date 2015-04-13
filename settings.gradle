@@ -6,10 +6,10 @@ include 'jphp-runtime',
         'jphp-zend-ext',
         'jphp-swing-ext',
         'jphp-json-ext',
-        'jphp-framework-ext',
+        'jphp-xml-ext',
+        'jphp-gdx-ext',
+        'jphp-jsoup-ext',
         'jphp-gen-api',
-        'jphp-example-project',
         'jphp-scripting',
-        'jphp-scripting-example',
 
         'jphp-gradle-plugin'

@@ -5,8 +5,8 @@ import php.runtime.ext.support.Extension;
 
 public class CompilerExtension extends Extension {
     @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.STABLE;
     }
 
     @Override

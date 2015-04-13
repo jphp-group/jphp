@@ -1,14 +1,8 @@
-ext.isExtension = true;
-
 dependencies {
-    compile project(':jphp-core')
+    compile project(':jphp-runtime')
     compile 'com.google.code.gson:gson:2.2.4'
 
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-zend-ext')
     testCompile project(':jphp-core').sourceSets.test.output
-}
-
-task dist(dependsOn: buildPortableDef) {
-    // ...
 }

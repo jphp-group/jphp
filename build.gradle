@@ -1,3 +1,6 @@
+def javaVersion    = 1.6;
+def projectVersion = 0.6;
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'signing'
@@ -5,7 +8,7 @@ allprojects {
     apply plugin: 'maven'
 
     project.group = 'org.develnext'
-    project.version = '0.6'
+    project.version = projectVersion
     project.ext.isSnapshot = System.getProperty("release", "0") in ["0", "false"];
 
     if (project.ext.isSnapshot) {
@@ -17,45 +20,23 @@ allprojects {
         mavenCentral()
     }
 
-    ext.distPath = "$rootProject.buildDir/dist"
-
-    task collectJars(type: Copy, overwrite: true) {
-        into "$project.ext.distPath/libs"
-        from configurations.runtime
-        exclude "jphp-*"
-    }
-
-    task copyRuntimeLibs(type: Copy, dependsOn: "jar", overwrite: true) {
-        into "$project.ext.distPath/libs"
-        from "$libsDir/" + jar.archiveName
-        rename jar.archiveName, "$jar.baseName." + jar.extension
-    }
-    
-    task buildPortableDef(dependsOn: [copyRuntimeLibs, collectJars], overwrite: true) {
-        copy {
-            from "sdk/"
-            into "$project.ext.distPath/sdk"
-        }
+    task sourcesJar(type: Jar, dependsOn: 'classes') {
+        classifier = 'sources'
+        from sourceSets.main.allSource
     }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.2";
-    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
-}
-
-task distZip (type: Zip) {
-    archiveName "dist-" + version + ".zip"
-    from project.ext.distPath
-    destinationDir buildDir
+    gradleVersion = 2.3;
+    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-bin.zip";
 }
 
 configure(subprojects) {
     apply plugin: 'maven'
     apply plugin: 'java'
 
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 
     sourceSets {
         main.java.srcDirs = ['src/main/java']
@@ -68,41 +49,21 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 }
 
-// extensions
-configure(subprojects.findAll { it.name.endsWith("-ext") }) {
-    task extensionJar(type: Jar, dependsOn: "classes") {
-        extensionJar.archiveName = project.name + ".jar"
-
-        from {
-            configurations.compile.findAll {
-                !it.toString().contains("jphp-") && !it.toString().contains("asm-")
-            }.collect {
-                it.isDirectory() ? it : zipTree(it)
-            }
-        }
-        from sourceSets.main.output.classesDir
-    }
-}
-
 // for deploy
 configure([
         project(':jphp-runtime'),
         project(':jphp-core'),
-        project(':jphp-android'),
         project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),
-        project(':jphp-framework-ext'),
+        project(':jphp-xml-ext'),
+        project(':jphp-gdx-ext'),
+
+        project(':jphp-android'),
         project(':jphp-scripting'),
         project(':jphp-gradle-plugin'),
 ]) {
-
     if (!project.ext.isSnapshot) {
-        task sourcesJar(type: Jar, dependsOn: 'classes') {
-            classifier = 'sources'
-            from sourceSets.main.allSource
-        }
-
         javadoc.failOnError = false
 
         task javadocJar(type: Jar, dependsOn: javadoc) {

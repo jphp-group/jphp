@@ -46,13 +46,8 @@ public class SwingExtension extends Extension {
     protected final static Map<String, ButtonGroup> buttonGroups = new HashMap<String, ButtonGroup>();
 
     @Override
-    public String getName() {
-        return "Swing";
-    }
-
-    @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.LEGACY;
     }
 
     @SuppressWarnings("unchecked")

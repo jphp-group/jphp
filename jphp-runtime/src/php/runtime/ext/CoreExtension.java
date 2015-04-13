@@ -36,15 +36,8 @@ public class CoreExtension extends Extension {
     }
 
     @Override
-    public String getVersion() {
-        return "~";
-    }
-
-    @Override
-    public String[] getOptionalExtensions() {
-        return new String[] {
-            NetExtension.class.getName()
-        };
+    public Status getStatus() {
+        return Status.STABLE;
     }
 
     @Override

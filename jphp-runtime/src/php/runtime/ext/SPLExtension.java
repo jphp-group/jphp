@@ -15,8 +15,8 @@ public class SPLExtension extends Extension {
     }
 
     @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.STABLE;
     }
 
     @Override

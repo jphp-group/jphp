@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AndroidExtension extends Extension {
-    public final static String NAMESPACE = "android\\";
+    public final static String NAMESPACE = "php\\android\\";
 
     public final static Map<String, EventProvider> eventProviders = new HashMap<String, EventProvider>();
 
     @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.EXPERIMENTAL;
     }
 
     @Override

@@ -1,0 +1,6 @@
+
+
+dependencies {
+    compile project(':jphp-runtime')
+    compile 'org.jsoup:jsoup:1.8.1'
+}

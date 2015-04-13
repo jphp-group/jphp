@@ -15,6 +15,11 @@ public class BCMathExtension extends Extension {
     }
 
     @Override
+    public Status getStatus() {
+        return Status.ZEND_LEGACY;
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerFunctions(new BCMathFunctions());
     }

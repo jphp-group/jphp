@@ -22,6 +22,11 @@ public class NetExtension extends Extension {
     }
 
     @Override
+    public Status getStatus() {
+        return Status.STABLE;
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerClass(scope, WrapNetStream.class);
 

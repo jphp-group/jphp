@@ -11,8 +11,8 @@ public class JavaExtension extends Extension {
     }
 
     @Override
-    public String getVersion() {
-        return "~";
+    public Status getStatus() {
+        return Status.EXPERIMENTAL;
     }
 
     @Override
