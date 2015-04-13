@@ -286,7 +286,7 @@ final public class StrUtils extends BaseObject {
         String separator = args[1].toString();
         int limit = args[2].toInteger();
 
-        return new ArrayMemory(StringUtils.split(string, separator, limit)).toConstant();
+        return ArrayMemory.ofStrings(StringUtils.split(string, separator, limit)).toConstant();
     }
 
     @FastMethod

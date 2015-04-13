@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
 import php.runtime.common.HintType;
 import php.runtime.common.LangMode;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
@@ -43,6 +44,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     @SuppressWarnings("unchecked")
     protected ArgumentStmtToken processArgument(ListIterator<Token> iterator){
         boolean isReference = false;
+        boolean isVariadic  = false;
+
         VariableExprToken variable = null;
         ExprStmtToken value = null;
 
@@ -73,20 +76,34 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             next = nextToken(iterator);
         }
 
+        if (next instanceof ArgumentUnpackExprToken) {
+            isVariadic = true;
+            next = nextToken(iterator);
+        }
+
         if (next instanceof VariableExprToken){
             variable = (VariableExprToken)next;
         } else
             unexpectedToken(next);
 
         next = nextToken(iterator);
-        if (next instanceof AssignExprToken){
+        if (next instanceof AssignExprToken) {
+            if (isVariadic) {
+                unexpectedToken(next);
+            }
+
             value = analyzer.generator(SimpleExprGenerator.class).getToken(
                     nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE
             );
         } else {
             if (next instanceof CommaToken || isClosedBrace(next, BraceExprToken.Kind.SIMPLE)){
-                if (next instanceof BraceExprToken)
+                if (next instanceof BraceExprToken) {
                     iterator.previous();
+                } else {
+                    if (isVariadic) {
+                        unexpectedToken(next);
+                    }
+                }
             } else
                 unexpectedToken(next);
         }
@@ -96,6 +113,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         argument.setHintType(hintType);
         argument.setHintTypeClass(hintTypeClass);
         argument.setReference(isReference);
+        argument.setVariadic(isVariadic);
         argument.setValue(value);
 
         if (argument.isReference() && argument.getValue() != null)
@@ -114,6 +132,9 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
             arguments.add(argument);
         }
+
+
+
         result.setArguments(arguments);
     }
 

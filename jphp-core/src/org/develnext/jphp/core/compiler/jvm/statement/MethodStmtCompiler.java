@@ -1,30 +1,30 @@
 package org.develnext.jphp.core.compiler.jvm.statement;
 
-import org.develnext.jphp.core.compiler.jvm.Constants;
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
-import php.runtime.common.Messages;
 import org.develnext.jphp.core.compiler.common.misc.StackItem;
+import org.develnext.jphp.core.compiler.jvm.Constants;
 import org.develnext.jphp.core.compiler.jvm.misc.JumpItem;
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
-import php.runtime.exceptions.support.ErrorType;
+import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+import php.runtime.Memory;
+import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
-import php.runtime.Memory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
-import org.develnext.jphp.core.tokenizer.TokenMeta;
-import org.develnext.jphp.core.tokenizer.token.Token;
-import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.util.*;
@@ -364,7 +364,6 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                             .setUnstable(true);
                 }
 
-                LabelNode undefined = new LabelNode();
                 LabelNode next = new LabelNode();
 
                 expressionCompiler.writeDefineVariable(argument.getName());
@@ -449,34 +448,41 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             int i = 0;
             for(ArgumentStmtToken argument : statement.getArguments()){
                 parameters[i] = new ParameterEntity(compiler.getContext());
-                parameters[i].setReference(argument.isReference());
-                parameters[i].setName(argument.getName().getName());
-                parameters[i].setTrace(argument.toTraceInfo(compiler.getContext()));
+                ParameterEntity parameter = parameters[i];
 
-                parameters[i].setMutable(
+                parameter.setReference(argument.isReference());
+                parameter.setName(argument.getName().getName());
+                parameter.setTrace(argument.toTraceInfo(compiler.getContext()));
+
+                parameter.setMutable(
                         statement.isDynamicLocal() || statement.variable(argument.getName()).isMutable()
                 );
 
-                parameters[i].setUsed(
+                parameter.setUsed(
                         !statement.isUnusedVariable(argument.getName())
                 );
 
-                parameters[i].setType(argument.getHintType());
-                if (argument.getHintTypeClass() != null)
-                    parameters[i].setTypeClass(argument.getHintTypeClass().getName());
+                parameter.setVariadic(argument.isVariadic());
+
+                parameter.setType(argument.getHintType());
+
+                if (argument.getHintTypeClass() != null) {
+                    parameter.setTypeClass(argument.getHintTypeClass().getName());
+                }
 
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(compiler);
                 ExprStmtToken value = argument.getValue();
-                if (value != null){
+
+                if (value != null) {
                     Memory defaultValue = expressionStmtCompiler.writeExpression(value, true, true, false);
 
                     // try detect constant
                     if (value.isSingle()) {
                         if (value.getSingle() instanceof NameToken){
-                            parameters[i].setDefaultValueConstName(((NameToken) value.getSingle()).getName());
+                            parameter.setDefaultValueConstName(((NameToken) value.getSingle()).getName());
                             if (defaultValue == null) {
                                 defaultValue = (new ConstantMemory(((NameToken) value.getSingle()).getName()));
-                                parameters[i].setMutable(true);
+                                parameter.setMutable(true);
                             }
                         } else if (value.getSingle() instanceof StaticAccessExprToken){
                             StaticAccessExprToken access = (StaticAccessExprToken)value.getSingle();
@@ -488,11 +494,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                                             ((NameToken) access.getField()).getName()
                                     ));
 
-                                parameters[i].setDefaultValueConstName(
+                                parameter.setDefaultValueConstName(
                                         ((NameToken) access.getClazz()).getName() + "::" +
-                                        ((NameToken) access.getField()).getName()
+                                                ((NameToken) access.getField()).getName()
                                 );
-                                parameters[i].setMutable(true);
+                                parameter.setMutable(true);
                             }
                         }
                     }
@@ -503,10 +509,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                                 Messages.ERR_EXPECTED_CONST_VALUE, "$" + argument.getName().getName()
                         );
 
-                    parameters[i].setDefaultValue(defaultValue);
+                    parameter.setDefaultValue(defaultValue);
                 }
                 i++;
             }
+
             entity.setParameters(parameters);
         }
 

@@ -11,6 +11,7 @@ import php.runtime.lang.StdClass;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
+import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
 
@@ -665,6 +666,8 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory bitShlRight(double value){ return new LongMemory((long)value << toLong()); }
     public Memory bitShlRight(boolean value){ return new LongMemory((value ? 1 : 0) << toLong()); }
     public Memory bitShlRight(String value){ return StringMemory.toNumeric(value).bitShl(this); }
+
+    public Memory unpack() { return new VariadicMemory(this); }
 
     /****************************************************************/
     /** Static *****/

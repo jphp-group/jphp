@@ -21,7 +21,7 @@ public class IntegerArrayMemoryOperation extends MemoryOperation<int[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, int[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofIntegers(arg).toConstant();
     }
 
     @Override

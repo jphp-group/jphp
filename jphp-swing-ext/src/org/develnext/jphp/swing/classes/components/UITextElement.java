@@ -190,6 +190,6 @@ abstract public class UITextElement extends UIContainer {
     @Signature
     public Memory __getMargin(Environment env, Memory... args) {
         Insets insets = getTextComponent().getMargin();
-        return new ArrayMemory(insets.top, insets.left, insets.bottom, insets.right);
+        return ArrayMemory.ofDoubles(insets.top, insets.left, insets.bottom, insets.right);
     }
 }

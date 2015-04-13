@@ -12,4 +12,6 @@ include 'jphp-runtime',
         'jphp-gen-api',
         'jphp-scripting',
 
-        'jphp-gradle-plugin'
+        'jphp-gradle-plugin',
+
+        'sandbox'

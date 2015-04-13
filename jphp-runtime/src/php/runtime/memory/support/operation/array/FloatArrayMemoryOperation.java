@@ -21,7 +21,7 @@ public class FloatArrayMemoryOperation extends MemoryOperation<float[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, float[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofFloats(arg).toConstant();
     }
 
     @Override

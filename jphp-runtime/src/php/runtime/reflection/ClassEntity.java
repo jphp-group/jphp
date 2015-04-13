@@ -12,6 +12,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
+import php.runtime.invoke.InvokeArgumentHelper;
 import php.runtime.invoke.InvokeHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.ForeachIterator;
@@ -1025,7 +1026,7 @@ ClassReader classReader;
                             );
                             env.peekCall(0).flags = FLAG_GET;
 
-                            InvokeHelper.checkTypeHinting(env, trace, methodMagicGet, args);
+                            InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
                             o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
                         } finally {
                             env.popCall();
@@ -1039,7 +1040,7 @@ ClassReader classReader;
                     env.pushCall(trace, object, args, methodMagicSet.getName(), methodMagicSet.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_SET;
 
-                    InvokeHelper.checkTypeHinting(env, trace, methodMagicSet, args);
+                    InvokeArgumentHelper.checkType(env, trace, methodMagicSet, args);
                     methodMagicSet.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -1128,7 +1129,7 @@ ClassReader classReader;
                     env.pushCall(trace, object, args, methodMagicUnset.getName(), methodMagicUnset.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_UNSET;
 
-                    InvokeHelper.checkTypeHinting(env, trace, methodMagicUnset, args);
+                    InvokeArgumentHelper.checkType(env, trace, methodMagicUnset, args);
                     methodMagicUnset.invokeDynamic(object, env, args);
                 } finally {
                     env.popCall();
@@ -1182,7 +1183,7 @@ ClassReader classReader;
                 );
                 env.peekCall(0).flags = FLAG_ISSET;
 
-                InvokeHelper.checkTypeHinting(env, trace, methodMagicIsset, new StringMemory(property));
+                InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, new StringMemory(property));
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -1221,7 +1222,7 @@ ClassReader classReader;
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_ISSET;
 
-                InvokeHelper.checkTypeHinting(env, trace, methodMagicIsset, new StringMemory(property));
+                InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, new StringMemory(property));
                 result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
@@ -1348,7 +1349,7 @@ ClassReader classReader;
                 env.pushCall(trace, object, args, methodMagicGet.getName(), methodMagicGet.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_GET;
 
-                InvokeHelper.checkTypeHinting(env, trace, methodMagicGet, args);
+                InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
                 result = methodMagicGet.invokeDynamic(object, env, args);
             } finally {
                 env.popCall();

@@ -14,7 +14,7 @@ public class SplClassLoader {
         this.callback = callback;
         if (invoker instanceof StaticMethodInvoker && !callback.isArray()){
             StaticMethodInvoker staticMethodInvoker = (StaticMethodInvoker)invoker;
-            this.callback = new ArrayMemory(
+            this.callback = ArrayMemory.ofStrings(
                     staticMethodInvoker.getCalledClass(),
                     staticMethodInvoker.getMethod().getName()
             );

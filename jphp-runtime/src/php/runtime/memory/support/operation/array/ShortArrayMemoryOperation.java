@@ -28,7 +28,7 @@ public class ShortArrayMemoryOperation extends MemoryOperation<short[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, short[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofShorts(arg).toConstant();
     }
 
     @Override

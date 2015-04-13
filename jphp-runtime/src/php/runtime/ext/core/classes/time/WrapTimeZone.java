@@ -146,9 +146,9 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
     @Signature(@Arg(value = "rawOffset", optional = @Optional("null")))
     public static Memory getAvailableIDs(Environment env, Memory... args) {
         if (args[0].isNull())
-            return new ArrayMemory(TimeZone.getAvailableIDs()).toConstant();
+            return ArrayMemory.ofStrings(TimeZone.getAvailableIDs()).toConstant();
         else
-            return new ArrayMemory(TimeZone.getAvailableIDs(args[0].toInteger())).toConstant();
+            return ArrayMemory.ofStrings(TimeZone.getAvailableIDs(args[0].toInteger())).toConstant();
     }
 
     @Override

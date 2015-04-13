@@ -142,7 +142,7 @@ public class InfoFunctions extends FunctionsContainer {
         if (ext == null) {
             return Memory.FALSE;
         }
-        return new ArrayMemory(ext.getFunctions().keySet());
+        return ArrayMemory.ofStringCollection(ext.getFunctions().keySet());
     }
 
     public static Memory ini_get(Environment env, String name){
@@ -170,7 +170,7 @@ public class InfoFunctions extends FunctionsContainer {
     }
 
     public static Memory get_included_files(Environment env){
-        return new ArrayMemory(env.getIncluded().keySet());
+        return ArrayMemory.ofStringCollection(env.getIncluded().keySet());
     }
 
     public static Memory get_required_files(Environment env){

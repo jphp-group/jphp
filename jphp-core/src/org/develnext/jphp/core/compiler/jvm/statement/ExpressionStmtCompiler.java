@@ -2982,6 +2982,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         result = tryWritePush(stackPopToken(), returnValue, writeOpcode, true);
                     else
                         writePush(stackPopToken(), returnValue, true);
+                } else if (stackPeek().isConstant()) {
+                    stackPop();
                 }
             }
         }

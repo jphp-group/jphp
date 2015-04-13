@@ -52,13 +52,16 @@ public class CompileFunctionEntity extends FunctionEntity {
 
         int i = 0;
         int j = 0;
+
         for(Class<?> clazz : types) {
             boolean isRef = method.references[i];
             boolean mutableValue = method.mutableValues[i];
 
             MemoryUtils.Converter<?> converter = method.converters[i];
+
             if (clazz == Memory.class) {
-                passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toImmutable() : arguments[j].toValue());
+                Memory argument = arguments[j];
+                passed[i] = isRef ? argument : (mutableValue ? argument.toImmutable() : argument.toValue());
                 j++;
             } else if (converter != null) {
                 passed[i] = converter.run(arguments[j]);
@@ -69,6 +72,7 @@ public class CompileFunctionEntity extends FunctionEntity {
                 passed[i] = trace;
             } else if (i == types.length - 1 && types[i] == Memory[].class){
                 Memory[] arg = new Memory[arguments.length - i + 1];
+
                 if (!isRef){
                     for(int k = 0; k < arg.length; k++)
                         arg[i] = arguments[i].toImmutable();

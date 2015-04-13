@@ -1499,51 +1499,121 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return r;
     }
 
-    public static ArrayMemory of(int... array) {
+    public static ArrayMemory ofShorts(short... array) {
         ArrayMemory result = new ArrayMemory();
-        for (int el : array) result.add(el);
+
+        if (array != null) {
+            for (int el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(long... array) {
+    public static ArrayMemory ofIntegers(int... array) {
         ArrayMemory result = new ArrayMemory();
-        for (long el : array) result.add(el);
+
+        if (array != null) {
+            for (int el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(double... array) {
+    public static ArrayMemory ofLongs(long... array) {
         ArrayMemory result = new ArrayMemory();
-        for (double el : array) result.add(el);
+
+        if (array != null) {
+            for (long el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(boolean... array) {
+    public static ArrayMemory ofFloats(float... array) {
         ArrayMemory result = new ArrayMemory();
-        for (boolean el : array) result.add(el);
+
+        if (array != null) {
+            for (float el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(char... array) {
+    public static ArrayMemory ofDoubles(double... array) {
         ArrayMemory result = new ArrayMemory();
-        for (char el : array) result.add(StringMemory.valueOf(el));
+
+        if (array != null) {
+            for (double el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(String... array) {
+    public static ArrayMemory ofBooleans(boolean... array) {
         ArrayMemory result = new ArrayMemory();
-        for (String el : array) result.add(el);
+
+        if (array != null) {
+            for (boolean el : array) result.add(el);
+        }
 
         return  result;
     }
 
-    public static ArrayMemory of(IObject... array) {
+    public static ArrayMemory ofChars(char... array) {
         ArrayMemory result = new ArrayMemory();
-        for (IObject el : array) result.add(el);
+
+        if (array != null) {
+            for (char el : array) result.add(StringMemory.valueOf(el));
+        }
+
+        return  result;
+    }
+
+    public static ArrayMemory ofStrings(String... array) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (array != null) {
+            for (String el : array) result.add(el);
+        }
+
+        return  result;
+    }
+
+    public static ArrayMemory ofStringCollection(Collection<String> list) {
+        ArrayMemory result = new ArrayMemory();
+        for (String el : list) result.add(el);
+
+        return  result;
+    }
+
+    public static ArrayMemory ofObjects(IObject... array) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (array != null) {
+            for (IObject el : array) result.add(el);
+        }
+
+        return result;
+    }
+
+    public static ArrayMemory of(Memory... array) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (array != null){
+            for(Memory el : array) {
+                result.add(el.toImmutable());
+            }
+        }
+
+        return result;
+    }
+
+    public static ArrayMemory ofCollection(Collection<Memory> list) {
+        ArrayMemory result = new ArrayMemory();
+
+        for(Memory el : list) {
+            result.add(el.toImmutable());
+        }
 
         return result;
     }

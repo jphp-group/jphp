@@ -296,7 +296,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
         else
             r = args[1].toString().split(args[0].toString(), limit);
 
-        return new ArrayMemory(r).toConstant();
+        return ArrayMemory.ofStrings(r).toConstant();
     }
 
     @FastMethod

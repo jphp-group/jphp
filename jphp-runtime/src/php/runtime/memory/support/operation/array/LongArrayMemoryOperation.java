@@ -21,7 +21,7 @@ public class LongArrayMemoryOperation extends MemoryOperation<long[]> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, long[] arg) {
-        return new ArrayMemory(arg).toConstant();
+        return ArrayMemory.ofLongs(arg).toConstant();
     }
 
     @Override
