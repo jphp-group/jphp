@@ -1,10 +1,6 @@
 PHP Compiler for JVM
 ====================
 
-<a href="http://flattr.com/thing/2796234/dim-sjphp-on-GitHub" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a>
-
-[![Join the chat at https://gitter.im/jphp-compiler/jphp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jphp-compiler/jphp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Build Status](http://ci.develnext.org/buildStatus/icon?job=jphp)](http://ci.develnext.org/job/jphp/)
 
 JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.5+).
@@ -52,11 +48,11 @@ Our project started in October 2013. There were a few reasons for that:
 + `__debugInfo` for var_dump (php 5.6)
 + `**` power operator (php 5.6)
 + Constant Scalar Expressions (with constants) (php 5.6)
++ Importing namespaced functions (php 5.6)
++ Dedicated syntax for variadic functions (php 5.6)
 
 **What JPHP does not yet support?**
 
-+ Importing namespaced functions (php 5.6)
-+ Dedicated syntax for variadic functions (php 5.6)
 + Argument unpacking (php 5.6)
 
 ### Documentation
