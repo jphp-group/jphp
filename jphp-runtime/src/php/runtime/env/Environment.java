@@ -1332,6 +1332,8 @@ public class Environment {
     public Memory invokeMethodNoThrow(IObject object, String name, Memory... args) {
         try {
             return invokeMethod(object, name, args);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e){
             this.catchUncaught(e);
             return Memory.NULL;

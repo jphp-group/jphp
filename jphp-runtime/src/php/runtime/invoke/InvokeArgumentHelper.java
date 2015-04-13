@@ -8,6 +8,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.Generator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvokeArgumentHelper {
+    private static final String INVALID_TYPE_MESSAGE = "Only arrays and Traversables can be unpacked";
+
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                          ParameterEntity[] parameters,
                                          String originClassName, String originMethodName,
@@ -28,7 +31,7 @@ public class InvokeArgumentHelper {
         if (parameters == null)
             return args;
 
-        args = unpackArgs(env, args, parameters);
+        args = unpackArgs(env, trace, args, parameters);
 
         Memory[] passed = args;
 
@@ -60,10 +63,10 @@ public class InvokeArgumentHelper {
                             ForeachIterator iterator = arg.getNewIterator(env, param.isReference(), false);
 
                             if (iterator == null) {
-                                env.warning(trace, "Only arrays and Traversables can be unpacked");
+                                env.warning(trace, INVALID_TYPE_MESSAGE);
+                            } else {
+                                makeVariadic(iterator, variadicArgs, param, env, trace, _i, originClassName, originMethodName);
                             }
-
-                            makeVariadic(iterator, variadicArgs, param, env, trace, _i, originClassName, originMethodName);
                         } else {
                             if (variadicMemoryExists) {
                                 env.error(trace, "Cannot use positional argument after argument unpacking");
@@ -130,17 +133,22 @@ public class InvokeArgumentHelper {
         return passed;
     }
 
-    private static Memory[] unpackArgs(Environment env, Memory[] passed, ParameterEntity[] parameters) {
+    public static Memory[] unpackArgs(Environment env, TraceInfo trace, Memory[] passed, ParameterEntity[] parameters) {
         List<Memory> varPassed = null;
 
         if (passed == null) {
             return null;
         }
 
-        int cnt = 0;
+        int cnt = 0, paramCnt = 0;
+
+        ParameterEntity parameterEntity = null;
+        boolean variadicMemoryExists = false;
 
         for (Memory arg : passed) {
             if (arg instanceof VariadicMemory) {
+                variadicMemoryExists = true;
+
                 if (varPassed == null) {
                     varPassed = new ArrayList<Memory>();
 
@@ -148,24 +156,45 @@ public class InvokeArgumentHelper {
                         varPassed.add(passed[i]);
                     }
                 }
-                ParameterEntity parameterEntity = null;
 
-                if (parameters != null) {
-                    parameterEntity = cnt < parameters.length ? parameters[cnt] : (parameters.length > 0 ? parameters[parameters.length - 1] : null);
-                }
+                boolean isGenerator = arg.instanceOf(Generator.class);
 
-                boolean isRef = parameterEntity != null && parameterEntity.isReference();
+                ForeachIterator foreachIterator = arg.getNewIterator(env, !isGenerator, false);
 
-                ForeachIterator foreachIterator = arg.getNewIterator(env, isRef, false);
+                if (foreachIterator == null || (!isGenerator && !arg.isTraversable())) {
+                    env.warning(trace, INVALID_TYPE_MESSAGE);
+                } else {
+                    boolean isRef;
 
-                while (foreachIterator.next()) {
-                    Memory value = foreachIterator.getValue();
-                    varPassed.add(isRef ? value : value.toImmutable());
+                    while (foreachIterator.next()) {
+                        if (parameters != null) {
+                            if (parameterEntity == null || !parameterEntity.isVariadic()) {
+                                parameterEntity = paramCnt < parameters.length ? parameters[paramCnt] : null;
+                            }
+                        }
+
+                        isRef = parameterEntity != null && parameterEntity.isReference();
+
+                        Memory value = foreachIterator.getValue();
+                        varPassed.add(isRef ? value : value.toImmutable());
+
+                        paramCnt++;
+
+                        if (parameterEntity != null && !parameterEntity.isVariadic()) {
+                            parameterEntity = null;
+                        }
+                    }
                 }
             } else {
+                if (variadicMemoryExists) {
+                    env.error(trace, "Cannot use positional argument after argument unpacking");
+                }
+
                 if (varPassed != null) {
                     varPassed.add(arg);
                 }
+
+                paramCnt++;
             }
             cnt++;
         }
