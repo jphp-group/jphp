@@ -107,13 +107,14 @@ configure([
     }
 
     bintray {
-        user = rootProject.getProperty("bintray.user")
-        key = rootProject.getProperty("bintray.apikey")
+        user = rootProject.hasProperty('bintray.user') ? rootProject.getProperty("bintray.user") : System.console().readLine("\nusername: ")
+        key = rootProject.hasProperty('bintray.apikey') ? rootProject.getProperty("bintray.apikey") : System.console().readPassword("apikey: ").toString()
 
         configurations = ['archives']
+        
         pkg {
             repo = "maven"
-            name = "jphpCompiler"
+            name = "jphp-compiler"
             websiteUrl = 'http://github.com/jphp-compiler'
             vcsUrl = 'http://github.com/jphp-compiler'
             licenses = ["Apache-2.0"]
