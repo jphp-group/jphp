@@ -62,9 +62,9 @@ public class CompileScope {
 
     protected CompilerFactory compilerFactory;
 
-    protected EntityFetchHandler classEntityFetchHandler;
-    protected EntityFetchHandler functionEntityFetchHandler;
-    protected EntityFetchHandler constantEntityFetchHandler;
+    protected List<EntityFetchHandler> classEntityFetchHandler;
+    protected List<EntityFetchHandler> functionEntityFetchHandler;
+    protected List<EntityFetchHandler> constantEntityFetchHandler;
 
     public Map<String, Memory> configuration;
 
@@ -320,16 +320,16 @@ public class CompileScope {
         return extensions.keySet();
     }
 
-    public void setClassEntityFetchHandler(EntityFetchHandler classEntityFetchHandler) {
-        this.classEntityFetchHandler = classEntityFetchHandler;
+    public void addClassEntityFetchHandler(EntityFetchHandler classEntityFetchHandler) {
+        this.classEntityFetchHandler.add(classEntityFetchHandler);
     }
 
-    public void setFunctionEntityFetchHandler(EntityFetchHandler functionEntityFetchHandler) {
-        this.functionEntityFetchHandler = functionEntityFetchHandler;
+    public void addFunctionEntityFetchHandler(EntityFetchHandler functionEntityFetchHandler) {
+        this.functionEntityFetchHandler.add(functionEntityFetchHandler);
     }
 
-    public void setConstantEntityFetchHandler(EntityFetchHandler constantEntityFetchHandler) {
-        this.constantEntityFetchHandler = constantEntityFetchHandler;
+    public void addConstantEntityFetchHandler(EntityFetchHandler constantEntityFetchHandler) {
+        this.constantEntityFetchHandler.add(constantEntityFetchHandler);
     }
 
     public void registerJavaException(Class<? extends JavaException> clazz, Class<? extends Throwable> throwClazz) {
@@ -401,7 +401,9 @@ public class CompileScope {
         ClassEntity entity;
 
         if (classEntityFetchHandler != null) {
-            classEntityFetchHandler.fetch(this, name);
+            for (EntityFetchHandler handler : classEntityFetchHandler) {
+                handler.fetch(this, name);
+            }
         }
 
         entity = classMap.get(name);
@@ -417,6 +419,7 @@ public class CompileScope {
                 compileClass.getExtension(), this, compileClass.getNativeClass()
         ));
         entity.setId(nextClassIndex());
+
         synchronized (classMap) {
             classMap.put(name, entity);
         }
@@ -430,7 +433,10 @@ public class CompileScope {
         FunctionEntity entity = functionMap.get(name);
 
         if (entity == null && functionEntityFetchHandler != null) {
-            functionEntityFetchHandler.fetch(this, name);
+            for (EntityFetchHandler handler : functionEntityFetchHandler) {
+                handler.fetch(this, name);
+            }
+
             entity = functionMap.get(name);
         }
 
@@ -443,7 +449,10 @@ public class CompileScope {
         ConstantEntity entity = constantMap.get(name.toLowerCase());
 
         if (entity == null && constantEntityFetchHandler != null) {
-            constantEntityFetchHandler.fetch(this, name);
+            for (EntityFetchHandler handler : constantEntityFetchHandler) {
+                handler.fetch(this, name);
+            }
+
             entity = constantMap.get(name);
         }
 

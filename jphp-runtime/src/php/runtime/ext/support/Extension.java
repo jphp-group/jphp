@@ -20,6 +20,10 @@ import java.util.Map;
 abstract public class Extension {
     public enum Status { EXPERIMENTAL, BETA, STABLE, LEGACY, ZEND_LEGACY, DEPRECATED }
 
+    public interface Extensible {
+        Extension getExtension();
+    }
+
     protected final Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
     protected final Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
     protected final Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();

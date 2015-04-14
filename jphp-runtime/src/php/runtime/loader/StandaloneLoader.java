@@ -41,7 +41,7 @@ public class StandaloneLoader {
 
         modules = new HashMap<String, Module>();
 
-        scope.setClassEntityFetchHandler(new EntityFetchHandler() {
+        scope.addClassEntityFetchHandler(new EntityFetchHandler() {
             @Override
             public void fetch(CompileScope scope, String name) {
                 ModuleEntity module = fetchClass(name);
@@ -54,7 +54,7 @@ public class StandaloneLoader {
             }
         });
 
-        scope.setFunctionEntityFetchHandler(new EntityFetchHandler() {
+        scope.addFunctionEntityFetchHandler(new EntityFetchHandler() {
             @Override
             public void fetch(CompileScope scope, String name) {
                 ModuleEntity module = fetchFunction(name);
@@ -67,7 +67,7 @@ public class StandaloneLoader {
             }
         });
 
-        scope.setConstantEntityFetchHandler(new EntityFetchHandler() {
+        scope.addConstantEntityFetchHandler(new EntityFetchHandler() {
             @Override
             public void fetch(CompileScope scope, String name) {
                 ModuleEntity module = fetchConstant(name);
