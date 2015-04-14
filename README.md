@@ -3,7 +3,7 @@ PHP Compiler for JVM
 
 [![Build Status](http://ci.develnext.org/buildStatus/icon?job=jphp)](http://ci.develnext.org/job/jphp/)
 
-JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.5+).
+JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.6+).
 
 How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and then
 can execute the result on the Java VM.
@@ -26,30 +26,14 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
-+ JIT (1x - 10x faster PHP 5.5)
-+ Optimizer (constant expressions, inline functions, etc.)
++ JIT (1x - 10x faster PHP 5.5), Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
-+ Threading, Sockets
-+ Environment architecture (like sandbox objects in runkit zend extension).
++ Threading, Sockets, Environment architecture (like sandbox objects in runkit zend extension).
 + GUI (based on Swing, improved - more flexible layouts)
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions
 + Ability to use on **Android** OS
-
-
-### Language Features
-> (without zend runtime libraries)
-
-+ PHP 5.5+ (with OOP)
-+ Spl autoloading for classes
-+ Iterators, ArrayAccess, Serializable, etc.
-+ Reflection classes
-+ `__debugInfo` for var_dump (php 5.6)
-+ `**` power operator (php 5.6)
-+ Constant Scalar Expressions (with constants) (php 5.6)
-+ Dedicated syntax for variadic functions (php 5.6)
-+ Argument unpacking (php 5.6)
 
 **What JPHP does not yet support?**
 
@@ -60,11 +44,61 @@ Our project started in October 2013. There were a few reasons for that:
 - You can find the latest documentation here: http://jphp-docs.readthedocs.org/
 - To contribute to the documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
 
+
+### Using with Gradle (Hello World)
+
+This is a simple way to try JPHP.
+
+> Before we start, you need to download the [Gradle distributive](https://services.gradle.org/distributions/gradle-2.3-bin.zip)
+> and add the Gradle bin path to your PATH variable.
+
+1. Create the next directories and files:
+
+    build.gradle
+    src/
+        main/
+            resources/
+                JPHP-INF/
+                    launcher.conf
+                bootstrap.php
+
+2. Change the gradle build file - `build.gradle`:
+
+    apply plugin: 'application'
+
+    repositories {
+        maven { url 'http://repo.develnext.org/repository/internal' }
+    }
+
+    dependencies {
+        compile 'org.develnext:jphp-core:0.6+' // include jphp with runtime and compiler
+
+        compile 'org.develnext:jphp-zend-ext:0.6+' // legacy zend classes and functions
+        compile 'org.develnext:jphp-json-ext:0.6+' // json support
+        compile 'org.develnext:jphp-xml-ext:0.6+' // xml library
+        compile 'org.develnext:jphp-gdx-ext:0.6+' // libgdx wrapper
+        compile 'org.develnext:jphp-jsoup-ext:0.6+' // library for site parsing in jQuery style
+    }
+
+    mainClassName = 'php.runtime.launcher.Launcher'
+
+3. In the `launcher.conf` add the next line:
+
+    bootstrap.file = bootstrap.php
+
+4. In the `bootstrap.php` write any php code:
+
+   <?php echo "Hello World";
+
+5. Use the command line to run your app:
+
+    gradle run
+
 ---
 
 ### JPHP - альтернативный движок для PHP
 
-Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это то же самое, только для PHP. Поддерживаются все фичи PHP 5.5+ и некоторые из PHP 5.6.
+Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это то же самое, только для PHP. Поддерживаются почти все фичи PHP 5.6+.
 
 Основное отличие от PHP это отказ от использования несогласованных runtime библиотек и расширений. Язык тот же, а библиотеки для него другие, с использованием ООП и т.д.
 

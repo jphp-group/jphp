@@ -1,5 +1,5 @@
-def javaVersion    = 1.6;
-def projectVersion = 0.6;
+def javaVersion    = '1.6';
+def projectVersion = '0.6.2';
 
 allprojects {
     apply plugin: 'idea'
@@ -50,6 +50,10 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 }
 
+repositories {
+    maven { url 'http://repo.develnext.org/repository/internal' }
+}
+
 // for deploy
 configure([
         project(':jphp-runtime'),
@@ -81,6 +85,12 @@ configure([
 
         signing {
             sign configurations.archives
+        }
+    } else {
+        jar.dependsOn += [sourcesJar]
+
+        artifacts {
+            archives sourcesJar
         }
     }
 
