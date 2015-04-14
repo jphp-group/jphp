@@ -1,7 +1,7 @@
 PHP Compiler for JVM
 ====================
 
-[![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp) [ ![Download](https://api.bintray.com/packages/dim-s/maven/jphpCompiler/images/download.svg) ](https://bintray.com/dim-s/maven/jphpCompiler/_latestVersion)
+[![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp) [ ![Download](https://api.bintray.com/packages/dim-s/maven/jphp-compiler/images/download.svg) ](https://bintray.com/dim-s/maven/jphpCompiler/_latestVersion)
 
 JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.6+).
 
