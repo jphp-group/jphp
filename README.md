@@ -1,5 +1,5 @@
-JPHP Engine
-====================
+JPHP - an implementation of PHP
+===============================
 
 [![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp) [ ![Download](https://api.bintray.com/packages/dim-s/maven/jphp-compiler/images/download.svg) ](https://bintray.com/dim-s/maven/jphp-compiler/_latestVersion) [![Documentation Status](https://readthedocs.org/projects/jphp-docs/badge/?version=latest)](https://readthedocs.org/projects/jphp-docs/?badge=latest)
 
