@@ -37,8 +37,9 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Documentation
 
-- You can find the latest documentation here: http://jphp-docs.readthedocs.org/
-- To contribute to the documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
+- Wiki here: [read](https://github.com/jphp-compiler/jphp/wiki)
+- You can find the latest api documentation here: http://jphp-docs.readthedocs.org/
+- To contribute to the api documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
 
 
 ### Using with Gradle (Hello World)
