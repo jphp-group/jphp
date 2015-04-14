@@ -70,7 +70,8 @@ src/
 apply plugin: 'application'
 
 repositories {
-    maven { url 'http://repo.develnext.org/repository/internal' }
+    maven { url 'https://dl.bintray.com/dim-s/maven' }
+    mavenCentral()
 }
 
 dependencies {

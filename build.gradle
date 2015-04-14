@@ -1,6 +1,15 @@
 def javaVersion    = '1.6';
 def projectVersion = '0.6.2';
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+    }
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'signing'
@@ -61,6 +70,7 @@ configure([
         project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),
+        project(':jphp-jsoup-ext'),
         project(':jphp-xml-ext'),
         project(':jphp-gdx-ext'),
 
@@ -68,6 +78,8 @@ configure([
         project(':jphp-scripting'),
         project(':jphp-gradle-plugin'),
 ]) {
+    apply plugin: 'com.jfrog.bintray'
+
     if (!project.ext.isSnapshot) {
         javadoc.failOnError = false
 
@@ -91,6 +103,21 @@ configure([
 
         artifacts {
             archives sourcesJar
+        }
+    }
+
+    bintray {
+        user = rootProject.getProperty("bintray.user")
+        key = rootProject.getProperty("bintray.apikey")
+
+        configurations = ['archives']
+        pkg {
+            repo = "maven"
+            name = "jphpCompiler"
+            websiteUrl = 'http://github.com/jphp-compiler'
+            vcsUrl = 'http://github.com/jphp-compiler'
+            licenses = ["Apache-2.0"]
+            publish = true
         }
     }
 
