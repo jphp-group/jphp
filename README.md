@@ -8,9 +8,6 @@ JPHP is a new implementation for PHP which uses the Java VM. It supports many fe
 How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and then
 can execute the result on the Java VM.
 
-+ Supports: JDK 1.6+ (OpenJDK, Oracle)
-+ Support Forum: https://groups.google.com/d/forum/jphp-compiler
-
 ### Goals
 
 JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP.
@@ -22,7 +19,6 @@ Our project started in October 2013. There were a few reasons for that:
 3. Replacing the ugly runtime library of Zend PHP with a better runtime library.
 4. Using the PHP language not only on the web
 5. Also: unicode for strings and threads
-
 
 ### Features
 
