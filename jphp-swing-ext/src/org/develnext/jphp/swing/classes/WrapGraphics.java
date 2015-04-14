@@ -168,7 +168,7 @@ public class WrapGraphics extends RootObject {
                     env.exception("Polygon: invalid element count of array item - %s", xy.length);
 
                 xPoints[i] = xy[0].toInteger();
-                yPoints[i] = xy[0].toInteger();
+                yPoints[i] = xy[1].toInteger();
             }
             i++;
         }
