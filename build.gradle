@@ -107,11 +107,11 @@ configure([
     }
 
     bintray {
-        user = rootProject.hasProperty('bintray.user') ? rootProject.getProperty("bintray.user") : System.console().readLine("\nusername: ")
-        key = rootProject.hasProperty('bintray.apikey') ? rootProject.getProperty("bintray.apikey") : System.console().readPassword("apikey: ").toString()
+        user = rootProject.hasProperty('bintray.user') ? rootProject.getProperty("bintray.user") : "";
+        key = rootProject.hasProperty('bintray.apikey') ? rootProject.getProperty("bintray.apikey") : "";
 
         configurations = ['archives']
-        
+
         pkg {
             repo = "maven"
             name = "jphp-compiler"
