@@ -52,7 +52,7 @@ This is a simple way to try JPHP.
 > Before we start, you need to download the [Gradle distributive](https://services.gradle.org/distributions/gradle-2.3-bin.zip)
 > and add the Gradle bin path to your PATH variable.
 
-1. Create the next directories and files:
+**Create the next directories and files**:
 
 ```
 build.gradle
@@ -64,7 +64,7 @@ src/
             bootstrap.php
 ```
 
-2. Change the gradle build file - `build.gradle`:
+**Change the gradle build file - `build.gradle`**:
 
 ```
 apply plugin: 'application'
@@ -86,19 +86,19 @@ dependencies {
 mainClassName = 'php.runtime.launcher.Launcher'
 ```
 
-3. In the `launcher.conf` add the next line:
+**In the `launcher.conf` add the next line**:
 
 ```
 bootstrap.file = bootstrap.php
 ```
 
-4. In the `bootstrap.php` write any php code:
+**In the `bootstrap.php` write any php code**:
 
 ```php
 <?php echo "Hello World";
 ```
 
-5. Use the command line to run your app:
+**Use the command line to run your app**:
 
 ```
 gradle run
