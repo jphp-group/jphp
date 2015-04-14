@@ -105,10 +105,17 @@ public class DocGenerator {
         for(File file : root.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                return pathname.isDirectory() && new File(pathname, "resources/JPHP-INF/sdk/").isDirectory();
+                return pathname.isDirectory();
             }
         })) {
-            generator.addDirectory(new File(file, "resources/JPHP-INF/sdk/"), true);
+            File sdkFile1 = new File(file, "resources/JPHP-INF/sdk/");
+            File sdkFile2 = new File(file, "src/main/resources/JPHP-INF/sdk/");
+
+            if (sdkFile1.isDirectory()) {
+                generator.addDirectory(sdkFile1, true);
+            } else if (sdkFile2.isDirectory()) {
+                generator.addDirectory(sdkFile2, true);
+            }
         }
 
         for(Map.Entry<String, String> entry : languages.entrySet()) {

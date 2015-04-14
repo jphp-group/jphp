@@ -5,9 +5,6 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
 import php.runtime.common.StringUtils;
 
-/**
- * @param
- */
 public class MethodParamParameter extends BaseParameter {
     protected String[] types;
     protected String argument;
