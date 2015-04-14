@@ -18,7 +18,7 @@ import java.util.Map;
 public class DocGenerator {
     public static final Map<String, String> languages = new HashedMap<String, String>(){{
         put("en", "English");
-        put("ru", "Русский");
+        //put("ru", "Русский");
     }};
 
     protected List<File> files = new ArrayList<File>();
