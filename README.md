@@ -54,45 +54,55 @@ This is a simple way to try JPHP.
 
 1. Create the next directories and files:
 
-    build.gradle
-    src/
-        main/
-            resources/
-                JPHP-INF/
-                    launcher.conf
-                bootstrap.php
+```
+build.gradle
+src/
+    main/
+        resources/
+            JPHP-INF/
+                launcher.conf
+            bootstrap.php
+```
 
 2. Change the gradle build file - `build.gradle`:
 
-    apply plugin: 'application'
+```
+apply plugin: 'application'
 
-    repositories {
-        maven { url 'http://repo.develnext.org/repository/internal' }
-    }
+repositories {
+    maven { url 'http://repo.develnext.org/repository/internal' }
+}
 
-    dependencies {
-        compile 'org.develnext:jphp-core:0.6+' // include jphp with runtime and compiler
+dependencies {
+    compile 'org.develnext:jphp-core:0.6+' // include jphp with runtime and compiler
 
-        compile 'org.develnext:jphp-zend-ext:0.6+' // legacy zend classes and functions
-        compile 'org.develnext:jphp-json-ext:0.6+' // json support
-        compile 'org.develnext:jphp-xml-ext:0.6+' // xml library
-        compile 'org.develnext:jphp-gdx-ext:0.6+' // libgdx wrapper
-        compile 'org.develnext:jphp-jsoup-ext:0.6+' // library for site parsing in jQuery style
-    }
+    compile 'org.develnext:jphp-zend-ext:0.6+' // legacy zend classes and functions
+    compile 'org.develnext:jphp-json-ext:0.6+' // json support
+    compile 'org.develnext:jphp-xml-ext:0.6+' // xml library
+    compile 'org.develnext:jphp-gdx-ext:0.6+' // libgdx wrapper
+    compile 'org.develnext:jphp-jsoup-ext:0.6+' // library for site parsing in jQuery style
+}
 
-    mainClassName = 'php.runtime.launcher.Launcher'
+mainClassName = 'php.runtime.launcher.Launcher'
+```
 
 3. In the `launcher.conf` add the next line:
 
-    bootstrap.file = bootstrap.php
+```
+bootstrap.file = bootstrap.php
+```
 
 4. In the `bootstrap.php` write any php code:
 
-   <?php echo "Hello World";
+```php
+<?php echo "Hello World";
+```
 
 5. Use the command line to run your app:
 
-    gradle run
+```
+gradle run
+```
 
 ---
 
