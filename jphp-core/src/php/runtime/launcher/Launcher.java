@@ -188,12 +188,7 @@ public class Launcher {
             if (className == null)
                 className = ext.trim();
 
-            try {
-                Extension extension = (Extension) Class.forName(className).newInstance();
-                compileScope.registerExtension(extension);
-            } catch (Exception e) {
-                throw new LaunchException("Extension load error: " + e.getClass() + " - " + e.getMessage());
-            }
+            compileScope.registerExtension(className);
         }
 
         this.environment = getConfigValue("env.concurrent").toBoolean()

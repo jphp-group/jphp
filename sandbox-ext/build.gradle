@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath project(':jphp-gradle-plugin')
+    }
+}
+
+apply plugin: 'php'
+
+
+dependencies {
+    compile project(':jphp-runtime')
+}

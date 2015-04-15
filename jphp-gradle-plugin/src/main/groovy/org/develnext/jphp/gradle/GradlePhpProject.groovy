@@ -7,6 +7,7 @@ import php.runtime.env.CompileScope
 import php.runtime.env.Context
 import php.runtime.env.Environment
 import php.runtime.ext.support.Extension
+import php.runtime.loader.StandaloneLoader
 import php.runtime.loader.dump.ModuleDumper
 import php.runtime.reflection.ModuleEntity
 import php.runtime.reflection.support.Entity
@@ -32,14 +33,19 @@ class GradlePhpProject extends GradleBaseProject {
     Set<String> extensions;
 
     final CompileScope compileScope;
-    Set<String> jphpExtensions;
+    final StandaloneLoader loader;
+
+    Set<String> jphpExtensions
+
+    List<ZipFile> zipFiles = new ArrayList<ZipFile>();
 
     GradlePhpProject(Project project) {
         super(project);
 
         update();
 
-        compileScope = new CompileScope();
+        loader = new StandaloneLoader();
+        compileScope = loader.getScope();
 
         def compileConfiguration = getOrCreateConfiguration("compile");
 
@@ -55,6 +61,17 @@ class GradlePhpProject extends GradleBaseProject {
         }
 
         compileConfiguration.dependencies.add(project.dependencies.create(project.files(COMPILED_JAR_NAME)));
+        loader.setClassLoader(getClassLoader(getOrCreateConfiguration("compile")));
+    }
+
+    static ClassLoader getClassLoader( Configuration config ) {
+        ArrayList urls = new ArrayList()
+
+        for (File f : config.files) {
+            urls += f.toURI().toURL()
+        }
+
+        return new URLClassLoader( urls.toArray(new URL[0]) );
     }
 
     def update() {
@@ -90,13 +107,14 @@ class GradlePhpProject extends GradleBaseProject {
             phpClassesFile.parentFile.mkdirs();
         }
 
-        def env = new Environment(compileScope);
+        def env = loader.getScopeEnvironment();
         def classFiles = [] as List<File>;
         def modules    = [] as List<ModuleEntity>;
 
         eachSourceFile { File file ->
             def context     = new Context(file, Charset.forName(config.charset));
             def compiler    = new JvmCompiler(env, context);
+
             def module      = compiler.compile(false);
 
             modules.add(module);
@@ -199,9 +217,11 @@ class GradlePhpProject extends GradleBaseProject {
             }
         }
 
-        jarFile.putNextEntry(new ZipEntry("JPHP-INF/standalone.extensions.list"));
-        jarFile.write(jphpExtensions.join("\n").bytes);
-        jarFile.closeEntry();
+        if (jphpExtensions.size() > 0) {
+            jarFile.putNextEntry(new ZipEntry("JPHP-INF/standalone.extensions.list"));
+            jarFile.write(jphpExtensions.join("\n").bytes);
+            jarFile.closeEntry();
+        }
 
         jarFile.putNextEntry(new ZipEntry("JPHP-INF/classes.dump"));
             def fis = new FileInputStream(new File(tmpBuildDir, '/$php_classes.dump'));
@@ -214,6 +234,10 @@ class GradlePhpProject extends GradleBaseProject {
         jarFile.closeEntry();
 
         jarFile.close();
+
+        zipFiles.each {
+            it.close();
+        }
     }
 
     def protected cleanClasses() {
@@ -305,6 +329,8 @@ class GradlePhpProject extends GradleBaseProject {
         def zipFile = new ZipFile(jarFile, ZipFile.OPEN_READ);
         def entry   = zipFile.getEntry("JPHP-INF/extensions.list");
 
+        zipFiles.add(zipFile);
+
         if (entry != null) {
             Scanner scanner = new Scanner(zipFile.getInputStream(entry));
             while (scanner.hasNext()) {
@@ -323,7 +349,15 @@ class GradlePhpProject extends GradleBaseProject {
             }
         }
 
-        zipFile.close();
+        def classesDumpEntry = zipFile.getEntry("JPHP-INF/classes.dump");
+
+        if (classesDumpEntry != null) {
+            def stream = zipFile.getInputStream(classesDumpEntry);
+
+            if (stream != null) {
+                loader.loadClassesDump(stream);
+            }
+        }
     }
 
     def protected eachSourceFile(Closure c) {

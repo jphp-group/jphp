@@ -1,6 +1,19 @@
-apply plugin:'application'
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+    }
 
-mainClassName = 'php.runtime.launcher.Launcher'
+    dependencies {
+        classpath project(':jphp-gradle-plugin')
+    }
+}
+
+apply plugin: 'php'
+apply plugin: 'application'
+
+mainClassName = 'php.runtime.launcher.StandaloneLauncher'
 
 dependencies {
     compile project(':jphp-core')
@@ -9,4 +22,6 @@ dependencies {
     compile project(':jphp-json-ext')
     compile project(':jphp-jsoup-ext')
     compile project(':jphp-gdx-ext')
+
+    compile project(':sandbox-ext')
 }

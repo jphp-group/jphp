@@ -75,7 +75,6 @@ configure([
         project(':jphp-gen-api'),
 ]) {
     apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'maven-publish'
 
     if (!project.ext.isSnapshot) {
         javadoc.failOnError = false
@@ -103,54 +102,10 @@ configure([
         }
     }
 
-    def pomConfig = {
-        name 'JPHP Compiler'
-        packaging 'jar'
-        url 'http://github.com/jphp-compiler'
-
-        scm {
-            connection 'scm:git:git@github.com:jphp-compiler/jphp.git'
-            developerConnection 'scm:git:git@github.com:jphp-compiler/jphp.git'
-            url 'git@github.com:jphp-compiler/jphp.git'
-        }
-
-        licenses {
-            license {
-                name "The Apache Software License, Version 2.0"
-                url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                distribution "repo"
-            }
-        }
-        developers {
-            developer {
-                id "dim-s"
-                name "Dmitriy Zayceff"
-                email "d.zayceff@gmail.com"
-            }
-        }
-    }
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifact sourcesJar
-                artifact javadocJar
-
-                pom.withXml {
-                    def root = asNode()
-                    root.appendNode('description', 'Alternative language engine for PHP')
-                    root.children().last() + pomConfig
-                }
-            }
-        }
-    }
-
     bintray {
         user = rootProject.hasProperty('bintray.user') ? rootProject.getProperty("bintray.user") : "";
         key = rootProject.hasProperty('bintray.apikey') ? rootProject.getProperty("bintray.apikey") : "";
 
-        publications = ['mavenJava']
         configurations = ['archives']
 
         pkg {
