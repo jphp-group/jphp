@@ -67,7 +67,7 @@ src/
 apply plugin: 'application'
 
 repositories {
-    maven { url 'https://dl.bintray.com/dim-s/maven' }
+    jcenter()
     mavenCentral()
 }
 
