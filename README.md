@@ -42,65 +42,9 @@ Our project started in October 2013. There were a few reasons for that:
 - To contribute to the api documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
 
 
-### Using with Gradle (Hello World)
+### Getting started (Hello World)
 
-This is a simple way to try JPHP.
-
-> Before we start, you need to download the [Gradle distributive](https://services.gradle.org/distributions/gradle-2.3-bin.zip)
-> and add the Gradle bin path to your PATH variable.
-
-**Create the next directories and files**:
-
-```
-build.gradle
-src/
-    main/
-        resources/
-            JPHP-INF/
-                launcher.conf
-            bootstrap.php
-```
-
-**Change the gradle build file - `build.gradle`**:
-
-```
-apply plugin: 'application'
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
-dependencies {
-    compile 'org.develnext:jphp-core:0.6+' // include jphp with runtime and compiler
-
-    compile 'org.develnext:jphp-zend-ext:0.6+' // legacy zend classes and functions
-    compile 'org.develnext:jphp-json-ext:0.6+' // json support
-    compile 'org.develnext:jphp-xml-ext:0.6+' // xml library
-    compile 'org.develnext:jphp-gdx-ext:0.6+' // libgdx wrapper
-    compile 'org.develnext:jphp-jsoup-ext:0.6+' // library for site parsing in jQuery style
-}
-
-mainClassName = 'php.runtime.launcher.Launcher'
-```
-
-**In the `launcher.conf` add the next line**:
-
-```
-bootstrap.file = bootstrap.php
-```
-
-**In the `bootstrap.php` write any php code**:
-
-```php
-<?php echo "Hello World";
-```
-
-**Use the command line to run your app**:
-
-```
-gradle run
-```
+[https://github.com/jphp-compiler/jphp/wiki/Getting-started](https://github.com/jphp-compiler/jphp/wiki/Getting-started)
 
 ---
 
