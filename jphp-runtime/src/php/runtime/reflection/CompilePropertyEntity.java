@@ -41,7 +41,7 @@ public class CompilePropertyEntity extends PropertyEntity {
     @Override
     public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) {
         try {
-            field.set(object, operation.convert(env, trace, value));
+            field.set(object, operation.convertNoThrow(env, trace, value));
         } catch (IllegalAccessException e) {
             throw new CriticalException(e);
         }
@@ -51,7 +51,7 @@ public class CompilePropertyEntity extends PropertyEntity {
     @Override
     public Memory getValue(Environment env, TraceInfo trace, Object object) {
         try {
-            return operation.unconvert(env, trace, field.get(object));
+            return operation.unconvertNoThow(env, trace, field.get(object));
         } catch (IllegalAccessException e) {
             throw new CriticalException(e);
         }

@@ -17,7 +17,7 @@ public class ScannerMemoryOperation extends MemoryOperation<Scanner> {
     }
 
     @Override
-    public Scanner convert(Environment env, TraceInfo trace, Memory arg) {
+    public Scanner convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -26,7 +26,7 @@ public class ScannerMemoryOperation extends MemoryOperation<Scanner> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Scanner arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Scanner arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

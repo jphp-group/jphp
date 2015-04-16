@@ -15,12 +15,12 @@ public class UriMemoryOperation extends MemoryOperation<URI> {
     }
 
     @Override
-    public URI convert(Environment env, TraceInfo trace, Memory arg) {
+    public URI convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return URI.create(arg.toString());
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, URI arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, URI arg) throws Throwable {
         return StringMemory.valueOf(arg.toString());
     }
 }

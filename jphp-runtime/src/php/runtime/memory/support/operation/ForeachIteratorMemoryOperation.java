@@ -16,12 +16,12 @@ public class ForeachIteratorMemoryOperation extends MemoryOperation<ForeachItera
     }
 
     @Override
-    public ForeachIterator convert(Environment env, TraceInfo trace, Memory arg) {
+    public ForeachIterator convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.isNull() ? null : arg.getNewIterator(env);
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, ForeachIterator arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, ForeachIterator arg) throws Throwable {
         throw new CriticalException("Unsupported operation");
     }
 

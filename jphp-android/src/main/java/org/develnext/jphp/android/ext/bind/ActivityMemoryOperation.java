@@ -15,12 +15,12 @@ public class ActivityMemoryOperation extends MemoryOperation<Activity> {
     }
 
     @Override
-    public Activity convert(Environment env, TraceInfo trace, Memory arg) {
+    public Activity convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toObject(WrapActivity.class);
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Activity arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Activity arg) throws Throwable {
         return Memory.NULL;
     }
 

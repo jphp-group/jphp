@@ -29,7 +29,7 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set convert(Environment env, TraceInfo trace, Memory arg) {
+    public Set convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         Set result = createTreeSet();
 
         for (Memory el : arg.getNewIterator(env)) {
@@ -41,7 +41,7 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Memory unconvert(Environment env, TraceInfo trace, Set arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Set arg) throws Throwable {
         ArrayMemory result = new ArrayMemory();
         for (Object el : arg) {
             result.add(operations[0].unconvert(env, trace, el));

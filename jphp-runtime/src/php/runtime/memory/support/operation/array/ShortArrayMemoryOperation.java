@@ -15,7 +15,7 @@ public class ShortArrayMemoryOperation extends MemoryOperation<short[]> {
     }
 
     @Override
-    public short[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public short[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         short[] result = new short[((ArrayMemory)arg).size()];
 
         int i = 0;
@@ -27,7 +27,7 @@ public class ShortArrayMemoryOperation extends MemoryOperation<short[]> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, short[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, short[] arg) throws Throwable {
         return ArrayMemory.ofShorts(arg).toConstant();
     }
 

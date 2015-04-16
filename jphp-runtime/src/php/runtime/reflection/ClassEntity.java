@@ -13,7 +13,6 @@ import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.invoke.InvokeArgumentHelper;
-import php.runtime.invoke.InvokeHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -22,6 +21,7 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.support.Entity;
+import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.wrap.ClassWrapper;
 
 import java.lang.reflect.Constructor;
@@ -324,11 +324,7 @@ ClassReader classReader;
     }
 
     public boolean isInstanceOf(Class<? extends IObject> clazz){
-        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
-        if (name == null)
-            return isInstanceOf(clazz.getSimpleName());
-        else
-            return isInstanceOf(name.value());
+        return isInstanceOf(ReflectionUtils.getClassName(clazz));
     }
 
     public boolean isInstanceOf(ClassEntity what){

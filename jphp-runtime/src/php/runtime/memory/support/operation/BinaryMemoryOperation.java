@@ -14,12 +14,12 @@ public class BinaryMemoryOperation extends MemoryOperation<byte[]> {
     }
 
     @Override
-    public byte[] convert(Environment environment, TraceInfo traceInfo, Memory memory) {
+    public byte[] convert(Environment environment, TraceInfo traceInfo, Memory memory) throws Throwable {
         return memory.getBinaryBytes();
     }
 
     @Override
-    public Memory unconvert(Environment environment, TraceInfo traceInfo, byte[] bytes) {
+    public Memory unconvert(Environment environment, TraceInfo traceInfo, byte[] bytes) throws Throwable {
         return new BinaryMemory(bytes);
     }
 }

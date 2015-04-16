@@ -12,12 +12,12 @@ public class ObjectMemoryOperation extends MemoryOperation<Object> {
     }
 
     @Override
-    public Object convert(Environment env, TraceInfo trace, Memory arg) {
+    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return Memory.unwrap(env, arg);
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
         return Memory.wrap(env, arg);
     }
 }

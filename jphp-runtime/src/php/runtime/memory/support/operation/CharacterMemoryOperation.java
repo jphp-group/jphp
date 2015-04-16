@@ -13,12 +13,12 @@ public class CharacterMemoryOperation extends MemoryOperation<Character> {
     }
 
     @Override
-    public Character convert(Environment env, TraceInfo trace, Memory arg) {
+    public Character convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toChar();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Character arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Character arg) throws Throwable {
         return StringMemory.valueOf(arg);
     }
 }

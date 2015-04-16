@@ -68,6 +68,7 @@ configure([
         project(':jphp-jsoup-ext'),
         project(':jphp-xml-ext'),
         project(':jphp-gdx-ext'),
+        project(':jphp-mail-ext'),
 
         project(':jphp-android'),
         project(':jphp-scripting'),

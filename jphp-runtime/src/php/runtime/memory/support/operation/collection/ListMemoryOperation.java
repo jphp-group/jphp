@@ -37,7 +37,7 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List convert(Environment env, TraceInfo trace, Memory arg) {
+    public List convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         List result = new ArrayList();
 
         for (Memory el : arg.getNewIterator(env)) {
@@ -49,7 +49,7 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Memory unconvert(Environment env, TraceInfo trace, List arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, List arg) throws Throwable {
         ArrayMemory result = new ArrayMemory();
         for (Object el : arg) {
             result.add(operations[0].unconvert(env, trace, el));

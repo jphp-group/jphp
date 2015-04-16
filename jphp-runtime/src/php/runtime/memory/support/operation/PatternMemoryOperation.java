@@ -16,7 +16,7 @@ public class PatternMemoryOperation extends MemoryOperation<Pattern> {
     }
 
     @Override
-    public Pattern convert(Environment env, TraceInfo trace, Memory arg) {
+    public Pattern convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.instanceOf(WrapRegex.class)) {
             return arg.toObject(WrapRegex.class).getMatcher().pattern();
         } else {
@@ -25,7 +25,7 @@ public class PatternMemoryOperation extends MemoryOperation<Pattern> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Pattern arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Pattern arg) throws Throwable {
         return ObjectMemory.valueOf(new WrapRegex(env, arg.matcher(""), ""));
     }
 }

@@ -15,7 +15,7 @@ public class ThreadGroupMemoryOperation extends MemoryOperation<ThreadGroup> {
     }
 
     @Override
-    public ThreadGroup convert(Environment env, TraceInfo trace, Memory arg) {
+    public ThreadGroup convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -24,7 +24,7 @@ public class ThreadGroupMemoryOperation extends MemoryOperation<ThreadGroup> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, ThreadGroup arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, ThreadGroup arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

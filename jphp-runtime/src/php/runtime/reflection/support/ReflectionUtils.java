@@ -1,6 +1,7 @@
 package php.runtime.reflection.support;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.memory.ObjectMemory;
 
 import java.lang.annotation.Annotation;
@@ -14,7 +15,14 @@ final public class ReflectionUtils {
 
     public static String getClassName(Class<?> clazz) {
         Name name = clazz.getAnnotation(Name.class);
-        return name == null ? clazz.getSimpleName() : name.value();
+        String result = name == null ? clazz.getSimpleName() : name.value();
+
+        Reflection.Namespace namespace = clazz.getAnnotation(Reflection.Namespace.class);
+        if (namespace != null) {
+            result = namespace.value() + "\\" + result;
+        }
+
+        return result;
     }
 
     public static String getGivenName(Memory value) {

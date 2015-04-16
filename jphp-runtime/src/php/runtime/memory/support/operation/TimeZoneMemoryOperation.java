@@ -17,7 +17,7 @@ public class TimeZoneMemoryOperation extends MemoryOperation<TimeZone> {
     }
 
     @Override
-    public TimeZone convert(Environment env, TraceInfo trace, Memory arg) {
+    public TimeZone convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -26,7 +26,7 @@ public class TimeZoneMemoryOperation extends MemoryOperation<TimeZone> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, TimeZone arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, TimeZone arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

@@ -14,7 +14,7 @@ public class NumberMemoryOperation extends MemoryOperation<Number> {
     }
 
     @Override
-    public Number convert(Environment env, TraceInfo trace, Memory arg) {
+    public Number convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         switch (arg.getRealType()) {
             case DOUBLE: return arg.toDouble();
             case INT: return arg.toInteger();
@@ -24,7 +24,7 @@ public class NumberMemoryOperation extends MemoryOperation<Number> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Number arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Number arg) throws Throwable {
         if (arg instanceof Double || arg instanceof Float) {
             return DoubleMemory.valueOf(arg.doubleValue());
         } else {

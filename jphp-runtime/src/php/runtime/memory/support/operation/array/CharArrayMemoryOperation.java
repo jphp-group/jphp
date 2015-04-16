@@ -15,7 +15,7 @@ public class CharArrayMemoryOperation extends MemoryOperation<char[]> {
     }
 
     @Override
-    public char[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public char[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         char[] result = new char[((ArrayMemory)arg).size()];
 
         int i = 0;
@@ -27,7 +27,7 @@ public class CharArrayMemoryOperation extends MemoryOperation<char[]> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, char[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, char[] arg) throws Throwable {
         return ArrayMemory.ofChars(arg).toConstant();
     }
 

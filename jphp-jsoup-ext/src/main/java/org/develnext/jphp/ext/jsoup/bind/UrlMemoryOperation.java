@@ -16,7 +16,7 @@ public class UrlMemoryOperation extends MemoryOperation<URL> {
     }
 
     @Override
-    public URL convert(Environment env, TraceInfo trace, Memory arg) {
+    public URL convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         try {
             return new URL(arg.toString());
         } catch (MalformedURLException e) {
@@ -25,7 +25,7 @@ public class UrlMemoryOperation extends MemoryOperation<URL> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, URL arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, URL arg) throws Throwable {
         return StringMemory.valueOf(arg.toString());
     }
 }

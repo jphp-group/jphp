@@ -15,12 +15,12 @@ public class BigIntegerOperation extends MemoryOperation<BigInteger> {
     }
 
     @Override
-    public BigInteger convert(Environment env, TraceInfo trace, Memory arg) {
+    public BigInteger convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return new BigInteger(arg.toString());
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, BigInteger arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, BigInteger arg) throws Throwable {
         return StringMemory.valueOf(arg.toString());
     }
 }

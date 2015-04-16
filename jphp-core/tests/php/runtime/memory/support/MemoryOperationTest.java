@@ -30,7 +30,7 @@ public class MemoryOperationTest {
     }
 
     @Test
-    public void testGlobal() {
+    public void testGlobal() throws Throwable {
         assertNull(MemoryOperation.get(TestClass.class, null));
 
         MemoryOperation.register(new MemoryOperation<TestClass>() {
@@ -40,12 +40,12 @@ public class MemoryOperationTest {
             }
 
             @Override
-            public TestClass convert(Environment env, TraceInfo trace, Memory arg) {
+            public TestClass convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                 return new TestClass(arg);
             }
 
             @Override
-            public Memory unconvert(Environment env, TraceInfo trace, TestClass arg) {
+            public Memory unconvert(Environment env, TraceInfo trace, TestClass arg) throws Throwable {
                 return arg.getMemory();
             }
         });
@@ -54,11 +54,12 @@ public class MemoryOperationTest {
 
         MemoryOperation op = MemoryOperation.get(TestClass.class, null);
         assertEquals(Memory.NULL, ((TestClass)op.convert(null, null, Memory.NULL)).getMemory());
+
         assertEquals(Memory.NULL, op.unconvert(null, null, new TestClass(Memory.NULL)));
     }
 
     @Test
-    public void testString() {
+    public void testString() throws Throwable {
         MemoryOperation operation = MemoryOperation.get(String.class, null);
 
         assertEquals("foobar", operation.convert(null, null, StringMemory.valueOf("foobar")));
@@ -67,7 +68,7 @@ public class MemoryOperationTest {
     }
 
     @Test
-    public void testInteger() {
+    public void testInteger() throws Throwable {
         MemoryOperation operation = MemoryOperation.get(Integer.class, null);
 
         assertEquals(123, operation.convert(null, null, LongMemory.valueOf(123)));

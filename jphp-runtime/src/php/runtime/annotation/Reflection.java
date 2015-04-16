@@ -4,6 +4,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
 import php.runtime.lang.IObject;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -50,6 +51,13 @@ public @interface Reflection {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD})
     public @interface Abstract {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({TYPE, METHOD})
+    @Inherited
+    public @interface Namespace {
+        String value();
+    }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({TYPE, METHOD})

@@ -177,7 +177,7 @@ public class CompileMethodEntity extends MethodEntity {
                 i++;
             }
 
-            return method.returnOperation.unconvert(env, trace, method.method.invoke(_this, passed));
+            return method.returnOperation.unconvertNoThow(env, trace, method.method.invoke(_this, passed));
         } catch (InvocationTargetException e){
             return env.__throwException(e);
         } catch (Throwable e) {
@@ -212,7 +212,7 @@ public class CompileMethodEntity extends MethodEntity {
         }
 
         @Override
-        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
             throw new CriticalException("Unsupported unconvert");
         }
     }
@@ -280,14 +280,14 @@ public class CompileMethodEntity extends MethodEntity {
                         if (parameterTypes[i] == Environment.class) {
                             argumentOperations[i] = new InjectMemoryOperation() {
                                 @Override
-                                public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                                public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                                     return env;
                                 }
                             };
                         } else if (parameterTypes[i] == TraceInfo.class) {
                             argumentOperations[i] = new InjectMemoryOperation() {
                                 @Override
-                                public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                                public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                                     return trace;
                                 }
                             };

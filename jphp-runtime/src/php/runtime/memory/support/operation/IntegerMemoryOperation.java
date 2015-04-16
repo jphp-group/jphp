@@ -13,12 +13,12 @@ public class IntegerMemoryOperation extends MemoryOperation<Integer> {
     }
 
     @Override
-    public Integer convert(Environment env, TraceInfo trace, Memory arg) {
+    public Integer convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toInteger();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Integer arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Integer arg) throws Throwable {
         return LongMemory.valueOf(arg);
     }
 }

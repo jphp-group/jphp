@@ -13,12 +13,12 @@ public class CharSequenceMemoryOperation extends MemoryOperation<CharSequence> {
     }
 
     @Override
-    public CharSequence convert(Environment env, TraceInfo trace, Memory arg) {
+    public CharSequence convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toString();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, CharSequence arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, CharSequence arg) throws Throwable {
         return StringMemory.valueOf(arg.toString());
     }
 }

@@ -13,12 +13,12 @@ public class ByteMemoryOperation extends MemoryOperation<Byte> {
     }
 
     @Override
-    public Byte convert(Environment env, TraceInfo trace, Memory arg) {
+    public Byte convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return (byte)arg.toInteger();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Byte arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Byte arg) throws Throwable {
         return LongMemory.valueOf(arg);
     }
 }

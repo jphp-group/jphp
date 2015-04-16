@@ -15,12 +15,12 @@ public class BooleanArrayMemoryOperation extends MemoryOperation<boolean[]> {
     }
 
     @Override
-    public boolean[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public boolean[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toValue(ArrayMemory.class).toBoolArray();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, boolean[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, boolean[] arg) throws Throwable {
         return ArrayMemory.ofBooleans(arg).toConstant();
     }
 

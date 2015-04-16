@@ -13,12 +13,12 @@ public class LongMemoryOperation extends MemoryOperation<Long> {
     }
 
     @Override
-    public Long convert(Environment env, TraceInfo trace, Memory arg) {
+    public Long convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toLong();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Long arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Long arg) throws Throwable {
         return LongMemory.valueOf(arg);
     }
 }
