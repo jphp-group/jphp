@@ -64,7 +64,7 @@ abstract public class Invoker {
                     throw new CriticalException("Unsupported bind type - " + args[i].getClass().toString());
                 }
 
-                passed[i] = operation.unconvert(env, trace, args[i]);
+                passed[i] = operation.unconvertNoThow(env, trace, args[i]);
             }
 
             return callNoThrow(passed);

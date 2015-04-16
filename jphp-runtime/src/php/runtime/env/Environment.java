@@ -2,7 +2,6 @@ package php.runtime.env;
 
 import php.runtime.Information;
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.Constants;
 import php.runtime.common.Messages;
@@ -28,6 +27,7 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
 import php.runtime.reflection.*;
+import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.util.JVMStackTracer;
 
 import java.io.File;
@@ -455,12 +455,7 @@ public class Environment {
     }
 
     public ClassEntity fetchClass(Class<?> clazz){
-        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
-        ClassEntity result;
-        if (name != null)
-            result = fetchClass(name.value(), false);
-        else
-            result = fetchClass(clazz.getSimpleName(), false);
+        ClassEntity result = fetchClass(ReflectionUtils.getClassName(clazz), false);
 
         if (result == null)
             throw new CriticalException("Native class is not registered - " + clazz.getName());
@@ -733,6 +728,16 @@ public class Environment {
                     err.getType(), new CallStackItem(err.getTraceInfo()), new Messages.Item(err.getMessage())
             );
             throw err;
+        }
+    }
+
+    public void wrapThrow(Throwable throwable) {
+        if (throwable instanceof RuntimeException) {
+            throw (RuntimeException) throwable;
+        } else if (throwable instanceof Exception) {
+            catchUncaught((Exception) throwable);
+        } else {
+            throw new RuntimeException(throwable);
         }
     }
 

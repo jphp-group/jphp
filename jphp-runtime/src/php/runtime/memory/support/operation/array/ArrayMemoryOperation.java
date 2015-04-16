@@ -30,7 +30,7 @@ public class ArrayMemoryOperation extends MemoryOperation {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object convert(Environment env, TraceInfo trace, Memory arg) {
+    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         ForeachIterator iterator = arg.getNewIterator(env);
         if (iterator == null) {
             return null;
@@ -51,7 +51,7 @@ public class ArrayMemoryOperation extends MemoryOperation {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
         ArrayMemory r = new ArrayMemory();
         for (Object el : (Object[]) arg) {
             r.add(operation.unconvert(env, trace, el));

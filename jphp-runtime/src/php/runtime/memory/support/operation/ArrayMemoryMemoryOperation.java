@@ -15,7 +15,7 @@ public class ArrayMemoryMemoryOperation extends MemoryOperation<ArrayMemory> {
     }
 
     @Override
-    public ArrayMemory convert(Environment env, TraceInfo trace, Memory arg) {
+    public ArrayMemory convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -24,7 +24,7 @@ public class ArrayMemoryMemoryOperation extends MemoryOperation<ArrayMemory> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, ArrayMemory arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, ArrayMemory arg) throws Throwable {
         return arg == null ? Memory.NULL : arg;
     }
 

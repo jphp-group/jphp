@@ -14,7 +14,7 @@ public class ClassMemoryOperation extends MemoryOperation<Class> {
     }
 
     @Override
-    public Class convert(Environment env, TraceInfo trace, Memory arg) {
+    public Class convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -27,7 +27,7 @@ public class ClassMemoryOperation extends MemoryOperation<Class> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Class arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Class arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

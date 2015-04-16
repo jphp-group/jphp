@@ -31,12 +31,12 @@ public class MemoryMemoryOperation extends MemoryOperation<Memory> {
     }
 
     @Override
-    public Memory convert(Environment env, TraceInfo trace, Memory arg) {
+    public Memory convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg;
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Memory arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg;
     }
 }

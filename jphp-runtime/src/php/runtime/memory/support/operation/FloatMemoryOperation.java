@@ -13,12 +13,12 @@ public class FloatMemoryOperation extends MemoryOperation<Float> {
     }
 
     @Override
-    public Float convert(Environment env, TraceInfo trace, Memory arg) {
+    public Float convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toFloat();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Float arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Float arg) throws Throwable {
         return DoubleMemory.valueOf(arg);
     }
 }

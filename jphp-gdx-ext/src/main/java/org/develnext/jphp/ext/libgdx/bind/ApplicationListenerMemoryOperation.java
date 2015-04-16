@@ -38,7 +38,7 @@ public class ApplicationListenerMemoryOperation extends MemoryOperation<Applicat
     }
 
     @Override
-    public ApplicationListener convert(final Environment env, TraceInfo trace, Memory arg) {
+    public ApplicationListener convert(final Environment env, TraceInfo trace, Memory arg) throws Throwable {
         final WrapApplicationListener listener = arg.toObject(WrapApplicationListener.class);
 
         final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = buildUncaughtExceptionHandler(env);
@@ -83,7 +83,7 @@ public class ApplicationListenerMemoryOperation extends MemoryOperation<Applicat
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, ApplicationListener arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, ApplicationListener arg) throws Throwable {
         throw new RuntimeException("Unsupported operation");
     }
 

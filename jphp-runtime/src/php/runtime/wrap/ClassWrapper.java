@@ -12,6 +12,7 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -49,15 +50,7 @@ public class ClassWrapper {
     }
 
     protected void onWrapName(ClassEntity classEntity) {
-        String namespace = "";
-
-        if (nativeClass.isAnnotationPresent(Reflection.Name.class)){
-            Reflection.Name name = nativeClass.getAnnotation(Reflection.Name.class);
-            classEntity.setName(namespace.isEmpty() ? name.value() : namespace + "\\" + name.value());
-        } else {
-            classEntity.setName(namespace.isEmpty() ? nativeClass.getSimpleName() : namespace + "\\" + nativeClass.getSimpleName());
-        }
-
+        classEntity.setName(ReflectionUtils.getClassName(nativeClass));
         classEntity.setInternalName(nativeClass.getName().replace('.', '/'));
     }
 
@@ -178,7 +171,7 @@ public class ClassWrapper {
         if (entity.isStatic()) {
             throw new CriticalException("Cannot use static methods for Getters and Setters");
         } else {
-            propertyEntity = entity.getClazz().findProperty(name.toLowerCase());
+            propertyEntity = entity.getClazz().findProperty(name);
         }
 
         if (propertyEntity == null || propertyEntity.getClazz() != entity.getClazz()) {
@@ -485,10 +478,8 @@ public class ClassWrapper {
 
         Class<?> extend = nativeClass.getSuperclass();
         if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
-            String name = extend.getSimpleName();
-            if (extend.isAnnotationPresent(Reflection.Name.class)){
-                name = extend.getAnnotation(Reflection.Name.class).value();
-            }
+            String name = ReflectionUtils.getClassName(extend);
+
             ClassEntity entity = scope.fetchUserClass(name);
             if (extend.isAssignableFrom(IObject.class) && entity == null)
                 throw new IllegalArgumentException("Class '"+name+"' not registered for '" + classEntity.getName() + "'");
@@ -506,10 +497,8 @@ public class ClassWrapper {
             if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
             if (interface_.getPackage().getName().startsWith("java.")) continue;
 
-            String name = interface_.getSimpleName();
-            if (interface_.isAnnotationPresent(Reflection.Name.class)){
-                name = interface_.getAnnotation(Reflection.Name.class).value();
-            }
+            String name = ReflectionUtils.getClassName(interface_);
+
             ClassEntity entity = scope.fetchUserClass(name);
             /*if (entity == null || !entity.isInterface())
                 throw new IllegalArgumentException("Interface '"+name+"' not registered");*/

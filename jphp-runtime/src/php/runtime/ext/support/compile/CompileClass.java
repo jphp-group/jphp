@@ -1,7 +1,7 @@
 package php.runtime.ext.support.compile;
 
-import php.runtime.annotation.Reflection;
 import php.runtime.ext.support.Extension;
+import php.runtime.reflection.support.ReflectionUtils;
 
 public class CompileClass {
     protected final Class<?> nativeClass;
@@ -13,8 +13,7 @@ public class CompileClass {
         this.nativeClass = nativeClass;
         this.extension = extension;
 
-        Reflection.Name name = nativeClass.getAnnotation(Reflection.Name.class);
-        this.name = name == null ? nativeClass.getSimpleName() : name.value();
+        this.name = ReflectionUtils.getClassName(nativeClass);
         this.lowerName = this.name.toLowerCase();
     }
 

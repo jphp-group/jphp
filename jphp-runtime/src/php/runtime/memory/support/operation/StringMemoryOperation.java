@@ -13,12 +13,12 @@ public class StringMemoryOperation extends MemoryOperation<String> {
     }
 
     @Override
-    public String convert(Environment env, TraceInfo trace, Memory arg) {
+    public String convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toString();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, String arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, String arg) throws Throwable {
         return StringMemory.valueOf(arg);
     }
 }

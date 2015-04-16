@@ -790,7 +790,7 @@ abstract public class Memory implements Comparable<Memory> {
         MemoryOperation operation = MemoryOperation.get(o.getClass(), null);
 
         if (operation != null) {
-            return operation.unconvert(env, env.trace(), o);
+            return operation.unconvertNoThow(env, env.trace(), o);
         } else {
             return NULL;
         }
@@ -814,11 +814,7 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     public boolean instanceOf(Class<? extends IObject> clazz){
-        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
-        if (name == null)
-            return instanceOf(clazz.getSimpleName());
-        else
-            return instanceOf(name.value());
+        return instanceOf(ReflectionUtils.getClassName(clazz));
     }
 
     public boolean instanceOf(String name){

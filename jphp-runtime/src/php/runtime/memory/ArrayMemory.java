@@ -56,7 +56,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             MemoryOperation operation = MemoryOperation.get(el.getClass(), null);
 
             if (operation != null) {
-                add(operation.unconvert(null, null, el));
+                add(operation.unconvertNoThow(null, null, el));
             }
         }
     }
@@ -73,7 +73,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             MemoryOperation operation = MemoryOperation.get(el.getClass(), null);
 
             if (operation != null) {
-                list.add(new ReferenceMemory(operation.unconvert(null, null, el)));
+                list.add(new ReferenceMemory(operation.unconvertNoThow(null, null, el)));
             }
         }
         size = array.length;

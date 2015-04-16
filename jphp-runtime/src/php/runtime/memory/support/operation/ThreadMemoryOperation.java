@@ -15,7 +15,7 @@ public class ThreadMemoryOperation extends MemoryOperation<Thread> {
     }
 
     @Override
-    public Thread convert(Environment env, TraceInfo trace, Memory arg) {
+    public Thread convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -24,7 +24,7 @@ public class ThreadMemoryOperation extends MemoryOperation<Thread> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Thread arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Thread arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

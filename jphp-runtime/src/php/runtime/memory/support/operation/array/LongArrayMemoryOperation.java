@@ -15,12 +15,12 @@ public class LongArrayMemoryOperation extends MemoryOperation<long[]> {
     }
 
     @Override
-    public long[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public long[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toValue(ArrayMemory.class).toLongArray();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, long[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, long[] arg) throws Throwable {
         return ArrayMemory.ofLongs(arg).toConstant();
     }
 

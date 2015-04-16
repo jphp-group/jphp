@@ -15,12 +15,12 @@ public class FloatArrayMemoryOperation extends MemoryOperation<float[]> {
     }
 
     @Override
-    public float[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public float[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toValue(ArrayMemory.class).toFloatArray();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, float[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, float[] arg) throws Throwable {
         return ArrayMemory.ofFloats(arg).toConstant();
     }
 

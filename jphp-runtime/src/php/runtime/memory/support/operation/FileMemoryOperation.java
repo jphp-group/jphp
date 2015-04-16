@@ -16,12 +16,12 @@ public class FileMemoryOperation extends MemoryOperation<File> {
     }
 
     @Override
-    public File convert(Environment env, TraceInfo trace, Memory arg) {
+    public File convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return FileObject.valueOf(arg);
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, File arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, File arg) throws Throwable {
         return ObjectMemory.valueOf(new FileObject(env, arg));
     }
 }

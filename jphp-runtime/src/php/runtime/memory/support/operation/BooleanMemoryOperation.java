@@ -13,12 +13,12 @@ public class BooleanMemoryOperation extends MemoryOperation<Boolean> {
     }
 
     @Override
-    public Boolean convert(Environment env, TraceInfo trace, Memory arg) {
+    public Boolean convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toBoolean();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Boolean arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Boolean arg) throws Throwable {
         return TrueMemory.valueOf(arg);
     }
 }

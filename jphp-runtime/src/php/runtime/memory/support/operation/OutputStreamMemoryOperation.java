@@ -17,12 +17,12 @@ public class OutputStreamMemoryOperation extends MemoryOperation<OutputStream> {
     }
 
     @Override
-    public OutputStream convert(Environment env, TraceInfo trace, Memory arg) {
+    public OutputStream convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return Stream.getOutputStream(env, arg);
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, OutputStream arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, OutputStream arg) throws Throwable {
         return ObjectMemory.valueOf(new MiscStream(env, arg));
     }
 

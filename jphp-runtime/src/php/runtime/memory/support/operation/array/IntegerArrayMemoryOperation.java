@@ -15,12 +15,12 @@ public class IntegerArrayMemoryOperation extends MemoryOperation<int[]> {
     }
 
     @Override
-    public int[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public int[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toValue(ArrayMemory.class).toIntArray();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, int[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, int[] arg) throws Throwable {
         return ArrayMemory.ofIntegers(arg).toConstant();
     }
 

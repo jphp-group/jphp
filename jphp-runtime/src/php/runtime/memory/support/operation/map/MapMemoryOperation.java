@@ -31,7 +31,7 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map convert(Environment env, TraceInfo trace, Memory arg) {
+    public Map convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         Map result = this.createHashMap();
 
         ForeachIterator iterator = arg.getNewIterator(env);
@@ -47,7 +47,7 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Map arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Map arg) throws Throwable {
         ArrayMemory result = new ArrayMemory();
 
         for (Object _entry : arg.entrySet()) {

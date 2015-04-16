@@ -18,12 +18,12 @@ public class ByteArrayInputStreamMemoryOperation extends MemoryOperation<ByteArr
     }
 
     @Override
-    public ByteArrayInputStream convert(Environment env, TraceInfo trace, Memory arg) {
+    public ByteArrayInputStream convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return new ByteArrayInputStream(arg.getBinaryBytes());
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, ByteArrayInputStream arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, ByteArrayInputStream arg) throws Throwable {
         byte[] buffer = new byte[4096];
         try {
             ByteBuffer result = ByteBuffer.allocate(20);

@@ -13,12 +13,12 @@ public class ShortMemoryOperation extends MemoryOperation<Short> {
     }
 
     @Override
-    public Short convert(Environment env, TraceInfo trace, Memory arg) {
+    public Short convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return (short)arg.toInteger();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Short arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Short arg) throws Throwable {
         return LongMemory.valueOf(arg);
     }
 }

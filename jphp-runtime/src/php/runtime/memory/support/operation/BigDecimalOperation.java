@@ -15,12 +15,12 @@ public class BigDecimalOperation extends MemoryOperation<BigDecimal> {
     }
 
     @Override
-    public BigDecimal convert(Environment env, TraceInfo trace, Memory arg) {
+    public BigDecimal convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return new BigDecimal(arg.toString());
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, BigDecimal arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, BigDecimal arg) throws Throwable {
         return StringMemory.valueOf(arg.toString());
     }
 }

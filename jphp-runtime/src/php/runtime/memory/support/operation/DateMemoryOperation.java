@@ -17,7 +17,7 @@ public class DateMemoryOperation extends MemoryOperation<Date> {
     }
 
     @Override
-    public Date convert(Environment env, TraceInfo trace, Memory arg) {
+    public Date convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -26,7 +26,7 @@ public class DateMemoryOperation extends MemoryOperation<Date> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Date arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Date arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

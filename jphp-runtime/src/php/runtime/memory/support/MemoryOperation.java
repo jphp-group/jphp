@@ -36,8 +36,26 @@ abstract public class MemoryOperation<T> {
 
     abstract public Class<?>[] getOperationClasses();
 
-    abstract public T convert(Environment env, TraceInfo trace, Memory arg);
-    abstract public Memory unconvert(Environment env, TraceInfo trace, T arg);
+    final public T convertNoThrow(Environment env, TraceInfo trace, Memory arg) {
+        try {
+            return convert(env, trace, arg);
+        } catch (Throwable throwable) {
+            env.wrapThrow(throwable);
+            return null;
+        }
+    }
+
+    final public Memory unconvertNoThow(Environment env, TraceInfo trace, T arg) {
+        try {
+            return unconvert(env, trace, arg);
+        } catch (Throwable throwable) {
+            env.wrapThrow(throwable);
+            return Memory.NULL;
+        }
+    }
+
+    abstract public T convert(Environment env, TraceInfo trace, Memory arg) throws Throwable;
+    abstract public Memory unconvert(Environment env, TraceInfo trace, T arg) throws Throwable;
 
     public void releaseConverted(Environment env, TraceInfo info, T arg) {
         // nop
@@ -91,7 +109,7 @@ abstract public class MemoryOperation<T> {
                         }
 
                         @Override
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                             if (arg.isNull()) {
                                 return null;
                             }
@@ -100,7 +118,7 @@ abstract public class MemoryOperation<T> {
                         }
 
                         @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
                             if (arg == null) {
                                 return Memory.NULL;
                             }
@@ -132,7 +150,7 @@ abstract public class MemoryOperation<T> {
 
                         @Override
                         @SuppressWarnings("unchecked")
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                             if (arg.isNull()) {
                                 return null;
                             }
@@ -141,7 +159,7 @@ abstract public class MemoryOperation<T> {
                         }
 
                         @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
                             if (arg == null) {
                                 return Memory.NULL;
                             }
@@ -163,12 +181,12 @@ abstract public class MemoryOperation<T> {
 
                         @Override
                         @SuppressWarnings("unchecked")
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) {
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                             return arg.isNull() ? null : Enum.valueOf((Class<? extends Enum>)type, arg.toString());
                         }
 
                         @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) {
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
                             return arg == null ? Memory.NULL : StringMemory.valueOf(((Enum) arg).name());
                         }
 

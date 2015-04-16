@@ -17,7 +17,7 @@ public class LocaleMemoryOperation extends MemoryOperation<Locale> {
     }
 
     @Override
-    public Locale convert(Environment env, TraceInfo trace, Memory arg) {
+    public Locale convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) {
             return null;
         }
@@ -26,7 +26,7 @@ public class LocaleMemoryOperation extends MemoryOperation<Locale> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Locale arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Locale arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

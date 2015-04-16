@@ -1,7 +1,6 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.CompilerFactory;
 import php.runtime.common.LangMode;
@@ -24,6 +23,7 @@ import php.runtime.lang.spl.Traversable;
 import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.loader.RuntimeClassLoader;
 import php.runtime.reflection.*;
+import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.util.JVMStackTracer;
 import php.runtime.wrap.ClassWrapper;
 
@@ -362,11 +362,7 @@ public class CompileScope {
     }
 
     public void registerJavaExceptionForContext(Class<? extends JavaException> clazz, Class<? extends IObject> context) {
-        Reflection.Name name = context.getAnnotation(Reflection.Name.class);
-        if (name == null)
-            exceptionMapForContext.put(context.getSimpleName().toLowerCase(), clazz);
-        else
-            exceptionMapForContext.put(name.value().toLowerCase(), clazz);
+        exceptionMapForContext.put(ReflectionUtils.getClassName(context).toLowerCase(), clazz);
     }
 
     public void registerClass(ClassEntity clazz) {
@@ -417,8 +413,7 @@ public class CompileScope {
     }
 
     public ClassEntity fetchUserClass(Class<? extends IObject> clazz) {
-        Reflection.Name name = clazz.getAnnotation(Reflection.Name.class);
-        return fetchUserClass(name == null ? clazz.getSimpleName() : name.value());
+        return fetchUserClass(ReflectionUtils.getClassName(clazz));
     }
 
     public ClassEntity fetchUserClass(String name) {

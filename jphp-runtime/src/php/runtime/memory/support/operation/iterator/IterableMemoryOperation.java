@@ -28,7 +28,7 @@ public class IterableMemoryOperation extends GenericMemoryOperation<Iterable> {
     }
 
     @Override
-    public Iterable convert(final Environment env, final TraceInfo trace, Memory arg) {
+    public Iterable convert(final Environment env, final TraceInfo trace, Memory arg) throws Throwable {
         final ForeachIterator iterator = arg.getNewIterator(env);
 
         return new Iterable() {
@@ -53,7 +53,7 @@ public class IterableMemoryOperation extends GenericMemoryOperation<Iterable> {
                             hasNext = null;
                         }
 
-                        return operations[0].convert(env, trace, iterator.getValue());
+                        return operations[0].convertNoThrow(env, trace, iterator.getValue());
                     }
 
                     @Override
@@ -66,7 +66,7 @@ public class IterableMemoryOperation extends GenericMemoryOperation<Iterable> {
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Iterable arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, Iterable arg) throws Throwable {
         throw new CriticalException("Unsupported operation");
     }
 

@@ -63,7 +63,7 @@ public class WrapAssetManager extends BaseWrapper<AssetManager> {
             return null;
         }
 
-        return operation.unconvert(env, trace, object);
+        return operation.unconvertNoThow(env, trace, object);
     }
 
     @Signature

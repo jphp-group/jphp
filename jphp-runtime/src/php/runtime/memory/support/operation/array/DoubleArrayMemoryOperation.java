@@ -15,12 +15,12 @@ public class DoubleArrayMemoryOperation extends MemoryOperation<double[]> {
     }
 
     @Override
-    public double[] convert(Environment env, TraceInfo trace, Memory arg) {
+    public double[] convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         return arg.toValue(ArrayMemory.class).toDoubleArray();
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, double[] arg) {
+    public Memory unconvert(Environment env, TraceInfo trace, double[] arg) throws Throwable {
         return ArrayMemory.ofDoubles(arg).toConstant();
     }
 
