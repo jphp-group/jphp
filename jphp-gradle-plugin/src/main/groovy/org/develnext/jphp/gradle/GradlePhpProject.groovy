@@ -61,17 +61,16 @@ class GradlePhpProject extends GradleBaseProject {
         }
 
         compileConfiguration.dependencies.add(project.dependencies.create(project.files(COMPILED_JAR_NAME)));
-        loader.setClassLoader(getClassLoader(getOrCreateConfiguration("compile")));
     }
 
-    static ClassLoader getClassLoader( Configuration config ) {
+    ClassLoader getClassLoader( Configuration config ) {
         ArrayList urls = new ArrayList()
 
         for (File f : config.files) {
             urls += f.toURI().toURL()
         }
 
-        return new URLClassLoader( urls.toArray(new URL[0]) );
+        return new URLClassLoader( urls.toArray(new URL[0]), this.getClass().getClassLoader() );
     }
 
     def update() {
@@ -99,6 +98,7 @@ class GradlePhpProject extends GradleBaseProject {
     def compile() {
         cleanClasses();
 
+        loader.setClassLoader(getClassLoader(getOrCreateConfiguration("compile")));
         registerExtensionsJars();
 
         def phpClassesFile = new File(tmpBuildDir, '/$php_classes.list');
@@ -108,6 +108,7 @@ class GradlePhpProject extends GradleBaseProject {
         }
 
         def env = loader.getScopeEnvironment();
+
         def classFiles = [] as List<File>;
         def modules    = [] as List<ModuleEntity>;
 
@@ -337,14 +338,8 @@ class GradlePhpProject extends GradleBaseProject {
                 String line = scanner.nextLine().trim();
 
                 if (!line.isEmpty()) {
-                    try {
-                        Extension extension = (Extension) Class.forName(line).newInstance();
-                        compileScope.registerExtension(extension);
-
-                        jphpExtensions.add(extension.class.name);
-                    } catch (ClassNotFoundException e) {
-                        // nop.
-                    }
+                    compileScope.registerExtension(line);
+                    jphpExtensions.add(line);
                 }
             }
         }

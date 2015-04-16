@@ -114,9 +114,9 @@ public class CompileScope {
 
         compilerFactory = parent.compilerFactory;
 
-        classEntityFetchHandler = parent.classEntityFetchHandler;
-        functionEntityFetchHandler = parent.functionEntityFetchHandler;
-        constantEntityFetchHandler = parent.constantEntityFetchHandler;
+        classEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.classEntityFetchHandler);
+        functionEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.functionEntityFetchHandler);
+        constantEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.constantEntityFetchHandler);
 
         extensions.putAll(parent.extensions);
     }
@@ -142,6 +142,10 @@ public class CompileScope {
         compileClassMap    = new HashMap<String, CompileClass>();
         exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
         exceptionMapForContext = new HashMap<String, Class<? extends JavaException>>();
+
+        classEntityFetchHandler = new ArrayList<EntityFetchHandler>();
+        constantEntityFetchHandler = new ArrayList<EntityFetchHandler>();
+        functionEntityFetchHandler = new ArrayList<EntityFetchHandler>();
 
         superGlobals = new HashSet<String>();
 
@@ -218,6 +222,10 @@ public class CompileScope {
         return classLoader;
     }
 
+    public void setNativeClassLoader(ClassLoader classLoader) {
+        this.classLoader = new RuntimeClassLoader(classLoader);
+    }
+
     public LangMode getLangMode() {
         return langMode;
     }
@@ -261,6 +269,23 @@ public class CompileScope {
     public void registerLazyClass(Extension extension, Class<?> clazz) {
         CompileClass el = new CompileClass(extension, clazz);
         compileClassMap.put(el.getLowerName(), el);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void registerExtension(String extClass) {
+        try {
+            registerExtension((Class<? extends Extension>) Class.forName(extClass));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void registerExtension(Class<? extends Extension> extClass) {
+        try {
+            registerExtension(extClass.newInstance());
+        } catch (Exception e) {
+            throw new CriticalException(e);
+        }
     }
 
     public void registerExtension(Extension extension) {

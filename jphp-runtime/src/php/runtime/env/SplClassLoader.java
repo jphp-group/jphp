@@ -37,7 +37,7 @@ public class SplClassLoader {
         return result;
     }
 
-    public boolean load(Memory... args){
+    public boolean load(Memory... args) {
         return invoker.callNoThrow(args).toBoolean();
     }
 

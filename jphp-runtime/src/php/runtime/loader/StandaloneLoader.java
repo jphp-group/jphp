@@ -5,7 +5,6 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
-import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
@@ -92,6 +91,7 @@ public class StandaloneLoader {
 
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
+        this.scope.setNativeClassLoader(classLoader);
     }
 
     public Collection<InputStream> getResources(String name) {
@@ -117,11 +117,7 @@ public class StandaloneLoader {
                 String line = scanner.nextLine().trim();
 
                 if (!line.isEmpty()) {
-                    try {
-                        scope.registerExtension((Extension) Class.forName(line).newInstance());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    scope.registerExtension(line);
                 }
             }
         }
@@ -148,7 +144,7 @@ public class StandaloneLoader {
     }
 
     public void run() {
-        run("bootstrap");
+        run("JPHP-INF/.bootstrap");
     }
 
     public void run(String bootstrapScriptName) {
@@ -306,6 +302,10 @@ public class StandaloneLoader {
         }
 
         modules.put(name.toLowerCase(), module);
+    }
+
+    public Environment getScopeEnvironment() {
+        return env;
     }
 
     protected static class Module {

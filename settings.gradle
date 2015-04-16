@@ -14,5 +14,4 @@ include 'jphp-runtime',
 
         'jphp-gradle-plugin',
 
-        'sandbox',
-        'sandbox-ext'
+        'sandbox'

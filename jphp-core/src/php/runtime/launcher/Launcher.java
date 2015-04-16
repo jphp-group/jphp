@@ -4,16 +4,17 @@ import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.common.StringUtils;
-import php.runtime.env.CompileScope;
-import php.runtime.env.ConcurrentEnvironment;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
+import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.support.Extension;
+import php.runtime.lang.IObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
+import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -224,8 +225,21 @@ public class Launcher {
             System.out.println("Starting delay = " + t + " millis");
         }
 
-        String file = config.getProperty("bootstrap.file", null);
-        if (file != null){
+        String file = config.getProperty("bootstrap.file", "JPHP-INF/.bootstrap.php");
+        String classLoader = config.getProperty("env.classLoader", ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class));
+
+        if (classLoader != null && !(classLoader.isEmpty())) {
+            ClassEntity classLoaderEntity = environment.fetchClass(classLoader);
+
+            if (classLoaderEntity == null) {
+                throw new LaunchException("Class loader class is not found: " + classLoader);
+            }
+
+            WrapClassLoader loader = classLoaderEntity.newObject(environment, TraceInfo.UNKNOWN, true);
+            environment.invokeMethod(loader, "register", Memory.TRUE);
+        }
+
+        if (file != null && !file.isEmpty()){
             try {
                 ModuleEntity bootstrap = loadFrom(file);
 

@@ -730,7 +730,7 @@ ClassReader classReader;
         }
     }
 
-    public IObject newObjectWithoutConstruct(Environment env) {
+    public <T extends IObject> T newObjectWithoutConstruct(Environment env) {
         IObject object = null;
         try {
             if (nativeConstructor != null)
@@ -743,22 +743,23 @@ ClassReader classReader;
         } catch (IllegalAccessException e) {
             throw new CriticalException(e);
         }
-        return object;
+
+        return (T) object;
     }
 
-    public IObject newMock(Environment env) throws Throwable {
+    public <T extends IObject> T newMock(Environment env) throws Throwable {
         if (nativeConstructor == null)
             return null;
         try {
             IObject object = (IObject) nativeConstructor.newInstance(env, this);
             object.setAsMock();
-            return object;
+            return (T) object;
         } catch (InstantiationException e){
             return null;
         }
     }
 
-    public IObject newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
+    public <T extends IObject> T newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
             throws Throwable {
         if (isAbstract){
             env.error(trace, "Cannot instantiate abstract class %s", name);
@@ -803,10 +804,11 @@ ClassReader classReader;
         if (doConstruct && methodConstruct != null){
             ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args, true);
         }
-        return object;
+
+        return (T) object;
     }
 
-    public IObject cloneObject(IObject value, Environment env, TraceInfo trace) throws Throwable {
+    public <T extends IObject> T cloneObject(T value, Environment env, TraceInfo trace) throws Throwable {
         IObject copy = this.newObjectWithoutConstruct(env);
         ForeachIterator iterator = value.getProperties().foreachIterator(false, false);
         ArrayMemory props = copy.getProperties();
@@ -831,7 +833,7 @@ ClassReader classReader;
             ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null, true);
         }
 
-        return copy;
+        return (T) copy;
     }
 
     public Memory concatProperty(Environment env, TraceInfo trace,
