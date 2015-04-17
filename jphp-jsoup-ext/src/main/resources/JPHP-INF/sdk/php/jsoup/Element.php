@@ -5,75 +5,109 @@ namespace php\jsoup;
  * Class Element
  * @package php\jsoup
  */
-class Element {
+abstract class Element
+{
     /**
      * @param string $html (optional)
      * @return string
      */
-    function html($html) { return ''; }
+    function html($html)
+    {
+        return '';
+    }
 
     /**
      * @return string
      */
-    function text() { return ''; }
+    function text()
+    {
+        return '';
+    }
 
     /**
      * @return string
      */
-    function nodeName() { return ''; }
+    function nodeName()
+    {
+        return '';
+    }
 
     /**
      * @param string $tagName (optional)
      * @return string
      */
-    function tagName($tagName) { return ''; }
+    function tagName($tagName)
+    {
+        return '';
+    }
 
     /**
      * @return bool
      */
-    function isBlock() { return false; }
+    function isBlock()
+    {
+        return false;
+    }
 
     /**
      * @return string
      */
-    function id() { return ''; }
+    function id()
+    {
+        return '';
+    }
 
     /**
      * @param $attributeKey
-     * @param $attributeValue
+     * @param $attributeValue (optional)
      * @return $this
      */
-    function attr($attributeKey, $attributeValue) { }
+    function attr($attributeKey, $attributeValue)
+    {
+    }
 
     /**
      * @return array
      */
-    function dataset() { return []; }
+    function dataset()
+    {
+        return [];
+    }
 
     /**
      * @return Element
      */
-    function parent() { }
+    function parent()
+    {
+    }
 
     /**
      * @return Elements
      */
-    function parents() { }
+    function parents()
+    {
+    }
 
     /**
      * @param int $index
      * @return Element
      */
-    function child($index) { }
+    function child($index)
+    {
+    }
 
     /**
      * @return Elements
      */
-    function children() { }
+    function children()
+    {
+    }
 
     /**
      * @param string $cssQuery
      * @return Elements
      */
-    function select($cssQuery) { }
+    function select($cssQuery)
+    {
+    }
 }

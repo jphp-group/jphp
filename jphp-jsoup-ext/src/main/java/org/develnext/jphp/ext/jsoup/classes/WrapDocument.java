@@ -1,28 +1,24 @@
 package org.develnext.jphp.ext.jsoup.classes;
 
 import org.develnext.jphp.ext.jsoup.JsoupExtension;
-import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Abstract;
+import php.runtime.annotation.Reflection.Namespace;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.Name;
 
-@Name(JsoupExtension.NAMESPACE + "Document")
-@Reflection.WrapInterface(WrapDocument.Methods.class)
+@Abstract
+@Name("Document")
+@Namespace(JsoupExtension.NS)
 public class WrapDocument extends BaseWrapper<Document> {
-    public WrapDocument(Environment env, Document object) {
-        super(env, object);
-    }
-
-    public WrapDocument(Environment env, ClassEntity clazz) {
-        super(env, clazz);
-    }
-
-    public interface Methods {
+    public interface WrappedInterface {
         String location();
 
         Element head();
@@ -39,5 +35,18 @@ public class WrapDocument extends BaseWrapper<Document> {
         String nodeName();
 
         Element clone();
+    }
+
+    public WrapDocument(Environment env, Document object) {
+        super(env, object);
+    }
+
+    public WrapDocument(Environment env, ClassEntity clazz) {
+        super(env, clazz);
+    }
+
+    @Signature
+    public Elements select(String query) {
+        return getWrappedObject().select(query);
     }
 }

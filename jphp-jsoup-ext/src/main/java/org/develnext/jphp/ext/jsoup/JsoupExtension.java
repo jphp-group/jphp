@@ -12,7 +12,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.memory.support.MemoryOperation;
 
 public class JsoupExtension extends Extension {
-    public static final String NAMESPACE = "php\\jsoup\\";
+    public static final String NS = "php\\jsoup";
 
     @Override
     public Status getStatus() {

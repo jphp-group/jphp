@@ -14,21 +14,11 @@ import static org.jsoup.Connection.Request;
 import static org.jsoup.Connection.Response;
 import static php.runtime.annotation.Reflection.*;
 
-@Name(JsoupExtension.NAMESPACE + "Connection")
-@WrapInterface(WrapConnection.Methods.class)
+@Abstract
+@Name("Connection")
+@Namespace(JsoupExtension.NS)
 public class WrapConnection extends BaseWrapper<Connection> {
-    public static final String METHOD_POST = "POST";
-    public static final String METHOD_GET  = "GET";
-
-    public WrapConnection(Environment env, Connection object) {
-        super(env, object);
-    }
-
-    public WrapConnection(Environment env, ClassEntity clazz) {
-        super(env, clazz);
-    }
-
-    public interface Methods {
+    public interface WrappedInterface {
         Connection url(String url);
         Connection userAgent(String userAgent);
         Connection timeout(int millis);
@@ -49,5 +39,16 @@ public class WrapConnection extends BaseWrapper<Connection> {
         Connection request(Request request);
         Response response();
         Connection response(Response response);
+    }
+
+    public static final String METHOD_POST = "POST";
+    public static final String METHOD_GET  = "GET";
+
+    public WrapConnection(Environment env, Connection object) {
+        super(env, object);
+    }
+
+    public WrapConnection(Environment env, ClassEntity clazz) {
+        super(env, clazz);
     }
 }
