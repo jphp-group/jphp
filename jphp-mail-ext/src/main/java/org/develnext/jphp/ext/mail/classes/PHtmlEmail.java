@@ -123,8 +123,12 @@ public class PHtmlEmail extends BaseObject {
             throws EmailException, MessagingException, IOException {
         InputStream is = Stream.getInputStream(env, content);
 
-        htmlEmail.attach(new ByteArrayDataSource(is, type), name, description, EmailAttachment.ATTACHMENT);
-        return this;
+        try {
+            htmlEmail.attach(new ByteArrayDataSource(is, type), name, description, EmailAttachment.ATTACHMENT);
+            return this;
+        } finally {
+            Stream.closeStream(env, is);
+        }
     }
 
     @Signature

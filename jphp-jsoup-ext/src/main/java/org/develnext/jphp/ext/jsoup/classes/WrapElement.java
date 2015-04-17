@@ -1,10 +1,12 @@
 package org.develnext.jphp.ext.jsoup.classes;
 
 import org.develnext.jphp.ext.jsoup.JsoupExtension;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Abstract;
+import php.runtime.annotation.Reflection.Namespace;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseWrapper;
@@ -17,8 +19,9 @@ import java.util.regex.Pattern;
 
 import static php.runtime.annotation.Reflection.Name;
 
-@Name(JsoupExtension.NAMESPACE + "Element")
-@Reflection.WrapInterface(WrapElement.Methods.class)
+@Abstract
+@Name("Element")
+@Namespace(JsoupExtension.NS)
 public class WrapElement extends BaseWrapper<Element> implements ICloneableObject<WrapElement> {
     public WrapElement(Environment env, Element object) {
         super(env, object);
@@ -33,7 +36,17 @@ public class WrapElement extends BaseWrapper<Element> implements ICloneableObjec
         return new WrapElement(environment, __wrappedObject.clone());
     }
 
-    interface Methods {
+    @Signature
+    public String attr(String name) {
+        return getWrappedObject().attr(name);
+    }
+
+    @Signature
+    public void attr(String name, String value) {
+        getWrappedObject().attr(name, value);
+    }
+
+    interface WrappedInterface {
         String nodeName();
 
         String tagName();
@@ -42,8 +55,6 @@ public class WrapElement extends BaseWrapper<Element> implements ICloneableObjec
         boolean isBlock();
 
         String id();
-
-        Element attr(String attributeKey, String attributeValue);
 
         Map<String, String> dataset();
 

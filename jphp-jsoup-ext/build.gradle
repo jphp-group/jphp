@@ -2,5 +2,9 @@
 
 dependencies {
     compile project(':jphp-runtime')
-    compile 'org.jsoup:jsoup:1.8.1'
+    compile 'org.jsoup:jsoup:1.8.2'
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-zend-ext')
+    testCompile project(':jphp-core').sourceSets.test.output
 }
