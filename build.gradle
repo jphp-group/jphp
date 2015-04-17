@@ -1,5 +1,5 @@
 def javaVersion    = '1.6';
-def projectVersion = '0.6.4';
+def projectVersion = '0.6.5';
 
 buildscript {
     repositories {
