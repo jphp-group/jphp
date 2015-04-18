@@ -16,6 +16,7 @@ import php.runtime.memory.support.operation.collection.SetMemoryOperation;
 import php.runtime.memory.support.operation.iterator.IterableMemoryOperation;
 import php.runtime.memory.support.operation.map.HashMapMemoryOperation;
 import php.runtime.memory.support.operation.map.MapMemoryOperation;
+import php.runtime.memory.support.operation.map.PropertiesMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 
@@ -302,6 +303,7 @@ abstract public class MemoryOperation<T> {
 
         register(new MapMemoryOperation());
         register(new HashMapMemoryOperation());
+        register(new PropertiesMemoryOperation());
 
         register(new UrlMemoryOperation());
         register(new UriMemoryOperation());

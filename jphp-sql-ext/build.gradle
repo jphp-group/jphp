@@ -1,0 +1,6 @@
+
+dependencies {
+    compile project(':jphp-runtime')
+
+    testCompile 'org.xerial:sqlite-jdbc:3.8.7'
+}
