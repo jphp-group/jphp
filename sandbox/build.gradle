@@ -15,6 +15,7 @@ dependencies {
     compile project(':jphp-gdx-ext')
     compile project(':jphp-mail-ext')
     compile project(':jphp-sql-ext')
+    compile project(':jphp-webserver-ext')
 
     compile 'org.xerial:sqlite-jdbc:3.8.7'
 }

@@ -12,14 +12,29 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 
-abstract public class Invoker {
-    protected final Environment env;
+abstract public class Invoker implements Cloneable {
+    protected Environment env;
     protected TraceInfo trace;
     protected boolean pushCallTrace = true;
 
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
         this.trace = trace;
+    }
+
+    @Override
+    protected Invoker clone() throws CloneNotSupportedException {
+        return (Invoker) super.clone();
+    }
+
+    public Invoker forEnvironment(Environment env) {
+        try {
+            Invoker clone = clone();
+            clone.env = env;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new CriticalException(e);
+        }
     }
 
     public Environment getEnvironment() {

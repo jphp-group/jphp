@@ -1,17 +1,26 @@
 <?php
 
 use php\sql\SqlDriverManager;
-use php\sql\SqlResult;
+use php\webserver\WebServer;
 
 SqlDriverManager::install('sqlite');
 
-$conn = SqlDriverManager::getConnection('sqlite::memory:');
+$server = new WebServer(function() {
+    $conn = SqlDriverManager::getConnection('sqlite::memory:');
+    $conn->query('create table users (id int, name string)')->update();
+    var_dump($conn->query('select COUNT(*) from users')->fetch()->get('COUNT(*)'));
 
-$conn->query('create table person (id integer, name string)')->update();
-$conn->query("insert into person values(?, ?)", [1, 'leo'])->update();
-$conn->query("insert into person values(?, ?)", [2, 'yui'])->update();
+    echo rand(10, 1000);
+});
 
-/** @var SqlResult $row */
-foreach ($conn->query('select * from person') as $row) {
-    var_dump($row->toArray());
-}
+$server->setPort(8080);
+
+$server->addStaticHandler([
+    'path' => '/assets/**',
+    'location' => 'classpath:/assets/',
+    'gzip' => true,
+    'cache' => true,
+    'cachePeriod' => 3600,
+]);
+
+$server->run();

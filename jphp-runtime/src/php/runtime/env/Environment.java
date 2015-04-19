@@ -142,6 +142,10 @@ public class Environment {
     }
 
     public Environment(Environment parent) {
+        this(parent, parent.defaultBuffer.getOutput());
+    }
+
+    public Environment(Environment parent, OutputStream output) {
         this(parent.scope, parent.defaultBuffer.getOutput());
 
         configuration.putAll(parent.configuration);
