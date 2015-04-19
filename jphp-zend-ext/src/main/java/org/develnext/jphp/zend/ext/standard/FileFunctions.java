@@ -71,7 +71,7 @@ public class FileFunctions extends FunctionsContainer {
     }
 
     public static boolean copy(Environment env, TraceInfo trace, String source, String dest) throws Throwable {
-        Stream stream = Stream.create(env, trace, source, "r");
+        Stream stream = Stream.create(env, source, "r");
         if (stream == null) {
             env.warning("copy(): Invalid source path");
             return false;
@@ -136,7 +136,7 @@ public class FileFunctions extends FunctionsContainer {
     public static Memory file(Environment env, TraceInfo trace, String path, int flags, Memory context) throws Throwable {
         Stream stream = null;
         try {
-            stream = Stream.create(env, trace, path, "r");
+            stream = Stream.create(env, path, "r");
             if (stream == null){
                 env.warning(trace, "file(): failed to open stream");
                 return Memory.FALSE;
@@ -188,7 +188,7 @@ public class FileFunctions extends FunctionsContainer {
                                            Memory context, Memory offset, Memory maxLength) throws Throwable {
         Stream stream = null;
         try {
-            stream = Stream.create(env, trace, path, "r");
+            stream = Stream.create(env, path, "r");
             if (stream == null){
                 env.warning(trace, "file_get_contents(): failed to open stream");
                 return Memory.FALSE;
@@ -243,7 +243,7 @@ public class FileFunctions extends FunctionsContainer {
             if ((flags & FileConstants.FILE_APPEND) == FileConstants.FILE_APPEND)
                 mode = "a";
 
-            stream = Stream.create(env, trace, path, mode);
+            stream = Stream.create(env, path, mode);
             if (stream == null){
                 env.warning(trace, "file_put_contents(): failed to open stream");
                 return Memory.FALSE;

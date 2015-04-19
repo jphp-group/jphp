@@ -5,7 +5,6 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
 import php.runtime.memory.BinaryMemory;
@@ -109,20 +108,8 @@ abstract public class Stream extends BaseObject implements Resource {
     @Signature
     abstract public Memory close(Environment env, Memory... args) throws IOException;
 
-    public static Stream create(Environment env, TraceInfo trace, String path, String mode) throws Throwable {
-        String protocol = "file";
-        int pos = path.indexOf("://");
-        if (pos > -1) {
-            protocol = path.substring(0, pos);
-            path = path.substring(pos + 3);
-        }
-
-        ClassEntity classEntity = env.getUserValue(Stream.class.getName() + "#" + protocol, ClassEntity.class);
-        if (classEntity == null){
-            return null;
-        }
-
-        return (Stream)classEntity.newObject(env, trace, true, new StringMemory(path), new StringMemory(mode));
+    public static Stream create(Environment env, String path, String mode) throws Throwable {
+        return of(env, StringMemory.valueOf(path), StringMemory.valueOf(mode)).toObject(Stream.class);
     }
 
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
