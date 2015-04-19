@@ -86,4 +86,25 @@ abstract class SqlConnection
     public function close()
     {
     }
+
+    /**
+     * @return array
+     */
+    public function getCatalogs()
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function getSchemas()
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetaData()
+    {
+    }
 }

@@ -102,8 +102,12 @@ public class PSqlResult extends BaseObject {
             case Types.BLOB:
             case Types.CLOB:
             case Types.NCLOB:
-                Blob blob = set.getBlob(index);
-                return ObjectMemory.valueOf(new MiscStream(env, blob.getBinaryStream()));
+                try {
+                    Blob blob = set.getBlob(index);
+                    return ObjectMemory.valueOf(new MiscStream(env, blob.getBinaryStream()));
+                } catch (SQLException e) {
+                    return new BinaryMemory(set.getBytes(index));
+                }
 
             default:
                 return StringMemory.valueOf(set.getString(index));

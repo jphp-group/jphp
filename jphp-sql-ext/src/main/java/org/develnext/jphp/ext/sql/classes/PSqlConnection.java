@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.sql.classes;
 
 import org.develnext.jphp.ext.sql.SqlExtension;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
@@ -9,9 +10,7 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 @Abstract
 @Name("SqlConnection")
@@ -24,10 +23,16 @@ public class PSqlConnection extends BaseObject {
     public static final int TRANSACTION_SERIALIZABLE = Connection.TRANSACTION_SERIALIZABLE;
 
     protected Connection connection;
+    protected DatabaseMetaData metaData;
 
     public PSqlConnection(Environment env, Connection connection) {
         super(env);
         this.connection = connection;
+        try {
+            this.metaData = connection.getMetaData();
+        } catch (SQLException e) {
+            throw new WrapSqlException(env, e);
+        }
     }
 
     public PSqlConnection(Environment env, ClassEntity clazz) {
@@ -72,6 +77,79 @@ public class PSqlConnection extends BaseObject {
     @Getter
     public String getCatalog() throws SQLException {
         return connection.getCatalog();
+    }
+
+    @Signature
+    public Memory getCatalogs(Environment env) throws SQLException {
+        ResultSet catalogs = metaData.getCatalogs();
+        ArrayMemory r = new ArrayMemory();
+
+        while (catalogs.next()) {
+            r.add(new PSqlResult(env, catalogs).toArray(env));
+        }
+
+        return r.toConstant();
+    }
+
+    @Signature
+    public Memory getSchemas(Environment env) throws SQLException {
+        ResultSet schemas = metaData.getSchemas();
+        ArrayMemory r = new ArrayMemory();
+
+        while (schemas.next()) {
+            r.add(new PSqlResult(env, schemas).toArray(env));
+        }
+
+        return r.toConstant();
+    }
+
+    @Signature
+    public Memory getMetaData() throws SQLException {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex("userName").assign(metaData.getUserName());
+
+        r.refOfIndex("driverName").assign(metaData.getDriverName());
+        r.refOfIndex("driverVersion").assign(metaData.getDriverVersion());
+        r.refOfIndex("databaseName").assign(metaData.getDatabaseProductName());
+        r.refOfIndex("databaseVersion").assign(metaData.getDatabaseProductVersion());
+
+        r.refOfIndex("catalogSeparator").assign(metaData.getCatalogSeparator());
+        r.refOfIndex("catalogTerm").assign(metaData.getCatalogTerm());
+        r.refOfIndex("schemaTerm").assign(metaData.getSchemaTerm());
+        r.refOfIndex("procedureTerm").assign(metaData.getProcedureTerm());
+        r.refOfIndex("searchStringEscape").assign(metaData.getSearchStringEscape());
+
+        r.refOfIndex("numericFunctions").assign(metaData.getNumericFunctions());
+        r.refOfIndex("stringFunctions").assign(metaData.getStringFunctions());
+        r.refOfIndex("timeDateFunctions").assign(metaData.getTimeDateFunctions());
+        r.refOfIndex("systemFunctions").assign(metaData.getSystemFunctions());
+
+        r.refOfIndex("defaultTransactionIsolation").assign(metaData.getDefaultTransactionIsolation());
+        r.refOfIndex("identifierQuoteString").assign(metaData.getIdentifierQuoteString());
+
+        r.refOfIndex("maxBinaryLiteralLength").assign(metaData.getMaxBinaryLiteralLength());
+        r.refOfIndex("maxCatalogNameLength").assign(metaData.getMaxCatalogNameLength());
+        r.refOfIndex("maxCharLiteralLength").assign(metaData.getMaxCharLiteralLength());
+        r.refOfIndex("maxConnections").assign(metaData.getMaxConnections());
+
+        r.refOfIndex("maxColumnNameLength").assign(metaData.getMaxColumnNameLength());
+        r.refOfIndex("maxColumnsInGroupBy").assign(metaData.getMaxColumnsInGroupBy());
+        r.refOfIndex("maxColumnsInIndex").assign(metaData.getMaxColumnsInIndex());
+        r.refOfIndex("maxColumnsInOrderBy").assign(metaData.getMaxColumnsInOrderBy());
+        r.refOfIndex("maxColumnsInSelect").assign(metaData.getMaxColumnsInSelect());
+        r.refOfIndex("maxColumnsInTable").assign(metaData.getMaxColumnsInTable());
+
+        r.refOfIndex("maxCursorNameLength").assign(metaData.getMaxCursorNameLength());
+        r.refOfIndex("maxIndexLength").assign(metaData.getMaxIndexLength());
+        r.refOfIndex("maxProcedureNameLength").assign(metaData.getMaxProcedureNameLength());
+        r.refOfIndex("maxRowSize").assign(metaData.getMaxRowSize());
+        r.refOfIndex("maxSchemaNameLength").assign(metaData.getMaxSchemaNameLength());
+        r.refOfIndex("maxStatementLength").assign(metaData.getMaxStatementLength());
+
+        r.refOfIndex("maxTableNameLength").assign(metaData.getMaxTableNameLength());
+        r.refOfIndex("maxTablesInSelect").assign(metaData.getMaxTablesInSelect());
+
+        return r.toConstant();
     }
 
     @Signature

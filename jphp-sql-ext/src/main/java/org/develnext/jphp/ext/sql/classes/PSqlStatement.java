@@ -11,6 +11,7 @@ import php.runtime.ext.core.classes.time.WrapTime;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.iterator.Iterator;
+import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
@@ -110,11 +111,28 @@ public class PSqlStatement extends BaseObject implements Iterator {
             statement.setDate(index + 1, new Date(time.getDate().getTime()), time.getCalendar());
         } else if (value.instanceOf(Stream.class)) {
             statement.setBlob(index + 1, Stream.getInputStream(env, value));
+        } else if (value.toValue() instanceof BinaryMemory) {
+            statement.setBytes(index + 1, value.getBinaryBytes());
         } else {
             if (value.isNull()) {
                 statement.setNull(index + 1, Types.NULL);
             } else {
-                statement.setString(index + 1, value.toString());
+                switch (value.getRealType()) {
+                    case INT:
+                        statement.setLong(index + 1, value.toLong());
+                        break;
+
+                    case DOUBLE:
+                        statement.setDouble(index + 1, value.toDouble());
+                        break;
+
+                    case BOOL:
+                        statement.setBoolean(index + 1, value.toBoolean());
+                        break;
+
+                    default:
+                        statement.setString(index + 1, value.toString());
+                }
             }
         }
     }

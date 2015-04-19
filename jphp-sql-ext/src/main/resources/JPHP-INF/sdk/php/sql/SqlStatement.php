@@ -61,7 +61,7 @@ abstract class SqlStatement implements Iterator
     }
 
     /**
-     * @return bool
+     * @return int
      * @throws SqlException
      */
     public function update()

@@ -1,6 +1,10 @@
 
 dependencies {
     compile project(':jphp-runtime')
+    compile 'org.apache.commons:commons-lang3:3.4'
 
     testCompile 'org.xerial:sqlite-jdbc:3.8.7'
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-zend-ext')
+    testCompile project(':jphp-core').sourceSets.test.output
 }
