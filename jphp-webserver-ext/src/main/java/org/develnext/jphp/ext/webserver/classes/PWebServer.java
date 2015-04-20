@@ -12,6 +12,7 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Name;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
@@ -28,6 +29,8 @@ public class PWebServer extends BaseObject {
     protected SpringApplication application;
     protected Invoker onRequest;
     protected List<ArrayMemory> staticHandlers = new ArrayList<ArrayMemory>();
+    protected boolean hotReload;
+    protected boolean isolated;
 
     public PWebServer(Environment env) {
         super(env);
@@ -46,7 +49,12 @@ public class PWebServer extends BaseObject {
     }
 
     @Signature
-    public void __construct(Invoker invoker) {
+    public void __construct() {
+        __construct(null);
+    }
+
+    @Signature
+    public void __construct(@Nullable Invoker invoker) {
         application = new SpringApplication(WebServerConfig.class);
         onRequest = invoker;
 
@@ -54,9 +62,44 @@ public class PWebServer extends BaseObject {
         WebServerController.application = application;
     }
 
+    public boolean isHotReload() {
+        return hotReload;
+    }
+
+    public boolean isIsolated() {
+        return isolated;
+    }
+
+    @Signature
+    public PWebServer setRoute(Invoker invoker) {
+        onRequest = invoker;
+        return this;
+    }
+
+    @Signature
+    public PWebServer setHotReload(boolean value) {
+        this.hotReload = value;
+        return this;
+    }
+
+    @Signature
+    public PWebServer setIsolated(boolean value) {
+        this.isolated = value;
+        return this;
+    }
+
     @Signature
     public PWebServer setPort(int value) {
         System.setProperty("server.port", String.valueOf(value));
+        return this;
+    }
+
+    @Signature
+    public PWebServer addDynamicHandler(Environment env, ArrayMemory handler) {
+        if (handler.getByScalar("path") == null) {
+            env.exception("Dynamic handler should contain a value the 'path' key");
+        }
+
         return this;
     }
 

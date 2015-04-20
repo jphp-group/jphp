@@ -12,7 +12,7 @@ class WebServer
     /**
      * @param callable $onRequest
      */
-    public function __construct(callable $onRequest)
+    public function __construct(callable $onRequest = null)
     {
     }
 
@@ -20,6 +20,27 @@ class WebServer
      * Run server.
      */
     public function run()
+    {
+    }
+
+    /**
+     * @param callable $onRequest (WebRequest $request)
+     */
+    public function setRoute(callable $onRequest)
+    {
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setHotReload($enabled)
+    {
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setIsolated($enabled)
     {
     }
 
