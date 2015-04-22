@@ -170,7 +170,7 @@ public class InfoFunctions extends FunctionsContainer {
     }
 
     public static Memory get_included_files(Environment env){
-        return ArrayMemory.ofStringCollection(env.getIncluded().keySet());
+        return ArrayMemory.ofStringCollection(env.getModuleManager().getCachedPaths());
     }
 
     public static Memory get_required_files(Environment env){

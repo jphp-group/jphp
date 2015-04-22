@@ -125,7 +125,7 @@ public class FileStream extends Stream {
 
             position += read;
             if (read != buff.length){
-                buff = Arrays.copyOf(buff, len);
+                buff = Arrays.copyOf(buff, read);
             }
             return new BinaryMemory(buff);
         } catch (IOException e) {

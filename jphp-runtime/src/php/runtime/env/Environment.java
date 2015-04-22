@@ -2,10 +2,7 @@ package php.runtime.env;
 
 import php.runtime.Information;
 import php.runtime.Memory;
-import php.runtime.common.AbstractCompiler;
-import php.runtime.common.Constants;
-import php.runtime.common.Messages;
-import php.runtime.common.StringUtils;
+import php.runtime.common.*;
 import php.runtime.env.handler.*;
 import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
@@ -14,6 +11,8 @@ import php.runtime.env.message.WarningMessage;
 import php.runtime.exceptions.*;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
@@ -81,13 +80,14 @@ public class Environment {
     protected final ArrayMemory globals;
     protected final Map<String, ReferenceMemory> statics;
     protected final Map<String, ConstantEntity> constants;
-    protected final Map<String, ModuleEntity> included;
     protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
     protected final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
     protected final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
     protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
+
+    protected final ModuleManager moduleManager;
 
     // call stack
     protected final static int CALL_STACK_INIT_SIZE = 255;
@@ -198,7 +198,7 @@ public class Environment {
         functionMap.putAll(parent.functionMap);
         constantMap.putAll(parent.constantMap);
 
-        this.included.putAll(parent.included);
+        moduleManager.apply(parent.moduleManager);
     }
 
     public Environment(CompileScope scope, OutputStream output) {
@@ -211,6 +211,8 @@ public class Environment {
             }
         }
 
+        this.moduleManager = new ModuleManager(this);
+
         this.outputBuffers = new Stack<OutputBuffer>();
 
         this.defaultBuffer = new OutputBuffer(this, null);
@@ -221,7 +223,7 @@ public class Environment {
 
         this.globals = new ArrayMemory();
         this.statics = new HashMap<String, ReferenceMemory>();
-        this.included = new LinkedHashMap<String, ModuleEntity>();
+
         this.setErrorReportHandler(new ErrorReportHandler() {
             @Override
             public boolean onError(SystemMessage error) {
@@ -379,8 +381,8 @@ public class Environment {
         return null;
     }
 
-    public Map<String, ModuleEntity> getIncluded() {
-        return included;
+    public ModuleManager getModuleManager() {
+        return moduleManager;
     }
 
     public CompileScope getScope() {
@@ -438,20 +440,31 @@ public class Environment {
     private final Set<String> autoloadLocks = new HashSet<String>();
 
     public ClassEntity autoloadCall(String name, String lowerName) {
-        // detect recursion in autoload
-        if (StringUtils.isValidClassName(name) && autoloadLocks.add(lowerName)){
-            StringMemory tmp = new StringMemory(name);
-            for(SplClassLoader loader : classLoaders)
-                loader.load(tmp);
+        synchronized (autoloadLocks) {
+            // detect recursion in autoload
+            if (StringUtils.isValidClassName(name) && autoloadLocks.add(lowerName)) {
+                StringMemory tmp = new StringMemory(name);
 
-            if (defaultAutoLoader != null){
-                defaultAutoLoader.load(tmp);
-            }
+                for (SplClassLoader loader : classLoaders) {
+                    loader.load(tmp);
 
-            autoloadLocks.remove(lowerName);
-            return fetchClass(name, false);
-        } else
-            return null;
+                    ClassEntity classEntity = fetchClass(name, false);
+
+                    if (classEntity != null) {
+                        autoloadLocks.remove(lowerName);
+                        return classEntity;
+                    }
+                }
+
+                if (defaultAutoLoader != null) {
+                    defaultAutoLoader.load(tmp);
+                }
+
+                autoloadLocks.remove(lowerName);
+                return fetchClass(name, false);
+            } else
+                return null;
+        }
     }
 
     public ClassEntity fetchClass(Class<?> clazz){
@@ -1050,76 +1063,75 @@ public class Environment {
         return constant;
     }
 
-    private Memory __include(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
+    private Memory __import(String path, ArrayMemory locals, TraceInfo trace, String funcName, boolean once, Callback<Void, Void> callback)
             throws Throwable {
-        File file = new File(fileName);
-        if (!file.exists()){
-            warning(trace, Messages.ERR_INCLUDE_FAILED, "include", fileName);
-            return Memory.FALSE;
-        } else {
-            ModuleEntity module = importModule(new Context(file, getDefaultCharset()));
-            included.put(module.getName(), module);
+        synchronized (moduleManager) {
+            if (once && moduleManager.hasModule(path)) {
+                return Memory.TRUE;
+            }
 
-            Memory result;
-            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "include_once" : "include", null, null);
+            ModuleEntity module = moduleManager.fetchCachedModule(path);
+
+            if (module == null) {
+                callback.call(null);
+                return Memory.FALSE;
+            }
+
+            pushCall(trace, null, new Memory[]{StringMemory.valueOf(path)}, funcName, null, null);
             try {
-                result = module.include(this, locals);
+                return module.include(this, locals);
             } finally {
                 popCall();
             }
-            return result;
         }
     }
 
-    public Memory __include(String fileName) throws Throwable {
-        return __include(fileName, globals, null);
+    public Memory __include(String path) throws Throwable {
+        return __include(path, globals, null);
     }
 
-    public Memory __includeOnce(String fileName, ArrayMemory locals, TraceInfo trace)
+    public Memory __includeOnce(String path, ArrayMemory locals, final TraceInfo trace)
             throws Throwable {
-        Context context = new Context(new File(fileName), defaultCharset);
-        if (included.containsKey(context.getModuleName()))
-            return Memory.TRUE;
-        return __include(fileName, locals, trace, true);
-    }
-
-    public Memory __include(String fileName, ArrayMemory locals, TraceInfo trace)
-            throws Throwable {
-        return __include(fileName, locals, trace, false);
-    }
-
-    private Memory __require(String fileName, ArrayMemory locals, TraceInfo trace, boolean once)
-            throws Throwable {
-        File file = new File(fileName);
-        if (!file.exists()){
-            error(trace, E_ERROR, Messages.ERR_REQUIRE_FAILED.fetch("require", fileName));
-            return Memory.NULL;
-        } else {
-            ModuleEntity module = importModule(new Context(file, getDefaultCharset()));
-            included.put(module.getName(), module);
-
-            Memory result;
-            pushCall(trace, null, new Memory[]{new StringMemory(fileName)}, once ? "require_once" : "require", null, null);
-            try {
-                result = module.include(this, locals);
-            } finally {
-                popCall();
+        return __import(path, locals, trace, "include_once", true, new Callback<Void, Void>() {
+            @Override
+            public Void call(Void param) {
+                warning(trace, Messages.ERR_INCLUDE_FAILED, "include_once");
+                return null;
             }
-            return result;
-        }
+        });
     }
 
-    public Memory __require(String fileName, ArrayMemory locals, TraceInfo trace)
+    public Memory __include(String fileName, ArrayMemory locals, final TraceInfo trace)
             throws Throwable {
-        return __require(fileName, locals, trace, false);
+        return __import(fileName, locals, trace, "include", false, new Callback<Void, Void>() {
+            @Override
+            public Void call(Void param) {
+                warning(trace, Messages.ERR_INCLUDE_FAILED, "include");
+                return null;
+            }
+        });
     }
 
-    public Memory __requireOnce(String fileName, ArrayMemory locals, TraceInfo trace)
+    public Memory __require(final String fileName, ArrayMemory locals, final TraceInfo trace)
             throws Throwable {
-        Context context = new Context(new File(fileName), defaultCharset);
-        if (included.containsKey(context.getModuleName()))
-            return Memory.TRUE;
-        return __require(fileName, locals, trace, true);
+        return __import(fileName, locals, trace, "require", false, new Callback<Void, Void>() {
+            @Override
+            public Void call(Void param) {
+                error(trace, Messages.ERR_REQUIRE_FAILED.fetch("require", fileName));
+                return null;
+            }
+        });
+    }
+
+    public Memory __requireOnce(final String fileName, ArrayMemory locals, final TraceInfo trace)
+            throws Throwable {
+        return __import(fileName, locals, trace, "require_once", true, new Callback<Void, Void>() {
+            @Override
+            public Void call(Void param) {
+                error(trace, Messages.ERR_REQUIRE_FAILED.fetch("require_once", fileName));
+                return null;
+            }
+        });
     }
 
     public void registerObjectInGC(IObject object) {
