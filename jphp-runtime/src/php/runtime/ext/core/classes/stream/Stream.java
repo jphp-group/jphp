@@ -113,6 +113,26 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
+    public static Memory getContents(Environment env, Memory... args) throws Throwable {
+        Stream stream = create(env, args[0].toString(), args[1].toString());
+        try {
+            return env.invokeMethod(stream, "readFully");
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
+    @Signature({@Arg("path"), @Arg("data"), @Arg(value = "mode", optional = @Optional("w+"))})
+    public static Memory putContents(Environment env, Memory... args) throws Throwable {
+        Stream stream = create(env, args[0].toString(), args[2].toString());
+        try {
+            return env.invokeMethod(stream, "write", args[1]);
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
+    @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
     public static Memory of(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();
 

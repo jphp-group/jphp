@@ -3,7 +3,8 @@ namespace php\io;
 
 use Iterator;
 
-abstract class Stream {
+abstract class Stream
+{
     /**
      * @var string
      */
@@ -79,18 +80,24 @@ abstract class Stream {
      * @param null|string $mode
      * @return Stream
      */
-    public function __construct($path, $mode = null){ }
+    public function __construct($path, $mode = null)
+    {
+    }
 
     /**
      * @param $context
      * @return void
      */
-    public function setContext($context) { }
+    public function setContext($context)
+    {
+    }
 
     /**
      * @return mixed
      */
-    public function getContext(){ }
+    public function getContext()
+    {
+    }
 
 
     /**
@@ -99,16 +106,44 @@ abstract class Stream {
      * @return Stream
      * @throws IOException
      */
-    public static function of($path, $mode = 'r') { }
+    public static function of($path, $mode = 'r')
+    {
+    }
+
+    /**
+     * Create a stream, call and return the result of the readFully() method, finally call the close() method.
+     * @param string $path
+     * @param string $mode
+     * @return string binary
+     * @throws IOException
+     */
+    public static function getContents($path, $mode = 'r')
+    {
+    }
+
+    /**
+     * Create a stream, call and return the result of the write() method, finally call the close() method.
+     * @param string $path
+     * @param string $data
+     * @param string $mode
+     * @throws IOException
+     */
+    public static function putContents($path, $data, $mode = 'w+')
+    {
+    }
 
     /**
      * @param string $protocol
      * @param string $className
      */
-    public static function register($protocol, $className) { }
+    public static function register($protocol, $className)
+    {
+    }
 
     /**
      * @param $protocol
      */
-    public static function unregister($protocol) { }
+    public static function unregister($protocol)
+    {
+    }
 }

@@ -10,8 +10,8 @@ import php.runtime.reflection.ClassEntity;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\char")
-final public class CharUtils extends BaseObject {
+@Name("php\\lib\\Char")
+public class CharUtils extends BaseObject {
     private final static char CHAR_UNDEFINED = 0xFFFF;
 
     public CharUtils(Environment env, ClassEntity clazz) {

@@ -13,8 +13,8 @@ import java.text.DecimalFormatSymbols;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\num")
-final public class NumUtils extends BaseObject {
+@Name("php\\lib\\Number")
+public class NumUtils extends BaseObject {
     public NumUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }

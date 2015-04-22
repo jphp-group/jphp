@@ -1,9 +1,13 @@
 <?php
 
+use php\io\Stream;
+use php\lib\String;
 use php\webserver\WebRequest;
 use php\webserver\WebServer;
 
-$server = new WebServer();
+echo String::random();
+
+/*$server = new WebServer();
 
 $server->setIsolated(true);
 $server->setHotReload(true);
@@ -19,4 +23,4 @@ $server->addStaticHandler([
     'location' => 'classpath:/assets/'
 ]);
 
-$server->run();
+$server->run();  */

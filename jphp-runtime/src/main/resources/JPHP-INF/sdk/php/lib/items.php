@@ -12,7 +12,7 @@ use Iterator;
  * Class items
  * @package php\lib
  */
-class items {
+class Items {
 
     private function __construct() { }
 

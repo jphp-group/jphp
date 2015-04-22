@@ -8,7 +8,7 @@ namespace php\lib;
  * Class mirror
  * @package php\lib
  */
-final class mirror {
+class Mirror {
     private function __construct() {}
 
     /**

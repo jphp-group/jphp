@@ -7,7 +7,7 @@ namespace php\lib;
  * Class Binary
  * @package php
  */
-class bin {
+class Binary {
 
     private function __construct() { }
 
