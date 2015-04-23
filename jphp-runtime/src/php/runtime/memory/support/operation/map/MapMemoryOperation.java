@@ -48,6 +48,10 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Map arg) throws Throwable {
+        if (arg == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory result = new ArrayMemory();
 
         for (Object _entry : arg.entrySet()) {
@@ -57,7 +61,7 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
                     .assign(operations[1].unconvert(env, trace, entry.getValue()));
         }
 
-        return null;
+        return result.toConstant();
     }
 
     protected Map createHashMap() {

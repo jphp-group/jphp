@@ -24,7 +24,7 @@ class WebServer
     }
 
     /**
-     * @param callable $onRequest (WebRequest $request)
+     * @param callable $onRequest (WebRequest $request, WebResponse $response)
      */
     public function setRoute(callable $onRequest)
     {

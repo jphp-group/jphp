@@ -208,6 +208,14 @@ abstract public class Stream extends BaseObject implements Resource {
         return Memory.NULL;
     }
 
+    /**
+     * Internal method.
+     * @return bool
+     */
+    public boolean _isExternalResourceStream() {
+        return false;
+    }
+
     public static void registerProtocol(Environment env, String protocol, Class<? extends Stream> clazz) {
         env.setUserValue(Stream.class.getName() + "#" + protocol, ReflectionUtils.getClassName(clazz));
     }

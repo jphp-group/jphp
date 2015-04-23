@@ -27,6 +27,11 @@ public class ModuleManager {
             return moduleEntity;
         } else {
             moduleEntity = fetchModule(path);
+
+            if (moduleEntity == null) {
+                return null;
+            }
+
             modules.put(path, moduleEntity);
 
             return moduleEntity;
@@ -41,7 +46,12 @@ public class ModuleManager {
         }
 
         try {
-            return env.importModule(fetchContext(stream));
+            if (stream._isExternalResourceStream()) {
+                env.exception("Cannot import module form external stream: " + stream.getPath());
+                return null;
+            } else {
+                return env.importModule(fetchContext(stream));
+            }
         } finally {
             env.invokeMethod(stream, "close");
         }

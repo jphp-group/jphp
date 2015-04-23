@@ -204,4 +204,9 @@ public class WrapNetStream extends Stream {
     public URLConnection getUrlConnection() throws IOException {
         return getURLConnection();
     }
+
+    @Override
+    public boolean _isExternalResourceStream() {
+        return true;
+    }
 }

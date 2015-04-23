@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.webserver;
 
 import org.develnext.jphp.ext.webserver.classes.PWebRequest;
+import org.develnext.jphp.ext.webserver.classes.PWebResponse;
 import org.develnext.jphp.ext.webserver.classes.PWebServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import php.runtime.invoke.Invoker;
 import php.runtime.memory.ObjectMemory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,7 @@ public class WebServerController {
     public static SpringApplication application;
 
     @RequestMapping
-    public void get(OutputStream stream, HttpServletRequest request) throws Throwable {
+    public void get(OutputStream stream, HttpServletRequest request, HttpServletResponse response) throws Throwable {
         PWebServer webServer = webServerMap.get(application);
 
         Environment environment = webServer.getEnvironment();
@@ -48,16 +50,14 @@ public class WebServerController {
 
         try {
             onRequest.call(
-                    ObjectMemory.valueOf(new PWebRequest(requestEnvironment, request))
+                    ObjectMemory.valueOf(new PWebRequest(requestEnvironment, request)),
+                    ObjectMemory.valueOf(new PWebResponse(requestEnvironment, response))
             );
-            requestEnvironment.flushAll();
-        } catch (Exception e) {
-            requestEnvironment.getDefaultBuffer().setOutput(System.err);
-            requestEnvironment.catchUncaught(e);
-            requestEnvironment.flushAll();
+        } catch (Throwable throwable) {
+            Environment.catchThrowable(throwable);
+        } finally {
+            requestEnvironment.doFinal();
         }
-
-        requestEnvironment.doFinal();
     }
 
     public static void registerServer(PWebServer webServer) {
