@@ -3,7 +3,7 @@ php\lib\str Test - searching
 --FILE--
 <?php
 
-use php\lib\str;
+use php\lib\String as str;
 
 echo "pos(Ob_foobar, ob) == " . str::pos('Ob_foobar', 'ob'), "\n";
 echo "pos(Ob_foobar, ob, 4) == " . str::pos('Ob_foobar', 'ob', 7), "\n";

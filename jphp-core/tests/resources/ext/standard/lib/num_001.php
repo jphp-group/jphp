@@ -3,7 +3,7 @@ php\lib\num Test compare
 --FILE--
 <?php
 
-use php\lib\num;
+use php\lib\Number as num;
 
 var_dump(num::compare(3.1, 3));
 var_dump(num::compare(3, 3));

@@ -3,7 +3,7 @@ php\lib\str Test - misc
 --FILE--
 <?php
 
-use php\lib\str;
+use php\lib\String as str;
 
 echo "length(foobar) == " . str::length('foobar'), "\n";
 echo "lower(FOObar) == " . str::lower('FOObar'), "\n";
