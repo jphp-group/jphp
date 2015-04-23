@@ -462,6 +462,11 @@ public class ReflectionClass extends Reflection {
     }
 
     @Signature
+    public Memory isTrait(Environment env, Memory... args) {
+        return entity.isTrait() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
     public Memory isInternal(Environment env, Memory... args) {
         return entity.isInternal() ? Memory.TRUE : Memory.FALSE;
     }
