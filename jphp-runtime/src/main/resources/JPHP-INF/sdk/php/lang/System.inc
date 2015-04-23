@@ -21,6 +21,11 @@ final class System {
     public static function gc() { }
 
     /**
+     * @return string[]
+     */
+    public static function getEnv() { }
+
+    /**
      * Gets a system property by name
      *
      * @param $name

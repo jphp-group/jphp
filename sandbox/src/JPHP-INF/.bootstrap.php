@@ -1,17 +1,37 @@
 <?php
 
-use php\sql\SqlDriverManager;
-use php\sql\SqlResult;
+use php\io\Stream;
+use php\lang\System;
+use php\lib\String;
+use php\webserver\WebRequest;
+use php\webserver\WebResponse;
+use php\webserver\WebServer;
 
-SqlDriverManager::install('sqlite');
+$server = new WebServer();
 
-$conn = SqlDriverManager::getConnection('sqlite::memory:');
+$production = false;
+$env = System::getEnv();
 
-$conn->query('create table person (id integer, name string)')->update();
-$conn->query("insert into person values(?, ?)", [1, 'leo'])->update();
-$conn->query("insert into person values(?, ?)", [2, 'yui'])->update();
-
-/** @var SqlResult $row */
-foreach ($conn->query('select * from person') as $row) {
-    var_dump($row->toArray());
+if ($env['PRODUCTION']) {
+    $production = true;
 }
+
+$server->setIsolated(true);
+$server->setHotReload(!$production);
+
+$server->setRoute(function (WebRequest $request, WebResponse $response) use ($production) {
+    if ($production) {
+        require "res://Bootstrap.php";
+    } else {
+        require "src/Bootstrap.php";
+    }
+
+    Bootstrap::run($request, $response);
+});
+
+$server->addStaticHandler([
+    'path' => '/assets/**',
+    'location' => 'classpath:/assets/'
+]);
+
+$server->run();

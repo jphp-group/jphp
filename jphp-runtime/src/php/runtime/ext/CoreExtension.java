@@ -74,7 +74,6 @@ public class CoreExtension extends Extension {
         registerClass(scope, NumUtils.class);
         registerClass(scope, ItemsUtils.class);
         registerClass(scope, MirrorUtils.class);
-        registerClass(scope, PromiseUtils.class);
 
         registerClass(scope, WrapClassLoader.class);
         registerClass(scope, WrapClassLoader.WrapLauncherClassLoader.class);

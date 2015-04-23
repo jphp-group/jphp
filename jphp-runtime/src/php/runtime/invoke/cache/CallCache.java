@@ -37,18 +37,16 @@ abstract public class CallCache<T extends Entity> {
     abstract public Item[][] newArrayArrayData(int length);
 
     @SuppressWarnings("unchecked")
-    public void put(Environment env, int index, T entity) {
+    synchronized public void put(Environment env, int index, T entity) {
         int id = env.id;
         if (cache == null) {
             cache = newArrayArrayData(id + 1);
         }
 
         if (id >= cache.length) {
-            synchronized (cache) {
-                Item[][] newCache = newArrayArrayData(id + 1);
-                System.arraycopy(cache, 0, newCache, 0, cache.length);
-                cache = newCache;
-            }
+            Item[][] newCache = newArrayArrayData(id + 1);
+            System.arraycopy(cache, 0, newCache, 0, cache.length);
+            cache = newCache;
         }
 
         Item[] data = cache[id];
@@ -57,11 +55,9 @@ abstract public class CallCache<T extends Entity> {
             cache[id] = data = newArrayData(index + 1 + 10);
         } else {
             if (index >= data.length) {
-                synchronized (cache) {
-                    Item[] newData = newArrayData(index + 1 + 10);
-                    System.arraycopy(data, 0, newData, 0, data.length);
-                    cache[id] = data = newData;
-                }
+                Item[] newData = newArrayData(index + 1 + 10);
+                System.arraycopy(data, 0, newData, 0, data.length);
+                cache[id] = data = newData;
             }
         }
 

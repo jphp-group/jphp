@@ -11,8 +11,6 @@ import php.runtime.env.message.WarningMessage;
 import php.runtime.exceptions.*;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.stream.Stream;
-import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
@@ -31,6 +29,7 @@ import php.runtime.util.JVMStackTracer;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -111,6 +110,33 @@ public class Environment {
     private static final AtomicInteger ids = new AtomicInteger();
     private static final Stack<Integer> freeIds = new Stack<Integer>();
 
+    public static void catchThrowable(Throwable e) {
+        if (e instanceof BaseException) {
+            BaseException baseException = (BaseException) e;
+            baseException.getEnvironment().catchUncaught(baseException);
+            return;
+        } else if (e instanceof Exception) {
+            Environment env = current();
+
+            if (env != null) {
+                try {
+                    env.catchUncaught((Exception) e);
+                } catch (RuntimeException e2) {
+                    e2.getCause().printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
+                }
+                return;
+            }
+        }
+
+        Environment env = current();
+
+        if (env != null) {
+            e.printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
+        } else {
+            e.printStackTrace();
+        }
+    }
+
     public static void addThreadSupport() {
         addThreadSupport(Thread.currentThread());
     }
@@ -119,29 +145,16 @@ public class Environment {
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof BaseException) {
-                    BaseException baseException = (BaseException) e;
-                    baseException.getEnvironment().catchUncaught(baseException);
-                    return;
-                } else if (e instanceof Exception) {
-                    Environment env = current();
-
-                    if (env != null) {
-                        try {
-                            env.catchUncaught((Exception) e);
-                        } catch (RuntimeException e2) {
-                            e2.printStackTrace();
-                        }
-                        return;
-                    }
-                }
-
-                e.printStackTrace();
+                Environment.catchThrowable(e);
             }
         });
     }
 
     public Environment(Environment parent) {
+        this(parent, parent.defaultBuffer.getOutput());
+    }
+
+    public Environment(Environment parent, OutputStream output) {
         this(parent.scope, parent.defaultBuffer.getOutput());
 
         configuration.putAll(parent.configuration);

@@ -18,8 +18,8 @@ import java.nio.charset.Charset;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\str")
-final public class StrUtils extends BaseObject {
+@Name("php\\lib\\String")
+public class StrUtils extends BaseObject {
     public Memory string;
 
     public StrUtils(Environment env, ClassEntity clazz) {
@@ -371,5 +371,73 @@ final public class StrUtils extends BaseObject {
     @Signature(@Arg("string"))
     public static Memory isNumber(Environment env, Memory... args) {
         return StringMemory.toLong(args[0].toString()) != null ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature({
+            @Arg(value = "length", optional = @Optional("16")),
+            @Arg(value = "set", optional = @Optional("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789"))
+    })
+    public static Memory random(Environment env, Memory... args) {
+        String set = args[1].toString();
+        int resultLen = args[0].toInteger();
+        int len = set.length();
+
+        if (len < 1) {
+            return Memory.FALSE;
+        }
+
+        StringBuilder sb = new StringBuilder(resultLen);
+
+        for (int i = 0; i < resultLen; i++) {
+            sb.append(set.charAt(MathFunctions.RANDOM.nextInt(len)));
+        }
+
+        return StringMemory.valueOf(sb.toString());
+    }
+
+    protected interface CharChecker {
+        boolean check(char ch);
+    }
+
+    protected static Memory _checkChars(Memory string, CharChecker checker) {
+        String s = string.toString();
+
+        int length = s.length();
+
+        if (length == 0) {
+            return Memory.FALSE;
+        }
+
+        for (int i = 0; i < length; i++) {
+            char ch = s.charAt(i);
+
+            if (!checker.check(ch)) {
+                return Memory.FALSE;
+            }
+        }
+
+        return Memory.TRUE;
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory isLower(Environment env, Memory... args) {
+        return _checkChars(args[0], new CharChecker() {
+            @Override
+            public boolean check(char ch) {
+                return Character.isLowerCase(ch);
+            }
+        });
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public static Memory isUpper(Environment env, Memory... args) {
+        return _checkChars(args[0], new CharChecker() {
+            @Override
+            public boolean check(char ch) {
+                return Character.isUpperCase(ch);
+            }
+        });
     }
 }

@@ -5,9 +5,12 @@ namespace php\lib;
  * Class str
  * @package php\lib
  */
-class str {
+class String
+{
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     /**
      * Returns the index within this string of the first occurrence of the
@@ -18,7 +21,10 @@ class str {
      * @param int $fromIndex the index from which to start the search.
      * @return int - returns -1 if not found
      */
-    public static function pos($string, $search, $fromIndex = 0) { return 0; }
+    public static function pos($string, $search, $fromIndex = 0)
+    {
+        return 0;
+    }
 
     /**
      * The same method as ``pos()`` only with ignoring case characters
@@ -28,7 +34,10 @@ class str {
      * @param int $fromIndex the index from which to start the search.
      * @return int - returns -1 if not found
      */
-    public static function posIgnoreCase($string, $search, $fromIndex = 0) { return 0; }
+    public static function posIgnoreCase($string, $search, $fromIndex = 0)
+    {
+        return 0;
+    }
 
     /**
      * Returns the index within this string of the last occurrence of the
@@ -40,7 +49,10 @@ class str {
      * @param null|int $fromIndex - null means $fromIndex will be equal $string.length
      * @return int - returns -1 if not found
      */
-    public static function lastPos($string, $search, $fromIndex = null) { return 0; }
+    public static function lastPos($string, $search, $fromIndex = null)
+    {
+        return 0;
+    }
 
     /**
      * The same method as ``lastPos()`` only with ignoring case characters
@@ -50,7 +62,10 @@ class str {
      * @param null|int $fromIndex - null means $fromIndex will be equal $string.length
      * @return int
      */
-    public static function lastPosIgnoreCase($string, $search, $fromIndex = null) { return 0; }
+    public static function lastPosIgnoreCase($string, $search, $fromIndex = null)
+    {
+        return 0;
+    }
 
     /**
      * Returns a new string that is a substring of this string. The
@@ -63,7 +78,10 @@ class str {
      * @param null|int $endIndex When ``$endIndex`` equals to ``null`` then it will be equal ``$string.length``
      * @return string - return false if params are invalid
      */
-    public static function sub($string, $beginIndex, $endIndex = null) { return ''; }
+    public static function sub($string, $beginIndex, $endIndex = null)
+    {
+        return '';
+    }
 
     /**
      * Compares two strings lexicographically.
@@ -84,7 +102,10 @@ class str {
      * @param string $string2 - second string
      * @return int
      */
-    public static function compare($string1, $string2) { return 0; }
+    public static function compare($string1, $string2)
+    {
+        return 0;
+    }
 
     /**
      * The same method as ``compare()`` only with ignoring case characters
@@ -93,7 +114,10 @@ class str {
      * @param string $string2
      * @return int
      */
-    public static function compareIgnoreCase($string1, $string2) { return 0; }
+    public static function compareIgnoreCase($string1, $string2)
+    {
+        return 0;
+    }
 
     /**
      * Checks that the strings are equal with ignoring case characters
@@ -102,7 +126,10 @@ class str {
      * @param string $string2
      * @return bool
      */
-    public static function equalsIgnoreCase($string1, $string2) { return false; }
+    public static function equalsIgnoreCase($string1, $string2)
+    {
+        return false;
+    }
 
     /**
      * Tests if the substring of this string beginning at the
@@ -125,7 +152,10 @@ class str {
      * @param int $offset where to begin looking in this string
      * @return bool
      */
-    public static function startsWith($string, $prefix, $offset = 0) { return false; }
+    public static function startsWith($string, $prefix, $offset = 0)
+    {
+        return false;
+    }
 
     /**
      * Tests if this string ends with the specified suffix.
@@ -134,7 +164,10 @@ class str {
      * @param string $suffix
      * @return bool
      */
-    public static function endsWith($string, $suffix) { return false; }
+    public static function endsWith($string, $suffix)
+    {
+        return false;
+    }
 
     /**
      * Converts all of the characters in ``$string`` to lower
@@ -143,7 +176,10 @@ class str {
      * @param string $string
      * @return string
      */
-    public static function lower($string) { return ''; }
+    public static function lower($string)
+    {
+        return '';
+    }
 
     /**
      * Converts all of the characters in ``$string`` to upper
@@ -152,7 +188,10 @@ class str {
      * @param string $string
      * @return string
      */
-    public static function upper($string) { return ''; }
+    public static function upper($string)
+    {
+        return '';
+    }
 
     /**
      * Returns the length of ``$string``.
@@ -161,7 +200,10 @@ class str {
      * @param string $string
      * @return int
      */
-    public static function length($string) { return 0; }
+    public static function length($string)
+    {
+        return 0;
+    }
 
     /**
      * Replaces each substring of this string that matches the literal target
@@ -175,7 +217,10 @@ class str {
      * @param string $replacement The replacement sequence of char values
      * @return string
      */
-    public static function replace($string, $target, $replacement) { return ''; }
+    public static function replace($string, $target, $replacement)
+    {
+        return '';
+    }
 
     /**
      * Return s a new string consisting of the original ``$string`` repeated
@@ -184,7 +229,10 @@ class str {
      * @param int $amount number of times to repeat str
      * @return string
      */
-    public static function repeat($string, $amount) { return ''; }
+    public static function repeat($string, $amount)
+    {
+        return '';
+    }
 
     /**
      * Returns a copy of the string, with leading and trailing whitespace
@@ -194,34 +242,59 @@ class str {
      * @param string $charList
      * @return string
      */
-    public static function trim($string, $charList = "\t\n\r\v\0 ") { return ''; }
+    public static function trim($string, $charList = "\t\n\r\v\0 ")
+    {
+        return '';
+    }
 
     /**
      * @param string $string
      * @param string $charList
      * @return string
      */
-    public static function trimRight($string, $charList = "\t\n\r\v\0 ") { return ''; }
+    public static function trimRight($string, $charList = "\t\n\r\v\0 ")
+    {
+        return '';
+    }
 
     /**
      * @param string $string
      * @param string $charList
      * @return string
      */
-    public static function trimLeft($string, $charList = "\t\n\r\v\0 ") { return ''; }
+    public static function trimLeft($string, $charList = "\t\n\r\v\0 ")
+    {
+        return '';
+    }
 
     /**
      * @param string $string
      * @return string
      */
-    public static function reverse($string) { return ''; }
+    public static function reverse($string)
+    {
+        return '';
+    }
 
     /**
      * Returns a randomized string based on chars in $string
      * @param string $string
      * @return string
      */
-    public static function shuffle($string) { return ''; }
+    public static function shuffle($string)
+    {
+        return '';
+    }
+
+    /**
+     * @param int $length
+     * @param string $set
+     * @return string
+     */
+    public static function random($length = 16, $set = 'qwertyuiopasdfghjklzxcvbnm0123456789')
+    {
+        return '';
+    }
 
     /**
      * The method like ``explode()`` in Zend PHP
@@ -231,7 +304,10 @@ class str {
      * @param int $limit
      * @return array
      */
-    public static function split($string, $separator, $limit = 0) { return []; }
+    public static function split($string, $separator, $limit = 0)
+    {
+        return [];
+    }
 
     /**
      * The method like ``implode()`` in Zend PHP
@@ -241,7 +317,10 @@ class str {
      * @param int $limit
      * @return string
      */
-    public static function join($iterable, $separator, $limit = 0) { return ''; }
+    public static function join($iterable, $separator, $limit = 0)
+    {
+        return '';
+    }
 
     /**
      * Converts $string by using $charset and returns a binary string
@@ -250,7 +329,10 @@ class str {
      * @param string $charset e.g. UTF-8, Windows-1251, etc.
      * @return string binary string
      */
-    public static function encode($string, $charset) { return ''; }
+    public static function encode($string, $charset)
+    {
+        return '';
+    }
 
     /**
      * Decodes $string by using $charset to UNICODE, returns a unicode string
@@ -259,7 +341,10 @@ class str {
      * @param string $charset e.g. UTF-8, Windows-1251, etc.
      * @return string binary string
      */
-    public static function decode($string, $charset) { return ''; }
+    public static function decode($string, $charset)
+    {
+        return '';
+    }
 
     /**
      * Returns *true* if $string is integer number (e.g: '12893', '3784', '0047')
@@ -273,5 +358,26 @@ class str {
      * @param string $string
      * @return bool
      */
-    public static function isNumber($string) { return false; }
+    public static function isNumber($string)
+    {
+        return false;
+    }
+
+    /**
+     * @param string $string
+     * @return bool
+     */
+    public static function isLower($string)
+    {
+        return false;
+    }
+
+    /**
+     * @param $string
+     * @return bool
+     */
+    public static function isUpper($string)
+    {
+        return false;
+    }
 }

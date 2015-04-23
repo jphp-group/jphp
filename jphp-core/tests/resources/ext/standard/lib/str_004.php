@@ -3,7 +3,7 @@ php\lib\str Test - join & split
 --FILE--
 <?php
 
-use php\lib\str;
+use php\lib\String as str;
 
 echo "--test-split\n";
 echo "split('f,o,o,b,a,r', ',') == "; var_dump(str::split('f,o,o,b,a,r', ','));

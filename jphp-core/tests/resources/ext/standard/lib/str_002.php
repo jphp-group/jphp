@@ -3,7 +3,7 @@ php\lib\str Test - comparing
 --FILE--
 <?php
 
-use php\lib\str;
+use php\lib\String as str;
 
 
 echo "equalsIgnoreCase(foo, foo) == " . str::equalsIgnoreCase('foo', 'foo'), "\n";
