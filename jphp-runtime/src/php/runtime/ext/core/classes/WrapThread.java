@@ -30,7 +30,7 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
 
     public WrapThread(Environment env, Thread thread) {
         super(env);
-        this.thread = thread;
+        setThread(thread);
     }
 
     public WrapThread(Environment env, ClassEntity clazz) {
@@ -51,6 +51,7 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
 
     public void setThread(Thread thread) {
         this.thread = thread;
+        Environment.addThreadSupport(thread);
     }
 
     @Signature({

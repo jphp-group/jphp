@@ -121,6 +121,11 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testAutoloadDuplicateClasses() {
+        check("classes/autoload_duplicate_classes.php");
+    }
+
+    @Test
     public void testBugs() {
         check("classes/bug107.php");
         check("classes/bug123.php");

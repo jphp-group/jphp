@@ -52,6 +52,7 @@ public class WrapExecutorService extends BaseObject {
         service.execute(new Runnable() {
             @Override
             public void run() {
+                Environment.addThreadSupport();
                 invoker.callNoThrow();
             }
         });
@@ -112,6 +113,7 @@ public class WrapExecutorService extends BaseObject {
         ScheduledFuture<Memory> future = getScheduledExecutorService(env).schedule(new Callable<Memory>() {
             @Override
             public Memory call() throws Exception {
+                Environment.addThreadSupport();
                 return invoker.callNoThrow();
             }
         }, args[1].toLong(), TimeUnit.MILLISECONDS);

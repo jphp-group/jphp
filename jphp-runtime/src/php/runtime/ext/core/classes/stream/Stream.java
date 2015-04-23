@@ -220,6 +220,14 @@ abstract public class Stream extends BaseObject implements Resource {
             return arg.toString();
     }
 
+    public static InputStream getInputStream(Environment env, Stream stream) {
+        return new StreamInputStream(env, stream);
+    }
+
+    public static OutputStream getOutputStream(Environment env, Stream stream) {
+        return new StreamOutputStream(env, stream);
+    }
+
     /**
      * @param arg - File path or Stream object
      * @return
