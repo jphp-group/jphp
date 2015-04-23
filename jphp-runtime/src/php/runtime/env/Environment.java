@@ -111,6 +111,124 @@ public class Environment {
     private static final AtomicInteger ids = new AtomicInteger();
     private static final Stack<Integer> freeIds = new Stack<Integer>();
 
+    public static void addThreadSupport() {
+        addThreadSupport(Thread.currentThread());
+    }
+
+    public static void addThreadSupport(Thread thread) {
+        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                if (e instanceof BaseException) {
+                    BaseException baseException = (BaseException) e;
+                    baseException.getEnvironment().catchUncaught(baseException);
+                    return;
+                } else if (e instanceof Exception) {
+                    Environment env = current();
+
+                    if (env != null) {
+                        try {
+                            env.catchUncaught((Exception) e);
+                        } catch (RuntimeException e2) {
+                            e2.printStackTrace();
+                        }
+                        return;
+                    }
+                }
+
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public Environment(Environment parent) {
+        this(parent.scope, parent.defaultBuffer.getOutput());
+
+        configuration.putAll(parent.configuration);
+        //constants.putAll(parent.constants);
+
+        classMap.putAll(parent.classMap);
+        for(ClassEntity e : classMap.values()) {
+            try {
+                e.initEnvironment(this);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+
+        functionMap.putAll(parent.functionMap);
+        constantMap.putAll(parent.constantMap);
+
+        moduleManager.apply(parent.moduleManager);
+    }
+
+    public Environment(CompileScope scope, OutputStream output) {
+        Environment.addThreadSupport();
+
+        this.scope = scope;
+
+        synchronized (freeIds) {
+            if (freeIds.empty()) {
+                this.id = ids.getAndIncrement();
+            } else {
+                this.id = freeIds.peek();
+            }
+        }
+
+        this.moduleManager = new ModuleManager(this);
+
+        this.outputBuffers = new Stack<OutputBuffer>();
+
+        this.defaultBuffer = new OutputBuffer(this, null);
+        this.defaultBuffer.setOutput(output);
+        this.getOutputBuffers().push(defaultBuffer);
+
+        this.includePaths = new HashSet<String>();
+
+        this.globals = new ArrayMemory();
+        this.statics = new HashMap<String, ReferenceMemory>();
+
+        this.setErrorReportHandler(new ErrorReportHandler() {
+            @Override
+            public boolean onError(SystemMessage error) {
+                Environment.this.echo(error.getDebugMessage());
+                Environment.this.echo("\n");
+                return false;
+            }
+
+            @Override
+            public boolean onFatal(ErrorException error) {
+                Environment.this.echo("\n");
+                Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
+                if (error.getTraceInfo() != null){
+                    Environment.this.echo(
+                            " in " + error.getTraceInfo().getFileName()
+                                    + " on line " + (error.getTraceInfo().getStartLine() + 1)
+                                    + ", position " + (error.getTraceInfo().getStartPosition() + 1)
+                    );
+                }
+                return false;
+            }
+        });
+
+        this.globals.put("GLOBALS", this.globals);
+        this.constants = new HashMap<String, ConstantEntity>();
+
+        //classMap.putAll(scope.getClassMap());
+        functionMap.putAll(scope.getFunctionMap());
+        constantMap.putAll(scope.getConstantMap());
+
+        Memory splAutoloader = new StringMemory("__$jphp_spl_autoload");
+        Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
+        if (invoker != null)
+            this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
+
+        for(Extension e: scope.extensions.values())
+            e.onLoad(this);
+
+        environment.set(this);
+    }
+
     public void doFinal() throws Throwable {
         for (ShutdownHandler handler : shutdownFunctions){
             try {
@@ -178,91 +296,6 @@ public class Environment {
             else
                 gcObjects.remove(object);
         }
-    }
-
-    public Environment(Environment parent) {
-        this(parent.scope, parent.defaultBuffer.getOutput());
-
-        configuration.putAll(parent.configuration);
-        //constants.putAll(parent.constants);
-
-        classMap.putAll(parent.classMap);
-        for(ClassEntity e : classMap.values()) {
-            try {
-                e.initEnvironment(this);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
-
-        functionMap.putAll(parent.functionMap);
-        constantMap.putAll(parent.constantMap);
-
-        moduleManager.apply(parent.moduleManager);
-    }
-
-    public Environment(CompileScope scope, OutputStream output) {
-        this.scope = scope;
-        synchronized (freeIds) {
-            if (freeIds.empty()) {
-                this.id = ids.getAndIncrement();
-            } else {
-                this.id = freeIds.peek();
-            }
-        }
-
-        this.moduleManager = new ModuleManager(this);
-
-        this.outputBuffers = new Stack<OutputBuffer>();
-
-        this.defaultBuffer = new OutputBuffer(this, null);
-        this.defaultBuffer.setOutput(output);
-        this.getOutputBuffers().push(defaultBuffer);
-
-        this.includePaths = new HashSet<String>();
-
-        this.globals = new ArrayMemory();
-        this.statics = new HashMap<String, ReferenceMemory>();
-
-        this.setErrorReportHandler(new ErrorReportHandler() {
-            @Override
-            public boolean onError(SystemMessage error) {
-                Environment.this.echo(error.getDebugMessage());
-                Environment.this.echo("\n");
-                return false;
-            }
-
-            @Override
-            public boolean onFatal(ErrorException error) {
-                Environment.this.echo("\n");
-                Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
-                if (error.getTraceInfo() != null){
-                    Environment.this.echo(
-                            " in " + error.getTraceInfo().getFileName()
-                                    + " on line " + (error.getTraceInfo().getStartLine() + 1)
-                                    + ", position " + (error.getTraceInfo().getStartPosition() + 1)
-                    );
-                }
-                return false;
-            }
-        });
-
-        this.globals.put("GLOBALS", this.globals);
-        this.constants = new HashMap<String, ConstantEntity>();
-
-        //classMap.putAll(scope.getClassMap());
-        functionMap.putAll(scope.getFunctionMap());
-        constantMap.putAll(scope.getConstantMap());
-
-        Memory splAutoloader = new StringMemory("__$jphp_spl_autoload");
-        Invoker invoker = Invoker.valueOf(this, null, splAutoloader);
-        if (invoker != null)
-            this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
-
-        for(Extension e: scope.extensions.values())
-            e.onLoad(this);
-
-        environment.set(this);
     }
 
     public void pushCall(CallStackItem stackItem) {

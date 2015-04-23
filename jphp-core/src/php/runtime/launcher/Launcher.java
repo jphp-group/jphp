@@ -243,6 +243,10 @@ public class Launcher {
             try {
                 ModuleEntity bootstrap = loadFrom(file);
 
+                if (bootstrap == null) {
+                    throw new IOException();
+                }
+
                 if (new StringMemory(config.getProperty("bootstrap.showBytecode", "")).toBoolean()) {
                     ModuleOpcodePrinter moduleOpcodePrinter = new ModuleOpcodePrinter(bootstrap);
                     System.out.println(moduleOpcodePrinter.toString());
@@ -250,19 +254,14 @@ public class Launcher {
 
                 initModule(bootstrap);
                 try {
-                    bootstrap.include(environment);
-                } catch (Exception e){
-                    environment.catchUncaught(e);
+                    bootstrap.includeNoThrow(environment);
                 } finally {
                     if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
                         environment.doFinal();
                     }
                 }
-
             } catch (IOException e) {
-                throw new LaunchException("Cannot find '" + file + "' resource");
-            } catch (Exception e) {
-                environment.catchUncaught(e);
+                throw new LaunchException("Cannot find '" + file + "' resource for `bootstrap.file` option");
             }
         } else if (mustBootstrap)
             throw new LaunchException("Please set value of the `bootstrap.file` option in the launcher.conf file");
