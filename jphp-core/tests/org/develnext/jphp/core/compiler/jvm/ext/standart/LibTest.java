@@ -17,6 +17,9 @@ public class LibTest extends JvmCompilerCase {
         check("ext/standard/lib/str_002.php");
         check("ext/standard/lib/str_003.php");
         check("ext/standard/lib/str_004.php");
+        check("ext/standard/lib/str_005.php");
+        check("ext/standard/lib/str_006.php");
+        check("ext/standard/lib/str_007.php");
     }
 
     @Test
@@ -26,4 +29,18 @@ public class LibTest extends JvmCompilerCase {
         check("ext/standard/lib/num_003.php");
     }
 
+    @Test
+    public void testBin() {
+        check("ext/standard/lib/bin_001.php");
+    }
+
+    @Test
+    public void testItems() {
+        check("ext/standard/lib/items_001.php");
+    }
+
+    @Test
+    public void testChar() {
+        check("ext/standard/lib/char_001.php");
+    }
 }

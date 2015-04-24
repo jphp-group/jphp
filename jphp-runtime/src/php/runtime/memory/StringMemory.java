@@ -59,7 +59,12 @@ public class StringMemory extends Memory {
         return value;
     }
 
+
     public static Memory toLong(String value){
+        return toLong(value, false);
+    }
+
+    public static Memory toLong(String value, boolean bigNumbers){
         int len = value.length();
         if (len == 0)
             return null;
@@ -83,7 +88,11 @@ public class StringMemory extends Memory {
         if (neg)
             return null;
 
-        return LongMemory.valueOf(Long.parseLong(value));
+        try {
+            return LongMemory.valueOf(Long.parseLong(value));
+        } catch (NumberFormatException e) {
+            return bigNumbers ? StringMemory.valueOf(value) : null;
+        }
     }
 
     public static Memory toNumeric(String value){
