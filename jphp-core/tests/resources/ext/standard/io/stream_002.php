@@ -10,6 +10,8 @@ $memory = Stream::of(__DIR__ . '/stream_002.inc.txt');
 var_dump($memory->readFully());
 $memory->close();
 
+var_dump(Stream::getContents(__DIR__ . '/stream_002.inc.txt'));
+
 $memory = Stream::of('file://' . __DIR__ . '/stream_002.inc.txt');
 var_dump($memory->read(3));
 $memory->close();
@@ -26,6 +28,7 @@ try {
 
 ?>
 --EXPECTF--
+string(6) "foobar"
 string(6) "foobar"
 string(3) "foo"
 string(6) "foobar"

@@ -1,6 +1,7 @@
 <?php
 namespace php\lib;
 
+use ArrayAccess;
 use Countable;
 use Iterator;
 
@@ -12,9 +13,12 @@ use Iterator;
  * Class items
  * @package php\lib
  */
-class Items {
+class Items
+{
 
-    private function __construct() { }
+    private function __construct()
+    {
+    }
 
     /**
      * Returns element count of the collection
@@ -29,7 +33,10 @@ class Items {
      * @param array|Countable|Iterator $collection
      * @return int element count --RU-- количество элементов
      */
-    public static function count($collection) { return 0; }
+    public static function count($collection)
+    {
+        return 0;
+    }
 
     /**
      * Converts $collection to array
@@ -40,7 +47,10 @@ class Items {
      * @param bool $withKeys
      * @return array
      */
-    public static function toArray($collection, $withKeys = false) { return []; }
+    public static function toArray($collection, $withKeys = false)
+    {
+        return [];
+    }
 
     /**
      * Example: items::toList(['x' => 10, 20], 30, ['x' => 50, 60]) -> [10, 20, 30, 50, 60]
@@ -49,7 +59,10 @@ class Items {
      * @param ...
      * @return array
      */
-    public static function toList($collection) { return []; }
+    public static function toList($collection)
+    {
+        return [];
+    }
 
     /**
      * Returns all keys of collection
@@ -59,7 +72,10 @@ class Items {
      * @param array|Iterator $collection
      * @return array
      */
-    public static function keys($collection) { return []; }
+    public static function keys($collection)
+    {
+        return [];
+    }
 
     /**
      * Returns a new array that is a one-dimensional flattening of this collection (recursively).
@@ -72,7 +88,10 @@ class Items {
      * @param int $maxLevel
      * @return array
      */
-    public static function flatten($collection, $maxLevel = -1) { return []; }
+    public static function flatten($collection, $maxLevel = -1)
+    {
+        return [];
+    }
 
     /**
      * Sorts the specified list into ascending order
@@ -82,7 +101,10 @@ class Items {
      * @param bool $saveKeys
      * @return array
      */
-    public static function sort($collection, callable $comparator = null, $saveKeys = false) { return []; }
+    public static function sort($collection, callable $comparator = null, $saveKeys = false)
+    {
+        return [];
+    }
 
     /**
      * Sorts the specified list into ascending order by keys
@@ -92,5 +114,40 @@ class Items {
      * @param bool $saveKeys
      * @return array
      */
-    public static function sortByKeys($collection, callable $comparator = null, $saveKeys = false) { return []; }
+    public static function sortByKeys($collection, callable $comparator = null, $saveKeys = false)
+    {
+        return [];
+    }
+
+    /**
+     * @param array|ArrayAccess $array
+     * @param ...$values
+     */
+    public static function push(&$array, ...$values)
+    {
+    }
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    public static function pop(array &$array)
+    {
+    }
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    public static function shift(array &$array)
+    {
+    }
+
+    /**
+     * @param array $array
+     * @param $values
+     */
+    public static function unshift(array &$array, ...$values)
+    {
+    }
 }

@@ -591,6 +591,15 @@ public class LangFunctions extends FunctionsContainer {
         return interface_exists(env, name, true);
     }
 
+    public static boolean trait_exists(Environment env, String name, boolean autoload) {
+        ClassEntity entity = env.fetchClass(name, autoload);
+        return entity != null && entity.isTrait();
+    }
+
+    public static boolean trait_exists(Environment env, String name) {
+        return trait_exists(env, name, true);
+    }
+
     public static boolean method_exists(Environment env, Memory clazz, String method) {
         ClassEntity classEntity;
         if (clazz.isObject()) {
