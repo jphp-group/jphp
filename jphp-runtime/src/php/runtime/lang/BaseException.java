@@ -107,6 +107,11 @@ public class BaseException extends RuntimeException implements IObject, JPHPExce
     }
 
     @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
+    }
+
+    @Signature
     public Memory __toString(Environment env, Memory... args){
         StringBuilder sb = new StringBuilder();
         sb.append("exception '")

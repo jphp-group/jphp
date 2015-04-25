@@ -248,6 +248,12 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
     }
 
     @Signature
+    public Memory __wakeup(Environment env, Memory... args) {
+        env.exception("Unserialization of 'Generator' is not allowed");
+        return Memory.NULL;
+    }
+
+    @Signature
     private Memory __sleep(Environment env, Memory... args) {
         env.exception(env.trace(), "Serialization of 'Generator' is not allowed");
         return Memory.NULL;
