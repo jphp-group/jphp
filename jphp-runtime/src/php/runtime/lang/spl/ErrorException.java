@@ -61,4 +61,9 @@ public class ErrorException extends BaseException {
     final public Memory getSeverity(Environment env, Memory... args){
         return clazz.refOfProperty(getProperties(), "severity").toValue();
     }
+
+    @Reflection.Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
+    }
 }
