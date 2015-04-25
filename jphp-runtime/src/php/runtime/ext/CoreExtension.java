@@ -5,7 +5,6 @@ import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
-import php.runtime.ext.core.classes.concurent.*;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.lib.*;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
@@ -15,17 +14,17 @@ import php.runtime.ext.core.classes.stream.*;
 import php.runtime.ext.core.classes.time.WrapTime;
 import php.runtime.ext.core.classes.time.WrapTimeFormat;
 import php.runtime.ext.core.classes.time.WrapTimeZone;
-import php.runtime.ext.core.classes.util.*;
+import php.runtime.ext.core.classes.util.WrapFlow;
+import php.runtime.ext.core.classes.util.WrapLocale;
+import php.runtime.ext.core.classes.util.WrapRegex;
+import php.runtime.ext.core.classes.util.WrapScanner;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.Collection;
-import java.util.Queue;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.TimeoutException;
 
 public class CoreExtension extends Extension {
     public final static String NAMESPACE = "php\\";
@@ -75,14 +74,19 @@ public class CoreExtension extends Extension {
         registerClass(scope, ItemsUtils.class);
         registerClass(scope, MirrorUtils.class);
 
+        registerClass(scope, SharedUtils.SharedMemory.class);
+        registerClass(scope, SharedUtils.SharedValue.class);
+        registerClass(scope, SharedUtils.SharedStack.class);
+        registerClass(scope, SharedUtils.SharedQueue.class);
+        registerClass(scope, SharedUtils.SharedMap.class);
+        registerClass(scope, SharedUtils.class);
+
         registerClass(scope, WrapClassLoader.class);
         registerClass(scope, WrapClassLoader.WrapLauncherClassLoader.class);
 
         registerClass(scope, WrapLocale.class);
         registerClass(scope, WrapScanner.class);
         registerClass(scope, WrapFlow.class);
-        registerWrapperClass(scope, Collection.class, WrapCollection.class);
-        registerWrapperClass(scope, Queue.class, WrapQueue.class);
         registerClass(scope, WrapRegex.class);
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
 
@@ -127,14 +131,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
-        registerWrapperClass(scope, Semaphore.class, WrapSemaphore.class);
-        registerWrapperClass(scope, Exchanger.class, WrapExchanger.class);
-        registerWrapperClass(scope, Lock.class, WrapLock.class);
-        registerWrapperClass(scope, BlockingQueue.class, WrapBlockingQueue.class);
-        registerWrapperClass(scope, ConcurrentLinkedQueue.class, WrapConcurrentQueue.class);
-
         registerClass(scope, WrapProcessor.class);
-
         registerClass(scope, WrapProcess.class);
     }
 

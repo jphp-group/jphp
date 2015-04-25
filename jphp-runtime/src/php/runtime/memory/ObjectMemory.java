@@ -9,6 +9,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.*;
 import php.runtime.lang.spl.ArrayAccess;
+import php.runtime.lang.spl.Traversable;
 import php.runtime.lang.spl.iterator.Iterator;
 import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.lang.support.ICloneableObject;
@@ -423,6 +424,8 @@ public class ObjectMemory extends Memory {
                     }
                 }
             };
+        } else if (value instanceof Traversable) {
+            return ((Traversable) value).getNewIterator(env, getReferences, getKeyReferences);
         } else {
             return new ForeachIterator(getReferences, getKeyReferences, false) {
                 private ForeachIterator child;

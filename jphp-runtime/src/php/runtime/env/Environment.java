@@ -808,13 +808,8 @@ public class Environment {
             return true;
         } else if (e instanceof ErrorException) {
             ErrorException er = (ErrorException) e;
-            echo("\n");
 
-            echo("\n[" + er.getType().name() + "] " + e.getMessage());
-            echo("\n    at line " + (er.getTraceInfo().getStartLine() + 1));
-            echo(", position " + (er.getTraceInfo().getStartPosition() + 1));
-            echo("\n");
-            echo("\n    in '" + er.getTraceInfo().getFileName() + "'\n");
+            getErrorReportHandler().onFatal(er);
 
             JVMStackTracer tracer = scope.getStackTracer(e);
 

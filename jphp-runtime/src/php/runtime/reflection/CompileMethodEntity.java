@@ -132,7 +132,7 @@ public class CompileMethodEntity extends MethodEntity {
                 return Memory.NULL;
             } else {
                 if (arguments != null && arguments.length > method.argsCount && !method.isVarArg()) {
-                    env.warning(trace, Messages.ERR_EXPECT_EXACTLY_PARAMS,
+                    env.error(trace, ErrorType.E_ERROR, Messages.ERR_EXPECT_EXACTLY_PARAMS,
                             name, method.argsCount, arguments.length
                     );
                     return Memory.NULL;
@@ -273,7 +273,7 @@ public class CompileMethodEntity extends MethodEntity {
                     op = argumentOperations[i] = MemoryOperation.get(parameterTypes[i], method.getGenericParameterTypes()[i]);
 
                     if (op != null) {
-                        if (i < parameters.length - 1) {
+                        if (i <= parameters.length - 1) {
                             op.applyTypeHinting(parameters[i]);
                         }
                     } else {
