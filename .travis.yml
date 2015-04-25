@@ -10,4 +10,4 @@ before_install:
  - gradle wrapper
  - chmod +x gradlew
 
-script: ./gradlew check
+script: ./gradlew check --stacktrace
