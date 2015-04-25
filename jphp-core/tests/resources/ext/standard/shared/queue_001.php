@@ -24,11 +24,11 @@ var_dump($queue->peek());
 
 var_dump($queue->poll());
 var_dump($queue->poll());
-var_dump($queue->poll());
 
 var_dump($queue->count());
 var_dump($queue->isEmpty());
 
+var_dump($queue->poll());
 var_dump($queue->poll());
 $queue->clear();
 
@@ -50,9 +50,9 @@ array(2) {
 int(2)
 int(2)
 int(3)
-int(4)
 int(1)
 bool(false)
+int(4)
 NULL
 int(0)
 bool(true)
