@@ -6,12 +6,14 @@ import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.Countable;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ParameterEntity;
 
 import java.util.*;
 
@@ -20,7 +22,7 @@ import static php.runtime.annotation.Reflection.Optional;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\lib\\Items")
-final public class ItemsUtils extends BaseObject {
+public class ItemsUtils extends BaseObject {
     public ItemsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -229,5 +231,43 @@ final public class ItemsUtils extends BaseObject {
 
         flatten(env, iterator, used, r, 0, level);
         return r.toConstant();
+    }
+
+    @Signature({
+            @Arg(value = "array", type = HintType.ARRAY, reference = true),
+            @Arg(value = "values", type = HintType.VARARG)
+    })
+    public static Memory unshift(Environment env, Memory... args) {
+        args[0].toValue(ArrayMemory.class).unshift(Arrays.copyOfRange(args, 1, args.length));
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "array", type = HintType.ARRAY, reference = true)
+    })
+    public static Memory shift(Environment env, Memory... args) {
+        return args[0].toValue(ArrayMemory.class).shift();
+    }
+
+    @Signature(@Arg(value = "array", type = HintType.ARRAY, reference = true))
+    public static Memory pop(Environment env, Memory... args) throws Throwable {
+        Memory array  = args[0];
+
+        Memory pop = array.toValue(ArrayMemory.class).pop();
+        return pop == null ? Memory.NULL : pop;
+    }
+
+    @Signature({
+            @Arg(value = "array", type = HintType.ARRAY, reference = true),
+            @Arg(value = "values", type = HintType.VARARG)
+    })
+    public static Memory push(Environment env, Memory... args) throws Throwable {
+        Memory array  = args[0];
+
+        for (int i = 1; i < args.length; i++) {
+            array.toValue(ArrayMemory.class).add(args[i].toImmutable());
+        }
+
+        return Memory.NULL;
     }
 }

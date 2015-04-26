@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import php.runtime.lang.UncaughtException;
 import php.runtime.Memory;
 
 @RunWith(JUnit4.class)
@@ -51,5 +50,10 @@ public class ExceptionsTest extends JvmCompilerCase {
     @Test
     public void testFinallyMisc(){
         check("exceptions/finally_misc.php");
+    }
+
+    @Test
+    public void testGetPrevious() {
+        check("exceptions/get_previous.php");
     }
 }

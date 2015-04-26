@@ -291,7 +291,7 @@ class String
      * @param string $set
      * @return string
      */
-    public static function random($length = 16, $set = 'qwertyuiopasdfghjklzxcvbnm0123456789')
+    public static function random($length = 16, $set = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789')
     {
         return '';
     }
@@ -356,9 +356,10 @@ class String
      *  - for ``23  `` - false
      *
      * @param string $string
+     * @param bool $bigNumbers
      * @return bool
      */
-    public static function isNumber($string)
+    public static function isNumber($string, $bigNumbers = true)
     {
         return false;
     }

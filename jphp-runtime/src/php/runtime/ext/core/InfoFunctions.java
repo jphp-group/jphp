@@ -96,7 +96,7 @@ public class InfoFunctions extends FunctionsContainer {
         ArrayMemory array = new ArrayMemory();
         for(ClassEntity classEntity : env.getClasses()){
             if (classEntity.getType() == ClassEntity.Type.CLASS)
-                array.add(new StringMemory(classEntity.getName()));
+                array.add(classEntity.getName());
         }
 
         return array.toConstant();
@@ -106,7 +106,17 @@ public class InfoFunctions extends FunctionsContainer {
         ArrayMemory array = new ArrayMemory();
         for(ClassEntity classEntity : env.getClasses()){
             if (classEntity.getType() == ClassEntity.Type.INTERFACE)
-                array.add(new StringMemory(classEntity.getName()));
+                array.add(classEntity.getName());
+        }
+
+        return array.toConstant();
+    }
+
+    public static Memory get_declared_traits(Environment env) {
+        ArrayMemory array = new ArrayMemory();
+        for(ClassEntity classEntity : env.getClasses()){
+            if (classEntity.isTrait())
+                array.add(classEntity.getName());
         }
 
         return array.toConstant();

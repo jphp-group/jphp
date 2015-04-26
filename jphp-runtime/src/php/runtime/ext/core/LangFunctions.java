@@ -364,6 +364,11 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
+    public static boolean is_number(Memory memory) {
+        return StringMemory.toNumeric(memory.toString(), true, null) != null;
+    }
+
+    @Runtime.Immutable
     public static boolean is_scalar(Memory memory) {
         switch (memory.getRealType()) {
             case BOOL:
@@ -589,6 +594,15 @@ public class LangFunctions extends FunctionsContainer {
 
     public static boolean interface_exists(Environment env, String name) {
         return interface_exists(env, name, true);
+    }
+
+    public static boolean trait_exists(Environment env, String name, boolean autoload) {
+        ClassEntity entity = env.fetchClass(name, autoload);
+        return entity != null && entity.isTrait();
+    }
+
+    public static boolean trait_exists(Environment env, String name) {
+        return trait_exists(env, name, true);
     }
 
     public static boolean method_exists(Environment env, Memory clazz, String method) {

@@ -207,7 +207,7 @@ class Flow implements Iterator {
     /**
      * Creates a new flow for an array of Iterator
      *
-     * @param array|\Iterator $collection
+     * @param array|Traversable $collection
      * @return Flow
      */
     public static function of($collection) { return new Flow([]); }

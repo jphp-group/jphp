@@ -32,11 +32,11 @@ public class MemoryMemoryOperation extends MemoryOperation<Memory> {
 
     @Override
     public Memory convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-        return arg;
+        return arg == null ? Memory.NULL : arg;
     }
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-        return arg;
+        return arg == null ? Memory.NULL : arg;
     }
 }

@@ -52,7 +52,7 @@ public class BaseException extends RuntimeException implements IObject, JPHPExce
     @Signature({
             @Arg(value = "message", optional = @Optional(value = "", type = HintType.STRING)),
             @Arg(value = "code", optional = @Optional(value = "0", type = HintType.INT)),
-            @Arg(value = "previous", optional = @Optional(value = "NULL"))
+            @Arg(value = "previous", nativeType = BaseException.class, optional = @Optional(value = "NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
         clazz.refOfProperty(props, "message").assign(args[0].toString());
@@ -99,6 +99,16 @@ public class BaseException extends RuntimeException implements IObject, JPHPExce
     @Signature
     final public Memory getTrace(Environment env, Memory... args){
         return clazz.refOfProperty(getProperties(), "trace").toValue();
+    }
+
+    @Signature
+    public Memory getPrevious(Environment env, Memory... args) {
+        return clazz.refOfProperty(getProperties(), "previous").toValue();
+    }
+
+    @Signature
+    private Memory __clone(Environment env, Memory... args) {
+        return Memory.NULL;
     }
 
     @Signature

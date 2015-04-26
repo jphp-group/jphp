@@ -368,9 +368,12 @@ public class StrUtils extends BaseObject {
     }
 
     @FastMethod
-    @Signature(@Arg("string"))
+    @Signature({
+            @Arg("string"),
+            @Arg(value = "bigNumbers", optional = @Optional("true"))
+    })
     public static Memory isNumber(Environment env, Memory... args) {
-        return StringMemory.toLong(args[0].toString()) != null ? Memory.TRUE : Memory.FALSE;
+        return StringMemory.toLong(args[0].toString(), args[1].toBoolean()) != null ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature({
@@ -422,22 +425,56 @@ public class StrUtils extends BaseObject {
     @FastMethod
     @Signature(@Arg("string"))
     public static Memory isLower(Environment env, Memory... args) {
-        return _checkChars(args[0], new CharChecker() {
-            @Override
-            public boolean check(char ch) {
-                return Character.isLowerCase(ch);
+        String s = args[0].toString();
+
+        int length = s.length();
+
+        if (length == 0) {
+            return Memory.FALSE;
+        }
+
+        boolean letterExists = false;
+
+        for (int i = 0; i < length; i++) {
+            char ch = s.charAt(i);
+
+            if (!Character.isLetter(ch)) continue;
+
+            if (!Character.isLowerCase(ch)) {
+                return Memory.FALSE;
             }
-        });
+
+            letterExists = true;
+        }
+
+        return letterExists ? Memory.TRUE : Memory.FALSE;
     }
 
     @FastMethod
     @Signature(@Arg("string"))
     public static Memory isUpper(Environment env, Memory... args) {
-        return _checkChars(args[0], new CharChecker() {
-            @Override
-            public boolean check(char ch) {
-                return Character.isUpperCase(ch);
+        String s = args[0].toString();
+
+        int length = s.length();
+
+        if (length == 0) {
+            return Memory.FALSE;
+        }
+
+        boolean letterExists = false;
+
+        for (int i = 0; i < length; i++) {
+            char ch = s.charAt(i);
+
+            if (!Character.isLetter(ch)) continue;
+
+            if (!Character.isUpperCase(ch)) {
+                return Memory.FALSE;
             }
-        });
+
+            letterExists = true;
+        }
+
+        return letterExists ? Memory.TRUE : Memory.FALSE;
     }
 }

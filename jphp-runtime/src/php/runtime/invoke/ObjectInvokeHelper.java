@@ -209,7 +209,7 @@ final public class ObjectInvokeHelper {
             InvokeHelper.checkAccess(env, trace, method);
 
         Memory[] passed = InvokeHelper.makeArguments(
-                env, args, method.getParameters(), className, method.getName(), trace
+                env, args, method.getParameters(args == null ? 0 : args.length), className, method.getName(), trace
         );
         Memory result = method.getImmutableResult();
         if (result != null){
