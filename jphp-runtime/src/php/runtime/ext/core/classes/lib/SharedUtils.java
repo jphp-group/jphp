@@ -10,12 +10,15 @@ import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.Countable;
 import php.runtime.lang.spl.Traversable;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.*;
+
+import static php.runtime.annotation.Reflection.Nullable;
 
 @Name("php\\util\\Shared")
 public class SharedUtils extends BaseObject {
@@ -30,7 +33,26 @@ public class SharedUtils extends BaseObject {
     }
 
     @Signature
-    public static SharedValue value(Environment env, String name) {
+    public static void resetAll() {
+        synchronized (globalValue) {
+            globalValue.clear();
+        }
+    }
+
+    @Signature
+    public static SharedValue reset(String name) {
+        synchronized (globalValue) {
+            return globalValue.remove(name);
+        }
+    }
+
+    @Signature
+    public static SharedValue value(Environment env, String name) throws Throwable {
+        return value(env, name, null);
+    }
+
+    @Signature
+    public static SharedValue value(Environment env, String name, @Nullable Invoker creator) throws Throwable {
         SharedValue value = globalValue.get(name);
 
         if (value != null) {
@@ -39,8 +61,18 @@ public class SharedUtils extends BaseObject {
 
         synchronized (globalValue) {
             value = new SharedValue(env, (Memory) null);
-            globalValue.put(name, value);
 
+            SharedValue oldValue = globalValue.get(name);
+            if (oldValue != null) {
+                return oldValue;
+            }
+
+            if (creator != null) {
+                value.set(creator.call());
+            }
+
+
+            globalValue.put(name, value);
             return value;
         }
     }
@@ -87,6 +119,13 @@ public class SharedUtils extends BaseObject {
         @Signature
         synchronized public void __construct(Memory value) {
             this.value = value;
+        }
+
+        @Signature
+        synchronized public Memory __debugInfo(Environment env, Memory... args) {
+            ArrayMemory info = new ArrayMemory();
+            info.refOfIndex("*value").assign(value);
+            return info.toConstant();
         }
 
         @Signature
@@ -193,6 +232,13 @@ public class SharedUtils extends BaseObject {
         @Signature
         public void __construct() {
             queue = new LinkedList<Memory>();
+        }
+
+        @Signature
+        synchronized public Memory __debugInfo(Environment env, Memory... args) {
+            ArrayMemory info = new ArrayMemory();
+            info.refOfIndex("*queue").assign(ArrayMemory.ofCollection(queue));
+            return info.toConstant();
         }
 
         @Signature
@@ -328,6 +374,13 @@ public class SharedUtils extends BaseObject {
             stack = new Stack<Memory>();
         }
 
+        @Signature
+        synchronized public Memory __debugInfo(Environment env, Memory... args) {
+            ArrayMemory info = new ArrayMemory();
+            info.refOfIndex("*stack").assign(ArrayMemory.ofCollection(stack));
+            return info.toConstant();
+        }
+
         @Override
         @Signature
         synchronized public Memory count(Environment env, Memory... args) {
@@ -461,6 +514,12 @@ public class SharedUtils extends BaseObject {
             map = new LinkedHashMap<String, Memory>();
         }
 
+        @Signature
+        synchronized public Memory __debugInfo(Environment env, Memory... args) {
+            ArrayMemory info = new ArrayMemory();
+            info.refOfIndex("*map").assign(ArrayMemory.ofMap(map));
+            return info.toConstant();
+        }
 
         @Override
         @Signature

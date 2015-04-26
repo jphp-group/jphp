@@ -18,6 +18,12 @@ public class SharedTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testBasic() {
+        check("ext/standard/shared/basic_001.php");
+        check("ext/standard/shared/basic_002.php");
+    }
+
+    @Test
     public void testMap() {
         check("ext/standard/shared/map_001.php");
     }
