@@ -1,19 +1,13 @@
 package php.runtime.ext.core.classes;
 
-import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
-import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.SplClassLoader;
 import php.runtime.ext.CoreExtension;
-import php.runtime.ext.core.classes.stream.Stream;
-import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
-import php.runtime.lang.BaseWrapper;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
 
@@ -89,12 +83,7 @@ abstract public class WrapClassLoader extends BaseObject {
         }
 
         protected ModuleEntity fetchClass(Environment env, String fileName) throws Throwable {
-            try {
-                Memory value = Stream.of(env, StringMemory.valueOf("res://" + fileName), StringMemory.valueOf("r"));
-                return env.importModule(new Context(Stream.getInputStream(env, value), fileName, env.getDefaultCharset()));
-            } catch (WrapIOException throwable) {
-                return null;
-            }
+            return env.getModuleManager().fetchModule("res://" + fileName);
         }
     }
 }

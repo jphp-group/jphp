@@ -58,6 +58,13 @@ class WebRequest
     public $ip;
 
     /**
+     * Array of arrays [name, value, path, domain, httpOnly, secure, maxAge, comment]
+     * @readonly
+     * @var array
+     */
+    public $cookies;
+
+    /**
      * @param WebRequest $parent
      */
     protected function __construct(WebRequest $parent) {

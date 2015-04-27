@@ -4,6 +4,7 @@ import org.develnext.jphp.ext.webserver.WebServerConfig;
 import org.develnext.jphp.ext.webserver.WebServerController;
 import org.develnext.jphp.ext.webserver.WebServerExtension;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.servlet.config.annotation.ResourceChainRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

@@ -20,7 +20,7 @@ public class ModuleManager {
         this.modules.putAll(parent.modules);
     }
 
-    protected ModuleEntity fetchCachedModule(String path) throws Throwable {
+    public ModuleEntity fetchCachedModule(String path) throws Throwable {
         ModuleEntity moduleEntity = modules.get(path);
 
         if (moduleEntity != null) {
@@ -38,7 +38,7 @@ public class ModuleManager {
         }
     }
 
-    protected ModuleEntity fetchModule(String path) throws Throwable {
+    public ModuleEntity fetchModule(String path) throws Throwable {
         Stream stream = fetchStream(path);
 
         if (stream == null) {
@@ -57,8 +57,8 @@ public class ModuleManager {
         }
     }
 
-    protected Context fetchContext(Stream stream) throws Throwable {
-        return new Context(Stream.getInputStream(env, stream));
+    public Context fetchContext(Stream stream) throws Throwable {
+        return new Context(Stream.getInputStream(env, stream), stream.getPath(), env.getDefaultCharset());
     }
 
     protected Stream fetchStream(String path) throws Throwable {

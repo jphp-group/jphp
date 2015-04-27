@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.webserver.classes;
 
 import org.develnext.jphp.ext.webserver.WebServerExtension;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Abstract;
 import php.runtime.annotation.Reflection.Getter;
@@ -10,8 +11,10 @@ import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.MiscStream;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseWrapper;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -75,6 +78,30 @@ public class PWebRequest extends BaseWrapper<HttpServletRequest> {
     @Signature
     public Stream getBodyStream(Environment env) throws IOException {
         return new MiscStream(env, getWrappedObject().getInputStream());
+    }
+
+    @Getter
+    public Memory getCookies() {
+        Cookie[] cookies = getWrappedObject().getCookies();
+
+        ArrayMemory result = new ArrayMemory();
+
+        for (Cookie cookie : cookies) {
+            ArrayMemory item = new ArrayMemory();
+
+            item.refOfIndex("name").assign(cookie.getName());
+            item.refOfIndex("value").assign(cookie.getValue());
+            item.refOfIndex("path").assign(cookie.getPath());
+            item.refOfIndex("domain").assign(cookie.getDomain());
+            item.refOfIndex("maxAge").assign(cookie.getMaxAge());
+            item.refOfIndex("httpOnly").assign(cookie.isHttpOnly());
+            item.refOfIndex("secure").assign(cookie.getSecure());
+            item.refOfIndex("comment").assign(cookie.getComment());
+
+            result.add(item);
+        }
+
+        return result.toConstant();
     }
 
     @Signature
