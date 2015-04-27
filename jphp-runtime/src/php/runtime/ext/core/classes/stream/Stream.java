@@ -132,6 +132,26 @@ abstract public class Stream extends BaseObject implements Resource {
         }
     }
 
+    @Signature
+    public static Memory exists(Environment env, Memory... args) throws Throwable {
+        Stream stream = null;
+        try {
+            stream = create(env, args[0].toString(), args[2].toString());
+
+            if (stream._isExternalResourceStream()) {
+                env.exception("Unable to check external stream");
+            }
+
+            return Memory.TRUE;
+        } catch (WrapIOException e) {
+            return Memory.FALSE;
+        } finally {
+            if (stream != null) {
+                env.invokeMethod(stream, "close");
+            }
+        }
+    }
+
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
     public static Memory of(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();

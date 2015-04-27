@@ -27,7 +27,10 @@ import java.util.List;
 @Reflection.Namespace(WebServerExtension.NS)
 public class PWebServer extends BaseObject {
     protected SpringApplication application;
+
     protected Invoker onRequest;
+    protected Invoker onCreateEnvironment;
+
     protected List<ArrayMemory> staticHandlers = new ArrayList<ArrayMemory>();
     protected boolean hotReload;
     protected boolean isolated;
@@ -46,6 +49,10 @@ public class PWebServer extends BaseObject {
 
     public Invoker getOnRequest() {
         return onRequest;
+    }
+
+    public Invoker getOnCreateEnvironment() {
+        return onCreateEnvironment;
     }
 
     @Signature
@@ -73,6 +80,12 @@ public class PWebServer extends BaseObject {
     @Signature
     public PWebServer setRoute(Invoker invoker) {
         onRequest = invoker;
+        return this;
+    }
+
+    @Signature
+    public PWebServer setEnvironmentCreator(@Nullable Invoker invoker) {
+        onCreateEnvironment = invoker;
         return this;
     }
 

@@ -40,7 +40,7 @@ public class WrapExecutorService extends BaseObject {
     public Memory execute(Environment env, Memory... args){
         Environment _env = env;
         if (!args[1].isNull())
-            _env = args[1].toObject(WrapEnvironment.class).getEnvironment();
+            _env = args[1].toObject(WrapEnvironment.class).getWrapEnvironment();
 
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
         if (invoker == null){
@@ -79,7 +79,7 @@ public class WrapExecutorService extends BaseObject {
     public Memory submit(Environment env, Memory... args){
         final Environment _env = args[1].isNull()
                 ? env
-                : args[1].toObject(WrapEnvironment.class).getEnvironment();
+                : args[1].toObject(WrapEnvironment.class).getWrapEnvironment();
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
         if (invoker == null) {
             env.exception("Argument 1 must be callable in passed environment");
@@ -103,7 +103,7 @@ public class WrapExecutorService extends BaseObject {
     public Memory schedule(Environment env, Memory... args){
         final Environment _env = args[2].isNull()
                 ? env
-                : args[2].toObject(WrapEnvironment.class).getEnvironment();
+                : args[2].toObject(WrapEnvironment.class).getWrapEnvironment();
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
         if (invoker == null) {
             env.exception("Argument 1 must be callable in passed environment");

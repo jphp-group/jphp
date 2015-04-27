@@ -46,6 +46,9 @@ public class Environment {
     public final Map<String, Memory> configuration = new HashMap<String, Memory>();
     public final static Map<String, ConfigChangeHandler> configurationHandler;
 
+    // call stack
+    private final CallStack callStack = new CallStack();
+
     private Set<String> includePaths;
 
     public SplClassLoader __autoload = null;
@@ -87,13 +90,6 @@ public class Environment {
     protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
     protected final ModuleManager moduleManager;
-
-    // call stack
-    protected final static int CALL_STACK_INIT_SIZE = 255;
-
-    private int callStackTop = 0;
-    private int maxCallStackTop = -1;
-    private CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
 
     protected static final ThreadLocal<Environment> environment = new ThreadLocal<Environment>();
 
@@ -312,84 +308,43 @@ public class Environment {
     }
 
     public void pushCall(CallStackItem stackItem) {
-        if (callStackTop >= callStack.length){
-            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
-            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
-            callStack = newCallStack;
-        }
-
-        callStack[callStackTop++] = stackItem;
-        maxCallStackTop = callStackTop;
+        callStack.push(stackItem);
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
-        if (callStackTop >= callStack.length){
-            CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
-            System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
-            callStack = newCallStack;
-        }
-
-        if (callStackTop < maxCallStackTop)
-            callStack[callStackTop++].setParameters(trace, self, args, function, clazz, staticClazz);
-        else
-            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
-
-        maxCallStackTop = callStackTop;
+        callStack.push(trace, self, args, function, clazz, staticClazz);
     }
 
     public void pushCall(IObject self, String method, Memory... args){
-        pushCall(null, self, args, method, self.getReflection().getName(), null);
+        callStack.push(self, method, args);
     }
 
     public void pushCall(TraceInfo trace, IObject self, String method, Memory... args){
-        pushCall(trace, self, args, method, self.getReflection().getName(), null);
+        callStack.push(trace, self, method, args);
     }
 
     public void popCall(){
-        try {
-            callStack[--callStackTop].clear(); // clear for GC
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalThreadStateException();
-        }
+        callStack.pop();
     }
 
     public CallStackItem peekCall(int depth){
-        if (callStackTop - depth > 0) {
-            return callStack[callStackTop - depth - 1];
-        } else {
-            return null;
-        }
+        return callStack.peekCall(depth);
     }
 
-    public TraceInfo trace(){
-        if (callStackTop <= 0)
-            return TraceInfo.UNKNOWN;
-        return peekCall(0).trace;
+    public TraceInfo trace() {
+        return callStack.trace();
     }
 
     public TraceInfo trace(int systemOffsetStackTrace){
-        return new TraceInfo(Thread.currentThread().getStackTrace()[systemOffsetStackTrace]);
+        return callStack.trace(systemOffsetStackTrace);
     }
 
     public int getCallStackTop(){
-        return callStackTop;
+        return callStack.getTop();
     }
 
     public CallStackItem[] getCallStackSnapshot(){
-        if (callStackTop < 0)
-            throw new IllegalThreadStateException();
-
-        CallStackItem[] result = new CallStackItem[callStackTop];
-        int i = 0;
-        for(CallStackItem el : callStack){
-            if (i == callStackTop)
-                break;
-
-            result[i] = new CallStackItem(el);
-            i++;
-        }
-
-        return result;
+        return callStack.getSnapshot();
     }
 
     public Environment(OutputStream output){

@@ -37,6 +37,11 @@ public class SplClassLoader {
         return result;
     }
 
+    public SplClassLoader forEnvironment(Environment newEnvironment) {
+        Invoker invoker = this.invoker.forEnvironment(newEnvironment);
+        return new SplClassLoader(invoker, callback);
+    }
+
     public boolean load(Memory... args) {
         return invoker.callNoThrow(args).toBoolean();
     }

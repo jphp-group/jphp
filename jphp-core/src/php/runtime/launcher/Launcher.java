@@ -192,7 +192,7 @@ public class Launcher {
             compileScope.registerExtension(className);
         }
 
-        this.environment = getConfigValue("env.concurrent").toBoolean()
+        this.environment = getConfigValue("env.concurrent", "1").toBoolean()
                 ? new ConcurrentEnvironment(compileScope, out)
                 : new Environment(compileScope, out);
 
