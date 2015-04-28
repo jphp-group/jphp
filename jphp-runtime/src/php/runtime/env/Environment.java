@@ -47,7 +47,7 @@ public class Environment {
     public final static Map<String, ConfigChangeHandler> configurationHandler;
 
     // call stack
-    private final CallStack callStack = new CallStack();
+    private CallStack callStack = new CallStack();
 
     private Set<String> includePaths;
 
@@ -190,7 +190,12 @@ public class Environment {
 
         this.defaultBuffer = new OutputBuffer(this, null);
         this.defaultBuffer.setOutput(output);
-        this.getOutputBuffers().push(defaultBuffer);
+
+        Stack<OutputBuffer> buffers = this.getOutputBuffers();
+
+        if (buffers.isEmpty()) {
+            buffers.push(defaultBuffer);
+        }
 
         this.includePaths = new HashSet<String>();
 
@@ -308,43 +313,43 @@ public class Environment {
     }
 
     public void pushCall(CallStackItem stackItem) {
-        callStack.push(stackItem);
+        getCallStack().push(stackItem);
     }
 
     public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
-        callStack.push(trace, self, args, function, clazz, staticClazz);
+        getCallStack().push(trace, self, args, function, clazz, staticClazz);
     }
 
     public void pushCall(IObject self, String method, Memory... args){
-        callStack.push(self, method, args);
+        getCallStack().push(self, method, args);
     }
 
     public void pushCall(TraceInfo trace, IObject self, String method, Memory... args){
-        callStack.push(trace, self, method, args);
+        getCallStack().push(trace, self, method, args);
     }
 
     public void popCall(){
-        callStack.pop();
+        getCallStack().pop();
     }
 
     public CallStackItem peekCall(int depth){
-        return callStack.peekCall(depth);
+        return getCallStack().peekCall(depth);
     }
 
     public TraceInfo trace() {
-        return callStack.trace();
+        return getCallStack().trace();
     }
 
     public TraceInfo trace(int systemOffsetStackTrace){
-        return callStack.trace(systemOffsetStackTrace);
+        return getCallStack().trace(systemOffsetStackTrace);
     }
 
     public int getCallStackTop(){
-        return callStack.getTop();
+        return getCallStack().getTop();
     }
 
     public CallStackItem[] getCallStackSnapshot(){
-        return callStack.getSnapshot();
+        return getCallStack().getSnapshot();
     }
 
     public Environment(OutputStream output){
@@ -1518,6 +1523,14 @@ public class Environment {
         errorHandler = handler;
     }
 
+    public CallStack getCallStack() {
+        return callStack;
+    }
+
+    public void __replaceCallStack(CallStack stack) {
+        this.callStack = stack;
+    }
+
     public void registerShutdownFunction(ShutdownHandler handler){
         shutdownFunctions.add(handler);
     }
@@ -1539,6 +1552,4 @@ public class Environment {
             }
         });
     }
-
-
 }

@@ -64,40 +64,14 @@ public class ConcurrentEnvironment extends Environment {
         return outputBuffers.get();
     }
 
-    public void pushCall(CallStackItem stackItem) {
-        callStack.get().push(stackItem);
+    @Override
+    public void __replaceCallStack(CallStack stack) {
+        callStack.set(stack);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
-        callStack.get().push(trace, self, args, function, clazz, staticClazz);
-    }
-
-    public void pushCall(IObject self, String method, Memory... args){
-        callStack.get().push(self, method, args);
-    }
-
-    public void pushCall(TraceInfo trace, IObject self, String method, Memory... args){
-        callStack.get().push(trace, self, method, args);
-    }
-
-    public void popCall() {
-        callStack.get().pop();
-    }
-
-    public CallStackItem peekCall(int depth) {
-        return callStack.get().peekCall(depth);
-    }
-
-    public TraceInfo trace(){
-        return callStack.get().trace();
-    }
-
-    public int getCallStackTop(){
-        return callStack.get().getTop();
-    }
-
-    public CallStackItem[] getCallStackSnapshot(){
-        return callStack.get().getSnapshot();
+    @Override
+    public CallStack getCallStack() {
+        return callStack.get();
     }
 
     @Override

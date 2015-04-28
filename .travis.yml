@@ -6,6 +6,11 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
+env:
+  - JPHP_TEST_COMPILED=1
+  - JPHP_TEST_CONCURRENT=1
+  - JPHP_TEST_CONCURRENT=1 JPHP_TEST_COMPILED=1
+
 before_install:
  - gradle wrapper
  - chmod +x gradlew

@@ -1,6 +1,7 @@
 package php.runtime.lang;
 
 import php.runtime.Memory;
+import php.runtime.env.CallStack;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -37,6 +38,7 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
     protected final static ThreadLocal<Generator> currentGenerator = new ThreadLocal<Generator>();
 
     protected CallStackItem callStackItem;
+    protected CallStack callStack;
 
     protected Throwable lastThrowable = null;
     protected RuntimeException newThrow = null;
@@ -56,6 +58,7 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
         this.uses = uses;
 
         CallStackItem stackItem = env.peekCall(0);
+        this.callStack     = env.getCallStack();
         this.callStackItem = stackItem == null ? null : new CallStackItem(stackItem);
 
         gen = new php.runtime.util.generator.Generator<Bucket>() {
@@ -63,6 +66,8 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
             protected void run(YieldAdapterIterator<Bucket> yieldAdapter) {
                 try {
                     currentGenerator.set(Generator.this);
+                    env.__replaceCallStack(Generator.this.callStack);
+
                     Generator.this._run(env);
                 } catch (Throwable e) {
                     lastThrowable = e;
