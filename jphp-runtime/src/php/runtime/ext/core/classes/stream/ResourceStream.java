@@ -36,6 +36,10 @@ public class ResourceStream extends Stream {
     public URL getUrl() {
         return url;
     }
+    
+    public InputStream getInputStream() {
+        return this.stream;
+    }
 
     @Override
     @Signature({@Arg("path")})
