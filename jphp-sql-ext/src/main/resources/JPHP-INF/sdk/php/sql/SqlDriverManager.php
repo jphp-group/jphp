@@ -24,4 +24,13 @@ class SqlDriverManager
     public static function getConnection($url, array $options)
     {
     }
+
+    /**
+     * @param string $url
+     * @param array $options (optional)
+     * @return SqlConnectionPool
+     */
+    public static function getPool($url, array $options)
+    {
+    }
 }
