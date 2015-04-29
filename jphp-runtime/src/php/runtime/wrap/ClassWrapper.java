@@ -163,6 +163,12 @@ public class ClassWrapper {
                 || (arg.type() != HintType.STRING && !arg.optional().value().isEmpty())){
             param.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
         }
+
+        if (!arg.typeClass().isEmpty())
+            param.setTypeClass(arg.typeClass());
+        else if (arg.nativeType() != IObject.class) {
+            param.setTypeClass(ReflectionUtils.getClassName(arg.nativeType()));
+        }
     }
 
     protected PropertyEntity getPropertyOfMethod(MethodEntity entity, String name) {

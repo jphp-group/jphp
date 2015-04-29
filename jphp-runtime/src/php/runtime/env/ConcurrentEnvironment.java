@@ -15,7 +15,6 @@ import java.util.Stack;
 import static php.runtime.exceptions.support.ErrorType.*;
 
 public class ConcurrentEnvironment extends Environment {
-
     private ThreadLocal<Stack<OutputBuffer>> outputBuffers;
 
     private ThreadLocal<Stack<Integer>> silentFlags = new ThreadLocal<Stack<Integer>>(){
@@ -25,33 +24,10 @@ public class ConcurrentEnvironment extends Environment {
         }
     };
 
-    private ThreadLocal<Integer> errorFlags = new ThreadLocal<Integer>(){
+    private ThreadLocal<CallStack> callStack = new ThreadLocal<CallStack>() {
         @Override
-        protected Integer initialValue() {
-            return E_ALL.value ^ (E_NOTICE.value | E_STRICT.value | E_DEPRECATED.value);
-        }
-    };
-
-    //private int callStackTop = 0;
-    private ThreadLocal<Integer> callStackTop = new ThreadLocal<Integer>(){
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
-
-    //private int maxCallStackTop = -1;
-    private ThreadLocal<Integer> maxCallStackTop = new ThreadLocal<Integer>(){
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
-
-    private ThreadLocal<CallStackItem[]> callStack = new ThreadLocal<CallStackItem[]>(){
-        @Override
-        protected CallStackItem[] initialValue() {
-            return new CallStackItem[CALL_STACK_INIT_SIZE];
+        protected CallStack initialValue() {
+            return new CallStack();
         }
     };
 
@@ -88,62 +64,14 @@ public class ConcurrentEnvironment extends Environment {
         return outputBuffers.get();
     }
 
-    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
-        CallStackItem[] cs = callStack.get();
-        int top = callStackTop.get();
-        if (top >= cs.length){
-            CallStackItem[] newCallStack = new CallStackItem[cs.length * 2];
-            System.arraycopy(cs, 0, newCallStack, 0, cs.length);
-            callStack.set(cs = newCallStack);
-        }
-
-        if (top < maxCallStackTop.get())
-            cs[top++].setParameters(trace, self, args, function, clazz, staticClazz);
-        else
-            cs[top++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
-
-        maxCallStackTop.set(top);
-        callStackTop.set(top);
+    @Override
+    public void __replaceCallStack(CallStack stack) {
+        callStack.set(stack);
     }
 
-
-    public void popCall(){
-        int top = callStackTop.get();
-        callStack.get()[--top].clear(); // clear for GC
-        callStackTop.set(top);
-    }
-
-    public CallStackItem peekCall(int depth){
-        if (callStackTop.get() - depth > 0) {
-            return callStack.get()[callStackTop.get() - depth - 1];
-        } else {
-            return null;
-        }
-    }
-
-    public TraceInfo trace(){
-        if (callStackTop.get() == 0)
-            return TraceInfo.UNKNOWN;
-        return peekCall(0).trace;
-    }
-
-    public int getCallStackTop(){
-        return callStackTop.get();
-    }
-
-    public CallStackItem[] getCallStackSnapshot(){
-        int top = callStackTop.get();
-        CallStackItem[] result = new CallStackItem[top];
-        int i = 0;
-        for(CallStackItem el : callStack.get()){
-            if (i == top)
-                break;
-
-            result[i] = new CallStackItem(el);
-            i++;
-        }
-
-        return result;
+    @Override
+    public CallStack getCallStack() {
+        return callStack.get();
     }
 
     @Override
@@ -197,21 +125,13 @@ public class ConcurrentEnvironment extends Environment {
 
     @Override
     public void setErrorFlags(int errorFlags) {
-        this.errorFlags.set(errorFlags);
-    }
-
-    @Override
-    public int getErrorFlags() {
-        return this.errorFlags.get();
-    }
-
-    @Override
-    public boolean isHandleErrors(ErrorType type) {
-        return ErrorType.check(errorFlags.get(), type);
+        synchronized (this) {
+            super.setErrorFlags(errorFlags);
+        }
     }
 
     public void __pushSilent(){
-        silentFlags.get().push(errorFlags.get());
+        silentFlags.get().push(getErrorFlags());
         setErrorFlags(0);
     }
 

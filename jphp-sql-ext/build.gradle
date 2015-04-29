@@ -1,6 +1,7 @@
 
 dependencies {
     compile project(':jphp-runtime')
+    compile 'com.mchange:c3p0:0.9.5'
 
     testCompile 'org.xerial:sqlite-jdbc:3.8.7'
     testCompile 'junit:junit:4.+'

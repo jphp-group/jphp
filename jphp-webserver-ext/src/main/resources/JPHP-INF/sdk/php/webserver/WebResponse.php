@@ -92,6 +92,13 @@ class WebResponse
     }
 
     /**
+     * @param array $cookie [name, value, maxAge, path, domain, httpOnly, secure, comment]
+     */
+    public function addCookie(array $cookie)
+    {
+    }
+
+    /**
      * @return int
      */
     protected function getStatus()

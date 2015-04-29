@@ -133,6 +133,16 @@ abstract class Stream
     }
 
     /**
+     * Checks stream is exists. It tries to open a stream and if all is ok, returns true and closes it.
+     * @param string $path
+     * @throws \Exception if you check external streams like http or ftp
+     * @return bool
+     */
+    public static function exists($path)
+    {
+    }
+
+    /**
      * @param string $protocol
      * @param string $className
      */

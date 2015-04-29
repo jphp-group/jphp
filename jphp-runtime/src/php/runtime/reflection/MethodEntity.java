@@ -16,6 +16,7 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -107,25 +108,6 @@ public class MethodEntity extends AbstractFunctionEntity {
             modifier = Modifier.PROTECTED;
         else if (java.lang.reflect.Modifier.isPrivate(modifiers))
             modifier = Modifier.PRIVATE;
-
-        int i = 1;
-        for(Reflection.Arg arg : signature.value()){
-            ParameterEntity param = new ParameterEntity(context);
-            param.setType(arg.type());
-            if (!arg.typeClass().isEmpty())
-                param.setTypeClass(arg.typeClass());
-            else if (arg.nativeType() != IObject.class) {
-                Reflection.Name name1 = arg.nativeType().getAnnotation(Reflection.Name.class);
-                if (name1 != null)
-                    param.setTypeClass(name1.value());
-                else
-                    param.setTypeClass(arg.nativeType().getSimpleName());
-            }
-
-            param.setReference(arg.reference());
-            param.setName(arg.value().isEmpty() ? "arg" + i : arg.value());
-            i++;
-        }
 
         nativeMethod = method;
     }

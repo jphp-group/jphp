@@ -6,6 +6,7 @@ import php.runtime.common.Messages;
 import php.runtime.env.CompileScope;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Environment;
+import php.runtime.env.SplClassLoader;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ObjectMemory;
@@ -31,7 +32,7 @@ public class WrapEnvironment extends BaseObject {
         super(env, clazz);
     }
 
-    public Environment getEnvironment() {
+    public Environment getWrapEnvironment() {
         return environment;
     }
 
@@ -40,7 +41,7 @@ public class WrapEnvironment extends BaseObject {
     }
 
     @Signature({
-            @Arg(value = "parent", typeClass = "php\\lang\\Environment", optional = @Optional("NULL")),
+            @Arg(value = "parent", nativeType = WrapEnvironment.class, optional = @Optional("NULL")),
             @Arg(value = "flags", optional = @Optional(value = "0", type = HintType.INT))
     })
     public Memory __construct(Environment env, Memory... args){
@@ -64,9 +65,9 @@ public class WrapEnvironment extends BaseObject {
                 env.exception("Environment cannot be hot-reloadable with parent");
 
             if (concurrent)
-                setEnvironment(new ConcurrentEnvironment(args[0].toObject(WrapEnvironment.class).getEnvironment()));
+                setEnvironment(new ConcurrentEnvironment(args[0].toObject(WrapEnvironment.class).getWrapEnvironment()));
             else
-                setEnvironment(new Environment(args[0].toObject(WrapEnvironment.class).getEnvironment()));
+                setEnvironment(new Environment(args[0].toObject(WrapEnvironment.class).getWrapEnvironment()));
         }
 
         return Memory.NULL;
@@ -93,6 +94,15 @@ public class WrapEnvironment extends BaseObject {
         }
 
         env.registerClass(classEntity);
+        return Memory.NULL;
+    }
+
+    @Signature
+    public Memory importAutoLoaders(Environment env, Memory... args) {
+        for (SplClassLoader loader : env.getClassLoaders()) {
+            environment.registerAutoloader(loader.forEnvironment(environment), false);
+        }
+
         return Memory.NULL;
     }
 

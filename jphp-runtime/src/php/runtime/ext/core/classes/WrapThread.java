@@ -61,7 +61,7 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
     })
     public Memory __construct(Environment env, Memory... args) {
         if (!args[1].isNull())
-            setCustomEnv(args[1].toObject(WrapEnvironment.class).getEnvironment());
+            setCustomEnv(args[1].toObject(WrapEnvironment.class).getWrapEnvironment());
         else
             setCustomEnv(env);
 

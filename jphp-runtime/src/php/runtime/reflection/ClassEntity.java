@@ -744,8 +744,10 @@ ClassReader classReader;
     }
 
     public <T extends IObject> T newMock(Environment env) throws Throwable {
-        if (nativeConstructor == null)
-            return null;
+        if (nativeConstructor == null) {
+            env.error(env.trace(), ErrorType.E_CORE_ERROR, "Cannot find a java constructor %s(Environment, ClassEntity)", getName());
+        }
+
         try {
             IObject object = (IObject) nativeConstructor.newInstance(env, this);
             object.setAsMock();
@@ -766,6 +768,10 @@ ClassReader classReader;
 
         IObject object;
         try {
+            if (nativeConstructor == null) {
+                env.error(trace, ErrorType.E_CORE_ERROR, "Cannot find a java constructor %s(Environment, ClassEntity)", getName());
+            }
+
             object = (IObject) nativeConstructor.newInstance(env, this);
         } catch (InvocationTargetException e){
             env.__throwException(e);

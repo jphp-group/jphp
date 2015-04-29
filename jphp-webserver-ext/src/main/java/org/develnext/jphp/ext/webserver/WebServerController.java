@@ -6,10 +6,13 @@ import org.develnext.jphp.ext.webserver.classes.PWebServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import php.runtime.Memory;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.WrapEnvironment;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,18 +33,35 @@ public class WebServerController {
 
         Environment environment = webServer.getEnvironment();
 
-        Environment requestEnvironment;
-
         CompileScope scope = environment.getScope();
 
-        if (!webServer.isIsolated()) {
-            requestEnvironment = new Environment(environment);
-        } else {
-            if (webServer.isHotReload()) {
-                scope = new CompileScope(scope);
+        Environment requestEnvironment = null;
+
+        Invoker onCreateEnvironment = webServer.getOnCreateEnvironment();
+
+        if (onCreateEnvironment != null) {
+            Memory createdEnvironment = onCreateEnvironment.call(
+                    ObjectMemory.valueOf(new PWebRequest(environment, request)),
+                    ObjectMemory.valueOf(new PWebResponse(environment, response))
+            );
+
+            if (!createdEnvironment.instanceOf(WrapEnvironment.class)) {
+                environment.exception("The environment creator should return an instance of the " + ReflectionUtils.getClassName(WrapEnvironment.class) + " class");
             }
 
-            requestEnvironment = new Environment(scope);
+            requestEnvironment = createdEnvironment.toObject(WrapEnvironment.class).getWrapEnvironment();
+        }
+
+        if (requestEnvironment == null) {
+            if (!webServer.isIsolated()) {
+                requestEnvironment = new Environment(environment);
+            } else {
+                if (webServer.isHotReload()) {
+                    scope = new CompileScope(scope);
+                }
+
+                requestEnvironment = new Environment(scope);
+            }
         }
 
         requestEnvironment.getDefaultBuffer().setOutput(stream);

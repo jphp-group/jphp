@@ -8,10 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.zend.ext.standard.StringFunctions;
 import org.junit.Assert;
 import php.runtime.Memory;
-import php.runtime.env.CompileScope;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
+import php.runtime.env.*;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
@@ -34,6 +31,18 @@ abstract public class JvmCompilerCase {
     protected Environment environment = new Environment();
     protected int runIndex = 0;
     protected String lastOutput;
+
+    public boolean isConcurrent() {
+        String jphpTestConcurrent = System.getenv("JPHP_TEST_CONCURRENT");
+
+        return jphpTestConcurrent != null;
+    }
+
+    public boolean isCompiled() {
+        String jphpTestCompiled = System.getenv("JPHP_TEST_COMPILED");
+
+        return jphpTestCompiled != null;
+    }
 
     protected CompileScope newScope(){
         CompileScope compileScope = new CompileScope();
@@ -113,7 +122,14 @@ abstract public class JvmCompilerCase {
     protected Memory includeResource(String name, ArrayMemory globals){
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-        Environment environment = new Environment(newScope(), output);
+        Environment environment;
+
+        if (isConcurrent()) {
+            environment = new ConcurrentEnvironment(newScope(), output);
+        } else {
+            environment = new Environment(newScope(), output);
+        }
+
         File file = new File(Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile());
         Context context = new Context(file);
 
@@ -171,7 +187,15 @@ abstract public class JvmCompilerCase {
     public void check(String name, boolean withErrors, int errorFlags){
         File file;
         ByteArrayOutputStream outputR = new ByteArrayOutputStream();
-        Environment environment = new Environment(newScope(), outputR);
+
+        Environment environment;
+
+        if (isConcurrent()) {
+            environment = new ConcurrentEnvironment(newScope(), outputR);
+        } else {
+            environment = new Environment(newScope(), outputR);
+        }
+
         //environment.setErrorFlags(ErrorType.E_ALL.value);
 
         Test test = new Test(file = new File(
@@ -185,14 +209,20 @@ abstract public class JvmCompilerCase {
             if (errorFlags != -1)
                 environment.setErrorFlags(errorFlags);
 
+            if (!isCompiled()) {
+                environment.setErrorFlags(ErrorType.E_ALL.value);
+            }
+
             ModuleEntity module = compiler.compile(false);
 
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            ModuleDumper dumper = new ModuleDumper(context, environment, true);
-            dumper.save(module, output);
+            if (isCompiled()) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                ModuleDumper dumper = new ModuleDumper(context, environment, true);
+                dumper.save(module, output);
 
-            environment.setErrorFlags(ErrorType.E_ALL.value);
-            module = dumper.load(new ByteArrayInputStream(output.toByteArray()));
+                environment.setErrorFlags(ErrorType.E_ALL.value);
+                module = dumper.load(new ByteArrayInputStream(output.toByteArray()));
+            }
 
             environment.getScope().loadModule(module);
             environment.getScope().addUserModule(module);

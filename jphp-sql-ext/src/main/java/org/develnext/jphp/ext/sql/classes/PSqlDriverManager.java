@@ -1,7 +1,9 @@
 package org.develnext.jphp.ext.sql.classes;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.develnext.jphp.ext.sql.SqlExtension;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
@@ -57,12 +59,26 @@ final public class PSqlDriverManager extends BaseObject {
     }
 
     @Signature
+    public static PSqlConnectionPool getPool(Environment env, String url) throws SQLException {
+        return getPool(env, url, null);
+    }
+
+    @Signature
+    public static PSqlConnectionPool getPool(Environment env, String url, @Nullable Properties properties) throws SQLException {
+        ComboPooledDataSource pool = new ComboPooledDataSource();
+        pool.setJdbcUrl("jdbc:" + url);
+        pool.setProperties(properties == null ? new Properties() : properties);
+
+        return new PSqlConnectionPool(env, pool);
+    }
+
+    @Signature
     public static PSqlConnection getConnection(Environment env, String url) throws SQLException {
         return getConnection(env, url, null);
     }
 
     @Signature
-    public static PSqlConnection getConnection(Environment env, String url, Properties properties) throws SQLException {
+    public static PSqlConnection getConnection(Environment env, String url, @Nullable Properties properties) throws SQLException {
         return new PSqlConnection(env, DriverManager.getConnection("jdbc:" + url, properties == null ? new Properties() : properties));
     }
 }

@@ -6,8 +6,10 @@ import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseWrapper;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
@@ -82,5 +84,40 @@ public class PWebResponse extends BaseWrapper<HttpServletResponse> {
     @Signature
     public void setContentLength(int value) {
         getWrappedObject().setContentLength(value);
+    }
+
+    @Signature
+    public void addCookie(ArrayMemory cookie) {
+        Cookie _cookie = new Cookie(cookie.valueOfIndex("name").toString(), cookie.valueOfIndex("value").toString());
+
+        if (cookie.containsKey("path")) {
+            _cookie.setPath(cookie.valueOfIndex("path").toString());
+        }
+
+        if (cookie.containsKey("domain")) {
+            _cookie.setDomain(cookie.valueOfIndex("domain").toString());
+        }
+
+        if (cookie.containsKey("httpOnly")) {
+            _cookie.setHttpOnly(cookie.valueOfIndex("httpOnly").toBoolean());
+        }
+
+        if (cookie.containsKey("maxAge")) {
+            _cookie.setMaxAge(cookie.valueOfIndex("maxAge").toInteger());
+        }
+
+        if (cookie.containsKey("secure")) {
+            _cookie.setSecure(cookie.valueOfIndex("secure").toBoolean());
+        }
+
+        if (cookie.containsKey("comment")) {
+            _cookie.setComment(cookie.valueOfIndex("comment").toString());
+        }
+
+        if (cookie.containsKey("version")) {
+            _cookie.setVersion(cookie.valueOfIndex("version").toInteger());
+        }
+
+        getWrappedObject().addCookie(_cookie);
     }
 }

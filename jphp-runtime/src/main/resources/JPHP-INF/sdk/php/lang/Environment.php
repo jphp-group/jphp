@@ -68,6 +68,11 @@ class Environment {
     public function exportFunction($functionName) { }
 
     /**
+     * Imports the all spl auto loaders to the environment.
+     */
+    public function importAutoLoaders() {}
+
+    /**
      * @param string $name
      * @param mixed $value - scalar value
      * @param bool $caseSensitive
