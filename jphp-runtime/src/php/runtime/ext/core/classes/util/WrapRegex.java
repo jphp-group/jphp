@@ -276,10 +276,13 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature({
             @Arg("pattern"),
-            @Arg("string")
+            @Arg("string"),
+            @Arg(value = "flags", optional = @Optional("0"))
     })
     public static Memory match(Environment env, Memory... args) {
-        return args[1].toString().matches(args[0].toString()) ? Memory.TRUE : Memory.FALSE;
+        Pattern pattern = Pattern.compile(args[0].toString(), args[2].toInteger());
+
+        return pattern.matcher(args[1].toString()).find() ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature({

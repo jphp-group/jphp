@@ -1,6 +1,5 @@
 package php.runtime;
 
-import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;
@@ -147,7 +146,7 @@ abstract public class Memory implements Comparable<Memory> {
         return new BinaryMemory(toString());
     }
 
-    public float toFloat(){ return (float)toDouble(); }
+    public float toFloat() { return (float) toDouble(); }
 
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
