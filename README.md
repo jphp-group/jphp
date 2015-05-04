@@ -39,7 +39,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Documentation
 
-- Wiki here: [read](https://github.com/jphp-compiler/jphp/wiki)
+- Wiki here: [read](http://j-php.net/wiki/)
 - You can find the latest api documentation here: http://jphp-docs.readthedocs.org/
 - To contribute to the api documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
 
