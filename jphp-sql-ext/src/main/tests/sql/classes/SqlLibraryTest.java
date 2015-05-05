@@ -25,5 +25,6 @@ public class SqlLibraryTest extends SqlJvmTestCase {
         check("sql/complex_004.php");
         check("sql/complex_005.php");
         check("sql/complex_006.php");
+        check("sql/complex_007.php");
     }
 }

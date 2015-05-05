@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.sql.classes;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.develnext.jphp.ext.sql.SqlExtension;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Nullable;
@@ -11,6 +12,8 @@ import php.runtime.reflection.ClassEntity;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 @Reflection.Name("SqlDriverManager")
@@ -23,33 +26,54 @@ final public class PSqlDriverManager extends BaseObject {
     @Signature
     private void __construct() {}
 
-    @Signature
-    public static void install(String dbName) throws SQLException {
+    protected final static Map<String, String> dataSourceClasses = new HashMap<String, String>() {{
+        put("sqlite", "org.sqlite.javax.SQLiteConnectionPoolDataSource");
+
+        put("mysql", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+
+        put("psql", "org.postgresql.ds.PGPoolingDataSource");
+        put("postgres", "org.postgresql.ds.PGPoolingDataSource");
+        put("postgresql", "org.postgresql.ds.PGPoolingDataSource");
+
+        put("mssql", "com.microsoft.sqlserver.jdbc.SQLServerDataSource");
+
+        put("sybase", "com.sybase.jdbc4.jdbc.SybDataSource");
+
+        put("hsql", "org.hsqldb.jdbc.JDBCDataSource");
+
+        put("firebird", "org.firebirdsql.pool.FBWrappingDataSource");
+    }};
+
+    protected final static Map<String, String> driverClasses = new HashMap<String, String>() {{
+        put("db2", "COM.ibm.db2.jdbc.app.DB2Driver");
+        put("mysql", "com.mysql.jdbc.Driver");
+        put("psql", "org.postgresql.Driver");
+        put("postgres", "org.postgresql.Driver");
+        put("postgresql", "org.postgresql.Driver");
+        put("postgresql", "org.postgresql.Driver");
+        put("mssql", "com.microsoft.jdbc.sqlserver.SQLServerDriver");
+        put("sybase", "com.sybase.jdbc2.jdbc.SybDriver");
+        put("firebird", "org.firebirdsql.jdbc.FBDriver");
+        put("hsql", "org.hsql.jdbcDriver");
+        put("interbase", "interbase.interclient.Driver");
+        put("sqlite", "org.sqlite.JDBC");
+    }};
+
+    protected static String _getDriverClass(String dbName) {
         dbName = dbName.toLowerCase();
 
-        String driverClass;
+        String driverClass = driverClasses.get(dbName);
 
-        if ("db2".equals(dbName)) {
-            driverClass = "COM.ibm.db2.jdbc.app.DB2Driver";
-        } else if ("mysql".equals(dbName)) {
-            driverClass = "com.mysql.jdbc.Driver";
-        } else if ("psql".equals(dbName) || "postgres".equals(dbName) || "postgresql".equals(dbName)) {
-            driverClass = "org.postgresql.Driver";
-        } else if ("mssql".equals(dbName)) {
-            driverClass = "com.microsoft.jdbc.sqlserver.SQLServerDriver";
-        } else if ("sybase".equals(dbName)) {
-            driverClass = "ncom.sybase.jdbc2.jdbc.SybDriver";
-        } else if ("firebird".equals(dbName)) {
-            driverClass = "org.firebirdsql.jdbc.FBDriver";
-        } else if ("hsql".equals(dbName)) {
-            driverClass = "org.hsql.jdbcDriver";
-        } else if ("interbase".equals(dbName)) {
-            driverClass = "interbase.interclient.Driver";
-        } else if ("sqlite".equals(dbName)) {
-            driverClass = "org.sqlite.JDBC";
-        } else {
+        if (driverClass == null) {
             driverClass = dbName;
         }
+
+        return driverClass;
+    }
+
+    @Signature
+    public static void install(String dbName) throws SQLException {
+        String driverClass = _getDriverClass(dbName);
 
         try {
             Class.forName(driverClass);
@@ -59,15 +83,22 @@ final public class PSqlDriverManager extends BaseObject {
     }
 
     @Signature
-    public static PSqlConnectionPool getPool(Environment env, String url) throws SQLException {
-        return getPool(env, url, null);
+    public static PSqlConnectionPool getPool(Environment env, String url, String driverName) throws SQLException {
+        return getPool(env, url, driverName, null);
     }
 
     @Signature
-    public static PSqlConnectionPool getPool(Environment env, String url, @Nullable Properties properties) throws SQLException {
-        ComboPooledDataSource pool = new ComboPooledDataSource();
+    public static PSqlConnectionPool getPool(Environment env, String url, String driverName, @Nullable Properties properties) throws SQLException {
+        HikariConfig config = new HikariConfig(properties == null ? new Properties() : properties);
+
+        if (config.getDataSourceClassName() == null) {
+            config.setDataSourceClassName(dataSourceClasses.get(driverName));
+        }
+
+        HikariDataSource pool = new HikariDataSource(config);
+
+        pool.setDriverClassName(_getDriverClass(driverName));
         pool.setJdbcUrl("jdbc:" + url);
-        pool.setProperties(properties == null ? new Properties() : properties);
 
         return new PSqlConnectionPool(env, pool);
     }
