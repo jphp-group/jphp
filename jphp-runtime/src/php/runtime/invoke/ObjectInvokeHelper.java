@@ -135,7 +135,7 @@ final public class ObjectInvokeHelper {
 
             if (method == null && ((method = clazz.methodMagicCall) != null)){
                 clazz.methodMagicCall.setModifier(Modifier.PUBLIC);
-                passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
+                passed = new Memory[]{new StringMemory(methodName), ArrayMemory.of(args)};
                 doublePop = true;
             }
         }

@@ -65,8 +65,9 @@ class WebResponse
 
     /**
      * @param string $location
+     * @param int $httpStatus
      */
-    public function sendRedirect($location)
+    public function redirect($location, $httpStatus = 301)
     {
     }
 
@@ -160,5 +161,12 @@ class WebResponse
     protected function setBufferSize($bufferSize)
     {
         $this->bufferSize = $bufferSize;
+    }
+
+    /**
+     * @return WebResponse
+     */
+    public static function current()
+    {
     }
 }

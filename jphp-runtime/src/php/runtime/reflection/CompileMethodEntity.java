@@ -263,7 +263,7 @@ public class CompileMethodEntity extends MethodEntity {
 
                 returnOperation    = MemoryOperation.get(resultType, method.getGenericReturnType());
                 if (returnOperation == null) {
-                    throw new CriticalException("Unsupported type for binding - " + resultType);
+                    throw new CriticalException("Unsupported type for binding - " + resultType + " in " + method.getDeclaringClass().getName() + "." + method.getName());
                 }
 
                 argumentOperations = new MemoryOperation[parameterTypes.length];

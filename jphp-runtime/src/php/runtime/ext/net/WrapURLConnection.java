@@ -1,20 +1,52 @@
 package php.runtime.ext.net;
 
-import php.runtime.annotation.Reflection.Name;
-import php.runtime.annotation.Reflection.Signature;
-import php.runtime.annotation.Reflection.WrapInterface;
+import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.ext.NetExtension;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 
 @Name(NetExtension.NAMESPACE + "URLConnection")
-@WrapInterface(value = URLConnection.class, skipConflicts = true)
 public class WrapURLConnection extends BaseWrapper<URLConnection> {
+    interface WrappedInterface {
+        @Property int connectTimeout();
+        @Property int readTimeout();
+        @Property("url") URL URL();
+
+        @Property boolean doOutput();
+        @Property boolean doInput();
+        @Property boolean useCaches();
+
+        @Property long ifModifiedSince();
+
+        @Property("contentLength") long contentLengthLong();
+        @Property String contentType();
+        @Property String contentEncoding();
+        @Property long expiration();
+        @Property long date();
+        @Property long lastModified();
+
+        Map<String,List<String>> getHeaderFields();
+        String getHeaderField(String name);
+
+        void connect();
+        void setRequestProperty(String key, String value);
+        String getRequestProperty(String key);
+        Map<String,List<String>> getRequestProperties();
+
+        OutputStream getOutputStream();
+    }
+
     public WrapURLConnection(Environment env, URLConnection wrappedObject) {
         super(env, wrappedObject);
     }
@@ -24,30 +56,32 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
     }
 
     @Signature
-    protected void __construct() { }
+    protected void __construct(WrapURLConnection connection) {
+        __wrappedObject = connection.getWrappedObject();
+    }
 
     @Signature
     public void disconnect() {
         ((HttpURLConnection)getWrappedObject()).disconnect();
     }
 
-    @Signature
+    @Getter
     public int getResponseCode() throws IOException {
         return ((HttpURLConnection)getWrappedObject()).getResponseCode();
     }
 
-    @Signature
+    @Getter
     public String getResponseMessage() throws IOException {
         return ((HttpURLConnection)getWrappedObject()).getResponseMessage();
     }
 
-    @Signature
-    public boolean getInstanceFollowRedirects() throws IOException {
+    @Getter
+    public boolean getFollowRedirects() throws IOException {
         return ((HttpURLConnection)getWrappedObject()).getInstanceFollowRedirects();
     }
 
-    @Signature
-    public void setInstanceFollowRedirects(boolean value) throws IOException {
+    @Setter
+    public void setFollowRedirects(boolean value) throws IOException {
         ((HttpURLConnection)getWrappedObject()).setInstanceFollowRedirects(value);
     }
 
@@ -56,18 +90,28 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
         ((HttpURLConnection)getWrappedObject()).setChunkedStreamingMode(chunklen);
     }
 
-    @Signature
+    @Setter
     public void setRequestMethod(String method) throws IOException {
         ((HttpURLConnection)getWrappedObject()).setRequestMethod(method);
     }
 
-    @Signature
+    @Getter
     public String getRequestMethod() {
         return ((HttpURLConnection)getWrappedObject()).getRequestMethod();
     }
 
-    @Signature
-    public boolean usingProxy() {
+    @Getter
+    public boolean isUsingProxy() {
         return ((HttpURLConnection)getWrappedObject()).usingProxy();
+    }
+
+    @Signature
+    public InputStream getInputStream() throws IOException {
+        return getWrappedObject().getInputStream();
+    }
+
+    @Signature
+    public InputStream getErrorStream() throws IOException {
+        return ((HttpURLConnection) getWrappedObject()).getErrorStream();
     }
 }

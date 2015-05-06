@@ -86,6 +86,7 @@ public @interface Reflection {
     public @interface Nullable {
     }
 
+    @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @Target({METHOD, TYPE})
     public @interface Signature {

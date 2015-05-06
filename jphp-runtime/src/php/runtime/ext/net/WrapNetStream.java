@@ -103,7 +103,6 @@ public class WrapNetStream extends Stream {
     }
 
     @Override
-    @Signature
     public Memory write(Environment env, Memory... args) throws IOException {
         int len      = args[1].toInteger();
         byte[] bytes = args[0].getBinaryBytes();
@@ -116,7 +115,6 @@ public class WrapNetStream extends Stream {
     }
 
     @Override
-    @Signature
     public Memory read(Environment env, Memory... args) throws IOException {
         int len = args[0].toInteger();
         if (len <= 0)
@@ -159,7 +157,6 @@ public class WrapNetStream extends Stream {
     }
 
     @Override
-    @Signature
     public Memory eof(Environment env, Memory... args) {
         if (urlConnection == null) {
             return Memory.FALSE;
@@ -169,19 +166,16 @@ public class WrapNetStream extends Stream {
     }
 
     @Override
-    @Signature
     public Memory seek(Environment env, Memory... args) throws IOException {
         throw new IOException("Unavailable seek() operation");
     }
 
     @Override
-    @Signature
     public Memory getPosition(Environment env, Memory... args) {
         return LongMemory.valueOf(position);
     }
 
     @Override
-    @Signature
     public Memory close(Environment env, Memory... args) throws IOException {
         if (urlConnection != null && urlConnection instanceof HttpURLConnection) {
             ((HttpURLConnection) urlConnection).disconnect();

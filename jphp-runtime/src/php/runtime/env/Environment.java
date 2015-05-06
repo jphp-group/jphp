@@ -687,6 +687,18 @@ public class Environment {
         userValues.put(name, value);
     }
 
+    public <T> T getUserValue(Class<T> clazz) {
+        Objects.requireNonNull(clazz);
+
+        return getUserValue(clazz.getName(), clazz);
+    }
+
+    public <T> void setUserValue(T object) {
+        Objects.requireNonNull(object);
+
+        setUserValue(object.getClass().getName(), object);
+    }
+
     public boolean removeUserValue(String name){
         return userValues.remove(name) != null;
     }

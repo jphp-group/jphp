@@ -14,6 +14,9 @@ import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
 import php.runtime.reflection.support.ReflectionUtils;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -254,6 +257,33 @@ public class ClassWrapper {
         }
     }
 
+    protected Reflection.Signature getSignature(Method method) {
+        Reflection.Signature signature = method.getAnnotation(Reflection.Signature.class);
+
+        if (signature == null) {
+            try {
+                Class<?> parent = method.getDeclaringClass().getSuperclass();
+
+                if (parent != null) {
+                    method = parent.getDeclaredMethod(method.getName(), method.getParameterTypes());
+
+                    if (method != null) {
+                        signature = getSignature(method);
+
+                        if (signature != null) {
+                            return signature;
+                        }
+                    }
+                }
+
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+        }
+
+        return signature;
+    }
+
     protected void onWrapMethod(ClassEntity classEntity, Method method) {
         MethodEntity entity = new MethodEntity(extension, method);
         entity.setClazz(classEntity);
@@ -284,11 +314,11 @@ public class ClassWrapper {
         Reflection.Name name = method.getAnnotation(Reflection.Name.class);
         entity.setName(name == null ? method.getName() : name.value());
 
-        Reflection.Signature sign = method.getAnnotation(Reflection.Signature.class);
+        Reflection.Signature sign = getSignature(method);
 
-        if (sign == null) {
+        /*if (sign == null) {
             sign = getClass().getAnnotation(Reflection.Signature.class);
-        }
+        }*/
 
         ParameterEntity[] params = new ParameterEntity[sign.value().length];
 
@@ -462,7 +492,9 @@ public class ClassWrapper {
         }
 
         for (Method method : nativeClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(Reflection.Signature.class)
+            Reflection.Signature signature = getSignature(method);
+
+            if (signature != null
                     || method.isAnnotationPresent(Reflection.Getter.class)
                     || method.isAnnotationPresent(Reflection.Setter.class)){
                 Class<?>[] types = method.getParameterTypes();

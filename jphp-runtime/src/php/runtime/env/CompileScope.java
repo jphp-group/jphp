@@ -10,6 +10,7 @@ import php.runtime.exceptions.ConflictException;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.JavaExtension;
+import php.runtime.ext.NetExtension;
 import php.runtime.ext.java.JavaException;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileClass;
@@ -202,6 +203,7 @@ public class CompileScope {
         registerClass(new ClassEntity(extension, this, Serializable.class)); */
 
         registerExtension(new JavaExtension());
+        registerExtension(new NetExtension());
         registerExtension(extension);
     }
 

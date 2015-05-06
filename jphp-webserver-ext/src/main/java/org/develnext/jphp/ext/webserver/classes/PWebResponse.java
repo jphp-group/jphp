@@ -28,7 +28,6 @@ public class PWebResponse extends BaseWrapper<HttpServletResponse> {
         Collection<String> getHeaders(String name);
         Collection<String> getHeaderNames();
 
-        void sendRedirect(String location);
         String encodeRedirectURL(String url);
     }
 
@@ -44,6 +43,20 @@ public class PWebResponse extends BaseWrapper<HttpServletResponse> {
     @Signature
     protected void __construct(PWebResponse parent) {
         this.__wrappedObject = parent.getWrappedObject();
+    }
+
+    @Signature
+    public void redirect(String location) throws IOException {
+        redirect(location, 301);
+    }
+
+    @Signature
+    public void redirect(String location, int httpStatusCode) throws IOException {
+        getWrappedObject().setStatus(httpStatusCode);
+        getWrappedObject().setHeader("Location", location);
+        getWrappedObject().setHeader("Connection", "close");
+
+        getWrappedObject().sendError(httpStatusCode);
     }
 
     @Signature
@@ -119,5 +132,10 @@ public class PWebResponse extends BaseWrapper<HttpServletResponse> {
         }
 
         getWrappedObject().addCookie(_cookie);
+    }
+
+    @Signature
+    public static PWebResponse current(Environment env) {
+        return env.getUserValue(PWebResponse.class);
     }
 }

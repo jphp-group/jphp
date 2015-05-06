@@ -1,4 +1,4 @@
-def javaVersion    = '1.6';
+def javaVersion    = '1.7';
 def projectVersion = '0.6.9';
 
 buildscript {
