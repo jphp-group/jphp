@@ -5,7 +5,7 @@ import org.develnext.jphp.ext.webserver.WebServerExtension;
 import php.runtime.common.LangMode;
 import php.runtime.env.CompileScope;
 
-public class WebServerJvmTestCase extends JvmCompilerCase {
+public class WebserverJvmTestCase extends JvmCompilerCase {
 
     @Override
     protected CompileScope newScope() {
