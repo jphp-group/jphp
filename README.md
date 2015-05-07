@@ -47,23 +47,3 @@ Our project started in October 2013. There were a few reasons for that:
 ### Getting started (Hello World)
 
 [https://github.com/jphp-compiler/jphp/wiki/Getting-started](https://github.com/jphp-compiler/jphp/wiki/Getting-started)
-
----
-
-### JPHP - альтернативный движок для PHP
-
-Это компилятор и движок для языка PHP под Java VM. Он полностью работает на Java, исходный код php компилируется в байткод JVM, который подвергается оптимизациям и JIT. Если вы знакомы с проектами JRuby, Jython и т.д., то JPHP это то же самое, только для PHP. Поддерживаются почти все фичи PHP 5.6+.
-
-Основное отличие от PHP это отказ от использования несогласованных runtime библиотек и расширений. Язык тот же, а библиотеки для него другие, с использованием ООП и т.д.
-
-Больше информации о разработке вы найдете по следующим ссылкам:
-
-- http://habrahabr.ru/post/216651/
-- http://develnet.ru/tag/jphp/
-- http://community.develstudio.ru/showthread.php/9411-JPHP-Блог-разработки
-
-На данный момент вы можете собрать JAR файл с исходниками php, который будет выполняться с помощью JPHP. Загляните
-в папку `jphp-example-project`, этот проект можно собрать в выполняемый jar файл, который можно запустить по двойному клику в Windows, если у вас установлена Java. Для сборки проекта вам понадобится Gradle. Используйте стандартную команду `gradle jar` или если хотите сразу посмотреть результат `jphp-example-project` выполните `gradle exampleStart`.
-
-К тому же проект для примера настраивается через файл `resources/JPHP-INF/launcher.conf`, где можно поменять `bootstrap.file`
-на другой файл (например `bootstrap_gui.php`, `bootstrap_server.php` - это различные независимые примеры программ на JPHP).

@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import webserver.WebServerJvmTestCase;
+import webserver.WebserverJvmTestCase;
 
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class WebServerLibraryTest extends WebServerJvmTestCase {
+public class WebServerLibraryTest extends WebserverJvmTestCase {
     @Test
     public void testBasic() {
         check("webserver/basic_001.php");
