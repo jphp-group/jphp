@@ -3,6 +3,7 @@ package php.runtime.launcher;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.common.LangMode;
 import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
@@ -144,7 +145,7 @@ public class Launcher {
 
     protected void readConfig(){
         this.config = new Properties();
-        this.compileScope.configuration = new HashMap<String, Memory>();
+        this.compileScope.configuration = new HashMap<>();
 
         InputStream resource;
 
@@ -156,7 +157,12 @@ public class Launcher {
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
+
                 this.isDebug = getConfigValue("env.debug").toBoolean();
+
+                compileScope.setLangMode(
+                        LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase())
+                );
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }

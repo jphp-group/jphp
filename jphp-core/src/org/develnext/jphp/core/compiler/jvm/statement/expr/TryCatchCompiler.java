@@ -14,6 +14,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseException;
+import php.runtime.lang.exception.BaseBaseException;
 
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -39,7 +40,7 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         LabelNode returnLabel = new LabelNode();
 
         method.node.tryCatchBlocks.add(0,
-                new TryCatchBlockNode(tryStart, tryEnd, catchStart, Type.getInternalName(BaseException.class))
+                new TryCatchBlockNode(tryStart, tryEnd, catchStart, Type.getInternalName(BaseBaseException.class))
         );
 
         if (token.getFinally() != null) {
@@ -57,7 +58,7 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         add(catchStart);
 
         LocalVariable exception = method.addLocalVariable(
-                "~catch~" + method.nextStatementIndex(BaseException.class), catchStart, BaseException.class
+                "~catch~" + method.nextStatementIndex(BaseException.class), catchStart, BaseBaseException.class
         );
         exception.setEndLabel(catchEnd);
         expr.makeVarStore(exception);
@@ -86,7 +87,7 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
             expr.writePushConstString(_catch.getException().toName());
             expr.writePushConstString(_catch.getException().toName().toLowerCase());
             expr.writeSysDynamicCall(
-                    Environment.class, "__throwCatch", Memory.class, BaseException.class, String.class, String.class
+                    Environment.class, "__throwCatch", Memory.class, BaseBaseException.class, String.class, String.class
             );
 
             expr.writeVarAssign(local, _catch.getVariable(), true, false);
@@ -107,7 +108,7 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         /*if (method.getTryStack().empty()) {
             expr.writePushEnv();
             expr.writeVarLoad(exception);
-            expr.writeSysDynamicCall(Environment.class, "__throwFailedCatch", void.class, BaseException.class);
+            expr.writeSysDynamicCall(Environment.class, "__throwFailedCatch", void.class, BaseBaseException.class);
         } else {*/
             expr.makeVarLoad(exception);
             add(new InsnNode(ATHROW));
@@ -139,6 +140,6 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         }
 
         expr.writeUndefineVariables(token.getLocal());
-        method.prevStatementIndex(BaseException.class);
+        method.prevStatementIndex(BaseBaseException.class);
     }
 }

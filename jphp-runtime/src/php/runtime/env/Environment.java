@@ -17,6 +17,9 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.*;
+import php.runtime.lang.exception.BaseBaseException;
+import php.runtime.lang.exception.BaseEngineException;
+import php.runtime.lang.exception.BaseParseException;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
@@ -107,8 +110,8 @@ public class Environment {
     private static final Stack<Integer> freeIds = new Stack<Integer>();
 
     public static void catchThrowable(Throwable e) {
-        if (e instanceof BaseException) {
-            BaseException baseException = (BaseException) e;
+        if (e instanceof BaseBaseException) {
+            BaseBaseException baseException = (BaseBaseException) e;
             baseException.getEnvironment().catchUncaught(baseException);
             return;
         } else if (e instanceof Exception) {
@@ -251,7 +254,7 @@ public class Environment {
                 finalizeObjects();
                 catchUncaught(e);
                 break;
-            } catch (BaseException e){
+            } catch (BaseBaseException e){
                 catchUncaught(e);
                 break;
             } catch (ErrorException e){
@@ -804,8 +807,8 @@ public class Environment {
         } else if (e instanceof FinallyException) {
             // nop
             return true;
-        } else if (e instanceof BaseException){
-            BaseException be = (BaseException)e;
+        } else if (e instanceof BaseBaseException){
+            BaseBaseException be = (BaseBaseException)e;
             try {
                 ExceptionHandler.DEFAULT.onException(this, be);
                 return true;
@@ -823,11 +826,7 @@ public class Environment {
                 if (!(e.getException() instanceof FinallyException)) {
                     exceptionHandler.onException(this, e.getException());
                 }
-            } catch (DieException _e){
-                catchUncaught(_e);
-            } catch (ErrorException _e){
-                catchUncaught(_e);
-            } catch (BaseException _e){
+            } catch (BaseBaseException _e){
                 catchUncaught(_e);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
@@ -843,6 +842,14 @@ public class Environment {
 
     public void error(TraceInfo trace, ErrorType type, Messages.Item message, Object... args){
         if (type.isFatal()) {
+            if (scope.getLangMode() == LangMode.MODERN) {
+                if (type == E_PARSE) {
+                    exception(trace, new BaseParseException(this), message.fetch(args));
+                } else {
+                    exception(trace, new BaseEngineException(this, type), message.fetch(args));
+                }
+            }
+
             if (type.isHandled() && errorHandler != null && ErrorType.check(errorHandler.errorHandlerFlags, type)){
                 triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), message, args));
             } else
@@ -880,7 +887,7 @@ public class Environment {
         exception(trace(), message);
     }
 
-    public void exception(TraceInfo trace, BaseException e, String message, Object... args){
+    public void exception(TraceInfo trace, BaseBaseException e, String message, Object... args){
         __clearSilent();
         if (args == null || args.length == 0)
             e.__construct(this, new StringMemory(
@@ -894,13 +901,13 @@ public class Environment {
         throw e;
     }
 
-    public void exception(BaseException e, String message, Object... args){
+    public void exception(BaseBaseException e, String message, Object... args){
         exception(trace(), e, message, args);
     }
 
-    public void exception(Class<? extends BaseException> e, String message, Object... args){
+    public void exception(Class<? extends BaseBaseException> e, String message, Object... args){
         ClassEntity entity = fetchClass(e);
-        exception((BaseException) entity.newObjectWithoutConstruct(this), message, args);
+        exception((BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
     }
 
     public boolean isHandleErrors(ErrorType type){
@@ -1237,7 +1244,7 @@ public class Environment {
         return Memory.NULL;
     }
 
-    public void __throwException(BaseException e){
+    public void __throwException(BaseBaseException e){
         __clearSilent();
         e.setTraceInfo(this, trace());
         throw e;
@@ -1246,9 +1253,9 @@ public class Environment {
     public void __throwException(TraceInfo trace, Memory exception){
         if (exception.isObject() ) {
             IObject object;
-            if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseException){
+            if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseBaseException){
                 __clearSilent();
-                BaseException e = (BaseException)object;
+                BaseBaseException e = (BaseBaseException)object;
                 e.setTraceInfo(this, trace);
                 throw e;
             } else {
@@ -1263,7 +1270,7 @@ public class Environment {
         }
     }
 
-    public void __throwFailedCatch(BaseException e) {
+    public void __throwFailedCatch(BaseBaseException e) {
         if (e instanceof FinallyException) {
             return;
         }
@@ -1271,7 +1278,7 @@ public class Environment {
         throw e;
     }
 
-    public Memory __throwCatch(BaseException e, String className, String lowerClassName) {
+    public Memory __throwCatch(BaseBaseException e, String className, String lowerClassName) {
         ClassEntity origin = e.getReflection();
         ClassEntity cause = fetchClass(className, lowerClassName, false);
 

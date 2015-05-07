@@ -13,7 +13,6 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ForeachStmtToken;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import php.runtime.Memory;
-import php.runtime.common.LangMode;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
@@ -144,12 +143,12 @@ public class ForeachCompiler extends BaseStatementCompiler<ForeachStmtToken> {
         add(new JumpInsnNode(GOTO, start));
         add(end);
 
-        if (compiler.getLangMode() == LangMode.JPHP){
+        /*if (compiler.getLangMode() == LangMode.JPHP){
             if (token.isValueReference() && var != null){
                 expr.writeVarLoad(var.getName());
                 expr.writeSysDynamicCall(Memory.class, "unset", void.class);
             }
-        }
+        }*/
 
         method.popJump();
         expr.writeUndefineVariables(token.getLocal());

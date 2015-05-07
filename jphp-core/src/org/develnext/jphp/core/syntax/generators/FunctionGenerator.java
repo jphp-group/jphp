@@ -2,7 +2,6 @@ package org.develnext.jphp.core.syntax.generators;
 
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
 import php.runtime.common.HintType;
-import php.runtime.common.LangMode;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
@@ -58,12 +57,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         if (next instanceof NameToken){
             String word = ((NameToken) next).getName().toLowerCase();
-            if (scalarTypeHints.contains(word)
-                    || (analyzer.getLangMode() == LangMode.JPHP && jphp_scalarTypeHints.contains(word)))
+            if (scalarTypeHints.contains(word))
                 hintType = HintType.of(word);
             else {
-                hintType = analyzer.getLangMode() == LangMode.PHP && jphp_scalarTypeHints.contains(word)
-                        ? null : HintType.of(word);
+                hintType = jphp_scalarTypeHints.contains(word) ? null : HintType.of(word);
+
                 if (hintType == null)
                     hintTypeClass = analyzer.getRealName((NameToken)next);
             }

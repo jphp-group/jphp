@@ -14,6 +14,7 @@ public class WebServerLibraryTest extends WebServerJvmTestCase {
     @Test
     public void testBasic() {
         check("webserver/basic_001.php");
+        check("webserver/basic_002.php");
     }
 
     @Test
@@ -24,5 +25,10 @@ public class WebServerLibraryTest extends WebServerJvmTestCase {
     @Test
     public void testResponse() {
         check("webserver/response.php");
+    }
+
+    @Test
+    public void testAutoloaders() {
+        check("webserver/autoloaders.php", true);
     }
 }

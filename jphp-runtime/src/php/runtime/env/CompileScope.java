@@ -17,6 +17,9 @@ import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.*;
+import php.runtime.lang.exception.BaseBaseException;
+import php.runtime.lang.exception.BaseEngineException;
+import php.runtime.lang.exception.BaseParseException;
 import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.ErrorException;
 import php.runtime.lang.spl.Serializable;
@@ -71,28 +74,29 @@ public class CompileScope {
 
     // flags
     public boolean debugMode = false;
-    public LangMode langMode = LangMode.JPHP;
+    protected LangMode langMode = LangMode.DEFAULT;
 
     public CompileScope(CompileScope parent) {
         id = scopeCount.getAndIncrement();
         classLoader = parent.classLoader;
+        langMode = parent.langMode;
 
-        moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
-        moduleIndexMap = new ConcurrentHashMap<String, ModuleEntity>();
+        moduleMap = new ConcurrentHashMap<>();
+        moduleIndexMap = new ConcurrentHashMap<>();
 
-        classMap = new HashMap<String, ClassEntity>();
-        functionMap = new HashMap<String, FunctionEntity>();
-        constantMap = new HashMap<String, ConstantEntity>();
-        exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
-        exceptionMapForContext = new HashMap<String, Class<? extends JavaException>>();
+        classMap = new HashMap<>();
+        functionMap = new HashMap<>();
+        constantMap = new HashMap<>();
+        exceptionMap = new HashMap<>();
+        exceptionMapForContext = new HashMap<>();
 
-        extensions = new LinkedHashMap<String, Extension>();
+        extensions = new LinkedHashMap<>();
 
-        compileConstantMap = new HashMap<String, CompileConstant>();
-        compileFunctionMap = new HashMap<String, CompileFunction>();
-        compileClassMap    = new HashMap<String, CompileClass>();
+        compileConstantMap = new HashMap<>();
+        compileFunctionMap = new HashMap<>();
+        compileClassMap    = new HashMap<>();
 
-        superGlobals = new HashSet<String>();
+        superGlobals = new HashSet<>();
         superGlobals.addAll(parent.superGlobals);
 
         classMap.putAll(parent.classMap);
@@ -115,9 +119,9 @@ public class CompileScope {
 
         compilerFactory = parent.compilerFactory;
 
-        classEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.classEntityFetchHandler);
-        functionEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.functionEntityFetchHandler);
-        constantEntityFetchHandler = new ArrayList<EntityFetchHandler>(parent.constantEntityFetchHandler);
+        classEntityFetchHandler = new ArrayList<>(parent.classEntityFetchHandler);
+        functionEntityFetchHandler = new ArrayList<>(parent.functionEntityFetchHandler);
+        constantEntityFetchHandler = new ArrayList<>(parent.constantEntityFetchHandler);
 
         extensions.putAll(parent.extensions);
     }
@@ -130,11 +134,11 @@ public class CompileScope {
         id = scopeCount.getAndIncrement();
         this.classLoader = classLoader;
 
-        moduleMap = new ConcurrentHashMap<String, ModuleEntity>();
-        moduleIndexMap = new ConcurrentHashMap<String, ModuleEntity>();
+        moduleMap = new ConcurrentHashMap<>();
+        moduleIndexMap = new ConcurrentHashMap<>();
 
-        classMap = new HashMap<String, ClassEntity>();
-        functionMap = new HashMap<String, FunctionEntity>();
+        classMap = new HashMap<>();
+        functionMap = new HashMap<>();
         constantMap = new HashMap<String, ConstantEntity>();
 
         extensions = new LinkedHashMap<String, Extension>();
@@ -170,37 +174,27 @@ public class CompileScope {
                     return (AbstractCompiler) jvmConstructor.newInstance(env, context);
                 }
             };
-        } catch (ClassNotFoundException e) {
-            // nop.
-        } catch (NoSuchMethodException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
             // nop.
         }
 
         CoreExtension extension = new CoreExtension();
 
-        //registerClass(closureEntity = new ClassEntity(extension, this, Closure.class));
-        //registerClass(stdClassEntity = new ClassEntity(extension, this, StdClass.class));
-
         registerLazyClass(extension, Closure.class);
         registerLazyClass(extension, Generator.class);
         registerLazyClass(extension, StdClass.class);
+        registerLazyClass(extension, BaseBaseException.class);
         registerLazyClass(extension, BaseException.class);
+        registerLazyClass(extension, BaseParseException.class);
+        registerLazyClass(extension, BaseEngineException.class);
         registerLazyClass(extension, ErrorException.class);
         registerLazyClass(extension, ArrayAccess.class);
-
-        //registerClass(new ClassEntity(extension, this, ErrorException.class));
-        //registerClass(new ClassEntity(extension, this, ArrayAccess.class));
 
         // iterators
         registerLazyClass(extension, Traversable.class);
         registerLazyClass(extension, php.runtime.lang.spl.iterator.Iterator.class);
         registerLazyClass(extension, IteratorAggregate.class);
         registerLazyClass(extension, Serializable.class);
-
-        /*registerClass(new ClassEntity(extension, this, Traversable.class));
-        registerClass(new ClassEntity(extension, this, php.runtime.lang.spl.iterator.Iterator.class));
-        registerClass(new ClassEntity(extension, this, IteratorAggregate.class));
-        registerClass(new ClassEntity(extension, this, Serializable.class)); */
 
         registerExtension(new JavaExtension());
         registerExtension(new NetExtension());

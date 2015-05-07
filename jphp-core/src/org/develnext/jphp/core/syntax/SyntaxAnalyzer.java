@@ -10,10 +10,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
-import php.runtime.common.Directive;
-import php.runtime.common.LangMode;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 
@@ -46,16 +43,11 @@ public class SyntaxAnalyzer {
     private List<ClosureStmtToken> closures;
 
     private Environment environment;
-    private LangMode langMode = null;
 
     private int generatorSize = 0;
 
     public SyntaxAnalyzer(Environment environment, Tokenizer tokenizer){
         this(environment, tokenizer, null);
-    }
-
-    public LangMode getLangMode() {
-        return langMode;
     }
 
     public void reset(Environment environment, Tokenizer tokenizer){
@@ -201,7 +193,7 @@ public class SyntaxAnalyzer {
             tokens.add(token);
         }
 
-        if (tokenizer.hasDirective("mode")){
+        /*if (tokenizer.hasDirective("mode")){
             Directive mode = tokenizer.getDirective("mode");
             try {
                 this.langMode = LangMode.valueOf(mode.value.toUpperCase());
@@ -210,7 +202,7 @@ public class SyntaxAnalyzer {
                         mode.trace, "Invalid value '%s' for directive 'mode'", mode.value
                 );
             }
-        }
+        }*/
 
         ListIterator<Token> iterator = tokens.listIterator();
         tree = process(iterator);

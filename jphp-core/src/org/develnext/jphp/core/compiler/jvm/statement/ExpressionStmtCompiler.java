@@ -2429,16 +2429,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePopBoxing();
                 writeSysDynamicCall(Memory.class, "emptyOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
             } else {
+                // TODO: Remove.
                 // PHP CMP: $hack = &$arr[0];
-                boolean isMemory = stackPeek().type.toClass() == Memory.class;
+               // boolean isMemory = stackPeek().type.toClass() == Memory.class;
                 //if (isMemory)
-                if (compiler.isPhpMode()){
+                /*if (compiler.isPhpMode()){
                     if (i == size - 1 && isShortcut){
                         writePopBoxing();
                         writeSysDynamicCall(Memory.class, methodName + "AsShortcut", Memory.class, TraceInfo.class, Memory.class);
                         continue;
                     }
-                }
+                }*/
 
                 writeSysDynamicCall(Memory.class, methodName, Memory.class, TraceInfo.class, stackPeek().type.toClass());
                 i++;
