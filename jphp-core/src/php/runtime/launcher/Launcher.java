@@ -1,17 +1,16 @@
 package php.runtime.launcher;
 
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
+import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.common.LangMode;
 import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
-import php.runtime.ext.support.Extension;
-import php.runtime.lang.IObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
-import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.support.ReflectionUtils;
@@ -144,7 +143,7 @@ public class Launcher {
 
     protected void readConfig(){
         this.config = new Properties();
-        this.compileScope.configuration = new HashMap<String, Memory>();
+        this.compileScope.configuration = new HashMap<>();
 
         InputStream resource;
 
@@ -156,7 +155,14 @@ public class Launcher {
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
+
                 this.isDebug = getConfigValue("env.debug").toBoolean();
+
+                compileScope.setDebugMode(isDebug);
+
+                compileScope.setLangMode(
+                        LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase())
+                );
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }
@@ -222,7 +228,7 @@ public class Launcher {
 
         if (isDebug()){
             long t = System.currentTimeMillis() - startTime;
-            System.out.println("Starting delay = " + t + " millis");
+           // System.out.println("Starting delay = " + t + " millis");
         }
 
         String file = config.getProperty("bootstrap.file", "JPHP-INF/.bootstrap.php");

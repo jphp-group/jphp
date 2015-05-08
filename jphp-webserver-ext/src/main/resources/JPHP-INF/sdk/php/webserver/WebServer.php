@@ -10,9 +10,27 @@ namespace php\webserver;
 class WebServer
 {
     /**
+     * @readonly
+     * @var string
+     */
+    public $id;
+
+    /** @var int */
+    public $port = 8080;
+
+    /** @var bool */
+    public $isolated = true;
+
+    /** @var bool */
+    public $importAutoloaders = true;
+
+    /** @var bool */
+    public $hotReload = true;
+
+    /**
      * @param callable $onRequest
      */
-    public function __construct(callable $onRequest = null)
+    public function __construct(callable $onRequest)
     {
     }
 
@@ -20,38 +38,6 @@ class WebServer
      * Run server.
      */
     public function run()
-    {
-    }
-
-    /**
-     * @param callable $onRequest (WebRequest $request, WebResponse $response)
-     * @return WebServer
-     */
-    public function setRoute(callable $onRequest)
-    {
-    }
-
-    /**
-     * @param callable $onEnvironmentCreate (WebRequest $request, WebResponse $response)
-     * @return WebServer
-     */
-    public function setEnvironmentCreator(callable $onEnvironmentCreate = null)
-    {
-    }
-
-    /**
-     * @param bool $enabled
-     * @return WebServer
-     */
-    public function setHotReload($enabled)
-    {
-    }
-
-    /**
-     * @param bool $enabled
-     * @return WebServer
-     */
-    public function setIsolated($enabled)
     {
     }
 
@@ -64,11 +50,88 @@ class WebServer
     }
 
     /**
+     * @return string
+     */
+    protected function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
      * @param int $port
+     */
+    protected function setPort($port)
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isIsolated()
+    {
+        return $this->isolated;
+    }
+
+    /**
+     * @param boolean $isolated
+     */
+    protected function setIsolated($isolated)
+    {
+        $this->isolated = $isolated;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isImportAutoloaders()
+    {
+        return $this->importAutoloaders;
+    }
+
+    /**
+     * @param boolean $importAutoloaders
+     */
+    protected function setImportAutoloaders($importAutoloaders)
+    {
+        $this->importAutoloaders = $importAutoloaders;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isHotReload()
+    {
+        return $this->hotReload;
+    }
+
+    /**
+     * @param boolean $hotReload
+     */
+    protected function setHotReload($hotReload)
+    {
+        $this->hotReload = $hotReload;
+    }
+
+    /**
+     * Unable to clone.
+     */
+    private function __clone()
+    {
+    }
+
+    /**
      * @return WebServer
      */
-    public function setPort($port)
+    public static function current()
     {
-        return $this;
     }
 }

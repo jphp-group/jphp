@@ -14,10 +14,12 @@ import php.runtime.lang.BaseWrapper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 @Abstract
 @Reflection.Name("WebRequest")
@@ -77,7 +79,13 @@ public class PWebRequest extends BaseWrapper<HttpServletRequest> {
 
     @Signature
     public Stream getBodyStream(Environment env) throws IOException {
-        return new MiscStream(env, getWrappedObject().getInputStream());
+        ServletInputStream inputStream = getWrappedObject().getInputStream();
+
+        if (inputStream.isFinished()) {
+            throw new IOException("Unable to read the body repeatedly");
+        }
+
+        return new MiscStream(env, inputStream);
     }
 
     @Getter
@@ -86,19 +94,21 @@ public class PWebRequest extends BaseWrapper<HttpServletRequest> {
 
         ArrayMemory result = new ArrayMemory();
 
-        for (Cookie cookie : cookies) {
-            ArrayMemory item = new ArrayMemory();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                ArrayMemory item = new ArrayMemory();
 
-            item.refOfIndex("name").assign(cookie.getName());
-            item.refOfIndex("value").assign(cookie.getValue());
-            item.refOfIndex("path").assign(cookie.getPath());
-            item.refOfIndex("domain").assign(cookie.getDomain());
-            item.refOfIndex("maxAge").assign(cookie.getMaxAge());
-            item.refOfIndex("httpOnly").assign(cookie.isHttpOnly());
-            item.refOfIndex("secure").assign(cookie.getSecure());
-            item.refOfIndex("comment").assign(cookie.getComment());
+                item.refOfIndex("name").assign(cookie.getName());
+                item.refOfIndex("value").assign(cookie.getValue());
+                item.refOfIndex("path").assign(cookie.getPath());
+                item.refOfIndex("domain").assign(cookie.getDomain());
+                item.refOfIndex("maxAge").assign(cookie.getMaxAge());
+                item.refOfIndex("httpOnly").assign(cookie.isHttpOnly());
+                item.refOfIndex("secure").assign(cookie.getSecure());
+                item.refOfIndex("comment").assign(cookie.getComment());
 
-            result.add(item);
+                result.add(item);
+            }
         }
 
         return result.toConstant();
@@ -111,13 +121,18 @@ public class PWebRequest extends BaseWrapper<HttpServletRequest> {
         }
 
         StringBuffer jb = new StringBuffer();
-        String line = null;
+        String line;
 
-        BufferedReader reader = getWrappedObject().getReader();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getWrappedObject().getInputStream()));
         while ((line = reader.readLine()) != null) {
             jb.append(line);
         }
 
         return body = jb.toString();
+    }
+
+    @Signature
+    public static PWebRequest current(Environment env) {
+        return env.getUserValue(PWebRequest.class);
     }
 }

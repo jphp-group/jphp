@@ -7,156 +7,181 @@ use php\io\Stream;
  * Class URLConnection
  * @package php\net
  */
-class URLConnection {
+class URLConnection
+{
+    /**
+     * @var bool
+     */
+    public $doOutput = false;
+
+    /**
+     * @var bool
+     */
+    public $doInput = false;
+
+    /**
+     * POST, GET, PUT, etc.
+     * @var string
+     */
+    public $requestMethod;
+
+    /**
+     * that specifies the connect timeout value in milliseconds
+     * @var int millis
+     */
+    public $connectTimeout;
+
+    /**
+     * the read timeout to a specified timeout, in milliseconds.
+     * @var int millis
+     */
+    public $readTimeout;
+
+    /**
+     * @var bool
+     */
+    public $useCaches;
+
+    /**
+     * @var int millis
+     */
+    public $ifModifiedSince;
+
+    /**
+     * @var bool
+     */
+    public $followRedirects;
+
+    /**
+     * @readonly
+     * @var URL
+     */
+    public $url;
+
+    /**
+     * @readonly
+     * @var int
+     */
+    public $responseCode;
+
+    /**
+     * @readonly
+     * @var int
+     */
+    public $responseMessage;
+
+    /**
+     * int the content length of the resource that this connection's URL
+     * references, -1 if the content length is not known,
+     * or if the content length is greater than Integer.MAX_VALUE.
+     *
+     * @readonly
+     * @var int bytes
+     */
+    public $contentLength;
+
+    /**
+     * @readonly
+     * @var string
+     */
+    public $contentType;
+
+    /**
+     * @readonly
+     * @var string
+     */
+    public $contentEncoding;
+
+    /**
+     * @readonly
+     * @var int
+     */
+    public $expiration;
+
+    /**
+     * @readonly
+     * @var int
+     */
+    public $lastModified;
+
+    /**
+     * @readonly
+     * @var bool
+     */
+    public $usingProxy;
+
+    /**
+     * @param URLConnection $parent
+     */
+    protected function __construct(URLConnection $parent)
+    {
+    }
 
     /**
      * Opens a communications link to the resource referenced by this
      * URL, if such a connection has not already been established.
      */
-    public function connect() {}
+    public function connect()
+    {
+    }
 
-    /**
-     * @param int $timeout that specifies the connect timeout value in milliseconds
-     */
-    public function setConnectTimeout($timeout) {}
-
-    /**
-     * @return int
-     */
-    public function getConnectTimeout() {}
-
-    /**
-     * Sets the read timeout to a specified timeout, in
-     * milliseconds.
-     *
-     * @param int $timeout
-     */
-    public function setReadTimeout($timeout) {}
-
-    /**
-     * @return int
-     */
-    public function getReadTimeout() {}
-
-    /**
-     * @return URL
-     */
-    public function getURL() {}
-
-    /**
-     * Returns the value of the ``content-length`` header field.
-     *
-     * @return int the content length of the resource that this connection's URL
-     *          references, {@code -1} if the content length is not known,
-     *          or if the content length is greater than Integer.MAX_VALUE.
-     */
-    public function getContentLength() {}
-
-    /**
-     * @return string
-     */
-    public function getContentType() {}
-
-    /**
-     * @return string
-     */
-    public function getContentEncoding() {}
-
-    /**
-     * @return int
-     */
-    public function getExpiration() {}
-
-    /**
-     * @return int
-     */
-    public function getDate() {}
-
-    /**
-     * @return int
-     */
-    public function getLastModified() {}
 
     /**
      * @param string $name
      */
-    public function getHeaderField($name) {}
+    public function getHeaderField($name)
+    {
+    }
 
     /**
      * @return array
      */
-    public function getHeaderFields() {}
+    public function getHeaderFields()
+    {
+    }
 
     /**
      * @return Stream
      */
-    public function getInputStream() {}
+    public function getInputStream()
+    {
+    }
 
     /**
      * @return Stream
      */
-    public function getOutputStream() {}
+    public function getErrorStream()
+    {
+    }
 
     /**
-     * @return string
+     * @return Stream
      */
-    public function toString() {}
-
-    /**
-     * @param bool $doinput
-     */
-    public function setDoInput($doinput) {}
-
-    /**
-     * @return bool
-     */
-    public function getDoInput() {}
-
-    /**
-     * @param bool $doinput
-     */
-    public function setDoOutput($dooutput) {}
-
-    /**
-     * @return bool
-     */
-    public function getDoOutput() {}
-
-    /**
-     * @param bool $useCaches
-     */
-    public function setUseCaches($useCaches) {}
-
-    /**
-     * @return bool
-     */
-    public function getUseCaches() {}
-
-    /**
-     * @param int $ifmodifiedsince
-     */
-    public function setIfModifiedSince($ifmodifiedsince) {}
-
-    /**
-     * @return int
-     */
-    public function getIfModifiedSince() {}
+    public function getOutputStream()
+    {
+    }
 
     /**
      * @param string $name
      * @param string $value
      */
-    public function setRequestProperty($name, $value) {}
+    public function setRequestProperty($name, $value)
+    {
+    }
 
     /**
      * @param string $name
      */
-    public function getRequestProperty($name) {}
+    public function getRequestProperty($name)
+    {
+    }
 
     /**
      * @return array
      */
-    public function getRequestProperties() {}
+    public function getRequestProperties()
+    {
+    }
 
     /*** Only FOR HTTP connections ***/
 
@@ -166,27 +191,9 @@ class URLConnection {
      * should not imply that this HttpURLConnection
      * instance can be reused for other requests.
      */
-    public function disconnect() {}
-
-    /**
-     * @return int
-     */
-    public function getResponseCode() {}
-
-    /**
-     * @return string
-     */
-    public function getResponseMessage() {}
-
-    /**
-     * @return bool
-     */
-    public function getInstanceFollowRedirects() {}
-
-    /**
-     * @param bool $value
-     */
-    public function setInstanceFollowRedirects($value) {}
+    public function disconnect()
+    {
+    }
 
     /**
      * This method is used to enable streaming of a HTTP request body
@@ -199,34 +206,9 @@ class URLConnection {
      *          If chunklen is less than or equal to zero, a default
      *          value will be used.
      */
-    public function setChunkedStreamingMode($chunklen) {}
-
-    /**
-     * Set the method for the URL request, one of:
-     * <UL>
-     *  <LI>GET
-     *  <LI>POST
-     *  <LI>HEAD
-     *  <LI>OPTIONS
-     *  <LI>PUT
-     *  <LI>DELETE
-     *  <LI>TRACE
-     * </UL> are legal, subject to protocol restrictions.  The default
-     * method is GET.
-     *
-     * @param string $method
-     */
-    public function setRequestMethod($method) {}
-
-    /**
-     * @return string
-     */
-    public function getRequestMethod() {}
-
-    /**
-     * @return bool
-     */
-    public function usingProxy() {}
+    public function setChunkedStreamingMode($chunklen)
+    {
+    }
 
     /**
      * Tries to determine the type of an input stream based on the
@@ -237,10 +219,14 @@ class URLConnection {
      * @param Stream $stream
      * @return string
      */
-    public static function guessContentTypeFromStream(Stream $stream) {}
+    public static function guessContentTypeFromStream(Stream $stream)
+    {
+    }
 
     /**
      * @param string $name
      */
-    public static function guessContentTypeFromName($name) {}
+    public static function guessContentTypeFromName($name)
+    {
+    }
 }

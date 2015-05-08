@@ -1933,9 +1933,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
         if (INVOKE_TYPE != INVOKESPECIAL && clazz != null){
-            if (compiler.getScope().isDebugMode())
-            if (!methodExists(clazz, method, paramClasses))
-                throw new NoSuchMethodException(clazz, method, paramClasses);
+            if (compiler.getScope().isDebugMode()) {
+                if (!methodExists(clazz, method, paramClasses)) {
+                    throw new NoSuchMethodException(clazz, method, paramClasses);
+                }
+            }
         }
 
         Type[] args = new Type[paramClasses.length];
@@ -2429,16 +2431,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePopBoxing();
                 writeSysDynamicCall(Memory.class, "emptyOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
             } else {
+                // TODO: Remove.
                 // PHP CMP: $hack = &$arr[0];
-                boolean isMemory = stackPeek().type.toClass() == Memory.class;
+               // boolean isMemory = stackPeek().type.toClass() == Memory.class;
                 //if (isMemory)
-                if (compiler.isPhpMode()){
+                /*if (compiler.isPhpMode()){
                     if (i == size - 1 && isShortcut){
                         writePopBoxing();
                         writeSysDynamicCall(Memory.class, methodName + "AsShortcut", Memory.class, TraceInfo.class, Memory.class);
                         continue;
                     }
-                }
+                }*/
 
                 writeSysDynamicCall(Memory.class, methodName, Memory.class, TraceInfo.class, stackPeek().type.toClass());
                 i++;

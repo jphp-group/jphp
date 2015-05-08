@@ -1,5 +1,6 @@
 package php.runtime.loader.dump;
 
+import php.runtime.common.LangMode;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpException;
@@ -57,7 +58,9 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         data.writeInt(DUMP_STAMP);
         data.writeInt(DUMP_VERSION);
 
-        data.writeEnum(entity.getLangMode());
+        // legacy code.
+        data.writeEnum(LangMode.DEFAULT);
+
         // module name
         data.writeName(entity.getContext().getModuleName());
         data.writeName(entity.getInternalName());
@@ -118,7 +121,9 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         if (VERSION != DUMP_VERSION)
             throw new DumpException("Invalid dump version - " + VERSION + ", only " + DUMP_VERSION);
 
-        ModuleEntity entity = new ModuleEntity(context, data.readLangMode());
+        data.readLangMode(); // legacy
+
+        ModuleEntity entity = new ModuleEntity(context);
         entity.setName(data.readName());
         entity.setInternalName(data.readName());
         entity.setTrace(data.readTrace(context));

@@ -43,14 +43,12 @@ public class JvmCompiler extends AbstractCompiler {
 
     public JvmCompiler(Environment environment, Context context, SyntaxAnalyzer analyzer) {
         super(environment, context);
-        this.classes = new ArrayList<ClassStmtCompiler>();
-        this.module = new ModuleEntity(context, getLangMode());
+        this.classes = new ArrayList<>();
+        this.module = new ModuleEntity(context);
         this.module.setId( scope.nextModuleIndex() );
 
         this.tokens = analyzer.getTree();
         this.analyzer = analyzer;
-
-        this.langMode = analyzer.getLangMode();
     }
 
     public SyntaxAnalyzer getAnalyzer() {
@@ -209,7 +207,7 @@ public class JvmCompiler extends AbstractCompiler {
 
     @Override
     public ModuleEntity compile(boolean autoRegister) {
-        this.classes = new ArrayList<ClassStmtCompiler>();
+        this.classes = new ArrayList<>();
         module.setInternalName("$php_module_m" + UUID.randomUUID().toString().replace("-", ""));
 
         List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());

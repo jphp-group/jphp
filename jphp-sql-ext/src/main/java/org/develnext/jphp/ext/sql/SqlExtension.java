@@ -1,6 +1,5 @@
 package org.develnext.jphp.ext.sql;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.develnext.jphp.ext.sql.classes.*;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;

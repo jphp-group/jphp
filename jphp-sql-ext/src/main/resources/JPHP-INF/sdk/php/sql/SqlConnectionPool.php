@@ -41,63 +41,31 @@ class SqlConnectionPool
      * @param int $value
      * @return $this
      */
-    public function setInitialPoolSize($value)
-    {
-    }
-
-    /**
-     * @param int $value
-     * @return $this
-     */
-    public function setMinPoolSize($value)
-    {
-    }
-
-    /**
-     * @param int $value
-     * @return $this
-     */
     public function setMaxPoolSize($value)
     {
     }
 
     /**
-     * @param int $value
+     * @param int $millis
      * @return $this
      */
-    public function setMaxStatements($value)
+    public function setIdleTimeout($millis)
     {
     }
 
     /**
-     * @param int $value
+     * @param int $millis
      * @return $this
      */
-    public function setAcquireIncrement($value)
+    public function setMaxLifetime($millis)
     {
     }
 
     /**
-     * @param int $seconds
+     * @param int $millis
      * @return $this
      */
-    public function setMaxIdleTime($seconds)
-    {
-    }
-
-    /**
-     * @param int $seconds
-     * @return $this
-     */
-    public function setMaxConnectionAge($seconds)
-    {
-    }
-
-    /**
-     * @param int $value
-     * @return $this
-     */
-    public function setMaxStatementsPerConnection($value)
+    public function setMinimumIdle($millis)
     {
     }
 }

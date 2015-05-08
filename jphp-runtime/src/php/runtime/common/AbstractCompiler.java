@@ -11,24 +11,10 @@ abstract public class AbstractCompiler {
     protected final CompileScope scope;
     protected final Context context;
 
-    protected LangMode langMode = LangMode.PHP;
-
     public AbstractCompiler(Environment environment, Context context){
         this.context = context;
         this.scope = environment.getScope();
         this.environment = environment;
-    }
-
-    public LangMode getLangMode(){
-        return langMode == null ? scope.getLangMode() : langMode;
-    }
-
-    public boolean isMode(LangMode langMode){
-        return getLangMode() == langMode;
-    }
-
-    public boolean isPhpMode(){
-        return isMode(LangMode.PHP);
     }
 
     public Context getContext() {

@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -101,5 +102,16 @@ public class WrapServerSocket extends BaseObject {
     public Memory setPerformancePreferences(Environment env, Memory... args) throws SocketException {
         socket.setPerformancePreferences(args[0].toInteger(), args[1].toInteger(), args[2].toInteger());
         return Memory.NULL;
+    }
+
+    @Signature
+    public static Memory findAvailableLocalPort(Environment env, Memory... args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(0);
+            serverSocket.close();
+            return LongMemory.valueOf(serverSocket.getLocalPort());
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
     }
 }

@@ -27,10 +27,11 @@ class SqlDriverManager
 
     /**
      * @param string $url
+     * @param string $driverName - mysql, pgsql, postgres, mssql, firebird, sybase, sqlite, etc.
      * @param array $options (optional)
      * @return SqlConnectionPool
      */
-    public static function getPool($url, array $options)
+    public static function getPool($url, $driverName, array $options)
     {
     }
 }

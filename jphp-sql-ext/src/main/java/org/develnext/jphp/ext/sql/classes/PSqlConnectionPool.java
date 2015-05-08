@@ -1,9 +1,7 @@
 package org.develnext.jphp.ext.sql.classes;
 
-import com.mchange.v2.c3p0.AbstractComboPooledDataSource;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import org.develnext.jphp.ext.sql.SqlExtension;
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Namespace;
 import php.runtime.annotation.Reflection.Signature;
@@ -16,9 +14,9 @@ import java.sql.SQLException;
 @Name("SqlConnectionPool")
 @Namespace(SqlExtension.NS)
 public class PSqlConnectionPool extends BaseObject {
-    protected AbstractComboPooledDataSource pool;
+    protected HikariDataSource pool;
 
-    public PSqlConnectionPool(Environment env, AbstractComboPooledDataSource pool) {
+    public PSqlConnectionPool(Environment env, HikariDataSource pool) {
         super(env);
         this.pool = pool;
     }
@@ -34,7 +32,7 @@ public class PSqlConnectionPool extends BaseObject {
 
     @Signature
     public PSqlConnectionPool setUser(String name) {
-        pool.setUser(name);
+        pool.setUsername(name);
         return this;
     }
 
@@ -45,50 +43,26 @@ public class PSqlConnectionPool extends BaseObject {
     }
 
     @Signature
-    public PSqlConnectionPool setMinPoolSize(int size) {
-        pool.setMinPoolSize(size);
-        return this;
-    }
-
-    @Signature
     public PSqlConnectionPool setMaxPoolSize(int size) {
-        pool.setMaxPoolSize(size);
+        pool.setMaximumPoolSize(size);
         return this;
     }
 
     @Signature
-    public PSqlConnectionPool setMaxStatements(int size) {
-        pool.setMaxStatements(size);
+    public PSqlConnectionPool setMaxLifetime(int time) {
+        pool.setMaxLifetime(time);
         return this;
     }
 
     @Signature
-    public PSqlConnectionPool setMaxIdleTime(int time) {
-        pool.setMaxIdleTime(time);
+    public PSqlConnectionPool setIdleTimeout(int time) {
+        pool.setIdleTimeout(time);
         return this;
     }
 
     @Signature
-    public PSqlConnectionPool setMaxConnectionAge(int age) {
-        pool.setMaxConnectionAge(age);
-        return this;
-    }
-
-    @Signature
-    public PSqlConnectionPool setMaxStatementsPerConnection(int value) {
-        pool.setMaxStatementsPerConnection(value);
-        return this;
-    }
-
-    @Signature
-    public PSqlConnectionPool setInitialPoolSize(int value) {
-        pool.setInitialPoolSize(value);
-        return this;
-    }
-
-    @Signature
-    public PSqlConnectionPool setAcquireIncrement(int value) {
-        pool.setAcquireIncrement(value);
+    public PSqlConnectionPool setMinimumIdle(int time) {
+        pool.setMinimumIdle(time);
         return this;
     }
 

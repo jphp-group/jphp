@@ -1,6 +1,15 @@
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
+
 
 dependencies {
     compile project(':jphp-runtime')
 
     compile 'org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-jetty:1.2.3.RELEASE'
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-zend-ext')
+    testCompile project(':jphp-core').sourceSets.test.output
 }

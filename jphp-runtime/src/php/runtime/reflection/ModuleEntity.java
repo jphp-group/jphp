@@ -20,7 +20,6 @@ public class ModuleEntity extends Entity {
     private int id;
     private Class<?> nativeClazz;
     protected Method nativeMethod;
-    protected LangMode langMode;
 
     private final Map<String, ClassEntity> classes;
     private final List<FunctionEntity> functions;
@@ -32,7 +31,7 @@ public class ModuleEntity extends Entity {
 
     private final static Memory[] argsMock = new Memory[]{};
 
-    public ModuleEntity(Context context, LangMode langMode) {
+    public ModuleEntity(Context context) {
         super(context);
         this.classes = new LinkedHashMap<String, ClassEntity>();
         this.functions = new ArrayList<FunctionEntity>();
@@ -40,14 +39,6 @@ public class ModuleEntity extends Entity {
         this.closures = new ArrayList<ClosureEntity>();
         this.generators = new ArrayList<GeneratorEntity>();
         this.setName(context.getModuleNameNoThrow());
-    }
-
-    public ModuleEntity(Context context){
-        this(context, LangMode.JPHP);
-    }
-
-    public LangMode getLangMode() {
-        return langMode;
     }
 
     public int getId() {

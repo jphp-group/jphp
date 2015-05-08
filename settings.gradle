@@ -15,6 +15,7 @@ include 'jphp-runtime',
         'jphp-gen-api',
         'jphp-scripting',
 
+        'jphp-debugger',
         'jphp-gradle-plugin',
 
         'sandbox'

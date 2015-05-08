@@ -383,6 +383,12 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         modifiers.clear();
                     } else if (current instanceof FunctionStmtToken) {
                         FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
+
+                        if (function == null) {
+                            nextToken(iterator);
+                            unexpectedToken(iterator);
+                        }
+
                         MethodStmtToken method = new MethodStmtToken(function);
                         method.setClazz(result);
                         method.setDocComment(lastComment);

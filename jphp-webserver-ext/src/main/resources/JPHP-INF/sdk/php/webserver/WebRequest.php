@@ -143,4 +143,11 @@ class WebRequest
     {
         return $this->ip;
     }
+
+    /**
+     * @return WebRequest
+     */
+    public static function current()
+    {
+    }
 }

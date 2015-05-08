@@ -6,6 +6,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
+import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.util.JVMStackTracer;
@@ -16,7 +17,7 @@ public class ExceptionHandler {
 
     public final static ExceptionHandler DEFAULT = new ExceptionHandler(null, null){
         @Override
-        public boolean onException(Environment env, BaseException exception) throws Throwable {
+        public boolean onException(Environment env, BaseBaseException exception) throws Throwable {
             ClassEntity entity = exception.getReflection();
             env.getErrorReportHandler().onFatal(new FatalException(
                     "Uncaught exception '" + entity.getName() + "' with message '" + exception.getMessage(env) + "'" ,
@@ -48,7 +49,7 @@ public class ExceptionHandler {
         this.invokerMemory = invokerMemory;
     }
 
-    public boolean onException(Environment env, BaseException exception)
+    public boolean onException(Environment env, BaseBaseException exception)
             throws Throwable {
         Memory[] args = new Memory[]{new ObjectMemory(exception)};
         invoker.setTrace(exception.getTrace());
