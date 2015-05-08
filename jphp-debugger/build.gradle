@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':jphp-runtime')
+
+    testCompile 'junit:junit:4.+'
+}

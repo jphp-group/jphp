@@ -1068,12 +1068,21 @@ public class Environment {
     }
 
     /***** UTILS *****/
+    public void __tick(TraceInfo trace) {
+        TickHandler tickHandler = scope.getTickHandler();
+
+        if (tickHandler != null) {
+            tickHandler.onTick(this, trace);
+        }
+    }
+
     public Memory __getConstant(String name, String lowerName, TraceInfo trace){
         Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
             error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
             int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+
             if (p > -1) // for global scope
                 return StringMemory.valueOf(name.substring(p + 1));
             else

@@ -71,6 +71,7 @@ configure([
         project(':jphp-mail-ext'),
         project(':jphp-sql-ext'),
         project(':jphp-webserver-ext'),
+        project(':jphp-debugger'),
 
         project(':jphp-android'),
         project(':jphp-scripting'),

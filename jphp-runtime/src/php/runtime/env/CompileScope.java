@@ -6,6 +6,7 @@ import php.runtime.common.CompilerFactory;
 import php.runtime.common.LangMode;
 import php.runtime.common.Messages;
 import php.runtime.env.handler.EntityFetchHandler;
+import php.runtime.env.handler.TickHandler;
 import php.runtime.exceptions.ConflictException;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.CoreExtension;
@@ -69,6 +70,8 @@ public class CompileScope {
     protected List<EntityFetchHandler> classEntityFetchHandler;
     protected List<EntityFetchHandler> functionEntityFetchHandler;
     protected List<EntityFetchHandler> constantEntityFetchHandler;
+
+    protected TickHandler tickHandler;
 
     public Map<String, Memory> configuration;
 
@@ -139,30 +142,23 @@ public class CompileScope {
 
         classMap = new HashMap<>();
         functionMap = new HashMap<>();
-        constantMap = new HashMap<String, ConstantEntity>();
+        constantMap = new HashMap<>();
 
-        extensions = new LinkedHashMap<String, Extension>();
-        compileConstantMap = new HashMap<String, CompileConstant>();
-        compileFunctionMap = new HashMap<String, CompileFunction>();
-        compileClassMap    = new HashMap<String, CompileClass>();
-        exceptionMap = new HashMap<Class<? extends Throwable>, Class<? extends JavaException>>();
-        exceptionMapForContext = new HashMap<String, Class<? extends JavaException>>();
+        extensions = new LinkedHashMap<>();
+        compileConstantMap = new HashMap<>();
+        compileFunctionMap = new HashMap<>();
+        compileClassMap    = new HashMap<>();
+        exceptionMap = new HashMap<>();
+        exceptionMapForContext = new HashMap<>();
 
-        classEntityFetchHandler = new ArrayList<EntityFetchHandler>();
-        constantEntityFetchHandler = new ArrayList<EntityFetchHandler>();
-        functionEntityFetchHandler = new ArrayList<EntityFetchHandler>();
+        classEntityFetchHandler = new ArrayList<>();
+        constantEntityFetchHandler = new ArrayList<>();
+        functionEntityFetchHandler = new ArrayList<>();
 
-        superGlobals = new HashSet<String>();
+        superGlobals = new HashSet<>();
 
         superGlobals.add("GLOBALS");
         superGlobals.add("_ENV");
-        superGlobals.add("_SERVER");
-        superGlobals.add("_POST");
-        superGlobals.add("_GET");
-        superGlobals.add("_REQUEST");
-        superGlobals.add("_FILES");
-        superGlobals.add("_SESSION");
-        superGlobals.add("_COOKIE");
 
         try {
             final Class<?> jvmCompilerClass = Class.forName("org.develnext.jphp.core.compiler.jvm.JvmCompiler");
@@ -260,6 +256,14 @@ public class CompileScope {
 
     public long nextMethodIndex(){
         return methodCount.incrementAndGet();
+    }
+
+    public void setTickHandler(TickHandler tickHandler) {
+        this.tickHandler = tickHandler;
+    }
+
+    public TickHandler getTickHandler() {
+        return tickHandler;
     }
 
     public void registerLazyClass(Extension extension, Class<?> clazz) {

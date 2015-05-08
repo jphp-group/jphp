@@ -43,7 +43,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private Stack<StackItem> stack = new Stack<StackItem>();
     private final List<JumpItem> jumpStack = new ArrayList<JumpItem>();
     final Stack<TryCatchItem> tryStack = new Stack<TryCatchItem>();
-    final List<BodyStmtToken> finallyBlocks = new ArrayList<BodyStmtToken>();
+    final List<BodyStmtToken> finallyBlocks = new ArrayList<>();
 
     private int stackLevel = 0;
     private int stackSize = 0;

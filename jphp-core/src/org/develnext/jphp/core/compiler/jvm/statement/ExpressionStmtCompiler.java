@@ -1933,9 +1933,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     @SuppressWarnings("unchecked")
     void writeSysCall(Class clazz, int INVOKE_TYPE, String method, Class returnClazz, Class... paramClasses) {
         if (INVOKE_TYPE != INVOKESPECIAL && clazz != null){
-            if (compiler.getScope().isDebugMode())
-            if (!methodExists(clazz, method, paramClasses))
-                throw new NoSuchMethodException(clazz, method, paramClasses);
+            if (compiler.getScope().isDebugMode()) {
+                if (!methodExists(clazz, method, paramClasses)) {
+                    throw new NoSuchMethodException(clazz, method, paramClasses);
+                }
+            }
         }
 
         Type[] args = new Type[paramClasses.length];
