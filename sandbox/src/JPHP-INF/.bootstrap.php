@@ -1,20 +1,17 @@
 <?php
 
-use php\lang\Environment;
-use php\webserver\WebRequest;
-use php\webserver\WebResponse;
-use php\webserver\WebServer;
+function test($x) {
+    $any = $x;
+    return $x + 1;
+}
 
-$server = new WebServer();
+$x = 20;
+$y = 40;
 
-$server->setEnvironmentCreator(function () {
-    $env = new Environment(null, Environment::HOT_RELOAD);
-    $env->importAutoLoaders();
-    return $env;
-});
+$foobar = 'Моя работа';
 
-$server->setRoute(function (WebRequest $request, WebResponse $response) {
-    Bootstrap::run($request, $response);
-});
+$a = test($x);
 
-$server->run();
+$z = $x + $y;
+
+echo $z;

@@ -5,7 +5,6 @@ import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
 import php.runtime.memory.output.PlainPrinter;
 import php.runtime.reflection.ClassEntity;
 

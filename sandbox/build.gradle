@@ -17,5 +17,16 @@ dependencies {
     compile project(':jphp-sql-ext')
     compile project(':jphp-webserver-ext')
 
+    compile project(':jphp-debugger')
+
     compile 'org.xerial:sqlite-jdbc:3.8.7'
+}
+
+run {
+    jvmArgs = ["-Dfile.encoding=UTF-8"]
+}
+
+task debug << {
+    run.jvmArgs = ["-Dfile.encoding=UTF-8", "-Djphp.debug=true"]
+    run.execute();
 }

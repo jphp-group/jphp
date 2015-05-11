@@ -84,7 +84,6 @@ public class Launcher {
             return result;
         } catch (IOException e) {
             return Collections.emptyList();
-            //throw new LaunchException(e.getMessage());
         }
     }
 
@@ -150,13 +149,13 @@ public class Launcher {
         resource = getResource(pathToConf);
         if (resource != null) {
             try {
-                this.config.load(resource);
+                config.load(resource);
 
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
 
-                this.isDebug = getConfigValue("env.debug").toBoolean();
+                isDebug = Boolean.getBoolean("jphp.debug");
 
                 compileScope.setDebugMode(isDebug);
 
@@ -227,6 +226,10 @@ public class Launcher {
         }
 
         if (isDebug()){
+            if (compileScope.getTickHandler() == null) {
+                throw new LaunchException("Cannot find a debugger, please add the jphp-debugger dependency");
+            }
+
             long t = System.currentTimeMillis() - startTime;
            // System.out.println("Starting delay = " + t + " millis");
         }
@@ -262,6 +265,8 @@ public class Launcher {
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {
+                    compileScope.triggerProgramShutdown(environment);
+
                     if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
                         environment.doFinal();
                     }

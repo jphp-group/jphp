@@ -5,6 +5,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.BodyStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.memory.ArrayMemory;
 
 public class BodyCompiler extends BaseStatementCompiler<BodyStmtToken> {
     public BodyCompiler(ExpressionStmtCompiler exprCompiler) {
@@ -18,7 +19,8 @@ public class BodyCompiler extends BaseStatementCompiler<BodyStmtToken> {
                 if (compiler.getScope().isDebugMode()) {
                     expr.writePushEnv();
                     expr.writePushTraceInfo(line);
-                    expr.writeSysDynamicCall(Environment.class, "__tick", void.class, TraceInfo.class);
+                    expr.writePushLocal();
+                    expr.writeSysDynamicCall(Environment.class, "__tick", void.class, TraceInfo.class, ArrayMemory.class);
                 }
 
                 expr.writeExpression(line, false, false);

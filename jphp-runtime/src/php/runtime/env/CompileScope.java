@@ -6,6 +6,7 @@ import php.runtime.common.CompilerFactory;
 import php.runtime.common.LangMode;
 import php.runtime.common.Messages;
 import php.runtime.env.handler.EntityFetchHandler;
+import php.runtime.env.handler.ProgramShutdownHandler;
 import php.runtime.env.handler.TickHandler;
 import php.runtime.exceptions.ConflictException;
 import php.runtime.exceptions.CriticalException;
@@ -72,6 +73,7 @@ public class CompileScope {
     protected List<EntityFetchHandler> constantEntityFetchHandler;
 
     protected TickHandler tickHandler;
+    protected List<ProgramShutdownHandler> programShutdownHandlers;
 
     public Map<String, Memory> configuration;
 
@@ -127,6 +129,9 @@ public class CompileScope {
         constantEntityFetchHandler = new ArrayList<>(parent.constantEntityFetchHandler);
 
         extensions.putAll(parent.extensions);
+
+        tickHandler = parent.tickHandler;
+        programShutdownHandlers = new ArrayList<>(parent.programShutdownHandlers);
     }
 
     public CompileScope() {
@@ -154,6 +159,8 @@ public class CompileScope {
         classEntityFetchHandler = new ArrayList<>();
         constantEntityFetchHandler = new ArrayList<>();
         functionEntityFetchHandler = new ArrayList<>();
+
+        programShutdownHandlers = new ArrayList<>();
 
         superGlobals = new HashSet<>();
 
@@ -395,6 +402,10 @@ public class CompileScope {
         }
     }
 
+    public void registerProgramShutdownHandler(ProgramShutdownHandler shutdownHandler) {
+        programShutdownHandlers.add(shutdownHandler);
+    }
+
     public void addUserModule(ModuleEntity module){
         moduleMap.put(module.getName(), module);
         moduleIndexMap.put(module.getInternalName(), module);
@@ -559,5 +570,11 @@ public class CompileScope {
     @Override
     public int hashCode() {
         return id;
+    }
+
+    public void triggerProgramShutdown(Environment env) {
+        for (ProgramShutdownHandler handler : programShutdownHandlers) {
+            handler.onShutdown(this, env);
+        }
     }
 }

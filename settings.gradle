@@ -12,7 +12,6 @@ include 'jphp-runtime',
         'jphp-mail-ext',
         'jphp-sql-ext',
         'jphp-webserver-ext',
-        'jphp-javafx-ext',
         'jphp-gen-api',
         'jphp-scripting',
 

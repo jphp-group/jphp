@@ -1,5 +1,6 @@
 dependencies {
     compile project(':jphp-runtime')
+    compile 'commons-codec:commons-codec:1.10'
 
     testCompile 'junit:junit:4.+'
 }

@@ -53,7 +53,7 @@ final public class ObjectInvokeHelper {
                         ? childClazz.methodMagicCall
                         : clazz.methodMagicCall)
                     != null)){
-                passed = new Memory[]{new StringMemory(methodName), new ArrayMemory(true, args)};
+                passed = new Memory[]{new StringMemory(methodName), ArrayMemory.of(args)};
                 doublePop = true;
             }
         }

@@ -68,7 +68,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.statement = null;
         this.node   = node;
 
-        this.localVariables = new LinkedHashMap<String, LocalVariable>();
+        this.localVariables = new LinkedHashMap<>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
@@ -84,7 +84,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.statement = statement;
         this.node  = new MethodNodeImpl();
 
-        this.localVariables = new LinkedHashMap<String, LocalVariable>();
+        this.localVariables = new LinkedHashMap<>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
@@ -263,6 +263,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     void writeHeader(){
         int access = 0;
         if (statement != null){
+            if (compiler.getScope().isDebugMode()) {
+                statement.setDynamicLocal(true);
+            }
+
             switch (statement.getModifier()){
                 case PRIVATE: access += Opcodes.ACC_PRIVATE; break;
                 case PROTECTED: access += Opcodes.ACC_PROTECTED; break;

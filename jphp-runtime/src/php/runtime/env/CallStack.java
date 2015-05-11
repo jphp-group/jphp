@@ -65,6 +65,19 @@ public class CallStack {
         }
     }
 
+    public CallStack getSnapshotAsCallStack() {
+        CallStack stack = new CallStack();
+
+        stack.callStack = new CallStackItem[callStack.length];
+
+        System.arraycopy(stack.callStack, 0, getSnapshot(), 0, callStackTop);
+
+        stack.callStackTop = callStackTop;
+        stack.maxCallStackTop = maxCallStackTop;
+
+        return stack;
+    }
+
     public CallStackItem[] getSnapshot(){
         if (callStackTop < 0) {
             return new CallStackItem[] { };

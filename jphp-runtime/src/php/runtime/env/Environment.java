@@ -1068,11 +1068,11 @@ public class Environment {
     }
 
     /***** UTILS *****/
-    public void __tick(TraceInfo trace) {
+    public void __tick(TraceInfo trace, ArrayMemory locals) {
         TickHandler tickHandler = scope.getTickHandler();
 
         if (tickHandler != null) {
-            tickHandler.onTick(this, trace);
+            tickHandler.onTick(this, trace, locals);
         }
     }
 
