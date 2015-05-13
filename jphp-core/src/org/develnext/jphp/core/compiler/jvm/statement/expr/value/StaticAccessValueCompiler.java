@@ -9,6 +9,8 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.ConstantCallCache;
+import php.runtime.invoke.cache.MethodCallCache;
 
 public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExprToken> {
     public StaticAccessValueCompiler(ExpressionStmtCompiler exprCompiler) {
@@ -51,8 +53,13 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 expr.writePushEnv();
                 expr.writePushTraceInfo(token);
 
+                int cacheIndex = method.clazz.getAndIncCallConstCount();
+                expr.writeGetStatic("$CALL_CONST_CACHE", ConstantCallCache.class);
+                expr.writePushConstInt(cacheIndex);
+
                 expr.writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
-                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
+                        ConstantCallCache.class, Integer.TYPE
                 );
                 expr.setStackPeekAsImmutable();
             } else {

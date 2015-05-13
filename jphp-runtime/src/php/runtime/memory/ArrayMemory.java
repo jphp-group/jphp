@@ -1627,4 +1627,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         return result;
     }
+
+    public static ArrayMemory ofStringMap(Map<String, String> map) {
+        ArrayMemory result = new ArrayMemory();
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            result.putAsKeyString(entry.getKey(), StringMemory.valueOf(entry.getValue()));
+        }
+
+        return result;
+    }
 }

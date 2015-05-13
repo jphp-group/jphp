@@ -28,6 +28,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.cache.ConstantCallCache;
 import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.BaseObject;
@@ -56,6 +57,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     private boolean initDynamicExists = false;
     private int callFuncCount = 0;
     private int callMethCount = 0;
+    private int callConstCount = 0;
 
     private GeneratorEntity generatorEntity;
 
@@ -74,6 +76,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     public int getAndIncCallMethCount() {
         return callMethCount++;
+    }
+
+    public int getAndIncCallConstCount() {
+        return callConstCount++;
     }
 
     public boolean isInitDynamicExists() {
@@ -445,6 +451,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 null
         ));
 
+        node.fields.add(new FieldNode(
+                ACC_PUBLIC + ACC_STATIC, "$CALL_CONST_CACHE",
+                Type.getDescriptor(ConstantCallCache.class),
+                null,
+                null
+        ));
+
         if (functionName != null) {
             node.fields.add(new FieldNode(
                     ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
@@ -641,6 +654,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         expressionCompiler.writePushNewObject(MethodCallCache.class);
         expressionCompiler.writePutStatic("$CALL_METH_CACHE", MethodCallCache.class);
+
+        expressionCompiler.writePushNewObject(ConstantCallCache.class);
+        expressionCompiler.writePutStatic("$CALL_CONST_CACHE", ConstantCallCache.class);
 
         node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();

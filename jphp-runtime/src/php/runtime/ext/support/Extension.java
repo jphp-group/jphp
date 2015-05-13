@@ -99,9 +99,7 @@ abstract public class Extension {
     public void registerMemoryOperation(Class<? extends MemoryOperation> clazz) {
         try {
             MemoryOperation.register(clazz.newInstance());
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new CriticalException(e);
         }
     }

@@ -1,0 +1,12 @@
+apply plugin: 'application'
+
+sourceSets {
+    main.resources.srcDirs = ['src']
+}
+
+dependencies {
+    compile project(':jphp-runtime')
+    compile project(':jphp-zend-ext')
+}
+
+mainClassName = 'php.runtime.launcher.Launcher'

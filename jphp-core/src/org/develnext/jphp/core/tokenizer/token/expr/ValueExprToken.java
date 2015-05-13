@@ -139,7 +139,8 @@ abstract public class ValueExprToken extends ExprToken {
 
         if (arrays){
             if (token instanceof ArrayExprToken){
-                ArrayExprToken array = (ArrayExprToken)token;
+                ArrayExprToken array = (ArrayExprToken) token;
+
                 for(ExprStmtToken e : array.getParameters()){
                     if (e.isSingle()){
                         if (!isConstable(e.getSingle(), true))

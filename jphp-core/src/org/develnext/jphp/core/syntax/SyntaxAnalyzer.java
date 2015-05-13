@@ -229,9 +229,10 @@ public class SyntaxAnalyzer {
                 registerToken(gen);
 
                 result.addAll(tree);
-                for(Token el : tree){
+
+                /*for(Token el : tree){
                     registerToken(el);
-                }
+                }*/
             } else {
                 result.add(gen);
                 registerToken(gen);

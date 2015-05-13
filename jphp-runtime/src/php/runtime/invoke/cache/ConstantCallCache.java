@@ -1,8 +1,8 @@
 package php.runtime.invoke.cache;
 
-import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ConstantEntity;
 
-public class MethodCallCache extends CallCache<MethodEntity> {
+public class ConstantCallCache extends CallCache<ConstantEntity> {
     @Override
     public Item[] newArrayData(int length) {
         return new Item[length];

@@ -1326,11 +1326,10 @@ ClassReader classReader;
         if (entity != null && accessFlag != 0) {
             value = null;
         } else {
-            ArrayMemory props = object.getProperties();
-
             if (entity != null) {
                 value = entity.getValue(env, trace, object);
             } else {
+                ArrayMemory props = object.getProperties();
                 value = props == null ? null : props.getByScalar(property);
             }
         }

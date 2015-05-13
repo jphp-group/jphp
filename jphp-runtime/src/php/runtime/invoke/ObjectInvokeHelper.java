@@ -6,6 +6,7 @@ import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.cache.ConstantCallCache;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
@@ -266,22 +267,34 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory getConstant(String className, String lowerClassName, String constant,
-                                     Environment env, TraceInfo trace){
-        ClassEntity entity = env.fetchClass(className, lowerClassName, true);
+                                     Environment env, TraceInfo trace, ConstantCallCache callCache, int cacheIndex) {
+        ConstantEntity constantEntity = null;
 
-        if (entity == null) {
-            env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
-            return Memory.NULL;
+        if (callCache != null) {
+            constantEntity = callCache.get(env, cacheIndex);
         }
 
-        ConstantEntity constantEntity = entity.findConstant(constant);
-        if (constantEntity == null){
-            env.error(trace, Messages.ERR_UNDEFINED_CLASS_CONSTANT.fetch(constant));
-            return Memory.NULL;
+        if (constantEntity == null) {
+            ClassEntity entity = env.fetchClass(className, lowerClassName, true);
+
+            if (entity == null) {
+                env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
+                return Memory.NULL;
+            }
+
+            constantEntity = entity.findConstant(constant);
+            if (constantEntity == null) {
+                env.error(trace, Messages.ERR_UNDEFINED_CLASS_CONSTANT.fetch(constant));
+                return Memory.NULL;
+            }
+
+            if (callCache != null) {
+                callCache.put(env, cacheIndex, constantEntity);
+            }
         }
 
         Memory value = constantEntity.getValue(env);
-        if (value == null){
+        if (value == null) {
             return Memory.NULL;
         }
 
@@ -291,6 +304,7 @@ final public class ObjectInvokeHelper {
     public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
             throws Throwable {
         object = object.toValue();
+
         if (!object.isObject()){
             env.error(trace,
                     Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)

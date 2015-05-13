@@ -1216,7 +1216,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushConstNull();
                 writePushConstInt(0);
             }  else {
-                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                int cacheIndex = method.clazz.getAndIncCallMethCount();
                 writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
                 writePushConstInt(cacheIndex);
             }
@@ -1269,7 +1269,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushConstNull();
                 writePushConstInt(0);
             } else {
-                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                int cacheIndex = method.clazz.getAndIncCallMethCount();
                 writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
                 writePushConstInt(cacheIndex);
             }
@@ -1547,8 +1547,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else {
             ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
 
-            if (ret == null)
+            if (ret == null) {
                 writePushNewObject(ArrayMemory.class);
+            }
+
             for(ExprStmtToken param : array.getParameters()){
                 if (ret == null)
                     writePushDup();
@@ -1559,11 +1561,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (ret != null) {
                         ret.add(result);
                         continue;
-                    } else
+                    } else {
                         writePushMemory(result);
+                    }
                 } else {
-                    if (!writeOpcode)
+                    if (!writeOpcode) {
                         return null;
+                    }
+
                     ret = null;
                 }
 
@@ -1576,6 +1581,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
                 writePopAll(1);
             }
+
             if (ret != null)
                 return ret;
         }
@@ -2057,7 +2063,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    void writePutDynamic(String name, Class fieldClass){
+    public void writePutDynamic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 PUTFIELD,
                 method.clazz.node.name,
@@ -2067,13 +2073,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    void writeGetStatic(Class clazz, String name, Class fieldClass){
+    public void writeGetStatic(Class clazz, String name, Class fieldClass){
         code.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass)));
         stackPush(null, StackItem.Type.valueOf(fieldClass));
         setStackPeekAsImmutable();
     }
 
-    void writeGetStatic(String name, Class fieldClass){
+    public void writeGetStatic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 GETSTATIC,
                 method.clazz.node.name,
@@ -2084,7 +2090,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         setStackPeekAsImmutable();
     }
 
-    void writeGetDynamic(String name, Class fieldClass){
+    public void writeGetDynamic(String name, Class fieldClass){
         stackPop();
         code.add(new FieldInsnNode(
                 GETFIELD,

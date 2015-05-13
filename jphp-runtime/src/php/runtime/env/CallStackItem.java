@@ -98,7 +98,7 @@ public class CallStackItem {
         }
 
         if (!ignoreArgs){
-            el.refOfIndex("args").assign(new ArrayMemory(true, args));
+            el.refOfIndex("args").assign(ArrayMemory.of(args));
         }
 
         if (trace != null)
