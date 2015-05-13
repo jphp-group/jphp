@@ -11,6 +11,7 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.memory.support.MemoryUtils;
 
 public class ListCompiler extends BaseExprCompiler<ListExprToken> {
@@ -61,9 +62,13 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
                 expr.writeExpression(var, true, false);
                 expr.writePopBoxing(false);
 
+                expr.writeGetStatic("$CALL_PROP_CACHE", PropertyCallCache.class);
+                expr.writePushConstInt(method.clazz.getAndIncCallPropCount());
+
                 expr.writeSysStaticCall(ObjectInvokeHelper.class,
                         "assignPropertyRight", Memory.class,
-                        Memory.class, String.class, Environment.class, TraceInfo.class, Memory.class
+                        Memory.class, String.class, Environment.class, TraceInfo.class, Memory.class,
+                        PropertyCallCache.class, int.class
                 );
                 expr.writePopAll(1);
             }

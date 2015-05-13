@@ -17,6 +17,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.lang.ForeachIterator;
 
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -101,9 +102,13 @@ public class ForeachCompiler extends BaseStatementCompiler<ForeachStmtToken> {
 
             expr.writeDynamicAccessInfo(setter, false);
 
+            expr.writeGetStatic("$CALL_PROP_CACHE", PropertyCallCache.class);
+            expr.writePushConstInt(method.clazz.getAndIncCallPropCount());
+
             expr.writeSysStaticCall(ObjectInvokeHelper.class,
                     "assignProperty", Memory.class,
-                    Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class
+                    Memory.class, Memory.class, String.class, Environment.class, TraceInfo.class,
+                    PropertyCallCache.class, int.class
             );
         } else {
             if (token.getValue().getSingle() instanceof VariableExprToken)

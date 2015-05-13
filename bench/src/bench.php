@@ -6,9 +6,11 @@ use benchmarks\Benchmark;
 use benchmarks\ClosureBenchmark;
 use benchmarks\ConditionBenchmark;
 use benchmarks\ConstantCallBenchmark;
+use benchmarks\DynamicAccessBenchmark;
 use benchmarks\FetchConstantsBenchmark;
 use benchmarks\FibonacciBenchmark;
 use benchmarks\GetterSetterBenchmark;
+use benchmarks\IteratorBenchmark;
 use benchmarks\LoopBenchmark;
 use benchmarks\NewObjectBenchmark;
 use benchmarks\ObjectPropertyBenchmark;
@@ -16,6 +18,7 @@ use benchmarks\SimpleFuncCallBenchmark;
 use benchmarks\SimpleMethodCallBenchmark;
 use benchmarks\SingletonBenchmark;
 use benchmarks\StringBenchmark;
+use benchmarks\UndefinedBenchmark;
 
 include __DIR__ . '/benchmarks/Benchmark.php';
 
@@ -40,9 +43,11 @@ Benchmark::register(new ObjectPropertyBenchmark());
 Benchmark::register(new ArrayBenchmark());
 Benchmark::register(new StringBenchmark());
 Benchmark::register(new ClosureBenchmark());
+Benchmark::register(new UndefinedBenchmark());
 Benchmark::register(new SingletonBenchmark());
 Benchmark::register(new ArrayAccessBenchmark());
 Benchmark::register(new GetterSetterBenchmark());
+Benchmark::register(new IteratorBenchmark());
 
 $result = Benchmark::start();
 

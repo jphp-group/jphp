@@ -7,6 +7,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.ConstantCallCache;
+import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
@@ -231,7 +232,8 @@ final public class ObjectInvokeHelper {
         return result;
     }
 
-    public static Memory emptyProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory emptyProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                       PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
@@ -243,19 +245,22 @@ final public class ObjectInvokeHelper {
         return iObject.getReflection().emptyProperty(env, trace, iObject, property);
     }
 
-    public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory issetProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                       PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
+
         if (!object.isObject()){
             return Memory.NULL;
             //env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
         IObject iObject = ((ObjectMemory)object).value;
-        return iObject.getReflection().issetProperty(env, trace, iObject, property);
+        return iObject.getReflection().issetProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
-    public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static void unsetProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                     PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
@@ -263,7 +268,7 @@ final public class ObjectInvokeHelper {
         }
 
         IObject iObject = ((ObjectMemory)object).value;
-        iObject.getReflection().unsetProperty(env, trace, iObject, property);
+        iObject.getReflection().unsetProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
     public static Memory getConstant(String className, String lowerClassName, String constant,
@@ -301,11 +306,12 @@ final public class ObjectInvokeHelper {
         return value;
     }
 
-    public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory getProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                     PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
 
-        if (!object.isObject()){
+        if (!object.isObject()) {
             env.error(trace,
                     Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
             );
@@ -313,10 +319,12 @@ final public class ObjectInvokeHelper {
         }
 
         IObject iObject = ((ObjectMemory)object).value;
-        return iObject.getReflection().getProperty(env, trace, iObject, property);
+
+        return iObject.getReflection().getProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
-    public static Memory getRefProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory getRefProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                        PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
         if (!object.isObject()){
@@ -327,7 +335,7 @@ final public class ObjectInvokeHelper {
         }
 
         IObject iObject = ((ObjectMemory)object).value;
-        return iObject.getReflection().getRefProperty(env, trace, iObject, property);
+        return iObject.getReflection().getRefProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
     public static Memory getStaticProperty(String className, String lowerClassName, String property, Environment env,
@@ -369,12 +377,14 @@ final public class ObjectInvokeHelper {
         return ((ObjectMemory)object).value;
     }
 
-    public static Memory incAndGetProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory incAndGetProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        return assignPlusProperty(object, Memory.CONST_INT_1, property, env, trace);
+        return assignPlusProperty(object, Memory.CONST_INT_1, property, env, trace, callCache, cacheIndex);
     }
 
-    public static Memory GetAndIncProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory GetAndIncProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
@@ -384,12 +394,14 @@ final public class ObjectInvokeHelper {
         return ref.value;
     }
 
-    public static Memory decAndGetProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory decAndGetProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        return assignMinusProperty(object, Memory.CONST_INT_1, property, env, trace);
+        return assignMinusProperty(object, Memory.CONST_INT_1, property, env, trace, callCache, cacheIndex);
     }
 
-    public static Memory GetAndDecProperty(Memory object, String property, Environment env, TraceInfo trace)
+    public static Memory GetAndDecProperty(Memory object, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
@@ -399,92 +411,105 @@ final public class ObjectInvokeHelper {
         return ref.value;
     }
 
-    public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                        PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().setProperty(env, trace, iObject, property, value, null);
+        return iObject.getReflection().setProperty(env, trace, iObject, property, value, null, callCache, cacheIndex);
     }
 
-    public static Memory assignPropertyRight(Memory value, String property, Environment env, TraceInfo trace, Memory object)
+    public static Memory assignPropertyRight(Memory value, String property, Environment env, TraceInfo trace, Memory object,
+                                             PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        return assignProperty(object, value, property, env, trace);
+        return assignProperty(object, value, property, env, trace, callCache, cacheIndex);
     }
 
-    public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignPlusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                            PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
         return iObject.getReflection().plusProperty(env, trace, iObject, property, value, null);
     }
 
-    public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignMinusProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                             PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
         return iObject.getReflection().minusProperty(env, trace, iObject, property, value, null);
     }
 
-    public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignMulProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().mulProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().mulProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignDivProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().divProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().divProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignModProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                           PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().modProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().modProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignConcatProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().concatProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().concatProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitAndProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().bitAndProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().bitAndProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitOrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                             PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().bitOrProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().bitOrProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitXorProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().bitXorProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().bitXorProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitShrProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().bitShrProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().bitShrProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 
-    public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace)
+    public static Memory assignBitShlProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
+                                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
-        return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value);
+        return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value, callCache, cacheIndex);
     }
 }

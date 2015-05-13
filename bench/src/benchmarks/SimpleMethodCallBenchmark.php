@@ -11,17 +11,17 @@ class SimpleMethodCallBenchmark extends Benchmark
 
     public static function test2($x, $y)
     {
-        return $x + $y;
+        return 1;
     }
 
-    public static function test3($x, $y, $a = 3, $b = 3)
+    public static function test3($x, $y, $a = 3)
     {
-        return $x + $y + $a;
+        return 1;
     }
 
-    protected static function test4($x, $y, $a = 3, $b = 3)
+    protected static function test4($x, $y, $a = 3)
     {
-        return $x + $y + $a;
+        return 1;
     }
 
     public function test5()
@@ -31,17 +31,17 @@ class SimpleMethodCallBenchmark extends Benchmark
 
     public function test6($x, $y)
     {
-        return $x + $y;
+        return 1;
     }
 
     protected function test7($x, $y, $a = 3, $b = 3)
     {
-        return $x + $y + $a;
+        return 1;
     }
 
     protected function test8($x, $y)
     {
-        return $x + $y;
+        return 1;
     }
 
     public function getName()
