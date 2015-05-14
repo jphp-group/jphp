@@ -339,30 +339,30 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory getStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace) throws Throwable {
+                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
             env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, true, true, entity);
+        return entity.getStaticProperty(env, trace, property, true, true, entity, callCache, cacheIndex);
     }
 
     public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace) throws Throwable {
+                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
             env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, false, true, entity);
+        return entity.getStaticProperty(env, trace, property, false, true, entity, callCache, cacheIndex);
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace) throws Throwable {
-        Memory get = getStaticProperty(className, lowerClassName, property, env, trace);
+                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
+        Memory get = getStaticProperty(className, lowerClassName, property, env, trace, callCache, cacheIndex);
         get.manualUnset(env);
         return Memory.NULL;
     }

@@ -1181,11 +1181,12 @@ public class Environment {
     public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
         ClassEntity entity = fetchClass(originName, lowerName, true);
+
         if (entity == null) {
             error(trace, E_ERROR, Messages.ERR_CLASS_NOT_FOUND.fetch(originName));
+            return Memory.NULL;
         }
 
-        assert entity != null;
         IObject object = entity.newObject(this, trace, true, args);
 
         registerObjectInGC(object);

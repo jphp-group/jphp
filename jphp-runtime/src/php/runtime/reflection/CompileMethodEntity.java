@@ -110,7 +110,6 @@ public class CompileMethodEntity extends MethodEntity {
 
     public Memory invokeDynamic(Object _this, Environment env, Memory... arguments) throws Throwable {
         try {
-            TraceInfo trace = env.trace();
             if (isAbstract){
                 env.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
                 return Memory.NULL;
@@ -126,13 +125,13 @@ public class CompileMethodEntity extends MethodEntity {
 
             CompileMethod.Method method = function.find(arguments == null ? 0 : arguments.length);
             if (method == null){
-                env.warning(trace, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
+                env.warning(env.trace(), Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
                         name, function.getMinArgs(), arguments == null ? 0 : arguments.length
                 ));
                 return Memory.NULL;
             } else {
                 if (arguments != null && arguments.length > method.argsCount && !method.isVarArg()) {
-                    env.error(trace, ErrorType.E_ERROR, Messages.ERR_EXPECT_EXACTLY_PARAMS,
+                    env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_EXPECT_EXACTLY_PARAMS,
                             name, method.argsCount, arguments.length
                     );
                     return Memory.NULL;

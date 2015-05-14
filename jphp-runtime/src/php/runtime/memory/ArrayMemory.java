@@ -28,7 +28,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected List<ReferenceMemory> list;
     protected LinkedMap<Object, ReferenceMemory> map;
 
-    protected ForeachIterator foreachIterator = null;
+    protected ForeachIterator foreachIterator;
 
     public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);

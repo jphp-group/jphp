@@ -1265,11 +1265,20 @@ ClassReader classReader;
     }
 
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
-                                    boolean checkAccess, ClassEntity context)
+                                    boolean checkAccess, ClassEntity context, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        context = context == null ? env.getLastClassOnStack() : context;
-        PropertyEntity entity = isInstanceOf(context)
-                ? context.staticProperties.get(property) : staticProperties.get(property);
+        PropertyEntity entity = callCache == null || context != null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            boolean saveCache = context == null && callCache != null;
+
+            context = context == null ? env.getLastClassOnStack() : context;
+            entity = isInstanceOf(context) ? context.staticProperties.get(property) : staticProperties.get(property);
+
+            if (saveCache && entity != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         if (entity == null){
             if (errorIfNotExists)
