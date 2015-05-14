@@ -27,7 +27,7 @@ Our project started in October 2013. There were a few reasons for that:
 + JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7), Optimizer (constant expressions, inline functions, etc.)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
-+ Threading, Sockets, Environment architecture (like sandbox objects in runkit zend extension).
++ Threading, Sockets, Environment architecture (like sandbox objects in the runkit zend extension).
 + GUI (based on Swing, improved - more flexible layouts)
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions

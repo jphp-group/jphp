@@ -9,6 +9,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
@@ -144,9 +145,26 @@ public class Launcher {
         this.config = new Properties();
         this.compileScope.configuration = new HashMap<>();
 
+        String externalConfig = System.getProperty("jphp.config");
+
+        if (externalConfig != null) {
+            try {
+                FileInputStream inStream = new FileInputStream(externalConfig);
+                config.load(inStream);
+                inStream.close();
+
+                for (String name : config.stringPropertyNames()){
+                    compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
+                }
+            } catch (IOException e) {
+                throw new LaunchException("Unable to load the config -Djphp.config=" + externalConfig);
+            }
+        }
+
         InputStream resource;
 
         resource = getResource(pathToConf);
+
         if (resource != null) {
             try {
                 config.load(resource);

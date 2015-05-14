@@ -31,17 +31,29 @@ public class DebugExtension extends Extension {
                 debugRootPath = scope.configuration.get("debug.rootPath").toString();
             }
 
+            int debugPort = 9000;
+            if (scope.configuration.containsKey("debug.port")) {
+                debugPort = scope.configuration.get("debug.port").toInteger();
+            }
+
+            String debugHost = "127.0.0.1";
+            if (scope.configuration.containsKey("debug.host")) {
+                debugHost = scope.configuration.get("debug.host").toString();
+            }
+
             final String finalDebugIdeKey = debugIdeKey;
             final String finalDebugRootPath = debugRootPath;
+            final int finalDebugPort = debugPort;
 
             final DebugTickHandler tickHandler = new DebugTickHandler();
             scope.setTickHandler(tickHandler);
 
+            final String finalDebugHost = debugHost;
             Thread debuggerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        final Debugger debugger = new Debugger(9000);
+                        final Debugger debugger = new Debugger(finalDebugPort, finalDebugHost);
 
                         scope.registerProgramShutdownHandler(new ProgramShutdownHandler() {
                             @Override

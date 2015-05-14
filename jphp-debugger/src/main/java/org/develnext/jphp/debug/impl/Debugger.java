@@ -75,10 +75,10 @@ public class Debugger {
         this.breakpointManager = new BreakpointManager(this);
         this.ideFeatures = new IdeFeatures();
 
+        log("waiting for IDE, " + hostname + ":" + port + " ...");
+
         while (true) {
             try {
-                log("waiting for IDE, " + hostname + ":" + port);
-
                 if (shutdown) {
                     log("the program shutdown.");
                     break;
