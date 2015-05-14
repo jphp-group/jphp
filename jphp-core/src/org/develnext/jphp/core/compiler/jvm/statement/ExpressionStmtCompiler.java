@@ -1652,8 +1652,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return LongMemory.valueOf(macro.getMeta().getStartLine() + 1);
         } else if (macro instanceof FileMacroToken){
             return new StringMemory(compiler.getSourceFile());
-        } else if (macro instanceof DirMacroToken){
-            return new StringMemory(new File(compiler.getSourceFile()).getParent());
+        } else if (macro instanceof DirMacroToken) {
+            String sourceFile = compiler.getSourceFile();
+            String parent = new File(sourceFile).getParent();
+
+            // Fix issue #198.
+            if (sourceFile.startsWith(parent + "//") && parent.endsWith(":")) {
+                parent += "//";
+            }
+
+            return new StringMemory(parent);
         } else if (macro instanceof FunctionMacroToken){
 
             if (method.clazz.getFunctionName().isEmpty())
@@ -2861,6 +2869,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writePushDup();*/
 
                     writePush(o1);
+
+                    if (Rt.isReference()) {
+                        writePopBoxing(false);
+                    }
+
                     if (!o1.immutable && !operator.isMutableArguments())
                         writePopImmutable();
                 }
