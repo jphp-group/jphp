@@ -14,4 +14,4 @@ before_install:
  - gradle wrapper
  - chmod +x gradlew
 
-script: ./gradlew check bench --stacktrace -Dfile.encoding=UTF-8
+script: ./gradlew check clean bench --stacktrace -Dfile.encoding=UTF-8
