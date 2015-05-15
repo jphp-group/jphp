@@ -4,6 +4,7 @@ import org.develnext.jphp.debug.impl.breakpoint.Breakpoint;
 import org.develnext.jphp.debug.impl.breakpoint.BreakpointManager;
 import org.develnext.jphp.debug.impl.command.AbstractCommand;
 import org.develnext.jphp.debug.impl.command.InitCommand;
+import org.develnext.jphp.debug.impl.command.UnimplementedCommand;
 import org.develnext.jphp.debug.impl.command.support.CommandArguments;
 import org.w3c.dom.Document;
 import php.runtime.common.StringUtils;
@@ -259,7 +260,13 @@ public class Debugger {
             for (int i = 1; i < args.length; i++) {
                 if (i % 2 == 0) {
                     if (name != null) {
-                        result.put(name, args[i]);
+                        String value = args[i];
+
+                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                            value = value.substring(1, value.length() - 2);
+                        }
+
+                        result.put(name, value);
                     }
                 } else {
                     name = args[i];
@@ -274,15 +281,17 @@ public class Debugger {
 
             AbstractCommand cmd = commands.get(command);
 
-            if (cmd != null) {
-                currentArguments = result;
-                currentCommand = cmd;
+            if (cmd == null) {
+                cmd = new UnimplementedCommand(command);
+            }
 
-                write(result, cmd);
+            currentArguments = result;
+            currentCommand = cmd;
 
-                if (cmd.afterExecutionContinueNeeded()) {
-                    runTicks();
-                }
+            write(result, cmd);
+
+            if (cmd.afterExecutionContinueNeeded()) {
+                runTicks();
             }
         }
     }

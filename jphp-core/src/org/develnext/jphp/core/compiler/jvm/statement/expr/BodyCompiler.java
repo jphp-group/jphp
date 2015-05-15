@@ -16,13 +16,7 @@ public class BodyCompiler extends BaseStatementCompiler<BodyStmtToken> {
     public void write(BodyStmtToken token) {
         if (token!= null){
             for(ExprStmtToken line : token.getInstructions()){
-                if (compiler.getScope().isDebugMode()) {
-                    expr.writePushEnv();
-                    expr.writePushTraceInfo(line);
-                    expr.writePushLocal();
-                    expr.writeSysDynamicCall(Environment.class, "__tick", void.class, TraceInfo.class, ArrayMemory.class);
-                }
-
+                expr.writeTickTrigger(line);
                 expr.writeExpression(line, false, false);
             }
         }

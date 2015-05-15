@@ -5,7 +5,9 @@ import org.develnext.jphp.debug.impl.Debugger;
 import org.develnext.jphp.debug.impl.command.support.CommandArguments;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import php.runtime.env.CallStack;
 import php.runtime.env.CallStackItem;
+import php.runtime.env.TraceInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,27 +31,38 @@ public class StackGetCommand extends AbstractCommand {
 
         Element response = createResponse(args, result);
 
-        CallStackItem[] stackSnapshot = tick.getEnvironment().getCallStackSnapshot();
+        CallStack callStack = tick.getCallStack();
 
         List<CallStackItem> list = new ArrayList<>();
-        Collections.addAll(list, stackSnapshot);
+        Collections.addAll(list, callStack.getSnapshot());
 
-        if (list.isEmpty()) {
-            list.add(new CallStackItem(tick.getTrace()));
+        CallStackItem last = list.get(list.size() - 1);
+
+        if (list.size() > 1) {
+            CallStackItem prevLast = list.get(list.size() - 2);
+            TraceInfo trace = prevLast.getTrace();
+            prevLast.setTrace(new TraceInfo(
+                    trace.getContext(),
+                    last.getTrace().getStartLine(),
+                    trace.getEndLine(),
+                    last.getTrace().getStartPosition(),
+                    trace.getEndLine()
+            ));
         }
 
+        last.setTrace(tick.getTrace());
+
         Collections.reverse(list);
-        stackSnapshot = list.toArray(new CallStackItem[list.size()]);
 
         int depth = args.containsKey("d") ? Integer.parseInt(args.get("d")) : -1;
 
         if (depth > -1) {
-            stackSnapshot = Arrays.copyOf(stackSnapshot, depth + 1);
+            list = list.subList(0, depth + 1);
         }
 
         int i = 0;
 
-        for (CallStackItem stackItem : stackSnapshot) {
+        for (CallStackItem stackItem : list) {
             Element stack = result.createElement("stack");
 
             stack.setAttribute("level", String.valueOf(i));
@@ -58,7 +71,7 @@ public class StackGetCommand extends AbstractCommand {
             stack.setAttribute("filename", context.getFileName(stackItem.trace.getFileName()));
             stack.setAttribute("lineno", String.valueOf(stackItem.trace.getStartLine() + 1));
 
-            stack.setAttribute("where", "{main}");
+            stack.setAttribute("where", stackItem.getWhere());
 
             response.appendChild(stack);
 

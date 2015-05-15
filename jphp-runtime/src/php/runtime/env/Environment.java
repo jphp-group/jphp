@@ -1072,6 +1072,20 @@ public class Environment {
         TickHandler tickHandler = scope.getTickHandler();
 
         if (tickHandler != null) {
+            IObject $this = this.getLateObject();
+
+            if ($this != null) {
+                Memory value = ObjectMemory.valueOf($this);
+
+                if ($this instanceof Closure) {
+                    value = ((Closure) $this).getSelf();
+                }
+
+                if (value.isObject()) {
+                    locals.putAsKeyString("this", value);
+                }
+            }
+
             tickHandler.onTick(this, trace, locals);
         }
     }
@@ -1405,7 +1419,7 @@ public class Environment {
             return item.staticClazz != null ? item.staticClazz : item.clazz;
     }
 
-    public IObject getLateObject(){
+    public IObject getLateObject() {
         CallStackItem item = peekCall(0);
         if (item == null)
             return null;

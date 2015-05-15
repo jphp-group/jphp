@@ -70,7 +70,7 @@ public class CallStack {
 
         stack.callStack = new CallStackItem[callStack.length];
 
-        System.arraycopy(stack.callStack, 0, getSnapshot(), 0, callStackTop);
+        System.arraycopy(getSnapshot(), 0, stack.callStack, 0, callStackTop);
 
         stack.callStackTop = callStackTop;
         stack.maxCallStackTop = maxCallStackTop;

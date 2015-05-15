@@ -63,6 +63,11 @@ abstract public class ForeachIterator implements Iterable<Memory> {
         return currentKey;
     }
 
+    public String getStringKey() {
+        Object key = getKey();
+        return key == null ? null : key.toString();
+    }
+
     abstract public void reset();
 
     public Memory getMemoryKey(){

@@ -87,6 +87,9 @@ public class DebugExtension extends Extension {
         Debugger.registerCommand(new RunCommand());
         Debugger.registerCommand(new ContextNamesCommand());
         Debugger.registerCommand(new ContextGetCommand());
+        Debugger.registerCommand(new PropertySetCommand());
+        Debugger.registerCommand(new PropertyGetCommand());
+        Debugger.registerCommand(new PropertyValueCommand());
 
         Debugger.registerCommand(new StepIntoCommand());
         Debugger.registerCommand(new StepOverCommand());
@@ -97,5 +100,7 @@ public class DebugExtension extends Extension {
         Debugger.registerCommand(new BreakpointGetCommand());
         Debugger.registerCommand(new BreakpointRemoveCommand());
         Debugger.registerCommand(new BreakpointListCommand());
+
+        Debugger.registerCommand(new EvalCommand());
     }
 }

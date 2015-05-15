@@ -280,9 +280,11 @@ public class Launcher {
                 }
 
                 initModule(bootstrap);
+                environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {
+                    environment.popCall();
                     compileScope.triggerProgramShutdown(environment);
 
                     if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {

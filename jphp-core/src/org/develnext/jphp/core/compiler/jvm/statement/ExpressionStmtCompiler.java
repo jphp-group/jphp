@@ -1977,6 +1977,23 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    public void writeTickTrigger(Token token) {
+        writeTickTrigger(token.toTraceInfo(getCompiler().getContext()));
+    }
+
+    public void writeTickTrigger(TraceInfo trace) {
+        if (compiler.getScope().isDebugMode()) {
+            int line = trace.getStartLine();
+
+            if (method.registerTickTrigger(line)) {
+                writePushEnv();
+                writePushTraceInfo(trace.getStartLine(), trace.getStartPosition());
+                writePushLocal();
+                writeSysDynamicCall(Environment.class, "__tick", void.class, TraceInfo.class, ArrayMemory.class);
+            }
+        }
+    }
+
     public void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
             throws NoSuchMethodException {
         writeSysCall(
@@ -2940,6 +2957,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         boolean invalid = false;
         for(Token token : tokens){
             if (token == null) continue;
+
+            writeTickTrigger(token);
 
             if (writeOpcode){
                 if (token instanceof StmtToken){

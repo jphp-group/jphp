@@ -1,6 +1,5 @@
 package org.develnext.jphp.debug.impl.command;
 
-import org.apache.commons.codec.binary.Base64;
 import org.develnext.jphp.debug.impl.DebugTick;
 import org.develnext.jphp.debug.impl.Debugger;
 import org.develnext.jphp.debug.impl.command.support.CommandArguments;
@@ -24,7 +23,7 @@ public class ContextGetCommand extends AbstractCommand {
 
         response.setAttribute("context", contextId);
 
-        ContextValueProvider contextValueProvider = new ContextValueProvider(result);
+        ContextValueProvider contextValueProvider = new ContextValueProvider(context, result);
 
         switch (contextId) {
             case "0":
