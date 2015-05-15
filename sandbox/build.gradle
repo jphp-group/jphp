@@ -26,7 +26,7 @@ run {
     jvmArgs = ["-Dfile.encoding=UTF-8"]
 }
 
-task debug(dependsOn: run.dependsOn) {
-    run.jvmArgs = ["-Dfile.encoding=UTF-8", "-Djphp.config=debug.con7f"]
+/*task debug(dependsOn: run.dependsOn) {
+    run.jvmArgs = ["-Dfile.encoding=UTF-8", "-Djphp.config=debug.conf"]
     run.execute();
-}
+}*/

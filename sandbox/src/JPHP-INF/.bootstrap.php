@@ -1,6 +1,4 @@
 <?php
+namespace Foo;
 
-
-$x = 10;
-
-echo $x;
+const FOOBAR = "Foo\\FOOBAR_success\n";
