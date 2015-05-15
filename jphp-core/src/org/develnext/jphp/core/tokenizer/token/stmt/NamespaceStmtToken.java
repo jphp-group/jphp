@@ -13,6 +13,7 @@ public class NamespaceStmtToken extends StmtToken {
     private FulledNameToken name;
     private final List<NamespaceUseStmtToken> uses;
     private List<Token> tree;
+    private boolean tokenRegistered;
 
     public NamespaceStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_NAMESPACE);
@@ -43,5 +44,13 @@ public class NamespaceStmtToken extends StmtToken {
     public static NamespaceStmtToken getDefault(){
         return new NamespaceStmtToken(TokenMeta.empty())
                 .setName(null);
+    }
+
+    public boolean isTokenRegistered() {
+        return tokenRegistered;
+    }
+
+    public void setTokenRegistered(boolean tokenRegistered) {
+        this.tokenRegistered = tokenRegistered;
     }
 }

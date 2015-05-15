@@ -22,6 +22,7 @@ public class NamespaceGenerator extends Generator<NamespaceStmtToken> {
         if (next instanceof SemicolonToken){
             List<Token> tree = analyzer.process(iterator);
             namespace.setTree(tree);
+            namespace.setTokenRegistered(true);
         } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)) {
             boolean done = false;
             List<Token> tree = new ArrayList<Token>();

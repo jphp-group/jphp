@@ -10,3 +10,7 @@ dependencies {
 }
 
 mainClassName = 'php.runtime.launcher.Launcher'
+
+task bench(dependsOn: run) {
+    // nop.
+}
