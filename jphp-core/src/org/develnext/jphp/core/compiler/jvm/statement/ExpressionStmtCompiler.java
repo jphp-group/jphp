@@ -1982,7 +1982,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void writeTickTrigger(TraceInfo trace) {
-        if (compiler.getScope().isDebugMode()) {
+        if (compiler.getScope().isDebugMode() && method.getLocalVariable("~local") != null) {
             int line = trace.getStartLine();
 
             if (method.registerTickTrigger(line)) {
