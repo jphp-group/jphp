@@ -141,6 +141,10 @@ public class ContextValueProvider {
         int count = 0;
 
         while (iterator.next()) {
+            if (iterator.getValue().isUndefined()) {
+                continue;
+            }
+
             Element value = getProperty(null, iterator.getValue().toValue(), used);
 
             String key = iterator.getKey().toString();
