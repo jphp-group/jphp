@@ -31,8 +31,8 @@ public class ClassesTest extends JvmCompilerCase {
         Assert.assertTrue(memory.isObject());
 
         IObject object = ((ObjectMemory)memory).value;
-        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "x").toLong());
-        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "y").toLong());
+        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "x", null, 0).toLong());
+        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "y", null, 0).toLong());
 
         memory = runDynamic("class A { public $arr = array(1, 2, 3); } return new A()->arr;", false);
         Assert.assertTrue(memory.isArray());

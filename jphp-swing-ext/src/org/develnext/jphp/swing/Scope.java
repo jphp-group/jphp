@@ -72,7 +72,7 @@ public class Scope {
 
         if (list != null) {
             for (Bind bind : list) {
-                bind.object.getReflection().setProperty(env, env.trace(), bind.object, bind.property, value, null);
+                bind.object.getReflection().setProperty(env, env.trace(), bind.object, bind.property, value, null, null, 0);
             }
         }
     }

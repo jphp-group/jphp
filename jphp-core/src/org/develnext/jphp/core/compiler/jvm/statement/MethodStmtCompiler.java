@@ -15,6 +15,7 @@ import org.objectweb.asm.tree.*;
 import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
@@ -59,6 +60,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     private LabelNode labelStart;
 
     private Map<Class<?>, AtomicInteger> statementIndexes = new HashMap<Class<?>, AtomicInteger>();
+    private Set<Integer> lineTickHandled = new HashSet<>();
 
     private GeneratorEntity generatorEntity;
 
@@ -68,7 +70,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.statement = null;
         this.node   = node;
 
-        this.localVariables = new LinkedHashMap<String, LocalVariable>();
+        this.localVariables = new LinkedHashMap<>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
@@ -84,7 +86,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         this.statement = statement;
         this.node  = new MethodNodeImpl();
 
-        this.localVariables = new LinkedHashMap<String, LocalVariable>();
+        this.localVariables = new LinkedHashMap<>();
 
         entity = new MethodEntity(getCompiler().getContext());
         entity.setClazz(clazz.entity);
@@ -133,6 +135,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
     public Map<String, LocalVariable> getLocalVariables() {
         return localVariables;
+    }
+
+    public boolean registerTickTrigger(int line) {
+        return lineTickHandled.add(line);
     }
 
     public int nextStatementIndex(Class<?> clazz){
@@ -263,6 +269,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
     void writeHeader(){
         int access = 0;
         if (statement != null){
+            if (compiler.getScope().isDebugMode()) {
+                statement.setDynamicLocal(true);
+            }
+
             switch (statement.getModifier()){
                 case PRIVATE: access += Opcodes.ACC_PRIVATE; break;
                 case PROTECTED: access += Opcodes.ACC_PROTECTED; break;

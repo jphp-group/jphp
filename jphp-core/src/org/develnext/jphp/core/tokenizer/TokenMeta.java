@@ -11,10 +11,10 @@ public class TokenMeta {
     protected String word;
 
     protected final int startPosition;
-    protected final int endPosition;
+    protected int endPosition;
 
     protected final int startLine;
-    protected final int endLine;
+    protected int endLine;
 
     public TokenMeta(String word, int startLine, int endLine, int startPosition, int endPosition) {
         this.startLine = startLine;
@@ -75,6 +75,14 @@ public class TokenMeta {
 
     public String getWord() {
         return word;
+    }
+
+    public void setEndPosition(int endPosition) {
+        this.endPosition = endPosition;
+    }
+
+    public void setEndLine(int endLine) {
+        this.endLine = endLine;
     }
 
     public int getStartPosition() {

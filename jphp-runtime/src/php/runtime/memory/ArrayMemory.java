@@ -28,7 +28,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected List<ReferenceMemory> list;
     protected LinkedMap<Object, ReferenceMemory> map;
 
-    protected ForeachIterator foreachIterator = null;
+    protected ForeachIterator foreachIterator;
 
     public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);
@@ -1623,6 +1623,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         for (Map.Entry<String, Memory> entry : map.entrySet()) {
             result.putAsKeyString(entry.getKey(), entry.getValue().toImmutable());
+        }
+
+        return result;
+    }
+
+    public static ArrayMemory ofStringMap(Map<String, String> map) {
+        ArrayMemory result = new ArrayMemory();
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            result.putAsKeyString(entry.getKey(), StringMemory.valueOf(entry.getValue()));
         }
 
         return result;

@@ -1068,11 +1068,25 @@ public class Environment {
     }
 
     /***** UTILS *****/
-    public void __tick(TraceInfo trace) {
+    public void __tick(TraceInfo trace, ArrayMemory locals) {
         TickHandler tickHandler = scope.getTickHandler();
 
         if (tickHandler != null) {
-            tickHandler.onTick(this, trace);
+            IObject $this = this.getLateObject();
+
+            if ($this != null) {
+                Memory value = ObjectMemory.valueOf($this);
+
+                if ($this instanceof Closure) {
+                    value = ((Closure) $this).getSelf();
+                }
+
+                if (value.isObject()) {
+                    locals.putAsKeyString("this", value);
+                }
+            }
+
+            tickHandler.onTick(this, trace, locals);
         }
     }
 
@@ -1181,11 +1195,12 @@ public class Environment {
     public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
             throws Throwable {
         ClassEntity entity = fetchClass(originName, lowerName, true);
+
         if (entity == null) {
             error(trace, E_ERROR, Messages.ERR_CLASS_NOT_FOUND.fetch(originName));
+            return Memory.NULL;
         }
 
-        assert entity != null;
         IObject object = entity.newObject(this, trace, true, args);
 
         registerObjectInGC(object);
@@ -1404,7 +1419,7 @@ public class Environment {
             return item.staticClazz != null ? item.staticClazz : item.clazz;
     }
 
-    public IObject getLateObject(){
+    public IObject getLateObject() {
         CallStackItem item = peekCall(0);
         if (item == null)
             return null;

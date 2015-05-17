@@ -97,7 +97,7 @@ public class ReflectionExtension extends Reflection {
 
     @Signature
     public Memory getINIEntries(Environment env, Memory... args){
-        return new ArrayMemory(extension.getINIEntries());
+        return ArrayMemory.ofStringMap(extension.getINIEntries());
     }
 
     @Signature

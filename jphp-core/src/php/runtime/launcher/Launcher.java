@@ -9,6 +9,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
@@ -84,7 +85,6 @@ public class Launcher {
             return result;
         } catch (IOException e) {
             return Collections.emptyList();
-            //throw new LaunchException(e.getMessage());
         }
     }
 
@@ -145,18 +145,35 @@ public class Launcher {
         this.config = new Properties();
         this.compileScope.configuration = new HashMap<>();
 
+        String externalConfig = System.getProperty("jphp.config");
+
+        if (externalConfig != null) {
+            try {
+                FileInputStream inStream = new FileInputStream(externalConfig);
+                config.load(inStream);
+                inStream.close();
+
+                for (String name : config.stringPropertyNames()){
+                    compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
+                }
+            } catch (IOException e) {
+                throw new LaunchException("Unable to load the config -Djphp.config=" + externalConfig);
+            }
+        }
+
         InputStream resource;
 
         resource = getResource(pathToConf);
+
         if (resource != null) {
             try {
-                this.config.load(resource);
+                config.load(resource);
 
                 for (String name : config.stringPropertyNames()){
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
 
-                this.isDebug = getConfigValue("env.debug").toBoolean();
+                isDebug = Boolean.getBoolean("jphp.debug");
 
                 compileScope.setDebugMode(isDebug);
 
@@ -227,6 +244,10 @@ public class Launcher {
         }
 
         if (isDebug()){
+            if (compileScope.getTickHandler() == null) {
+                throw new LaunchException("Cannot find a debugger, please add the jphp-debugger dependency");
+            }
+
             long t = System.currentTimeMillis() - startTime;
            // System.out.println("Starting delay = " + t + " millis");
         }
@@ -259,9 +280,13 @@ public class Launcher {
                 }
 
                 initModule(bootstrap);
+                environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {
+                    environment.popCall();
+                    compileScope.triggerProgramShutdown(environment);
+
                     if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
                         environment.doFinal();
                     }

@@ -221,7 +221,7 @@ public class SyntaxAnalyzer {
         List<Token> result = new ArrayList<Token>();
         while (iterator.hasNext()){
             Token gen = processNext(iterator);
-            if (gen instanceof NamespaceStmtToken){
+            if (gen instanceof NamespaceStmtToken) {
                 List<Token> tree = ((NamespaceStmtToken) gen).getTree();
                 ((NamespaceStmtToken) gen).setTree(null);
 
@@ -229,8 +229,11 @@ public class SyntaxAnalyzer {
                 registerToken(gen);
 
                 result.addAll(tree);
-                for(Token el : tree){
-                    registerToken(el);
+
+                if (!((NamespaceStmtToken) gen).isTokenRegistered()) {
+                    for (Token el : tree) {
+                        registerToken(el);
+                    }
                 }
             } else {
                 result.add(gen);

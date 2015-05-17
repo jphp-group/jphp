@@ -9,6 +9,9 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.ConstantCallCache;
+import php.runtime.invoke.cache.MethodCallCache;
+import php.runtime.invoke.cache.PropertyCallCache;
 
 public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExprToken> {
     public StaticAccessValueCompiler(ExpressionStmtCompiler exprCompiler) {
@@ -51,8 +54,13 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 expr.writePushEnv();
                 expr.writePushTraceInfo(token);
 
+                int cacheIndex = method.clazz.getAndIncCallConstCount();
+                expr.writeGetStatic("$CALL_CONST_CACHE", ConstantCallCache.class);
+                expr.writePushConstInt(cacheIndex);
+
                 expr.writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
-                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
+                        ConstantCallCache.class, Integer.TYPE
                 );
                 expr.setStackPeekAsImmutable();
             } else {
@@ -74,9 +82,18 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 else if (token instanceof StaticAccessIssetExprToken)
                     name = "isset";
 
+                if (token.getFieldExpr() == null && token.getField() instanceof NameToken) {
+                    expr.writeGetStatic("$CALL_PROP_CACHE", PropertyCallCache.class);
+                    expr.writePushConstInt(method.clazz.getAndIncCallPropCount());
+                } else {
+                    expr.writePushConstNull();
+                    expr.writePushConstInt(0);
+                }
+
                 expr.writeSysStaticCall(ObjectInvokeHelper.class,
                         name + "StaticProperty",
-                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class
+                        Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
+                        PropertyCallCache.class, int.class
                 );
             }
 

@@ -14,6 +14,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.invoke.InvokeArgumentHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.support.MagicSignatureClass;
@@ -839,14 +840,14 @@ ClassReader classReader;
     }
 
     public Memory concatProperty(Environment env, TraceInfo trace,
-                               IObject object, String property, Memory memory)
+                               IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return new StringMemory(o1.concat(o2));
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory plusProperty(Environment env, TraceInfo trace,
@@ -860,7 +861,7 @@ ClassReader classReader;
 
                 return o1.plus(o2);
             }
-        });
+        }, null, 0);
     }
 
     public Memory minusProperty(Environment env, TraceInfo trace,
@@ -874,95 +875,95 @@ ClassReader classReader;
 
                 return o1.minus(o2);
             }
-        });
+        }, null, 0);
     }
 
     public Memory mulProperty(Environment env, TraceInfo trace,
-                                IObject object, String property, Memory memory)
+                                IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.mul(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory divProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.div(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory modProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.mod(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory bitAndProperty(Environment env, TraceInfo trace,
-                                 IObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitAnd(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory bitOrProperty(Environment env, TraceInfo trace,
-                                 IObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitOr(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory bitXorProperty(Environment env, TraceInfo trace,
-                                IObject object, String property, Memory memory)
+                                IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitXor(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory bitShrProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory)
+                              IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback(){
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitShr(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public Memory bitShlProperty(Environment env, TraceInfo trace,
-                                 IObject object, String property, Memory memory)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitShl(o2);
             }
-        });
+        }, callCache, cacheIndex);
     }
 
     public void appendProperty(IObject object, String property, Memory value){
@@ -975,11 +976,21 @@ ClassReader classReader;
     }
 
     public Memory setProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory, SetterCallback callback)
+                              IObject object, String property, Memory memory, SetterCallback callback,
+                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         ReferenceMemory value;
-        ClassEntity context = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+            if (callCache != null && entity != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         if (entity == null){
             PropertyEntity staticEntity = staticProperties.get(property);
@@ -1000,7 +1011,7 @@ ClassReader classReader;
         if (entity != null) {
             if (entity.setter != null) {
                 if (callback != null)
-                    memory = callback.invoke(getProperty(env, trace, object, property), memory);
+                    memory = callback.invoke(getProperty(env, trace, object, property, null, 0), memory);
 
                 ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
                 return memory;
@@ -1013,6 +1024,9 @@ ClassReader classReader;
 
         if (value == null) {
             boolean recursive = false;
+
+            ClassEntity context = env.getLastClassOnStack();
+
             if (context != null && methodMagicSet != null && context.getId() == methodMagicSet.getClazz().getId() ){
                 recursive = env.peekCall(0).flags == FLAG_SET;
             }
@@ -1103,7 +1117,8 @@ ClassReader classReader;
         return memory;
     }
 
-    public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property)
+    public Memory unsetProperty(Environment env, TraceInfo trace, IObject object, String property,
+                                PropertyCallCache callCache, int index)
             throws Throwable {
         ClassEntity context = env.getLastClassOnStack();
         PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
@@ -1198,10 +1213,19 @@ ClassReader classReader;
         return Memory.NULL;
     }
 
-    public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property)
+    public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property,
+                                PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        ClassEntity contex = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            ClassEntity contex = env.getLastClassOnStack();
+            entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
+
+            if (entity != null && callCache != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
@@ -1215,6 +1239,8 @@ ClassReader classReader;
 
         if (methodMagicIsset != null){
             Memory result;
+
+            ClassEntity contex = env.getLastClassOnStack();
 
             if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() )
                 if (env.peekCall(0).flags == FLAG_ISSET){
@@ -1239,11 +1265,20 @@ ClassReader classReader;
     }
 
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
-                                    boolean checkAccess, ClassEntity context)
+                                    boolean checkAccess, ClassEntity context, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        context = context == null ? env.getLastClassOnStack() : context;
-        PropertyEntity entity = isInstanceOf(context)
-                ? context.staticProperties.get(property) : staticProperties.get(property);
+        PropertyEntity entity = callCache == null || context != null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            boolean saveCache = context == null && callCache != null;
+
+            context = context == null ? env.getLastClassOnStack() : context;
+            entity = isInstanceOf(context) ? context.staticProperties.get(property) : staticProperties.get(property);
+
+            if (saveCache && entity != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         if (entity == null){
             if (errorIfNotExists)
@@ -1265,11 +1300,21 @@ ClassReader classReader;
         );
     }
 
-    public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property)
+    public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property,
+                                 PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         Memory value;
-        ClassEntity context = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+            if (callCache != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         if (entity == null){
             PropertyEntity staticEntity = staticProperties.get(property);
@@ -1303,14 +1348,25 @@ ClassReader classReader;
         return value;
     }
 
-    public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property)
+    public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property,
+                              PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         Memory value;
-        ClassEntity context = env.getLastClassOnStack();
-        PropertyEntity entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+
+        if (entity == null) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
+
+            if (callCache != null && entity != null) {
+                callCache.put(env, cacheIndex, entity);
+            }
+        }
 
         if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
+
             if (staticEntity != null){
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
                 env.error(trace, ErrorType.E_STRICT,
@@ -1326,11 +1382,10 @@ ClassReader classReader;
         if (entity != null && accessFlag != 0) {
             value = null;
         } else {
-            ArrayMemory props = object.getProperties();
-
             if (entity != null) {
                 value = entity.getValue(env, trace, object);
             } else {
+                ArrayMemory props = object.getProperties();
                 value = props == null ? null : props.getByScalar(property);
             }
         }
@@ -1340,6 +1395,8 @@ ClassReader classReader;
 
         if (methodMagicGet != null) {
             Memory result;
+
+            ClassEntity context = env.getLastClassOnStack();
 
             if (context != null && context.getId() == methodMagicGet.getClazz().getId()){
                 if (env.peekCall(0).flags == FLAG_GET) {

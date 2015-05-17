@@ -1216,7 +1216,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushConstNull();
                 writePushConstInt(0);
             }  else {
-                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                int cacheIndex = method.clazz.getAndIncCallMethCount();
                 writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
                 writePushConstInt(cacheIndex);
             }
@@ -1269,7 +1269,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushConstNull();
                 writePushConstInt(0);
             } else {
-                int cacheIndex = method.clazz.getAndIncCallFuncCount();
+                int cacheIndex = method.clazz.getAndIncCallMethCount();
                 writeGetStatic("$CALL_METH_CACHE", MethodCallCache.class);
                 writePushConstInt(cacheIndex);
             }
@@ -1547,8 +1547,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else {
             ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
 
-            if (ret == null)
+            if (ret == null) {
                 writePushNewObject(ArrayMemory.class);
+            }
+
             for(ExprStmtToken param : array.getParameters()){
                 if (ret == null)
                     writePushDup();
@@ -1559,11 +1561,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (ret != null) {
                         ret.add(result);
                         continue;
-                    } else
+                    } else {
                         writePushMemory(result);
+                    }
                 } else {
-                    if (!writeOpcode)
+                    if (!writeOpcode) {
                         return null;
+                    }
+
                     ret = null;
                 }
 
@@ -1576,6 +1581,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
                 writePopAll(1);
             }
+
             if (ret != null)
                 return ret;
         }
@@ -1646,8 +1652,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return LongMemory.valueOf(macro.getMeta().getStartLine() + 1);
         } else if (macro instanceof FileMacroToken){
             return new StringMemory(compiler.getSourceFile());
-        } else if (macro instanceof DirMacroToken){
-            return new StringMemory(new File(compiler.getSourceFile()).getParent());
+        } else if (macro instanceof DirMacroToken) {
+            String sourceFile = compiler.getSourceFile();
+            String parent = new File(sourceFile).getParent();
+
+            // Fix issue #198.
+            if (sourceFile.startsWith(parent + "//") && parent.endsWith(":")) {
+                parent += "//";
+            }
+
+            return new StringMemory(parent);
         } else if (macro instanceof FunctionMacroToken){
 
             if (method.clazz.getFunctionName().isEmpty())
@@ -1963,6 +1977,23 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
+    public void writeTickTrigger(Token token) {
+        writeTickTrigger(token.toTraceInfo(getCompiler().getContext()));
+    }
+
+    public void writeTickTrigger(TraceInfo trace) {
+        if (compiler.getScope().isDebugMode() && method.getLocalVariable("~local") != null) {
+            int line = trace.getStartLine();
+
+            if (method.registerTickTrigger(line)) {
+                writePushEnv();
+                writePushTraceInfo(trace.getStartLine(), trace.getStartPosition());
+                writePushLocal();
+                writeSysDynamicCall(Environment.class, "__tick", void.class, TraceInfo.class, ArrayMemory.class);
+            }
+        }
+    }
+
     public void writeSysDynamicCall(Class clazz, String method, Class returnClazz, Class... paramClasses)
             throws NoSuchMethodException {
         writeSysCall(
@@ -2057,7 +2088,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    void writePutDynamic(String name, Class fieldClass){
+    public void writePutDynamic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 PUTFIELD,
                 method.clazz.node.name,
@@ -2067,13 +2098,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    void writeGetStatic(Class clazz, String name, Class fieldClass){
+    public void writeGetStatic(Class clazz, String name, Class fieldClass){
         code.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(clazz), name, Type.getDescriptor(fieldClass)));
         stackPush(null, StackItem.Type.valueOf(fieldClass));
         setStackPeekAsImmutable();
     }
 
-    void writeGetStatic(String name, Class fieldClass){
+    public void writeGetStatic(String name, Class fieldClass){
         code.add(new FieldInsnNode(
                 GETSTATIC,
                 method.clazz.node.name,
@@ -2084,7 +2115,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         setStackPeekAsImmutable();
     }
 
-    void writeGetDynamic(String name, Class fieldClass){
+    public void writeGetDynamic(String name, Class fieldClass){
         stackPop();
         code.add(new FieldInsnNode(
                 GETFIELD,
@@ -2855,6 +2886,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writePushDup();*/
 
                     writePush(o1);
+
+                    if (Rt.isReference()) {
+                        writePopBoxing(false);
+                    }
+
                     if (!o1.immutable && !operator.isMutableArguments())
                         writePopImmutable();
                 }
@@ -2921,6 +2957,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         boolean invalid = false;
         for(Token token : tokens){
             if (token == null) continue;
+
+            writeTickTrigger(token);
 
             if (writeOpcode){
                 if (token instanceof StmtToken){

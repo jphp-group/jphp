@@ -13,7 +13,7 @@ import php.runtime.reflection.ModuleEntity;
 
 @Name("php\\lang\\ClassLoader")
 abstract public class WrapClassLoader extends BaseObject {
-    protected SplClassLoader splClassLoader = null;
+    protected SplClassLoader splClassLoader;
 
     public WrapClassLoader(Environment env, ClassEntity clazz) {
         super(env, clazz);

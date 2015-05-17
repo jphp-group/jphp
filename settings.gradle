@@ -18,4 +18,4 @@ include 'jphp-runtime',
         'jphp-debugger',
         'jphp-gradle-plugin',
 
-        'sandbox'
+        'sandbox', 'bench'

@@ -45,11 +45,19 @@ public class ResourceStream extends Stream {
     @Signature({@Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args);
-        setPath("res://" + this.getPath());
+        String path = this.getPath().replace('\\', '/').replace("//", "/");
 
-        url = Thread.currentThread().getContextClassLoader().getResource(args[0].toString());
-        if (url == null)
-            throw new IOException("Resource not found - " + args[0]);
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        setPath("res://" + path);
+
+        url = Thread.currentThread().getContextClassLoader().getResource(path);
+
+        if (url == null) {
+            throw new IOException("Resource not found - " + getPath());
+        }
 
         stream = url.openStream();
         return Memory.NULL;

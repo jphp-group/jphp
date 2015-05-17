@@ -5,7 +5,6 @@ import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
 import php.runtime.memory.output.PlainPrinter;
 import php.runtime.reflection.ClassEntity;
 
@@ -45,6 +44,14 @@ public class CallStackItem {
         this.function = function;
         this.clazz = clazz;
         this.staticClazz = staticClazz;
+    }
+
+    public TraceInfo getTrace() {
+        return trace;
+    }
+
+    public void setTrace(TraceInfo trace) {
+        this.trace = trace;
     }
 
     public void setParameters(TraceInfo trace, IObject object, Memory[] args, String function, String clazz,
@@ -99,7 +106,7 @@ public class CallStackItem {
         }
 
         if (!ignoreArgs){
-            el.refOfIndex("args").assign(new ArrayMemory(true, args));
+            el.refOfIndex("args").assign(ArrayMemory.of(args));
         }
 
         if (trace != null)
@@ -125,6 +132,26 @@ public class CallStackItem {
 
             sb.append("#").append(i).append(" {main}");
         }
+
+        return sb.toString();
+    }
+
+    public String getWhere() {
+        StringBuilder sb = new StringBuilder();
+        if (object instanceof Closure)
+            sb.append("{closure}");
+        else if (clazz != null){
+            sb.append(clazz);
+            if (object == null)
+                sb.append("::");
+            else
+                sb.append("->");
+
+            sb.append(function);
+        } else if (function != null){
+            sb.append(function);
+        } else
+            sb.append("<internal>");
 
         return sb.toString();
     }

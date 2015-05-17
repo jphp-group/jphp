@@ -2,25 +2,18 @@ package php.runtime.invoke;
 
 import php.runtime.Information;
 import php.runtime.Memory;
-import php.runtime.common.HintType;
 import php.runtime.common.Messages;
-import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
-import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
-import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.reflection.*;
-
-import java.lang.reflect.Field;
 
 final public class InvokeHelper {
 
