@@ -7,10 +7,17 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-zend-ext')
+    compile project(':jphp-webserver-ext')
 }
 
 mainClassName = 'php.runtime.launcher.Launcher'
 
 task bench(dependsOn: run) {
+}
 
+task benchServer(dependsOn: run.dependsOn) {
+    doFirst {
+        run.jvmArgs += ['-Djphp.benchServer=true']
+        run.execute()
+    }
 }

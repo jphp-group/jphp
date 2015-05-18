@@ -31,6 +31,12 @@ class WebRequest
      * @readonly
      * @var string
      */
+    public $servletPath;
+
+    /**
+     * @readonly
+     * @var string
+     */
     public $queryString;
 
     /**
