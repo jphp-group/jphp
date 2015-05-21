@@ -135,7 +135,10 @@ public class CompileFunction {
             maxArgs = count;
 
         if (count >= methods.length){
-            Method[] newMethods = new Method[methods.length * 2];
+            int allocated = methods.length * 2;
+            allocated = allocated > count ? allocated : count;
+            
+            Method[] newMethods = new Method[allocated];
             System.arraycopy(methods, 0, newMethods, 0, methods.length);
             methods = newMethods;
         }
