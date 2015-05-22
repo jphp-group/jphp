@@ -1,7 +1,7 @@
 JPHP - an implementation of PHP
 ===============================
 
-[![Join the chat at https://gitter.im/jphp-compiler/jphp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jphp-compiler/jphp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/jphp-compiler/jphp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jphp-compiler/jphp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) (English & Russian chat)
 
 [![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp) [ ![Download](https://api.bintray.com/packages/dim-s/maven/jphp-compiler/images/download.svg) ](https://bintray.com/dim-s/maven/jphp-compiler/_latestVersion) [![Documentation Status](https://readthedocs.org/projects/jphp-docs/badge/?version=latest)](https://readthedocs.org/projects/jphp-docs/?badge=latest)
 
