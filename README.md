@@ -26,7 +26,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
-+ JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7), Optimizer - [benchmark](http://blog.j-php.net/archives/34)
++ JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7), Optimizer - [Performance benchmarks](http://blog.j-php.net/archives/34)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
 + Threading, Sockets, Environment architecture (like sandbox objects in the runkit zend extension).
