@@ -48,4 +48,4 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Getting started (Hello World)
 
-[https://github.com/jphp-compiler/jphp/wiki/Getting-started](https://github.com/jphp-compiler/jphp/wiki/Getting-started)
+[http://j-php.net/wiki/Getting-started](https://github.com/jphp-compiler/jphp/wiki/Getting-started)
