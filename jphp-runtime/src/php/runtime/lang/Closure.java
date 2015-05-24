@@ -30,6 +30,10 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
 
         if (env != null) {
             this.scope = env.getLateStatic();
+
+            if (this.scope.isEmpty()) {
+                this.scope = null;
+            }
         }
 
         this.uses = uses;
