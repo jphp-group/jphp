@@ -2,6 +2,7 @@ package org.develnext.jphp.core.syntax.generators.manually;
 
 
 import org.develnext.jphp.core.common.Separator;
+import org.develnext.jphp.core.syntax.Scope;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.ExprGenerator;
 import org.develnext.jphp.core.syntax.generators.FunctionGenerator;
@@ -289,8 +290,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         name = ((FulledNameToken) result.getName()).getLastName().getName().toLowerCase();
                     }
 
-                    if (dynamicLocalFunctions.contains(name))
+                    if (dynamicLocalFunctions.contains(name.toLowerCase()))
                         analyzer.getFunction().setDynamicLocal(true);
+
+                    if ("get_called_class".equalsIgnoreCase(name)) {
+                        analyzer.getScope().setStaticExists(true);
+                    }
                 }
             }
         } else {
@@ -509,7 +514,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result.setName(nameToken);
         } else if (next instanceof VariableExprToken) {
             result.setName(processNewExpr(next, closedBrace, braceOpened, iterator, true));
-        } else if (next instanceof StaticExprToken){
+        } else if (next instanceof StaticExprToken) {
+            Scope scope = analyzer.getScope();
+            scope.setStaticExists(true);
             result.setName((StaticExprToken)next);
         } else if (next instanceof SelfExprToken){
             if (analyzer.getClazz() == null)
@@ -782,6 +789,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (current instanceof NameToken || current instanceof VariableExprToken
                     || current instanceof SelfExprToken || current instanceof StaticExprToken
                     || current instanceof ParentExprToken){
+
+                if (current instanceof StaticExprToken) {
+                    analyzer.getScope().setStaticExists(true);
+                }
+
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
                 ValueExprToken clazz = (ValueExprToken)current;
                 if (clazz instanceof NameToken){
@@ -824,6 +836,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         unexpectedToken(next);
                 } else if (next instanceof ClassStmtToken) { // PHP 5.5 ::class
                     if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
+                        if (clazz instanceof StaticExprToken) {
+                            analyzer.getScope().setStaticExists(true);
+                        }
+
                         result.setField(new ClassExprToken(next.getMeta()));
                     } else if (clazz instanceof NameToken) {
                         return new StringExprToken(

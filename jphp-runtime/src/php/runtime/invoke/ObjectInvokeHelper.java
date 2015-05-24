@@ -20,27 +20,28 @@ import php.runtime.reflection.MethodEntity;
 
 final public class ObjectInvokeHelper {
 
-    private ObjectInvokeHelper(){ }
+    private ObjectInvokeHelper() {
+    }
 
     public static Memory invokeParentMethod(Memory object, String methodName, String methodLowerName,
-                                      Environment env, TraceInfo trace, Memory[] args)
+                                            Environment env, TraceInfo trace, Memory[] args)
             throws Throwable {
         Memory[] passed = null;
         boolean doublePop = false;
 
-        if (object.isNull()){
+        if (object.isNull()) {
             ClassEntity parent = env.__getParentClass(trace);
             return InvokeHelper.callStatic(
                     env, trace, parent.getLowerName(), methodLowerName, parent.getName(), methodName, args, null, 0
             );
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         ClassEntity childClazz = iObject.getReflection();
         ClassEntity clazz = env.getLastClassOnStack().getParent();
         MethodEntity method;
 
-        if (clazz == null){
+        if (clazz == null) {
             env.error(trace, "Cannot access parent:: when current class scope has no parent");
             return Memory.NULL;
         }
@@ -52,9 +53,9 @@ final public class ObjectInvokeHelper {
             if (method == null
                     && ((
                     method = childClazz.methodMagicCall != null
-                        ? childClazz.methodMagicCall
-                        : clazz.methodMagicCall)
-                    != null)){
+                            ? childClazz.methodMagicCall
+                            : clazz.methodMagicCall)
+                    != null)) {
                 passed = new Memory[]{new StringMemory(methodName), ArrayMemory.of(args)};
                 doublePop = true;
             }
@@ -62,7 +63,7 @@ final public class ObjectInvokeHelper {
 
         String className = clazz.getName();
 
-        if (method == null){
+        if (method == null) {
             if (methodName == null)
                 methodName = "__invoke";
 
@@ -71,9 +72,12 @@ final public class ObjectInvokeHelper {
                             className + "::" + methodName
                     )
             );
+
+            return Memory.NULL;
         }
 
         InvokeHelper.checkAccess(env, trace, method);
+
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
                     env, args, method.getParameters(), className, methodName, trace
@@ -91,7 +95,7 @@ final public class ObjectInvokeHelper {
             }
             result = method.invokeDynamic(iObject, env, passed);
         } finally {
-            if (trace != null){
+            if (trace != null) {
                 env.popCall();
                 if (doublePop)
                     env.popCall();
@@ -106,7 +110,7 @@ final public class ObjectInvokeHelper {
         return invokeMethod(object, methodName, methodName.toLowerCase(), env, trace, args);
     }
 
-    public static Memory invokeMethod(Memory object, String methodName, Environment env,  Memory... args)
+    public static Memory invokeMethod(Memory object, String methodName, Environment env, Memory... args)
             throws Throwable {
         return invokeMethod(object, methodName, methodName.toLowerCase(), env, env.trace(), args);
     }
@@ -119,23 +123,32 @@ final public class ObjectInvokeHelper {
         boolean doublePop = false;
 
         if (object.type != Memory.Type.OBJECT) {
-            env.error(trace, ErrorType.E_ERROR, Messages.ERR_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
+            env.error(trace, ErrorType.E_RECOVERABLE_ERROR, Messages.ERR_CANNOT_CALL_OF_NON_OBJECT.fetch(methodName));
+            return Memory.NULL;
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         ClassEntity clazz = iObject.getReflection();
         MethodEntity method;
 
         if (methodName == null) {
             method = clazz.methodMagicInvoke;
         } else {
-            ClassEntity context = env.getLastClassOnStack();
-            method = context == null ? null : clazz.isInstanceOf(context) ? context.findMethod(methodLowerName) : null;
-            if (method == null || method.getModifier() != Modifier.PRIVATE){
-                method = clazz.findMethod(methodLowerName);
+            method = clazz.findMethod(methodLowerName);
+
+            if (method != null && method.isContextDepends()) {
+                ClassEntity context = env.getLastClassOnStack();
+
+                if (context != null) {
+                    MethodEntity contextMethod = context.findMethod(methodLowerName);
+
+                    if (contextMethod != null) {
+                        method = contextMethod;
+                    }
+                }
             }
 
-            if (method == null && ((method = clazz.methodMagicCall) != null)){
+            if (method == null && ((method = clazz.methodMagicCall) != null)) {
                 clazz.methodMagicCall.setModifier(Modifier.PUBLIC);
                 passed = new Memory[]{new StringMemory(methodName), ArrayMemory.of(args)};
                 doublePop = true;
@@ -144,7 +157,7 @@ final public class ObjectInvokeHelper {
 
         String className = clazz.getName();
 
-        if (method == null){
+        if (method == null) {
             if (methodName == null)
                 methodName = "__invoke";
 
@@ -155,6 +168,7 @@ final public class ObjectInvokeHelper {
         }
 
         InvokeHelper.checkAccess(env, trace, method);
+
         if (passed == null) {
             passed = InvokeHelper.makeArguments(
                     env, args, method.getParameters(args == null ? 0 : args.length), className, methodName, trace
@@ -162,24 +176,31 @@ final public class ObjectInvokeHelper {
         }
 
         Memory result = method.getImmutableResult();
-        if (result != null){
+
+        if (result != null) {
             return result;
         }
 
         try {
             if (trace != null) {
-                env.pushCall(
-                        trace, iObject, args, methodName,
-                        iObject instanceof Closure ? className : method.getClazz().getName(), className
-                );
+                String staticClass = className;
 
-                if (doublePop)
-                    env.pushCall(trace, iObject, passed, method.getName(),
-                            iObject instanceof Closure ? className : method.getClazz().getName(), className);
+                if (iObject instanceof Closure) {
+                    staticClass = ((Closure) iObject).getScope();
+                }
+
+                String stackClass  = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
+
+                env.pushCall(trace, iObject, args, methodName, stackClass, staticClass);
+
+                if (doublePop) {
+                    env.pushCall(trace, iObject, passed, method.getName(), stackClass, staticClass);
+                }
             }
+
             return method.invokeDynamic(iObject, env, passed);
         } finally {
-            if (trace != null){
+            if (trace != null) {
                 env.popCall();
                 if (doublePop)
                     env.popCall();
@@ -202,7 +223,7 @@ final public class ObjectInvokeHelper {
 
         String className = clazz.getName();
 
-        if (method == null){
+        if (method == null) {
             env.error(trace, Messages.ERR_CALL_TO_UNDEFINED_METHOD.fetch(className + "::__invoke"));
             return Memory.NULL;
         }
@@ -214,13 +235,20 @@ final public class ObjectInvokeHelper {
                 env, args, method.getParameters(args == null ? 0 : args.length), className, method.getName(), trace
         );
         Memory result = method.getImmutableResult();
-        if (result != null){
+        if (result != null) {
             return result;
         }
 
         if (trace != null) {
-            env.pushCall(trace, iObject, args, method.getName(),
-                    iObject instanceof Closure ? className : method.getClazz().getName(), className);
+            String staticClass = className;
+
+            if (iObject instanceof Closure) {
+                staticClass = ((Closure) iObject).getScope();
+            }
+
+            String stackClass  = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
+
+            env.pushCall(trace, iObject, args, method.getName(), stackClass, staticClass);
         }
 
         try {
@@ -236,12 +264,12 @@ final public class ObjectInvokeHelper {
                                        PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
-        if (!object.isObject()){
+        if (!object.isObject()) {
             return Memory.NULL;
             //env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         return iObject.getReflection().emptyProperty(env, trace, iObject, property);
     }
 
@@ -250,12 +278,12 @@ final public class ObjectInvokeHelper {
             throws Throwable {
         object = object.toValue();
 
-        if (!object.isObject()){
+        if (!object.isObject()) {
             return Memory.NULL;
             //env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         return iObject.getReflection().issetProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
@@ -263,11 +291,11 @@ final public class ObjectInvokeHelper {
                                      PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
-        if (!object.isObject()){
+        if (!object.isObject()) {
             env.error(trace, Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property));
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         iObject.getReflection().unsetProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
@@ -318,7 +346,7 @@ final public class ObjectInvokeHelper {
             return Memory.NULL;
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
 
         return iObject.getReflection().getProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
@@ -327,14 +355,14 @@ final public class ObjectInvokeHelper {
                                         PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         object = object.toValue();
-        if (!object.isObject()){
+        if (!object.isObject()) {
             env.error(trace,
                     Messages.ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT.fetch(property)
             );
             return Memory.NULL;
         }
 
-        IObject iObject = ((ObjectMemory)object).value;
+        IObject iObject = ((ObjectMemory) object).value;
         return iObject.getReflection().getRefProperty(env, trace, iObject, property, callCache, cacheIndex);
     }
 
@@ -350,7 +378,7 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
+                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
             env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
@@ -361,20 +389,20 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
+                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
         Memory get = getStaticProperty(className, lowerClassName, property, env, trace, callCache, cacheIndex);
         get.manualUnset(env);
         return Memory.NULL;
     }
 
-    private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace){
+    private static IObject fetchObject(Memory object, String property, Environment env, TraceInfo trace) {
         object = object.toValue();
-        if (!object.isObject()){
+        if (!object.isObject()) {
             env.error(trace, Messages.ERR_CANNOT_SET_PROPERTY_OF_NON_OBJECT.fetch(property));
             return null;
         }
 
-        return ((ObjectMemory)object).value;
+        return ((ObjectMemory) object).value;
     }
 
     public static Memory incAndGetProperty(Memory object, String property, Environment env, TraceInfo trace,

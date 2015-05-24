@@ -234,6 +234,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         processBody(result, iterator);
                         //boolean thisExists = result.isThisExists();
                         result.setLabels(analyzer.getScope().getLabels());
+                        result.setStaticExists(analyzer.getScope().isStaticExists());
                         result.setLocal(analyzer.removeScope().getVariables());
                         //result.setThisExists(thisExists);
 

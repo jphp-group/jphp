@@ -229,6 +229,10 @@ ClassReader classReader;
         return type == Type.CLASS;
     }
 
+    public boolean isHiddenInCallStack() {
+        return false;
+    }
+
     public void setType(Type type) {
         this.type = type;
     }

@@ -16,7 +16,6 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
-import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,10 +34,11 @@ public class MethodEntity extends AbstractFunctionEntity {
     protected boolean isStatic;
     protected Modifier modifier;
     protected boolean dynamicSignature = false;
-    private String key;
 
     protected String signature;
     protected Closure cachedClosure;
+
+    protected boolean contextDepends = false;
 
     public MethodEntity(Context context) {
         super(context);
@@ -140,7 +140,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         closureEntity1.addMethod(m, null);
         closureEntity1.doneDeclare();
 
-        Closure tmp = new Closure(closureEntity1, new ObjectMemory(env.getLateObject()), new Memory[0]){
+        Closure tmp = new Closure(env, closureEntity1, new ObjectMemory(env.getLateObject()), new Memory[0]){
             @Override
             public Memory __invoke(Environment e, Memory... args) {
                 try {
@@ -192,7 +192,10 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public void setNativeMethod(Method nativeMethod) {
         this.nativeMethod = nativeMethod;
-        nativeMethod.setAccessible(true);
+
+        if (nativeMethod != null) {
+            nativeMethod.setAccessible(true);
+        }
     }
 
     public Memory invokeDynamic(IObject _this,
@@ -211,7 +214,11 @@ public class MethodEntity extends AbstractFunctionEntity {
                     );
             }
 
-            return isEmpty ? Memory.NULL : (Memory)nativeMethod.invoke(_this, environment, arguments);
+            if (isEmpty) {
+                return Memory.NULL;
+            }
+
+            return (Memory) nativeMethod.invoke(_this, environment, arguments);
         } catch (InvocationTargetException e){
             return environment.__throwException(e);
         } catch (Throwable e) {
@@ -236,6 +243,7 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public void setPrototype(MethodEntity prototype) {
         this.prototype = prototype;
+        this.contextDepends = prototype != null && (prototype.contextDepends || prototype.isPrivate());
     }
 
     public ClassEntity getClazz() {
@@ -260,6 +268,10 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public Modifier getModifier() {
         return modifier;
+    }
+
+    public boolean isContextDepends() {
+        return contextDepends;
     }
 
     public boolean isPublic(){
@@ -320,10 +332,6 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public static int hashCode(String classLowerName, String methodLowerName){
         return classLowerName.hashCode() + methodLowerName.hashCode();
-    }
-
-    public String getKey() {
-        return key;
     }
 
     public String getSignatureString(boolean withArgs){

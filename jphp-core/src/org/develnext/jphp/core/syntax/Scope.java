@@ -6,6 +6,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.LabelStmtToken;
 import java.util.*;
 
 public class Scope {
+    protected boolean staticExists = false;
     protected Set<VariableExprToken> variables;
     protected Map<String, LabelStmtToken> labels;
     protected final Scope parent;
@@ -14,13 +15,14 @@ public class Scope {
 
     public Scope(Scope parent) {
         this.parent = parent;
-        variables = new HashSet<VariableExprToken>();
-        labels = new HashMap<String, LabelStmtToken>();
+        variables = new HashSet<>();
+        labels = new HashMap<>();
     }
 
     public void appendScope(Scope scope) {
         variables.addAll(scope.getVariables());
         labels.putAll(scope.getLabels());
+        staticExists = staticExists || scope.staticExists;
     }
 
     public Set<VariableExprToken> getVariables() {
@@ -42,6 +44,14 @@ public class Scope {
 
     public Map<String, LabelStmtToken> getLabels() {
         return labels;
+    }
+
+    public boolean isStaticExists() {
+        return staticExists;
+    }
+
+    public void setStaticExists(boolean staticExists) {
+        this.staticExists = staticExists;
     }
 
     public boolean isLevelForGoto() {

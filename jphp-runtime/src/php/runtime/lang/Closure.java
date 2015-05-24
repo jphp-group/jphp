@@ -5,12 +5,14 @@ import php.runtime.common.HintType;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.support.IStaticVariables;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static php.runtime.annotation.Reflection.*;
@@ -22,9 +24,14 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
     protected Memory self = Memory.NULL;
     protected String scope = null;
 
-    public Closure(ClassEntity closure, Memory self, Memory[] uses) {
+    public Closure(Environment env, ClassEntity closure, Memory self, Memory[] uses) {
         super(closure);
         this.self = self;
+
+        if (env != null) {
+            this.scope = env.getLateStatic();
+        }
+
         this.uses = uses;
     }
 
@@ -81,7 +88,25 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
             result = new ReferenceMemory(initValue);
             statics.put(name, result);
         }
+
         return result;
+    }
+
+    @Signature({
+            @Arg("newThis"),
+            @Arg(value = "parameters", type = HintType.VARARG, optional = @Optional("null"))
+    })
+    public Memory call(Environment env, Memory... args) throws Throwable {
+        ParameterEntity.validateTypeHinting(env, 1, args, HintType.OBJECT, true);
+
+        Closure newClosure = (Closure) this.clone();
+        newClosure.self = args[0];
+        newClosure.scope = newClosure.self.toValue(ObjectMemory.class).getReflection().getName();
+
+        return ObjectInvokeHelper.invokeMethod(
+                newClosure, newClosure.getReflection().methodMagicInvoke, env, env.trace(),
+                Arrays.copyOfRange(args, 1, args.length)
+        );
     }
 
     @Signature({@Arg("newThis"), @Arg(value = "newScope", optional = @Optional("static"))})
