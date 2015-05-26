@@ -39,6 +39,7 @@ abstract public class CallCache<T extends Entity> {
     @SuppressWarnings("unchecked")
     synchronized public void put(Environment env, int index, T entity) {
         int id = env.id;
+
         if (cache == null) {
             cache = newArrayArrayData(id + 1);
         }

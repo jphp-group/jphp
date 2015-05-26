@@ -1,5 +1,6 @@
 package php.runtime.launcher;
 
+import org.develnext.jphp.core.common.ObjectSizeCalculator;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
@@ -11,6 +12,9 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
