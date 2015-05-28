@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.syntax.generators;
 
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import php.runtime.common.HintType;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
@@ -11,8 +12,6 @@ import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AmpersandRefToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 
 import java.util.*;
@@ -189,15 +188,23 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             unexpectedToken(next);
     }
 
+    @SuppressWarnings("unchecked")
     public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator, boolean closureAllowed) {
         if (current instanceof FunctionStmtToken){
             FunctionStmtToken result = (FunctionStmtToken)current;
             result.setStatic(analyzer.getFunction() == null);
 
-            Token next = nextToken(iterator);
+            Class<? extends Token>[] excludes = new Class[] {EchoStmtToken.class, ImportExprToken.class};
+
+            if (analyzer.getClazz() != null) {
+                excludes = new Class[0];
+            }
+
+            Token next = nextTokenSensitive(iterator, excludes);
+
             if (next instanceof AmpersandRefToken){
                 result.setReturnReference(true);
-                next = nextToken(iterator);
+                next = nextTokenSensitive(iterator, excludes);
             }
 
             if (next instanceof NameToken){

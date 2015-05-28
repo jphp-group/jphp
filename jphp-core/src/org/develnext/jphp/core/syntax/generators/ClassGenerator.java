@@ -39,7 +39,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
     }
 
     protected void processName(ClassStmtToken result, ListIterator<Token> iterator){
-        Token name = nextToken(iterator);
+        Token name = nextTokenSensitive(iterator);
         if (name instanceof NameToken){
             result.setName((NameToken)name);
             if (name instanceof ParentExprToken)
@@ -222,13 +222,21 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             unexpectedToken(iterator.previous());
 
         while (true) {
-            NameToken className = nextAndExpected(iterator, NameToken.class);
+            NameToken className = nextAndExpectedSensitive(iterator, NameToken.class);
             NameToken methodName;
 
             Token token = nextToken(iterator);
             if (token instanceof StaticAccessExprToken) {
                 className = analyzer.getRealName(className);
-                methodName = nextAndExpected(iterator, NameToken.class);
+
+                Token nextTokenSensitive = nextTokenSensitive(iterator);
+
+                if (nextTokenSensitive instanceof NameToken) {
+                    methodName = (NameToken) nextTokenSensitive;
+                } else {
+                    unexpectedToken(nextTokenSensitive);
+                    return;
+                }
             } else {
                 iterator.previous();
                 methodName = className;
@@ -240,7 +248,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
             Token what = nextToken(iterator);
             if (what instanceof AsStmtToken) {
-                Token one = nextToken(iterator);
+                Token one = nextTokenSensitive(iterator, PrivateStmtToken.class, ProtectedStmtToken.class, PublicStmtToken.class, FinalStmtToken.class, StaticExprToken.class);
+
                 if (one instanceof NameToken) {
                     result.addAlias(
                             className.getName(),
@@ -254,7 +263,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                     else if (one instanceof PublicStmtToken)
                         modifier = Modifier.PUBLIC;
 
-                    token = nextToken(iterator);
+                    token = nextTokenSensitive(iterator);
                     String name = null;
                     if (token instanceof NameToken) {
                         NameToken two = (NameToken)token;

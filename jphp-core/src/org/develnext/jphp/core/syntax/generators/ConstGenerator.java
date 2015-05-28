@@ -6,14 +6,15 @@ import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.Token;
+import org.develnext.jphp.core.tokenizer.token.expr.ClassExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.OperatorExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.ImportExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.*;
 
 import java.util.ListIterator;
 
@@ -42,6 +43,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
     }*/
 
     @Override
+    @SuppressWarnings("unchecked")
     public ConstStmtToken getToken(Token current, ListIterator<Token> iterator) {
         if (current instanceof ConstStmtToken){
             ConstStmtToken result = (ConstStmtToken)current;
@@ -50,8 +52,9 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
             if (analyzer.getClazz() == null)
                 result.setNamespace(analyzer.getNamespace());
 
-            while (true){
-                Token next = nextToken(iterator);
+            while (true) {
+                Token next = analyzer.getClazz() == null ? nextToken(iterator) : nextTokenSensitive(iterator, ClassStmtToken.class);
+
                 if (next instanceof NameToken){
                     if (next instanceof FulledNameToken && !((FulledNameToken) next).isProcessed())
                         unexpectedToken(next, TokenType.T_STRING);

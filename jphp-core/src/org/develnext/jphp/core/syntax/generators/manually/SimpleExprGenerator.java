@@ -18,6 +18,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.CastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.MacroToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.AsStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
@@ -509,6 +510,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected Token processNew(Token current, BraceExprToken.Kind closedBrace, int braceOpened, ListIterator<Token> iterator){
         NewExprToken result = (NewExprToken)current;
         Token next = nextToken(iterator);
+
+        if (!isTokenClass(next, StaticExprToken.class, ParentExprToken.class, SelfExprToken.class)) {
+            next = makeSensitive(next);
+        }
+
         if (next instanceof NameToken){
             FulledNameToken nameToken = analyzer.getRealName((NameToken)next);
             result.setName(nameToken);
@@ -785,17 +791,24 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return logic;
         }
 
-        if (next instanceof StaticAccessExprToken){
-            if (current instanceof NameToken || current instanceof VariableExprToken
-                    || current instanceof SelfExprToken || current instanceof StaticExprToken
-                    || current instanceof ParentExprToken){
+        if (next instanceof StaticAccessExprToken) {
+            Token name = current;
 
-                if (current instanceof StaticExprToken) {
+            if (!isTokenClass(name, SelfExprToken.class, StaticExprToken.class, ParentExprToken.class)) {
+                name = makeSensitive(current);
+            }
+
+            if (name instanceof NameToken || name instanceof VariableExprToken
+                    || name instanceof SelfExprToken || name instanceof StaticExprToken
+                    || name instanceof ParentExprToken){
+
+                if (name instanceof StaticExprToken) {
                     analyzer.getScope().setStaticExists(true);
                 }
 
                 StaticAccessExprToken result = (StaticAccessExprToken)next;
-                ValueExprToken clazz = (ValueExprToken)current;
+                ValueExprToken clazz = (ValueExprToken) name;
+
                 if (clazz instanceof NameToken){
                     clazz = analyzer.getRealName((NameToken)clazz);
                 } else if (clazz instanceof SelfExprToken){
@@ -815,6 +828,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 nextToken(iterator);
 
                 next = nextToken(iterator);
+
+                if (!isTokenClass(next, ClassStmtToken.class)) {
+                    next = makeSensitive(next);
+                }
+
                 if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
                     ExprStmtToken expr = getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.BLOCK);
                     result.setFieldExpr(expr);
@@ -852,7 +870,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                 return result;
             } else
-                unexpectedToken(current);
+                unexpectedToken(name);
         }
 
         if (current instanceof StringExprToken){
@@ -861,6 +879,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (current instanceof NameToken) {
             return analyzer.getRealName((NameToken)current);
+        }
+
+        if (current instanceof MacroToken) {
+            return null;
+        }
+
+        if (current instanceof OperatorExprToken) {
+            return null;
+        }
+
+        if (current.isNamedToken()) {
+            return makeSensitive(current);
         }
 
         return null;
@@ -1114,7 +1144,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof FunctionStmtToken){
                 current = processClosure(current, next, iterator);
                 tokens.add(current);
-            } else if (current instanceof ListExprToken){
+            } else if (current instanceof ListExprToken && isOpenedBrace(next, BraceExprToken.Kind.SIMPLE)){
                 current = processList(current, iterator, null, closedBraceKind, braceOpened);
                 tokens.add(current);
             } else if (current instanceof DieExprToken){

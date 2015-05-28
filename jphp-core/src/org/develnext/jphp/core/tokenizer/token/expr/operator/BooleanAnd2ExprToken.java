@@ -21,4 +21,9 @@ public class BooleanAnd2ExprToken extends LogicOperatorExprToken {
     public Memory calc(Memory o1, Memory o2) {
         return o1.toBoolean() && o2.toBoolean() ? Memory.TRUE : Memory.FALSE;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

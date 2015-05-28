@@ -37,4 +37,9 @@ public class CatchStmtToken extends StmtToken {
     public void setBody(BodyStmtToken body) {
         this.body = body;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }
