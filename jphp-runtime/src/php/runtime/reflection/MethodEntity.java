@@ -365,7 +365,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         for(ParameterEntity param : parameters){
             if (param.getDefaultValue() == null)
                 sb.append(
-                        param.type == null ? HintType.ANY : param.type
+                        param.getType() == null ? HintType.ANY : param.getType()
                 ).append("|").append(param.isReference ? "&" : "");
         }
         return signature = sb.toString();

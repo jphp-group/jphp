@@ -1,5 +1,6 @@
 package php.runtime.loader.dump;
 
+import php.runtime.common.StringUtils;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpInputStream;
@@ -65,7 +66,12 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
         ParameterEntity entity = new ParameterEntity(context);
 
         entity.setType(data.readHintType());
-        entity.setTypeClass(data.readName());
+        String typeClass = data.readName();
+
+        if (typeClass != null && !typeClass.isEmpty()) {
+            entity.setTypeClass(typeClass);
+        }
+
         entity.setReference(data.readBoolean());
 
         entity.setMutable(data.readBoolean());

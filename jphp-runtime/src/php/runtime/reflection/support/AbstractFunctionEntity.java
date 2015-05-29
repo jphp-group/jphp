@@ -2,6 +2,7 @@ package php.runtime.reflection.support;
 
 
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.support.Extension;
@@ -16,6 +17,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected DocumentComment docComment;
     protected boolean returnReference;
     protected ParameterEntity[] parameters;
+    protected HintType hintType;
 
     protected Memory result;
     protected boolean abstractable = false;
