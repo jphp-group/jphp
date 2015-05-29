@@ -31,11 +31,6 @@ public class ParameterEntity extends Entity {
     protected boolean isReference;
     protected TypeChecker typeChecker;
 
-    /*protected HintType type = HintType.ANY;
-    protected String typeClass;
-    protected String typeClassLower;
-    protected Class<? extends Enum> typeEnum;
-    protected Class<?> typeNativeClass;*/
     protected TypeHintingChecker typeHintingChecker;
 
     protected boolean mutable = true;
@@ -116,7 +111,6 @@ public class ParameterEntity extends Entity {
     }
 
     public void setTypeNativeClass(Class<?> typeNativeClass) {
-        //this.typeNativeClass = typeNativeClass;
         Class<?> baseWrapper = MemoryOperation.getWrapper(typeNativeClass);
 
         if (baseWrapper == null) {
@@ -129,13 +123,6 @@ public class ParameterEntity extends Entity {
     public void setType(String type) {
         HintType _type = HintType.of(type);
         this.typeChecker = _type == null ? null : TypeChecker.of(_type);
-        /*if (this.type == null) {
-            typeClass = type;
-            typeClassLower = type.toLowerCase();
-        } else {
-            typeClass = null;
-            typeClassLower = null;
-        }*/
     }
 
     public Class<? extends Enum> getTypeEnum() {
@@ -144,7 +131,6 @@ public class ParameterEntity extends Entity {
 
     public void setTypeEnum(Class<? extends Enum> typeEnum) {
         this.typeChecker = typeEnum == null ? null : TypeChecker.ofEnum(typeEnum);
-        //this.typeEnum = typeEnum;
     }
 
     public TypeHintingChecker getTypeHintingChecker() {
@@ -199,33 +185,6 @@ public class ParameterEntity extends Entity {
             return true;
 
         return TypeChecker.of(type).check(env, value, nullable);
-
-        /*switch (type){
-            case SCALAR:
-                switch (value.getRealType()){
-                    case BOOL:
-                    case INT:
-                    case DOUBLE:
-                    case STRING:
-                        return true;
-                }
-                return false;
-            case OBJECT: return value.isObject();
-            case NUMBER: return value.isNumber();
-            case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
-            case INT: return value.getRealType() == Memory.Type.INT;
-            case STRING: return value.isString();
-            case BOOLEAN: return value.getRealType() == Memory.Type.BOOL;
-            case ARRAY:
-                return value.isArray();
-            case TRAVERSABLE:
-                return value.isArray() || value.instanceOf("Traversable", "traversable");
-            case CALLABLE:
-                Invoker invoker = Invoker.valueOf(env, null, value);
-                return invoker != null && invoker.canAccess(env) == 0;
-            default:
-                return true;
-        }*/
     }
 
     public boolean checkTypeHinting(Environment env, Memory value, String typeClass, boolean nullable) {
@@ -236,11 +195,6 @@ public class ParameterEntity extends Entity {
             return false;
 
         return TypeChecker.of(typeClass).check(env, value, nullable);
-
-        /*ObjectMemory object = value.toValue(ObjectMemory.class);
-        ClassEntity oEntity = object.getReflection();
-
-        return oEntity.isInstanceOf(typeClass);*/
     }
 
     public boolean checkTypeHinting(Environment env, Memory value) {
@@ -249,47 +203,6 @@ public class ParameterEntity extends Entity {
         }
 
         return true;
-
-        /*if (typeHintingChecker != null) {
-            if (nullable && value.isNull()) {
-                return true;
-            }
-
-            return typeHintingChecker.call(env, value);
-        }
-
-        if (type != HintType.ANY && type != null) {
-            return checkTypeHinting(env, value, type, nullable || (defaultValue != null && defaultValue.isNull()));
-        } else if (typeNativeClass != null) {
-            if (nullable && value.isNull()) {
-                return true;
-            }
-
-            if (value.isObject()) {
-                IObject object = value.toObject(IObject.class);
-                if (object instanceof BaseWrapper) {
-                    return typeNativeClass.isAssignableFrom(((BaseWrapper) object).getWrappedObject().getClass());
-                }
-
-                return false;
-            } else {
-                return false;
-            }
-        } else if (typeClass != null) {
-            return checkTypeHinting(env, value, typeClass, nullable || (defaultValue != null && defaultValue.isNull()));
-        } else if (typeEnum != null && typeEnum != Enum.class) {
-            try {
-                if (nullable && value.isNull()) {
-                    return true;
-                }
-
-                Enum.valueOf(typeEnum, value.toString());
-                return true;
-            } catch (IllegalArgumentException e) {
-                return false;
-            }
-        } else
-            return true;*/
     }
 
     public boolean isArray(){
