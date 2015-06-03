@@ -1,6 +1,7 @@
 package php.runtime.ext.core.classes;
 
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
@@ -11,16 +12,16 @@ import java.util.concurrent.*;
 
 import static php.runtime.annotation.Reflection.*;
 
-@Name("php\\concurrent\\ExecutorService")
-public class WrapExecutorService extends BaseObject {
+@Name("php\\lang\\ThreadPool")
+public class WrapThreadPool extends BaseObject {
     protected ExecutorService service;
 
-    public WrapExecutorService(Environment env, ExecutorService service) {
+    public WrapThreadPool(Environment env, ExecutorService service) {
         super(env);
         this.service = service;
     }
 
-    public WrapExecutorService(Environment env, ClassEntity clazz) {
+    public WrapThreadPool(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
@@ -34,19 +35,17 @@ public class WrapExecutorService extends BaseObject {
     }
 
     @Signature({
-            @Arg("runnable"),
-            @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))
+            @Arg(value = "runnable", type = HintType.CALLABLE),
+            @Arg(value = "env", nativeType = WrapEnvironment.class, optional = @Optional("NULL"))
     })
     public Memory execute(Environment env, Memory... args){
         Environment _env = env;
-        if (!args[1].isNull())
+
+        if (!args[1].isNull()) {
             _env = args[1].toObject(WrapEnvironment.class).getWrapEnvironment();
+        }
 
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
-        if (invoker == null){
-            env.exception("Argument 1 must be callable for passed environment");
-            return Memory.NULL;
-        }
 
         invoker.setTrace(env.trace());
         service.execute(new Runnable() {
@@ -73,18 +72,15 @@ public class WrapExecutorService extends BaseObject {
     }
 
     @Signature({
-            @Arg("runnable"),
+            @Arg(value = "runnable", type = HintType.CALLABLE),
             @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))
     })
     public Memory submit(Environment env, Memory... args){
         final Environment _env = args[1].isNull()
                 ? env
                 : args[1].toObject(WrapEnvironment.class).getWrapEnvironment();
+
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
-        if (invoker == null) {
-            env.exception("Argument 1 must be callable in passed environment");
-            return Memory.NULL;
-        }
 
         Future<Memory> future = service.submit(new Callable<Memory>() {
             @Override
@@ -92,11 +88,12 @@ public class WrapExecutorService extends BaseObject {
                 return invoker.callNoThrow();
             }
         });
+
         return new ObjectMemory(new WrapFuture(env, future));
     }
 
     @Signature({
-            @Arg("runnable"),
+            @Arg(value = "runnable", type = HintType.CALLABLE),
             @Arg("delay"),
             @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))
     })
@@ -104,11 +101,8 @@ public class WrapExecutorService extends BaseObject {
         final Environment _env = args[2].isNull()
                 ? env
                 : args[2].toObject(WrapEnvironment.class).getWrapEnvironment();
+
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
-        if (invoker == null) {
-            env.exception("Argument 1 must be callable in passed environment");
-            return Memory.NULL;
-        }
 
         ScheduledFuture<Memory> future = getScheduledExecutorService(env).schedule(new Callable<Memory>() {
             @Override
@@ -149,29 +143,46 @@ public class WrapExecutorService extends BaseObject {
     }
 
     @Signature(@Arg("max"))
-    public static Memory newFixedThreadPool(Environment env, Memory... args){
-        return new ObjectMemory(new WrapExecutorService(env,
+    public static Memory createFixed(Environment env, Memory... args){
+        return new ObjectMemory(new WrapThreadPool(env,
                 Executors.newFixedThreadPool(args[0].toInteger())
         ));
     }
 
+    @Signature({
+            @Arg("corePoolSize"),
+            @Arg("maxPoolSize"),
+            @Arg(value = "keepAliveTime", optional = @Optional("0"))
+    })
+    public static Memory create(Environment env, Memory... args){
+        int nThreads = args[0].toInteger();
+        int nMaxThreads = args[1].toInteger();
+        long keepAliveTime = args[2].toLong();
+
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                nThreads, nMaxThreads, keepAliveTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()
+        );
+
+        return new ObjectMemory(new WrapThreadPool(env, executor));
+    }
+
     @Signature
-    public static Memory newCachedThreadPool(Environment env, Memory... args){
-        return new ObjectMemory(new WrapExecutorService(env,
+    public static Memory createCached(Environment env, Memory... args){
+        return new ObjectMemory(new WrapThreadPool(env,
                 Executors.newCachedThreadPool()
         ));
     }
 
     @Signature
-    public static Memory newSingleThreadExecutor(Environment env, Memory... args){
-        return new ObjectMemory(new WrapExecutorService(env,
+    public static Memory createSingle(Environment env, Memory... args){
+        return new ObjectMemory(new WrapThreadPool(env,
                 Executors.newSingleThreadExecutor()
         ));
     }
 
     @Signature(@Arg("corePoolSize"))
-    public static Memory newScheduledThreadPool(Environment env, Memory... args){
-        return new ObjectMemory(new WrapExecutorService(env,
+    public static Memory createScheduled(Environment env, Memory... args){
+        return new ObjectMemory(new WrapThreadPool(env,
                 Executors.newScheduledThreadPool(args[0].toInteger())
         ));
     }

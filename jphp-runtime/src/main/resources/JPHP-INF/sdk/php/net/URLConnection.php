@@ -229,4 +229,13 @@ class URLConnection
     public static function guessContentTypeFromName($name)
     {
     }
+
+    /**
+     * @param string $url
+     * @param Proxy $proxy
+     * @return URLConnection
+     */
+    public static function create($url, Proxy $proxy = null)
+    {
+    }
 }

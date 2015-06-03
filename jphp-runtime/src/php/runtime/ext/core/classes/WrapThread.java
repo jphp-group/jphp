@@ -51,11 +51,14 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
 
     public void setThread(Thread thread) {
         this.thread = thread;
-        Environment.addThreadSupport(thread);
+
+        if (thread != null) {
+            Environment.addThreadSupport(thread);
+        }
     }
 
     @Signature({
-            @Arg(value = "runnable"),
+            @Arg(value = "runnable", type = HintType.CALLABLE),
             @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL")),
             @Arg(value = "group", typeClass = "php\\lang\\ThreadGroup", optional = @Optional("NULL"))
     })
@@ -66,14 +69,12 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
             setCustomEnv(env);
 
         final Invoker invoker = Invoker.valueOf(getCustomEnv(), null, args[0]);
-        if (invoker == null) {
-            env.exception("Argument 1 must be callable in passed environment");
-            return Memory.NULL;
-        }
 
         ThreadGroup group = null;
-        if (!args[2].isNull())
+
+        if (!args[2].isNull()) {
             group = args[2].toObject(WrapThreadGroup.class).getGroup();
+        }
 
         this.invoker = invoker;
 
@@ -218,15 +219,6 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
     @Signature({@Arg("millis"), @Arg(value = "nanos", optional = @Optional(value = "0", type = HintType.INT))})
     public static Memory sleep(Environment env, Memory... args) throws InterruptedException {
         Thread.sleep(args[0].toLong(), args[1].toInteger());
-        return Memory.NULL;
-    }
-
-    @Signature({@Arg(value = "object", type = HintType.OBJECT), @Arg(value = "callable", type = HintType.CALLABLE)})
-    public static Memory sync(Environment env, Memory... args){
-        synchronized (args[0].toValue(ObjectMemory.class).value){
-            Invoker invoker = Invoker.valueOf(env, null, args[1]);
-            invoker.callNoThrow();
-        }
         return Memory.NULL;
     }
 

@@ -17,7 +17,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected DocumentComment docComment;
     protected boolean returnReference;
     protected ParameterEntity[] parameters;
-    protected HintType hintType;
+    protected TypeChecker returnTypeChecker;
 
     protected Memory result;
     protected boolean abstractable = false;
@@ -150,5 +150,13 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public void setGeneratorEntity(GeneratorEntity generatorEntity) {
         this.generatorEntity = generatorEntity;
+    }
+
+    public void setReturnTypeChecker(TypeChecker returnTypeChecker) {
+        this.returnTypeChecker = returnTypeChecker;
+    }
+
+    public TypeChecker getReturnTypeChecker() {
+        return returnTypeChecker;
     }
 }

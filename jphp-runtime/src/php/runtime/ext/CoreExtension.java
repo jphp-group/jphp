@@ -127,7 +127,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapServerSocket.class);
         registerJavaException(scope, WrapSocketException.class, SocketException.class);
 
-        registerClass(scope, WrapExecutorService.class);
+        registerClass(scope, WrapThreadPool.class);
         registerClass(scope, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 

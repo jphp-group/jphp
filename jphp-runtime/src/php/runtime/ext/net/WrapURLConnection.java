@@ -10,9 +10,7 @@ import php.runtime.reflection.ClassEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
 
@@ -113,5 +111,25 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
     @Signature
     public InputStream getErrorStream() throws IOException {
         return ((HttpURLConnection) getWrappedObject()).getErrorStream();
+    }
+
+    @Signature
+    public static URLConnection create(String url, @Nullable Proxy proxy) throws IOException {
+        URL _url = new URL(url);
+        URLConnection urlConnection = proxy == null ? _url.openConnection() : _url.openConnection(proxy);
+        urlConnection.setDoOutput(true);
+        urlConnection.setDoInput(true);
+
+        if (urlConnection instanceof HttpURLConnection) {
+            HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+            httpURLConnection.setRequestMethod("GET");
+        }
+
+        return urlConnection;
+    }
+
+    @Signature
+    public static URLConnection create(String url) throws IOException {
+        return create(url, null);
     }
 }

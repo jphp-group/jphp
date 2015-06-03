@@ -5,9 +5,10 @@ namespace php\lang;
  * Class Thread
  * @package php\lang
  */
-class Thread {
-    const MAX_PRIORITY  = 10;
-    const MIN_PRIORITY  = 1;
+class Thread
+{
+    const MAX_PRIORITY = 10;
+    const MIN_PRIORITY = 1;
     const NORM_PRIORITY = 5;
 
     /**
@@ -15,62 +16,86 @@ class Thread {
      * @param Environment $env
      * @param ThreadGroup $group
      */
-    public function __construct(callable $runnable, Environment $env = null, ThreadGroup $group = null) { }
+    public function __construct(callable $runnable, Environment $env = null, ThreadGroup $group = null)
+    {
+    }
 
     /**
      * @return int
      */
-    public function getId() { }
+    public function getId()
+    {
+    }
 
     /**
      * @return string
      */
-    public function getName() { }
+    public function getName()
+    {
+    }
 
     /**
      * @param string $value
      */
-    public function setName($value) { }
+    public function setName($value)
+    {
+    }
 
     /**
      * @return ThreadGroup
      */
-    public function getGroup() { }
+    public function getGroup()
+    {
+    }
 
     /**
      * @return bool
      */
-    public function isDaemon() { }
+    public function isDaemon()
+    {
+    }
 
     /**
      * @param bool $value
      */
-    public function setDaemon($value) { }
+    public function setDaemon($value)
+    {
+    }
 
     /**
      * @return bool
      */
-    public function isInterrupted() { }
+    public function isInterrupted()
+    {
+    }
 
     /**
      * @return bool
      */
-    public function isAlive() { }
+    public function isAlive()
+    {
+    }
 
     /**
      * start
      */
-    public function start() { }
+    public function start()
+    {
+    }
 
     /**
      * run
      */
-    public function run() { }
+    public function run()
+    {
+    }
 
     /**
      * Interrupts this thread.
      */
-    public function interrupt() { }
+    public function interrupt()
+    {
+    }
 
     /**
      * Waits at most $millis milliseconds plus
@@ -78,14 +103,18 @@ class Thread {
      * @param int $millis
      * @param int $nanos
      */
-    public function join($millis = 0, $nanos = 0) { }
+    public function join($millis = 0, $nanos = 0)
+    {
+    }
 
     /**
      * A hint to the scheduler that the current thread is willing to yield
      * its current use of a processor. The scheduler is free to ignore this
      * hint.
      */
-    public static function doYield() { }
+    public static function doYield()
+    {
+    }
 
     /**
      * Causes the currently executing thread to sleep (temporarily cease
@@ -93,23 +122,22 @@ class Thread {
      * @param int $millis
      * @param int $nanos
      */
-    public static function sleep($millis, $nanos = 0) { }
+    public static function sleep($millis, $nanos = 0)
+    {
+    }
 
     /**
      * @return int
      */
-    public static function getActiveCount() { }
+    public static function getActiveCount()
+    {
+    }
 
     /**
      * Get current thread
      * @return Thread
      */
-    public static function current() { }
-
-    /**
-     * @experimental
-     * @param object $object
-     * @param callable $runnable
-     */
-    public static function sync($object, callable $runnable) { }
+    public static function current()
+    {
+    }
 }

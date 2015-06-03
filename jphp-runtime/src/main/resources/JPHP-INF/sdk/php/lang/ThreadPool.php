@@ -1,20 +1,20 @@
 <?php
-namespace php\concurrent;
+namespace php\lang;
 
-use php\lang\Environment;
+use php\concurrent\Future;
 
 /**
- * Class ExecutorService
- * --RU--
- * Класс ExecutorService
- *
- * @package php\concurrent
+ * Class ThreadPool
+ * @package php\lang
  */
-class ExecutorService {
+class ThreadPool
+{
     /**
      * internal
      */
-    private function __construct() { }
+    private function __construct()
+    {
+    }
 
     /**
      * Is Scheduled ?
@@ -23,7 +23,9 @@ class ExecutorService {
      *
      * @return bool
      */
-    public function isScheduled() { }
+    public function isScheduled()
+    {
+    }
 
     /**
      * Is Shutdown?
@@ -32,12 +34,16 @@ class ExecutorService {
      *
      * @return bool
      */
-    public function isShutdown() { }
+    public function isShutdown()
+    {
+    }
 
     /**
      * @return bool
      */
-    public function isTerminated() { }
+    public function isTerminated()
+    {
+    }
 
     /**
      * Execute some $runnable via the Executor Service
@@ -47,14 +53,18 @@ class ExecutorService {
      * @param callable $runnable
      * @param Environment $env
      */
-    public function execute(callable $runnable, Environment $env = null) { }
+    public function execute(callable $runnable, Environment $env = null)
+    {
+    }
 
     /**
      * @param callable $runnable
      * @param Environment $env
      * @return Future
      */
-    public function submit(callable $runnable, Environment $env = null) { }
+    public function submit(callable $runnable, Environment $env = null)
+    {
+    }
 
     /**
      * @param callable $runnable
@@ -62,7 +72,9 @@ class ExecutorService {
      * @param Environment $env
      * @return Future
      */
-    public function schedule(callable $runnable, $delay, Environment $env = null) { }
+    public function schedule(callable $runnable, $delay, Environment $env = null)
+    {
+    }
 
     /**
      * Initiates an orderly shutdown in which previously submitted
@@ -71,7 +83,9 @@ class ExecutorService {
      * Начинает попорядку завершать пердыдущие засабмиченные завершенные задания,
      * но не новые задания
      */
-    public function shutdown() { }
+    public function shutdown()
+    {
+    }
 
     /**
      * Attempts to stop all actively executing tasks, halts the
@@ -80,7 +94,9 @@ class ExecutorService {
      * Пытается остановить все активные выполняющиеся задания, обрывает
      * обработку ожидания заданий
      */
-    public function shutdownNow() { }
+    public function shutdownNow()
+    {
+    }
 
     /**
      * Blocks until all tasks have completed execution after a shutdown
@@ -94,18 +110,34 @@ class ExecutorService {
      * @return bool
      * @throws \Exception
      */
-    public function awaitTermination($timeout) { }
+    public function awaitTermination($timeout)
+    {
+    }
+
+    /**
+     * @param int $coreSize the number of threads to keep in the pool, even if they are idle
+     * @param int $maxSize the maximum number of threads to allow in the pool
+     * @param int $keepAliveTime in millis
+     * @return ThreadPool
+     */
+    public static function create($coreSize, $maxSize, $keepAliveTime = 0)
+    {
+    }
 
     /**
      * @param int $max
-     * @return ExecutorService
+     * @return ThreadPool
      */
-    public static function newFixedThreadPool($max) { }
+    public static function createFixed($max)
+    {
+    }
 
     /**
-     * @return ExecutorService
+     * @return ThreadPool
      */
-    public static function newCachedThreadPool() { }
+    public static function createCached()
+    {
+    }
 
     /**
      * Creates an Executor that uses a single worker thread operating
@@ -113,9 +145,11 @@ class ExecutorService {
      * --RU--
      * Создает Executor, который будет все обрабатывать в один поток
      *
-     * @return ExecutorService
+     * @return ThreadPool
      */
-    public static function newSingleThreadExecutor() { }
+    public static function createSingle()
+    {
+    }
 
     /**
      * Creates a thread pool that can schedule commands to run after a
@@ -125,7 +159,9 @@ class ExecutorService {
      * после определенной задержки или для переодического их запуска.
      *
      * @param int $corePoolSize
-     * @return ExecutorService
+     * @return ThreadPool
      */
-    public static function newScheduledThreadPool($corePoolSize) { }
+    public static function createScheduled($corePoolSize)
+    {
+    }
 }
