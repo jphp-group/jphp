@@ -14,7 +14,7 @@ public class WebServerExtension extends Extension {
 
     @Override
     public Status getStatus() {
-        return Status.EXPERIMENTAL;
+        return Status.BETA;
     }
 
     @Override
