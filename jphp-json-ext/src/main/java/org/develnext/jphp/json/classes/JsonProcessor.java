@@ -12,10 +12,11 @@ import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.*;
-import php.runtime.memory.helper.UndefinedMemory;
+import php.runtime.memory.helper.*;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,6 @@ import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\format\\JsonProcessor")
 public class JsonProcessor extends WrapProcessor {
-
     public static final int SERIALIZE_PRETTY_PRINT = 1;
     public static final int DESERIALIZE_AS_ARRAYS = 1024;
 
@@ -49,6 +49,11 @@ public class JsonProcessor extends WrapProcessor {
         add(KeyValueMemory.class);
         add(StringBuilderMemory.class);
         add(StringMemory.class);
+        add(ArrayValueMemory.class);
+        add(BinaryCharArrayMemory.class);
+        add(CharArrayMemory.class);
+        add(ShortcutMemory.class);
+        add(VariadicMemory.class);
     }};
 
     public JsonProcessor(Environment env, GsonBuilder builder) {
@@ -98,6 +103,7 @@ public class JsonProcessor extends WrapProcessor {
     @Signature
     public Memory parse(Environment env, Memory... args) {
         Memory r;
+
         if (args[0].instanceOf(Stream.class)) {
             r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0])), Memory.class);
         } else {
@@ -119,7 +125,14 @@ public class JsonProcessor extends WrapProcessor {
     @Override
     @Signature
     public Memory formatTo(Environment env, Memory... args) {
-        gson.toJson(args[0], Memory.class, new JsonWriter(new OutputStreamWriter(Stream.getOutputStream(env, args[1]))));
+        OutputStream outputStream = Stream.getOutputStream(env, args[1]);
+
+        try {
+            gson.toJson(args[0], Memory.class, new JsonWriter(new OutputStreamWriter(outputStream)));
+        } finally {
+            Stream.closeStream(env, outputStream);
+        }
+
         return Memory.NULL;
     }
 

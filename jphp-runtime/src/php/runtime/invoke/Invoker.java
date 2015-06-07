@@ -112,6 +112,10 @@ abstract public class Invoker implements Cloneable {
 
     abstract public int canAccess(Environment env);
 
+    public static Invoker create(Environment env, Memory method) {
+        return Invoker.valueOf(env, null, method);
+    }
+
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toValue();
         if (method.isObject()){
