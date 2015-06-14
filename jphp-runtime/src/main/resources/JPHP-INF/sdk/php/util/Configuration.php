@@ -46,6 +46,7 @@ class Configuration
     /**
      * @param string $key
      * @param bool $def
+     * @return bool
      */
     public function getBoolean($key, $def = false)
     {

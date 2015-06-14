@@ -99,7 +99,8 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         int modifiers = method.getModifiers();
-        isFinal = java.lang.reflect.Modifier.isFinal(modifiers);
+        isFinal = method.isAnnotationPresent(Reflection.Final.class);
+
         isStatic = java.lang.reflect.Modifier.isStatic(modifiers);
         isAbstract = java.lang.reflect.Modifier.isAbstract(modifiers);
 

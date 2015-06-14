@@ -14,9 +14,6 @@ import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.*;
 import php.runtime.reflection.support.ReflectionUtils;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -292,7 +289,10 @@ public class ClassWrapper {
         entity.setClazz(classEntity);
         entity.setNativeMethod(method);
         entity.setAbstract(Modifier.isAbstract(method.getModifiers()));
-        entity.setFinal(Modifier.isFinal(method.getModifiers()));
+
+        entity.setFinal(false);
+        // entity.setFinal(Modifier.isFinal(method.getModifiers()));  Disable native final.
+
         entity.setStatic(Modifier.isStatic(method.getModifiers()));
 
         if (classEntity.isInterface()){
