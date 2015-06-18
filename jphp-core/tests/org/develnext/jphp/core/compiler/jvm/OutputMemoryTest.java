@@ -10,9 +10,8 @@ import org.junit.runners.MethodSorters;
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OutputMemoryTest extends JvmCompilerCase {
-
     @Test
-    public void testVarDump(){
+    public void testVarDump() {
         includeResource("output_memory/var_dump.php");
         Assert.assertEquals(
                 "int(2)\n" +
@@ -25,7 +24,7 @@ public class OutputMemoryTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testPrintR(){
+    public void testPrintR() {
         includeResource("output_memory/print_r.php");
         Assert.assertEquals(
                 "2" +
@@ -35,5 +34,10 @@ public class OutputMemoryTest extends JvmCompilerCase {
                 "" +
                 "",
                 getOutput());
+    }
+
+    @Test
+    public void testDebugInfo() {
+        check("output_memory/debug_info.php");
     }
 }
