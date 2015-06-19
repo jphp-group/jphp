@@ -66,7 +66,9 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
         if (returnValue){
             ClosureEntity entity = compiler.getModule().findClosure( closure.getId() );
             boolean thisExists = closure.getFunction().isThisExists();
-            if (closure.getFunction().getUses().isEmpty() && !thisExists
+            boolean staticExists = closure.getFunction().isStaticExists();
+
+            if (closure.getFunction().getUses().isEmpty() && !thisExists && !staticExists
                     && closure.getFunction().getStaticLocal().isEmpty()){
                 expr.writePushEnv();
                 expr.writePushConstString(compiler.getModule().getInternalName());
@@ -79,6 +81,7 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
                 expr.stackPush(Memory.Type.REFERENCE);
                 expr.writePushDup();
 
+                expr.writePushEnv();
                 expr.writePushEnv();
                 expr.writePushConstString(compiler.getModule().getInternalName());
                 expr.writePushConstInt((int) entity.getId());
@@ -94,10 +97,11 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
                         INVOKESPECIAL, entity.getInternalName(), Constants.INIT_METHOD,
                         Type.getMethodDescriptor(
                                 Type.getType(void.class),
-                                Type.getType(ClassEntity.class), Type.getType(Memory.class), Type.getType(Memory[].class)
+                                Type.getType(Environment.class), Type.getType(ClassEntity.class), Type.getType(Memory.class), Type.getType(Memory[].class)
                         ),
                         false
                 ));
+                expr.stackPop();
                 expr.stackPop();
                 expr.stackPop();
                 expr.stackPop();

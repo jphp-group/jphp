@@ -43,6 +43,6 @@ public class ParameterDumperTest {
         Assert.assertEquals(Memory.CONST_INT_5, copyEntity.getDefaultValue());
         Assert.assertTrue(copyEntity.isReference());
         Assert.assertEquals(HintType.CALLABLE, copyEntity.getType());
-        Assert.assertEquals("FooBar", copyEntity.getTypeClass());
+        Assert.assertNull(copyEntity.getTypeClass());
     }
 }

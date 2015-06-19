@@ -279,22 +279,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         if (isClosure() || generatorEntity != null) {
             constructor.desc = Type.getMethodDescriptor(
                     Type.getType(void.class),
+                    Type.getType(Environment.class),
                     Type.getType(ClassEntity.class),
                     Type.getType(Memory.class),
                     Type.getType(Memory[].class)
             );
 
-            if (generatorEntity != null) {
-                constructor.desc = Type.getMethodDescriptor(
-                        Type.getType(void.class),
-                        Type.getType(Environment.class),
-                        Type.getType(ClassEntity.class),
-                        Type.getType(Memory.class),
-                        Type.getType(Memory[].class)
-                );
-                methodCompiler.addLocalVariable("~env", l0, Environment.class);
-            }
-
+            methodCompiler.addLocalVariable("~env", l0, Environment.class);
             methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
             methodCompiler.addLocalVariable("~self", l0, Memory.class);
             methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
@@ -302,10 +293,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             methodCompiler.writeHeader();
             expressionCompiler.writeVarLoad("~this");
 
-            if (generatorEntity != null) {
-                expressionCompiler.writeVarLoad("~env");
-            }
-
+            expressionCompiler.writeVarLoad("~env");
             expressionCompiler.writeVarLoad("~class");
             expressionCompiler.writeVarLoad("~self");
             expressionCompiler.writeVarLoad("~uses");

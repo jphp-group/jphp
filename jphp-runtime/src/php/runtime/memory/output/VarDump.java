@@ -150,11 +150,12 @@ public class VarDump extends Printer {
             ArrayMemory arr;
             if (classEntity.methodMagicDebugInfo != null) {
                 try {
-                    Memory tmp = classEntity.methodMagicDebugInfo.invokeDynamic(value.value, env);
-                    if (tmp.isArray())
+                    Memory tmp = env.invokeMethod(value.value, classEntity.methodMagicDebugInfo.getName());
+                    if (tmp.isArray()) {
                         arr = tmp.toValue(ArrayMemory.class);
-                    else
+                    } else {
                         arr = new ArrayMemory();
+                    }
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {

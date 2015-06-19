@@ -204,4 +204,32 @@ public class ConcurrentEnvironment extends Environment {
             return super.getOrCreateStatic(name, initValue);
         }
     }
+
+    @Override
+    public void echo(byte[] bytes, int length) {
+        synchronized (this) {
+            super.echo(bytes, length);
+        }
+    }
+
+    @Override
+    public void echo(Memory value) {
+        synchronized (this) {
+            super.echo(value);
+        }
+    }
+
+    @Override
+    public void echo(String value) {
+        synchronized (this) {
+            super.echo(value);
+        }
+    }
+
+    @Override
+    public void flushAll() throws Throwable {
+        synchronized (this) {
+            super.flushAll();
+        }
+    }
 }

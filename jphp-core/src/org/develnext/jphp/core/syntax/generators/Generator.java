@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.syntax.generators;
 
 import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import php.runtime.common.Messages;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
@@ -52,15 +53,25 @@ abstract public class Generator<T extends Token> {
 
     @SuppressWarnings("unchecked")
     protected <K extends Token> K nextAndExpected(ListIterator<Token> iterator, Class<K> clazz){
-        checkUnexpectedEnd(iterator);
+        Token next = nextToken(iterator);
 
-        Token next = iterator.next();
         if (!isTokenClass(next, clazz))
             unexpectedToken(next);
 
         return (K) next;
     }
 
+    @SuppressWarnings("unchecked")
+    protected <K extends Token> K nextAndExpectedSensitive(ListIterator<Token> iterator, Class<K> clazz){
+        Token next = nextTokenSensitive(iterator);
+
+        if (!isTokenClass(next, clazz))
+            unexpectedToken(next);
+
+        return (K) next;
+    }
+
+    @SuppressWarnings("unchecked")
     protected boolean isTokenClass(Token token, Class<? extends Token>... classes){
         if (token == null)
             return false;
@@ -107,6 +118,40 @@ abstract public class Generator<T extends Token> {
                     Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE
             );
         }
+    }
+
+    protected Token makeSensitive(Token token) {
+        if (token instanceof NameToken) {
+            return token;
+        }
+
+        if (token.isNamedToken()) {
+            return new NameToken(token.getMeta());
+        }
+
+        return token;
+    }
+
+    /**
+     * Processes named token and returns them as named tokens.
+     */
+    @SafeVarargs
+    protected final Token nextTokenSensitive(ListIterator<Token> iterator, Class<? extends Token>... excludes) {
+        Token token = nextToken(iterator);
+
+        if (token instanceof NameToken) {
+            return token;
+        }
+
+        if (excludes != null && isTokenClass(token, excludes)) {
+            return token;
+        }
+
+        if (token.isNamedToken()) {
+            return new NameToken(token.getMeta());
+        }
+
+        return token;
     }
 
     protected Token nextToken(ListIterator<Token> iterator){

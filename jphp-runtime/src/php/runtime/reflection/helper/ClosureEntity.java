@@ -2,6 +2,7 @@ package php.runtime.reflection.helper;
 
 import php.runtime.Memory;
 import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import php.runtime.lang.Closure;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
@@ -24,6 +25,11 @@ public class ClosureEntity extends ClassEntity {
 
     public boolean isReturnReference() {
         return returnReference;
+    }
+
+    @Override
+    public boolean isHiddenInCallStack() {
+        return true;
     }
 
     public void setReturnReference(boolean returnReference) {
@@ -62,11 +68,11 @@ public class ClosureEntity extends ClassEntity {
         this.nativeClazz = nativeClazz;
         if (!nativeClazz.isInterface()){
             try {
-                this.nativeConstructor = nativeClazz.getConstructor(ClassEntity.class, Memory.class, Memory[].class);
+                this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class, Memory.class, Memory[].class);
                 this.nativeConstructor.setAccessible(true);
 
                 //if (uses == null || uses.length == 0)
-                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(this, Memory.NULL, null));
+                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(null, this, Memory.NULL, null));
                 //else
                   //  singleton = null;
             } catch (NoSuchMethodException e) {

@@ -37,4 +37,9 @@ public class YieldExprToken extends ValueExprToken implements CallableExprToken 
     public void setOnlyNext(boolean onlyNext) {
         this.onlyNext = onlyNext;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

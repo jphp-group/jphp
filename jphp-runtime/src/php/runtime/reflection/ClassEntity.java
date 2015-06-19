@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -227,6 +228,10 @@ ClassReader classReader;
 
     public boolean isClass(){
         return type == Type.CLASS;
+    }
+
+    public boolean isHiddenInCallStack() {
+        return false;
     }
 
     public void setType(Type type) {
@@ -1216,7 +1221,7 @@ ClassReader classReader;
     public Memory issetProperty(Environment env, TraceInfo trace, IObject object, String property,
                                 PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+        PropertyEntity entity = callCache == null || env instanceof ConcurrentEnvironment ? null : callCache.get(env, cacheIndex);
 
         if (entity == null) {
             ClassEntity contex = env.getLastClassOnStack();
@@ -1267,7 +1272,7 @@ ClassReader classReader;
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
                                     boolean checkAccess, ClassEntity context, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        PropertyEntity entity = callCache == null || context != null ? null : callCache.get(env, cacheIndex);
+        PropertyEntity entity = callCache == null || env instanceof ConcurrentEnvironment || context != null ? null : callCache.get(env, cacheIndex);
 
         if (entity == null) {
             boolean saveCache = context == null && callCache != null;
@@ -1305,7 +1310,7 @@ ClassReader classReader;
             throws Throwable {
         Memory value;
 
-        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+        PropertyEntity entity = callCache == null || env instanceof ConcurrentEnvironment ? null : callCache.get(env, cacheIndex);
 
         if (entity == null) {
             ClassEntity context = env.getLastClassOnStack();
@@ -1353,7 +1358,7 @@ ClassReader classReader;
             throws Throwable {
         Memory value;
 
-        PropertyEntity entity = callCache == null ? null : callCache.get(env, cacheIndex);
+        PropertyEntity entity = callCache == null || env instanceof ConcurrentEnvironment ? null : callCache.get(env, cacheIndex);
 
         if (entity == null) {
             ClassEntity context = env.getLastClassOnStack();

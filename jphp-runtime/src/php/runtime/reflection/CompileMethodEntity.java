@@ -58,7 +58,7 @@ public class CompileMethodEntity extends MethodEntity {
         }
 
         setReturnReference(method.getAnnotation(Reflection.Reference.class) != null);
-        setFinal(Modifier.isFinal(mods));
+        setFinal(method.isAnnotationPresent(Reflection.Final.class));
         setAbstract(Modifier.isAbstract(mods));
         setInternalName(method.getName());
 

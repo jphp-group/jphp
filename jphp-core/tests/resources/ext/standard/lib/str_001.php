@@ -35,6 +35,19 @@ echo "lastPosIgnoreCase(ob_foObar, ob, 100) == " . str::lastPosIgnoreCase('ob_fo
 echo "lastPosIgnoreCase(ob_foObar, ob, -1) == " . str::lastPosIgnoreCase('ob_foObar', 'ob', -1), "\n";
 echo "lastPosIgnoreCase(ob_foObar, ob, -1000) == " . str::lastPosIgnoreCase('ob_foObar', 'ob', -1000), "\n";
 
+echo "--contains\n";
+
+echo "contains(foobar, ob) == " . (str::contains('foobar', 'ob') ? "1" : "0"), "\n";
+echo "contains(foobar, OB) == " . (str::contains('foobar', 'OB') ? "1" : "0"), "\n";
+
+echo "--count\n";
+
+echo "count(foobar, o) == " . str::count('foobar', 'o'), "\n";
+echo "count(foobar, o, 2) == " . str::count('foobar', 'o', 2), "\n";
+echo "count(foobar, oo) == " . str::count('foobar', 'oo'), "\n";
+echo "count(foobar, oo, 2) == " . str::count('foobar', 'oo', 2), "\n";
+echo "count(foobar, O) == " . str::count('foobar', 'O'), "\n";
+
 ?>
 --EXPECT--
 pos(Ob_foobar, ob) == 5
@@ -60,3 +73,12 @@ lastPosIgnoreCase(ob_foObar, ob, 4) == 5
 lastPosIgnoreCase(ob_foObar, ob, 100) == 5
 lastPosIgnoreCase(ob_foObar, ob, -1) == -1
 lastPosIgnoreCase(ob_foObar, ob, -1000) == -1
+--contains
+contains(foobar, ob) == 1
+contains(foobar, OB) == 0
+--count
+count(foobar, o) == 2
+count(foobar, o, 2) == 1
+count(foobar, oo) == 1
+count(foobar, oo, 2) == 0
+count(foobar, O) == 0

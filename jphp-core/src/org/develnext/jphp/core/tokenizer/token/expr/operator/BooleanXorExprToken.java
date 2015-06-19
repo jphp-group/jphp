@@ -34,4 +34,9 @@ public class BooleanXorExprToken extends OperatorExprToken {
     public Class<?> getResultClass() {
         return Boolean.TYPE;
     }
+
+    @Override
+    public boolean isNamedToken() {
+        return true;
+    }
 }

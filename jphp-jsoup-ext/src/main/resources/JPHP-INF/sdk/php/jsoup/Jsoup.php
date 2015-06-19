@@ -39,5 +39,4 @@ final class Jsoup
     public static function parseText($text, $baseUri)
     {
     }
-
 }

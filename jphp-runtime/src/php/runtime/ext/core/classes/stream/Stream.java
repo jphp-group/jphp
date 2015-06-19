@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
+import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
 import php.runtime.memory.BinaryMemory;
@@ -152,6 +153,22 @@ abstract public class Stream extends BaseObject implements Resource {
         }
     }
 
+    @Signature({
+            @Arg("path"),
+            @Arg(value = "callback", type = HintType.CALLABLE),
+            @Arg(value = "mode", optional = @Optional("r"))}
+    )
+    public static Memory tryAccess(Environment env, Memory... args) throws Throwable {
+        Stream stream = create(env, args[0].toString(), args[2].toString());
+
+        try {
+            Invoker invoker = Invoker.create(env, args[1]);
+            return invoker.call(ObjectMemory.valueOf(stream));
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
     public static Memory of(Environment env, Memory... args) throws Throwable {
         String path = args[0].toString();
@@ -247,10 +264,14 @@ abstract public class Stream extends BaseObject implements Resource {
             } else if (arg.instanceOf(Stream.class)){
                 return new StreamOutputStream(env, arg.toObject(Stream.class));
             } else {
-                return new FileOutputStream(arg.toString());
+                StreamOutputStream outputStream = new StreamOutputStream(env, Stream.create(env, arg.toString(), "r"));
+                outputStream.autoClose = true;
+                return outputStream;
             }
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
+        } catch (Throwable throwable) {
+            env.wrapThrow(throwable);
         }
         return null;
     }
@@ -287,16 +308,21 @@ abstract public class Stream extends BaseObject implements Resource {
             } else if (arg.instanceOf(Stream.class)){
                 return new StreamInputStream(env, arg.toObject(Stream.class));
             } else {
-                return new FileInputStream(arg.toString());
+                StreamInputStream inputStream = new StreamInputStream(env, Stream.create(env, arg.toString(), "r"));
+                inputStream.autoClose = true;
+                return inputStream;
             }
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
+        } catch (Throwable throwable) {
+            env.wrapThrow(throwable);
         }
         return null;
     }
 
     public static void closeStream(Environment env, InputStream inputStream){
-        if (inputStream instanceof FileInputStream)
+        if (inputStream instanceof FileInputStream
+                || (inputStream instanceof StreamInputStream && ((StreamInputStream) inputStream).autoClose))
             try {
                 inputStream.close();
             } catch (IOException e) {
@@ -305,7 +331,8 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     public static void closeStream(Environment env, OutputStream outputStream){
-        if (outputStream instanceof FileOutputStream)
+        if (outputStream instanceof FileOutputStream
+                || (outputStream instanceof StreamOutputStream && ((StreamOutputStream) outputStream).autoClose))
             try {
                 outputStream.close();
             } catch (IOException e) {
@@ -316,6 +343,7 @@ abstract public class Stream extends BaseObject implements Resource {
     public static class StreamOutputStream extends OutputStream {
         protected final Stream stream;
         protected final Environment env;
+        protected boolean autoClose = false;
 
         public StreamOutputStream(Environment env, Stream stream) {
             this.stream = stream;
@@ -331,6 +359,7 @@ abstract public class Stream extends BaseObject implements Resource {
     public static class StreamInputStream extends InputStream {
         protected final Stream stream;
         protected final Environment env;
+        protected boolean autoClose = false;
 
         public StreamInputStream(Environment env, Stream stream) {
             this.stream = stream;

@@ -14,10 +14,7 @@ import php.runtime.ext.core.classes.stream.*;
 import php.runtime.ext.core.classes.time.WrapTime;
 import php.runtime.ext.core.classes.time.WrapTimeFormat;
 import php.runtime.ext.core.classes.time.WrapTimeZone;
-import php.runtime.ext.core.classes.util.WrapFlow;
-import php.runtime.ext.core.classes.util.WrapLocale;
-import php.runtime.ext.core.classes.util.WrapRegex;
-import php.runtime.ext.core.classes.util.WrapScanner;
+import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
@@ -87,6 +84,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapLocale.class);
         registerClass(scope, WrapScanner.class);
         registerClass(scope, WrapFlow.class);
+        registerClass(scope, WrapConfiguration.class);
         registerClass(scope, WrapRegex.class);
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
 
@@ -127,7 +125,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapServerSocket.class);
         registerJavaException(scope, WrapSocketException.class, SocketException.class);
 
-        registerClass(scope, WrapExecutorService.class);
+        registerClass(scope, WrapThreadPool.class);
         registerClass(scope, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 

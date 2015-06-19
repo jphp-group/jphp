@@ -47,7 +47,7 @@ public class SwingExtension extends Extension {
 
     @Override
     public Status getStatus() {
-        return Status.LEGACY;
+        return Status.DEPRECATED;
     }
 
     @SuppressWarnings("unchecked")
@@ -84,8 +84,8 @@ public class SwingExtension extends Extension {
         registerClass(scope, WrapSwingUtilities.class);
         registerClass(scope, RootObject.class);
         registerClass(scope, WrapSwingWorker.class);
-        registerClass(scope, WrapScopeValue.class);
-        registerWrapperClass(scope, Scope.class, WrapScope.class);
+        /*registerClass(scope, WrapScopeValue.class);
+        registerWrapperClass(scope, Scope.class, WrapScope.class);*/
 
         registerClass(scope, WrapTimer.class);
         registerClass(scope, WrapFont.class);

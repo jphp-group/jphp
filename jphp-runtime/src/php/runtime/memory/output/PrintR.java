@@ -5,7 +5,6 @@ import php.runtime.common.Modifier;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
@@ -154,11 +153,13 @@ public class PrintR extends Printer {
             ArrayMemory props;
             if (env != null && classEntity.methodMagicDebugInfo != null) {
                 try {
-                    Memory tmp = classEntity.methodMagicDebugInfo.invokeDynamic(value.value, env);
-                    if (tmp.isArray())
+                    Memory tmp = env.invokeMethod(value.value, classEntity.methodMagicDebugInfo.getName());
+
+                    if (tmp.isArray()) {
                         props = tmp.toValue(ArrayMemory.class);
-                    else
+                    } else {
                         props = new ArrayMemory();
+                    }
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {

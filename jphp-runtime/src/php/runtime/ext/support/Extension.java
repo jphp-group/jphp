@@ -1,6 +1,7 @@
 package php.runtime.ext.support;
 
 import php.runtime.Information;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
@@ -81,7 +82,7 @@ abstract public class Extension {
     }
 
     public void registerClass(CompileScope scope, Class<?> clazz) {
-        if (BaseWrapper.class.isAssignableFrom(clazz)) {
+        if (BaseWrapper.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Reflection.NotWrapper.class)) {
             throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
         }
 

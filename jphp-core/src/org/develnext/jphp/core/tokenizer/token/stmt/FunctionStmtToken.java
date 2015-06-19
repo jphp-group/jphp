@@ -32,6 +32,8 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean callsExist;
     protected boolean varsExists;
     protected boolean thisExists;
+    protected boolean staticExists;
+
     public static final VariableExprToken thisVariable = VariableExprToken.valueOf("this");
     protected int id;
     protected int generatorId = -1;
@@ -69,6 +71,14 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setStatic(boolean aStatic) {
         isStatic = aStatic;
+    }
+
+    public boolean isStaticExists() {
+        return staticExists;
+    }
+
+    public void setStaticExists(boolean staticExists) {
+        this.staticExists = staticExists;
     }
 
     public NamespaceStmtToken getNamespace() {
