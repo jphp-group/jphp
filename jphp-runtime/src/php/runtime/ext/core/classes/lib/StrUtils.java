@@ -477,4 +477,98 @@ public class StrUtils extends BaseObject {
 
         return letterExists ? Memory.TRUE : Memory.FALSE;
     }
+
+    @FastMethod
+    @Signature({@Arg("string")})
+    public static Memory upperFirst(Environment env, Memory... args) {
+        String s = args[0].toString();
+
+        if (s.length() > 0) {
+            s = Character.toUpperCase(s.charAt(0)) + s.substring(1);
+        }
+
+        return StringMemory.valueOf(s);
+    }
+
+    @FastMethod
+    @Signature({@Arg("string")})
+    public static Memory lowerFirst(Environment env, Memory... args) {
+        String s = args[0].toString();
+
+        if (s.length() > 0) {
+            s = Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        }
+
+        return StringMemory.valueOf(s);
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("string"), @Arg("subString"), @Arg(value = "offset", optional = @Optional("0"))
+    })
+    public static Memory count(Environment env, Memory... args) {
+        String s = args[0].toString();
+        String sub = args[1].toString();
+        int offset = args[2].toInteger();
+
+        int length = sub.length();
+        int count = 0;
+
+        int sLength = s.length();
+
+        if (length == 1) {
+            char subChar = sub.charAt(0);
+
+            for (int i = offset; i < sLength; i++) {
+                if (s.charAt(i) == subChar) {
+                    count++;
+                }
+            }
+        } else if (length > 1) {
+            for (int i = offset; i < sLength; i++) {
+                if (s.startsWith(sub, i)) {
+                    count++;
+                    i += length;
+                }
+            }
+        }
+
+        return LongMemory.valueOf(count);
+    }
+
+    @FastMethod
+    @Signature({@Arg("string"), @Arg("search")})
+    public static Memory contains(Environment env, Memory... args) {
+        String s = args[0].toString();
+
+        return s.contains(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature({@Arg("string")})
+    public static Memory format(Environment env, Memory... args) {
+        String s = args[0].toString();
+
+        Object[] _args = new Object[args.length - 1];
+
+        for (int i = 1; i < args.length; i++) {
+            Memory arg = args[i];
+            Object _arg = arg;
+
+            switch (arg.getRealType()) {
+                case INT:
+                    _arg = arg.toLong();
+                    break;
+                case DOUBLE:
+                    _arg = arg.toDouble();
+                    break;
+                case BOOL:
+                    _arg = arg.toBoolean();
+                    break;
+            }
+
+            _args[i - 1] = _arg;
+        }
+
+        return StringMemory.valueOf(String.format(s, _args));
+    }
 }

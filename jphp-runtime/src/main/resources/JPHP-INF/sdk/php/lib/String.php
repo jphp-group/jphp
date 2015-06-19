@@ -381,4 +381,48 @@ class String
     {
         return false;
     }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    public static function lowerFirst($string)
+    {
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    public static function upperFirst($string)
+    {
+    }
+
+    /**
+     * @param string $string
+     * @param ...$args
+     * @return string
+     */
+    public static function format($string, ...$args)
+    {
+    }
+
+    /**
+     * @param string $string
+     * @param string $search
+     * @return bool
+     */
+    public static function contains($string, $search)
+    {
+    }
+
+    /**
+     * @param string $string
+     * @param string $subString
+     * @param int $offset
+     * @return int
+     */
+    public static function count($string, $subString, $offset = 0)
+    {
+    }
 }
