@@ -8,6 +8,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.ParameterEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 public class ForeachIteratorMemoryOperation extends MemoryOperation<ForeachIterator> {
     @Override
@@ -27,6 +28,6 @@ public class ForeachIteratorMemoryOperation extends MemoryOperation<ForeachItera
 
     @Override
     public void applyTypeHinting(ParameterEntity parameter) {
-        parameter.setType(HintType.TRAVERSABLE);
+        parameter.setTypeChecker(TypeChecker.of(HintType.TRAVERSABLE));
     }
 }

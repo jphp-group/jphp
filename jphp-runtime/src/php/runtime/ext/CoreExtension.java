@@ -130,6 +130,7 @@ public class CoreExtension extends Extension {
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
         registerClass(scope, WrapProcessor.class);
+        registerClass(scope, WrapProcessor.ProcessorException.class);
         registerClass(scope, WrapProcess.class);
     }
 

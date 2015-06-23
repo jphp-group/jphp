@@ -133,11 +133,13 @@ abstract public class Stream extends BaseObject implements Resource {
         }
     }
 
-    @Signature
+    @Signature({
+            @Arg("path")
+    })
     public static Memory exists(Environment env, Memory... args) throws Throwable {
         Stream stream = null;
         try {
-            stream = create(env, args[0].toString(), args[2].toString());
+            stream = create(env, args[0].toString(), "r");
 
             if (stream._isExternalResourceStream()) {
                 env.exception("Unable to check external stream");
@@ -369,7 +371,7 @@ abstract public class Stream extends BaseObject implements Resource {
         @Override
         public int read() throws IOException {
             Memory result = stream.read(env, Memory.CONST_INT_1);
-            return result.isString() ? result.getBinaryBytes()[0] : -1;
+            return result.isString() ? result.getBinaryBytes()[0] & 0xFF : -1;
         }
 
         @Override

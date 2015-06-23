@@ -457,6 +457,11 @@ public class ClassWrapper {
                             propertyEntity.setGetter(getterEntity);
                             propertyEntity.setSetter(setterEntity);
 
+                            if (setterEntity != null && method.isAnnotationPresent(Reflection.Nullable.class)) {
+                                ParameterEntity setterArg = setterEntity.getParameters(1)[0];
+                                setterArg.setNullable(true);
+                            }
+
                             if (_interface.isInterface()) {
                                 getterEntity.setAbstractable(false);
                                 getterEntity.setAbstract(false);

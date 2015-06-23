@@ -87,7 +87,7 @@ public @interface Reflection {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({PARAMETER})
+    @Target({PARAMETER, METHOD})
     public @interface Nullable {
     }
 

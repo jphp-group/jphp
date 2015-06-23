@@ -21,7 +21,7 @@ public class DynamicAccessCompiler extends BaseExprCompiler<DynamicAccessExprTok
     public void write(DynamicAccessExprToken dynamic, boolean returnValue) {
         expr.writeDynamicAccessPrepare(dynamic, false);
 
-        if (dynamic.getFieldExpr() == null && dynamic.getField() instanceof NameToken) {
+        if (dynamic.getFieldExpr() == null && dynamic.getField() instanceof NameToken && !method.clazz.statement.isTrait()) {
             expr.writeGetStatic("$CALL_PROP_CACHE", PropertyCallCache.class);
             expr.writePushConstInt(method.clazz.getAndIncCallPropCount());
         } else {
