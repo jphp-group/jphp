@@ -61,6 +61,11 @@ public class WrapDomDocument extends WrapDomNode {
     }
 
     @Signature
+    public Node createProcessingInstruction(String name, String value) {
+        return getWrappedObject().createProcessingInstruction(name, value);
+    }
+
+    @Signature
     public Element createElement(String tagName, @Nullable ArrayMemory _model) {
         Element element = getWrappedObject().createElement(tagName);
 
