@@ -19,18 +19,21 @@ class JsonProcessor extends Processor {
     /**
      * @param string|Stream $json
      * @return mixed
+     * @throws ProcessorException
      */
     public function parse($json) { return []; }
 
     /**
      * @param mixed $value
      * @return string
+     * @throws ProcessorException
      */
     public function format($value) { return ''; }
 
     /**
      * @param mixed $value
      * @param Stream $output
+     * @throws ProcessorException
      */
     public function formatTo($value, Stream $output) { }
 
