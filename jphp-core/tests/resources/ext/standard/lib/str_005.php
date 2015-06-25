@@ -3,7 +3,7 @@ php\lib\str Test - isLower, isUpper, lower,  upper
 --FILE--
 <?php
 
-use php\lib\String as str;
+use php\lib\Str as str;
 
 var_dump(str::isLower('моя строка'));
 var_dump(str::isLower('Моя строка'));

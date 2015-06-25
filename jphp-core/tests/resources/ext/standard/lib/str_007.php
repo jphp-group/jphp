@@ -3,7 +3,7 @@ php\lib\str Test - leng
 --FILE--
 <?php
 
-use php\lib\String as str;
+use php\lib\Str as str;
 
 $random = str::random();
 var_dump($random);

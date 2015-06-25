@@ -1,8 +1,6 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
-import php.runtime.exceptions.support.ErrorType;
-import php.runtime.lang.IObject;
 import php.runtime.output.OutputBuffer;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
@@ -11,8 +9,6 @@ import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Stack;
-
-import static php.runtime.exceptions.support.ErrorType.*;
 
 public class ConcurrentEnvironment extends Environment {
     private ThreadLocal<Stack<OutputBuffer>> outputBuffers;
@@ -159,7 +155,7 @@ public class ConcurrentEnvironment extends Environment {
     @Override
     public void registerModule(ModuleEntity module) {
         synchronized (this) {
-            super.registerModule(module);
+            super.registerModule(module, true);
         }
     }
 

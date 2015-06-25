@@ -1,7 +1,7 @@
 <?php
 namespace benchmarks;
 
-use php\lib\String;
+use php\lib\Str;
 
 class StringBenchmark extends Benchmark
 {
@@ -14,14 +14,14 @@ class StringBenchmark extends Benchmark
     {
         $str1 = 'foobar';
 
-        $len = String::length($str1);
+        $len = Str::length($str1);
 
-        $pos = String::pos($str1, 'oba');
-        $pos = String::pos($str1, 'oba', 4);
+        $pos = Str::pos($str1, 'oba');
+        $pos = Str::pos($str1, 'oba', 4);
 
-        $upper = String::upper($str1);
+        $upper = Str::upper($str1);
 
-        $replace = String::replace($str1, 'o', 'O');
+        $replace = Str::replace($str1, 'o', 'O');
     }
 
     public function runZendPhp()
