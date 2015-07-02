@@ -106,4 +106,17 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     public boolean __smallerEq(BaseWrapper iObject) {
         return false;
     }
+
+    @Override
+    public String toString() {
+        if (__class__.methodMagicToString != null) {
+            Environment environment = getEnvironment();
+
+            if (environment != null) {
+                return environment.invokeMethodNoThrow(this, "__toString").toString();
+            }
+        }
+
+        return super.toString();
+    }
 }

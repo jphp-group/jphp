@@ -78,4 +78,17 @@ abstract public class BaseObject implements IObject {
     public void setAsMock() {
         __class__ = null;
     }
+
+    @Override
+    public String toString() {
+        if (__class__.methodMagicToString != null) {
+            Environment environment = getEnvironment();
+
+            if (environment != null) {
+                return environment.invokeMethodNoThrow(this, "__toString").toString();
+            }
+        }
+
+        return super.toString();
+    }
 }

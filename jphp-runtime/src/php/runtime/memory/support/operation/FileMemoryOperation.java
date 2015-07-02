@@ -17,11 +17,11 @@ public class FileMemoryOperation extends MemoryOperation<File> {
 
     @Override
     public File convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-        return FileObject.valueOf(arg);
+        return arg.isNull() ? null : FileObject.valueOf(arg);
     }
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, File arg) throws Throwable {
-        return ObjectMemory.valueOf(new FileObject(env, arg));
+        return arg == null ? Memory.NULL : ObjectMemory.valueOf(new FileObject(env, arg));
     }
 }

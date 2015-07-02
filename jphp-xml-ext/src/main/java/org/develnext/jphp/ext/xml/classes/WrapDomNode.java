@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.xml.classes;
 
 import org.develnext.jphp.ext.xml.XmlExtension;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -10,6 +11,7 @@ import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseWrapper;
+import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
@@ -87,8 +89,18 @@ public class WrapDomNode extends BaseWrapper<Node> {
     }
 
     @Signature
-    public Node find(String expression) throws XPathExpressionException {
-        return (Node) getXPath().compile(expression).evaluate(getWrappedObject(), XPathConstants.NODE);
+    public IObject find(Environment env, String expression) throws XPathExpressionException {
+        Node node = (Node) getXPath().compile(expression).evaluate(getWrappedObject(), XPathConstants.NODE);
+
+        if (node == null) {
+            return null;
+        }
+
+        if (node instanceof Element) {
+            return new WrapDomElement(env, (Element) node);
+        }
+
+        return new WrapDomNode(env, node);
     }
 
     @Signature

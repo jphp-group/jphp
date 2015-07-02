@@ -587,17 +587,27 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void unshift(Memory... values){
         checkCopied();
+
+        if (values == null) {
+            throw new NullPointerException();
+        }
+
         if (size == 0) {
             for (Memory value : values)
                 add(value);
         }  else {
             if (list != null) {
-                List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
-                for(Memory value : values)
-                    tmp.add(new ReferenceMemory(value));
+                if (values.length > 1) {
+                    List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
+                    for (Memory value : values)
+                        tmp.add(new ReferenceMemory(value));
 
-                list.addAll(0, tmp);
-                size = list.size();
+                    list.addAll(0, tmp);
+                    size = list.size();
+                } else if (values.length == 1) {
+                    list.add(0, new ReferenceMemory(values[0]));
+                    size = list.size();
+                }
             } else {
                 ArrayMemory tmp = new ArrayMemory();
                 tmp.convertToMap();

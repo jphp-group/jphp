@@ -294,4 +294,19 @@ public class ItemsUtils extends BaseObject {
 
         return Memory.NULL;
     }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.ARRAY)
+    })
+    public static Memory reverse(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        ArrayMemory result = new ArrayMemory();
+
+        while (iterator.next()) {
+            result.unshift(iterator.getValue().toImmutable());
+        }
+
+        return result.toConstant();
+    }
 }

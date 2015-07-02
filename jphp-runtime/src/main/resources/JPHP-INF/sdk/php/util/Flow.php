@@ -205,6 +205,11 @@ class Flow implements Iterator {
     private function __clone() { }
 
     /**
+     * @return Flow
+     */
+    public static function ofEmpty() { return new Flow([]); }
+
+    /**
      * Creates a new flow for an array of Iterator
      *
      * @param array|Traversable $collection

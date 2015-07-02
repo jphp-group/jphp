@@ -167,4 +167,12 @@ class Items
     public static function firstKey($collection)
     {
     }
+
+    /**
+     * @param array $array
+     * @return array
+     */
+    public static function reverse(array $array)
+    {
+    }
 }
