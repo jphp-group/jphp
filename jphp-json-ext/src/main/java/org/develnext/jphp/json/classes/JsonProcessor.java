@@ -2,6 +2,8 @@ package org.develnext.jphp.json.classes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
 import org.develnext.jphp.json.gson.MemoryDeserializer;
 import org.develnext.jphp.json.gson.MemorySerializer;
@@ -104,10 +106,15 @@ public class JsonProcessor extends WrapProcessor {
     public Memory parse(Environment env, Memory... args) {
         Memory r;
 
-        if (args[0].instanceOf(Stream.class)) {
-            r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0])), Memory.class);
-        } else {
-            r = gson.fromJson(args[0].toString(), Memory.class);
+        try {
+            if (args[0].instanceOf(Stream.class)) {
+                r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0])), Memory.class);
+            } else {
+                r = gson.fromJson(args[0].toString(), Memory.class);
+            }
+        } catch (JsonSyntaxException e) {
+            env.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
         }
 
         if (r == null)
@@ -119,7 +126,12 @@ public class JsonProcessor extends WrapProcessor {
     @Override
     @Signature
     public Memory format(Environment env, Memory... args) {
-        return StringMemory.valueOf(gson.toJson(args[0]));
+        try {
+            return StringMemory.valueOf(gson.toJson(args[0]));
+        } catch (JsonIOException e) {
+            env.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
+        }
     }
 
     @Override
@@ -129,6 +141,9 @@ public class JsonProcessor extends WrapProcessor {
 
         try {
             gson.toJson(args[0], Memory.class, new JsonWriter(new OutputStreamWriter(outputStream)));
+        } catch (JsonIOException e) {
+            env.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
         } finally {
             Stream.closeStream(env, outputStream);
         }

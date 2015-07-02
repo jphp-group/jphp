@@ -3,7 +3,7 @@ php\lib\str Test - isNumber
 --FILE--
 <?php
 
-use php\lib\String as str;
+use php\lib\Str as str;
 
 var_dump(str::isNumber('012738'));
 var_dump(str::isNumber('9999999999999999999999999999999999999999999999'));

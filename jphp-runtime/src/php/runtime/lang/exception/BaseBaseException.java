@@ -227,4 +227,17 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     public void doFinalize() {
         isFinalized = true;
     }
+
+    @Override
+    public String toString() {
+        if (clazz.methodMagicToString != null) {
+            Environment environment = getEnvironment();
+
+            if (environment != null) {
+                return environment.invokeMethodNoThrow(this, "__toString").toString();
+            }
+        }
+
+        return super.toString();
+    }
 }

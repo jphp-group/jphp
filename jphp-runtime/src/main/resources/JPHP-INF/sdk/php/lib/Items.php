@@ -4,6 +4,7 @@ namespace php\lib;
 use ArrayAccess;
 use Countable;
 use Iterator;
+use Traversable;
 
 /**
  * Library for working with collections - arrays, iterators, etc.
@@ -148,6 +149,30 @@ class Items
      * @param $values
      */
     public static function unshift(array &$array, ...$values)
+    {
+    }
+
+    /**
+     * @param Traversable|array $collection
+     * @return mixed
+     */
+    public static function first($collection)
+    {
+    }
+
+    /**
+     * @param Traversable|array $collection
+     * @return string|int|null
+     */
+    public static function firstKey($collection)
+    {
+    }
+
+    /**
+     * @param array $array
+     * @return array
+     */
+    public static function reverse(array $array)
     {
     }
 }

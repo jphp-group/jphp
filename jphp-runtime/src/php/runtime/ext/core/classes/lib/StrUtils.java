@@ -18,9 +18,14 @@ import java.nio.charset.Charset;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\String")
+@Name("php\\lib\\Str")
 public class StrUtils extends BaseObject {
-    public Memory string;
+    @Name("php\\lib\\String")
+    public static class StrUtilsOld extends StrUtils {
+        public StrUtilsOld(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+    }
 
     public StrUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);

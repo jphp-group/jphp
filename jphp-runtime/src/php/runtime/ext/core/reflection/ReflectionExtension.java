@@ -9,6 +9,7 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -60,10 +61,11 @@ public class ReflectionExtension extends Reflection {
     @Signature
     public Memory getClassNames(Environment env, Memory... args){
         ArrayMemory result = new ArrayMemory();
+
         for(Class<?> e : extension.getClasses().values()){
-            Name name = e.getAnnotation(Name.class);
-            result.add(new StringMemory(name == null ? e.getSimpleName() : name.value()));
+            result.add(ReflectionUtils.getClassName(e));
         }
+
         return result.toConstant();
     }
 

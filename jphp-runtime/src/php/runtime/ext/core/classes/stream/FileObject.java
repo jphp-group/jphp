@@ -16,6 +16,9 @@ import php.runtime.reflection.ClassEntity;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -353,6 +356,14 @@ public class FileObject extends BaseObject {
             file = File.createTempFile(args[0].toString(), args[1].toString(), valueOf(args[2]));
 
         return new ObjectMemory(new FileObject(env, file));
+    }
+
+    @Signature(@Arg("pattern"))
+    public Memory matches(Environment env, Memory... args) {
+        FileSystem aDefault = FileSystems.getDefault();
+        PathMatcher pathMatcher = aDefault.getPathMatcher(args[0].toString());
+
+        return pathMatcher.matches(aDefault.getPath(file.getPath())) ? Memory.TRUE : Memory.FALSE;
     }
 
     @Signature

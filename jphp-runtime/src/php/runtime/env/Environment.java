@@ -1043,10 +1043,15 @@ public class Environment {
         return module;
     }
 
+
     public void registerModule(ModuleEntity module) {
+        registerModule(module, false);
+    }
+
+    public void registerModule(ModuleEntity module, boolean ignoreErrors) {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
-                if (classMap.put(entity.getLowerName(), entity) != null) {
+                if (classMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()));
                 }
             }
@@ -1054,14 +1059,14 @@ public class Environment {
 
         for(FunctionEntity entity : module.getFunctions()) {
             if (entity.isStatic()) {
-                if (functionMap.put(entity.getLowerName(), entity) != null) {
+                if (functionMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()));
                 }
             }
         }
 
         for(ConstantEntity entity : module.getConstants()) {
-            if (constantMap.put(entity.getLowerName(), entity) != null) {
+            if (constantMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                 error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CONSTANT.fetch(entity.getName()));
             }
         }

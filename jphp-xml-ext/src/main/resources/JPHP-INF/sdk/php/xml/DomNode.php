@@ -214,6 +214,7 @@ abstract class DomNode
 
     /**
      * @param bool $deep
+     * @return DomNode
      */
     public function cloneNode($deep)
     {

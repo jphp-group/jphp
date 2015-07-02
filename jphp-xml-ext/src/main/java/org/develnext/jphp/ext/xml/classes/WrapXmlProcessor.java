@@ -96,10 +96,9 @@ public class WrapXmlProcessor extends WrapProcessor {
 
             Document document = builder.parse(stream);
             return new ObjectMemory(new WrapDomDocument(environment, document));
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (SAXException | IOException e) {
+            environment.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
         } finally {
             if (stream != null) Stream.closeStream(environment, stream);
         }
@@ -121,7 +120,8 @@ public class WrapXmlProcessor extends WrapProcessor {
             transformer.transform(new DOMSource(args[0].toObject(WrapDomDocument.class).getWrappedObject()), result);
             return StringMemory.valueOf(writer.toString());
         } catch (TransformerException e) {
-            throw new RuntimeException(e);
+            environment.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
         }
     }
 
@@ -140,7 +140,8 @@ public class WrapXmlProcessor extends WrapProcessor {
         try {
             transformer.transform(new DOMSource(args[0].toObject(WrapDomDocument.class).getWrappedObject()), result);
         } catch (TransformerException e) {
-            throw new RuntimeException(e);
+            environment.exception(ProcessorException.class, e.getMessage());
+            return Memory.NULL;
         } finally {
             Stream.closeStream(environment, output);
         }

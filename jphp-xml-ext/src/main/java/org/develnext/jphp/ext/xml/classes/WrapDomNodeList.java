@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.xml.classes;
 
 import org.develnext.jphp.ext.xml.XmlExtension;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import php.runtime.Memory;
@@ -41,7 +42,16 @@ public class WrapDomNodeList extends BaseWrapper<NodeList> implements Iterator, 
     @Signature(@Arg("offset"))
     public Memory offsetGet(Environment environment, Memory... memories) {
         Node node = getWrappedObject().item(memories[0].toInteger());
-        return node == null ? null : new ObjectMemory(new WrapDomNode(environment, node));
+
+        if (node == null) {
+            return Memory.NULL;
+        }
+
+        if (node instanceof Element) {
+            return ObjectMemory.valueOf(new WrapDomElement(environment, (Element) node));
+        }
+
+        return ObjectMemory.valueOf(new WrapDomNode(environment, node));
     }
 
     @Override
@@ -66,8 +76,14 @@ public class WrapDomNodeList extends BaseWrapper<NodeList> implements Iterator, 
     @Signature
     public Memory current(Environment environment, Memory... memories) {
         Node node = getWrappedObject().item(index);
-        if (node == null)
+
+        if (node == null) {
             return Memory.NULL;
+        }
+
+        if (node instanceof Element) {
+            return ObjectMemory.valueOf(new WrapDomElement(environment, (Element) node));
+        }
 
         return ObjectMemory.valueOf(new WrapDomNode(environment, node));
     }

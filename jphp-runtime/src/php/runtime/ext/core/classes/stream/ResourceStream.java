@@ -5,6 +5,7 @@ import php.runtime.env.Environment;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.ByteArrayOutputStream;
@@ -44,7 +45,8 @@ public class ResourceStream extends Stream {
     @Override
     @Signature({@Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
-        super.__construct(env, args);
+        super.__construct(env, args[0], StringMemory.valueOf("r"));
+
         String path = this.getPath().replace('\\', '/').replace("//", "/");
 
         if (path.startsWith("/")) {
@@ -61,6 +63,11 @@ public class ResourceStream extends Stream {
 
         stream = url.openStream();
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory toExternalForm(Environment env, Memory... args) {
+        return StringMemory.valueOf(url.toExternalForm());
     }
 
     @Override

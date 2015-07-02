@@ -56,6 +56,11 @@ class ResourceStream extends Stream {
     public function close() { }
 
     /**
+     * @return string
+     */
+    public function toExternalForm() {}
+
+    /**
      * @param string $name
      * @return ResourceStream[]
      */

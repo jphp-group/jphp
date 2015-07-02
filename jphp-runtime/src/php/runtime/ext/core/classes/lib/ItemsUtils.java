@@ -6,14 +6,12 @@ import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
-import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.Countable;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ParameterEntity;
 
 import java.util.*;
 
@@ -269,5 +267,46 @@ public class ItemsUtils extends BaseObject {
         }
 
         return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE)
+    })
+    public static Memory first(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator.next()) {
+            return iterator.getValue();
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE)
+    })
+    public static Memory firstKey(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator.next()) {
+            return iterator.getMemoryKey();
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.ARRAY)
+    })
+    public static Memory reverse(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        ArrayMemory result = new ArrayMemory();
+
+        while (iterator.next()) {
+            result.unshift(iterator.getValue().toImmutable());
+        }
+
+        return result.toConstant();
     }
 }

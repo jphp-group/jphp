@@ -100,6 +100,12 @@ public class WrapFlow extends BaseObject implements Iterator {
     }
 
     @FastMethod
+    @Signature
+    public static Memory ofEmpty(Environment env, Memory... args) {
+        return new ObjectMemory(new WrapFlow(env, new ArrayMemory().getNewIterator(env)));
+    }
+
+    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })

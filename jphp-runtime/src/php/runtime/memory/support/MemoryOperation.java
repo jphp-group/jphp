@@ -94,7 +94,8 @@ abstract public class MemoryOperation<T> {
             operation = operations.get(type);
 
             if (operation == null) {
-                Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
+                final Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
+
                 if (wrapperClass != null) {
                     final Constructor<BaseWrapper> constructor;
                     try {
@@ -124,13 +125,21 @@ abstract public class MemoryOperation<T> {
                                 return Memory.NULL;
                             }
 
+                            Constructor<BaseWrapper> constructorContext = constructor;
+
+                            Class<? extends BaseWrapper> wrapperClassContext = wrapperClass;
+
+                            if (arg.getClass() != type) {
+                                wrapperClassContext = wrappers.get(arg.getClass());
+                            }
+
+                            if (wrapperClassContext != null && wrapperClassContext != wrapperClass) {
+                                constructorContext = (Constructor<BaseWrapper>) wrapperClassContext.getConstructor(Environment.class, arg.getClass());
+                            }
+
                             try {
-                                return ObjectMemory.valueOf(constructor.newInstance(env, arg));
-                            } catch (InstantiationException e) {
-                                throw new CriticalException(e);
-                            } catch (IllegalAccessException e) {
-                                throw new CriticalException(e);
-                            } catch (InvocationTargetException e) {
+                                return ObjectMemory.valueOf(constructorContext.newInstance(env, arg));
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                                 throw new CriticalException(e);
                             }
                         }

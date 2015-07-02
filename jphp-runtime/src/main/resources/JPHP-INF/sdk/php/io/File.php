@@ -121,6 +121,14 @@ class File {
     public function isHidden() { return false; }
 
     /**
+     * @see http://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher%28java.lang.String%29
+     * @param string $pattern the "glob" and "regex" syntaxes, and may support others.
+     *
+     * @return bool
+     */
+    public function matches($pattern) { return false; }
+
+    /**
      * @return bool
      */
     public function delete() { return false; }

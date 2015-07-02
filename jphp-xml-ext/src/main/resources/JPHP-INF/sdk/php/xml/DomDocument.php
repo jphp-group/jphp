@@ -79,6 +79,13 @@ abstract class DomDocument extends DomElement
     public function createElementNS($namespaceURI, $qualifiedName) {}
 
     /**
+     * @param string $name
+     * @param string $value
+     * @return DomNode
+     */
+    public function createProcessingInstruction($name, $value) {}
+
+    /**
      * @param DomNode $importedNode
      * @param bool $deep
      * @return DomNode
