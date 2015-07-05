@@ -16,9 +16,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,10 +41,15 @@ public class WrapConfiguration extends BaseObject {
 
     @Signature
     public void __construct(@Nullable InputStream in) throws IOException {
+        __construct(in, "UTF-8");
+    }
+
+    @Signature
+    public void __construct(@Nullable InputStream in, String encoding) throws IOException {
         properties = new Properties();
 
         if (in != null) {
-            properties.load(in);
+            load(in, encoding);
         }
     }
 
@@ -156,13 +159,23 @@ public class WrapConfiguration extends BaseObject {
     }
 
     @Signature
+    public void load(InputStream in, String encoding) throws IOException {
+        properties.load(new InputStreamReader(in, encoding));
+    }
+
+    @Signature
     public void load(InputStream in) throws IOException {
-        properties.load(in);
+        load(in, "UTF-8");
+    }
+
+    @Signature
+    public void save(OutputStream out, String encoding) throws IOException {
+        properties.store(new OutputStreamWriter(out, encoding), null);
     }
 
     @Signature
     public void save(OutputStream out) throws IOException {
-        properties.store(out, null);
+        save(out, "UTF-8");
     }
 
     @Signature
