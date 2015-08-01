@@ -14,6 +14,7 @@ import php.runtime.reflection.ParameterEntity;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -349,13 +350,17 @@ public class StrUtils extends BaseObject {
             @Arg("charset")
     })
     public static Memory encode(Environment env, Memory... args) {
-        Charset charset = Charset.forName(args[1].toString());
-        if (charset == null)
-            return Memory.FALSE;
+        Charset charset;
 
-        return new BinaryMemory(
-                charset.encode(args[0].toString()).array()
-        );
+        try {
+            charset = Charset.forName(args[1].toString());
+        } catch (Exception e) {
+            return Memory.FALSE;
+        }
+
+        ByteBuffer buffer = charset.encode(args[0].toString());
+
+        return new BinaryMemory(Arrays.copyOf(buffer.array(), buffer.limit()));
     }
 
     @FastMethod
@@ -364,9 +369,13 @@ public class StrUtils extends BaseObject {
             @Arg("charset")
     })
     public static Memory decode(Environment env, Memory... args) {
-        Charset charset = Charset.forName(args[1].toString());
-        if (charset == null)
+        Charset charset;
+
+        try {
+            charset = Charset.forName(args[1].toString());
+        } catch (Exception e) {
             return Memory.FALSE;
+        }
 
         CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(args[0].getBinaryBytes()));
         return StringMemory.valueOf(charBuffer.toString());
