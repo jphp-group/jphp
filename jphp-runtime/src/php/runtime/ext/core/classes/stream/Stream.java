@@ -273,7 +273,7 @@ abstract public class Stream extends BaseObject implements Resource {
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
         }
         return null;
     }
@@ -317,8 +317,9 @@ abstract public class Stream extends BaseObject implements Resource {
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
         }
+
         return null;
     }
 

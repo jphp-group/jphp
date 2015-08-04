@@ -174,7 +174,7 @@ public class VarDump extends Printer {
             used.add(value.getPointer());
 
             for (PropertyEntity entity : classEntity.getProperties()) {
-                if (entity.getGetter() != null) {
+                if (entity.getGetter() != null && !entity.isHiddenInDebugInfo()) {
                     printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
                     printer.write("[\"");

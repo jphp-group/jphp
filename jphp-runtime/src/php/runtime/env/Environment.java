@@ -765,10 +765,16 @@ public class Environment {
         }
     }
 
-    public void wrapThrow(Throwable throwable) {
+    public void forwardThrow(Throwable throwable) {
         if (throwable instanceof RuntimeException) {
             throw (RuntimeException) throwable;
-        } else if (throwable instanceof Exception) {
+        } else {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    public void wrapThrow(Throwable throwable) {
+        if (throwable instanceof Exception) {
             catchUncaught((Exception) throwable);
         } else {
             throw new RuntimeException(throwable);
@@ -777,7 +783,7 @@ public class Environment {
 
     public boolean catchUncaught(Exception e){
         if (e instanceof UncaughtException)
-            return catchUncaught((UncaughtException)e);
+            return catchUncaught((UncaughtException) e);
         else if (e instanceof DieException){
             System.exit(((DieException) e).getExitCode());
             return true;
@@ -808,12 +814,24 @@ public class Environment {
             // nop
             return true;
         } else if (e instanceof BaseBaseException){
-            BaseBaseException be = (BaseBaseException)e;
-            try {
-                ExceptionHandler.DEFAULT.onException(this, be);
+            BaseBaseException be = (BaseBaseException) e;
+
+            if (exceptionHandler != null){
+                try {
+                    exceptionHandler.onException(this, be);
+                } catch (BaseBaseException _e){
+                    catchUncaught(_e);
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
                 return true;
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+            } else {
+                try {
+                    ExceptionHandler.DEFAULT.onException(this, be);
+                    return true;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
             }
         } else {
             throw new RuntimeException(e);

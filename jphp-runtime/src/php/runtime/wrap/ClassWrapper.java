@@ -92,6 +92,7 @@ public class ClassWrapper {
     protected void onWrapCompileProperty(ClassEntity classEntity, Field field, Reflection.Property property) {
         CompilePropertyEntity entity = new CompilePropertyEntity(classEntity.getContext(), field);
         entity.setClazz(classEntity);
+        entity.setHiddenInDebugInfo(property.hiddenInDebugInfo());
 
         if (property.value().isEmpty()) {
             entity.setName(field.getName());
@@ -203,7 +204,8 @@ public class ClassWrapper {
 
     protected void onWrapGetterSetterProperty(MethodEntity entity, Method method) {
         if (method.isAnnotationPresent(Reflection.Getter.class)) {
-            String name = method.getAnnotation(Reflection.Getter.class).value();
+            Reflection.Getter getter = method.getAnnotation(Reflection.Getter.class);
+            String name = getter.value();
 
             if (name.isEmpty()) {
                 name = method.getName();
@@ -223,6 +225,7 @@ public class ClassWrapper {
 
             method.setAccessible(true);
             propertyEntity.setGetter(entity);
+            propertyEntity.setHiddenInDebugInfo(getter.hiddenInDebugInfo());
 
             if (entity.isPublic()) {
                 entity.setModifier(php.runtime.common.Modifier.PROTECTED);

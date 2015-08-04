@@ -41,7 +41,7 @@ abstract public class MemoryOperation<T> {
         try {
             return convert(env, trace, arg);
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
             return null;
         }
     }
@@ -50,7 +50,7 @@ abstract public class MemoryOperation<T> {
         try {
             return unconvert(env, trace, arg);
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
             return Memory.NULL;
         }
     }

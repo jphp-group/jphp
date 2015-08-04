@@ -38,7 +38,7 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     }
 
     @Override
-    final public int getPointer(){
+    public int getPointer(){
         return super.hashCode();
     }
 

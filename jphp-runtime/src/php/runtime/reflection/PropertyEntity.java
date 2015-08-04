@@ -31,6 +31,8 @@ public class PropertyEntity extends Entity {
     protected MethodEntity getter;
     protected MethodEntity setter;
 
+    protected boolean hiddenInDebugInfo = false;
+
     public PropertyEntity(Context context) {
         super(context);
     }
@@ -66,6 +68,14 @@ public class PropertyEntity extends Entity {
 
     public void setDocComment(DocumentComment docComment) {
         this.docComment = docComment;
+    }
+
+    public boolean isHiddenInDebugInfo() {
+        return hiddenInDebugInfo;
+    }
+
+    public void setHiddenInDebugInfo(boolean hiddenInDebugInfo) {
+        this.hiddenInDebugInfo = hiddenInDebugInfo;
     }
 
     public Memory getDefaultValue(){
