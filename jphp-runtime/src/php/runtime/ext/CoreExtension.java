@@ -112,6 +112,8 @@ public class CoreExtension extends Extension {
         registerClass(scope, ReflectionClass.class);
         registerClass(scope, ReflectionObject.class);
 
+        registerClass(scope, WrapJavaExceptions.NotImplementedException.class);
+
         // stream
         registerJavaException(scope, WrapIOException.class, IOException.class);
         registerClass(scope, FileObject.class);
