@@ -30,7 +30,7 @@ public class JsonFunctions extends FunctionsContainer {
             if (r == null)
                 return Memory.NULL;
             else
-                return r;
+                return assoc ? r.toImmutable() : r;
         } catch (MemoryDeserializer.MaxDepthException e) {
             env.setUserValue(JsonFunctions.class.getName() + "#error", JsonConstants.JSON_ERROR_DEPTH);
         } catch (JsonSyntaxException e) {
