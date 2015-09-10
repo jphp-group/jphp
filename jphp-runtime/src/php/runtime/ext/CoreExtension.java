@@ -66,7 +66,6 @@ public class CoreExtension extends Extension {
 
         registerClass(scope, CharUtils.class);
         registerClass(scope, StrUtils.class);
-        registerClass(scope, StrUtils.StrUtilsOld.class);
         registerClass(scope, BinUtils.class);
         registerClass(scope, NumUtils.class);
         registerClass(scope, ItemsUtils.class);

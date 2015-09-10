@@ -7,7 +7,6 @@ namespace php\lib;
  */
 class Str
 {
-
     private function __construct()
     {
     }
@@ -423,6 +422,14 @@ class Str
      * @return int
      */
     public static function count($string, $subString, $offset = 0)
+    {
+    }
+
+    /**
+     * @param null|string $value
+     * @return string uuid of $value if it is not null, else random uuid
+     */
+    public static function uuid($value = null)
     {
     }
 }

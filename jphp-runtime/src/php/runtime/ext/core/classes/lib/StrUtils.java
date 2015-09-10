@@ -15,18 +15,13 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\lib\\Str")
 public class StrUtils extends BaseObject {
-    @Name("php\\lib\\String")
-    public static class StrUtilsOld extends StrUtils {
-        public StrUtilsOld(Environment env, ClassEntity clazz) {
-            super(env, clazz);
-        }
-    }
 
     public StrUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -584,5 +579,22 @@ public class StrUtils extends BaseObject {
         }
 
         return StringMemory.valueOf(String.format(s, _args));
+    }
+
+    @Signature({
+            @Arg(value = "value", optional = @Optional("null"))
+    })
+    public static Memory uuid(Environment env, Memory... args) {
+        Memory value = args[0];
+
+        String s;
+
+        if (value.isNotNull()) {
+            s = UUID.fromString(value.toString()).toString();
+        } else {
+            s = UUID.randomUUID().toString();
+        }
+
+        return StringMemory.valueOf(s);
     }
 }
