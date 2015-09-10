@@ -178,10 +178,14 @@ public class StringMemory extends Memory {
                     return LongMemory.valueOf(Long.parseLong(value.substring(start, i)));
                 }
             } catch (NumberFormatException e) {
-                if (len == i && start == 0)
-                    return new DoubleMemory(Double.parseDouble(value));
-                else
-                    return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
+                try {
+                    if (len == i && start == 0)
+                        return new DoubleMemory(Double.parseDouble(value));
+                    else
+                        return new DoubleMemory(Double.parseDouble(value.substring(start, i)));
+                } catch (NumberFormatException e2) {
+                    return def;
+                }
             }
         }
     }
