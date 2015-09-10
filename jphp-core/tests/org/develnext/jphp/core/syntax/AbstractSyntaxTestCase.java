@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax;
 
+import php.runtime.common.LangMode;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
@@ -16,6 +17,7 @@ abstract class AbstractSyntaxTestCase {
         Tokenizer tokenizer = null;
         try {
             tokenizer = new Tokenizer(new Context(code));
+            environment.scope.setLangMode(LangMode.DEFAULT);
             SyntaxAnalyzer analyzer = new SyntaxAnalyzer(environment, tokenizer);
 
             return analyzer.getTree();

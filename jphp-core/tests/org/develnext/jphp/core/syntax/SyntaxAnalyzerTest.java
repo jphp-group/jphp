@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+import php.runtime.common.LangMode;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.env.Context;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
@@ -29,6 +30,7 @@ public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
     @Test(expected = ErrorException.class)
     public void testUnexpectedEnd() throws IOException {
         Tokenizer tokenizer = new Tokenizer(new Context("foobar"));
+        environment.scope.setLangMode(LangMode.DEFAULT);
         new SyntaxAnalyzer(environment, tokenizer);
     }
 }

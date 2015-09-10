@@ -928,6 +928,11 @@ public class Environment {
         exception((BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
     }
 
+    public void exception(TraceInfo trace, Class<? extends BaseBaseException> e, String message, Object... args){
+        ClassEntity entity = fetchClass(e);
+        exception(trace, (BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
+    }
+
     public boolean isHandleErrors(ErrorType type){
         return ErrorType.check(errorFlags, type);
     }

@@ -377,7 +377,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            Memory result = stream.read(env, LongMemory.valueOf(len - off));
+            Memory result = stream.read(env, LongMemory.valueOf(len));
             if (!result.isString())
                 return -1;
 

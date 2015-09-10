@@ -357,6 +357,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         one.setClazz(result);
                         one.setDocComment(lastComment);
 
+                        lastComment = null;
+
                         constants.add(one);
                         modifiers.clear();
                     } else if (isTokenClass(current, ClassGenerator.modifiers)){
@@ -375,17 +377,21 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         }
 
                         for(Token modifier : modifiers){
-                            if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class))
+                            if (isTokenClass(modifier, FinalStmtToken.class, AbstractStmtToken.class)) {
                                 unexpectedToken(modifier);
+                            }
                         }
 
                         List<ClassVarStmtToken> vars = processProperty(
                                 result, (VariableExprToken)current, modifiers, iterator
                         );
+
                         if (lastComment != null) {
                             for (ClassVarStmtToken var : vars) {
                                 var.setDocComment(lastComment);
                             }
+
+                            lastComment = null;
                         }
 
                         properties.addAll(vars);
@@ -401,6 +407,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         MethodStmtToken method = new MethodStmtToken(function);
                         method.setClazz(result);
                         method.setDocComment(lastComment);
+
+                        lastComment = null;
 
                         for (Token modifier : modifiers) {
                             if (modifier instanceof AbstractStmtToken)
@@ -433,6 +441,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         modifiers.clear();
                     } else if (current instanceof NamespaceUseStmtToken) {
                         processUse(result, iterator);
+                        lastComment = null;
                     } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)) {
                         break;
                     } else if (current instanceof CommentToken){
