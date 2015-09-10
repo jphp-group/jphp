@@ -49,3 +49,9 @@ Our project started in October 2013. There were a few reasons for that:
 ### Getting started (Hello World)
 
 [http://j-php.net/wiki/Getting-started](http://j-php.net/wiki/Getting-started)
+
+### Build SNAPSHOT from sources
+
+Use `gradle install` to build and install the jphp modules and libraries into the mavel local repository. After this, you can use jphp in your projects as a maven dependency.
+
+`org.develnext:jphp-core:<version>-SNAPSHOT`
