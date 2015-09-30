@@ -1,7 +1,6 @@
 package org.develnext.jphp.zend.ext.standard;
 
 import php.runtime.Memory;
-import php.runtime.common.Constants;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.classes.stream.Stream;
@@ -19,8 +18,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-import static php.runtime.annotation.Runtime.Immutable;
 import static org.develnext.jphp.zend.ext.standard.FileConstants.*;
+import static php.runtime.annotation.Runtime.Immutable;
 
 public class FileFunctions extends FunctionsContainer {
 
@@ -40,34 +39,6 @@ public class FileFunctions extends FunctionsContainer {
 
     public static boolean chgrp(String fileName, Memory group){
         return false;
-    }
-
-    public static boolean chmod(String fileName, int mode){
-        if (!Constants.OS_WINDOWS){
-            try {
-                Process proc = Runtime.getRuntime().exec(String.format("chmod %s '%s'", mode, fileName));
-                return proc.waitFor() == 0;
-            } catch (IOException e) {
-                return false;
-            } catch (InterruptedException e) {
-                return false;
-            }
-        } else
-            return true;
-    }
-
-    public static boolean chown(String fileName, String owner){
-        if (!Constants.OS_WINDOWS){
-            try {
-                Process proc = Runtime.getRuntime().exec(String.format("chown %s '%s'", owner, fileName));
-                return proc.waitFor() == 0;
-            } catch (IOException e) {
-                return false;
-            } catch (InterruptedException e) {
-                return false;
-            }
-        } else
-            return true;
     }
 
     public static boolean copy(Environment env, TraceInfo trace, String source, String dest) throws Throwable {

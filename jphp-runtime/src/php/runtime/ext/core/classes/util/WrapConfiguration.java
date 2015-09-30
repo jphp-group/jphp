@@ -8,6 +8,7 @@ import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.CoreExtension;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
@@ -169,13 +170,23 @@ public class WrapConfiguration extends BaseObject {
     }
 
     @Signature
-    public void save(OutputStream out, String encoding) throws IOException {
-        properties.store(new OutputStreamWriter(out, encoding), null);
+    public void save(Environment env, Memory path, String encoding) throws IOException {
+        OutputStream out = Stream.getOutputStream(env, path);
+
+        if (out == null) {
+            throw new IOException();
+        }
+
+        try {
+            properties.store(new OutputStreamWriter(out, encoding), null);
+        } finally {
+            Stream.closeStream(env, out);
+        }
     }
 
     @Signature
-    public void save(OutputStream out) throws IOException {
-        save(out, "UTF-8");
+    public void save(Environment env, Memory path) throws IOException {
+        save(env, path, "UTF-8");
     }
 
     @Signature

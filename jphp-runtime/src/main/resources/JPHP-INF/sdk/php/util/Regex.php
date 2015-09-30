@@ -251,12 +251,12 @@ class Regex implements \Iterator {
      * Tells whether or not this string matches the given regular expression.
      * See also java.lang.String.matches()
      *
+     * @param string $pattern regular expression
      * @param string $string
-     * @param string $pattern  regular expression
+     * @param int $flags
      * @return bool
-     * @throws RegexException
      */
-    public static function match($pattern, $string) { return false; }
+    public static function match($pattern, $string, $flags = 0) { return false; }
 
     /**
      * Splits this string around matches of the given regular expression.

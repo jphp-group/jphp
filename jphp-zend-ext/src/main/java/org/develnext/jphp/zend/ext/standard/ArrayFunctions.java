@@ -757,6 +757,26 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
+    public static Memory array_search(Environment env, TraceInfo trace, Memory input, Memory needle, boolean strict) {
+        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+            ForeachIterator iterator = input.getNewIterator(env, false, false);
+
+            while (iterator.next()) {
+                Memory value = iterator.getValue();
+
+                if (strict && needle.identical(value)) {
+                    return iterator.getMemoryKey();
+                } else if (needle.equal(value)) {
+                    return iterator.getMemoryKey();
+                }
+            }
+
+            return Memory.FALSE;
+        } else {
+            return Memory.FALSE;
+        }
+    }
+
     private static Memory _range_double(Environment env, TraceInfo trace, double low, double high, double step) {
         ArrayMemory result = new ArrayMemory();
         double value;
@@ -859,5 +879,20 @@ public class ArrayFunctions extends FunctionsContainer {
         }
 
         return result.toConstant();
+    }
+
+    public static Memory array_fill_keys(Environment env, TraceInfo trace, Memory keys, Memory value) {
+        if (expecting(env, trace, 1, keys, Memory.Type.ARRAY)) {
+            ForeachIterator iterator = keys.getNewIterator(env);
+            ArrayMemory result = new ArrayMemory();
+
+            while (iterator.next()) {
+                result.refOfIndex(iterator.getMemoryKey()).assign(value.toImmutable());
+            }
+
+            return result.toConstant();
+        } else {
+            return new ArrayMemory().toConstant();
+        }
     }
 }

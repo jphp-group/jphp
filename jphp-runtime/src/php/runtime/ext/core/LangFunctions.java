@@ -4,7 +4,6 @@ import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
 import php.runtime.common.GrammarUtils;
 import php.runtime.env.CallStackItem;
-import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.env.handler.ErrorHandler;
@@ -12,7 +11,6 @@ import php.runtime.env.handler.ExceptionHandler;
 import php.runtime.env.handler.ShutdownHandler;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;
@@ -25,10 +23,6 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
-
-import java.io.InputStream;
-
-import static php.runtime.annotation.Reflection.Name;
 
 public class LangFunctions extends FunctionsContainer {
 
@@ -364,8 +358,8 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static boolean is_number(Memory memory) {
-        return StringMemory.toNumeric(memory.toString(), true, null) != null;
+    public static boolean is_numeric(Memory memory) {
+        return StringMemory.toNumeric(memory.toString(), false, null) != null;
     }
 
     @Runtime.Immutable

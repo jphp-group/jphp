@@ -1,6 +1,5 @@
 package php.runtime.ext.net;
 
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.ext.NetExtension;
@@ -10,7 +9,10 @@ import php.runtime.reflection.ClassEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +113,16 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
     @Signature
     public InputStream getErrorStream() throws IOException {
         return ((HttpURLConnection) getWrappedObject()).getErrorStream();
+    }
+
+    @Signature
+    public static String guessContentTypeFromName(String fname) {
+        return URLConnection.guessContentTypeFromName(fname);
+    }
+
+    @Signature
+    public static String guessContentTypeFromStream(InputStream is) throws IOException {
+        return URLConnection.guessContentTypeFromStream(is);
     }
 
     @Signature

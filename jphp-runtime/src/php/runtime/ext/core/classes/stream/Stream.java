@@ -266,7 +266,7 @@ abstract public class Stream extends BaseObject implements Resource {
             } else if (arg.instanceOf(Stream.class)){
                 return new StreamOutputStream(env, arg.toObject(Stream.class));
             } else {
-                StreamOutputStream outputStream = new StreamOutputStream(env, Stream.create(env, arg.toString(), "r"));
+                StreamOutputStream outputStream = new StreamOutputStream(env, Stream.create(env, arg.toString(), "w+"));
                 outputStream.autoClose = true;
                 return outputStream;
             }
@@ -357,6 +357,12 @@ abstract public class Stream extends BaseObject implements Resource {
         public void write(int b) throws IOException {
             stream.write(env, new BinaryMemory((byte)b), Memory.NULL);
         }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            stream.close(env);
+        }
     }
 
     public static class StreamInputStream extends InputStream {
@@ -385,6 +391,12 @@ abstract public class Stream extends BaseObject implements Resource {
             System.arraycopy(copy, 0, b, off, copy.length);
 
             return copy.length;
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            stream.close(env);
         }
     }
 }
