@@ -1,14 +1,15 @@
 package org.develnext.jphp.ext.xml.classes;
 
 import org.develnext.jphp.ext.xml.XmlExtension;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import php.runtime.annotation.Reflection.Abstract;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.WrapInterface;
 import php.runtime.env.Environment;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.LinkedHashMap;
@@ -63,6 +64,21 @@ public class WrapDomElement extends WrapDomNode {
         while (iterator.next()) {
             getWrappedObject().setAttribute(iterator.getKey().toString(), iterator.getValue().toString());
         }
+    }
+
+    @Signature
+    public ArrayMemory getAttributes() {
+        NamedNodeMap attributes = getWrappedObject().getAttributes();
+
+        ArrayMemory result = new ArrayMemory();
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Attr item = (Attr) attributes.item(i);
+
+            result.putAsKeyString(item.getName(), StringMemory.valueOf(item.getValue()));
+        }
+
+        return result.toConstant();
     }
 
     @Signature

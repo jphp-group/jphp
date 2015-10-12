@@ -82,6 +82,13 @@ abstract class DomElement extends DomNode
     }
 
     /**
+     * @return array
+     */
+    public function getAttributes()
+    {
+    }
+
+    /**
      * @param string $name
      */
     public function removeAttribute($name)
