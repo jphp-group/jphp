@@ -23,24 +23,28 @@ abstract public class Memory implements Comparable<Memory> {
         NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, KEY_VALUE;
 
         public Class toClass(){
-            if (this == DOUBLE)
-                return Double.TYPE;
-            else if (this == INT)
-                return Long.TYPE;
-            else if (this == STRING)
-                return String.class;
-            else if (this == BOOL)
-                return Boolean.TYPE;
-            else if (this == ARRAY)
-                return ArrayMemory.class;
-            else if (this == OBJECT)
-                return ObjectMemory.class;
-            else if (this == REFERENCE)
-                return Memory.class;
-            else if (this == KEY_VALUE)
-                return KeyValueMemory.class;
-
-            return null;
+            switch(this)
+            {
+                case DOUBLE:
+                    return Double.TYPE;
+                case INT:
+                    return Long.TYPE;
+                case STRING:
+                    return String.class;
+                case BOOL:
+                    return Boolean.TYPE;
+                    break;
+                case ARRAY:
+                    return ArrayMemory.class;
+                case OBJECT:
+                    return ObjectMemory.class;
+                case REFERENCE:
+                    return Memory.class;
+                case KEY_VALUE:
+                    return KeyValueMemory.class;
+                default:
+                    return null;
+            }
         }
 
         public static Type valueOf(Class clazz){
