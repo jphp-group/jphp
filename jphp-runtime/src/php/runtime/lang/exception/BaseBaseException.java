@@ -201,7 +201,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     }
 
     public TraceInfo getTrace() {
-        return trace;
+        return trace == null ? TraceInfo.UNKNOWN : trace;
     }
 
     /**

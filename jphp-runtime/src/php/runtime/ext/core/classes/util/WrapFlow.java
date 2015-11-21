@@ -624,12 +624,30 @@ public class WrapFlow extends BaseObject implements Iterator {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);
 
         ForeachIterator iterator = getSelfIterator(env);
-        Memory r = Memory.NULL;
-        int argCount = invoker.getArgumentCount();
 
         while (iterator.next()) {
             if (call(iterator, invoker).toBoolean())
                 return iterator.getValue();
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "value"),
+            @Arg(value = "strict", optional = @Optional("false"))
+    })
+    public Memory findValue(Environment env, Memory... args) {
+        ForeachIterator iterator = getSelfIterator(env);
+
+        boolean strict = args[1].toBoolean();
+
+        while (iterator.next()) {
+            if (strict && iterator.getValue().identical(args[0])) {
+                return iterator.getMemoryKey();
+            } else if (iterator.getValue().equal(args[0])) {
+                return iterator.getMemoryKey();
+            }
         }
 
         return Memory.NULL;

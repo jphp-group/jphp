@@ -61,6 +61,13 @@ class Flow implements Iterator {
     public function findOne(callable $filter = null) { return 0; }
 
     /**
+     * @param $value
+     * @param bool $strict
+     * @return int|null|string return null if not found, else - key of value
+     */
+    public function findValue($value, $strict = false) { return ''; }
+
+    /**
      * @param callable $callback
      * @return Flow
      */

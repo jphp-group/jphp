@@ -170,7 +170,7 @@ public class FileFunctions extends FunctionsContainer {
                 stream.seek(env, offset);
 
             if (maxLength.isNull())
-                return stream.readFully(env);
+                return stream.readFully(env, LongMemory.valueOf(4096));
             else
                 return stream.read(env, maxLength);
         } catch (WrapIOException e){
