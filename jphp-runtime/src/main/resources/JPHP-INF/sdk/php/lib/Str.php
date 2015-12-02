@@ -5,7 +5,7 @@ namespace php\lib;
  * Class str
  * @package php\lib
  */
-class Str
+class str
 {
     private function __construct()
     {

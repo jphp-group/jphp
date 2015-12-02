@@ -14,7 +14,7 @@ use Traversable;
  * Class items
  * @package php\lib
  */
-class Items
+class items
 {
 
     private function __construct()

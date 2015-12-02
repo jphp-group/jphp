@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class InfoFunctions extends FunctionsContainer {
-
     public static Memory phpversion(Environment env, String extension){
         if (extension == null || extension.isEmpty())
             return new StringMemory(Information.LIKE_PHP_VERSION);

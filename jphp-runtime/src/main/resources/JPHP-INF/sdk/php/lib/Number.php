@@ -7,7 +7,7 @@ namespace php\lib;
  * Class num
  * @package php\lib
  */
-class Number {
+class number {
 
     private function __construct() { }
 

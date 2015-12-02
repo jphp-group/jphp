@@ -11,6 +11,7 @@ import php.runtime.env.handler.ExceptionHandler;
 import php.runtime.env.handler.ShutdownHandler;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.util.WrapFlow;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;
@@ -876,5 +877,9 @@ public class LangFunctions extends FunctionsContainer {
             }
         }
         return Memory.FALSE;
+    }
+
+    public static Memory flow(Environment env, Memory result) {
+        return WrapFlow.of(env, result);
     }
 }
