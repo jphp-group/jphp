@@ -2,6 +2,7 @@ package php.runtime.invoke;
 
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -202,7 +203,7 @@ final public class InvokeHelper {
         if (callCache != null) {
             MethodEntity entity = callCache.get(env, cacheIndex);
             if (entity != null) {
-                return callStatic(env, trace, entity, args, false);
+                return callStatic(env, trace, entity, originClassName, args, false);
             }
         }
 
@@ -278,11 +279,11 @@ final public class InvokeHelper {
                                     MethodEntity method,
                                     Memory[] args)
             throws Throwable {
-        return callStatic(env, trace, method, args, true);
+        return callStatic(env, trace, method, null, args, true);
     }
 
     public static Memory callStatic(Environment env, TraceInfo trace,
-                                    MethodEntity method,
+                                    MethodEntity method, @Reflection.Nullable String staticClass,
                                     Memory[] args, boolean checkAccess)
             throws Throwable {
         if (checkAccess)
@@ -299,7 +300,7 @@ final public class InvokeHelper {
 
         try {
             if (trace != null && method.isUsesStackTrace())
-                env.pushCall(trace, null, passed, originMethodName, originClassName, originClassName);
+                env.pushCall(trace, null, passed, originMethodName, originClassName, staticClass == null ? originClassName : staticClass);
 
             return method.invokeStatic(env, passed);
         } finally {
