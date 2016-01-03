@@ -783,6 +783,10 @@ public class Environment {
     }
 
     public boolean catchUncaught(Exception e){
+        return catchUncaught(e, false);
+    }
+
+    public boolean catchUncaught(Exception e, boolean retry){
         if (e instanceof UncaughtException)
             return catchUncaught((UncaughtException) e);
         else if (e instanceof DieException){
@@ -821,7 +825,11 @@ public class Environment {
                 try {
                     exceptionHandler.onException(this, be);
                 } catch (BaseBaseException _e){
-                    catchUncaught(_e);
+                    if (retry) {
+                        throw new RuntimeException(_e);
+                    } else {
+                        catchUncaught(_e, true);
+                    }
                 } catch (Throwable throwable) {
                     throw new RuntimeException(throwable);
                 }
