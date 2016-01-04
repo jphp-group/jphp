@@ -339,6 +339,7 @@ public class StringMemory extends Memory {
             case STRING: return toString().equals(memory.toString());
             case OBJECT:
             case ARRAY: return false;
+            case BOOL: return memory.equal(this.value);
             default: return equal(memory.toValue());
         }
     }
