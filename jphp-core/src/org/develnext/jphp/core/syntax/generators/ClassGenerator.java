@@ -135,6 +135,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         Token next = current;
         Token prev = null;
         Set<VariableExprToken> variables = new LinkedHashSet<VariableExprToken>();
+        List<ExprStmtToken> initValues = new ArrayList<>();
+
         ExprStmtToken initValue = null;
 
         List<ClassVarStmtToken> result = new ArrayList<ClassVarStmtToken>();
@@ -152,11 +154,13 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
         do {
             if (next instanceof VariableExprToken){
-                if (!variables.add((VariableExprToken)next))
+                if (!variables.add((VariableExprToken)next)) {
                     throw new ParseException(
                             Messages.ERR_IDENTIFIER_X_ALREADY_USED.fetch(next.getWord()),
                             next.toTraceInfo(analyzer.getContext())
                     );
+                }
+                initValues.add(null);
             } else if (next instanceof CommaToken){
                 if (!(prev instanceof VariableExprToken))
                     unexpectedToken(next);
@@ -166,7 +170,17 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                 initValue = analyzer.generator(SimpleExprGenerator.class)
                         .getToken(nextToken(iterator), iterator, Separator.COMMA_OR_SEMICOLON, null);
-                break;
+                initValues.set(initValues.size() - 1, initValue);
+
+                if (iterator.hasPrevious() && isBreak(iterator.previous())) {
+                    iterator.next();
+                    break;
+                }
+
+                if (iterator.hasNext()) {
+                    iterator.next();
+                }
+                //break;
             } else if (next instanceof SemicolonToken){
                 if (!(prev instanceof VariableExprToken))
                     unexpectedToken(next);
@@ -177,16 +191,20 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             next = nextToken(iterator);
         } while (true);
 
+        int i = 0;
+
         for(VariableExprToken variable : variables){
             ClassVarStmtToken classVar = new ClassVarStmtToken(variable.getMeta());
             classVar.setModifier(modifier);
             classVar.setStatic(isStatic);
-            classVar.setValue(initValue);
+            classVar.setValue(initValues.get(i));
             classVar.setVariable(variable);
             classVar.setClazz(clazz);
 
             result.add(classVar);
+            i++;
         }
+
         return result;
     }
 
