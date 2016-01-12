@@ -100,6 +100,7 @@ public class Environment {
      * Gets Environment for current thread context
      * @return
      */
+    @Deprecated
     public static Environment current(){
         return environment.get();
     }
@@ -109,13 +110,13 @@ public class Environment {
     private static final AtomicInteger ids = new AtomicInteger();
     private static final Stack<Integer> freeIds = new Stack<Integer>();
 
-    public static void catchThrowable(Throwable e) {
+    public static void catchThrowable(Throwable e, Environment environment) {
         if (e instanceof BaseBaseException) {
             BaseBaseException baseException = (BaseBaseException) e;
             baseException.getEnvironment().catchUncaught(baseException);
             return;
         } else if (e instanceof Exception) {
-            Environment env = current();
+            Environment env = environment == null ? null : environment;
 
             if (env != null) {
                 try {
@@ -127,7 +128,7 @@ public class Environment {
             }
         }
 
-        Environment env = current();
+        Environment env = environment == null ? null : environment;
 
         if (env != null) {
             e.printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
@@ -136,15 +137,15 @@ public class Environment {
         }
     }
 
-    public static void addThreadSupport() {
-        addThreadSupport(Thread.currentThread());
+    public static void addThreadSupport(Environment env) {
+        addThreadSupport(Thread.currentThread(), env);
     }
 
-    public static void addThreadSupport(Thread thread) {
+    public static void addThreadSupport(Thread thread, final Environment env) {
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                Environment.catchThrowable(e);
+                Environment.catchThrowable(e, env);
             }
         });
     }
@@ -175,7 +176,7 @@ public class Environment {
     }
 
     public Environment(CompileScope scope, OutputStream output) {
-        Environment.addThreadSupport();
+        Environment.addThreadSupport(this);
 
         this.scope = scope;
 
@@ -782,6 +783,10 @@ public class Environment {
     }
 
     public boolean catchUncaught(Exception e){
+        return catchUncaught(e, false);
+    }
+
+    public boolean catchUncaught(Exception e, boolean retry){
         if (e instanceof UncaughtException)
             return catchUncaught((UncaughtException) e);
         else if (e instanceof DieException){
@@ -820,7 +825,11 @@ public class Environment {
                 try {
                     exceptionHandler.onException(this, be);
                 } catch (BaseBaseException _e){
-                    catchUncaught(_e);
+                    if (retry) {
+                        throw new RuntimeException(_e);
+                    } else {
+                        catchUncaught(_e, true);
+                    }
                 } catch (Throwable throwable) {
                     throw new RuntimeException(throwable);
                 }

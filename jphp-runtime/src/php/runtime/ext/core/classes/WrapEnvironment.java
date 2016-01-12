@@ -158,6 +158,25 @@ public class WrapEnvironment extends BaseObject {
     }
 
     @Signature(@Arg("callback"))
+    public Memory onOutput(Environment env, Memory... args) {
+        if (args[0].isNull()) {
+            Invoker invoker = Invoker.valueOf(this.environment, null, args[0]);
+
+            if (invoker == null) {
+                env.exception("Argument 1 must be callable in environment");
+                return Memory.NULL;
+            }
+
+            invoker.setTrace(env.trace());
+            this.environment.getDefaultBuffer().setCallback(args[0], invoker);
+        } else {
+            this.environment.getDefaultBuffer().setCallback(null);
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature(@Arg("callback"))
     public Memory onMessage(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(this.environment, null, args[0]);
         if (invoker == null) {

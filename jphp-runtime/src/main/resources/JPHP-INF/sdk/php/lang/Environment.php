@@ -90,6 +90,11 @@ class Environment {
     public function onMessage(callable $callback) { }
 
     /**
+     * @param callable|null $callback
+     */
+    public function onOutput(callable $callback) { }
+
+    /**
      * Send message to the environment
      * --RU--
      * Послать сообщение окружению

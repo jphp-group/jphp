@@ -30,7 +30,7 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
 
     public WrapThread(Environment env, Thread thread) {
         super(env);
-        setThread(thread);
+        setThread(thread, env);
     }
 
     public WrapThread(Environment env, ClassEntity clazz) {
@@ -49,11 +49,11 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
         return thread;
     }
 
-    public void setThread(Thread thread) {
+    public void setThread(Thread thread, Environment env) {
         this.thread = thread;
 
         if (thread != null) {
-            Environment.addThreadSupport(thread);
+            Environment.addThreadSupport(thread, env);
         }
     }
 
@@ -84,14 +84,14 @@ public class WrapThread extends BaseObject implements IComparableObject<WrapThre
                 public void run() {
                     invoker.callNoThrow();
                 }
-            }));
+            }), env);
         } else {
             setThread(new Thread(group, new Runnable() {
                 @Override
                 public void run() {
                     invoker.callNoThrow();
                 }
-            }, args[2].toString()));
+            }, args[2].toString()), env);
         }
 
         return Memory.NULL;
