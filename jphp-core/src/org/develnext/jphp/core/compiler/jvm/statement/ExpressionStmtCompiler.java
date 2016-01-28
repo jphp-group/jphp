@@ -2826,8 +2826,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         boolean sideOperator = operator.isSide();
 
         if (variable != null && !variable.isReference()){
-            if (operator instanceof AssignOperatorExprToken){
+            if (operator instanceof AssignOperatorExprToken) {
                 name = ((AssignOperatorExprToken)operator).getOperatorCode();
+
                 if (operator instanceof AssignConcatExprToken)
                     operatorResult = String.class;
                 if (operator instanceof AssignPlusExprToken || operator instanceof AssignMulExprToken)

@@ -692,6 +692,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             }
         }
 
+        // Если переменная меняется, значит она нестабильна и не может быть заменена на костантное значение.
+        if ((current instanceof AssignOperatorExprToken || current instanceof IncExprToken || current instanceof DecExprToken)
+                && previous instanceof VariableExprToken) {
+            if (analyzer.getFunction() != null) {
+                analyzer.getFunction().variable((VariableExprToken) previous).setUnstable(true);
+            }
+        }
+
         if (current instanceof ValueIfElseToken){
             return processValueIfElse((ValueIfElseToken)current, next, iterator, closedBraceKind, braceOpened, separator);
         }
