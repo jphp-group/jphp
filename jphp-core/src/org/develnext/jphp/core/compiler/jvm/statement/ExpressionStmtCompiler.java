@@ -2857,7 +2857,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     writePopBoxing();
                     writePush(o1);
-                    writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
+                    writePop(Rt.toMemoryClass(), false, false);
+
+                    writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toMemoryClass());
                 }
             } else {
                 if (isInvert) {
@@ -2871,6 +2873,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                         writeSysStaticCall(OperatorUtils.class, name, operatorResult, Lt.toClass(), Rt.toClass());
                         name = null;
                     } else if (sideOperator) {
+                        writePopBoxing(isInvert ? Rt : Lt, false);
                         name += "Right";
                     }
 
@@ -2881,7 +2884,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     }*/
                 } else {
                     writePush(o2);
-                    writePopBoxing(false);
+                    writePopBoxing(isInvert ? Rt : Lt, false);
 
                     /*if (cloneValue)
                         writePushDup();*/
@@ -2890,13 +2893,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                     if (Rt.isReference()) {
                         writePopBoxing(false);
+                    } else {
+                        writePop(isInvert ? Lt.toMemoryClass() : Rt.toMemoryClass(), false, false);
                     }
 
                     if (!o1.immutable && !operator.isMutableArguments())
                         writePopImmutable();
                 }
                 if (name != null)
-                    writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
+                    writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toMemoryClass() : Rt.toMemoryClass());
             }
             setStackPeekAsImmutable();
 
