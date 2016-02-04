@@ -31,21 +31,6 @@ public class StackItem {
             return null;
         }
 
-        public Class toMemoryClass() {
-            switch (this) {
-                case FLOAT:
-                    return Double.TYPE;
-                case SHORT:
-                case BYTE:
-                case INT:
-                    return Long.TYPE;
-                case CHAR:
-                    return String.class;
-                default:
-                    return toClass();
-            }
-        }
-
         public int size(){
             switch (this){
                 case DOUBLE:
