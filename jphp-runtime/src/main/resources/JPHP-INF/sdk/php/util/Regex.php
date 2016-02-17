@@ -89,6 +89,14 @@ class Regex implements \Iterator {
     public function replaceFirst($replacement) { return ''; }
 
     /**
+     * @param int $group
+     * @param string $replacement
+     * @return string
+     * @throws RegexException
+     */
+    public function replaceGroup($group, $replacement) { return ''; }
+
+    /**
      * @param callable $callback (Regex $pattern) -> string
      * @return string
      * @throws RegexException

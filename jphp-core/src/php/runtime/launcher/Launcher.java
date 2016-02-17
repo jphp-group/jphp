@@ -293,6 +293,11 @@ public class Launcher {
                 }
 
                 initModule(bootstrap);
+
+                ArrayMemory argv = ArrayMemory.ofStrings(this.args);
+                argv.unshift(Memory.NULL);
+
+                environment.getGlobals().put("argv", argv);
                 environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
                 try {
                     bootstrap.includeNoThrow(environment);

@@ -75,7 +75,7 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
                     array.put(key, convert(el.getValue(), depth + 1).toImmutable());
             }
 
-            return assoc ? array.toConstant() : new ObjectMemory(stdClass);
+            return assoc ? array : new ObjectMemory(stdClass);
         } else
             return Memory.NULL;
     }

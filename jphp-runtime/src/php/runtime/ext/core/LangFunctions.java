@@ -613,7 +613,7 @@ public class LangFunctions extends FunctionsContainer {
                 classEntity = env.fetchMagicClass(name, nameL);
         }
 
-        return classEntity.findMethod(method.toLowerCase()) != null;
+        return classEntity != null && classEntity.findMethod(method.toLowerCase()) != null;
     }
 
     public static Memory property_exists(Environment env, Memory clazz, String property) throws Throwable {

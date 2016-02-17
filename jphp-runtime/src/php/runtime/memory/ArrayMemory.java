@@ -190,6 +190,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
+    public boolean containsLongKey(long key) {
+        return containsKey(LongMemory.valueOf(key));
+    }
+
     public boolean containsKey(Object key) {
         if (size() == 0) {
             return false;

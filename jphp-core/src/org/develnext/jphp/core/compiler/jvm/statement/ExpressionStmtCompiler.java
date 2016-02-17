@@ -2857,6 +2857,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     writePopBoxing();
                     writePush(o1);
+
                     writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
                 }
             } else {
