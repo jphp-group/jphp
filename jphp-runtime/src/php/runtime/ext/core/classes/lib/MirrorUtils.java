@@ -16,7 +16,7 @@ import php.runtime.reflection.ClassEntity;
 import static php.runtime.annotation.Reflection.Arg;
 import static php.runtime.annotation.Reflection.Name;
 
-@Name("php\\lib\\Mirror")
+@Name("php\\lib\\Reflect")
 public class MirrorUtils extends BaseObject {
     public MirrorUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);

@@ -7,6 +7,10 @@ import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.lib.*;
+import php.runtime.ext.core.classes.lib.legacy.OldBinUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldItemsUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldMirrorUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldNumUtils;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
@@ -70,6 +74,12 @@ public class CoreExtension extends Extension {
         registerClass(scope, NumUtils.class);
         registerClass(scope, ItemsUtils.class);
         registerClass(scope, MirrorUtils.class);
+        registerClass(scope, FsUtils.class);
+
+        registerClass(scope, OldBinUtils.class);
+        registerClass(scope, OldItemsUtils.class);
+        registerClass(scope, OldNumUtils.class);
+        registerClass(scope, OldMirrorUtils.class);
 
         registerClass(scope, SharedUtils.SharedMemory.class);
         registerClass(scope, SharedUtils.SharedValue.class);

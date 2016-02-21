@@ -8,6 +8,7 @@ import php.runtime.ext.NetExtension;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 

@@ -8,7 +8,7 @@ namespace php\lib;
  * Class char
  * @package php\lib
  */
-class Char {
+class char {
 
     private function __construct() { }
 

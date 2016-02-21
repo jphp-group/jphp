@@ -19,7 +19,7 @@ import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Reflection.Optional;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\Items")
+@Name("php\\lib\\Arr")
 public class ItemsUtils extends BaseObject {
     public ItemsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
