@@ -39,6 +39,10 @@ public class ModuleManager {
     }
 
     public ModuleEntity fetchModule(String path) throws Throwable {
+        return fetchModule(path, false);
+    }
+
+    public ModuleEntity fetchModule(String path, boolean compiled) throws Throwable {
         Stream stream = fetchStream(path);
 
         if (stream == null) {
@@ -50,7 +54,11 @@ public class ModuleManager {
                 env.exception("Cannot import module form external stream: " + stream.getPath());
                 return null;
             } else {
-                return env.importModule(fetchContext(stream));
+                if (compiled) {
+                    return env.importCompiledModule(fetchContext(stream), true);
+                } else {
+                    return env.importModule(fetchContext(stream));
+                }
             }
         } finally {
             env.invokeMethod(stream, "close");

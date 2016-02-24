@@ -3,7 +3,7 @@ php\lib\num Test convert
 --FILE--
 <?php
 
-use php\lib\Number as num;
+use php\lib\num;
 
 var_dump(num::toBin(100500));
 var_dump(num::toHex(100500));

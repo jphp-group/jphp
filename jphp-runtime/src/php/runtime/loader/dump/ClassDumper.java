@@ -154,20 +154,23 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         if (parent != null){
             ClassEntity parentEntity = module == null ? null : module.findClass(parent);
-            if (parentEntity == null)
+            if (parentEntity == null) {
                 parentEntity = env.fetchClass(parent, true);
+            }
 
-            if (parentEntity == null)
+            if (parentEntity == null) {
                 env.error(env.trace(), ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, parent);
+            } else {
+                ClassEntity.ExtendsResult result = entity.setParent(parentEntity, false);
 
-            ClassEntity.ExtendsResult result = entity.setParent(parentEntity, false);
-
-            if (clazz != GeneratorEntity.class)
-                result.check(env);
+                if (clazz != GeneratorEntity.class)
+                    result.check(env);
+            }
         }
 
         // constants
         int constantCount = data.readInt();
+
         for(int i = 0; i < constantCount; i++){
             ConstantEntity el = constantDumper.load(input);
             el.setClazz(entity);
@@ -176,6 +179,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         // properties
         int propertyCount = data.readInt();
+
         for(int i = 0; i < propertyCount; i++){
             PropertyEntity el = propertyDumper.load(input);
             el.setClazz(entity);
@@ -185,6 +189,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         // methods
         int methodCount = data.readInt();
+
         for(int i = 0; i < methodCount; i++){
             MethodEntity el = methodDumper.load(input);
             el.setClazz(entity);
@@ -196,6 +201,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         // interfaces
         int interfaceCount = data.readInt();
+
         for(int i = 0; i < interfaceCount; i++){
             String name = data.readName();
 
@@ -211,6 +217,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
         }
 
         int traitCount = data.readInt();
+
         for(int i = 0; i < traitCount; i++) {
             String name = data.readName();
 
@@ -227,8 +234,8 @@ public class ClassDumper extends Dumper<ClassEntity> {
         }
 
         entity.setData(data.readRawData(Integer.MAX_VALUE));
-
         data.readRawData();
+
         entity.doneDeclare();
         return entity;
     }

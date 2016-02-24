@@ -292,6 +292,10 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     public static InputStream getInputStream(Environment env, Stream stream) {
+        if (stream instanceof ResourceStream) {
+            return ((ResourceStream) stream).getInputStream();
+        }
+
         return new StreamInputStream(env, stream);
     }
 
@@ -308,6 +312,10 @@ abstract public class Stream extends BaseObject implements Resource {
             if (arg.instanceOf(FileObject.class)){
                 return new FileInputStream(arg.toObject(FileObject.class).file);
             } else if (arg.instanceOf(Stream.class)){
+                if (arg.instanceOf(ResourceStream.class)) {
+                    return arg.toObject(ResourceStream.class).getInputStream();
+                }
+
                 return new StreamInputStream(env, arg.toObject(Stream.class));
             } else {
                 StreamInputStream inputStream = new StreamInputStream(env, Stream.create(env, arg.toString(), "r"));
@@ -388,6 +396,7 @@ abstract public class Stream extends BaseObject implements Resource {
                 return -1;
 
             byte[] copy = result.getBinaryBytes();
+
             System.arraycopy(copy, 0, b, off, copy.length);
 
             return copy.length;

@@ -1,10 +1,13 @@
 package php.runtime.loader.dump;
 
+import php.runtime.Memory;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
+import php.runtime.memory.StringMemory;
+import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 
@@ -27,6 +30,14 @@ public class MethodDumper extends Dumper<MethodEntity> {
     @Override
     public void save(MethodEntity entity, OutputStream output) throws IOException {
         DumpOutputStream print = new DumpOutputStream(output);
+
+        DocumentComment docComment = entity.getDocComment();
+
+        if (docComment != null) {
+            print.writeUTF(docComment.toString());
+        } else {
+            print.writeUTF("");
+        }
 
         // static
         print.writeBoolean(entity.isStatic());
@@ -77,6 +88,12 @@ public class MethodDumper extends Dumper<MethodEntity> {
     public MethodEntity load(InputStream input) throws IOException {
         DumpInputStream data = new DumpInputStream(input);
         MethodEntity entity = new MethodEntity(context);
+
+        String docComment = data.readUTF();
+
+        if (!docComment.isEmpty()) {
+            entity.setDocComment(new DocumentComment(docComment));
+        }
 
         // static
         entity.setStatic( data.readBoolean() );

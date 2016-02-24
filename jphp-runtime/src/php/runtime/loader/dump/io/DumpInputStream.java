@@ -133,6 +133,7 @@ public class DumpInputStream extends DataInputStream {
 
     public byte[] readRawData(int max) throws IOException {
         int length = readInt();
+
         if (length == 0)
             return new byte[0];
         else if (length < 0)
@@ -143,8 +144,10 @@ public class DumpInputStream extends DataInputStream {
                         "Invalid raw-data size, max " + max + " bytes");
             } else {
                 byte[] raw = new byte[length];
-                if (read(raw) != length)
-                    throw new DumpException("Cannot read raw-data");
+
+                readFully(raw);
+                /*if (read != length)
+                    throw new DumpException("Cannot read raw-data, length = " + length + ", but returns " + read);*/
                 return raw;
             }
         }

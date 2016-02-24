@@ -1,5 +1,5 @@
 <?php
-namespace sdk\php\lib;
+namespace php\lib;
 
 /**
  *  Utils for numbers

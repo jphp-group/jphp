@@ -88,7 +88,7 @@ public class Environment {
     protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
-    protected final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
+    public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
     protected final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
     protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
@@ -472,8 +472,9 @@ public class Environment {
 
                 autoloadLocks.remove(lowerName);
                 return fetchClass(name, false);
-            } else
+            } else {
                 return null;
+            }
         }
     }
 
@@ -520,6 +521,7 @@ public class Environment {
 
         if (entity == null){
             entity = scope.fetchUserClass(nameL);
+
             if (entity != null) {
                 try {
                     entity.initEnvironment(this);
@@ -530,7 +532,9 @@ public class Environment {
                 return entity;
             }
 
-            return autoLoad ? autoloadCall(name, nameL) : null;
+            ClassEntity classEntity = autoLoad ? autoloadCall(name, nameL) : null;
+
+            return classEntity;
         } else {
             return entity;/*
             if (isLoadedClass(nameL) || entity.isInternal())
@@ -911,7 +915,7 @@ public class Environment {
     }
 
     public void exception(String message, Object... args){
-        exception(trace(), message);
+        exception(trace(), message, args);
     }
 
     public void exception(TraceInfo trace, BaseBaseException e, String message, Object... args){
@@ -1057,6 +1061,7 @@ public class Environment {
         }
 
         registerModule(module);
+        scope.addUserModule(module);
         return module;
     }
 

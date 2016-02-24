@@ -3,7 +3,7 @@ php\lib\items Test - common
 --FILE--
 <?php
 
-use php\lib\Items;
+use php\lib\arr as Items;
 
 var_dump(Items::count([1, 2, 3]));
 var_dump(Items::flatten([[1], [2], [3]]));

@@ -1,6 +1,6 @@
 <?php
 namespace php\lib;
-use sdk\php\lib\num;
+use php\lib\num;
 
 /**
  * Utils for numbers
