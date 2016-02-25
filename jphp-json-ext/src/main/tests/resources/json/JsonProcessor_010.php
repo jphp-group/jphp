@@ -4,12 +4,12 @@ JsonProcessor test #10: Serialize
 <?php
 
 use php\format\JsonProcessor;
-use php\lib\items;
+use php\lib\arr;
 
 $json = new JsonProcessor();
 
 $json->onSerialize('object', function($val) {
-    return items::toArray((array)$val);
+    return arr::toArray((array)$val);
 });
 
 // ignoring int handler

@@ -95,6 +95,8 @@ final public class ObjectInvokeHelper {
                     env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
             result = method.invokeDynamic(iObject, env, passed);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new CriticalException("Unable to call parent:: method " + className + "::" + methodName + "(), error = " + e.getMessage());
         } finally {
             if (trace != null) {
                 env.popCall();

@@ -171,6 +171,56 @@ public class ItemsUtils extends BaseObject {
     }
 
     @FastMethod
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "withKeys", optional = @Optional("false"))
+    })
+    public static Memory of(Environment env, Memory... args) {
+        return toArray(env, args);
+    }
+
+    @Signature({
+            @Arg(value = "keys", type = HintType.TRAVERSABLE),
+            @Arg(value = "values", type = HintType.TRAVERSABLE),
+    })
+    public static Memory combine(Environment env, Memory... args) {
+        ForeachIterator keyIterator = args[0].getNewIterator(env);
+        ForeachIterator valueIterator = args[1].getNewIterator(env);
+        ArrayMemory r = new ArrayMemory();
+
+        while (keyIterator.next()) {
+            if (valueIterator.next()) {
+                r.refOfIndex(keyIterator.getValue()).assign(valueIterator.getValue().toImmutable());
+            } else {
+                return Memory.NULL;
+            }
+        }
+
+        return r.toConstant();
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "callback", type = HintType.CALLABLE),
+    })
+    public static Memory map(Environment env, Memory... args) throws Throwable {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+        Invoker callback = Invoker.valueOf(env, null, args[1]);
+
+        if (callback == null) {
+            return Memory.NULL;
+        }
+
+        ArrayMemory r = new ArrayMemory();
+
+        while (iterator.next()) {
+            r.refOfIndex(iterator.getMemoryKey()).assign(callback.call(iterator.getValue()));
+        }
+
+        return r.toConstant();
+    }
+
+    @FastMethod
     @Signature(@Arg("collection"))
     public static Memory toList(Environment env, Memory... args) {
         ArrayMemory r = new ArrayMemory();

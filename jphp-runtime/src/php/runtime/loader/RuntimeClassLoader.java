@@ -39,8 +39,12 @@ public class RuntimeClassLoader extends ClassLoader {
 
     public Class<?> loadClass(ClassEntity clazz, boolean withBytecode) throws NoSuchMethodException, NoSuchFieldException {
         if (withBytecode) {
-            byte[] data = translateData(clazz.getInternalName(), clazz.getData());
-            Class<?> result = defineClass(null, data, 0, data.length);
+            byte[] data = translateData(clazz.getData());
+            Class<?> result = null;
+
+            if (result == null) {
+                result = defineClass(null, data, 0, data.length);
+            }
 
             clazz.setNativeClazz(result);
         }
@@ -54,7 +58,7 @@ public class RuntimeClassLoader extends ClassLoader {
             }
         }
 
-        internalClasses.put(clazz.getInternalName(), clazz);
+        internalClasses.put(clazz.getCompiledInternalName(), clazz);
         return clazz.getNativeClass();
     }
 
@@ -65,7 +69,7 @@ public class RuntimeClassLoader extends ClassLoader {
     protected Class<?> loadFunction(FunctionEntity function, boolean withBytecode) throws NoSuchMethodException {
         String className = function.getInternalName();
         if (withBytecode) {
-            byte[] data = translateData(function.getInternalName(), function.getData());
+            byte[] data = translateData(function.getData());
 
             Class<?> result = defineClass(null, data, 0, data.length);
 
@@ -118,7 +122,7 @@ public class RuntimeClassLoader extends ClassLoader {
         }
 
         if (withBytecode) {
-            byte[] data = translateData(internal, module.getData());
+            byte[] data = translateData(module.getData());
             Class<?> result = defineClass(
                     null, data, 0, module.getData().length
             );
@@ -137,7 +141,7 @@ public class RuntimeClassLoader extends ClassLoader {
         return ret;
     }
 
-    protected byte[] translateData(String internalName, byte[] data) {
+    protected byte[] translateData(byte[] data) {
         return data;
     }
 }

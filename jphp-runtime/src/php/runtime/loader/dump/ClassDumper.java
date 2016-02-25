@@ -51,7 +51,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         // print name
         printer.writeName(entity.getName());
-        printer.writeName(entity.getInternalName());
+        printer.writeName(entity.getCompiledInternalName());
 
         printer.writeTrace(debugInformation ? entity.getTrace() : null);
 
@@ -92,6 +92,8 @@ public class ClassDumper extends Dumper<ClassEntity> {
         }
 
         // methods
+        printer.writeInt(entity.getMethodCounts());
+
         List<MethodEntity> methods = entity.getOwnedMethods();
         printer.writeInt(methods.size());
         for (MethodEntity el : methods){
@@ -188,6 +190,8 @@ public class ClassDumper extends Dumper<ClassEntity> {
         }
 
         // methods
+        entity.__setMethodCounts(data.readInt());
+
         int methodCount = data.readInt();
 
         for(int i = 0; i < methodCount; i++){

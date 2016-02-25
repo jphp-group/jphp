@@ -113,8 +113,16 @@ public class ClassEntity extends Entity implements Cloneable {
         this.extension = extension;
     }
 
+    public String getCompiledInternalName() {
+        return super.getInternalName();
+    }
+
     @Override
     public String getInternalName() {
+        if (isTrait()) {
+            throw new CriticalException("Disable of using internal names for traits, trait '" + getName() + "'");
+        }
+
         return super.getInternalName();
     }
 
@@ -244,6 +252,14 @@ ClassReader classReader;
 
     public Map<String, MethodEntity> getMethods() {
         return methods;
+    }
+
+    public int getMethodCounts() {
+        return methodCounts;
+    }
+
+    public void __setMethodCounts(int methodCounts) {
+        this.methodCounts = methodCounts;
     }
 
     public List<MethodEntity> getOwnedMethods(){

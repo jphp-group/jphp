@@ -53,6 +53,17 @@ class arr
     }
 
     /**
+     * Alias of toArray()
+     * @param array|Iterator $collection
+     * @param bool|false $withKeys
+     * @return array
+     */
+    public static function of($collection, $withKeys = false)
+    {
+        return [];
+    }
+
+    /**
      * Example: items::toList(['x' => 10, 20], 30, ['x' => 50, 60]) -> [10, 20, 30, 50, 60]
      *
      * @param $collection
@@ -75,6 +86,25 @@ class arr
     public static function keys($collection)
     {
         return [];
+    }
+
+    /**
+     * Combines two collections to array.
+     *
+     * @param array|Iterator $keys
+     * @param array|Iterator $values
+     * @return array|null returns null if size of arrays is not equals.
+     */
+    public static function combine($keys, $values)
+    {
+    }
+
+    /**
+     * @param array|Iterator $collection
+     * @param $callback
+     */
+    public static function map($collection, callable $callback)
+    {
     }
 
     /**
