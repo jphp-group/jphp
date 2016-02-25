@@ -113,6 +113,10 @@ public class ClassEntity extends Entity implements Cloneable {
         this.extension = extension;
     }
 
+    @Override
+    public String getInternalName() {
+        return super.getInternalName();
+    }
 
     public boolean isStatic() {
         return isStatic;
