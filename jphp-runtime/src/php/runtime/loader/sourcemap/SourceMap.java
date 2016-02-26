@@ -1,7 +1,5 @@
 package php.runtime.loader.sourcemap;
 
-import php.runtime.env.Context;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,7 +15,8 @@ public class SourceMap {
     }
 
     protected final String moduleName;
-    protected Map<Integer, Item> itemsByLine = new LinkedHashMap<>();
+    protected Map<Integer, Item> itemsByCompiled = new LinkedHashMap<>();
+    protected Map<Integer, Item> itemsBySource = new LinkedHashMap<>();
 
     public SourceMap(String moduleName) {
         if (moduleName == null) {
@@ -32,17 +31,29 @@ public class SourceMap {
     }
 
     public void clear() {
-        itemsByLine.clear();
+        itemsByCompiled.clear();
+        itemsBySource.clear();
     }
 
     public void addLine(int sourceLine, int compiledLine) {
         Item item = new Item(sourceLine, compiledLine);
 
-        itemsByLine.put(compiledLine, item);
+        itemsByCompiled.put(compiledLine, item);
+        itemsBySource.put(sourceLine, item);
+    }
+
+    public int getCompiledLine(int sourceLine) {
+        Item item = itemsBySource.get(sourceLine);
+
+        if (item == null) {
+            return -1;
+        }
+
+        return item.compiledLine;
     }
 
     public int getSourceLine(int compiledLine) {
-        Item item = itemsByLine.get(compiledLine);
+        Item item = itemsByCompiled.get(compiledLine);
 
         if (item == null) {
             return -1;
@@ -51,8 +62,12 @@ public class SourceMap {
         return item.sourceLine;
     }
 
-    public Map<Integer, Item> getItemsByLine() {
-        return itemsByLine;
+    public Map<Integer, Item> getItemsByCompiled() {
+        return itemsByCompiled;
+    }
+
+    public Map<Integer, Item> getItemsBySource() {
+        return itemsBySource;
     }
 
     @Override

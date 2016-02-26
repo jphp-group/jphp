@@ -23,9 +23,17 @@ class SourceMap
 
     /**
      * @param int $compiledLine
-     * @return int
+     * @return int -1 if not found
      */
     public function getSourceLine($compiledLine)
+    {
+    }
+
+    /**
+     * @param int $sourceLine
+     * @return int -1 if not found
+     */
+    public function getCompiledLine($sourceLine)
     {
     }
 

@@ -1,17 +1,14 @@
 package php.runtime.ext.core.classes;
 
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Arg;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
-import php.runtime.lang.BaseObject;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.loader.sourcemap.SourceMap;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
-import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -39,10 +36,18 @@ public class WrapSourceMap extends BaseWrapper<SourceMap> {
     }
 
     @Signature({
-            @Arg("sourceLine"),
+            @Arg("compiledLine"),
     })
     public Memory getSourceLine(Environment env, Memory... args) {
         int sourceLine = getWrappedObject().getSourceLine(args[0].toInteger());
+        return LongMemory.valueOf(sourceLine);
+    }
+
+    @Signature({
+            @Arg("sourceLine"),
+    })
+    public Memory getCompiledLine(Environment env, Memory... args) {
+        int sourceLine = getWrappedObject().getCompiledLine(args[0].toInteger());
         return LongMemory.valueOf(sourceLine);
     }
 
@@ -63,7 +68,7 @@ public class WrapSourceMap extends BaseWrapper<SourceMap> {
 
     @Signature
     public Memory toArray(Environment env, Memory... args) {
-        Map<Integer, SourceMap.Item> itemsByLine = getWrappedObject().getItemsByLine();
+        Map<Integer, SourceMap.Item> itemsByLine = getWrappedObject().getItemsByCompiled();
         ArrayMemory r = new ArrayMemory();
 
         for (Map.Entry<Integer, SourceMap.Item> entry : itemsByLine.entrySet()) {
