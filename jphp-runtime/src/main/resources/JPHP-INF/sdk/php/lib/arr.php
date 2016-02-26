@@ -39,6 +39,17 @@ class arr
     }
 
     /**
+     * @param array|Traversable $collection
+     * @param mixed $value
+     * @param bool $strict
+     * @return bool
+     */
+    public static function has($collection, $value, $strict = false)
+    {
+        return false;
+    }
+
+    /**
      * Converts $collection to array
      * --RU--
      * Конвертирует коллекцию в массив
@@ -147,6 +158,16 @@ class arr
     public static function sortByKeys($collection, callable $comparator = null, $saveKeys = false)
     {
         return [];
+    }
+
+    /**
+     * Returns the last element of array.
+     *
+     * @param $array
+     * @return mixed last value of array
+     */
+    public static function peak($array)
+    {
     }
 
     /**

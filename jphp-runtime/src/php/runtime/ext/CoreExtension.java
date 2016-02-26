@@ -22,6 +22,7 @@ import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.loader.sourcemap.SourceMap;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -104,6 +105,7 @@ public class CoreExtension extends Extension {
 
         registerClass(scope, WrapInvoker.class);
         registerClass(scope, WrapModule.class);
+        registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
         registerClass(scope, WrapEnvironment.class);
         registerClass(scope, WrapThreadGroup.class);
         registerClass(scope, WrapThread.class);

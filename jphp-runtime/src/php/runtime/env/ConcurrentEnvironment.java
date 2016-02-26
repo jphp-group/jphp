@@ -23,7 +23,7 @@ public class ConcurrentEnvironment extends Environment {
     private ThreadLocal<CallStack> callStack = new ThreadLocal<CallStack>() {
         @Override
         protected CallStack initialValue() {
-            return new CallStack();
+            return new CallStack(ConcurrentEnvironment.this);
         }
     };
 

@@ -5,7 +5,8 @@ namespace php\lang;
  * Class Environment
  * @package php\lang
  */
-class Environment {
+class Environment
+{
     const CONCURRENT = 1; // experimental - for use in multi-threading
     const HOT_RELOAD = 2; // for hot-reload working (like classical PHP)
 
@@ -13,7 +14,23 @@ class Environment {
      * @param Environment $parent
      * @param int $flags Environment::HOT_RELOAD, Environment::CONCURRENT
      */
-    public function __construct(Environment $parent = NULL, $flags = 0){ }
+    public function __construct(Environment $parent = NULL, $flags = 0)
+    {
+    }
+
+    /**
+     * @param SourceMap $sourceMap
+     */
+    public function registerSourceMap(SourceMap $sourceMap)
+    {
+    }
+
+    /**
+     * @param SourceMap $sourceMap
+     */
+    public function unregisterSourceMap(SourceMap $sourceMap)
+    {
+    }
 
     /**
      * Executes $runnable in the environment
@@ -23,7 +40,9 @@ class Environment {
      * @param callable $runnable - in new environment
      * @return mixed
      */
-    public function execute(callable $runnable) { }
+    public function execute(callable $runnable)
+    {
+    }
 
     /**
      * Imports the $className to the environment
@@ -33,7 +52,9 @@ class Environment {
      * @param string $className
      * @throws \Exception - if class not found or already registered
      */
-    public function importClass($className) { }
+    public function importClass($className)
+    {
+    }
 
     /**
      * Exports the $className from th environment
@@ -43,7 +64,9 @@ class Environment {
      * @param string $className
      * @throws \Exception - if class not found or already registered
      */
-    public function exportClass($className) { }
+    public function exportClass($className)
+    {
+    }
 
     /**
      * Imports the $functionName to the environment
@@ -54,7 +77,9 @@ class Environment {
      * @throws \Exception - if function not found or already registered
      *  --RU-- если функция не найдена или уже объявлена
      */
-    public function importFunction($functionName) { }
+    public function importFunction($functionName)
+    {
+    }
 
     /**
      * Exports the $functionName from the environment
@@ -65,12 +90,16 @@ class Environment {
      * @throws \Exception - if function not found or already registered
      *  --RU-- если функция не найдена или уже объявлена
      */
-    public function exportFunction($functionName) { }
+    public function exportFunction($functionName)
+    {
+    }
 
     /**
      * Imports the all spl auto loaders to the environment.
      */
-    public function importAutoLoaders() {}
+    public function importAutoLoaders()
+    {
+    }
 
     /**
      * @param string $name
@@ -78,7 +107,9 @@ class Environment {
      * @param bool $caseSensitive
      * @throws \Exception - if constant already registered or value is not scalar type
      */
-    public function defineConstant($name, $value, $caseSensitive = true) { }
+    public function defineConstant($name, $value, $caseSensitive = true)
+    {
+    }
 
     /**
      * Handles messages that sent to the environment
@@ -87,12 +118,16 @@ class Environment {
      *
      * @param callable $callback
      */
-    public function onMessage(callable $callback) { }
+    public function onMessage(callable $callback)
+    {
+    }
 
     /**
      * @param callable|null $callback
      */
-    public function onOutput(callable $callback) { }
+    public function onOutput(callable $callback)
+    {
+    }
 
     /**
      * Send message to the environment
@@ -103,7 +138,9 @@ class Environment {
      * @param ... args
      * @return mixed
      */
-    public function sendMessage($message) { }
+    public function sendMessage($message)
+    {
+    }
 
     /**
      * Get environment of current execution
@@ -112,5 +149,7 @@ class Environment {
      *
      * @return Environment
      */
-    public static function current() { }
+    public static function current()
+    {
+    }
 }

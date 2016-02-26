@@ -85,6 +85,18 @@ public class WrapEnvironment extends BaseObject {
         return invoker.call();
     }
 
+    @Signature(@Arg(value = "sourceMap", nativeType = WrapSourceMap.class))
+    public Memory registerSourceMap(Environment env, Memory... args) {
+        this.environment.registerSourceMap(args[0].toObject(WrapSourceMap.class).getWrappedObject());
+        return Memory.NULL;
+    }
+
+    @Signature(@Arg(value = "sourceMap", nativeType = WrapSourceMap.class))
+    public Memory unregisterSourceMap(Environment env, Memory... args) {
+        this.environment.unregisterSourceMap(args[0].toObject(WrapSourceMap.class).getWrappedObject());
+        return Memory.NULL;
+    }
+
     @Signature(@Arg("className"))
     public Memory exportClass(final Environment env, Memory... args) throws Throwable {
         ClassEntity classEntity = environment.fetchClass(args[0].toString());

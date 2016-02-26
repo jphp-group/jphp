@@ -199,6 +199,30 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
+    @FastMethod
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "value"),
+            @Arg(value = "strict", optional = @Optional("false"))
+    })
+    public static Memory has(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+        Memory needle = args[1];
+        boolean strict = args[2].toBoolean();
+
+        while (iterator.next()) {
+            if (strict) {
+                if (needle.identical(iterator.getValue()))
+                    return Memory.TRUE;
+            } else {
+                if (needle.equal(iterator.getValue()))
+                    return Memory.TRUE;
+            }
+        }
+
+        return Memory.FALSE;
+    }
+
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "callback", type = HintType.CALLABLE),
@@ -303,6 +327,14 @@ public class ItemsUtils extends BaseObject {
 
         Memory pop = array.toValue(ArrayMemory.class).pop();
         return pop == null ? Memory.NULL : pop;
+    }
+
+    @Signature(@Arg(value = "array", type = HintType.ARRAY))
+    public static Memory peak(Environment env, Memory... args) throws Throwable {
+        Memory array  = args[0];
+
+        Memory peek = array.toValue(ArrayMemory.class).peek();
+        return peek == null ? Memory.NULL : peek;
     }
 
     @Signature({

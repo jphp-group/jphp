@@ -21,6 +21,7 @@ import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.lang.exception.BaseEngineException;
 import php.runtime.lang.exception.BaseParseException;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.loader.sourcemap.SourceMap;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -50,7 +51,7 @@ public class Environment {
     public final static Map<String, ConfigChangeHandler> configurationHandler;
 
     // call stack
-    private CallStack callStack = new CallStack();
+    private CallStack callStack = new CallStack(this);
 
     private Set<String> includePaths;
 
@@ -76,6 +77,8 @@ public class Environment {
     private Stack<OutputBuffer> outputBuffers;
 
     private List<ShutdownHandler> shutdownFunctions = new LinkedList<ShutdownHandler>();
+
+    protected Map<String, SourceMap> sourceMaps = new HashMap<>();
 
     // charset, locale
     private Locale locale = Locale.getDefault();
@@ -1080,6 +1083,13 @@ public class Environment {
         return module;
     }
 
+    public void registerSourceMap(SourceMap sourceMap) {
+        sourceMaps.put(sourceMap.getModuleName(), sourceMap);
+    }
+
+    public void unregisterSourceMap(SourceMap sourceMap) {
+        sourceMaps.remove(sourceMap.getModuleName());
+    }
 
     public void registerModule(ModuleEntity module) {
         registerModule(module, false);
@@ -1612,6 +1622,46 @@ public class Environment {
     public void setErrorHandler(ErrorHandler handler){
         previousErrorHandler = errorHandler;
         errorHandler = handler;
+    }
+
+    public TraceInfo getTraceAppliedSourceMap(TraceInfo trace) {
+        if (trace == null) {
+            return null;
+        }
+
+        if (trace.getFile() == null) {
+            return trace;
+        }
+
+        if (trace instanceof SourceMappedTraceInfo) {
+            return trace;
+        }
+
+        SourceMap sourceMap = sourceMaps.get(trace.getFileName());
+
+        if (sourceMap != null) {
+            int sourceLine = sourceMap.getSourceLine(trace.getStartLine() + 1);
+
+            if (sourceLine != trace.getStartLine() && sourceLine != -1) {
+                trace = new SourceMappedTraceInfo(
+                        trace.getContext(),
+                        sourceLine - 1, trace.getEndLine(),
+                        trace.getStartPosition(), trace.getEndPosition()
+                );
+            }
+        }
+
+        return trace;
+    }
+
+    public void applySourceMap(CallStackItem[] callStack) {
+        if (sourceMaps.isEmpty()) {
+            return;
+        }
+
+        for (CallStackItem stackItem : callStack) {
+            stackItem.trace = getTraceAppliedSourceMap(stackItem.trace);
+        }
     }
 
     public CallStack getCallStack() {
