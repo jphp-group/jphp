@@ -119,9 +119,9 @@ public class ClassEntity extends Entity implements Cloneable {
 
     @Override
     public String getInternalName() {
-        if (isTrait()) {
+        /*if (isTrait()) { depricated check, todo remove.
             throw new CriticalException("Disable of using internal names for traits, trait '" + getName() + "'");
-        }
+        }   */
 
         return super.getInternalName();
     }
