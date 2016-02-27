@@ -140,6 +140,11 @@ public class ItemsUtils extends BaseObject {
                 }
             } else {
                 ForeachIterator iterator = args[0].getNewIterator(env);
+
+                if (iterator == null) {
+                    return Memory.FALSE;
+                }
+
                 int r = 0;
                 while (iterator.next()) r++;
                 return LongMemory.valueOf(r);
@@ -159,6 +164,11 @@ public class ItemsUtils extends BaseObject {
             return args[0].toImmutable();
 
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
             if (withKeys)
@@ -207,6 +217,11 @@ public class ItemsUtils extends BaseObject {
     })
     public static Memory has(Environment env, Memory... args) {
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         Memory needle = args[1];
         boolean strict = args[2].toBoolean();
 
@@ -229,6 +244,11 @@ public class ItemsUtils extends BaseObject {
     })
     public static Memory map(Environment env, Memory... args) throws Throwable {
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         Invoker callback = Invoker.valueOf(env, null, args[1]);
 
         if (callback == null) {
@@ -265,6 +285,11 @@ public class ItemsUtils extends BaseObject {
     })
     public static Memory keys(Environment env, Memory... args) {
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory r = new ArrayMemory();
         while (iterator.next())
             r.add(iterator.getMemoryKey());
@@ -297,6 +322,10 @@ public class ItemsUtils extends BaseObject {
         ArrayMemory r = new ArrayMemory();
         int level = args[1].toInteger();
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
 
         Set<Integer> used = new HashSet<Integer>();
         used.add(args[0].getPointer());

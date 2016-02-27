@@ -38,6 +38,14 @@ class SourceMap
     }
 
     /**
+     * @param array $inserts int[][2] [[line, lineCount], [line, lineCount], ...]
+     * @param int $allCountLines original source line count.
+     */
+    public function insertLines(array $inserts, $allCountLines)
+    {
+    }
+
+    /**
      * @param int $sourceLine
      * @param int $compiledLine
      */
