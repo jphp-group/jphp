@@ -3,10 +3,7 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
-import php.runtime.env.CompileScope;
-import php.runtime.env.ConcurrentEnvironment;
-import php.runtime.env.Environment;
-import php.runtime.env.SplClassLoader;
+import php.runtime.env.*;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ObjectMemory;
@@ -207,6 +204,19 @@ public class WrapEnvironment extends BaseObject {
         }
 
         return onMessage.call(args);
+    }
+
+    @Signature(@Arg("path"))
+    public Memory findModule(Environment env,  Memory... args) throws Throwable {
+        ModuleManager moduleManager = this.environment.getModuleManager();
+
+        boolean hasModule = moduleManager.hasModule(args[0].toString());
+
+        if (hasModule) {
+            return ObjectMemory.valueOf(new WrapModule(env, moduleManager.fetchModule(args[0].toString())));
+        }
+
+        return Memory.NULL;
     }
 
     @Signature

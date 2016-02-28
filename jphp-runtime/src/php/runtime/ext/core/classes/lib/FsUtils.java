@@ -1,21 +1,29 @@
 package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
-import php.runtime.annotation.*;
 import php.runtime.annotation.Reflection.Name;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
-import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.FastMethod;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.stream.FileObject;
+import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
-import php.runtime.memory.StringMemory;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Set;
 
 @Name("php\\lib\\fs")
 public class FsUtils extends BaseObject {
+    private static final int BUFFER_SIZE = 8192;
+
     public FsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -51,8 +59,55 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
+    public static boolean hasExt(Environment env, String path) {
+        return ext(path) != null;
+    }
+
+    @Signature
+    public static boolean hasExt(Environment env, String path, Memory extensions, boolean ignoreCase) {
+        Set<String> exts = new HashSet<>();
+
+        if (extensions.isTraversable()) {
+            ForeachIterator iterator = extensions.getNewIterator(env);
+
+            while (iterator.next()) {
+                String value = iterator.getValue().toString();
+
+                if (ignoreCase) {
+                    value = value.toLowerCase();
+                }
+
+                exts.add(value);
+            }
+        } else {
+            exts.add(ignoreCase ? extensions.toString().toLowerCase() : extensions.toString());
+        }
+
+        String ext = ext(path);
+
+        if (ignoreCase && ext != null) {
+            ext = ext.toLowerCase();
+        }
+
+        return exts.contains(ext);
+    }
+
+    @Signature
     public static String nameNoExt(String path) {
         String name = new File(path).getName();
+
+        int indexOf = name.lastIndexOf('.');
+
+        if (indexOf > -1) {
+            name = name.substring(0, indexOf);
+        }
+
+        return name;
+    }
+
+    @Signature
+    public static String pathNoExt(String path) {
+        String name = new File(path).getPath();
 
         int indexOf = name.lastIndexOf('.');
 
@@ -99,6 +154,21 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
+    public static boolean ensureParent(String path) {
+        File parent = new File(path).getParentFile();
+
+        if (parent == null) {
+            return true;
+        }
+
+        if (!parent.isDirectory()) {
+            return parent.mkdirs();
+        }
+
+        return true;
+    }
+
+    @Signature
     public static boolean exists(String path) {
         return new File(path).exists();
     }
@@ -137,9 +207,182 @@ public class FsUtils extends BaseObject {
         }
     }
 
-
     @Signature
     public static boolean delete(String path) {
         return new File(path).delete();
+    }
+
+    @Signature
+    public static Memory get(Environment env, String input) throws Throwable {
+        return get(env, input, "r");
+    }
+
+    @Signature
+    public static Memory get(Environment env, String input, String mode) throws Throwable {
+        Stream stream = Stream.create(env, input, mode);
+
+        try {
+            return env.invokeMethod(stream, "readFully");
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
+    @Signature
+    public static long copy(InputStream input, OutputStream output) throws IOException {
+        return copy(input, output, null);
+    }
+
+    @Signature
+    public static long copy(InputStream input, OutputStream output, @Nullable Invoker callback) throws IOException {
+        long nread = 0L;
+        byte[] buf = new byte[BUFFER_SIZE];
+        int n;
+
+        while ((n = input.read(buf)) > 0) {
+            output.write(buf, 0, n);
+            nread += n;
+
+            if (callback != null) {
+                if (callback.callAny(nread).toValue() == Memory.FALSE) {
+                    break;
+                }
+            }
+        }
+
+        return nread;
+    }
+
+    @Signature
+    public static Memory hash(InputStream source) throws NoSuchAlgorithmException {
+        return hash(source, "MD5");
+    }
+
+    @Signature
+    public static Memory hash(InputStream source, String algo) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance(algo);
+
+        byte[] buffer = new byte[1024];
+        int len;
+
+        try {
+            while ((len = source.read(buffer)) > 0) {
+                messageDigest.update(buffer, 0, len);
+            }
+
+            return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+        } catch (FileNotFoundException e) {
+            return Memory.NULL;
+        } catch (IOException e) {
+            return Memory.NULL;
+        }
+    }
+
+    public static void scan(String path, ScanProgressHandler scanProgressHandler)  {
+        scan(path, scanProgressHandler, 0);
+    }
+
+    public static void scan(String path, final ScanProgressHandler scanProgressHandler, final int maxDepth)  {
+        scan(path, scanProgressHandler, maxDepth, 1);
+    }
+
+    public static void scan(String path, final ScanProgressHandler scanProgressHandler, final int maxDepth, final int _depth)  {
+        if (maxDepth > 0 && _depth > maxDepth) {
+            return;
+        }
+
+        File file = new File(path);
+
+        file.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                if (!scanProgressHandler.isSubIsFirst()) {
+                    scanProgressHandler.call(pathname, _depth);
+                }
+
+                if (pathname.isDirectory()) {
+                    scan(pathname.getPath(), scanProgressHandler, maxDepth, _depth + 1);
+                }
+
+                if (scanProgressHandler.isSubIsFirst()) {
+                    scanProgressHandler.call(pathname, _depth);
+                }
+
+                return false;
+            }
+        });
+    }
+
+    @Signature
+    public static void scan(String path, final Invoker progress)  {
+        scan(path, progress, 0);
+    }
+
+    @Signature
+    public static void scan(String path, final Invoker progress, int maxDepth)  {
+        scan(path, progress, maxDepth, false);
+    }
+
+    @Signature
+    public static void scan(String path, final Invoker progress, int maxDepth, boolean filesIsFirst)  {
+        scan(path, new ScanProgressHandler(filesIsFirst) {
+            @Override
+            public boolean call(File pathname, int depth) {
+                progress.callAny(pathname, depth);
+                return true;
+            }
+        }, maxDepth);
+    }
+
+    @Signature
+    public ArrayMemory clean(final Environment env, String path) {
+        return clean(env, path, null);
+    }
+
+    @Signature
+    public ArrayMemory clean(final Environment env, String path, @Nullable final Invoker checker) {
+        ArrayMemory result = new ArrayMemory();
+        final ArrayMemory success = new ArrayMemory();
+        final ArrayMemory error = new ArrayMemory();
+        final ArrayMemory skip = new ArrayMemory();
+
+        result.put("success", success);
+        result.put("error", error);
+        result.put("skip", error);
+
+        scan(path, new ScanProgressHandler(true) {
+            @Override
+            public boolean call(File file, int depth) {
+                Memory value = ObjectMemory.valueOf(new FileObject(env, file));
+
+                if (checker == null || checker.callAny(file, depth).toBoolean()) {
+                    if (delete(file.getPath())) {
+                        success.add(value);
+                    } else {
+                        error.add(value);
+                    }
+                } else {
+                    skip.add(value);
+                }
+
+                return true;
+            }
+        });
+
+        return result.toConstant();
+    }
+
+    public abstract static class ScanProgressHandler {
+        protected final boolean subIsFirst;
+
+        protected ScanProgressHandler(boolean subIsFirst) {
+            this.subIsFirst = subIsFirst;
+        }
+
+        public boolean isSubIsFirst() {
+            return subIsFirst;
+        }
+
+        abstract public boolean call(File file, int depth);
     }
 }

@@ -143,6 +143,14 @@ class Environment
     }
 
     /**
+     * @param string $path
+     * @return Module|null
+     */
+    public function findModule($path)
+    {
+    }
+
+    /**
      * Get environment of current execution
      * --RU--
      * Взять окружение текущего выполнения

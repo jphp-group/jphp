@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
@@ -115,12 +116,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Optional("r"))})
     public static Memory getContents(Environment env, Memory... args) throws Throwable {
-        Stream stream = create(env, args[0].toString(), args[1].toString());
-        try {
-            return env.invokeMethod(stream, "readFully");
-        } finally {
-            env.invokeMethod(stream, "close");
-        }
+        return FsUtils.get(env, args[0].toString(), args[1].toString());
     }
 
     @Signature({@Arg("path"), @Arg("data"), @Arg(value = "mode", optional = @Optional("w+"))})
