@@ -77,9 +77,10 @@ class fs
      * Check that $path has an extension from the extension set.
      * @param string $path
      * @param string|array $extensions
+     * @param bool $ignoreCase
      * @return bool
      */
-    static function hasExt($path, $extensions = null)
+    static function hasExt($path, $extensions = null, $ignoreCase = true)
     {
     }
 
@@ -243,9 +244,11 @@ class fs
     /**
      * Reads fully data from source and returns it as binary string.
      * @param string $source
+     * @param null|string $charset UTF-8, windows-1251, etc.
+     * @param string $mode
      * @return string
      */
-    static function get($source)
+    static function get($source, $charset = null, $mode = 'r')
     {
     }
 }

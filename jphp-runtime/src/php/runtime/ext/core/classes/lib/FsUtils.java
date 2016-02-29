@@ -214,15 +214,25 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory get(Environment env, String input) throws Throwable {
-        return get(env, input, "r");
+        return get(env, input, null, "r");
     }
 
     @Signature
-    public static Memory get(Environment env, String input, String mode) throws Throwable {
+    public static Memory get(Environment env, String input, @Nullable String charset) throws Throwable {
+        return get(env, input, charset, "r");
+    }
+
+    @Signature
+    public static Memory get(Environment env, String input, @Nullable String charset, String mode) throws Throwable {
         Stream stream = Stream.create(env, input, mode);
 
         try {
-            return env.invokeMethod(stream, "readFully");
+            Memory memory = env.invokeMethod(stream, "readFully");
+            if (charset == null || charset.trim().isEmpty()) {
+                return memory;
+            } else {
+                return StrUtils.decode(env, memory, StringMemory.valueOf(charset));
+            }
         } finally {
             env.invokeMethod(stream, "close");
         }
