@@ -71,6 +71,7 @@ configure([
         project(':jphp-sql-ext'),
         project(':jphp-webserver-ext'),
         project(':jphp-compress-ext'),
+        project(':jphp-orientdb-ext'),
         project(':jphp-debugger'),
 
         project(':jphp-android'),

@@ -13,6 +13,7 @@ include 'jphp-runtime',
         'jphp-sql-ext',
         'jphp-webserver-ext',
         'jphp-compress-ext',
+        'jphp-orientdb-ext',
         'jphp-gen-api',
         'jphp-scripting',
 
