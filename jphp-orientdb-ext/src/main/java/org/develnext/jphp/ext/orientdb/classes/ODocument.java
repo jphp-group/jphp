@@ -1,5 +1,6 @@
 package org.develnext.jphp.ext.orientdb.classes;
 
+import com.orientechnologies.orient.core.id.ORID;
 import org.develnext.jphp.ext.orientdb.OrientDbExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
@@ -26,6 +27,28 @@ public class ODocument extends BaseWrapper<com.orientechnologies.orient.core.rec
     @Signature
     public void __construct(String typeName) {
         __wrappedObject = new com.orientechnologies.orient.core.record.impl.ODocument(typeName);
+    }
+
+    @Getter
+    public String getId() {
+        ORID identity = getWrappedObject().getIdentity();
+
+        if (identity.isNew()) {
+            return null;
+        }
+
+        StringBuilder buffer = new StringBuilder();
+        return identity.toString(buffer).toString();
+    }
+
+    @Signature
+    public void resetId() {
+        getWrappedObject().getIdentity().reset();
+    }
+
+    @Signature
+    public boolean isNew() {
+        return getWrappedObject().getIdentity().isNew();
     }
 
     @Signature

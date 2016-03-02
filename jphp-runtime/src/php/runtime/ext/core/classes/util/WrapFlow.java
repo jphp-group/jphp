@@ -31,6 +31,10 @@ public class WrapFlow extends BaseObject implements Iterator {
 
     protected boolean withKeys = false;
 
+    public WrapFlow(Environment env, Iterable iterable) {
+        this(env, ForeachIterator.of(env, iterable));
+    }
+
     public WrapFlow(Environment env, ForeachIterator iterator) {
         super(env);
         this.iterator = iterator;

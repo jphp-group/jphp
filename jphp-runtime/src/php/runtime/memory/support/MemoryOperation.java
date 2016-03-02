@@ -138,7 +138,8 @@ abstract public class MemoryOperation<T> {
                             }
 
                             try {
-                                return ObjectMemory.valueOf(constructorContext.newInstance(env, arg));
+                                BaseWrapper instance = constructorContext.newInstance(env, arg);
+                                return ObjectMemory.valueOf(instance.__getOriginInstance());
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                                 throw new CriticalException(e);
                             }

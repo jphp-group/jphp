@@ -107,6 +107,10 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
         return false;
     }
 
+    public IObject __getOriginInstance() {
+        return this;
+    }
+
     @Override
     public String toString() {
         if (__class__.methodMagicToString != null) {
