@@ -5,10 +5,13 @@ import org.jsoup.Connection;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Abstract;
 import php.runtime.annotation.Reflection.Namespace;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.WrapInterface;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
+
+import java.util.Map;
 
 import static php.runtime.annotation.Reflection.Name;
 
@@ -23,5 +26,15 @@ public class WrapConnectionResponse extends BaseWrapper<Connection.Response> {
 
     public WrapConnectionResponse(Environment env, ClassEntity clazz) {
         super(env, clazz);
+    }
+
+    @Signature
+    public Map<String, String> headers() {
+        return getWrappedObject().headers();
+    }
+
+    @Signature
+    public Map<String, String> cookies() {
+        return getWrappedObject().cookies();
     }
 }
