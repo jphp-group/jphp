@@ -94,6 +94,38 @@ abstract public class MemoryOperation<T> {
             operation = operations.get(type);
 
             if (operation == null) {
+                if (type.isArray()) {
+                    MemoryOperation arrayMemoryOperation = new ArrayMemoryOperation(type);
+                    register(arrayMemoryOperation);
+
+                    return arrayMemoryOperation;
+                }
+
+                if (Enum.class.isAssignableFrom(type)) {
+                    return new MemoryOperation() {
+                        @Override
+                        public Class<?>[] getOperationClasses() {
+                            return new Class<?>[]{Enum.class};
+                        }
+
+                        @Override
+                        @SuppressWarnings("unchecked")
+                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+                            return arg.isNull() ? null : Enum.valueOf((Class<? extends Enum>) type, arg.toString());
+                        }
+
+                        @Override
+                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
+                            return arg == null ? Memory.NULL : StringMemory.valueOf(((Enum) arg).name());
+                        }
+
+                        @Override
+                        public void applyTypeHinting(ParameterEntity parameter) {
+                            parameter.setTypeEnum((Class<? extends Enum>) type);
+                        }
+                    };
+                }
+
                 final Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
 
                 if (wrapperClass != null) {
@@ -150,9 +182,7 @@ abstract public class MemoryOperation<T> {
                             parameter.setTypeNativeClass(type);
                         }
                     };
-                }
-
-                if (IObject.class.isAssignableFrom(type)) {
+                } else if (IObject.class.isAssignableFrom(type)) {
                     return new MemoryOperation() {
                         @Override
                         public Class<?>[] getOperationClasses() {
@@ -183,34 +213,12 @@ abstract public class MemoryOperation<T> {
                             parameter.setType(ReflectionUtils.getClassName(type));
                         }
                     };
-                } else if (Enum.class.isAssignableFrom(type)) {
-                    return new MemoryOperation() {
-                        @Override
-                        public Class<?>[] getOperationClasses() {
-                            return new Class<?>[] { Enum.class };
-                        }
+                } else {
+                    Class<?> superType = type.getSuperclass();
 
-                        @Override
-                        @SuppressWarnings("unchecked")
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                            return arg.isNull() ? null : Enum.valueOf((Class<? extends Enum>)type, arg.toString());
-                        }
-
-                        @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
-                            return arg == null ? Memory.NULL : StringMemory.valueOf(((Enum) arg).name());
-                        }
-
-                        @Override
-                        public void applyTypeHinting(ParameterEntity parameter) {
-                            parameter.setTypeEnum((Class<? extends Enum>)type);
-                        }
-                    };
-                } else if (type.isArray()) {
-                    MemoryOperation arrayMemoryOperation = new ArrayMemoryOperation(type);
-                    register(arrayMemoryOperation);
-
-                    return arrayMemoryOperation;
+                    if (Object.class != superType && type.isAnonymousClass()) {
+                        return get(superType, type.getGenericSuperclass());
+                    }
                 }
              }
         }
