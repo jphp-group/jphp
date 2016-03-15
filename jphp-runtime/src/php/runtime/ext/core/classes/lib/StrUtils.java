@@ -11,9 +11,14 @@ import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -596,5 +601,16 @@ public class StrUtils extends BaseObject {
         }
 
         return StringMemory.valueOf(s);
+    }
+
+    @Signature({
+            @Arg("value"),
+            @Arg(value = "algorithm", optional = @Optional("SHA-1"))
+    })
+    public static Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance(args[1].toString());
+
+        messageDigest.update(args[0].getBinaryBytes());
+        return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
     }
 }

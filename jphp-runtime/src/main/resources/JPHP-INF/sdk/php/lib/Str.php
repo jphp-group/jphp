@@ -432,4 +432,14 @@ class str
     public static function uuid($value = null)
     {
     }
+
+    /**
+     * @param string $string
+     * @param string $algorithm MD5, SHA-1, SHA-256, etc.
+     * @return string
+     * @throws \Exception if the algorithm is not supported
+     */
+    public static function hash($string, $algorithm = 'SHA-1')
+    {
+    }
 }
