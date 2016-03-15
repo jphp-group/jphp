@@ -5,6 +5,7 @@ import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.statement.ExpressionStmtCompiler;
 import org.develnext.jphp.core.compiler.jvm.statement.expr.BaseExprCompiler;
 import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.ClassMacroToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ArgumentStmtToken;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnNode;
@@ -14,6 +15,7 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 
@@ -61,6 +63,24 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
         }
     }
 
+    protected void writeContext() {
+        if (method.clazz.getEntity().isTrait()) {
+            expr.writePushEnv();
+            expr.writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
+            expr.writePopString();
+        } else {
+            if (method.clazz.getClassContext() != null) {
+                expr.writePushConstString(method.clazz.getClassContext().getFulledName());
+            } else {
+                if (method.clazz.isSystem()) {
+                    expr.writePushConstNull();
+                } else {
+                    expr.writePushConstString(method.clazz.getEntity().getName());
+                }
+            }
+        }
+    }
+
     @Override
     public void write(ClosureStmtToken closure, boolean returnValue) {
         if (returnValue){
@@ -92,15 +112,23 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
                 else
                     expr.writePushNull();
 
+                writeContext();
+
                 writePushUses(closure.getFunction().getUses());
                 add(new MethodInsnNode(
                         INVOKESPECIAL, entity.getInternalName(), Constants.INIT_METHOD,
                         Type.getMethodDescriptor(
                                 Type.getType(void.class),
-                                Type.getType(Environment.class), Type.getType(ClassEntity.class), Type.getType(Memory.class), Type.getType(Memory[].class)
+
+                                Type.getType(Environment.class),
+                                Type.getType(ClassEntity.class),
+                                Type.getType(Memory.class),
+                                Type.getType(String.class),
+                                Type.getType(Memory[].class)
                         ),
                         false
                 ));
+                expr.stackPop();
                 expr.stackPop();
                 expr.stackPop();
                 expr.stackPop();

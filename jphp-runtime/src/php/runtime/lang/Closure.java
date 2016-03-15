@@ -24,18 +24,23 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
     protected Memory self = Memory.NULL;
     protected String scope = null;
 
-    public Closure(Environment env, ClassEntity closure, Memory self, Memory[] uses) {
+    /*public Closure(Environment env, ClassEntity closure, Memory self, Memory[] uses) {
+        this(env, closure, self, null, uses);
+    }*/
+
+    public Closure(Environment env, ClassEntity closure, Memory self, String scope, Memory[] uses) {
         super(closure);
         this.self = self;
 
-        if (env != null) {
+        /*if (env != null) {
             this.scope = env.getLateStatic();
 
             if (this.scope.isEmpty()) {
                 this.scope = null;
             }
-        }
+        }*/
 
+        this.scope = scope;
         this.uses = uses;
     }
 

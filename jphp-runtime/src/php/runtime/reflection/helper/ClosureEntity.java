@@ -68,11 +68,11 @@ public class ClosureEntity extends ClassEntity {
         this.nativeClazz = nativeClazz;
         if (!nativeClazz.isInterface()){
             try {
-                this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class, Memory.class, Memory[].class);
+                this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class, Memory.class, String.class, Memory[].class);
                 this.nativeConstructor.setAccessible(true);
 
                 //if (uses == null || uses.length == 0)
-                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(null, this, Memory.NULL, null));
+                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(null, this, Memory.NULL, null, null));
                 //else
                   //  singleton = null;
             } catch (NoSuchMethodException e) {

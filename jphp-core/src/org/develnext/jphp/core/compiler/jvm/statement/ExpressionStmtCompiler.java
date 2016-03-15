@@ -1693,7 +1693,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
                 return null;
             } else {
-                return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+                if (method.clazz.getClassContext() != null) {
+                    return new StringMemory(method.clazz.getClassContext().getFulledName());
+                } else {
+                    return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+                }
             }
         } else if (macro instanceof NamespaceMacroToken) {
             return new StringMemory(

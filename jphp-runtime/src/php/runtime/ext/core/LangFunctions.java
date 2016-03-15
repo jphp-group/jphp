@@ -453,7 +453,7 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
         }
 
-        return ArrayMemory.of(env.peekCall(0).args).toConstant();
+        return ArrayMemory.of(env.peekCall(0).args);
     }
 
     public static Memory func_num_args(Environment env, TraceInfo trace) {
