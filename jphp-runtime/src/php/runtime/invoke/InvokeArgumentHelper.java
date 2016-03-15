@@ -47,6 +47,8 @@ public class InvokeArgumentHelper {
         int i = 0;
 
         if (passed != null) {
+            boolean variadicMemoryExists = false;
+
             for (ParameterEntity param : parameters) {
                 Memory arg = passed[i];
 
@@ -54,7 +56,6 @@ public class InvokeArgumentHelper {
                     ArrayMemory variadicArgs = new ArrayMemory();
 
                     int _i = i;
-                    boolean variadicMemoryExists = false;
 
                     while (arg != null) {
                         if (arg instanceof VariadicMemory) {
@@ -127,6 +128,12 @@ public class InvokeArgumentHelper {
                     invalidType(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
                 }
                 i++;
+            }
+
+            if (!variadicMemoryExists) {
+                for (int j = parameters.length ; j < passed.length; j++) {
+                    passed[j] = passed[j].toImmutable();
+                }
             }
         }
 
