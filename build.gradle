@@ -1,5 +1,5 @@
 def javaVersion    = '1.7';
-def projectVersion = '0.7.2';
+def projectVersion = '0.8';
 
 buildscript {
     repositories {
@@ -36,7 +36,7 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = 2.3;
+    gradleVersion = 2.12;
 }
 
 configure(subprojects) {
@@ -66,7 +66,6 @@ configure([
         project(':jphp-json-ext'),
         project(':jphp-jsoup-ext'),
         project(':jphp-xml-ext'),
-        project(':jphp-gdx-ext'),
         project(':jphp-mail-ext'),
         project(':jphp-sql-ext'),
         project(':jphp-webserver-ext'),
@@ -74,7 +73,6 @@ configure([
         project(':jphp-orientdb-ext'),
         project(':jphp-debugger'),
 
-        project(':jphp-android'),
         project(':jphp-scripting'),
         project(':jphp-gradle-plugin'),
         project(':jphp-gen-api'),
