@@ -16,8 +16,10 @@ public class StaticDefinitionCompiler extends BaseStatementCompiler<StaticStmtTo
     }
 
     void writePushNameForStaticVariable(LocalVariable local) {
-        String name = method.clazz.isClosure() ? local.name :
-                method.getEntity().getClazz().getInternalName() + "\0" + local.name + "\0" + method.getMethodId();
+        String name = method.clazz.isClosure()
+                ? local.name
+                : method.getEntity().getClazz().getInternalName() + "\0" + local.name + "\0" + method.getMethodId();
+
         if (method.getEntity().getClazz().isTrait()) {
             expr.writePushSelf(false);
             expr.writePushConstString(name);

@@ -115,8 +115,19 @@ public class OutputBuffer {
         return output;
     }
 
+
+    public void setCallback(Memory callback, Invoker invoker) {
+        this.callback = callback;
+        this.invoker = invoker;
+    }
+
     public void setCallback(Memory callback) {
         this.callback = callback;
+
+        if (callback != null)
+            this.invoker = Invoker.valueOf(environment, null, callback);
+        else
+            this.invoker = null;
     }
 
     public int getChunkSize() {

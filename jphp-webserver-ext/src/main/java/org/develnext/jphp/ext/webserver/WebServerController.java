@@ -4,17 +4,13 @@ import org.develnext.jphp.ext.webserver.classes.PWebRequest;
 import org.develnext.jphp.ext.webserver.classes.PWebResponse;
 import org.develnext.jphp.ext.webserver.classes.PWebServer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import php.runtime.Memory;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.env.SplClassLoader;
-import php.runtime.ext.core.classes.WrapEnvironment;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.reflection.support.ReflectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +66,7 @@ public class WebServerController {
         try {
             onRequest.call(ObjectMemory.valueOf(webRequest), ObjectMemory.valueOf(webResponse));
         } catch (Throwable throwable) {
-            Environment.catchThrowable(throwable);
+            Environment.catchThrowable(throwable, requestEnvironment);
         } finally {
             requestEnvironment.doFinal();
         }

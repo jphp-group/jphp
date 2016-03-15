@@ -7,6 +7,10 @@ import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.lib.*;
+import php.runtime.ext.core.classes.lib.legacy.OldBinUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldItemsUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldMirrorUtils;
+import php.runtime.ext.core.classes.lib.legacy.OldNumUtils;
 import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
@@ -18,6 +22,7 @@ import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.loader.sourcemap.SourceMap;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -66,11 +71,16 @@ public class CoreExtension extends Extension {
 
         registerClass(scope, CharUtils.class);
         registerClass(scope, StrUtils.class);
-        registerClass(scope, StrUtils.StrUtilsOld.class);
         registerClass(scope, BinUtils.class);
         registerClass(scope, NumUtils.class);
         registerClass(scope, ItemsUtils.class);
         registerClass(scope, MirrorUtils.class);
+        registerClass(scope, FsUtils.class);
+
+        registerClass(scope, OldBinUtils.class);
+        registerClass(scope, OldItemsUtils.class);
+        registerClass(scope, OldNumUtils.class);
+        registerClass(scope, OldMirrorUtils.class);
 
         registerClass(scope, SharedUtils.SharedMemory.class);
         registerClass(scope, SharedUtils.SharedValue.class);
@@ -95,6 +105,7 @@ public class CoreExtension extends Extension {
 
         registerClass(scope, WrapInvoker.class);
         registerClass(scope, WrapModule.class);
+        registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
         registerClass(scope, WrapEnvironment.class);
         registerClass(scope, WrapThreadGroup.class);
         registerClass(scope, WrapThread.class);
@@ -111,6 +122,8 @@ public class CoreExtension extends Extension {
         registerClass(scope, ReflectionMethod.class);
         registerClass(scope, ReflectionClass.class);
         registerClass(scope, ReflectionObject.class);
+
+        registerClass(scope, WrapJavaExceptions.NotImplementedException.class);
 
         // stream
         registerJavaException(scope, WrapIOException.class, IOException.class);

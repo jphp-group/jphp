@@ -38,7 +38,7 @@ public class WrapThreadPool extends BaseObject {
             @Arg(value = "runnable", type = HintType.CALLABLE),
             @Arg(value = "env", nativeType = WrapEnvironment.class, optional = @Optional("NULL"))
     })
-    public Memory execute(Environment env, Memory... args){
+    public Memory execute(final Environment env, Memory... args){
         Environment _env = env;
 
         if (!args[1].isNull()) {
@@ -48,10 +48,12 @@ public class WrapThreadPool extends BaseObject {
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
 
         invoker.setTrace(env.trace());
+        final Environment final_env = _env;
+
         service.execute(new Runnable() {
             @Override
             public void run() {
-                Environment.addThreadSupport();
+                Environment.addThreadSupport(final_env);
                 invoker.callNoThrow();
             }
         });
@@ -97,7 +99,7 @@ public class WrapThreadPool extends BaseObject {
             @Arg("delay"),
             @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))
     })
-    public Memory schedule(Environment env, Memory... args){
+    public Memory schedule(final Environment env, Memory... args){
         final Environment _env = args[2].isNull()
                 ? env
                 : args[2].toObject(WrapEnvironment.class).getWrapEnvironment();
@@ -107,7 +109,7 @@ public class WrapThreadPool extends BaseObject {
         ScheduledFuture<Memory> future = getScheduledExecutorService(env).schedule(new Callable<Memory>() {
             @Override
             public Memory call() throws Exception {
-                Environment.addThreadSupport();
+                Environment.addThreadSupport(_env);
                 return invoker.callNoThrow();
             }
         }, args[1].toLong(), TimeUnit.MILLISECONDS);

@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\Binary")
+@Name("php\\lib\\Bin")
 public class BinUtils extends BaseObject {
     public BinUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);

@@ -13,12 +13,13 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.zip.CRC32;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -220,11 +221,61 @@ public class FileObject extends BaseObject {
     }
 
     @Signature
-    public Memory length(Environment env, Memory... args){
+    public Memory length(Environment env, Memory... args) {
         try {
             return LongMemory.valueOf(file.length());
         } catch (Exception e){
             return Memory.FALSE;
+        }
+    }
+
+    @Signature
+    public Memory crc32(Environment env, Memory... args) {
+        CRC32 crcMaker = new CRC32();
+
+        byte[] buffer = new byte[1024];
+        int len;
+
+        FileInputStream is;
+        try {
+            is = new FileInputStream(file);
+
+            while ((len = is.read(buffer)) > 0) {
+                crcMaker.update(buffer, 0, len);
+            }
+
+            is.close();
+
+            return LongMemory.valueOf(crcMaker.getValue());
+        } catch (FileNotFoundException e) {
+            return Memory.NULL;
+        } catch (IOException e) {
+            return Memory.NULL;
+        }
+    }
+
+    @Signature(@Arg(value = "algorithm", optional = @Optional("MD5")))
+    public Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance(args[0].toString());
+
+        byte[] buffer = new byte[1024];
+        int len;
+
+        FileInputStream is;
+        try {
+            is = new FileInputStream(file);
+
+            while ((len = is.read(buffer)) > 0) {
+                messageDigest.update(buffer, 0, len);
+            }
+
+            is.close();
+
+            return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+        } catch (FileNotFoundException e) {
+            return Memory.NULL;
+        } catch (IOException e) {
+            return Memory.NULL;
         }
     }
 

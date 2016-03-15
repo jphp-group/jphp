@@ -83,15 +83,21 @@ public class ResourceStream extends Stream {
         if (len <= 0)
             return Memory.FALSE;
 
-        byte[] buf = new byte[len];
+        byte[] buff = new byte[len];
         int read;
-        read = stream.read(buf);
+        read = stream.read(buff, 0, len);
+
         eof = read == -1;
         if (read == -1)
-            return Memory.FALSE;
+            return Memory.NULL;
 
         position += read;
-        return new BinaryMemory(Arrays.copyOf(buf, read));
+
+        if (read != buff.length){
+            buff = Arrays.copyOf(buff, read);
+        }
+
+        return new BinaryMemory(buff);
     }
 
     @Override

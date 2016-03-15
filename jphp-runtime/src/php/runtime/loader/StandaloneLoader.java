@@ -262,7 +262,7 @@ public class StandaloneLoader {
 
             for (ClassEntity classEntity : moduleEntity.getClasses()) {
                 classEntity.setNativeClazz(
-                        classLoader.loadClass(classEntity.getInternalName())
+                        classLoader.loadClass(classEntity.getCompiledInternalName())
                 );
             }
 

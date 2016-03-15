@@ -130,4 +130,9 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     public void testJsonSerializableJsonEncode() {
         check("json/json_serializable.php");
     }
+
+    @Test
+    public void testBugs() {
+        check("json/json_bug217.php");
+    }
 }

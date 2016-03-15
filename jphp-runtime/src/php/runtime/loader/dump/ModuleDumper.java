@@ -169,12 +169,7 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         }
 
         // byte code
-        int dataLength = data.readInt();
-        byte[] code = new byte[dataLength];
-        if (data.read(code) != dataLength)
-            throw new DumpException("Cannot read module byte-code");
-
-        entity.setData(code);
+        entity.setData(data.readRawData(Integer.MAX_VALUE));
 
         data.readRawData(1024 * 1024 * 5);
         return entity;

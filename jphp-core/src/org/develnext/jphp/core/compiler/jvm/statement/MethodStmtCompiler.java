@@ -413,8 +413,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
-            if (variable.name.equals("~this"))
-                description = "L" + clazz.entity.getInternalName() + ";";
+            if (variable.name.equals("~this")) {
+                //if (variable.getClazz() != Memory.class && !clazz.statement.isTrait()) {
+                    description = "L" + clazz.entity.getCompiledInternalName() + ";";
+                //}
+            }
 
             node.localVariables.add(new LocalVariableNode(
                     variable.name,

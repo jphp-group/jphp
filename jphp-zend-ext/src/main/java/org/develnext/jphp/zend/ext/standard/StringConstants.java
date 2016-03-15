@@ -22,4 +22,13 @@ public class StringConstants extends ConstantsContainer {
     public final static int ENT_XML1 = 16;
     public final static int ENT_XHTML = 32;
     public final static int ENT_HTML5 = 48;
+
+    public final static int PHP_URL_SCHEME = 0;
+    public final static int PHP_URL_HOST = 1;
+    public final static int PHP_URL_PORT = 2;
+    public final static int PHP_URL_USER = 3;
+    public final static int PHP_URL_PASS = 4;
+    public final static int PHP_URL_PATH = 5;
+    public final static int PHP_URL_QUERY = 6;
+    public final static int PHP_URL_FRAGMENT = 7;
 }

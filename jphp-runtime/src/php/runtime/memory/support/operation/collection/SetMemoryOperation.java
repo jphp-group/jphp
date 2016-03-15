@@ -42,6 +42,10 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
     @Override
     @SuppressWarnings("unchecked")
     public Memory unconvert(Environment env, TraceInfo trace, Set arg) throws Throwable {
+        if (arg == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory result = new ArrayMemory();
         for (Object el : arg) {
             result.add(operations[0].unconvert(env, trace, el));

@@ -8,6 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.zend.ext.standard.StringFunctions;
 import org.junit.Assert;
 import php.runtime.Memory;
+import php.runtime.common.LangMode;
 import php.runtime.env.*;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.support.ErrorException;
@@ -47,6 +48,7 @@ abstract public class JvmCompilerCase {
     protected CompileScope newScope(){
         CompileScope compileScope = new CompileScope();
         compileScope.setDebugMode(true);
+        compileScope.setLangMode(LangMode.DEFAULT);
 
         compileScope.registerExtension(new CoreExtension());
         compileScope.registerExtension(new SPLExtension());
@@ -73,6 +75,8 @@ abstract public class JvmCompilerCase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        environment.scope.setLangMode(LangMode.DEFAULT);
         return new SyntaxAnalyzer(environment, tokenizer);
     }
 

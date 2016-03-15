@@ -50,6 +50,10 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
     @Override
     @SuppressWarnings("unchecked")
     public Memory unconvert(Environment env, TraceInfo trace, List arg) throws Throwable {
+        if (arg == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory result = new ArrayMemory();
         for (Object el : arg) {
             result.add(operations[0].unconvert(env, trace, el));

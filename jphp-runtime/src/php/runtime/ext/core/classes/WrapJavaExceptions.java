@@ -2,6 +2,7 @@ package php.runtime.ext.core.classes;
 
 import php.runtime.env.Environment;
 import php.runtime.ext.java.JavaException;
+import php.runtime.lang.BaseException;
 import php.runtime.reflection.ClassEntity;
 
 import static php.runtime.annotation.Reflection.Name;
@@ -59,6 +60,17 @@ final public class WrapJavaExceptions {
         }
 
         public TimeoutException(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+    }
+
+    @Name("php\\lang\\NotImplementedException")
+    public static class NotImplementedException extends BaseException {
+        public NotImplementedException(Environment env) {
+            super(env);
+        }
+
+        public NotImplementedException(Environment env, ClassEntity clazz) {
             super(env, clazz);
         }
     }

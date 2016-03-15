@@ -15,7 +15,11 @@ import php.runtime.memory.*;
 import php.runtime.util.PrintF;
 import php.runtime.util.SScanF;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -23,6 +27,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.zip.CRC32;
 
 /**
@@ -2735,6 +2740,101 @@ public class StringFunctions extends FunctionsContainer {
         } else {
             return resultArray.toConstant();
         }
+    }
+
+    public static String base64_encode(Memory value) {
+        return DatatypeConverter.printBase64Binary(value.getBinaryBytes());
+    }
+
+    public static Memory base64_decode(String value) {
+        try {
+            return new BinaryMemory(DatatypeConverter.parseBase64Binary(value));
+        } catch (IllegalArgumentException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory parse_url(String url, int component) {
+        try {
+            URI uri = URI.create(url);
+
+            switch (component) {
+                case 0:
+                    return uri.getScheme() == null ? Memory.NULL : StringMemory.valueOf(uri.getScheme());
+                case 1:
+                    return uri.getHost() == null ? Memory.NULL : StringMemory.valueOf(uri.getHost());
+                case 2:
+                    return uri.getPort() == -1 ? Memory.NULL : LongMemory.valueOf(uri.getPort());
+                case 3:
+                case 4:
+                    return uri.getUserInfo() != null ? Memory.NULL : StringMemory.valueOf(uri.getUserInfo());
+                case 5:
+                    return uri.getPath() != null ? Memory.NULL : StringMemory.valueOf(uri.getPath());
+                case 6:
+                    return uri.getQuery() != null ? Memory.NULL : StringMemory.valueOf(uri.getQuery());
+                case 7:
+                    return uri.getFragment() != null ? Memory.NULL : StringMemory.valueOf(uri.getFragment());
+                case -1:
+                    ArrayMemory result = new ArrayMemory();
+                    if (uri.getScheme() != null) {
+                        result.refOfIndex("scheme").assign(uri.getScheme());
+                    }
+
+                    if (uri.getHost() != null) {
+                        result.refOfIndex("host").assign(uri.getHost());
+                    }
+
+                    if (uri.getPort() != -1) {
+                        result.refOfIndex("port").assign(uri.getPort());
+                    }
+
+                    if (uri.getPath() != null) {
+                        result.refOfIndex("path").assign(uri.getPath());
+                    }
+
+                    if (uri.getUserInfo() != null) {
+                        result.refOfIndex("user").assign(uri.getUserInfo());
+                    }
+
+                    if (uri.getQuery() != null) {
+                        result.refOfIndex("query").assign(uri.getQuery());
+                    }
+
+                    if (uri.getFragment() != null) {
+                        result.refOfIndex("fragment").assign(uri.getFragment());
+                    }
+
+                    return result.toConstant();
+                default:
+                    return Memory.FALSE;
+            }
+        } catch (IllegalArgumentException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory parse_url(String url) {
+        return parse_url(url, -1);
+    }
+
+    public static String uniqid(String prefix) {
+        return prefix + UUID.fromString(String.valueOf(System.currentTimeMillis())).toString().replace("-", "");
+    }
+
+    public static String uniqid() {
+        return uniqid("");
+    }
+
+    public static String urldecode(String url) throws UnsupportedEncodingException {
+        return URLDecoder.decode(url, "UTF-8");
+    }
+
+    public static String urlencode(String url) throws UnsupportedEncodingException {
+        return URLEncoder.encode(url, "UTF-8");
+    }
+
+    public static void dl(String extension) {
+        // ... nop
     }
 
     static {

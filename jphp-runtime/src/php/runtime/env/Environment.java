@@ -21,6 +21,7 @@ import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.lang.exception.BaseEngineException;
 import php.runtime.lang.exception.BaseParseException;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.loader.sourcemap.SourceMap;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -50,7 +51,7 @@ public class Environment {
     public final static Map<String, ConfigChangeHandler> configurationHandler;
 
     // call stack
-    private CallStack callStack = new CallStack();
+    private CallStack callStack = new CallStack(this);
 
     private Set<String> includePaths;
 
@@ -77,6 +78,8 @@ public class Environment {
 
     private List<ShutdownHandler> shutdownFunctions = new LinkedList<ShutdownHandler>();
 
+    protected Map<String, SourceMap> sourceMaps = new HashMap<>();
+
     // charset, locale
     private Locale locale = Locale.getDefault();
     private Charset defaultCharset = Charset.forName("UTF-8");
@@ -88,7 +91,7 @@ public class Environment {
     protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
-    protected final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
+    public final Map<String, ClassEntity> classMap = new LinkedHashMap<String, ClassEntity>();
     protected final Map<String, FunctionEntity> functionMap = new LinkedHashMap<String, FunctionEntity>();
     protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
@@ -100,6 +103,7 @@ public class Environment {
      * Gets Environment for current thread context
      * @return
      */
+    @Deprecated
     public static Environment current(){
         return environment.get();
     }
@@ -109,13 +113,13 @@ public class Environment {
     private static final AtomicInteger ids = new AtomicInteger();
     private static final Stack<Integer> freeIds = new Stack<Integer>();
 
-    public static void catchThrowable(Throwable e) {
+    public static void catchThrowable(Throwable e, Environment environment) {
         if (e instanceof BaseBaseException) {
             BaseBaseException baseException = (BaseBaseException) e;
             baseException.getEnvironment().catchUncaught(baseException);
             return;
         } else if (e instanceof Exception) {
-            Environment env = current();
+            Environment env = environment == null ? null : environment;
 
             if (env != null) {
                 try {
@@ -127,7 +131,7 @@ public class Environment {
             }
         }
 
-        Environment env = current();
+        Environment env = environment == null ? null : environment;
 
         if (env != null) {
             e.printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
@@ -136,15 +140,15 @@ public class Environment {
         }
     }
 
-    public static void addThreadSupport() {
-        addThreadSupport(Thread.currentThread());
+    public static void addThreadSupport(Environment env) {
+        addThreadSupport(Thread.currentThread(), env);
     }
 
-    public static void addThreadSupport(Thread thread) {
+    public static void addThreadSupport(Thread thread, final Environment env) {
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                Environment.catchThrowable(e);
+                Environment.catchThrowable(e, env);
             }
         });
     }
@@ -175,7 +179,7 @@ public class Environment {
     }
 
     public Environment(CompileScope scope, OutputStream output) {
-        Environment.addThreadSupport();
+        Environment.addThreadSupport(this);
 
         this.scope = scope;
 
@@ -471,8 +475,9 @@ public class Environment {
 
                 autoloadLocks.remove(lowerName);
                 return fetchClass(name, false);
-            } else
+            } else {
                 return null;
+            }
         }
     }
 
@@ -519,6 +524,7 @@ public class Environment {
 
         if (entity == null){
             entity = scope.fetchUserClass(nameL);
+
             if (entity != null) {
                 try {
                     entity.initEnvironment(this);
@@ -529,7 +535,9 @@ public class Environment {
                 return entity;
             }
 
-            return autoLoad ? autoloadCall(name, nameL) : null;
+            ClassEntity classEntity = autoLoad ? autoloadCall(name, nameL) : null;
+
+            return classEntity;
         } else {
             return entity;/*
             if (isLoadedClass(nameL) || entity.isInternal())
@@ -765,10 +773,16 @@ public class Environment {
         }
     }
 
-    public void wrapThrow(Throwable throwable) {
+    public void forwardThrow(Throwable throwable) {
         if (throwable instanceof RuntimeException) {
             throw (RuntimeException) throwable;
-        } else if (throwable instanceof Exception) {
+        } else {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    public void wrapThrow(Throwable throwable) {
+        if (throwable instanceof Exception) {
             catchUncaught((Exception) throwable);
         } else {
             throw new RuntimeException(throwable);
@@ -776,8 +790,12 @@ public class Environment {
     }
 
     public boolean catchUncaught(Exception e){
+        return catchUncaught(e, false);
+    }
+
+    public boolean catchUncaught(Exception e, boolean retry){
         if (e instanceof UncaughtException)
-            return catchUncaught((UncaughtException)e);
+            return catchUncaught((UncaughtException) e);
         else if (e instanceof DieException){
             System.exit(((DieException) e).getExitCode());
             return true;
@@ -808,12 +826,28 @@ public class Environment {
             // nop
             return true;
         } else if (e instanceof BaseBaseException){
-            BaseBaseException be = (BaseBaseException)e;
-            try {
-                ExceptionHandler.DEFAULT.onException(this, be);
+            BaseBaseException be = (BaseBaseException) e;
+
+            if (exceptionHandler != null){
+                try {
+                    exceptionHandler.onException(this, be);
+                } catch (BaseBaseException _e){
+                    if (retry) {
+                        throw new RuntimeException(_e);
+                    } else {
+                        catchUncaught(_e, true);
+                    }
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
                 return true;
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+            } else {
+                try {
+                    ExceptionHandler.DEFAULT.onException(this, be);
+                    return true;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
             }
         } else {
             throw new RuntimeException(e);
@@ -884,7 +918,7 @@ public class Environment {
     }
 
     public void exception(String message, Object... args){
-        exception(trace(), message);
+        exception(trace(), message, args);
     }
 
     public void exception(TraceInfo trace, BaseBaseException e, String message, Object... args){
@@ -908,6 +942,11 @@ public class Environment {
     public void exception(Class<? extends BaseBaseException> e, String message, Object... args){
         ClassEntity entity = fetchClass(e);
         exception((BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
+    }
+
+    public void exception(TraceInfo trace, Class<? extends BaseBaseException> e, String message, Object... args){
+        ClassEntity entity = fetchClass(e);
+        exception(trace, (BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
     }
 
     public boolean isHandleErrors(ErrorType type){
@@ -1025,6 +1064,7 @@ public class Environment {
         }
 
         registerModule(module);
+        scope.addUserModule(module);
         return module;
     }
 
@@ -1043,6 +1083,13 @@ public class Environment {
         return module;
     }
 
+    public void registerSourceMap(SourceMap sourceMap) {
+        sourceMaps.put(sourceMap.getModuleName(), sourceMap);
+    }
+
+    public void unregisterSourceMap(SourceMap sourceMap) {
+        sourceMaps.remove(sourceMap.getModuleName());
+    }
 
     public void registerModule(ModuleEntity module) {
         registerModule(module, false);
@@ -1051,6 +1098,8 @@ public class Environment {
     public void registerModule(ModuleEntity module, boolean ignoreErrors) {
         for(ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()){
+                entity.setModule(module);
+
                 if (classMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()));
                 }
@@ -1059,6 +1108,8 @@ public class Environment {
 
         for(FunctionEntity entity : module.getFunctions()) {
             if (entity.isStatic()) {
+                entity.setModule(module);
+
                 if (functionMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()));
                 }
@@ -1066,6 +1117,8 @@ public class Environment {
         }
 
         for(ConstantEntity entity : module.getConstants()) {
+            entity.setModule(module);
+
             if (constantMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                 error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CONSTANT.fetch(entity.getName()));
             }
@@ -1569,6 +1622,46 @@ public class Environment {
     public void setErrorHandler(ErrorHandler handler){
         previousErrorHandler = errorHandler;
         errorHandler = handler;
+    }
+
+    public TraceInfo getTraceAppliedSourceMap(TraceInfo trace) {
+        if (trace == null) {
+            return null;
+        }
+
+        if (trace.getFile() == null) {
+            return trace;
+        }
+
+        if (trace instanceof SourceMappedTraceInfo) {
+            return trace;
+        }
+
+        SourceMap sourceMap = sourceMaps.get(trace.getFileName());
+
+        if (sourceMap != null) {
+            int sourceLine = sourceMap.getSourceLine(trace.getStartLine() + 1);
+
+            if (sourceLine != trace.getStartLine() && sourceLine != -1) {
+                trace = new SourceMappedTraceInfo(
+                        trace.getContext(),
+                        sourceLine - 1, trace.getEndLine(),
+                        trace.getStartPosition(), trace.getEndPosition()
+                );
+            }
+        }
+
+        return trace;
+    }
+
+    public void applySourceMap(CallStackItem[] callStack) {
+        if (sourceMaps.isEmpty()) {
+            return;
+        }
+
+        for (CallStackItem stackItem : callStack) {
+            stackItem.trace = getTraceAppliedSourceMap(stackItem.trace);
+        }
     }
 
     public CallStack getCallStack() {

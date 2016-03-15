@@ -12,8 +12,9 @@ class Configuration
 {
     /**
      * @param string|Stream $source
+     * @param string $encoding
      */
-    public function __construct($source = null)
+    public function __construct($source = null, $encoding = 'UTF-8')
     {
     }
 
@@ -95,15 +96,17 @@ class Configuration
 
     /**
      * @param string|Stream $in
+     * @param string $encoding
      */
-    public function load($in)
+    public function load($in, $encoding = 'UTF-8')
     {
     }
 
     /**
      * @param string|Stream $out
+     * @param string $encoding
      */
-    public function save($out)
+    public function save($out, $encoding = 'UTF-8')
     {
     }
 

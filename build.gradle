@@ -1,5 +1,5 @@
 def javaVersion    = '1.7';
-def projectVersion = '0.7.1';
+def projectVersion = '0.7.2';
 
 buildscript {
     repositories {
@@ -70,6 +70,8 @@ configure([
         project(':jphp-mail-ext'),
         project(':jphp-sql-ext'),
         project(':jphp-webserver-ext'),
+        project(':jphp-compress-ext'),
+        project(':jphp-orientdb-ext'),
         project(':jphp-debugger'),
 
         project(':jphp-android'),

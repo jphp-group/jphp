@@ -7,6 +7,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.WrapJavaExceptions;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.Generator;
 import php.runtime.memory.ArrayMemory;
@@ -27,7 +28,7 @@ public class InvokeArgumentHelper {
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                          ParameterEntity[] parameters,
                                          String originClassName, String originMethodName,
-                                         TraceInfo trace){
+                                         TraceInfo trace) {
         if (parameters == null)
             return args;
 
@@ -35,7 +36,7 @@ public class InvokeArgumentHelper {
 
         Memory[] passed = args;
 
-        if ((args == null && parameters.length > 0) || (args != null && args.length < parameters.length)){
+        if ((args == null && parameters.length > 0) || (args != null && args.length < parameters.length)) {
             passed = new Memory[parameters.length];
 
             if (args != null && args.length > 0) {
@@ -228,9 +229,9 @@ public class InvokeArgumentHelper {
     }
 
     public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,
-                                          String originClassName, String originMethodName){
+                                   String originClassName, String originMethodName) {
         String given;
-        if (passed == null){
+        if (passed == null) {
             given = "none";
         } else if (passed.isObject()) {
             given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
@@ -249,9 +250,7 @@ public class InvokeArgumentHelper {
                     names[i] = fields[i].getName();
                 }
 
-                env.error(
-                        param.getTrace(),
-                        ErrorType.E_RECOVERABLE_ERROR,
+                env.exception(param.getTrace(), WrapJavaExceptions.IllegalArgumentException.class,
                         "Argument %s passed to %s() must be a string belonging to the range [" + StringUtils.join(names, ", ") + "] as string, called in %s on line %d, position %d and defined",
                         index,
                         method,
@@ -290,9 +289,9 @@ public class InvokeArgumentHelper {
         } else {
             ClassEntity need = env.fetchClass(param.getTypeClass(), false);
             String what = "";
-            if (need == null || need.isClass()){
+            if (need == null || need.isClass()) {
                 what = "be an instance of";
-            } else if (need.isInterface()){
+            } else if (need.isInterface()) {
                 what = "implement interface";
             }
 
@@ -327,8 +326,8 @@ public class InvokeArgumentHelper {
 
 
     public static void makeVariadic(ForeachIterator iterator, ArrayMemory variadicArray, ParameterEntity param,
-                                      Environment env, TraceInfo trace, int index, String originClassName,
-                                      String originMethodName) {
+                                    Environment env, TraceInfo trace, int index, String originClassName,
+                                    String originMethodName) {
         while (iterator.next()) {
             Memory arg = iterator.getValue();
 

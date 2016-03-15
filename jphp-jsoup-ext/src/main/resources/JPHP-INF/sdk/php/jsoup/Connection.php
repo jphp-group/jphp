@@ -35,6 +35,15 @@ abstract class Connection
     }
 
     /**
+     * @param string $name
+     * @param string $value
+     * @return Connection
+     */
+    public function header($name, $value)
+    {
+    }
+
+    /**
      * @param string $url
      * @return Connection
      */

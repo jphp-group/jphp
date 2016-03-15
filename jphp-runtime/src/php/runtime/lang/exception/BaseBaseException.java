@@ -131,6 +131,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     final public Memory getTraceAsString(Environment env, Memory... args){
         int i = 0;
         StringBuilder sb = new StringBuilder();
+
         if (callStack != null){
             for (CallStackItem e : getCallStack()){
                 if (i != 0)
@@ -144,6 +145,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
             sb.append("#").append(i).append(" {main}");
         }
+
         return new StringMemory(sb.toString());
     }
 
@@ -197,11 +199,22 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     }
 
     public CallStackItem[] getCallStack() {
+        Environment env = getEnvironment();
+
+        if (env != null) {
+            env.applySourceMap(callStack);
+        }
+
         return callStack;
     }
 
     public TraceInfo getTrace() {
-        return trace;
+        Environment env = getEnvironment();
+        if (env != null) {
+            return env.getTraceAppliedSourceMap(trace);
+        }
+
+        return trace == null ? TraceInfo.UNKNOWN : trace;
     }
 
     /**

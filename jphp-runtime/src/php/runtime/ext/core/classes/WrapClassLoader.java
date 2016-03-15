@@ -72,7 +72,14 @@ abstract public class WrapClassLoader extends BaseObject {
                 file = file.substring(1);
             }
 
-            ModuleEntity entity = fetchClass(env, file + ".php");
+            ModuleEntity entity = fetchClass(env, file + ".phb", true);
+
+            if (entity != null) {
+                entity.include(env);
+                return true;
+            }
+
+            entity = fetchClass(env, file + ".php", false);
 
             if (entity != null) {
                 entity.include(env);
@@ -82,8 +89,8 @@ abstract public class WrapClassLoader extends BaseObject {
             return false;
         }
 
-        protected ModuleEntity fetchClass(Environment env, String fileName) throws Throwable {
-            return env.getModuleManager().fetchModule("res://" + fileName);
+        protected ModuleEntity fetchClass(Environment env, String fileName, boolean compiled) throws Throwable {
+            return env.getModuleManager().fetchModule("res://" + fileName, compiled);
         }
     }
 }

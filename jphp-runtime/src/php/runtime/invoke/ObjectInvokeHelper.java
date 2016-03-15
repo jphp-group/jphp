@@ -5,6 +5,7 @@ import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.ConstantCallCache;
 import php.runtime.invoke.cache.PropertyCallCache;
@@ -94,6 +95,8 @@ final public class ObjectInvokeHelper {
                     env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
             result = method.invokeDynamic(iObject, env, passed);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new CriticalException("Unable to call parent:: method " + className + "::" + methodName + "(), error = " + e.getMessage());
         } finally {
             if (trace != null) {
                 env.popCall();
@@ -189,7 +192,7 @@ final public class ObjectInvokeHelper {
                     staticClass = ((Closure) iObject).getScope();
                 }
 
-                String stackClass  = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
+                String stackClass = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
 
                 env.pushCall(trace, iObject, args, methodName, stackClass, staticClass);
 
@@ -199,6 +202,8 @@ final public class ObjectInvokeHelper {
             }
 
             return method.invokeDynamic(iObject, env, passed);
+        } catch (NoClassDefFoundError e) {
+            throw new CriticalException("Unable to call method " + className + "::" + methodName + "(), " + e.getMessage());
         } finally {
             if (trace != null) {
                 env.popCall();

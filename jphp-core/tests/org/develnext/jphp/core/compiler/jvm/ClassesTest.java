@@ -27,11 +27,11 @@ public class ClassesTest extends JvmCompilerCase {
     @Test
     public void testProperties() throws Throwable {
         Memory memory;
-        memory = runDynamic("class A { var $x, $y = 30; } return new A();", false);
+        memory = runDynamic("class A { var $x = 11, $y = 30; } return new A();", false);
         Assert.assertTrue(memory.isObject());
 
         IObject object = ((ObjectMemory)memory).value;
-        Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "x", null, 0).toLong());
+        Assert.assertEquals(11, object.getReflection().getProperty(environment, null, object, "x", null, 0).toLong());
         Assert.assertEquals(30, object.getReflection().getProperty(environment, null, object, "y", null, 0).toLong());
 
         memory = runDynamic("class A { public $arr = array(1, 2, 3); } return new A()->arr;", false);

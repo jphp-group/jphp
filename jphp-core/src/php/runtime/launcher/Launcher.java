@@ -11,6 +11,7 @@ import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -199,12 +200,20 @@ public class Launcher {
             extensions.add(ext.trim());
         }
 
+        ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);
+
+        for (Extension extension : loader) {
+            compileScope.registerExtension(extension);
+        }
+
         if (getConfigValue("env.autoregister_extensions", Memory.TRUE).toBoolean()) {
             for(InputStream list : getResources("JPHP-INF/extensions.list")) {
                 Scanner scanner = new Scanner(list);
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine().trim();
                     if (!line.isEmpty()) {
+                        System.out.println("WARNING!!! Auto-registration via JPHP-INF/extensions.list is deprected, " + line + ", use META-INF/services/php.runtime.ext.support.Extension file");
+
                         extensions.add(line);
                     }
                 }
@@ -284,6 +293,11 @@ public class Launcher {
                 }
 
                 initModule(bootstrap);
+
+                ArrayMemory argv = ArrayMemory.ofStrings(this.args);
+                argv.unshift(Memory.NULL);
+
+                environment.getGlobals().put("argv", argv);
                 environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
                 try {
                     bootstrap.includeNoThrow(environment);

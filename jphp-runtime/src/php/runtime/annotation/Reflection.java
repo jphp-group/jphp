@@ -24,6 +24,7 @@ public @interface Reflection {
     @Target({METHOD})
     public @interface Getter {
         String value() default "";
+        boolean hiddenInDebugInfo() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -104,6 +105,7 @@ public @interface Reflection {
     @Target({FIELD, METHOD})
     public @interface Property {
         String value() default "";
+        boolean hiddenInDebugInfo() default false;
     }
 
     @Retention(RetentionPolicy.RUNTIME)

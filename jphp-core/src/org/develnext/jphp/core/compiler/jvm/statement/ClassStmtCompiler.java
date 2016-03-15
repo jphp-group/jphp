@@ -1081,7 +1081,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (!statement.isInterface()) {
             node.access = ACC_SUPER + ACC_PUBLIC;
-            node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
+            node.name = !isSystem /*&& !statement.isTrait()*/
+                    ? entity.getCompiledInternalName()
+                    : statement.getFulledName(Constants.NAME_DELIMITER);
+
             node.superName = entity.getParent() == null
                     ? Type.getInternalName(BaseObject.class)
                     : entity.getParent().getInternalName();

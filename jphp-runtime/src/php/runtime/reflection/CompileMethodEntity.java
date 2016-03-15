@@ -104,6 +104,13 @@ public class CompileMethodEntity extends MethodEntity {
     }
 
     @Override
+    public void unsetArguments(Memory[] arguments) {
+        super.unsetArguments(arguments);
+
+
+    }
+
+    @Override
     public Memory invokeDynamic(IObject _this, Environment env, Memory... arguments) throws Throwable {
         return invokeDynamic((Object)_this, env, arguments);
     }
@@ -176,7 +183,23 @@ public class CompileMethodEntity extends MethodEntity {
                 i++;
             }
 
-            return method.returnOperation.unconvertNoThow(env, trace, method.method.invoke(_this, passed));
+            try {
+                return method.returnOperation.unconvertNoThow(env, trace, method.method.invoke(_this, passed));
+            } finally {
+                i = 0;
+
+                if (this != this.getClazz().methodConstruct) {
+                    for (Object o : passed) {
+                        MemoryOperation operation = method.argumentOperations[i];
+
+                        if (operation != null) {
+                            operation.releaseConverted(env, trace, o);
+                        }
+
+                        i++;
+                    }
+                }
+            }
         } catch (InvocationTargetException e){
             return env.__throwException(e);
         } catch (Throwable e) {

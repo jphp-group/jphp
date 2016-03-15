@@ -113,6 +113,18 @@ public class ClassEntity extends Entity implements Cloneable {
         this.extension = extension;
     }
 
+    public String getCompiledInternalName() {
+        return super.getInternalName();
+    }
+
+    @Override
+    public String getInternalName() {
+        /*if (isTrait()) { depricated check, todo remove.
+            throw new CriticalException("Disable of using internal names for traits, trait '" + getName() + "'");
+        }   */
+
+        return super.getInternalName();
+    }
 
     public boolean isStatic() {
         return isStatic;
@@ -240,6 +252,14 @@ ClassReader classReader;
 
     public Map<String, MethodEntity> getMethods() {
         return methods;
+    }
+
+    public int getMethodCounts() {
+        return methodCounts;
+    }
+
+    public void __setMethodCounts(int methodCounts) {
+        this.methodCounts = methodCounts;
     }
 
     public List<MethodEntity> getOwnedMethods(){
@@ -1018,7 +1038,15 @@ ClassReader classReader;
                 if (callback != null)
                     memory = callback.invoke(getProperty(env, trace, object, property, null, 0), memory);
 
-                ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
+                try {
+                    ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
+                } catch (IllegalArgumentException e) {
+                    if (!object.getReflection().isInstanceOf(entity.setter.getClazz())) {
+                        return setProperty(env, trace, object, property, memory, callback, null, 0);
+                    }
+
+                    throw e;
+                }
                 return memory;
             } else if (entity.getter != null) {
                 env.error(trace, ErrorType.E_RECOVERABLE_ERROR, Messages.ERR_READONLY_PROPERTY.fetch(entity.getClazz().getName(), property));

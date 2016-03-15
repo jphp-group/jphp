@@ -11,6 +11,12 @@ public class CallStack {
     protected int maxCallStackTop = -1;
     protected CallStackItem[] callStack = new CallStackItem[CALL_STACK_INIT_SIZE];
 
+    protected final Environment env;
+
+    public CallStack(Environment env) {
+        this.env = env;
+    }
+
     public int getTop(){
         return callStackTop;
     }
@@ -66,7 +72,7 @@ public class CallStack {
     }
 
     public CallStack getSnapshotAsCallStack() {
-        CallStack stack = new CallStack();
+        CallStack stack = new CallStack(env);
 
         stack.callStack = new CallStackItem[callStack.length];
 
@@ -99,6 +105,7 @@ public class CallStack {
     public TraceInfo trace(){
         if (callStackTop <= 0)
             return TraceInfo.UNKNOWN;
+
         return peekCall(0).trace;
     }
 

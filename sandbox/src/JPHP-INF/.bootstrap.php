@@ -1,4 +1,10 @@
 <?php
 namespace Foo;
 
-const FOOBAR = "Foo\\FOOBAR_success\n";
+function test() {
+    $a = 'a';
+    $b = 'b';
+    $c = $a ^ ord($b);
+}
+
+test();
