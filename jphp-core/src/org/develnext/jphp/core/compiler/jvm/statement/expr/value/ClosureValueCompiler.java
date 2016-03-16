@@ -64,7 +64,7 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
     }
 
     protected void writeContext() {
-        if (method.clazz.getEntity().isTrait()) {
+        if (method.clazz.getClassContext() != null && method.clazz.getClassContext().isTrait()) {
             expr.writePushEnv();
             expr.writeSysDynamicCall(Environment.class, "__getMacroClass", Memory.class);
             expr.writePopString();
