@@ -29,6 +29,15 @@ class fs
     }
 
     /**
+     * Validate file name.
+     * @param $name
+     * @return bool
+     */
+    static function valid($name)
+    {
+    }
+
+    /**
      * Returns absolute real path.
      *
      * @param $path

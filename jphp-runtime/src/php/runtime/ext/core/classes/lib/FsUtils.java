@@ -1,5 +1,6 @@
 package php.runtime.ext.core.classes.lib;
 
+import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Nullable;
@@ -17,12 +18,16 @@ import php.runtime.reflection.ClassEntity;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 @Name("php\\lib\\fs")
 public class FsUtils extends BaseObject {
     private static final int BUFFER_SIZE = 8192;
+    private final static char CHAR_UNDEFINED = 0xFFFF;
+
+    private final static Set<String> winSystemNames = new HashSet<>(Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"));
 
     public FsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -31,6 +36,14 @@ public class FsUtils extends BaseObject {
     @Signature
     private Memory __construct(Environment env, Memory... args) { return Memory.NULL; }
 
+    private static boolean isPrintableChar( char c ) {
+        Character.UnicodeBlock block = Character.UnicodeBlock.of( c );
+        return (!Character.isISOControl(c)) &&
+                c != CHAR_UNDEFINED &&
+                block != null &&
+                block != Character.UnicodeBlock.SPECIALS;
+    }
+
     @Signature
     public static String abs(String path) {
         try {
@@ -38,6 +51,35 @@ public class FsUtils extends BaseObject {
         } catch (IOException e) {
             return new File(path).getAbsolutePath();
         }
+    }
+
+    @Signature
+    public static boolean valid(String name) {
+        if (name.indexOf('*') > -1 || name.indexOf('?') > -1 || name.indexOf('"') > -1) {
+            return false;
+        }
+
+        if (name.contains("..")) {
+            return false;
+        }
+
+        int length = name.length();
+
+        for (int i = 0; i < length; i++) {
+            char ch = name.charAt(i);
+
+            if (!isPrintableChar(ch)) {
+                return false;
+            }
+        }
+
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            if (winSystemNames.contains(name.toUpperCase())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Signature
