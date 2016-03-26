@@ -55,11 +55,19 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static boolean valid(String name) {
+        if (name.isEmpty()) {
+            return false;
+        }
+
         if (name.indexOf('*') > -1 || name.indexOf('?') > -1 || name.indexOf('"') > -1) {
             return false;
         }
 
         if (name.contains("..")) {
+            return false;
+        }
+
+        if (name.equals(".")) {
             return false;
         }
 
