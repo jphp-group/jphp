@@ -114,6 +114,11 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
+    public static boolean hasExt(Environment env, String path, Memory extensions) {
+        return hasExt(env, path, extensions, true);
+    }
+
+    @Signature
     public static boolean hasExt(Environment env, String path, Memory extensions, boolean ignoreCase) {
         Set<String> exts = new HashSet<>();
 

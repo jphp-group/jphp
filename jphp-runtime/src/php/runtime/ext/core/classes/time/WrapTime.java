@@ -279,7 +279,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
         Date date1 = new Date();
         Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[0]));
         calendar.setTime(date1);
-        calendar.set(Calendar.DATE, 0);
+
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.MILLISECOND, 0);
