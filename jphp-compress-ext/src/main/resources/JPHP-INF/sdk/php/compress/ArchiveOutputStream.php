@@ -6,6 +6,8 @@ use php\io\MiscStream;
 use php\io\Stream;
 
 /**
+ * jphp-compress-ext
+ *
  * Class ArchiveOutputStream for creating archives
  * @package php\compress
  */

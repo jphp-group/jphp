@@ -5,6 +5,8 @@ use php\io\Stream;
 use php\io\MiscStream;
 
 /**
+ * jphp-compress-ext
+ *
  * Class ArchiveInputStream for reading archive
  * @package php\compress
  */

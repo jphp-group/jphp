@@ -1,10 +1,19 @@
 <?php
-namespace Foo;
 
-function test() {
-    $a = 'a';
-    $b = 'b';
-    $c = $a ^ ord($b);
+
+class B {
+    function doButtonAction($a)
+    {
+        //$a = ['a', 'b', 'c'];
+        $this->method($a);
+        var_dump($a); // NULL ???
+    }
+
+    public function method()
+    {
+        echo "foobar\n";
+    }
 }
 
-test();
+$b = new B();
+$b->doButtonAction(['a', 'b', 'c']);

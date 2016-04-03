@@ -2,6 +2,8 @@
 namespace php\compress;
 
 /**
+ * jphp-compress-ext
+ *
  * Class ArchiveEntry
  * @package php\compress
  */
