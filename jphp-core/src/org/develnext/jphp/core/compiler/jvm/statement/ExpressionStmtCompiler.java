@@ -1900,8 +1900,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (writeOpcode)
                 writePushVariable((VariableExprToken)value);
 
-            if (returnValue)
-                return tryWritePushVariable((VariableExprToken) value, heavyObjects);
+            /*if (returnValue)
+                return tryWritePushVariable((VariableExprToken) value, heavyObjects);  */
         }
 
         return null;
@@ -2174,11 +2174,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarStore(local, returnValue, true);
         }
 
-        if (!methodStatement.variable(variable).isPassed())
+        /*if (!methodStatement.variable(variable).isPassed())
             local.setValue(value);
 
-        if (methodStatement.isDynamicLocal())
-            local.setValue(null);
+        if (methodStatement.isDynamicLocal())   */
+        local.setValue(null);
     }
 
     void writeScalarOperator(StackItem L, StackItem.Type Lt,
