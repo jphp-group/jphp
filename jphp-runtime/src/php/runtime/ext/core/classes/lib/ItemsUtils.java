@@ -19,7 +19,7 @@ import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Reflection.Optional;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\Items")
+@Name("php\\lib\\Arr")
 public class ItemsUtils extends BaseObject {
     public ItemsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -140,6 +140,11 @@ public class ItemsUtils extends BaseObject {
                 }
             } else {
                 ForeachIterator iterator = args[0].getNewIterator(env);
+
+                if (iterator == null) {
+                    return Memory.FALSE;
+                }
+
                 int r = 0;
                 while (iterator.next()) r++;
                 return LongMemory.valueOf(r);
@@ -159,12 +164,101 @@ public class ItemsUtils extends BaseObject {
             return args[0].toImmutable();
 
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
             if (withKeys)
                 r.put(iterator.getMemoryKey(), iterator.getValue().toImmutable());
             else
                 r.add(iterator.getValue().toImmutable());
+        }
+
+        return r.toConstant();
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "withKeys", optional = @Optional("false"))
+    })
+    public static Memory of(Environment env, Memory... args) {
+        return toArray(env, args);
+    }
+
+    @Signature({
+            @Arg(value = "keys", type = HintType.TRAVERSABLE),
+            @Arg(value = "values", type = HintType.TRAVERSABLE),
+    })
+    public static Memory combine(Environment env, Memory... args) {
+        ForeachIterator keyIterator = args[0].getNewIterator(env);
+        ForeachIterator valueIterator = args[1].getNewIterator(env);
+        ArrayMemory r = new ArrayMemory();
+
+        while (keyIterator.next()) {
+            if (valueIterator.next()) {
+                r.refOfIndex(keyIterator.getValue()).assign(valueIterator.getValue().toImmutable());
+            } else {
+                return Memory.NULL;
+            }
+        }
+
+        return r.toConstant();
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "value"),
+            @Arg(value = "strict", optional = @Optional("false"))
+    })
+    public static Memory has(Environment env, Memory... args) {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
+        Memory needle = args[1];
+        boolean strict = args[2].toBoolean();
+
+        while (iterator.next()) {
+            if (strict) {
+                if (needle.identical(iterator.getValue()))
+                    return Memory.TRUE;
+            } else {
+                if (needle.equal(iterator.getValue()))
+                    return Memory.TRUE;
+            }
+        }
+
+        return Memory.FALSE;
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE),
+            @Arg(value = "callback", type = HintType.CALLABLE),
+    })
+    public static Memory map(Environment env, Memory... args) throws Throwable {
+        ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
+        Invoker callback = Invoker.valueOf(env, null, args[1]);
+
+        if (callback == null) {
+            return Memory.NULL;
+        }
+
+        ArrayMemory r = new ArrayMemory();
+
+        while (iterator.next()) {
+            r.refOfIndex(iterator.getMemoryKey()).assign(callback.call(iterator.getValue()));
         }
 
         return r.toConstant();
@@ -191,6 +285,11 @@ public class ItemsUtils extends BaseObject {
     })
     public static Memory keys(Environment env, Memory... args) {
         ForeachIterator iterator = args[0].getNewIterator(env);
+
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory r = new ArrayMemory();
         while (iterator.next())
             r.add(iterator.getMemoryKey());
@@ -224,6 +323,10 @@ public class ItemsUtils extends BaseObject {
         int level = args[1].toInteger();
         ForeachIterator iterator = args[0].getNewIterator(env);
 
+        if (iterator == null) {
+            return Memory.NULL;
+        }
+
         Set<Integer> used = new HashSet<Integer>();
         used.add(args[0].getPointer());
 
@@ -253,6 +356,14 @@ public class ItemsUtils extends BaseObject {
 
         Memory pop = array.toValue(ArrayMemory.class).pop();
         return pop == null ? Memory.NULL : pop;
+    }
+
+    @Signature(@Arg(value = "array", type = HintType.ARRAY))
+    public static Memory peak(Environment env, Memory... args) throws Throwable {
+        Memory array  = args[0];
+
+        Memory peek = array.toValue(ArrayMemory.class).peek();
+        return peek == null ? Memory.NULL : peek;
     }
 
     @Signature({

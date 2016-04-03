@@ -185,6 +185,20 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return StringMemory.valueOf(matcher.replaceFirst(args[0].toString()));
     }
 
+    @Signature({@Arg("group"), @Arg("replacement")})
+    public Memory replaceGroup(Environment env, Memory... args) {
+        int group = args[0].toInteger();
+
+        matcher.reset();
+
+        if (matcher.find()) {
+            String what = matcher.group(group);
+            return StringMemory.valueOf(input.replace(what, args[1].toString()));
+        }
+
+        return StringMemory.valueOf(input);
+    }
+
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE))
     public Memory replaceWithCallback(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(env, null, args[0]);
@@ -235,13 +249,13 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Override
     @Signature
     public Memory current(Environment env, Memory... args) {
-        return current;
+        return current == null ? Memory.NULL : current;
     }
 
     @Override
     @Signature
     public Memory key(Environment env, Memory... args) {
-        return key;
+        return key == null ? Memory.NULL : key;
     }
 
     @Override

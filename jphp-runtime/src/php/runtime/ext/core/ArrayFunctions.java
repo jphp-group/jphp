@@ -23,7 +23,7 @@ public class ArrayFunctions extends FunctionsContainer {
             Memory el = iterator.getValue();
             if (el.isArray()){
                 if (used == null)
-                    used = new HashSet<Integer>();
+                    used = new HashSet<>();
 
                 int pointer = el.getPointer();
 

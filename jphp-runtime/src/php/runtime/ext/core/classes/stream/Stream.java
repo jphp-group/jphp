@@ -266,14 +266,14 @@ abstract public class Stream extends BaseObject implements Resource {
             } else if (arg.instanceOf(Stream.class)){
                 return new StreamOutputStream(env, arg.toObject(Stream.class));
             } else {
-                StreamOutputStream outputStream = new StreamOutputStream(env, Stream.create(env, arg.toString(), "r"));
+                StreamOutputStream outputStream = new StreamOutputStream(env, Stream.create(env, arg.toString(), "w+"));
                 outputStream.autoClose = true;
                 return outputStream;
             }
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
         }
         return null;
     }
@@ -292,6 +292,10 @@ abstract public class Stream extends BaseObject implements Resource {
     }
 
     public static InputStream getInputStream(Environment env, Stream stream) {
+        if (stream instanceof ResourceStream) {
+            return ((ResourceStream) stream).getInputStream();
+        }
+
         return new StreamInputStream(env, stream);
     }
 
@@ -308,6 +312,10 @@ abstract public class Stream extends BaseObject implements Resource {
             if (arg.instanceOf(FileObject.class)){
                 return new FileInputStream(arg.toObject(FileObject.class).file);
             } else if (arg.instanceOf(Stream.class)){
+                if (arg.instanceOf(ResourceStream.class)) {
+                    return arg.toObject(ResourceStream.class).getInputStream();
+                }
+
                 return new StreamInputStream(env, arg.toObject(Stream.class));
             } else {
                 StreamInputStream inputStream = new StreamInputStream(env, Stream.create(env, arg.toString(), "r"));
@@ -317,8 +325,9 @@ abstract public class Stream extends BaseObject implements Resource {
         } catch (IOException e){
             env.exception(WrapIOException.class, e.getMessage());
         } catch (Throwable throwable) {
-            env.wrapThrow(throwable);
+            env.forwardThrow(throwable);
         }
+
         return null;
     }
 
@@ -356,6 +365,12 @@ abstract public class Stream extends BaseObject implements Resource {
         public void write(int b) throws IOException {
             stream.write(env, new BinaryMemory((byte)b), Memory.NULL);
         }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            stream.close(env);
+        }
     }
 
     public static class StreamInputStream extends InputStream {
@@ -376,14 +391,21 @@ abstract public class Stream extends BaseObject implements Resource {
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            Memory result = stream.read(env, LongMemory.valueOf(len - off));
+            Memory result = stream.read(env, LongMemory.valueOf(len));
             if (!result.isString())
                 return -1;
 
             byte[] copy = result.getBinaryBytes();
+
             System.arraycopy(copy, 0, b, off, copy.length);
 
             return copy.length;
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            stream.close(env);
         }
     }
 }

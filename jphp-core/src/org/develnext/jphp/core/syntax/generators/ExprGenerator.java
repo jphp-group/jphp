@@ -655,6 +655,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 if (token.getName() == null){
                     ClosureStmtToken closure = new ClosureStmtToken(token.getMeta());
                     closure.setFunction(token);
+                    closure.setOwnerClass(analyzer.getClazz());
                     tokens.add(closure);
                     analyzer.registerClosure(closure);
 

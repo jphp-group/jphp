@@ -141,7 +141,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         closureEntity1.addMethod(m, null);
         closureEntity1.doneDeclare();
 
-        Closure tmp = new Closure(env, closureEntity1, new ObjectMemory(env.getLateObject()), new Memory[0]){
+        Closure tmp = new Closure(env, closureEntity1, new ObjectMemory(env.getLateObject()), clazz.getName(), new Memory[0]){
             @Override
             public Memory __invoke(Environment e, Memory... args) {
                 try {
@@ -444,7 +444,8 @@ public class MethodEntity extends AbstractFunctionEntity {
                 }
                 return 2;
             case PROTECTED:
-                ClassEntity clazz = context == null ? env.getLateStaticClass() : context;
+                ClassEntity originClass;
+                ClassEntity clazz = originClass = context == null ? env.getLateStaticClass() : context;
                 if (clazz == null)
                     return 1;
 
@@ -454,6 +455,11 @@ public class MethodEntity extends AbstractFunctionEntity {
                         return 0;
                     clazz = clazz.parent;
                 } while (clazz != null);
+
+                if (this.clazz.isInstanceOf(originClass)) {
+                    return 0;
+                }
+
                 return 1;
         }
         return 2;

@@ -3,10 +3,7 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
-import php.runtime.env.CompileScope;
-import php.runtime.env.ConcurrentEnvironment;
-import php.runtime.env.Environment;
-import php.runtime.env.SplClassLoader;
+import php.runtime.env.*;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ObjectMemory;
@@ -85,6 +82,18 @@ public class WrapEnvironment extends BaseObject {
         return invoker.call();
     }
 
+    @Signature(@Arg(value = "sourceMap", nativeType = WrapSourceMap.class))
+    public Memory registerSourceMap(Environment env, Memory... args) {
+        this.environment.registerSourceMap(args[0].toObject(WrapSourceMap.class).getWrappedObject());
+        return Memory.NULL;
+    }
+
+    @Signature(@Arg(value = "sourceMap", nativeType = WrapSourceMap.class))
+    public Memory unregisterSourceMap(Environment env, Memory... args) {
+        this.environment.unregisterSourceMap(args[0].toObject(WrapSourceMap.class).getWrappedObject());
+        return Memory.NULL;
+    }
+
     @Signature(@Arg("className"))
     public Memory exportClass(final Environment env, Memory... args) throws Throwable {
         ClassEntity classEntity = environment.fetchClass(args[0].toString());
@@ -158,6 +167,25 @@ public class WrapEnvironment extends BaseObject {
     }
 
     @Signature(@Arg("callback"))
+    public Memory onOutput(Environment env, Memory... args) {
+        if (args[0].isNull()) {
+            Invoker invoker = Invoker.valueOf(this.environment, null, args[0]);
+
+            if (invoker == null) {
+                env.exception("Argument 1 must be callable in environment");
+                return Memory.NULL;
+            }
+
+            invoker.setTrace(env.trace());
+            this.environment.getDefaultBuffer().setCallback(args[0], invoker);
+        } else {
+            this.environment.getDefaultBuffer().setCallback(null);
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature(@Arg("callback"))
     public Memory onMessage(Environment env, Memory... args) {
         Invoker invoker = Invoker.valueOf(this.environment, null, args[0]);
         if (invoker == null) {
@@ -176,6 +204,19 @@ public class WrapEnvironment extends BaseObject {
         }
 
         return onMessage.call(args);
+    }
+
+    @Signature(@Arg("path"))
+    public Memory findModule(Environment env,  Memory... args) throws Throwable {
+        ModuleManager moduleManager = this.environment.getModuleManager();
+
+        boolean hasModule = moduleManager.hasModule(args[0].toString());
+
+        if (hasModule) {
+            return ObjectMemory.valueOf(new WrapModule(env, moduleManager.fetchModule(args[0].toString())));
+        }
+
+        return Memory.NULL;
     }
 
     @Signature

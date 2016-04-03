@@ -3,7 +3,7 @@ php\lib\bin Test common
 --FILE--
 <?php
 
-use php\lib\Binary as bin;
+use php\lib\bin;
 use php\lib\Char;
 
 $bin = bin::of([65, 66, 67, 68]);

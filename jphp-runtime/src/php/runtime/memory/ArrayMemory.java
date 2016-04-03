@@ -190,6 +190,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
+    public boolean containsLongKey(long key) {
+        return containsKey(LongMemory.valueOf(key));
+    }
+
     public boolean containsKey(Object key) {
         if (size() == 0) {
             return false;
@@ -1186,10 +1190,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     ArrayMemory.this.convertToMap();
 
                 if (list == null) {
-                    if (withPrevious || getKeyReferences)
+                    if (withPrevious || getKeyReferences) {
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
-                    else
+                    } else {
                         keys = new ArrayList<Object>(map.keySet()).iterator();
+                    }
                 } else {
                     listMax = list.size();
                 }

@@ -51,4 +51,12 @@ public class WrapConnection extends BaseWrapper<Connection> {
     public WrapConnection(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
+
+    public Connection headers(Map<String, String> data) {
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            getWrappedObject().header(entry.getKey(), entry.getValue());
+        }
+
+        return getWrappedObject();
+    }
 }

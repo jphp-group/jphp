@@ -16,7 +16,7 @@ public class StringFunctions extends FunctionsContainer {
 
     @Runtime.Immutable
     public static int ord(char value){
-        return value;
+        return (int) value;
     }
 
     public static String serialize(Environment env, TraceInfo trace, Memory value){

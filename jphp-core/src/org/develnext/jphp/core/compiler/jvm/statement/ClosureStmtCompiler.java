@@ -46,6 +46,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         ClassStmtCompiler classStmtCompiler = new ClassStmtCompiler(this.compiler, classStmtToken);
         classStmtCompiler.setSystem(true);
         classStmtCompiler.setInterfaceCheck(false);
+        classStmtCompiler.setClassContext(statement.getOwnerClass());
 
         classStmtCompiler.setFunctionName(null);
         ClassEntity clazzEntity = classStmtCompiler.compile();

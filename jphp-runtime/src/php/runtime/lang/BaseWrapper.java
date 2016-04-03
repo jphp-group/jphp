@@ -38,7 +38,7 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     }
 
     @Override
-    final public int getPointer(){
+    public int getPointer(){
         return super.hashCode();
     }
 
@@ -105,6 +105,10 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     @Override
     public boolean __smallerEq(BaseWrapper iObject) {
         return false;
+    }
+
+    public IObject __getOriginInstance() {
+        return this;
     }
 
     @Override

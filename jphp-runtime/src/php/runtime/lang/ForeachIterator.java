@@ -2,6 +2,7 @@ package php.runtime.lang;
 
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
@@ -23,6 +24,46 @@ abstract public class ForeachIterator implements Iterable<Memory> {
     abstract protected boolean prevValue();
 
     protected TraceInfo trace = TraceInfo.UNKNOWN;
+
+    public static ForeachIterator of(final Environment env, final Iterable iterable) {
+        return new ForeachIterator(false, false, false) {
+            protected Iterator iterator;
+
+            @Override
+            protected boolean init() {
+                iterator = iterable.iterator();
+
+                currentKeyMemory = LongMemory.CONST_INT_M1;
+                currentKey = currentKeyMemory.toLong();
+                return true;
+            }
+
+            @Override
+            protected boolean nextValue() {
+                if (!iterator.hasNext()) {
+                    return false;
+                }
+
+                Object next = iterator.next();
+
+                currentKeyMemory = currentKeyMemory == null ? Memory.CONST_INT_0 : currentKeyMemory.inc();
+                currentKey = currentKeyMemory.toLong();
+                currentValue = Memory.wrap(env, next);
+
+                return true;
+            }
+
+            @Override
+            protected boolean prevValue() {
+                return false;
+            }
+
+            @Override
+            public void reset() {
+                iterator = iterable.iterator();
+            }
+        };
+    }
 
     public ForeachIterator(boolean getReferences, boolean getKeyReferences, boolean withPrevious) {
         this.getReferences = getReferences;

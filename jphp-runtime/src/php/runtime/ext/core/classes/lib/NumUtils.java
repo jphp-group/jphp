@@ -13,7 +13,7 @@ import java.text.DecimalFormatSymbols;
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
-@Name("php\\lib\\Number")
+@Name("php\\lib\\num")
 public class NumUtils extends BaseObject {
     public NumUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);

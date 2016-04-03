@@ -263,10 +263,16 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                                     analyzer.getFunction().variable(argument.getName()).setReference(true);
                                 }
                             }
+
+                            if (analyzer.getFunction() != null) {
+                                analyzer.getFunction().variable(argument.getName()).setUsed(true);
+                            }
+
                             uses.add(argument.getName());
                         }
 
-                        analyzer.getScope().addVariables( uses );
+                        analyzer.getScope().addVariables(uses);
+
                         return result;
                     }
 

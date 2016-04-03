@@ -1693,7 +1693,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
                 return null;
             } else {
-                return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+                if (method.clazz.getClassContext() != null) {
+                    return new StringMemory(method.clazz.getClassContext().getFulledName());
+                } else {
+                    return new StringMemory(method.clazz.isSystem() ? "" : method.clazz.entity.getName());
+                }
             }
         } else if (macro instanceof NamespaceMacroToken) {
             return new StringMemory(
@@ -2826,8 +2830,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         boolean sideOperator = operator.isSide();
 
         if (variable != null && !variable.isReference()){
-            if (operator instanceof AssignOperatorExprToken){
+            if (operator instanceof AssignOperatorExprToken) {
                 name = ((AssignOperatorExprToken)operator).getOperatorCode();
+
                 if (operator instanceof AssignConcatExprToken)
                     operatorResult = String.class;
                 if (operator instanceof AssignPlusExprToken || operator instanceof AssignMulExprToken)
@@ -2856,6 +2861,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     writePopBoxing();
                     writePush(o1);
+
                     writeSysDynamicCall(Memory.class, name, operatorResult, Rt.toClass());
                 }
             } else {

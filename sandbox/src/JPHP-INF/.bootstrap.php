@@ -1,4 +1,19 @@
 <?php
-namespace Foo;
 
-const FOOBAR = "Foo\\FOOBAR_success\n";
+
+class B {
+    function doButtonAction($a)
+    {
+        //$a = ['a', 'b', 'c'];
+        $this->method($a);
+        var_dump($a); // NULL ???
+    }
+
+    public function method()
+    {
+        echo "foobar\n";
+    }
+}
+
+$b = new B();
+$b->doButtonAction(['a', 'b', 'c']);

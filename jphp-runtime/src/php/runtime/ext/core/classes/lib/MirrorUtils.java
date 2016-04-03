@@ -7,16 +7,18 @@ import php.runtime.annotation.Runtime.FastMethod;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.WrapModule;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.FunctionEntity;
 
 import static php.runtime.annotation.Reflection.Arg;
 import static php.runtime.annotation.Reflection.Name;
 
-@Name("php\\lib\\Mirror")
+@Name("php\\lib\\Reflect")
 public class MirrorUtils extends BaseObject {
     public MirrorUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -37,6 +39,34 @@ public class MirrorUtils extends BaseObject {
         } else {
             return Memory.FALSE;
         }
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("typeName")
+    })
+    public static Memory typeModule(Environment env, Memory... args) {
+        ClassEntity classEntity = env.fetchClass(args[0].toString(), true);
+
+        if (classEntity != null && classEntity.getModule() != null) {
+            return ObjectMemory.valueOf(new WrapModule(env, classEntity.getModule()));
+        }
+
+        return Memory.NULL;
+    }
+
+    @FastMethod
+    @Signature({
+            @Arg("funcName")
+    })
+    public static Memory functionModule(Environment env, Memory... args) {
+        FunctionEntity entity = env.fetchFunction(args[0].toString());
+
+        if (entity != null && entity.getModule() != null) {
+            return ObjectMemory.valueOf(new WrapModule(env, entity.getModule()));
+        }
+
+        return Memory.NULL;
     }
 
     @Signature({

@@ -7,22 +7,9 @@ namespace php\lib;
  *
  * Class mirror
  * @package php\lib
+ * @deprecated use reflect
  */
-class Mirror {
-    private function __construct() {}
+class Mirror extends reflect
+{
 
-    /**
-     * @param object $object
-     * @param bool $toLowerCase (optional)
-     * @return false|string
-     */
-    public static function typeOf($object, $toLowerCase = false) {}
-
-    /**
-     * @param string $className
-     * @param array $args
-     * @param bool $withConstruct
-     * @return object
-     */
-    public static function newInstance($className, array $args = null, $withConstruct = true) {}
 }

@@ -38,7 +38,9 @@ public class ClassEntity extends Entity implements Cloneable {
     private final static int FLAG_UNSET = 4003;
 
     // types
-    public enum Type { CLASS, INTERFACE, TRAIT }
+    public enum Type {
+        CLASS, INTERFACE, TRAIT
+    }
 
     private long id;
 
@@ -113,6 +115,18 @@ public class ClassEntity extends Entity implements Cloneable {
         this.extension = extension;
     }
 
+    public String getCompiledInternalName() {
+        return super.getInternalName();
+    }
+
+    @Override
+    public String getInternalName() {
+        /*if (isTrait()) { depricated check, todo remove.
+            throw new CriticalException("Disable of using internal names for traits, trait '" + getName() + "'");
+        }   */
+
+        return super.getInternalName();
+    }
 
     public boolean isStatic() {
         return isStatic;
@@ -150,7 +164,7 @@ public class ClassEntity extends Entity implements Cloneable {
         this.isNotRuntime = isNotRuntime;
     }
 
-    public void doneDeclare(){
+    public void doneDeclare() {
         if (isClass()) {
             methodConstruct = methods.get("__construct");
             if (methodConstruct != null
@@ -198,7 +212,7 @@ ClassReader classReader;
         return extension;
     }
 
-    public boolean isDeprecated(){
+    public boolean isDeprecated() {
         return false; // TODO
     }
 
@@ -222,11 +236,11 @@ ClassReader classReader;
         return type;
     }
 
-    public boolean isInterface(){
+    public boolean isInterface() {
         return type == Type.INTERFACE;
     }
 
-    public boolean isClass(){
+    public boolean isClass() {
         return type == Type.CLASS;
     }
 
@@ -242,48 +256,56 @@ ClassReader classReader;
         return methods;
     }
 
-    public List<MethodEntity> getOwnedMethods(){
+    public int getMethodCounts() {
+        return methodCounts;
+    }
+
+    public void __setMethodCounts(int methodCounts) {
+        this.methodCounts = methodCounts;
+    }
+
+    public List<MethodEntity> getOwnedMethods() {
         List<MethodEntity> result = new ArrayList<MethodEntity>();
-        for (MethodEntity el : methods.values()){
+        for (MethodEntity el : methods.values()) {
             if (el.isOwned(this))
                 result.add(el);
         }
         return result;
     }
 
-    public SignatureResult addMethod(MethodEntity method, String realName){
+    public SignatureResult addMethod(MethodEntity method, String realName) {
         String name = realName == null ? method.getLowerName() : realName;
 
         SignatureResult addResult = new SignatureResult();
-        if (method.isAbstract && method.isFinal){
+        if (method.isAbstract && method.isFinal) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.FINAL_ABSTRACT, method));
-        } else if (method.isAbstractable() && !(method.isAbstract || type == Type.INTERFACE)){
+        } else if (method.isAbstractable() && !(method.isAbstract || type == Type.INTERFACE)) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACT, method));
-        } else if (method.isAbstract && !method.isAbstractable()){
+        } else if (method.isAbstract && !method.isAbstractable()) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACTABLE, method));
-        } else if (method.isAbstract && !(this.isAbstract || isTrait())){
+        } else if (method.isAbstract && !(this.isAbstract || isTrait())) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, method));
         } else if (type == Type.INTERFACE &&
-                (method.modifier != Modifier.PUBLIC || method.isFinal)){
+                (method.modifier != Modifier.PUBLIC || method.isFinal)) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_ACCESS_FOR_INTERFACE, method));
         }
 
-        if (magicSignatureClass != null){
+        if (magicSignatureClass != null) {
             MethodEntity systemMethod = magicSignatureClass.findMethod(name.toLowerCase());
             if (systemMethod != null && method.clazz.getId() == getId()) {
                 if (method.prototype == null)
                     method.setPrototype(systemMethod);
 
-                if (systemMethod.getModifier() == Modifier.PUBLIC && method.getModifier() != Modifier.PUBLIC){
+                if (systemMethod.getModifier() == Modifier.PUBLIC && method.getModifier() != Modifier.PUBLIC) {
                     addResult.add(InvalidMethod.warning(InvalidMethod.Kind.MAGIC_MUST_BE_PUBLIC, method));
                     //method.setModifier(Modifier.PUBLIC);
                 }
 
-                if (!systemMethod.equalsBySignature(method, false)){
+                if (!systemMethod.equalsBySignature(method, false)) {
                     addResult.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, method));
                 } else if (systemMethod.isStatic && !method.isStatic)
                     addResult.add(InvalidMethod.warning(InvalidMethod.Kind.MUST_STATIC, method));
-                else if (!systemMethod.isStatic && method.isStatic){
+                else if (!systemMethod.isStatic && method.isStatic) {
                     //method.setStatic(false);
                     addResult.add(InvalidMethod.warning(InvalidMethod.Kind.MUST_NON_STATIC, method));
                 }
@@ -293,27 +315,27 @@ ClassReader classReader;
         if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name)))
             this.methods.put(name, method);
 
-        if (name.equals(lowerName) && !isTrait()){
+        if (name.equals(lowerName) && !isTrait()) {
             methods.put("__construct", method);
         }
 
         return addResult;
     }
 
-    public int nextMethodIndex(){
+    public int nextMethodIndex() {
         return methodCounts++;
     }
 
-    public MethodEntity findMethod(String name){
+    public MethodEntity findMethod(String name) {
         return methods.get(name);
     }
 
-    public ConstantEntity findConstant(String name){
+    public ConstantEntity findConstant(String name) {
         return constants.get(name);
     }
 
     // use can pass specific names
-    public PropertyEntity findProperty(String name){
+    public PropertyEntity findProperty(String name) {
         int pos = name.lastIndexOf('\0');
         if (pos > -1 && pos + 1 < name.length())
             name = name.substring(pos + 1);
@@ -321,7 +343,7 @@ ClassReader classReader;
         return properties.get(name);
     }
 
-    public PropertyEntity findStaticProperty(String name){
+    public PropertyEntity findStaticProperty(String name) {
         return staticProperties.get(name);
     }
 
@@ -329,15 +351,15 @@ ClassReader classReader;
         return parent;
     }
 
-    public boolean isInstanceOf(Class<? extends IObject> clazz){
+    public boolean isInstanceOf(Class<? extends IObject> clazz) {
         return isInstanceOf(ReflectionUtils.getClassName(clazz));
     }
 
-    public boolean isInstanceOf(ClassEntity what){
+    public boolean isInstanceOf(ClassEntity what) {
         return what != null && (id == what.id || instanceOfList.contains(what.lowerName));
     }
 
-    public boolean isInstanceOf(String name){
+    public boolean isInstanceOf(String name) {
         if (name == null)
             throw new IllegalArgumentException();
 
@@ -345,24 +367,24 @@ ClassReader classReader;
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
-    public boolean isInstanceOfLower(String lowerName){
+    public boolean isInstanceOfLower(String lowerName) {
         if (lowerName == null)
             throw new IllegalArgumentException();
 
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
-    public SignatureResult updateParentMethods(){
+    public SignatureResult updateParentMethods() {
         SignatureResult result = new SignatureResult();
-        if (parent != null){
-            for(Map.Entry<String, MethodEntity> entry : parent.getMethods().entrySet()){
+        if (parent != null) {
+            for (Map.Entry<String, MethodEntity> entry : parent.getMethods().entrySet()) {
                 MethodEntity implMethod = findMethod(entry.getKey());
                 MethodEntity method = entry.getValue();
                 if (implMethod == method) continue;
 
-                if (implMethod == null){
+                if (implMethod == null) {
                     SignatureResult addResult = addMethod(method, entry.getKey());
-                    if (methodConstruct == null && !isTrait() && method.getName().equalsIgnoreCase(parent.getName())){
+                    if (methodConstruct == null && !isTrait() && method.getName().equalsIgnoreCase(parent.getName())) {
                         if (!method.isAbstractable() && !methods.containsKey("__construct")) {
                             method.setDynamicSignature(true);
                             methods.put("__construct", method);
@@ -378,12 +400,12 @@ ClassReader classReader;
                     if (!isAbstract && method.isAbstract && implMethod.isAbstract)
                         result.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, implMethod));
 
-                    if (!implMethod.equalsBySignature(method)){
+                    if (!implMethod.equalsBySignature(method)) {
                         if (!method.isDynamicSignature() || method.isAbstractable()) {
                             boolean isStrict = true;
                             MethodEntity pr = method;
-                            while (pr != null){
-                                if (pr.isAbstractable()){
+                            while (pr != null) {
+                                if (pr.isAbstractable()) {
                                     isStrict = false;
                                     break;
                                 }
@@ -396,9 +418,9 @@ ClassReader classReader;
                                             : InvalidMethod.strict(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
                             );
                         }
-                    } else if (implMethod.isStatic() && !method.isStatic()){
+                    } else if (implMethod.isStatic() && !method.isStatic()) {
                         result.add(InvalidMethod.error(InvalidMethod.Kind.MUST_NON_STATIC, implMethod));
-                    } else if (!implMethod.isStatic() && method.isStatic()){
+                    } else if (!implMethod.isStatic() && method.isStatic()) {
                         result.add(InvalidMethod.error(InvalidMethod.Kind.MUST_STATIC, implMethod));
                     }
 
@@ -420,12 +442,12 @@ ClassReader classReader;
     public ExtendsResult setParent(ClassEntity parent, boolean updateParentMethods) {
         ExtendsResult result = new ExtendsResult(parent);
 
-        if (this.parent != null){
+        if (this.parent != null) {
             throw new RuntimeException("Cannot re-assign parent for classes");
         }
 
         this.parent = parent;
-        if (parent != null){
+        if (parent != null) {
             if (parent.useJavaLikeNames) {
                 this.useJavaLikeNames = true;
             }
@@ -449,13 +471,14 @@ ClassReader classReader;
 
     /**
      * return empty list if success else list with not valid implemented methods in class
+     *
      * @param _interface
      * @return
      */
     public ImplementsResult addInterface(ClassEntity _interface) {
         ImplementsResult result = new ImplementsResult(_interface);
 
-        for(ConstantEntity e : _interface.constants.values()){
+        for (ConstantEntity e : _interface.constants.values()) {
             ConstantEntity origin = constants.get(e.getName());
             if (origin != null && e.getClazz().getId() == _interface.getId() &&
                     (parent == null || parent.constants.get(e.getName()) == null))
@@ -468,22 +491,22 @@ ClassReader classReader;
         this.instanceOfList.add(_interface.getLowerName());
         this.instanceOfList.addAll(_interface.instanceOfList);
 
-        for(MethodEntity method : _interface.getMethods().values()){
+        for (MethodEntity method : _interface.getMethods().values()) {
             MethodEntity implMethod = findMethod(method.getLowerName());
             if (implMethod == method) continue;
 
-            if (implMethod == null){
+            if (implMethod == null) {
                 addMethod(method, null);
                 if (type == Type.CLASS && !isAbstract)
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, method));
             } else {
                 implMethod.setPrototype(method);
 
-                if (/*!method.isDynamicSignature() &&*/ !implMethod.equalsBySignature(method)){ // checking dynamic for only extends
+                if (/*!method.isDynamicSignature() &&*/ !implMethod.equalsBySignature(method)) { // checking dynamic for only extends
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod));
-                } else if (implMethod.isStatic() && !method.isStatic()){
+                } else if (implMethod.isStatic() && !method.isStatic()) {
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.MUST_NON_STATIC, implMethod));
-                } else if (!implMethod.isStatic() && method.isStatic()){
+                } else if (!implMethod.isStatic() && method.isStatic()) {
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.MUST_STATIC, implMethod));
                 }
             }
@@ -522,33 +545,33 @@ ClassReader classReader;
         return staticProperties.values();
     }
 
-    public void addConstant(ConstantEntity constant){
+    public void addConstant(ConstantEntity constant) {
         constants.put(constant.getName(), constant);
         constant.setClazz(this);
     }
 
-    public void addDynamicConstant(Environment env, String name, Memory value){
+    public void addDynamicConstant(Environment env, String name, Memory value) {
         ConstantEntity entity = constants.get(name);
         env.getOrCreateStatic(entity.getInternalName(), value);
     }
 
-    public void addDynamicStaticProperty(Environment env, String name, Memory value){
+    public void addDynamicStaticProperty(Environment env, String name, Memory value) {
         PropertyEntity prop = staticProperties.get(name);
         env.getOrCreateStatic(prop.specificName, value);
     }
 
-    public void addDynamicProperty(Environment env, String name, Memory value){
+    public void addDynamicProperty(Environment env, String name, Memory value) {
         PropertyEntity prop = properties.get(name);
         env.getOrCreateStatic(prop.getInternalName(), value);
     }
 
-    public PropertyResult addProperty(PropertyEntity property){
+    public PropertyResult addProperty(PropertyEntity property) {
         PropertyResult result = new PropertyResult();
         PropertyEntity prototype = null;
 
         if (property.isStatic()) {
             prototype = staticProperties.get(property.getLowerName());
-            if (prototype != null && prototype.getModifier() != property.getModifier()){
+            if (prototype != null && prototype.getModifier() != property.getModifier()) {
                 property.setPrototype(prototype);
             }
 
@@ -558,7 +581,7 @@ ClassReader classReader;
             staticProperties.put(property.getName(), property);
         } else {
             prototype = properties.get(property.getLowerName());
-            if (prototype != null && prototype.getModifier() != property.getModifier()){
+            if (prototype != null && prototype.getModifier() != property.getModifier()) {
                 property.setPrototype(prototype);
             }
 
@@ -568,12 +591,12 @@ ClassReader classReader;
             properties.put(property.getName(), property);
         }
 
-        if (prototype != null){
-            if (property.getPrototype() != null){
-                if (prototype.isProtected() && property.isPrivate()){
+        if (prototype != null) {
+            if (property.getPrototype() != null) {
+                if (prototype.isProtected() && property.isPrivate()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PROTECTED, property);
                 }
-                if (prototype.isPublic() && !property.isPublic()){
+                if (prototype.isPublic() && !property.isPublic()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PUBLIC, property);
                 }
             }
@@ -584,13 +607,13 @@ ClassReader classReader;
             if (property.isPublic() && prototype.isProtected())
                 overridden = true;
 
-            if (prototype.isStatic() && !property.isStatic()){
-                if (overridden){
+            if (prototype.isStatic() && !property.isStatic()) {
+                if (overridden) {
                     property.setPrototype(prototype);
                     result.addError(InvalidProperty.Kind.STATIC_AS_NON_STATIC, property);
                 }
-            } else if (property.isStatic() && !prototype.isStatic()){
-                if (overridden){
+            } else if (property.isStatic() && !prototype.isStatic()) {
+                if (overridden) {
                     property.setPrototype(prototype);
                     result.addError(InvalidProperty.Kind.NON_STATIC_AS_STATIC, property);
                 }
@@ -601,7 +624,7 @@ ClassReader classReader;
         return result;
     }
 
-    protected void addStaticProperty(PropertyEntity property){
+    protected void addStaticProperty(PropertyEntity property) {
         if (!property.isStatic())
             throw new IllegalArgumentException("Property must be static");
 
@@ -635,16 +658,18 @@ ClassReader classReader;
         return nativeClazz;
     }
 
-    protected static void invalidAccessToProperty(Environment env, TraceInfo trace, PropertyEntity entity, int accessFlag){
-        switch (accessFlag){
-            case 1: env.error(trace, ErrorType.E_ERROR,
-                    Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY.fetch(
-                            entity.getClazz().getName(), entity.getName()
-                    ));
-            case 2: env.error(trace, ErrorType.E_ERROR,
-                    Messages.ERR_ACCESS_TO_PRIVATE_PROPERTY.fetch(
-                            entity.getClazz().getName(), entity.getName()
-                    ));
+    protected static void invalidAccessToProperty(Environment env, TraceInfo trace, PropertyEntity entity, int accessFlag) {
+        switch (accessFlag) {
+            case 1:
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY.fetch(
+                                entity.getClazz().getName(), entity.getName()
+                        ));
+            case 2:
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PRIVATE_PROPERTY.fetch(
+                                entity.getClazz().getName(), entity.getName()
+                        ));
         }
     }
 
@@ -655,17 +680,17 @@ ClassReader classReader;
             useJavaLikeNames = true;
         }
 
-        if (!nativeClazz.isInterface()){
+        if (!nativeClazz.isInterface()) {
             try {
                 this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class);
                 this.nativeConstructor.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 this.nativeConstructor = null;
                 //if (IObject.class.isAssignableFrom(getNativeClass().getClass()))
-                  //  throw new CriticalException(e);
+                //  throw new CriticalException(e);
             }
 
-            if (!this.isInternal){
+            if (!this.isInternal) {
                 try {
                     if (isTrait()) {
                         this.nativeInitEnvironment = nativeClazz.getDeclaredMethod(
@@ -725,7 +750,7 @@ ClassReader classReader;
                 env.__throwException(e);
             }
         }
-        for(ClassEntity trait : traits.values()) {
+        for (ClassEntity trait : traits.values()) {
             if (used.add(trait)) {
                 trait.initTraitEnvironment(env, originClass, used);
             }
@@ -737,7 +762,7 @@ ClassReader classReader;
         try {
             if (nativeConstructor != null)
                 object = (IObject) nativeConstructor.newInstance(env, this);
-        } catch (InvocationTargetException e){
+        } catch (InvocationTargetException e) {
             env.__throwException(e);
             return null;
         } catch (InstantiationException e) {
@@ -758,19 +783,20 @@ ClassReader classReader;
             IObject object = (IObject) nativeConstructor.newInstance(env, this);
             object.setAsMock();
             return (T) object;
-        } catch (InstantiationException e){
+        } catch (InstantiationException e) {
             return null;
         }
     }
 
     public <T extends IObject> T newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
             throws Throwable {
-        if (isAbstract){
+        if (isAbstract) {
             env.error(trace, "Cannot instantiate abstract class %s", name);
-        } else if (type == Type.INTERFACE)
+        } else if (type == Type.INTERFACE) {
             env.error(trace, "Cannot instantiate interface %s", name);
-        else if (type == Type.TRAIT)
+        } else if (type == Type.TRAIT) {
             env.error(trace, "Cannot instantiate trait %s", name);
+        }
 
         IObject object;
         try {
@@ -779,14 +805,14 @@ ClassReader classReader;
             }
 
             object = (IObject) nativeConstructor.newInstance(env, this);
-        } catch (InvocationTargetException e){
+        } catch (InvocationTargetException e) {
             env.__throwException(e);
             return null;
         }
         ArrayMemory props = object.getProperties();
 
-        for(PropertyEntity property : getProperties()) {
-            if (id == property.clazz.getId() && property.getGetter() == null){
+        for (PropertyEntity property : getProperties()) {
+            if (id == property.clazz.getId() && property.getGetter() == null) {
                 props.putAsKeyString(
                         property.getSpecificName(),
                         property.getDefaultValue(env).toImmutable()
@@ -795,9 +821,9 @@ ClassReader classReader;
         }
 
         ClassEntity tmp = parent;
-        while (tmp != null){
+        while (tmp != null) {
             long otherId = tmp.getId();
-            for(PropertyEntity property : tmp.getProperties()) {
+            for (PropertyEntity property : tmp.getProperties()) {
                 if (property.getClazz().getId() == otherId && property.getGetter() == null) {
                     if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
                         props.getByScalarOrCreate(
@@ -809,7 +835,7 @@ ClassReader classReader;
             tmp = tmp.parent;
         }
 
-        if (doConstruct && methodConstruct != null){
+        if (doConstruct && methodConstruct != null) {
             ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args, true);
         }
 
@@ -820,10 +846,10 @@ ClassReader classReader;
         IObject copy = this.newObjectWithoutConstruct(env);
         ForeachIterator iterator = value.getProperties().foreachIterator(false, false);
         ArrayMemory props = copy.getProperties();
-        while (iterator.next()){
+        while (iterator.next()) {
             Object key = iterator.getKey();
             if (key instanceof String) {
-                String name = (String)key;
+                String name = (String) key;
                 if (name.indexOf('\0') > -1)
                     name = name.substring(name.lastIndexOf('\0') + 1);
 
@@ -837,7 +863,7 @@ ClassReader classReader;
                 props.put(key, iterator.getValue().toImmutable());
         }
 
-        if (methodMagicClone != null){
+        if (methodMagicClone != null) {
             ObjectInvokeHelper.invokeMethod(copy, methodMagicClone, env, trace, null, true);
         }
 
@@ -845,7 +871,7 @@ ClassReader classReader;
     }
 
     public Memory concatProperty(Environment env, TraceInfo trace,
-                               IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -856,7 +882,7 @@ ClassReader classReader;
     }
 
     public Memory plusProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory, final ReferenceMemory oldValue)
+                               IObject object, String property, Memory memory, final ReferenceMemory oldValue)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -870,7 +896,7 @@ ClassReader classReader;
     }
 
     public Memory minusProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory, final ReferenceMemory oldValue)
+                                IObject object, String property, Memory memory, final ReferenceMemory oldValue)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -884,7 +910,7 @@ ClassReader classReader;
     }
 
     public Memory mulProperty(Environment env, TraceInfo trace,
-                                IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
+                              IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -928,7 +954,7 @@ ClassReader classReader;
     }
 
     public Memory bitOrProperty(Environment env, TraceInfo trace,
-                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
+                                IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -939,7 +965,7 @@ ClassReader classReader;
     }
 
     public Memory bitXorProperty(Environment env, TraceInfo trace,
-                                IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
@@ -950,9 +976,9 @@ ClassReader classReader;
     }
 
     public Memory bitShrProperty(Environment env, TraceInfo trace,
-                              IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
+                                 IObject object, String property, Memory memory, PropertyCallCache callCache, int cacheIndex)
             throws Throwable {
-        return setProperty(env, trace, object, property, memory, new SetterCallback(){
+        return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 return o1.bitShr(o2);
@@ -971,11 +997,11 @@ ClassReader classReader;
         }, callCache, cacheIndex);
     }
 
-    public void appendProperty(IObject object, String property, Memory value){
+    public void appendProperty(IObject object, String property, Memory value) {
         object.getProperties().put(property, value);
     }
 
-    public Memory refOfProperty(ArrayMemory props, String name){
+    public Memory refOfProperty(ArrayMemory props, String name) {
         PropertyEntity entity = properties.get(name);
         return props.refOfIndex(entity == null ? name : entity.getSpecificName());
     }
@@ -997,9 +1023,9 @@ ClassReader classReader;
             }
         }
 
-        if (entity == null){
+        if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
-            if (staticEntity != null){
+            if (staticEntity != null) {
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
                 env.error(trace, ErrorType.E_STRICT,
                         Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
@@ -1018,7 +1044,15 @@ ClassReader classReader;
                 if (callback != null)
                     memory = callback.invoke(getProperty(env, trace, object, property, null, 0), memory);
 
-                ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
+                try {
+                    ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
+                } catch (IllegalArgumentException e) {
+                    if (!object.getReflection().isInstanceOf(entity.setter.getClazz())) {
+                        return setProperty(env, trace, object, property, memory, callback, null, 0);
+                    }
+
+                    throw e;
+                }
                 return memory;
             } else if (entity.getter != null) {
                 env.error(trace, ErrorType.E_RECOVERABLE_ERROR, Messages.ERR_READONLY_PROPERTY.fetch(entity.getClazz().getName(), property));
@@ -1032,14 +1066,14 @@ ClassReader classReader;
 
             ClassEntity context = env.getLastClassOnStack();
 
-            if (context != null && methodMagicSet != null && context.getId() == methodMagicSet.getClazz().getId() ){
+            if (context != null && methodMagicSet != null && context.getId() == methodMagicSet.getClazz().getId()) {
                 recursive = env.peekCall(0).flags == FLAG_SET;
             }
 
             if (methodMagicSet != null && !recursive) {
                 StringMemory memoryProperty = new StringMemory(property);
 
-                if (callback != null){
+                if (callback != null) {
                     Memory o1 = Memory.NULL;
                     if (methodMagicGet != null) {
                         try {
@@ -1078,22 +1112,23 @@ ClassReader classReader;
                     memory = callback.invoke(Memory.NULL, memory);
 
                 String name = property;
-                if (entity != null){
-                    if (accessFlag != 0 && context == null){
-                        switch (accessFlag){
+                if (entity != null) {
+                    if (accessFlag != 0 && context == null) {
+                        switch (accessFlag) {
                             case 2:
-                                if (object.getReflection().getId() == entity.getClazz().getId()){
+                                if (object.getReflection().getId() == entity.getClazz().getId()) {
                                     invalidAccessToProperty(env, trace, entity, accessFlag);
                                     return Memory.NULL;
-                                } break;
+                                }
+                                break;
                             case 1:
                                 invalidAccessToProperty(env, trace, entity, accessFlag);
                                 return Memory.NULL;
                         }
                     }
 
-                    if (context != null){
-                        switch (entity.modifier){
+                    if (context != null) {
+                        switch (entity.modifier) {
                             case PRIVATE:
                                 if (entity.getClazz().getId() == context.getId())
                                     name = entity.specificName;
@@ -1130,9 +1165,9 @@ ClassReader classReader;
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        if (entity == null){
+        if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
-            if (staticEntity != null){
+            if (staticEntity != null) {
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
             }
         }
@@ -1140,10 +1175,10 @@ ClassReader classReader;
         ArrayMemory props = object.getProperties();
         if (props == null
                 || accessFlag != 0
-                || props.removeByScalar(entity == null ? property : entity.specificName) == null ){
+                || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
             if (methodMagicUnset != null) {
-                if (context != null && context.getId() == methodMagicUnset.getClazz().getId() ){
-                    if (env.peekCall(0).flags == FLAG_UNSET){
+                if (context != null && context.getId() == methodMagicUnset.getClazz().getId()) {
+                    if (env.peekCall(0).flags == FLAG_UNSET) {
                         return Memory.NULL;
                     }
                 }
@@ -1166,7 +1201,7 @@ ClassReader classReader;
             invalidAccessToProperty(env, trace, entity, accessFlag);
 
         entity = staticProperties.get(property);
-        if (entity != null){
+        if (entity != null) {
             env.error(trace, ErrorType.E_STRICT,
                     Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
                     entity.getClazz().getName(),
@@ -1185,18 +1220,18 @@ ClassReader classReader;
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
-        if (props != null && accessFlag == 0){
+        if (props != null && accessFlag == 0) {
             Memory tmp = props.getByScalar(entity == null ? property : entity.specificName);
-            if ( tmp != null ){
+            if (tmp != null) {
                 return tmp.toBoolean() ? Memory.TRUE : Memory.NULL;
             } else
                 return Memory.NULL;
         }
 
-        if (methodMagicIsset != null){
+        if (methodMagicIsset != null) {
             Memory result;
-            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() ){
-                if (env.peekCall(0).flags == FLAG_ISSET){
+            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId()) {
+                if (env.peekCall(0).flags == FLAG_ISSET) {
                     return object.getProperties().getByScalar(property) != null ? Memory.TRUE : Memory.NULL;
                 }
             }
@@ -1239,18 +1274,18 @@ ClassReader classReader;
                 ? null
                 : props.getByScalar(entity == null ? property : entity.specificName);
 
-        if ( tmp != null )
+        if (tmp != null)
             return tmp.isNull() ? tmp : Memory.TRUE;
 
-        if (methodMagicIsset != null){
+        if (methodMagicIsset != null) {
             Memory result;
 
             ClassEntity contex = env.getLastClassOnStack();
 
-            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId() )
-                if (env.peekCall(0).flags == FLAG_ISSET){
+            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId())
+                if (env.peekCall(0).flags == FLAG_ISSET) {
                     return object.getProperties().getByScalar(property) != null ? Memory.TRUE : Memory.NULL;
-            }
+                }
 
             try {
                 Memory[] args = new Memory[]{new StringMemory(property)};
@@ -1285,13 +1320,13 @@ ClassReader classReader;
             }
         }
 
-        if (entity == null){
+        if (entity == null) {
             if (errorIfNotExists)
                 env.error(trace, Messages.ERR_ACCESS_TO_UNDECLARED_STATIC_PROPERTY.fetch(name, property));
             return Memory.NULL;
         }
 
-        if (checkAccess){
+        if (checkAccess) {
             int accessFlag = entity.canAccess(env, context);
             if (accessFlag != 0) {
                 invalidAccessToProperty(env, trace, entity, accessFlag);
@@ -1321,9 +1356,9 @@ ClassReader classReader;
             }
         }
 
-        if (entity == null){
+        if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
-            if (staticEntity != null){
+            if (staticEntity != null) {
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
                 env.error(trace, ErrorType.E_STRICT,
                         Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
@@ -1341,9 +1376,9 @@ ClassReader classReader;
         if (accessFlag != 0)
             invalidAccessToProperty(env, trace, entity, accessFlag);
 
-        if (value == null){
+        if (value == null) {
             value = props == null ? new ReferenceMemory() : object.getProperties().refOfIndex(property);
-            if (methodMagicGet != null || methodMagicSet != null){
+            if (methodMagicGet != null || methodMagicSet != null) {
                 env.error(trace,
                         props == null ? ErrorType.E_ERROR : ErrorType.E_NOTICE,
                         Messages.ERR_INDIRECT_MODIFICATION_OVERLOADED_PROPERTY, name, property);
@@ -1372,7 +1407,7 @@ ClassReader classReader;
         if (entity == null) {
             PropertyEntity staticEntity = staticProperties.get(property);
 
-            if (staticEntity != null){
+            if (staticEntity != null) {
                 invalidAccessToProperty(env, trace, staticEntity, staticEntity.canAccess(env));
                 env.error(trace, ErrorType.E_STRICT,
                         Messages.ERR_ACCESSING_STATIC_PROPERTY_AS_NON_STATIC,
@@ -1403,7 +1438,7 @@ ClassReader classReader;
 
             ClassEntity context = env.getLastClassOnStack();
 
-            if (context != null && context.getId() == methodMagicGet.getClazz().getId()){
+            if (context != null && context.getId() == methodMagicGet.getClazz().getId()) {
                 if (env.peekCall(0).flags == FLAG_GET) {
                     env.error(trace, ErrorType.E_NOTICE, Messages.ERR_UNDEFINED_PROPERTY, name, property);
                     return Memory.NULL;
@@ -1430,7 +1465,7 @@ ClassReader classReader;
         return Memory.NULL;
     }
 
-    public void setProperty(IObject object, String name, Memory value){
+    public void setProperty(IObject object, String name, Memory value) {
         PropertyEntity prop = findProperty(name);
         if (prop == null)
             throw new RuntimeException("Property '" + name + "' not found");
@@ -1474,7 +1509,7 @@ ClassReader classReader;
             this.prototype = prototype;
         }
 
-        public static InvalidConstant error(ConstantEntity constant, ConstantEntity prototype){
+        public static InvalidConstant error(ConstantEntity constant, ConstantEntity prototype) {
             return new InvalidConstant(constant, prototype, ErrorType.E_ERROR);
         }
 
@@ -1510,15 +1545,15 @@ ClassReader classReader;
             this.errorType = errorType;
         }
 
-        public static InvalidMethod warning(Kind kind, MethodEntity method){
+        public static InvalidMethod warning(Kind kind, MethodEntity method) {
             return new InvalidMethod(kind, method, ErrorType.E_WARNING);
         }
 
-        public static InvalidMethod error(Kind kind, MethodEntity method){
+        public static InvalidMethod error(Kind kind, MethodEntity method) {
             return new InvalidMethod(kind, method, ErrorType.E_ERROR);
         }
 
-        public static InvalidMethod strict(Kind kind, MethodEntity method){
+        public static InvalidMethod strict(Kind kind, MethodEntity method) {
             return new InvalidMethod(kind, method, ErrorType.E_STRICT);
         }
 
@@ -1541,7 +1576,7 @@ ClassReader classReader;
     }
 
     public static class InvalidProperty {
-        public enum Kind { MUST_BE_PROTECTED, MUST_BE_PUBLIC, STATIC_AS_NON_STATIC, NON_STATIC_AS_STATIC }
+        public enum Kind {MUST_BE_PROTECTED, MUST_BE_PUBLIC, STATIC_AS_NON_STATIC, NON_STATIC_AS_STATIC}
 
         public final Kind kind;
         public final PropertyEntity property;
@@ -1553,15 +1588,15 @@ ClassReader classReader;
             this.errorType = errorType;
         }
 
-        public static InvalidProperty warning(Kind kind, PropertyEntity property){
+        public static InvalidProperty warning(Kind kind, PropertyEntity property) {
             return new InvalidProperty(kind, property, ErrorType.E_WARNING);
         }
 
-        public static InvalidProperty error(Kind kind, PropertyEntity property){
+        public static InvalidProperty error(Kind kind, PropertyEntity property) {
             return new InvalidProperty(kind, property, ErrorType.E_ERROR);
         }
 
-        public static InvalidProperty strict(Kind kind, PropertyEntity property){
+        public static InvalidProperty strict(Kind kind, PropertyEntity property) {
             return new InvalidProperty(kind, property, ErrorType.E_STRICT);
         }
 
@@ -1590,18 +1625,18 @@ ClassReader classReader;
             this.properties = new HashSet<InvalidProperty>();
         }
 
-        public void add(InvalidProperty prop){
+        public void add(InvalidProperty prop) {
             this.properties.add(prop);
         }
 
-        public void addError(InvalidProperty.Kind kind, PropertyEntity prop){
+        public void addError(InvalidProperty.Kind kind, PropertyEntity prop) {
             add(InvalidProperty.error(kind, prop));
         }
 
-        public void check(Environment env){
-            for (InvalidProperty el : properties){
+        public void check(Environment env) {
+            for (InvalidProperty el : properties) {
                 ErrorException e = null;
-                switch (el.kind){
+                switch (el.kind) {
                     case MUST_BE_PROTECTED:
                         e = new FatalException(
                                 Messages.ERR_ACCESS_LEVEL_MUST_BE_PROTECTED_OR_WEAKER.fetch(
@@ -1664,8 +1699,8 @@ ClassReader classReader;
             this.signature = new SignatureResult();
         }
 
-        public void check(Environment env){
-            if (parent != null){
+        public void check(Environment env) {
+            if (parent != null) {
                 if (parent.isNotRuntime && !isInternal()) {
                     FatalException e = new FatalException(
                             Messages.ERR_CANNOT_USE_SYSTEM_CLASS.fetch(parent.getName(), getName()),
@@ -1691,8 +1726,8 @@ ClassReader classReader;
             this.methods = new SignatureResult();
         }
 
-        public void check(Environment env){
-            if (parent != null){
+        public void check(Environment env) {
+            if (parent != null) {
                 if (parent.isNotRuntime && !isInternal()) {
                     FatalException e = new FatalException(
                             Messages.ERR_CANNOT_USE_SYSTEM_CLASS.fetch(parent.getName(), getName()),
@@ -1704,7 +1739,7 @@ ClassReader classReader;
                         throw e;
                 }
 
-                if (parent.isFinal){
+                if (parent.isFinal) {
                     FatalException e = new FatalException(
                             Messages.ERR_CLASS_MAY_NOT_INHERIT_FINAL_CLASS.fetch(ClassEntity.this.getName(), parent.getName()),
                             ClassEntity.this.trace
@@ -1714,7 +1749,7 @@ ClassReader classReader;
                     else
                         throw e;
                 }
-                if (ClassEntity.this.type == Type.CLASS && parent.type != Type.CLASS){
+                if (ClassEntity.this.type == Type.CLASS && parent.type != Type.CLASS) {
                     FatalException e = new FatalException(
                             Messages.ERR_CANNOT_EXTENDS.fetch(ClassEntity.this.getName(), parent.getName()),
                             ClassEntity.this.trace
@@ -1738,28 +1773,28 @@ ClassReader classReader;
             methods = new HashSet<InvalidMethod>();
         }
 
-        public void add(InvalidMethod el){
+        public void add(InvalidMethod el) {
             methods.add(el);
         }
 
-        public void addConstant(InvalidConstant el){
+        public void addConstant(InvalidConstant el) {
             if (overrideConstants_ == null)
                 overrideConstants_ = new HashSet<InvalidConstant>();
 
             overrideConstants_.add(el);
         }
 
-        public void check(){
+        public void check() {
             check(null);
         }
 
-        private ErrorException getException(Environment env, InvalidMethod el, Messages.Item message){
+        private ErrorException getException(Environment env, InvalidMethod el, Messages.Item message) {
             return getException(env, el, message, false);
         }
 
-        private ErrorException getException(Environment env, InvalidMethod el, Messages.Item message, boolean prototype){
+        private ErrorException getException(Environment env, InvalidMethod el, Messages.Item message, boolean prototype) {
             ErrorException e;
-            if (prototype){
+            if (prototype) {
                 e = new FatalException(
                         message.fetch(
                                 el.method.getPrototype().getSignatureString(false),
@@ -1768,7 +1803,7 @@ ClassReader classReader;
                         el.method.getTrace()
                 );
             } else {
-                 e = new FatalException(
+                e = new FatalException(
                         message.fetch(el.method.getSignatureString(false)),
                         el.method.getTrace()
                 );
@@ -1776,22 +1811,22 @@ ClassReader classReader;
             return e;
         }
 
-        public void check(Environment env){
+        public void check(Environment env) {
             if (overrideConstants_ != null)
-            for (InvalidConstant e : this.overrideConstants_){
-                if (env != null)
-                    env.error(
-                            getTrace(), e.errorType,
-                            Messages.ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT,
-                            e.constant.getName(),
-                            e.prototype.getClazz().getName()
-                    );
-            }
+                for (InvalidConstant e : this.overrideConstants_) {
+                    if (env != null)
+                        env.error(
+                                getTrace(), e.errorType,
+                                Messages.ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT,
+                                e.constant.getName(),
+                                e.prototype.getClazz().getName()
+                        );
+                }
 
             Set<InvalidMethod> nonExists = null;
-            for(InvalidMethod el : methods){
+            for (InvalidMethod el : methods) {
                 ErrorException e = null;
-                switch (el.kind){
+                switch (el.kind) {
                     case INVALID_SIGNATURE:
                         MethodEntity prototype = el.method.getPrototype();
                         if (!prototype.isAbstractable()) {
@@ -1849,15 +1884,20 @@ ClassReader classReader;
                         );
                         break;
                     case FINAL_ABSTRACT:
-                        e = getException(env, el, Messages.ERR_CANNOT_USE_FINAL_ON_ABSTRACT); break;
+                        e = getException(env, el, Messages.ERR_CANNOT_USE_FINAL_ON_ABSTRACT);
+                        break;
                     case FINAL:
-                        e = getException(env, el, Messages.ERR_CANNOT_OVERRIDE_FINAL_METHOD, true); break;
+                        e = getException(env, el, Messages.ERR_CANNOT_OVERRIDE_FINAL_METHOD, true);
+                        break;
                     case NON_ABSTRACT:
-                        e = getException(env, el, Messages.ERR_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY); break;
+                        e = getException(env, el, Messages.ERR_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY);
+                        break;
                     case NON_ABSTRACTABLE:
-                        e = getException(env, el, Messages.ERR_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY); break;
+                        e = getException(env, el, Messages.ERR_ABSTRACT_METHOD_CANNOT_CONTAIN_BODY);
+                        break;
                     case INVALID_ACCESS_FOR_INTERFACE:
-                        e = getException(env, el, Messages.ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD); break;
+                        e = getException(env, el, Messages.ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD);
+                        break;
                     case NON_EXISTS:
                         if (nonExists == null) nonExists = new HashSet<InvalidMethod>();
                         nonExists.add(el);
@@ -1865,14 +1905,14 @@ ClassReader classReader;
                 }
 
                 if (e != null)
-                if (env == null)
-                    throw e;
-                else {
-                    env.error(e.getTraceInfo(), el.errorType, e.getMessage());
-                }
+                    if (env == null)
+                        throw e;
+                    else {
+                        env.error(e.getTraceInfo(), el.errorType, e.getMessage());
+                    }
             }
 
-            if (nonExists != null){
+            if (nonExists != null) {
                 StringBuilder needs = new StringBuilder();
                 Iterator<InvalidMethod> iterator = nonExists.iterator();
                 int size = 0;

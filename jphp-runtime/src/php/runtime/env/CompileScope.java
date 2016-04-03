@@ -79,7 +79,7 @@ public class CompileScope {
 
     // flags
     public boolean debugMode = false;
-    protected LangMode langMode = LangMode.DEFAULT;
+    protected LangMode langMode = LangMode.MODERN;
 
     public CompileScope(CompileScope parent) {
         id = scopeCount.getAndIncrement();

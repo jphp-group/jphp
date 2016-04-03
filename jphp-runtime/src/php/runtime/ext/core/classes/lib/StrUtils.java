@@ -11,21 +11,22 @@ import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.UUID;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
 
 @Name("php\\lib\\Str")
 public class StrUtils extends BaseObject {
-    @Name("php\\lib\\String")
-    public static class StrUtilsOld extends StrUtils {
-        public StrUtilsOld(Environment env, ClassEntity clazz) {
-            super(env, clazz);
-        }
-    }
 
     public StrUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -349,13 +350,17 @@ public class StrUtils extends BaseObject {
             @Arg("charset")
     })
     public static Memory encode(Environment env, Memory... args) {
-        Charset charset = Charset.forName(args[1].toString());
-        if (charset == null)
-            return Memory.FALSE;
+        Charset charset;
 
-        return new BinaryMemory(
-                charset.encode(args[0].toString()).array()
-        );
+        try {
+            charset = Charset.forName(args[1].toString());
+        } catch (Exception e) {
+            return Memory.FALSE;
+        }
+
+        ByteBuffer buffer = charset.encode(args[0].toString());
+
+        return new BinaryMemory(Arrays.copyOf(buffer.array(), buffer.limit()));
     }
 
     @FastMethod
@@ -364,9 +369,13 @@ public class StrUtils extends BaseObject {
             @Arg("charset")
     })
     public static Memory decode(Environment env, Memory... args) {
-        Charset charset = Charset.forName(args[1].toString());
-        if (charset == null)
+        Charset charset;
+
+        try {
+            charset = Charset.forName(args[1].toString());
+        } catch (Exception e) {
             return Memory.FALSE;
+        }
 
         CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(args[0].getBinaryBytes()));
         return StringMemory.valueOf(charBuffer.toString());
@@ -575,5 +584,33 @@ public class StrUtils extends BaseObject {
         }
 
         return StringMemory.valueOf(String.format(s, _args));
+    }
+
+    @Signature({
+            @Arg(value = "value", optional = @Optional("null"))
+    })
+    public static Memory uuid(Environment env, Memory... args) {
+        Memory value = args[0];
+
+        String s;
+
+        if (value.isNotNull()) {
+            s = UUID.fromString(value.toString()).toString();
+        } else {
+            s = UUID.randomUUID().toString();
+        }
+
+        return StringMemory.valueOf(s);
+    }
+
+    @Signature({
+            @Arg("value"),
+            @Arg(value = "algorithm", optional = @Optional("SHA-1"))
+    })
+    public static Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance(args[1].toString());
+
+        messageDigest.update(args[0].getBinaryBytes());
+        return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
     }
 }

@@ -62,7 +62,7 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
         } else if (json.isJsonArray()) {
             ArrayMemory array = new ArrayMemory();
             for(JsonElement el : json.getAsJsonArray())
-                array.add(convert(el, depth + 1));
+                array.add(convert(el, depth + 1).toImmutable());
             return array.toConstant();
         } else if (json.isJsonObject()) {
             JsonObject jsonObject = json.getAsJsonObject();
@@ -72,10 +72,10 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
             for(Map.Entry<String, JsonElement> el : jsonObject.entrySet()){
                 String key = el.getKey();
                 if (!key.startsWith("\0"))
-                    array.put(key, convert(el.getValue(), depth + 1));
+                    array.put(key, convert(el.getValue(), depth + 1).toImmutable());
             }
 
-            return assoc ? array.toConstant() : new ObjectMemory(stdClass);
+            return assoc ? array : new ObjectMemory(stdClass);
         } else
             return Memory.NULL;
     }

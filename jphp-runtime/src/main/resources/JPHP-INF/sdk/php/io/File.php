@@ -155,6 +155,17 @@ class File {
     public function length() { return 0; }
 
     /**
+     * @return int|null null if not exists or io exception
+     */
+    public function crc32() { return 0; }
+
+    /**
+     * @param string $algorithm
+     * @return string|null if not exists or io exception
+     */
+    public function hash($algorithm = 'MD5') { return ''; }
+
+    /**
      * @param string $newName
      * @return bool
      */

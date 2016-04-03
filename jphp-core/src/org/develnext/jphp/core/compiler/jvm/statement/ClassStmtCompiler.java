@@ -65,6 +65,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<ConstStmtToken.Item>();
     protected List<ClassVarStmtToken> dynamicProperties = new ArrayList<ClassVarStmtToken>();
+    private ClassStmtToken classContext;
 
     public ClassStmtCompiler(JvmCompiler compiler, ClassStmtToken statement) {
         super(compiler);
@@ -285,9 +286,25 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     Type.getType(Memory[].class)
             );
 
+            if (isClosure()) {
+                constructor.desc = Type.getMethodDescriptor(
+                        Type.getType(void.class),
+                        Type.getType(Environment.class),
+                        Type.getType(ClassEntity.class),
+                        Type.getType(Memory.class),
+                        Type.getType(String.class),
+                        Type.getType(Memory[].class)
+                );
+            }
+
             methodCompiler.addLocalVariable("~env", l0, Environment.class);
             methodCompiler.addLocalVariable("~class", l0, ClassEntity.class);
             methodCompiler.addLocalVariable("~self", l0, Memory.class);
+
+            if (isClosure()) {
+                methodCompiler.addLocalVariable("~context", l0, String.class);
+            }
+
             methodCompiler.addLocalVariable("~uses", l0, Memory[].class);
 
             methodCompiler.writeHeader();
@@ -296,6 +313,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             expressionCompiler.writeVarLoad("~env");
             expressionCompiler.writeVarLoad("~class");
             expressionCompiler.writeVarLoad("~self");
+
+            if (isClosure()) {
+                expressionCompiler.writeVarLoad("~context");
+            }
+
             expressionCompiler.writeVarLoad("~uses");
             constructor.instructions.add(new MethodInsnNode(
                     INVOKESPECIAL,
@@ -1081,7 +1103,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         if (!statement.isInterface()) {
             node.access = ACC_SUPER + ACC_PUBLIC;
-            node.name = !isSystem ? entity.getInternalName() : statement.getFulledName(Constants.NAME_DELIMITER);
+            node.name = !isSystem /*&& !statement.isTrait()*/
+                    ? entity.getCompiledInternalName()
+                    : statement.getFulledName(Constants.NAME_DELIMITER);
+
             node.superName = entity.getParent() == null
                     ? Type.getInternalName(BaseObject.class)
                     : entity.getParent().getInternalName();
@@ -1137,5 +1162,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             entity.setData(cw.toByteArray());
         }
         return entity;
+    }
+
+    public void setClassContext(ClassStmtToken classContext) {
+        this.classContext = classContext;
+    }
+
+    public ClassStmtToken getClassContext() {
+        return classContext;
     }
 }

@@ -62,6 +62,46 @@ public class FalseMemory extends Memory {
     }
 
     @Override
+    public boolean equal(long value) {
+        return value == 0;
+    }
+
+    @Override
+    public boolean equal(double value) {
+        return value == 0.0;
+    }
+
+    @Override
+    public boolean equal(boolean value) {
+        return !value;
+    }
+
+    @Override
+    public boolean equal(String value) {
+        return value.isEmpty() || value.equals("0");
+    }
+
+    @Override
+    public boolean notEqual(long value) {
+        return value != 0;
+    }
+
+    @Override
+    public boolean notEqual(double value) {
+        return value != 0.0;
+    }
+
+    @Override
+    public boolean notEqual(boolean value) {
+        return value;
+    }
+
+    @Override
+    public boolean notEqual(String value) {
+        return !value.isEmpty() && !value.equals("0");
+    }
+
+    @Override
     public Memory plus(Memory memory) {
         switch (memory.type){
             case INT:

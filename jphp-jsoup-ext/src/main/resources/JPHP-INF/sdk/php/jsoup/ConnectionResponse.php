@@ -8,6 +8,20 @@ namespace php\jsoup;
 abstract class ConnectionResponse
 {
     /**
+     * @return array
+     */
+    public function headers()
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function cookies()
+    {
+    }
+
+    /**
      * Get the status code of the response.
      * @return int
      */

@@ -121,6 +121,10 @@ abstract public class Memory implements Comparable<Memory> {
         return type == Type.NULL;
     }
 
+    public boolean isNotNull() {
+        return !isNull();
+    }
+
     public boolean isUndefined(){
         return toValue() == UNDEFINED;
     }

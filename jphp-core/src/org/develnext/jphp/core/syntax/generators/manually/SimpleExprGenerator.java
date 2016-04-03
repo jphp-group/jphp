@@ -65,6 +65,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             ClosureStmtToken result = new ClosureStmtToken(current.getMeta());
             result.setFunction(functionStmtToken);
+            result.setOwnerClass(analyzer.getClazz());
             analyzer.registerClosure(result);
 
             return result;
@@ -689,6 +690,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (analyzer.getFunction() != null) {
                 analyzer.getFunction().setVarsExists(true);
                 analyzer.getFunction().variable((VariableExprToken)current).setUsed(true);
+            }
+        }
+
+        // Если переменная меняется, значит она нестабильна и не может быть заменена на костантное значение.
+        if ((current instanceof AssignOperatorExprToken || current instanceof IncExprToken || current instanceof DecExprToken)
+                && previous instanceof VariableExprToken) {
+            if (analyzer.getFunction() != null) {
+                analyzer.getFunction().variable((VariableExprToken) previous).setUnstable(true);
             }
         }
 

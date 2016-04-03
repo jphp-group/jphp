@@ -5,9 +5,8 @@ namespace php\lib;
  * Class str
  * @package php\lib
  */
-class Str
+class str
 {
-
     private function __construct()
     {
     }
@@ -423,6 +422,24 @@ class Str
      * @return int
      */
     public static function count($string, $subString, $offset = 0)
+    {
+    }
+
+    /**
+     * @param null|string $value
+     * @return string uuid of $value if it is not null, else random uuid
+     */
+    public static function uuid($value = null)
+    {
+    }
+
+    /**
+     * @param string $string
+     * @param string $algorithm MD5, SHA-1, SHA-256, etc.
+     * @return string
+     * @throws \Exception if the algorithm is not supported
+     */
+    public static function hash($string, $algorithm = 'SHA-1')
     {
     }
 }

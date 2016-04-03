@@ -1,14 +1,5 @@
 package org.develnext.jphp.core.compiler.common;
 
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.junit.runners.MethodSorters;
-import php.runtime.exceptions.support.ErrorException;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.LogicOperatorExprToken;
@@ -16,6 +7,16 @@ import org.develnext.jphp.core.tokenizer.token.expr.operator.MulExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.CallExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.IntegerExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.junit.runners.MethodSorters;
+import php.runtime.common.LangMode;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorException;
 
 import java.io.IOException;
 
@@ -27,6 +28,8 @@ public class ASMExpressionTest {
     protected Context context;
 
     private ASMExpression getASMExpression(String expr){
+        environment.scope.setLangMode(LangMode.DEFAULT);
+
         Tokenizer tokenizer = null;
         try {
             tokenizer = new Tokenizer(context = new Context(expr + ";"));
