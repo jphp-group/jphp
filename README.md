@@ -10,6 +10,10 @@ can execute the result on the Java VM.
 
 - Official Site: **[j-php.net](http://j-php.net/)**
 
+### In Production
+
+We develop a new IDE for beginners like `Game Maker` or `Scirra Construct`. It's based on JPHP, JavaFX, Java 8, Gradle and allows to create desktop apps. The project name is `DevelNext`, the current status and version of the project is BETA. The project has not yet been localized in English. 
+
 ### Goals
 
 JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t plan to implement the zend runtime libraries (e.g. Curl, PRCE, etc.) for JPHP.
