@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
     }
 }
 
@@ -16,7 +16,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
 
-    project.group = 'org.develnext'
+    project.group = 'org.develnext.jphp'
     project.version = projectVersion
     project.ext.isSnapshot = !Boolean.getBoolean("release");
 
