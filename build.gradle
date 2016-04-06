@@ -74,7 +74,6 @@ configure([
         project(':jphp-debugger'),
 
         project(':jphp-scripting'),
-        project(':jphp-gradle-plugin'),
         project(':jphp-gen-api'),
 ]) {
     apply plugin: 'com.jfrog.bintray'

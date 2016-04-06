@@ -12,10 +12,10 @@ include 'jphp-runtime',
         'jphp-webserver-ext',
         'jphp-compress-ext',
         'jphp-orientdb-ext',
+        'jphp-httpclient-ext',
         'jphp-gen-api',
         'jphp-scripting',
 
         'jphp-debugger',
-        'jphp-gradle-plugin',
 
         'sandbox', 'bench'

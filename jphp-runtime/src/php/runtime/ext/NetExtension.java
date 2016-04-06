@@ -9,6 +9,7 @@ import php.runtime.ext.net.WrapURL;
 import php.runtime.ext.net.WrapURLConnection;
 import php.runtime.ext.support.Extension;
 
+import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -32,6 +33,7 @@ public class NetExtension extends Extension {
 
         registerWrapperClass(scope, Proxy.class, WrapProxy.class);
         registerWrapperClass(scope, URLConnection.class, WrapURLConnection.class);
+        registerWrapperClass(scope, HttpURLConnection.class, WrapURLConnection.class);
         registerWrapperClass(scope, URL.class, WrapURL.class);
     }
 
