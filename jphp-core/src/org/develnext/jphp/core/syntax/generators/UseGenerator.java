@@ -5,9 +5,7 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.AsStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 
 import java.util.ListIterator;
@@ -22,17 +20,38 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
     public NamespaceUseStmtToken getToken(Token current, ListIterator<Token> iterator) {
         if (current instanceof NamespaceUseStmtToken){
             if (analyzer.getClazz() != null)
-                unexpectedToken(current); // TODO: add support for use in traits
+                unexpectedToken(current);
 
             NamespaceUseStmtToken use = (NamespaceUseStmtToken) current;
+            boolean first = true;
 
             do {
+                Token next = nextToken(iterator);
+
+                if (next instanceof FunctionStmtToken) {
+                    if (!first) {
+                        unexpectedToken(next);
+                    }
+
+                    use.setUseType(NamespaceUseStmtToken.UseType.FUNCTION);
+                    next = nextToken(iterator);
+                } else if (next instanceof ConstStmtToken) {
+                    if (!first) {
+                        unexpectedToken(next);
+                    }
+
+                    use.setUseType(NamespaceUseStmtToken.UseType.CONSTANT);
+                    next = nextToken(iterator);
+                }
+
                 FulledNameToken name = analyzer.generator(NameGenerator.class).getToken(
-                        nextToken(iterator), iterator
+                        next, iterator
                 );
 
-                if (name == null)
+                if (name == null) {
                     unexpectedToken(iterator.previous());
+                }
+                
                 use.setName(name);
 
                 Token token = nextToken(iterator);
@@ -54,6 +73,8 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
                     unexpectedToken(token);
                 } else
                     break;
+
+                first = false;
 
             } while (true);
 
