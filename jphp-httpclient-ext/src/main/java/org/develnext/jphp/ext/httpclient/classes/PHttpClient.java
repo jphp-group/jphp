@@ -2,27 +2,27 @@ package org.develnext.jphp.ext.httpclient.classes;
 
 import org.develnext.jphp.ext.httpclient.HttpClientExtension;
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.stream.MiscStream;
+import php.runtime.ext.net.WrapURLConnection;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
+import java.util.List;
+import java.util.Map;
 
 @Name("HttpClient")
 @Namespace(HttpClientExtension.NS)
 public class PHttpClient extends BaseObject {
     protected int timeout;
+    protected Proxy proxy;
 
     public PHttpClient(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -31,10 +31,13 @@ public class PHttpClient extends BaseObject {
     @Signature({
             @Arg(value = "request", nativeType = PHttpRequest.class)
     })
-    public Memory send(Environment env, Memory... args) throws IOException {
-        HttpURLConnection connection = makeConnection(args[0].toObject(PHttpRequest.class), env);
+    public Memory send(Environment env, Memory... args) throws Throwable {
+        HttpURLConnection connection = (HttpURLConnection) makeConnection(args[0].toObject(PHttpRequest.class), env);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        PHttpResponse response = new PHttpResponse(env);
+        env.invokeMethod(this, "applyConnection", ObjectMemory.valueOf(response), ObjectMemory.valueOf(new WrapURLConnection(env, connection)));
+
+        return ObjectMemory.valueOf(response);
     }
 
     @Signature
@@ -48,10 +51,69 @@ public class PHttpClient extends BaseObject {
     }
 
     @Signature
-    protected HttpURLConnection makeConnection(PHttpRequest request, Environment env) throws IOException {
+    public Proxy getProxy() {
+        return proxy;
+    }
+
+    @Signature
+    public void setProxy(@Nullable Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    @Signature
+    protected void applyConnection(PHttpResponse response, URLConnection _connection, Environment env) throws IOException {
+        if (_connection instanceof HttpURLConnection) {
+            HttpURLConnection connection = (HttpURLConnection) _connection;
+
+            response.setStatusCode(connection.getResponseCode());
+            response.setStatusMessage(connection.getResponseMessage());
+
+            try {
+                response.setBodyStream(new MiscStream(env, connection.getInputStream()));
+            } catch (IOException e) {
+                response.setBodyStream(new MiscStream(env, connection.getErrorStream()));
+            }
+
+            // headers.
+            ArrayMemory headers = new ArrayMemory();
+            Map<String, List<String>> headerFields = connection.getHeaderFields();
+
+            for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+                String name = entry.getKey();
+                List<String> value = entry.getValue();
+
+                if (value.size() == 1) {
+                    headers.putAsKeyString(name, StringMemory.valueOf(value.get(0)));
+                } else {
+                    headers.putAsKeyString(name, ArrayMemory.ofStringCollection(value));
+                }
+            }
+            response.setHeaders(headers);
+
+
+            ArrayMemory cookies = new ArrayMemory();
+            String cookieHeader = connection.getHeaderField("Set-Cookie");
+
+            if (cookieHeader != null && !cookieHeader.isEmpty()) {
+                List<HttpCookie> httpCookies = HttpCookie.parse(cookieHeader);
+
+                for (HttpCookie cookie : httpCookies) {
+                    ArrayMemory memory = HttpClientExtension.cookieToArray(cookie);
+                    cookies.putAsKeyString(cookie.getName(), memory);
+                }
+            }
+
+            response.setRawCookies(cookies);
+        } else {
+            throw new IllegalStateException("Argument 2 must be instance of HttpURLConnection");
+        }
+    }
+
+    @Signature
+    protected URLConnection makeConnection(PHttpRequest request, Environment env) throws Throwable {
         URL url = new URL(request.getUrl());
 
-        URLConnection connection = url.openConnection();
+        URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
 
         if (connection instanceof HttpURLConnection) {
             HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
@@ -62,8 +124,22 @@ public class PHttpClient extends BaseObject {
             httpURLConnection.setDoInput(true);
             httpURLConnection.setDoOutput(true);
 
+            // cookies.
+            ArrayMemory cookies = request.getCookies();
+            ForeachIterator iterator = cookies.foreachIterator(false, false);
+            StringBuilder cookieHeader = new StringBuilder();
+
+            while (iterator.next()) {
+                String name = iterator.getStringKey();
+                String value = iterator.getValue().toString();
+
+                cookieHeader.append(URLEncoder.encode(name, "UTF-8")).append('=').append(URLEncoder.encode(value, "UTF-8")).append(';');
+            }
+
+            httpURLConnection.setRequestProperty("Cookie", cookieHeader.toString());
+
             ArrayMemory headers = request.getHeaders();
-            ForeachIterator iterator = headers.foreachIterator(false, false);
+            iterator = headers.foreachIterator(false, false);
 
             while (iterator.next()) {
                 String name = iterator.getStringKey();
@@ -79,9 +155,15 @@ public class PHttpClient extends BaseObject {
                 }
             }
 
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(request.getBody().toBinaryString());
-            writer.close();
+            Memory body = request.getBody(env);
+
+            if (body.instanceOf(PHttpBody.class)) {
+                body.toObject(PHttpBody.class).apply(env, ObjectMemory.valueOf(new WrapURLConnection(env, connection)));
+            } else {
+                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                writer.write(request.getBody(env).toBinaryString());
+                writer.close();
+            }
 
             return httpURLConnection;
         } else {

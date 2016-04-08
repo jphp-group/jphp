@@ -109,6 +109,17 @@ abstract public class Stream extends BaseObject implements Resource {
     @Signature
     abstract public Memory close(Environment env, Memory... args) throws IOException;
 
+    @Signature
+    public Memory __toString(Environment env, Memory... args) throws Throwable {
+        Memory memory = env.invokeMethod(this, "readFully");
+
+        if (memory.isString()) {
+            return memory;
+        } else {
+            return StringMemory.valueOf(memory.toString());
+        }
+    }
+
     public static Stream create(Environment env, String path, String mode) throws Throwable {
         return of(env, StringMemory.valueOf(path), StringMemory.valueOf(mode)).toObject(Stream.class);
     }

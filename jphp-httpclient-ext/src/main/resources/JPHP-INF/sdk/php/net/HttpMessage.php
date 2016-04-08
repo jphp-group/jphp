@@ -62,4 +62,42 @@ class HttpMessage
     public function removeHeader($name)
     {
     }
+
+    /**
+     * @return array
+     */
+    public function getCookies()
+    {
+    }
+
+    /**
+     * @param array $cookies
+     */
+    public function setCookies(array $cookies)
+    {
+    }
+
+    /**
+     * @param $name
+     * @return string|null
+     */
+    public function getCookie($name)
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasCookie($name)
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function removeCookie($name)
+    {
+    }
 }

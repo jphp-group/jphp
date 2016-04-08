@@ -33,7 +33,6 @@ public class NetExtension extends Extension {
 
         registerWrapperClass(scope, Proxy.class, WrapProxy.class);
         registerWrapperClass(scope, URLConnection.class, WrapURLConnection.class);
-        registerWrapperClass(scope, HttpURLConnection.class, WrapURLConnection.class);
         registerWrapperClass(scope, URL.class, WrapURL.class);
     }
 

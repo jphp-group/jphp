@@ -99,6 +99,14 @@ abstract class Stream
     {
     }
 
+    /**
+     * Alias of readFully() with converting to string always.
+     * @return string
+     */
+    public function __toString()
+    {
+    }
+
 
     /**
      * @param string $path

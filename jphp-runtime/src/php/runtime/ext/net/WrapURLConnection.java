@@ -43,8 +43,6 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
         void setRequestProperty(String key, String value);
         String getRequestProperty(String key);
         Map<String,List<String>> getRequestProperties();
-
-        OutputStream getOutputStream();
     }
 
     public WrapURLConnection(Environment env, URLConnection wrappedObject) {
@@ -108,6 +106,11 @@ public class WrapURLConnection extends BaseWrapper<URLConnection> {
     @Signature
     public InputStream getInputStream() throws IOException {
         return getWrappedObject().getInputStream();
+    }
+
+    @Signature
+    public OutputStream getOutputStream() throws IOException {
+        return getWrappedObject().getOutputStream();
     }
 
     @Signature

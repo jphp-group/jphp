@@ -41,6 +41,7 @@ public class CompileMethodEntity extends MethodEntity {
             return;
         }
 
+        method.setAccessible(true);
         CompileMethod.Method compileMethod = function.addMethod(method);
 
         int mods = method.getModifiers();
