@@ -20,7 +20,7 @@ array(0) {
 }
 array(34) {
   ["userName"]=>
-  string(0) ""
+  NULL
   ["driverName"]=>
   string(10) "SQLiteJDBC"
   ["driverVersion"]=>
@@ -38,7 +38,7 @@ array(34) {
   ["procedureTerm"]=>
   string(15) "not_implemented"
   ["searchStringEscape"]=>
-  string(0) ""
+  NULL
   ["numericFunctions"]=>
   string(0) ""
   ["stringFunctions"]=>
