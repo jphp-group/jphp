@@ -1,6 +1,7 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken;
 
 public class BooleanExprToken extends FulledNameToken {
 
@@ -37,7 +38,7 @@ public class BooleanExprToken extends FulledNameToken {
     }
 
     @Override
-    public boolean isProcessed() {
+    public boolean isProcessed(NamespaceUseStmtToken.UseType useType) {
         return true;
     }
 }

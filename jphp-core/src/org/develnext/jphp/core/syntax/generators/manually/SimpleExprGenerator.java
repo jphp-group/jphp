@@ -19,10 +19,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.CastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.macro.MacroToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.AsStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.Callback;
 import php.runtime.common.Messages;
 import php.runtime.env.TraceInfo;
@@ -284,7 +281,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
         if (previous instanceof ValueExprToken) {
-            result.setName(analyzer.getRealName((ValueExprToken)previous));
+            result.setName(analyzer.getRealName((ValueExprToken)previous, NamespaceUseStmtToken.UseType.FUNCTION));
+
             if (analyzer.getFunction() != null){
                 if (result.getName() instanceof NameToken) {
                     String name = ((NameToken) result.getName()).getName().toLowerCase();
@@ -887,7 +885,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof NameToken) {
-            return analyzer.getRealName((NameToken)current);
+            return analyzer.getRealName((NameToken)current, NamespaceUseStmtToken.UseType.CONSTANT);
         }
 
         if (current instanceof MacroToken) {

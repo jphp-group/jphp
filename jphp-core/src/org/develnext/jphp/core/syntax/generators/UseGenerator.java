@@ -22,6 +22,7 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
             if (analyzer.getClazz() != null)
                 unexpectedToken(current);
 
+            NamespaceUseStmtToken.UseType useType = NamespaceUseStmtToken.UseType.CLASS;
             NamespaceUseStmtToken use = (NamespaceUseStmtToken) current;
             boolean first = true;
 
@@ -33,16 +34,18 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
                         unexpectedToken(next);
                     }
 
-                    use.setUseType(NamespaceUseStmtToken.UseType.FUNCTION);
+                    useType = NamespaceUseStmtToken.UseType.FUNCTION;
                     next = nextToken(iterator);
                 } else if (next instanceof ConstStmtToken) {
                     if (!first) {
                         unexpectedToken(next);
                     }
 
-                    use.setUseType(NamespaceUseStmtToken.UseType.CONSTANT);
+                    useType = NamespaceUseStmtToken.UseType.CONSTANT;
                     next = nextToken(iterator);
                 }
+
+                use.setUseType(useType);
 
                 FulledNameToken name = analyzer.generator(NameGenerator.class).getToken(
                         next, iterator
