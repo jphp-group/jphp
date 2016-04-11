@@ -1,18 +1,18 @@
 package org.develnext.jphp.core.tokenizer.token.expr.value;
 
+import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken;
 import php.runtime.Information;
 import php.runtime.common.StringUtils;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.Token;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class FulledNameToken extends NameToken {
     private List<NameToken> names;
     private boolean absolutely;
     private boolean processed;
+    private Set<NamespaceUseStmtToken.UseType> useProcessed = new HashSet<>();
 
     public FulledNameToken(FulledNameToken token) {
         this(token.meta, Information.NAMESPACE_SEP_CHAR);
@@ -83,12 +83,18 @@ public class FulledNameToken extends NameToken {
         return names.size() == 1;
     }
 
-    public boolean isProcessed() {
-        return isAbsolutely() || processed;
+    public boolean isAnyProcessed() {
+        return isProcessed(NamespaceUseStmtToken.UseType.CLASS)
+                || isProcessed(NamespaceUseStmtToken.UseType.FUNCTION)
+                || isProcessed(NamespaceUseStmtToken.UseType.CONSTANT);
     }
 
-    public void setProcessed(boolean processed) {
-        this.processed = processed;
+    public boolean isProcessed(NamespaceUseStmtToken.UseType useType) {
+        return isAbsolutely() || useProcessed.contains(useType);
+    }
+
+    public void setProcessed(NamespaceUseStmtToken.UseType useType) {
+        this.useProcessed.add(useType);
     }
 
     public static FulledNameToken valueOf(String... names){

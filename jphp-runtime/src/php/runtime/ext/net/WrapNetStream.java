@@ -9,10 +9,7 @@ import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.util.Arrays;
 
@@ -77,7 +74,16 @@ public class WrapNetStream extends Stream {
 
     public InputStream getInputStream() throws IOException {
         if (currentInputStream == null) {
-            currentInputStream = getURLConnection().getInputStream();
+            URLConnection urlConnection = getURLConnection();
+            try {
+                currentInputStream = urlConnection.getInputStream();
+            } catch (IOException e) {
+                if (urlConnection instanceof HttpURLConnection) {
+                    currentInputStream = ((HttpURLConnection) urlConnection).getErrorStream();
+                } else {
+                    throw e;
+                }
+            }
         }
 
         return currentInputStream;

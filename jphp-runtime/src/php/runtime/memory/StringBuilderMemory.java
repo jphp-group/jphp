@@ -68,6 +68,10 @@ public class StringBuilderMemory extends StringMemory {
     }
 
     public void append(String value){
+        if (value == null) {
+            return;
+        }
+
         resolveBuilder();
         this.builder.append(value);
     }

@@ -56,7 +56,7 @@ public class ConstGenerator extends Generator<ConstStmtToken> {
                 Token next = analyzer.getClazz() == null ? nextToken(iterator) : nextTokenSensitive(iterator, ClassStmtToken.class);
 
                 if (next instanceof NameToken){
-                    if (next instanceof FulledNameToken && !((FulledNameToken) next).isProcessed())
+                    if (next instanceof FulledNameToken && !((FulledNameToken) next).isProcessed(NamespaceUseStmtToken.UseType.CONSTANT))
                         unexpectedToken(next, TokenType.T_STRING);
 
                     Token token = nextToken(iterator);

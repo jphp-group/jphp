@@ -6,7 +6,9 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 
 public class NamespaceUseStmtToken extends StmtToken {
+    public enum UseType { CLASS, FUNCTION, CONSTANT }
 
+    private UseType useType = UseType.CLASS;
     private FulledNameToken name;
     private NameToken as;
 
@@ -28,5 +30,13 @@ public class NamespaceUseStmtToken extends StmtToken {
 
     public void setAs(NameToken as) {
         this.as = as;
+    }
+
+    public UseType getUseType() {
+        return useType;
+    }
+
+    public void setUseType(UseType useType) {
+        this.useType = useType;
     }
 }

@@ -397,40 +397,62 @@ public class SyntaxAnalyzer {
         return closureStack.pop();
     }
 
-    public ValueExprToken getRealName(ValueExprToken value){
+    public ValueExprToken getRealName(ValueExprToken value, NamespaceUseStmtToken.UseType useType){
         if (value == null)
             return null;
 
         if (value instanceof NameToken)
-            return getRealName((NameToken)value);
+            return getRealName((NameToken)value, useType);
         else
             return value;
     }
 
+    public FulledNameToken getRealName(NameToken what, NamespaceUseStmtToken.UseType useType) {
+        return getRealName(what, namespace, useType);
+    }
+
     public FulledNameToken getRealName(NameToken what) {
-        return getRealName(what, namespace);
+        return getRealName(what, NamespaceUseStmtToken.UseType.CLASS);
     }
 
     public static FulledNameToken getRealName(NameToken what, NamespaceStmtToken namespace) {
-        if (what instanceof FulledNameToken && ((FulledNameToken) what).isProcessed())
-            return (FulledNameToken) what;
+        return getRealName(what, namespace, NamespaceUseStmtToken.UseType.CLASS);
+    }
+
+    public static FulledNameToken getRealName(NameToken what, NamespaceStmtToken namespace, NamespaceUseStmtToken.UseType useType) {
+        if (what instanceof FulledNameToken) {
+            FulledNameToken fulledNameToken = (FulledNameToken) what;
+
+            if (fulledNameToken.isProcessed(useType)) {
+                return fulledNameToken;
+            } else {
+                if (fulledNameToken.isAnyProcessed()) {
+                    what = (fulledNameToken).getLastName();
+                }
+            }
+        }
 
         String name = what.getName();
 
         // check name in uses
-        if (namespace != null)
-        for(NamespaceUseStmtToken use : namespace.getUses()){
-            if (use.getAs() == null){
-                if (name.equalsIgnoreCase(use.getName().getLastName().getName())) {
-                    FulledNameToken t = new FulledNameToken(use.getName());
-                    t.setProcessed(true);
-                    return t;
+        if (namespace != null) {
+            for (NamespaceUseStmtToken use : namespace.getUses()) {
+                if (use.getUseType() != useType) {
+                    continue;
                 }
-            } else {
-                if (name.equalsIgnoreCase(use.getAs().getName())){
-                    FulledNameToken t = new FulledNameToken(use.getName());
-                    t.setProcessed(true);
-                    return t;
+
+                if (use.getAs() == null) {
+                    if (name.equalsIgnoreCase(use.getName().getLastName().getName())) {
+                        FulledNameToken t = new FulledNameToken(use.getName());
+                        t.setProcessed(useType);
+                        return t;
+                    }
+                } else {
+                    if (name.equalsIgnoreCase(use.getAs().getName())) {
+                        FulledNameToken t = new FulledNameToken(use.getName());
+                        t.setProcessed(useType);
+                        return t;
+                    }
                 }
             }
         }
@@ -445,7 +467,7 @@ public class SyntaxAnalyzer {
             names.add(what);
 
         FulledNameToken t = new FulledNameToken(what.getMeta(), names);
-        t.setProcessed(true);
+        t.setProcessed(useType);
         return t;
     }
 }

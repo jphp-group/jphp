@@ -9,6 +9,7 @@ import php.runtime.ext.net.WrapURL;
 import php.runtime.ext.net.WrapURLConnection;
 import php.runtime.ext.support.Extension;
 
+import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;

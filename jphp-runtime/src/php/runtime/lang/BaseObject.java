@@ -27,12 +27,6 @@ abstract public class BaseObject implements IObject {
         this.__env__ = new WeakReference<Environment>(null);
     }
 
-    protected BaseObject(ArrayMemory __dynamicProperties__, Environment __env__, ClassEntity __class__) {
-        this.__dynamicProperties__ = __dynamicProperties__;
-        this.__class__ = __class__;
-        this.__env__ = new WeakReference<Environment>(__env__);
-    }
-
     public BaseObject(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory(true);

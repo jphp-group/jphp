@@ -672,7 +672,7 @@ public class ReferenceMemory extends Memory {
             case REFERENCE: return value.assign(memory);
             case ARRAY: value.unset(); // do not need break!!
             default:
-                return value = new StringMemory(memory);
+                return value = StringMemory.valueOf(memory);
         }
     }
 

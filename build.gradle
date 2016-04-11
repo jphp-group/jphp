@@ -1,5 +1,5 @@
 def javaVersion    = '1.7';
-def projectVersion = '0.8.0';
+def projectVersion = '0.9.0';
 
 buildscript {
     repositories {
@@ -74,7 +74,6 @@ configure([
         project(':jphp-debugger'),
 
         project(':jphp-scripting'),
-        project(':jphp-gradle-plugin'),
         project(':jphp-gen-api'),
 ]) {
     apply plugin: 'com.jfrog.bintray'
