@@ -18,6 +18,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken.UseType.CONSTANT;
+
 public class SyntaxAnalyzer {
     private Tokenizer tokenizer;
     private List<Token> tokens;
@@ -442,13 +444,17 @@ public class SyntaxAnalyzer {
                 }
 
                 if (use.getAs() == null) {
-                    if (name.equalsIgnoreCase(use.getName().getLastName().getName())) {
+                    String string = use.getName().getLastName().getName();
+
+                    if ((useType == CONSTANT && name.equals(string)) || (useType != CONSTANT && name.equalsIgnoreCase(string))) {
                         FulledNameToken t = new FulledNameToken(use.getName());
                         t.setProcessed(useType);
                         return t;
                     }
                 } else {
-                    if (name.equalsIgnoreCase(use.getAs().getName())) {
+                    String string = use.getAs().getName();
+
+                    if ((useType == CONSTANT && name.equals(string)) || (useType != CONSTANT && name.equalsIgnoreCase(string))) {
                         FulledNameToken t = new FulledNameToken(use.getName());
                         t.setProcessed(useType);
                         return t;

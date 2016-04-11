@@ -92,4 +92,17 @@ public class LangTest extends ZendJvmTestCase {
         check("zend/lang/operators/preinc_variationStr.php");
         check("zend/lang/operators/subtract_variationStr.php");
     }
+
+    @Test
+    public void testPhp7GroupUseDeclarations() {
+        check("zend/php7/ns_088.phpt", true);
+        check("zend/php7/ns_089.phpt");
+        check("zend/php7/ns_090.phpt");
+        check("zend/php7/ns_091.phpt");
+        check("zend/php7/ns_092.phpt", true);
+        check("zend/php7/ns_093.phpt");
+        check("zend/php7/ns_094.phpt", true);
+        check("zend/php7/ns_095.phpt");
+        check("zend/php7/ns_096.phpt", true);
+    }
 }

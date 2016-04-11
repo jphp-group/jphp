@@ -44,9 +44,15 @@ abstract public class Generator<T extends Token> {
     }
 
     protected void unexpectedToken(Token token, Object expected){
+        unexpectedToken(token, expected, true);
+    }
+
+    protected void unexpectedToken(Token token, Object expected, boolean quotes){
         analyzer.getEnvironment().error(
                 token.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
-                Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected)
+                quotes
+                    ? Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected)
+                    : Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y_NO_QUOTES.fetch(token.getWord(), expected)
         );
     }
 
