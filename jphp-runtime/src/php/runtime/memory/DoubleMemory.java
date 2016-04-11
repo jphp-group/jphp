@@ -24,7 +24,11 @@ public class DoubleMemory extends Memory {
 
     @Override
     public long toLong() {
-        return (long)value;
+        if (value == Double.POSITIVE_INFINITY) {
+            return 0;
+        }
+
+        return (long) value;
     }
 
     @Override

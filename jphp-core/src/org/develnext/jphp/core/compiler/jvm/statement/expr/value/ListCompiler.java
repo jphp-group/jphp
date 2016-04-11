@@ -25,8 +25,10 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
     }
 
     public void write(ListExprToken list, boolean returnValue, boolean writeValue) {
-        if (writeValue)
+        if (writeValue) {
             expr.writeExpression(list.getValue(), true, false);
+            expr.writePopBoxing();
+        }
 
         int i, length = list.getVariables().size();
         for(i = length - 1; i >= 0; i--){ // desc order as in PHP

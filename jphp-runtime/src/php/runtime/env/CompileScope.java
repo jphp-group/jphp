@@ -189,6 +189,7 @@ public class CompileScope {
         registerLazyClass(extension, BaseError.class);
         registerLazyClass(extension, BaseParseError.class);
         registerLazyClass(extension, BaseTypeError.class);
+        registerLazyClass(extension, BaseArithmeticError.class);
         registerLazyClass(extension, ErrorException.class);
         registerLazyClass(extension, ArrayAccess.class);
 

@@ -22,22 +22,36 @@ import java.lang.ref.WeakReference;
 abstract public class BaseBaseException extends RuntimeException implements IObject, JPHPException {
     protected final ArrayMemory props;
     protected ClassEntity clazz;
-    protected final WeakReference<Environment> env;
+    protected WeakReference<Environment> env;
     protected TraceInfo trace;
     protected CallStackItem[] callStack;
 
     private boolean init = true;
     private boolean isFinalized = false;
 
+    private String nativeMessage = null;
+
+    public void tryLazyBindToEnvironment(Environment env) {
+        if (this.env == null) {
+            this.env = new WeakReference<>(env);
+            this.clazz = env.fetchClass(getClass());
+        }
+    }
+
+    public BaseBaseException(String message) {
+        this((Environment) null);
+        nativeMessage = message;
+    }
+
     public BaseBaseException(Environment env){
         this(env, null);
-        clazz = env.fetchClass(getClass());
+        clazz = env == null ? null : env.fetchClass(getClass());
     }
 
     public BaseBaseException(Environment env, ClassEntity clazz) {
         this.clazz = clazz;
         this.props = new ArrayMemory();
-        this.env = new WeakReference<>(env);
+        this.env = env == null ? null : new WeakReference<>(env);
     }
 
     public void setTraceInfo(Environment env, TraceInfo trace) {
@@ -116,6 +130,10 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
     @Signature
     public Memory getMessage(Environment env, Memory... args) {
+        if (nativeMessage != null) {
+            return StringMemory.valueOf(nativeMessage);
+        }
+
         return clazz.refOfProperty(getProperties(), "message").toValue();
     }
 

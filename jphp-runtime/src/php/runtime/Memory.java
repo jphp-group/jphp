@@ -7,6 +7,7 @@ import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
+import php.runtime.lang.exception.BaseArithmeticError;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
@@ -365,7 +366,7 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     public Memory mod(long value){ if (value==0) return FALSE; return LongMemory.valueOf(toLong() % value); }
-    public Memory mod(double value){ return mod((long)value); }
+    public Memory mod(double value){ return mod((long) value); }
     public Memory mod(boolean value){ if (!value) return FALSE; return LongMemory.valueOf(toLong() % 1); }
     public Memory mod(String value){ return mod(StringMemory.toNumeric(value, true, CONST_INT_0)); }
 
@@ -444,7 +445,7 @@ abstract public class Memory implements Comparable<Memory> {
 
 
     // BIT &
-    public Memory bitAnd(Memory memory) { return LongMemory.valueOf( toLong() & memory.toLong() ); }
+    public Memory bitAnd(Memory memory) { return LongMemory.valueOf(toLong() & memory.toLong()); }
     public Memory bitAnd(long memory) { return LongMemory.valueOf( toLong() & memory ); }
     public Memory bitAnd(double memory) { return LongMemory.valueOf( toLong() & (long)memory ); }
     public Memory bitAnd(boolean memory) { return LongMemory.valueOf( toLong() & (memory ? 1 : 0) ); }
@@ -467,19 +468,36 @@ abstract public class Memory implements Comparable<Memory> {
     // BIT not ~
     public Memory bitNot(){ return LongMemory.valueOf(~toLong()); }
 
+    private static Memory _negativeShift() {
+        BaseArithmeticError.negativeShift();
+        return FALSE;
+    }
+
     // SHR >>
-    public Memory bitShr(Memory memory) { return LongMemory.valueOf( toLong() >> memory.toLong() ); }
-    public Memory bitShr(long memory) { return LongMemory.valueOf( toLong() >> memory ); }
-    public Memory bitShr(double memory) { return LongMemory.valueOf( toLong() >> (long)memory ); }
+    public Memory bitShr(Memory memory) {
+        long l = memory.toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf( toLong() >> l); }
+    public Memory bitShr(long memory) { return memory < 0 ? _negativeShift() : LongMemory.valueOf( toLong() >> memory ); }
+    public Memory bitShr(double memory) { return memory < 0 ? _negativeShift() : LongMemory.valueOf( toLong() >> (long)memory ); }
     public Memory bitShr(boolean memory) { return LongMemory.valueOf( toLong() >> (memory ? 1 : 0) ); }
-    public Memory bitShr(String memory) { return LongMemory.valueOf( toLong() >> StringMemory.toNumeric(memory).toLong() ); }
+    public Memory bitShr(String memory) {
+        long l = StringMemory.toNumeric(memory).toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf( toLong() >> l);
+    }
 
     // SHL <<
-    public Memory bitShl(Memory memory) { return LongMemory.valueOf( toLong() << memory.toLong() ); }
-    public Memory bitShl(long memory) { return LongMemory.valueOf( toLong() << memory ); }
-    public Memory bitShl(double memory) { return LongMemory.valueOf( toLong() << (long)memory ); }
+    public Memory bitShl(Memory memory) {
+        long l = memory.toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf( toLong() << l);
+    }
+
+    public Memory bitShl(long memory) { return memory < 0 ? _negativeShift() : LongMemory.valueOf( toLong() << memory ); }
+    public Memory bitShl(double memory) { return memory < 0 ? _negativeShift() : LongMemory.valueOf( toLong() << (long)memory ); }
     public Memory bitShl(boolean memory) { return LongMemory.valueOf( toLong() << (memory ? 1 : 0) ); }
-    public Memory bitShl(String memory) { return LongMemory.valueOf( toLong() << StringMemory.toNumeric(memory).toLong() ); }
+    public Memory bitShl(String memory) {
+        long l = StringMemory.toNumeric(memory).toLong();
+        return l < 0 ? FALSE : LongMemory.valueOf( toLong() << l);
+    }
 
 
     // ASSIGN
@@ -658,16 +676,30 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean greaterEqRight(boolean value) { return this.smaller(value); }
     public boolean greaterEqRight(String value) { return this.smaller(value); }
 
+
     public Memory bitShrRight(Memory value){ return value.bitShr(this); }
-    public Memory bitShrRight(long value){ return new LongMemory(value >> toLong()); }
-    public Memory bitShrRight(double value){ return new LongMemory((long)value >> toLong()); }
-    public Memory bitShrRight(boolean value){ return new LongMemory((value ? 1 : 0) >> toLong()); }
+    public Memory bitShrRight(long value){
+        long l = toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf(value >> l);
+    }
+    public Memory bitShrRight(double value){
+        long l = toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf((long)value >> l);
+    }
+    public Memory bitShrRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0) >> toLong()); }
     public Memory bitShrRight(String value){ return StringMemory.toNumeric(value).bitShr(this); }
 
+
     public Memory bitShlRight(Memory value){ return value.bitShl(this); }
-    public Memory bitShlRight(long value){ return new LongMemory(value << toLong()); }
-    public Memory bitShlRight(double value){ return new LongMemory((long)value << toLong()); }
-    public Memory bitShlRight(boolean value){ return new LongMemory((value ? 1 : 0) << toLong()); }
+    public Memory bitShlRight(long value) {
+        long l = toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf(value << l);
+    }
+    public Memory bitShlRight(double value){
+        long l = toLong();
+        return l < 0 ? _negativeShift() : LongMemory.valueOf((long)value << l);
+    }
+    public Memory bitShlRight(boolean value){ return LongMemory.valueOf((value ? 1 : 0) << toLong()); }
     public Memory bitShlRight(String value){ return StringMemory.toNumeric(value).bitShl(this); }
 
     public Memory unpack() { return new VariadicMemory(this); }

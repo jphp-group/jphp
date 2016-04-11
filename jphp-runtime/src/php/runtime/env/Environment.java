@@ -116,6 +116,8 @@ public class Environment {
     public static void catchThrowable(Throwable e, Environment environment) {
         if (e instanceof BaseBaseException) {
             BaseBaseException baseException = (BaseBaseException) e;
+            baseException.tryLazyBindToEnvironment(environment);
+
             baseException.getEnvironment().catchUncaught(baseException);
             return;
         } else if (e instanceof Exception) {
