@@ -19,9 +19,7 @@ import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.*;
-import php.runtime.lang.exception.BaseBaseException;
-import php.runtime.lang.exception.BaseEngineException;
-import php.runtime.lang.exception.BaseParseException;
+import php.runtime.lang.exception.*;
 import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.lang.spl.ErrorException;
 import php.runtime.lang.spl.Serializable;
@@ -186,10 +184,11 @@ public class CompileScope {
         registerLazyClass(extension, Closure.class);
         registerLazyClass(extension, Generator.class);
         registerLazyClass(extension, StdClass.class);
-        registerLazyClass(extension, BaseBaseException.class);
+        registerLazyClass(extension, BaseThrowable.class);
         registerLazyClass(extension, BaseException.class);
-        registerLazyClass(extension, BaseParseException.class);
-        registerLazyClass(extension, BaseEngineException.class);
+        registerLazyClass(extension, BaseError.class);
+        registerLazyClass(extension, BaseParseError.class);
+        registerLazyClass(extension, BaseTypeError.class);
         registerLazyClass(extension, ErrorException.class);
         registerLazyClass(extension, ArrayAccess.class);
 

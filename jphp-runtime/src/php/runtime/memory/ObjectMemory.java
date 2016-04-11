@@ -104,7 +104,7 @@ public class ObjectMemory extends Memory {
                     value, null, entity.methodMagicToString.getName(), entity.getName(), null
             );
             try {
-                Memory result = entity.methodMagicToString.invokeDynamic(value, env, null);
+                Memory result = entity.methodMagicToString.invokeDynamic(value, env, (Memory[]) null);
                 if (!result.isString()){
                     env.error(
                             ErrorType.E_RECOVERABLE_ERROR, "Method %s must return a string value",

@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.BaseType;
 import php.runtime.annotation.Reflection.Name;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
 import php.runtime.env.CallStackItem;
@@ -18,18 +19,6 @@ import php.runtime.reflection.ClassEntity;
 
 import java.lang.ref.WeakReference;
 
-@BaseType
-@Name("BaseException")
-@Reflection.Signature(root = true, value =
-{
-        @Reflection.Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
-        @Reflection.Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.INT),
-        @Reflection.Arg(value = "previous", modifier = Modifier.PROTECTED, type = HintType.OBJECT),
-        @Reflection.Arg(value = "trace", modifier = Modifier.PROTECTED, type = HintType.ARRAY),
-        @Reflection.Arg(value = "file", modifier = Modifier.PROTECTED, type = HintType.STRING),
-        @Reflection.Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
-        @Reflection.Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
-})
 abstract public class BaseBaseException extends RuntimeException implements IObject, JPHPException {
     protected final ArrayMemory props;
     protected ClassEntity clazz;
@@ -51,102 +40,10 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
         this.env = new WeakReference<>(env);
     }
 
-    @Reflection.Signature({
-            @Reflection.Arg(value = "message", optional = @Reflection.Optional(value = "", type = HintType.STRING)),
-            @Reflection.Arg(value = "code", optional = @Reflection.Optional(value = "0", type = HintType.INT)),
-            @Reflection.Arg(value = "previous", nativeType = BaseException.class, optional = @Reflection.Optional(value = "NULL"))
-    })
-    public Memory __construct(Environment env, Memory... args) {
-        clazz.refOfProperty(props, "message").assign(args[0].toString());
-        if (args.length > 1)
-            clazz.refOfProperty(props, "code").assign(args[1].toLong());
-
-        if (args.length > 2)
-            clazz.refOfProperty(props, "previous").assign(args[2]);
-
-        return Memory.NULL;
-    }
-
     public void setTraceInfo(Environment env, TraceInfo trace) {
         this.callStack = env.getCallStackSnapshot();
         this.trace = trace;
         this.init = false;
-    }
-
-    @Reflection.Signature
-    final public Memory getMessage(Environment env, Memory... args) {
-        return clazz.refOfProperty(getProperties(), "message").toValue();
-    }
-
-    @Reflection.Signature
-    final public Memory getCode(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "code").toValue();
-    }
-
-    @Reflection.Signature
-    final public Memory getLine(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "line").toValue();
-    }
-
-    @Reflection.Signature
-    final public Memory getPosition(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "position").toValue();
-    }
-
-    @Reflection.Signature
-    final public Memory getFile(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "file").toValue();
-    }
-
-    @Reflection.Signature
-    final public Memory getTrace(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "trace").toValue();
-    }
-
-    @Reflection.Signature
-    public Memory getPrevious(Environment env, Memory... args) {
-        return clazz.refOfProperty(getProperties(), "previous").toValue();
-    }
-
-    @Reflection.Signature
-    private Memory __clone(Environment env, Memory... args) {
-        return Memory.NULL;
-    }
-
-    @Reflection.Signature
-    public Memory __toString(Environment env, Memory... args){
-        StringBuilder sb = new StringBuilder();
-        sb.append("exception '")
-                .append(clazz.getName()).append("' with message '")
-                .append(clazz.refOfProperty(getProperties(), "message"))
-                .append("' in ")
-                .append(clazz.refOfProperty(getProperties(), "file"))
-                .append(":").append(clazz.refOfProperty(getProperties(), "line"));
-        sb.append("\nStack Trace:\n");
-        sb.append(getTraceAsString(env));
-        return new StringMemory(sb.toString());
-    }
-
-    @Reflection.Signature
-    final public Memory getTraceAsString(Environment env, Memory... args){
-        int i = 0;
-        StringBuilder sb = new StringBuilder();
-
-        if (callStack != null){
-            for (CallStackItem e : getCallStack()){
-                if (i != 0)
-                    sb.append("\n");
-
-                sb.append("#").append(i).append(" ").append(e.toString(false));
-                i++;
-            }
-            if (i != 0)
-                sb.append("\n");
-
-            sb.append("#").append(i).append(" {main}");
-        }
-
-        return new StringMemory(sb.toString());
     }
 
     @Override
@@ -215,6 +112,77 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
         }
 
         return trace == null ? TraceInfo.UNKNOWN : trace;
+    }
+
+    @Signature
+    public Memory getMessage(Environment env, Memory... args) {
+        return clazz.refOfProperty(getProperties(), "message").toValue();
+    }
+
+    @Signature
+    public Memory getCode(Environment env, Memory... args){
+        return clazz.refOfProperty(getProperties(), "code").toValue();
+    }
+
+    @Signature
+    public Memory getLine(Environment env, Memory... args){
+        return clazz.refOfProperty(getProperties(), "line").toValue();
+    }
+
+    @Signature
+    public Memory getPosition(Environment env, Memory... args){
+        return clazz.refOfProperty(getProperties(), "position").toValue();
+    }
+
+    @Signature
+    public Memory getFile(Environment env, Memory... args){
+        return clazz.refOfProperty(getProperties(), "file").toValue();
+    }
+
+    @Signature
+    public Memory getTrace(Environment env, Memory... args){
+        return clazz.refOfProperty(getProperties(), "trace").toValue();
+    }
+
+    @Signature
+    public Memory getPrevious(Environment env, Memory... args) {
+        return clazz.refOfProperty(getProperties(), "previous").toValue();
+    }
+
+    @Signature
+    public Memory __toString(Environment env, Memory... args){
+        StringBuilder sb = new StringBuilder();
+        sb.append("exception '")
+                .append(clazz.getName()).append("' with message '")
+                .append(clazz.refOfProperty(getProperties(), "message"))
+                .append("' in ")
+                .append(clazz.refOfProperty(getProperties(), "file"))
+                .append(":").append(clazz.refOfProperty(getProperties(), "line"));
+        sb.append("\nStack Trace:\n");
+        sb.append(getTraceAsString(env));
+        return new StringMemory(sb.toString());
+    }
+
+    @Signature
+    public Memory getTraceAsString(Environment env, Memory... args){
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+
+        if (callStack != null){
+            for (CallStackItem e : getCallStack()){
+                if (i != 0)
+                    sb.append("\n");
+
+                sb.append("#").append(i).append(" ").append(e.toString(false));
+                i++;
+            }
+            if (i != 0)
+                sb.append("\n");
+
+            sb.append("#").append(i).append(" {main}");
+        }
+
+        return new StringMemory(sb.toString());
     }
 
     /**

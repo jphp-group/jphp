@@ -54,7 +54,7 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
                 if (name == null) {
                     unexpectedToken(iterator.previous());
                 }
-                
+
                 use.setName(name);
 
                 Token token = nextToken(iterator);

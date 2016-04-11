@@ -18,8 +18,8 @@ import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.*;
 import php.runtime.lang.exception.BaseBaseException;
-import php.runtime.lang.exception.BaseEngineException;
-import php.runtime.lang.exception.BaseParseException;
+import php.runtime.lang.exception.BaseError;
+import php.runtime.lang.exception.BaseParseError;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.loader.sourcemap.SourceMap;
 import php.runtime.memory.ArrayMemory;
@@ -878,9 +878,9 @@ public class Environment {
         if (type.isFatal()) {
             if (scope.getLangMode() == LangMode.MODERN) {
                 if (type == E_PARSE) {
-                    exception(trace, new BaseParseException(this), message.fetch(args));
+                    exception(trace, new BaseParseError(this), message.fetch(args));
                 } else {
-                    exception(trace, new BaseEngineException(this, type), message.fetch(args));
+                    exception(trace, new BaseError(this, type), message.fetch(args));
                 }
             }
 
@@ -921,32 +921,63 @@ public class Environment {
         exception(trace(), message, args);
     }
 
-    public void exception(TraceInfo trace, BaseBaseException e, String message, Object... args){
+    public void exception(TraceInfo trace, BaseError e, String message, Object... args){
         __clearSilent();
-        if (args == null || args.length == 0)
+
+        if (args == null || args.length == 0) {
             e.__construct(this, new StringMemory(
                     message
             ));
-        else
+        } else {
             e.__construct(this, new StringMemory(
                     String.format(message, args)
             ));
+        }
+
         e.setTraceInfo(this, trace);
         throw e;
     }
 
-    public void exception(BaseBaseException e, String message, Object... args){
+    public void exception(TraceInfo trace, BaseException e, String message, Object... args){
+        __clearSilent();
+
+        if (args == null || args.length == 0) {
+            e.__construct(this, new StringMemory(
+                    message
+            ));
+        } else {
+            e.__construct(this, new StringMemory(
+                    String.format(message, args)
+            ));
+        }
+
+        e.setTraceInfo(this, trace);
+        throw e;
+    }
+
+    public void exception(BaseException e, String message, Object... args){
+        exception(trace(), e, message, args);
+    }
+
+    public void exception(BaseError e, String message, Object... args){
         exception(trace(), e, message, args);
     }
 
     public void exception(Class<? extends BaseBaseException> e, String message, Object... args){
-        ClassEntity entity = fetchClass(e);
-        exception((BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
+        exception(trace(), e, message, args);
     }
 
     public void exception(TraceInfo trace, Class<? extends BaseBaseException> e, String message, Object... args){
         ClassEntity entity = fetchClass(e);
-        exception(trace, (BaseBaseException) entity.newObjectWithoutConstruct(this), message, args);
+        IObject object = entity.newObjectWithoutConstruct(this);
+
+        if (object instanceof BaseException) {
+            exception(trace, (BaseException) object, message, args);
+        } else if (object instanceof BaseError) {
+            exception(trace, (BaseError) object, message, args);
+        } else {
+            throw new CriticalException("Unable to create extension object from class " + e.getName());
+        }
     }
 
     public boolean isHandleErrors(ErrorType type){

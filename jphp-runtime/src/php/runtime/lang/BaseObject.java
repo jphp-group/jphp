@@ -1,14 +1,17 @@
 package php.runtime.lang;
 
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.BaseType;
+import php.runtime.annotation.Reflection.Ignore;
 import php.runtime.env.Environment;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.lang.ref.WeakReference;
 
-@Reflection.Ignore
-@Reflection.BaseType
+@Ignore
+@BaseType
 abstract public class BaseObject implements IObject {
     protected final ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;

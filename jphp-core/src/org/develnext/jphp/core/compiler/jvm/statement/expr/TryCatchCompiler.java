@@ -108,7 +108,7 @@ public class TryCatchCompiler extends BaseStatementCompiler<TryStmtToken> {
         /*if (method.getTryStack().empty()) {
             expr.writePushEnv();
             expr.writeVarLoad(exception);
-            expr.writeSysDynamicCall(Environment.class, "__throwFailedCatch", void.class, BaseBaseException.class);
+            expr.writeSysDynamicCall(Environment.class, "__throwFailedCatch", void.class, BaseException.class);
         } else {*/
             expr.makeVarLoad(exception);
             add(new InsnNode(ATHROW));

@@ -199,8 +199,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invokeDynamic(IObject _this,
-                                Environment environment, Memory... arguments) throws Throwable {
+    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
         try {
             if (isAbstract){
                 environment.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));

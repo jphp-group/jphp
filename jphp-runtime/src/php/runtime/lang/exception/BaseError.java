@@ -1,43 +1,58 @@
-package php.runtime.lang;
+package php.runtime.lang.exception;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.BaseType;
+import php.runtime.annotation.Reflection.Name;
+import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
-import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.support.ErrorType;
+import php.runtime.lang.BaseException;
 import php.runtime.lang.exception.BaseBaseException;
-import php.runtime.lang.exception.BaseThrowable;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.LongMemory;
 import php.runtime.reflection.ClassEntity;
 
-import static php.runtime.annotation.Reflection.*;
-
 @BaseType
-@Name("Exception")
-@Reflection.Signature(root = true, value =
-{
-        @Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
-        @Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.INT),
-        @Arg(value = "previous", modifier = Modifier.PROTECTED, type = HintType.OBJECT),
-        @Arg(value = "trace", modifier = Modifier.PROTECTED, type = HintType.ARRAY),
-        @Arg(value = "file", modifier = Modifier.PROTECTED, type = HintType.STRING),
-        @Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
-        @Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
-})
-public class BaseException extends BaseBaseException implements BaseThrowable {
-    public BaseException(Environment env) {
+@Name("Error")
+@Signature(root = true, value =
+        {
+                @Reflection.Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
+                @Reflection.Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.INT),
+                @Reflection.Arg(value = "previous", modifier = Modifier.PROTECTED, type = HintType.OBJECT),
+                @Reflection.Arg(value = "trace", modifier = Modifier.PROTECTED, type = HintType.ARRAY),
+                @Reflection.Arg(value = "file", modifier = Modifier.PROTECTED, type = HintType.STRING),
+                @Reflection.Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
+                @Reflection.Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
+        }
+)
+public class BaseError  extends BaseBaseException implements BaseThrowable {
+    protected ErrorType errorType = ErrorType.E_CORE_ERROR;
+
+    public BaseError(Environment env) {
         super(env);
     }
 
-    public BaseException(Environment env, ClassEntity clazz) {
-        super(env, clazz);
+    public BaseError(Environment env, ErrorType errorType) {
+        super(env);
+        this.errorType = errorType;
     }
 
-    @Signature(value = {
-            @Arg(value = "message", optional = @Optional(value = "", type = HintType.STRING)),
-            @Arg(value = "code", optional = @Optional(value = "0", type = HintType.INT)),
-            @Arg(value = "previous", nativeType = BaseThrowable.class, optional = @Optional(value = "NULL"))
+    public BaseError(Environment env, ClassEntity clazz) {
+        super(env, clazz);
+        errorType = ErrorType.E_ERROR;
+    }
+
+    @Signature
+    public Memory getErrorType() {
+        return LongMemory.valueOf(errorType.value);
+    }
+
+    @Signature({
+            @Reflection.Arg(value = "message", optional = @Reflection.Optional(value = "", type = HintType.STRING)),
+            @Reflection.Arg(value = "code", optional = @Reflection.Optional(value = "0", type = HintType.INT)),
+            @Reflection.Arg(value = "previous", nativeType = BaseThrowable.class, optional = @Reflection.Optional(value = "NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
         clazz.refOfProperty(props, "message").assign(args[0].toString());
