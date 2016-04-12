@@ -261,10 +261,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected CallExprToken processCall(Token previous, Token current, ListIterator<Token> iterator){
         ExprStmtToken param;
 
-        List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+        List<ExprStmtToken> parameters = new ArrayList<>();
         do {
             param = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, true, BraceExprToken.Kind.SIMPLE);
+                    .getNextExpression(nextToken(iterator), iterator, Separator.COMMA, BraceExprToken.Kind.SIMPLE);
 
             if (param != null) {
                 parameters.add(param);
@@ -276,8 +276,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
             }
 
+            if (isClosedBrace(nextToken(iterator), BraceExprToken.Kind.SIMPLE)) {
+                break;
+            }
+
         } while (param != null);
-        nextToken(iterator);
+        //nextToken(iterator);
 
         CallExprToken result = new CallExprToken(TokenMeta.of(previous, current));
         if (previous instanceof ValueExprToken) {
@@ -1080,7 +1084,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     if (previous instanceof NameToken
                             || previous instanceof VariableExprToken
                             || previous instanceof ClosureStmtToken
-                            || previous instanceof ArrayGetExprToken)
+                            || previous instanceof ArrayGetExprToken
+                            || previous instanceof CallExprToken)
                         isFunc = true;
                     else if (previous instanceof StaticAccessExprToken){
                         isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
