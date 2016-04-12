@@ -30,10 +30,6 @@ import php.runtime.reflection.ClassEntity;
 public class BaseError  extends BaseBaseException implements BaseThrowable {
     protected ErrorType errorType = ErrorType.E_CORE_ERROR;
 
-    public BaseError(String message) {
-        super(message);
-    }
-
     public BaseError(Environment env) {
         super(env);
     }

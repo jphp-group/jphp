@@ -56,4 +56,9 @@ public class ExceptionsTest extends JvmCompilerCase {
     public void testGetPrevious() {
         check("exceptions/get_previous.php");
     }
+
+    @Test
+    public void testErrors() {
+        check("exceptions/divzero_1.php");
+    }
 }

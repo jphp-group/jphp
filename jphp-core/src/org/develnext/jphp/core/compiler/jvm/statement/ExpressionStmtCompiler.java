@@ -2141,6 +2141,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         Memory value = R.getMemory();
 
+        writeLineNumber(variable);
+
         if (local.isReference()){
             String name = "assign";
             if (operator.isAsReference())
@@ -2495,7 +2497,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         StackItem.Type type = tryGetType(o);
 
         if (mem != null){
-            Memory result = CompilerUtils.calcUnary(mem, operator);
+            Memory result = CompilerUtils.calcUnary(getCompiler().getEnvironment(), operator.toTraceInfo(getCompiler().getContext()), mem, operator);
 
             if (operator instanceof ValueIfElseToken){
                 ValueIfElseToken valueIfElseToken = (ValueIfElseToken)operator;
@@ -2529,6 +2531,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         if (!writeOpcode)
             return null;
+
+        writeLineNumber(operator);
 
         String name = operator.getCode();
         Class operatorResult = operator.getResultClass();
@@ -2702,10 +2706,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 return null;
 
             stackPop();
-            Memory r = operator.calc(one, two);
+
+            Memory r = operator.calc(getCompiler().getEnvironment(), operator.toTraceInfo(getCompiler().getContext()), one, two);
+
             stackPush(r);
             return r;
         }
+
+        writeLineNumber(operator);
 
         StackItem o = stackPop();
 
@@ -2750,6 +2758,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (writeOpcode) {
             BaseExprCompiler compiler = (BaseExprCompiler) getCompiler(operator.getClass());
             if (compiler != null) {
+                if (writeOpcode) {
+                    writeLineNumber(operator);
+                }
+
                 compiler.write(operator, returnValue);
                 return null;
             }
@@ -2782,7 +2794,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         if (!(operator instanceof AssignExprToken || operator instanceof AssignOperatorExprToken))
         if (o1.getMemory() != null && o2.getMemory() != null){
             Memory result;
-            stackPush(result = CompilerUtils.calcBinary(o2.getMemory(), o1.getMemory(), operator, false));
+            stackPush(result = CompilerUtils.calcBinary(
+                    getCompiler().getEnvironment(), operator.toTraceInfo(getCompiler().getContext()), o2.getMemory(), o1.getMemory(), operator, false
+            ));
             return result;
         }
 
@@ -2818,6 +2832,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPush(o2);
             stackPush(o1);
             return null;
+        }
+
+        if (writeOpcode) {
+            writeLineNumber(operator);
         }
 
         StackItem.Type Lt = tryGetType(o2);
@@ -2900,8 +2918,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (!o1.immutable && !operator.isMutableArguments())
                         writePopImmutable();
                 }
-                if (name != null)
+
+                if (name != null) {
                     writeSysDynamicCall(Memory.class, name, operatorResult, isInvert ? Lt.toClass() : Rt.toClass());
+                }
+
+                if (operator.getCheckerCode() != null) {
+                    writePopBoxing();
+                    writePushEnv();
+                    writePushTraceInfo(operator);
+                    writeSysDynamicCall(Memory.class, operator.getCheckerCode(), Memory.class, Environment.class, TraceInfo.class);
+                }
             }
             setStackPeekAsImmutable();
 

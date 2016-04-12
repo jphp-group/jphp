@@ -8,6 +8,7 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.lang.exception.BaseArithmeticError;
+import php.runtime.lang.exception.BaseDivisionByZeroError;
 import php.runtime.lang.spl.Traversable;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
@@ -357,17 +358,29 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory div(String value){ return div(StringMemory.toNumeric(value)); }
 
     // MOD
+    protected static Memory _divByZero() {
+        return UNDEFINED;
+    }
+
+    public Memory modCheckResult(Environment env, TraceInfo trace) {
+        if (this == UNDEFINED) {
+            env.exception(trace, BaseDivisionByZeroError.class, "Modulo by zero");
+        }
+
+        return this;
+    }
+
     public Memory mod(Memory memory) {
         long t = memory.toLong();
         if (t == 0)
-            return FALSE;
+            return _divByZero();
 
         return LongMemory.valueOf(toLong() % t);
     }
 
-    public Memory mod(long value){ if (value==0) return FALSE; return LongMemory.valueOf(toLong() % value); }
+    public Memory mod(long value){ if (value==0) return _divByZero(); return LongMemory.valueOf(toLong() % value); }
     public Memory mod(double value){ return mod((long) value); }
-    public Memory mod(boolean value){ if (!value) return FALSE; return LongMemory.valueOf(toLong() % 1); }
+    public Memory mod(boolean value){ if (!value) return _divByZero(); return LongMemory.valueOf(toLong() % 1); }
     public Memory mod(String value){ return mod(StringMemory.toNumeric(value, true, CONST_INT_0)); }
 
     // NOT
@@ -468,9 +481,16 @@ abstract public class Memory implements Comparable<Memory> {
     // BIT not ~
     public Memory bitNot(){ return LongMemory.valueOf(~toLong()); }
 
-    private static Memory _negativeShift() {
-        BaseArithmeticError.negativeShift();
-        return FALSE;
+    protected static Memory _negativeShift() {
+        return UNDEFINED;
+    }
+
+    public Memory bitwiseCheckResult(Environment env, TraceInfo trace) {
+        if (this == UNDEFINED) {
+            env.exception(trace, BaseArithmeticError.class, "Bit shift by negative number");
+        }
+
+        return this;
     }
 
     // SHR >>

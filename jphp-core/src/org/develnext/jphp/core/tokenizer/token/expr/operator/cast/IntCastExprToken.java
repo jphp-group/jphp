@@ -1,5 +1,7 @@
 package org.develnext.jphp.core.tokenizer.token.expr.operator.cast;
 
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.LongMemory;
 import php.runtime.Memory;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -16,7 +18,7 @@ public class IntCastExprToken extends CastExprToken {
     }
 
     @Override
-    public Memory calc(Memory o1, Memory o2) {
+    public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2) {
         return LongMemory.valueOf(o1.toLong());
     }
 

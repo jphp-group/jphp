@@ -133,13 +133,21 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.external = external;
     }
 
+    TraceInfo makeTraceInfo(int line, int position) {
+        return new TraceInfo(compiler.getContext(), line, 0, position, 0);
+    }
+
+    TraceInfo makeTraceInfo(Token token) {
+        return token.toTraceInfo(compiler.getContext());
+    }
+
     int addTraceInfo(int line, int position) {
-        traceList.add(new TraceInfo(compiler.getContext(), line, 0, position, 0));
+        traceList.add(makeTraceInfo(line, position));
         return traceList.size() - 1;
     }
 
     int addTraceInfo(Token token) {
-        traceList.add(token.toTraceInfo(compiler.getContext()));
+        traceList.add(makeTraceInfo(token));
         return traceList.size() - 1;
     }
 

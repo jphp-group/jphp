@@ -4,6 +4,8 @@ import php.runtime.common.Association;
 import php.runtime.Memory;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 
 abstract public class OperatorExprToken extends ExprToken {
 
@@ -41,6 +43,8 @@ abstract public class OperatorExprToken extends ExprToken {
         return null;
     }
 
+    public String getCheckerCode() { return null; }
+
     public Class<?> getResultClass(){
         return Memory.class;
     }
@@ -49,7 +53,7 @@ abstract public class OperatorExprToken extends ExprToken {
         return true;
     }
 
-    public Memory calc(Memory o1, Memory o2){
+    public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2){
         return null;
     }
 

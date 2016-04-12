@@ -31,13 +31,6 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
     private String nativeMessage = null;
 
-    public void tryLazyBindToEnvironment(Environment env) {
-        if (this.env == null) {
-            this.env = new WeakReference<>(env);
-            this.clazz = env.fetchClass(getClass());
-        }
-    }
-
     public BaseBaseException(String message) {
         this((Environment) null);
         nativeMessage = message;

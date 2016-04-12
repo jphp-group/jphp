@@ -7,6 +7,7 @@ import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseException;
 import php.runtime.lang.exception.BaseBaseException;
+import php.runtime.lang.exception.BaseError;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.util.JVMStackTracer;
@@ -19,15 +20,23 @@ public class ExceptionHandler {
         @Override
         public boolean onException(Environment env, BaseBaseException exception) throws Throwable {
             ClassEntity entity = exception.getReflection();
+
+            String message = "Uncaught exception '" + entity.getName() + "' with message '" + exception.getMessage(env) + "'";
+
+            if (exception instanceof BaseError) {
+                message = String.format("Uncaught %s: %s", entity.getName(), exception.getMessage(env));
+            }
+
             env.getErrorReportHandler().onFatal(new FatalException(
-                    "Uncaught exception '" + entity.getName() + "' with message '" + exception.getMessage(env) + "'" ,
+                    message,
                     exception.getTrace()
             ));
+
             env.echo("\nStack Trace:\n");
             env.echo(exception.getTraceAsString(env).toString());
             env.echo("\n  thrown in "
-                    + exception.getTrace().getFileName()
-                    + " on line " + (exception.getTrace().getStartLine() + 1) + "\n"
+                            + exception.getTrace().getFileName()
+                            + " on line " + (exception.getTrace().getStartLine() + 1) + "\n"
             );
 
             if (exception instanceof JavaException && ((JavaException) exception).getThrowable() != null){

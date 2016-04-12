@@ -2,6 +2,8 @@ package org.develnext.jphp.core.compiler.common.util;
 
 import org.objectweb.asm.Opcodes;
 import org.develnext.jphp.core.compiler.common.misc.StackItem;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
@@ -37,14 +39,14 @@ final public class CompilerUtils {
         return null;
     }
 
-    public static Memory calcUnary(Memory o1, OperatorExprToken operator){
+    public static Memory calcUnary(Environment env, TraceInfo trace, Memory o1, OperatorExprToken operator){
         if (operator.isBinary())
             throw new IllegalArgumentException("Operator is not unary");
 
-        return operator.calc(o1, null);
+        return operator.calc(env, trace, o1, null);
     }
 
-    public static Memory calcBinary(Memory o1, Memory o2, OperatorExprToken operator, boolean right){
+    public static Memory calcBinary(Environment env, TraceInfo trace, Memory o1, Memory o2, OperatorExprToken operator, boolean right){
         if (!operator.isBinary())
             throw new IllegalArgumentException("Operator is not binary");
 
@@ -54,7 +56,7 @@ final public class CompilerUtils {
             o2 = o;
         }
 
-        return operator.calc(o1, o2);
+        return operator.calc(env, trace, o1, o2);
     }
 
     public static int getOperatorOpcode(OperatorExprToken operator, StackItem.Type type){
