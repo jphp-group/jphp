@@ -18,7 +18,7 @@ spl_autoload_register(function ($class) {
 $server = new WebServer(function() {
     try {
         new Foobar();
-    } catch (EngineException $e) {
+    } catch (Error $e) {
         echo $e->getMessage();
     }
 });
