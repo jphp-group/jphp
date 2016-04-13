@@ -57,8 +57,9 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
                 expr.writePopAll(1);
             } else if (v.isDynamicProperty()){
                 DynamicAccessExprToken dynamic = (DynamicAccessExprToken)v.var.getLast();
-                ExprStmtToken var = new ExprStmtToken(v.var.getTokens());
+                ExprStmtToken var = new ExprStmtToken(this.env, this.compiler.getContext(), v.var.getTokens());
                 var.getTokens().remove(var.getTokens().size() - 1);
+                var.updateAsmExpr(this.env, this.compiler.getContext());
 
                 expr.writeDynamicAccessInfo(dynamic, false);
                 expr.writeExpression(var, true, false);

@@ -187,7 +187,7 @@ public class JvmCompiler extends AbstractCompiler {
                 module.addClass(entity);
 
                 if (cmp.isInitDynamicExists()){
-                    externalCode.add(new ExprStmtToken(
+                    externalCode.add(new ExprStmtToken(getEnvironment(), getContext(),
                         new ClassInitEnvironment((ClassStmtToken)token, entity)
                     ));
                 }
@@ -199,7 +199,7 @@ public class JvmCompiler extends AbstractCompiler {
             } else if (token instanceof ExprStmtToken){
                 externalCode.add((ExprStmtToken)token);
             } else
-                externalCode.add(new ExprStmtToken(token));
+                externalCode.add(new ExprStmtToken(getEnvironment(), getContext(), token));
         }
 
         return externalCode;

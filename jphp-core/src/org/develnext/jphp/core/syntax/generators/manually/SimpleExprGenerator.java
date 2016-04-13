@@ -2,6 +2,7 @@ package org.develnext.jphp.core.syntax.generators.manually;
 
 
 import org.develnext.jphp.core.common.Separator;
+import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.syntax.Scope;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.ExprGenerator;
@@ -122,6 +123,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 if (single instanceof ArrayGetExprToken){
                     single = new ArrayGetRefExprToken((ArrayGetExprToken)single);
                     var.getTokens().set(var.getTokens().size() - 1, single);
+                    var.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
                 }
 
                 result.addVariable(var, i, indexes);
@@ -178,6 +180,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             unexpectedToken(last);
 
         EmptyExprToken result = (EmptyExprToken)current;
+        value.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
         result.setValue(value);
         return result;
     }
@@ -210,8 +213,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else
                 unexpectedToken(param.getSingle());
 
-            if (newToken != null)
+            if (newToken != null) {
                 tokens.set(tokens.size() - 1, newToken);
+                param.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
+            }
         }
 
         IssetExprToken result = (IssetExprToken)current;
@@ -251,6 +256,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 unexpectedToken(last);
 
             tokens.set(tokens.size() - 1, newToken);
+
+            param.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
         }
 
         UnsetExprToken result = (UnsetExprToken)current;
@@ -382,7 +389,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (result.getField() instanceof VariableExprToken) {
                 if (isOpenedBrace(nextTokenAndPrev(iterator), BraceExprToken.Kind.ARRAY)){
                     ArrayGetExprToken arr = (ArrayGetExprToken) processArrayToken(next, nextToken(iterator), iterator);
-                    result.setFieldExpr(new ExprStmtToken(result.getField(), arr));
+                    result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), result.getField(), arr));
                     result.setField(null);
                 }
             }
@@ -415,12 +422,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     public GetVarExprToken processVarVar(Token current, Token next, ListIterator<Token> iterator){
         ExprStmtToken name = null;
         if (next instanceof VariableExprToken){ // $$var
-            name = new ExprStmtToken(next);
+            name = new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), next);
             nextToken(iterator);
         } else if (next instanceof DollarExprToken){ // $$$var
             current = nextToken(iterator);
             next    = nextToken(iterator);
-            name    = new ExprStmtToken(processVarVar(current, next, iterator));
+            name    = new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), processVarVar(current, next, iterator));
             iterator.previous();
         } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){ // ${var}
             name = analyzer.generator(ExprGenerator.class).getInBraces(
@@ -495,6 +502,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 next = iterator.next();
                 iterator.previous();
             }
+
             tmp.add(processDynamicAccess(token, next, iterator, closedBrace, braceOpened));
             if (iterator.hasNext()) {
                 token = nextTokenAndPrev(iterator);
@@ -507,7 +515,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         } else
             iterator.previous();
 
-        return new ExprStmtToken(tmp);
+        if (!first) {
+            return new ExprStmtToken(null, null, tmp);
+        }
+
+        return new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), tmp);
     }
 
     protected Token processNew(Token current, BraceExprToken.Kind closedBrace, int braceOpened, ListIterator<Token> iterator){
@@ -853,9 +865,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 } else if (next instanceof DollarExprToken) {
                     Token nm = nextToken(iterator);
                     if (nm instanceof VariableExprToken) {
-                        result.setFieldExpr(new ExprStmtToken(nm));
+                        result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), nm));
                     } else if (nm instanceof DollarExprToken) {
-                        result.setFieldExpr(new ExprStmtToken(processVarVar(nm, nextTokenAndPrev(iterator), iterator)));
+                        result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), processVarVar(nm, nextTokenAndPrev(iterator), iterator)));
                     } else if (isOpenedBrace(nm, BraceExprToken.Kind.BLOCK)) {
                         iterator.previous();
                         result.setFieldExpr(
@@ -1276,7 +1288,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (braceOpened != 0)
             unexpectedToken(iterator.previous());
 
-        return new ExprStmtToken(tokens);
+        ExprStmtToken exprStmtToken = new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), tokens);
+
+        return exprStmtToken;
     }
 
     @Override

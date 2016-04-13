@@ -91,8 +91,10 @@ public class ForeachCompiler extends BaseStatementCompiler<ForeachStmtToken> {
         if (last instanceof DynamicAccessExprToken){
             DynamicAccessExprToken setter = (DynamicAccessExprToken)last;
 
-            ExprStmtToken value = new ExprStmtToken(token.getValue().getTokens());
+            ExprStmtToken value = new ExprStmtToken(this.env, this.compiler.getContext(), token.getValue().getTokens());
             value.getTokens().remove(value.getTokens().size() - 1);
+            value.updateAsmExpr(this.env, this.compiler.getContext());
+
             expr.writeExpression(value, true, false);
 
             expr.writeVarLoad(foreachVariable);

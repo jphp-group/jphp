@@ -2977,8 +2977,13 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int initStackSize = method.getStackCount();
         exprStackInit.push(initStackSize);
 
-        if (!expression.isStmtList())
-            expression = new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
+        if (!expression.isStmtList()) {
+            if (expression.getAsmExpr() == null) {
+                throw new CriticalException("Invalid expression token without asm expr, on line " + expression.getMeta().getStartLine() + ", expr = " + expression.getWord());
+            }
+
+            expression = expression.getAsmExpr(); // new ASMExpression(compiler.getEnvironment(), compiler.getContext(), expression).getResult();
+        }
 
         List<Token> tokens = expression.getTokens();
         int operatorCount = 0;

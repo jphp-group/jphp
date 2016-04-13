@@ -137,7 +137,7 @@ public class ASMExpression {
                     unexpectedToken(el);
         }
 
-        this.result = new ExprStmtToken(result);
+        this.result = new ExprStmtToken(null, null, result);
     }
 
     protected void processOperator(Stack<Token> stack, List<Token> result, OperatorExprToken current){

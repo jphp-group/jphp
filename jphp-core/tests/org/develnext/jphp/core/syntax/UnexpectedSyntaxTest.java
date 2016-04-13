@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.support.ErrorException;
 
 @RunWith(JUnit4.class)
@@ -16,7 +17,7 @@ public class UnexpectedSyntaxTest extends AbstractSyntaxTestCase {
         getSyntaxTree("$d =");
     }
 
-    @Test
+    @Test(expected = CustomErrorException.class)
     public void test2(){
         getSyntaxTree("$d =;"); // it's checks on operators in compiler
     }

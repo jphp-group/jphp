@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.tokenizer.token.expr.*;
 import php.runtime.common.Messages;
 import org.develnext.jphp.core.common.Separator;
@@ -145,10 +146,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
 
-        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(nextToken(iterator), iterator, Separator.AS, null);
-        if (expr == null)
+        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator, Separator.AS, null);
+
+        if (expr == null) {
             unexpectedToken(iterator.previous());
+        }
 
         result.setIterator(expr);
 
@@ -161,7 +163,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
         if (next instanceof ListExprToken) {
             ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class).processSingleList(next, iterator);
-            result.setValue(new ExprStmtToken(listExpr));
+            result.setValue(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), listExpr));
         } else if (next instanceof VariableExprToken && nextTokenAndPrev(iterator) instanceof KeyValueExprToken){
             iterator.next();
             result.setKey((VariableExprToken)next);
@@ -178,7 +180,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class)
                         .processSingleList(next, iterator);
 
-                result.setValue(new ExprStmtToken(listExpr));
+                result.setValue(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), listExpr));
             } else {
                 ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
                         .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
@@ -256,6 +258,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             result.getValue().getTokens().set(
                     result.getValue().getTokens().size() - 1, new ArrayGetRefExprToken((ArrayGetExprToken)last)
             );
+            result.getValue().updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
         }
 
         if (result.getKey() != null)
@@ -719,7 +722,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (tokens.isEmpty())
             return null;
 
-        return new ExprStmtToken(tokens);
+        return new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), tokens);
     }
 
     @Override
