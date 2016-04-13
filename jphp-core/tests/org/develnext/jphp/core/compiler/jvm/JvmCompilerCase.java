@@ -16,6 +16,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.CoreExtension;
 import php.runtime.ext.SPLExtension;
 import php.runtime.lang.UncaughtException;
+import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
@@ -243,7 +244,7 @@ abstract public class JvmCompilerCase {
                         + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
                         e.getTraceInfo());
             }
-        } catch (UncaughtException e){
+        } catch (UncaughtException | BaseBaseException e){
             environment.catchUncaught(e);
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
