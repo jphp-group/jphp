@@ -88,6 +88,10 @@ public class BraceExprToken extends ExprToken {
         return kind == Kind.ARRAY;
     }
 
+    public boolean isBlock(){
+        return kind == Kind.BLOCK;
+    }
+
     public boolean isSimpleOpened(){
         return kind == Kind.SIMPLE && isOpened();
     }

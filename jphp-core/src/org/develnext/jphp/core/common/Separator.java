@@ -37,7 +37,10 @@ public enum Separator {
             case COMMA_OR_SEMICOLON: return token instanceof CommaToken || token instanceof SemicolonToken;
             case AS: return token instanceof AsStmtToken;
             case ARRAY_BLOCK:
-            case ARRAY: return token instanceof BraceExprToken && ((BraceExprToken) token).isArray();
+                if (token instanceof BraceExprToken && ((BraceExprToken) token).isBlock()) {
+                    return true;
+                } // to next check.
+             case ARRAY: return token instanceof BraceExprToken && ((BraceExprToken) token).isArray();
         }
         return false;
     }

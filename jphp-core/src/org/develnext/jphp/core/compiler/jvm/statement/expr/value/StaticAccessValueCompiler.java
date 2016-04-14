@@ -35,6 +35,7 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 expr.unexpectedToken(token);
         } else {
             ValueExprToken clazz = token.getClazz();
+
             if (clazz instanceof ParentExprToken){
                 expr.writePushParent(clazz);
             } else if (clazz instanceof NameToken){
@@ -43,13 +44,19 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
             } else {
                 if (clazz instanceof StaticExprToken){
                     expr.writePushStatic();
-                } else
-                    expr.writePush(clazz, true, false);
+                } else {
+                    if (clazz != null) {
+                        expr.writePush(clazz, true, false);
+                    } else {
+                        // it static access operator. skip.
+                    }
+                }
+
                 expr.writePopString();
                 expr.writePushDupLowerCase();
             }
 
-            if (isConstant){
+            if (isConstant) {
                 expr.writePushConstString(((NameToken) token.getField()).getName());
                 expr.writePushEnv();
                 expr.writePushTraceInfo(token);
@@ -96,7 +103,6 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                         PropertyCallCache.class, int.class
                 );
             }
-
         }
 
         if (!returnValue)

@@ -28,6 +28,9 @@ import php.runtime.exceptions.ParseException;
 
 import java.util.*;
 
+import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.ARRAY;
+import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.BLOCK;
+
 public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     private boolean isRef = false;
@@ -364,7 +367,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     protected CallExprToken processPrint(Token current, Token next, ListIterator<Token> iterator,
                                          BraceExprToken.Kind closedBrace, int braceOpened){
         CallExprToken callExprToken = new CallExprToken(current.getMeta());
-        callExprToken.setName((ExprToken)current);
+        callExprToken.setName((ExprToken) current);
 
         ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                 nextToken(iterator), iterator, BraceExprToken.Kind.ANY
@@ -377,6 +380,97 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return callExprToken;
     }
 
+    protected Token processStaticAccess(Token current, Token previous, ListIterator<Token> iterator) {
+        Token name = previous;
+
+        if (name != null && !isTokenClass(name, SelfExprToken.class, StaticExprToken.class, ParentExprToken.class)) {
+            name = makeSensitive(previous);
+        }
+
+        if (name == null || name instanceof NameToken || name instanceof VariableExprToken
+                || name instanceof SelfExprToken || name instanceof StaticExprToken
+                || name instanceof ParentExprToken) {
+            if (name instanceof StaticExprToken) {
+                analyzer.getScope().setStaticExists(true);
+            }
+
+            StaticAccessExprToken result = (StaticAccessExprToken) current;
+            ValueExprToken clazz = (ValueExprToken) name;
+
+            if (clazz instanceof NameToken){
+                clazz = analyzer.getRealName((NameToken)clazz);
+            } else if (clazz instanceof SelfExprToken){
+                if (analyzer.getClazz() == null)
+                    unexpectedToken(clazz);
+
+                if (!analyzer.getClazz().isTrait()) {
+                    clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>() {{
+                        if (analyzer.getClazz().getNamespace().getName() != null)
+                            addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                        add(analyzer.getClazz().getName());
+                    }});
+                }
+            }
+
+            result.setClazz(clazz);
+
+            if (name != null) {
+                nextToken(iterator);
+            }
+
+            current = nextToken(iterator);
+
+            if (!isTokenClass(current, ClassStmtToken.class)) {
+                current = makeSensitive(current);
+            }
+
+            if (isOpenedBrace(current, BLOCK)){
+                ExprStmtToken expr = getToken(nextToken(iterator), iterator, false, BLOCK);
+                result.setFieldExpr(expr);
+                nextAndExpected(iterator, BraceExprToken.class);
+            } else if (current instanceof NameToken || current instanceof VariableExprToken){
+                result.setField((ValueExprToken)current);
+            } else if (current instanceof DollarExprToken) {
+                Token nm = nextToken(iterator);
+                if (nm instanceof VariableExprToken) {
+                    result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), nm));
+                } else if (nm instanceof DollarExprToken) {
+                    result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), processVarVar(nm, nextTokenAndPrev(iterator), iterator)));
+                } else if (isOpenedBrace(nm, BLOCK)) {
+                    iterator.previous();
+                    result.setFieldExpr(
+                            analyzer.generator(ExprGenerator.class).getInBraces(BLOCK, iterator)
+                    );
+                } else
+                    unexpectedToken(current);
+            } else if (current instanceof ClassStmtToken) { // PHP 5.5 ::class
+                if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
+                    if (clazz instanceof StaticExprToken) {
+                        analyzer.getScope().setStaticExists(true);
+                    }
+
+                    result.setField(new ClassExprToken(current.getMeta()));
+                } else if (clazz instanceof NameToken) {
+                    return new StringExprToken(
+                            TokenMeta.of(((NameToken) clazz).getName(), clazz),
+                            StringExprToken.Quote.SINGLE
+                    );
+                } else
+                    unexpectedToken(current);
+            } else
+                unexpectedToken(current);
+
+            if (name == null) {
+                return new StaticAccessOperatorExprToken(result);
+            }
+
+            return result;
+        } else
+            unexpectedToken(name);
+
+        return null;
+    }
+
     protected DynamicAccessExprToken processDynamicAccess(Token current, Token next, ListIterator<Token> iterator,
             BraceExprToken.Kind closedBraceKind, int braceOpened){
         if (next != null && next.isNamedToken() && !(next instanceof NameToken))
@@ -387,15 +481,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result.setField((ValueExprToken) next);
             next = iterator.next();
             if (result.getField() instanceof VariableExprToken) {
-                if (isOpenedBrace(nextTokenAndPrev(iterator), BraceExprToken.Kind.ARRAY)){
+                if (isOpenedBrace(nextTokenAndPrev(iterator), ARRAY)){
                     ArrayGetExprToken arr = (ArrayGetExprToken) processArrayToken(next, nextToken(iterator), iterator);
                     result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), result.getField(), arr));
                     result.setField(null);
                 }
             }
-        } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
+        } else if (isOpenedBrace(next, BLOCK)){
             ExprStmtToken name = analyzer.generator(ExprGenerator.class).getInBraces(
-                    BraceExprToken.Kind.BLOCK, iterator
+                    BLOCK, iterator
             );
             result.setFieldExpr(name);
         }
@@ -429,9 +523,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             next    = nextToken(iterator);
             name    = new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), processVarVar(current, next, iterator));
             iterator.previous();
-        } else if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){ // ${var}
+        } else if (isOpenedBrace(next, BLOCK)){ // ${var}
             name = analyzer.generator(ExprGenerator.class).getInBraces(
-                    BraceExprToken.Kind.BLOCK, iterator
+                    BLOCK, iterator
             );
         }
 
@@ -490,7 +584,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         Token previous = next;
         Token token = nextToken(iterator);
 
-        if (isOpenedBrace(token, BraceExprToken.Kind.ARRAY) || isOpenedBrace(token, BraceExprToken.Kind.BLOCK)) {
+        if (isOpenedBrace(token, ARRAY) || isOpenedBrace(token, BLOCK)) {
             tmp.add(processArrayToken(previous, token, iterator));
             if (iterator.hasNext()) {
                 if (nextTokenAndPrev(iterator) instanceof DynamicAccessExprToken)
@@ -506,8 +600,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             tmp.add(processDynamicAccess(token, next, iterator, closedBrace, braceOpened));
             if (iterator.hasNext()) {
                 token = nextTokenAndPrev(iterator);
-                if (isOpenedBrace(token, BraceExprToken.Kind.ARRAY)
-                        || isOpenedBrace(token, BraceExprToken.Kind.BLOCK)
+                if (isOpenedBrace(token, ARRAY)
+                        || isOpenedBrace(token, BLOCK)
                         || token instanceof DynamicAccessExprToken) {
                     tmp.addAll(processNewExpr(next, closedBrace, braceOpened, iterator, false).getTokens());
                 }
@@ -815,85 +909,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (next instanceof StaticAccessExprToken) {
-            Token name = current;
+            return processStaticAccess(next, current, iterator);
+        }
 
-            if (!isTokenClass(name, SelfExprToken.class, StaticExprToken.class, ParentExprToken.class)) {
-                name = makeSensitive(current);
-            }
-
-            if (name instanceof NameToken || name instanceof VariableExprToken
-                    || name instanceof SelfExprToken || name instanceof StaticExprToken
-                    || name instanceof ParentExprToken){
-
-                if (name instanceof StaticExprToken) {
-                    analyzer.getScope().setStaticExists(true);
-                }
-
-                StaticAccessExprToken result = (StaticAccessExprToken)next;
-                ValueExprToken clazz = (ValueExprToken) name;
-
-                if (clazz instanceof NameToken){
-                    clazz = analyzer.getRealName((NameToken)clazz);
-                } else if (clazz instanceof SelfExprToken){
-                    if (analyzer.getClazz() == null)
-                        unexpectedToken(clazz);
-
-                    if (!analyzer.getClazz().isTrait()) {
-                        clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>() {{
-                            if (analyzer.getClazz().getNamespace().getName() != null)
-                                addAll(analyzer.getClazz().getNamespace().getName().getNames());
-                            add(analyzer.getClazz().getName());
-                        }});
-                    }
-                }
-
-                result.setClazz(clazz);
-                nextToken(iterator);
-
-                next = nextToken(iterator);
-
-                if (!isTokenClass(next, ClassStmtToken.class)) {
-                    next = makeSensitive(next);
-                }
-
-                if (isOpenedBrace(next, BraceExprToken.Kind.BLOCK)){
-                    ExprStmtToken expr = getToken(nextToken(iterator), iterator, false, BraceExprToken.Kind.BLOCK);
-                    result.setFieldExpr(expr);
-                    nextAndExpected(iterator, BraceExprToken.class);
-                } else if (next instanceof NameToken || next instanceof VariableExprToken){
-                    result.setField((ValueExprToken)next);
-                } else if (next instanceof DollarExprToken) {
-                    Token nm = nextToken(iterator);
-                    if (nm instanceof VariableExprToken) {
-                        result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), nm));
-                    } else if (nm instanceof DollarExprToken) {
-                        result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), processVarVar(nm, nextTokenAndPrev(iterator), iterator)));
-                    } else if (isOpenedBrace(nm, BraceExprToken.Kind.BLOCK)) {
-                        iterator.previous();
-                        result.setFieldExpr(
-                                analyzer.generator(ExprGenerator.class).getInBraces(BraceExprToken.Kind.BLOCK, iterator)
-                        );
-                    } else
-                        unexpectedToken(next);
-                } else if (next instanceof ClassStmtToken) { // PHP 5.5 ::class
-                    if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
-                        if (clazz instanceof StaticExprToken) {
-                            analyzer.getScope().setStaticExists(true);
-                        }
-
-                        result.setField(new ClassExprToken(next.getMeta()));
-                    } else if (clazz instanceof NameToken) {
-                        return new StringExprToken(
-                                TokenMeta.of(((NameToken) clazz).getName(), clazz),
-                                StringExprToken.Quote.SINGLE);
-                    } else
-                        unexpectedToken(next);
-                } else
-                    unexpectedToken(next);
-
-                return result;
-            } else
-                unexpectedToken(name);
+        if (current instanceof StaticAccessExprToken) {
+            return processStaticAccess(current, null, iterator);
         }
 
         if (current instanceof StringExprToken){
@@ -925,9 +945,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         Token next;
         BraceExprToken.Kind braceKind;
-        if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)) {
+        if (isOpenedBrace(current, ARRAY)) {
             next = current;
-            braceKind = BraceExprToken.Kind.ARRAY;
+            braceKind = ARRAY;
         } else {
             next = nextToken(iterator);
             if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
@@ -952,10 +972,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processArrayToken(Token previous, Token current, ListIterator<Token> iterator){
-        BraceExprToken.Kind braceKind = BraceExprToken.Kind.ARRAY;
+        BraceExprToken.Kind braceKind = ARRAY;
         Separator separator = Separator.ARRAY;
-        if (isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
-            braceKind = BraceExprToken.Kind.BLOCK;
+        if (isOpenedBrace(current, BLOCK)){
+            braceKind = BLOCK;
             separator = Separator.ARRAY_BLOCK;
         }
 
@@ -978,36 +998,47 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             iterator.previous();
 
         ExprStmtToken param;
-        List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+        List<ExprStmtToken> parameters = new ArrayList<>();
         boolean lastPush = false;
+
         do {
-            param = analyzer.generator(SimpleExprGenerator.class)
-                    .getToken(nextToken(iterator), iterator, separator, braceKind);
+            Token token = nextToken(iterator);
+
+            if (isClosedBrace(token, ARRAY)) {
+                iterator.previous();
+
+                if (iterator.hasPrevious()) {
+                    iterator.previous();
+                }
+
+                lastPush = true;
+                break;
+            } else {
+                param = analyzer.generator(SimpleExprGenerator.class).getNextExpression(token, iterator, separator, braceKind);
+            }
 
             if (param != null) {
                 parameters.add(param);
 
                 if (iterator.hasNext()){
-                    Token tmp = nextToken(iterator);
-                    if (isOpenedBrace(tmp, BraceExprToken.Kind.ARRAY)){
-                        braceKind = BraceExprToken.Kind.ARRAY;
-                        separator = Separator.ARRAY;
-                        continue;
-                    } else if (isOpenedBrace(tmp, BraceExprToken.Kind.BLOCK)){
-                        braceKind = BraceExprToken.Kind.BLOCK;
-                        separator = Separator.ARRAY_BLOCK;
-                        continue;
+                    iterator.next();
+
+                    if (iterator.hasNext()) {
+                        Token tmp = nextToken(iterator);
+                        if (isOpenedBrace(tmp, ARRAY)) {
+                            braceKind = ARRAY;
+                            separator = Separator.ARRAY;
+                            continue;
+                        } else if (isOpenedBrace(tmp, BLOCK)) {
+                            braceKind = BLOCK;
+                            separator = Separator.ARRAY_BLOCK;
+                            continue;
+                        }
+                        iterator.previous();
                     }
-                    iterator.previous();
+
                     break;
                 }
-            }  else {
-                Token prev = iterator.previous();
-                if (isClosedBrace(prev, braceKind)){
-                    iterator.previous();
-                    lastPush = true;
-                } else
-                    iterator.next();
             }
 
         } while (param != null);
@@ -1017,18 +1048,24 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         result = new ArrayGetExprToken(current.getMeta());
         result.setParameters(parameters);
 
-        if (isRef){
+        if (isRef) {
             result = new ArrayGetRefExprToken(result);
             ((ArrayGetRefExprToken)result).setShortcut(true);
-            if (var != null && analyzer.getFunction() != null)
+
+            if (var != null && analyzer.getFunction() != null) {
                 analyzer.getFunction().variable(var).setMutable(true);
+            }
         } else if (iterator.hasNext()){
             next = iterator.next();
+
             if (next instanceof AssignableOperatorToken || lastPush){
                 result = new ArrayGetRefExprToken(result);
-                if (var != null && analyzer.getFunction() != null)
+
+                if (var != null && analyzer.getFunction() != null) {
                     analyzer.getFunction().variable(var).setMutable(true);
+                }
             }
+
             iterator.previous();
         }
 
@@ -1126,8 +1163,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 tokens.add(current);
                 if (isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE))
                     unexpectedToken(current);
-            } else if (isOpenedBrace(current, BraceExprToken.Kind.ARRAY)
-                    || isOpenedBrace(current, BraceExprToken.Kind.BLOCK)){
+            } else if (isOpenedBrace(current, ARRAY)
+                    || isOpenedBrace(current, BLOCK)){
                 if (isTokenClass(previous,
                         NameToken.class,
                         VariableExprToken.class,
@@ -1149,21 +1186,21 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 } else if (previous instanceof OperatorExprToken
                         || previous == null
                         || isOpenedBrace(previous, BraceExprToken.Kind.SIMPLE)
-                        || isOpenedBrace(previous, BraceExprToken.Kind.BLOCK)) {
+                        || isOpenedBrace(previous, BLOCK)) {
                     tokens.add(current = processNewArray(current, iterator));
                 } else
                     unexpectedToken(current);
-            } else if (braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.ARRAY)){
+            } else if (braceOpened == 0 && isClosedBrace(current, ARRAY)){
                 if (separator == Separator.ARRAY)
                     break;
-                if (closedBraceKind == BraceExprToken.Kind.ARRAY || closedBraceKind == BraceExprToken.Kind.ANY){
+                if (closedBraceKind == ARRAY || closedBraceKind == BraceExprToken.Kind.ANY){
                     //if (tokens.isEmpty())
                     iterator.previous();
                     break;
                 }
                 unexpectedToken(current);
             } else if (separator == Separator.ARRAY_BLOCK
-                    && braceOpened == 0 && isClosedBrace(current, BraceExprToken.Kind.BLOCK)){
+                    && braceOpened == 0 && isClosedBrace(current, BLOCK)){
                 break;
             } else if (current instanceof FunctionStmtToken){
                 current = processClosure(current, next, iterator);

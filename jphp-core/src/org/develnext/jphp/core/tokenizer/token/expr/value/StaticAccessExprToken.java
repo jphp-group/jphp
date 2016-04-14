@@ -6,7 +6,6 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
 public class StaticAccessExprToken extends ValueExprToken {
-
     protected ValueExprToken clazz;
     protected ValueExprToken field;
     protected ExprStmtToken fieldExpr;
@@ -48,6 +47,6 @@ public class StaticAccessExprToken extends ValueExprToken {
     }
 
     public boolean isAsParent(){
-        return clazz instanceof ParentExprToken;
+        return clazz.getLast() instanceof ParentExprToken;
     }
 }

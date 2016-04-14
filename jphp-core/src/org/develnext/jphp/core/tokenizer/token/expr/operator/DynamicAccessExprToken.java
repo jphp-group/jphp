@@ -8,7 +8,6 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
 public class DynamicAccessExprToken extends OperatorExprToken {
-
     protected ValueExprToken field;
     protected ExprStmtToken fieldExpr;
 

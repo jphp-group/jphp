@@ -130,7 +130,7 @@ public class ODatabase extends BaseWrapper<ODatabaseDocument> {
 
     @Signature
     public WrapFlow query(Environment env, String query, int limit) {
-        return new WrapFlow(env, getWrappedObject().query(new OSQLSynchQuery<>(query, limit)));
+        return new WrapFlow(env, getWrappedObject().<List<?>>query(new OSQLSynchQuery<>(query, limit)));
     }
 
     @Signature
