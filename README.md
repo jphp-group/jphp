@@ -28,6 +28,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
++ PHP 5.6+ (some language features from PHP 7).
 + JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7), Optimizer - [Performance benchmarks](http://blog.j-php.net/archives/34)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
@@ -37,9 +38,12 @@ Our project started in October 2013. There were a few reasons for that:
 + Optional Hot Reloading for classes and functions
 + Ability to use on **Android** OS
 
-**What JPHP does not yet support?**
-
-+ Importing namespaced functions (php 5.6)
+**What JPHP supports from PHP 7?**
++ Context Sensitive Lexer.
++ Fix list() behavior inconsistency (SNAPSHOT).
++ Throwable Interface (SNAPSHOT).
++ Group Use Declarations (SNAPSHOT).
++ Uniform Variable Syntax (SNAPSHOT, partly).
 
 ### Documentation
 
@@ -56,4 +60,4 @@ Our project started in October 2013. There were a few reasons for that:
 
 Use `gradle install` to build and install the jphp modules and libraries into the mavel local repository. After this, you can use jphp in your projects as a maven dependency.
 
-`org.develnext:jphp-core:<version>-SNAPSHOT`
+`org.develnext.jphp:jphp-<module>:<version>-SNAPSHOT`
