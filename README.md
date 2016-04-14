@@ -40,6 +40,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 **What JPHP supports from PHP 7?**
 + Context Sensitive Lexer.
++ Fix list() behavior inconsistency.
 + Throwable Interface (SNAPSHOT).
 + Group Use Declarations (SNAPSHOT).
 + Uniform Variable Syntax (SNAPSHOT, partly).
