@@ -19,6 +19,8 @@ import java.io.*;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static php.runtime.annotation.Reflection.*;
@@ -137,8 +139,20 @@ abstract public class Stream extends BaseObject implements Resource {
     @Signature({@Arg("path"), @Arg("data"), @Arg(value = "mode", optional = @Optional("w+"))})
     public static Memory putContents(Environment env, Memory... args) throws Throwable {
         Stream stream = create(env, args[0].toString(), args[2].toString());
+
+        FileLock lock = null;
         try {
-            return env.invokeMethod(stream, "write", args[1]);
+            if (stream instanceof FileStream) {
+                lock = ((FileStream) stream).getAccessFile().getChannel().lock();
+            }
+
+            try {
+                return env.invokeMethod(stream, "write", args[1]);
+            } finally {
+                if (lock != null) {
+                    lock.release();
+                }
+            }
         } finally {
             env.invokeMethod(stream, "close");
         }

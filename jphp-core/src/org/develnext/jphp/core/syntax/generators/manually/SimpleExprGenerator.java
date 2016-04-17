@@ -921,7 +921,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof NameToken) {
-            return analyzer.getRealName((NameToken)current, NamespaceUseStmtToken.UseType.CONSTANT);
+            if (previous instanceof InstanceofExprToken) {
+                return analyzer.getRealName((NameToken) current, NamespaceUseStmtToken.UseType.CLASS);
+            } else {
+                return analyzer.getRealName((NameToken) current, NamespaceUseStmtToken.UseType.CONSTANT);
+            }
         }
 
         if (current instanceof MacroToken) {
@@ -1124,6 +1128,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (breakCallback != null && current != null && breakCallback.call(current)){
                 break;
             }
+
             if (isOpenedBrace(current, BraceExprToken.Kind.SIMPLE)){
                 boolean isFunc = false;
                 if (previous instanceof NameToken && previous.getMeta().getWord().equalsIgnoreCase("array")){

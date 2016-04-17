@@ -35,6 +35,10 @@ public class FileStream extends Stream {
         env.exception(WrapIOException.class, "Cannot read file");
     }
 
+    public RandomAccessFile getAccessFile() {
+        return accessFile;
+    }
+
     @Override
     @Signature({@Arg("path"), @Arg(value = "mode", optional = @Reflection.Optional("r"))})
     public Memory __construct(Environment env, Memory... args) throws IOException {
