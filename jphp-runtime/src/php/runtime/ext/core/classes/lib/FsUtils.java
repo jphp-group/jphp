@@ -295,13 +295,18 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static long copy(InputStream input, OutputStream output) throws IOException {
-        return copy(input, output, null);
+        return copy(input, output, null, BUFFER_SIZE);
     }
 
     @Signature
     public static long copy(InputStream input, OutputStream output, @Nullable Invoker callback) throws IOException {
+        return copy(input, output, callback, BUFFER_SIZE);
+    }
+
+    @Signature
+    public static long copy(InputStream input, OutputStream output, @Nullable Invoker callback, int bufferSize) throws IOException {
         long nread = 0L;
-        byte[] buf = new byte[BUFFER_SIZE];
+        byte[] buf = new byte[bufferSize];
         int n;
 
         while ((n = input.read(buf)) > 0) {

@@ -244,9 +244,10 @@ class fs
      * @param string|File|Stream $source
      * @param string|File|Stream $dest
      * @param callable $onProgress ($copiedBytes)
+     * @param int $bufferSize
      * @return int copied bytes.
      */
-    static function copy($source, $dest, callable $onProgress = null)
+    static function copy($source, $dest, callable $onProgress = null, $bufferSize = 8096)
     {
     }
 
