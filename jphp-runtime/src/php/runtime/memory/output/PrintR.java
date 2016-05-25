@@ -169,23 +169,25 @@ public class PrintR extends Printer {
                 props = value.getProperties();
             }
 
-            for (PropertyEntity entity : classEntity.getProperties()) {
-                if (entity.getGetter() != null && !entity.isHiddenInDebugInfo()) {
-                    printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
+            if (classEntity.methodMagicDebugInfo != null) {
+                for (PropertyEntity entity : classEntity.getProperties()) {
+                    if (entity.getGetter() != null && !entity.isHiddenInDebugInfo()) {
+                        printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
-                    printer.write("[");
-                    printer.write(entity.getName());
-                    printer.write(":getter] => ");
+                        printer.write("[");
+                        printer.write(entity.getName());
+                        printer.write(":getter] => ");
 
-                    try {
-                        print(entity.getValue(env, TraceInfo.UNKNOWN, value.value));
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (Throwable throwable) {
-                        throw new RuntimeException(throwable);
+                        try {
+                            print(entity.getValue(env, TraceInfo.UNKNOWN, value.value));
+                        } catch (RuntimeException e) {
+                            throw e;
+                        } catch (Throwable throwable) {
+                            throw new RuntimeException(throwable);
+                        }
+
+                        writeSeparator(false);
                     }
-
-                    writeSeparator(false);
                 }
             }
 
