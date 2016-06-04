@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import php.runtime.common.HintType;
@@ -191,6 +192,32 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     @SuppressWarnings("unchecked")
     public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator, boolean closureAllowed) {
         if (current instanceof FunctionStmtToken){
+            CommentToken commentToken = null;
+
+            iterator.previous();
+            if (iterator.hasPrevious()) {
+
+                int cnt = 0;
+
+                while (iterator.hasPrevious()) {
+                    cnt++;
+                    Token previous = iterator.previous();
+
+                    if (previous.isNamedToken()) continue;
+
+                    if (previous instanceof CommentToken && ((CommentToken) previous).getKind() == CommentToken.Kind.DOCTYPE) {
+                        commentToken = ((CommentToken) previous);
+                    }
+
+                    break;
+                }
+
+                for (int i = 0; i < cnt; i++) {
+                    iterator.next();
+                }
+            }
+            iterator.next();
+
             FunctionStmtToken result = (FunctionStmtToken)current;
             result.setStatic(analyzer.getFunction() == null);
 
@@ -220,7 +247,9 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                     unexpectedToken(brace, "(");
 
                 result.setNamespace(analyzer.getNamespace());
-                result.setName((NameToken)next);
+                result.setName((NameToken) next);
+                result.setDocComment(commentToken);
+
                 processArguments(result, iterator);
                 processBody(result, iterator);
 

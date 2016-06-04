@@ -400,15 +400,16 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             if (clazz instanceof NameToken){
                 clazz = analyzer.getRealName((NameToken)clazz);
             } else if (clazz instanceof SelfExprToken){
-                if (analyzer.getClazz() == null)
-                    unexpectedToken(clazz);
-
-                if (!analyzer.getClazz().isTrait()) {
-                    clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>() {{
-                        if (analyzer.getClazz().getNamespace().getName() != null)
-                            addAll(analyzer.getClazz().getNamespace().getName().getNames());
-                        add(analyzer.getClazz().getName());
-                    }});
+                if (analyzer.getClazz() == null) {
+                    ;
+                } else {
+                    if (!analyzer.getClazz().isTrait()) {
+                        clazz = new FulledNameToken(clazz.getMeta(), new ArrayList<Token>() {{
+                            if (analyzer.getClazz().getNamespace().getName() != null)
+                                addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                            add(analyzer.getClazz().getName());
+                        }});
+                    }
                 }
             }
 
@@ -527,10 +528,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             name = analyzer.generator(ExprGenerator.class).getInBraces(
                     BLOCK, iterator
             );
+        } else if (next == null) {
+            unexpectedEnd(current);
         }
 
-        if (name == null)
+        if (name == null) {
             unexpectedToken(next);
+        }
 
         if (analyzer.getFunction() != null){
             analyzer.getFunction().setDynamicLocal(true);
@@ -634,17 +638,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             scope.setStaticExists(true);
             result.setName((StaticExprToken)next);
         } else if (next instanceof SelfExprToken){
-            if (analyzer.getClazz() == null)
-                unexpectedToken(next);
-
-            if (analyzer.getClazz().isTrait()) {
-                result.setName((SelfExprToken)next);
+            if (analyzer.getClazz() == null) {
+                result.setName((SelfExprToken) next);
             } else {
-                result.setName(new FulledNameToken(next.getMeta(), new ArrayList<Token>() {{
-                    if (analyzer.getClazz().getNamespace().getName() != null)
-                        addAll(analyzer.getClazz().getNamespace().getName().getNames());
-                    add(analyzer.getClazz().getName());
-                }}));
+                if (analyzer.getClazz().isTrait()) {
+                    result.setName((SelfExprToken) next);
+                } else {
+                    result.setName(new FulledNameToken(next.getMeta(), new ArrayList<Token>() {{
+                        if (analyzer.getClazz().getNamespace().getName() != null)
+                            addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                        add(analyzer.getClazz().getName());
+                    }}));
+                }
             }
 
         } else

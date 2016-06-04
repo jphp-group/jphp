@@ -51,8 +51,8 @@ abstract public class Generator<T extends Token> {
         analyzer.getEnvironment().error(
                 token.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
                 quotes
-                    ? Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected)
-                    : Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y_NO_QUOTES.fetch(token.getWord(), expected)
+                        ? Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y.fetch(token.getWord(), expected)
+                        : Messages.ERR_PARSE_UNEXPECTED_X_EXPECTED_Y_NO_QUOTES.fetch(token.getWord(), expected)
         );
     }
 
@@ -112,6 +112,13 @@ abstract public class Generator<T extends Token> {
         if (token instanceof BraceExprToken)
             return ((BraceExprToken) token).isClosed();
         return false;
+    }
+
+    protected void unexpectedEnd(Token token){
+        analyzer.getEnvironment().error(
+                token.toTraceInfo(analyzer.getContext()), ErrorType.E_PARSE,
+                Messages.ERR_PARSE_UNEXPECTED_END_OF_FILE
+        );
     }
 
     protected void checkUnexpectedEnd(ListIterator<Token> iterator){

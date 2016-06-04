@@ -496,7 +496,19 @@ public class ClassWrapper {
                             }
                         }
                     } catch (NoSuchMethodException e) {
-                        throw new CriticalException(e);
+                        boolean _throw = true;
+
+                        if (interfaces != null && interfaces.skipConflicts()) {
+                            for (Class<?> aClass : interfaces.value()) {
+                                if (aClass == _interface) {
+                                    _throw = false;
+                                }
+                            }
+                        }
+
+                        if (_throw) {
+                            throw new CriticalException(e);
+                        }
                     }
                 }
             }
