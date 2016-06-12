@@ -31,6 +31,7 @@ public class MethodStmtToken extends FunctionStmtToken {
         setDocComment(token.docComment);
         setGenerator(token.isGenerator);
         setId(token.id);
+        setTypeInfo(token.getTypeInfo());
         setGeneratorId(token.generatorId);
         labels = token.labels;
         variables = token.variables;

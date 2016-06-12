@@ -253,6 +253,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 processArguments(result, iterator);
                 processBody(result, iterator);
 
+                result.setTypeInfo(analyzer.getScope().getTypeInfo());
                 result.setLabels(analyzer.getScope().getLabels());
                 result.setLocal(analyzer.removeScope().getVariables());
 
@@ -269,6 +270,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         processUses(result, iterator);
                         processBody(result, iterator);
                         //boolean thisExists = result.isThisExists();
+                        result.setTypeInfo(analyzer.getScope().getTypeInfo());
                         result.setLabels(analyzer.getScope().getLabels());
                         result.setStaticExists(analyzer.getScope().isStaticExists());
                         result.setLocal(analyzer.removeScope().getVariables());

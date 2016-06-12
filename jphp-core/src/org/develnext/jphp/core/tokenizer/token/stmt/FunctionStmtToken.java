@@ -1,7 +1,9 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
+import org.develnext.jphp.core.syntax.ExpressionInfo;
 import org.develnext.jphp.core.syntax.VariableStats;
 import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.Token;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -41,6 +43,8 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean isStatic = false;
 
     protected boolean isGenerator = false;
+
+    private Map<Token, ExpressionInfo> typeInfo;
 
     public FunctionStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_FUNCTION);
@@ -274,5 +278,13 @@ public class FunctionStmtToken extends StmtToken {
 
     public void setGeneratorId(int generatorId) {
         this.generatorId = generatorId;
+    }
+
+    public void setTypeInfo(Map<Token, ExpressionInfo> typeInfo) {
+        this.typeInfo = typeInfo;
+    }
+
+    public Map<Token, ExpressionInfo> getTypeInfo() {
+        return typeInfo;
     }
 }

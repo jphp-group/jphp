@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax;
 
+import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.LabelStmtToken;
 
@@ -8,6 +9,8 @@ import java.util.*;
 public class Scope {
     protected boolean staticExists = false;
     protected Set<VariableExprToken> variables;
+    protected Map<Token, ExpressionInfo> typeInfo;
+
     protected Map<String, LabelStmtToken> labels;
     protected final Scope parent;
     protected boolean levelForGoto = false;
@@ -17,12 +20,27 @@ public class Scope {
         this.parent = parent;
         variables = new HashSet<>();
         labels = new HashMap<>();
+        typeInfo = new LinkedHashMap<>();
     }
 
     public void appendScope(Scope scope) {
         variables.addAll(scope.getVariables());
         labels.putAll(scope.getLabels());
         staticExists = staticExists || scope.staticExists;
+    }
+
+    public Map<Token, ExpressionInfo> getTypeInfo() {
+        return typeInfo;
+    }
+
+    synchronized public ExpressionInfo typeInfoOf(Token token) {
+        ExpressionInfo info = typeInfo.get(token);
+
+        if (info == null) {
+            typeInfo.put(token, info = new ExpressionInfo());
+        }
+
+        return info;
     }
 
     public Set<VariableExprToken> getVariables() {

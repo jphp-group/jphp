@@ -482,17 +482,18 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
     @SuppressWarnings("unchecked")
     protected ClassStmtToken processDefine(Token current, ListIterator<Token> iterator){
+        ClassStmtToken result = null;
+
         if (isTokenClass(current, FinalStmtToken.class, AbstractStmtToken.class)){
             Token next = nextToken(iterator);
             if (next instanceof ClassStmtToken){
-                ClassStmtToken result;
                 result = (ClassStmtToken)next;
                 result.setInterface(false);
 
                 result.setAbstract(current instanceof AbstractStmtToken);
                 result.setFinal(current instanceof FinalStmtToken);
 
-                return result;
+                //return result;
             } else if (next instanceof InterfaceStmtToken || next instanceof TraitStmtToken) {
                 unexpectedToken(current);
             } else if (next instanceof AbstractStmtToken || next instanceof FinalStmtToken){
@@ -501,8 +502,6 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 iterator.previous();
             }
         }
-
-        ClassStmtToken result = null;
 
         if (current instanceof ClassStmtToken)
             result = (ClassStmtToken)current;
@@ -528,7 +527,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             }
 
             if (result.isFinal() || result.isAbstract())
-                iterator.previous();
+                iterator.next();
 
             iterator.next();
         }

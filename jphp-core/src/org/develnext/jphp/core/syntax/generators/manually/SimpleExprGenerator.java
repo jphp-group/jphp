@@ -3,6 +3,7 @@ package org.develnext.jphp.core.syntax.generators.manually;
 
 import org.develnext.jphp.core.common.Separator;
 import org.develnext.jphp.core.compiler.common.ASMExpression;
+import org.develnext.jphp.core.syntax.ExpressionInfo;
 import org.develnext.jphp.core.syntax.Scope;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.ExprGenerator;
@@ -631,6 +632,30 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (next instanceof NameToken){
             FulledNameToken nameToken = analyzer.getRealName((NameToken)next);
             result.setName(nameToken);
+
+            iterator.previous();
+            iterator.previous();
+
+            if (iterator.hasPrevious()) {
+                Token previous = iterator.previous();
+
+                if (previous instanceof AssignExprToken) {
+                    if (iterator.hasPrevious()) {
+                        previous = iterator.previous();
+
+                        if (previous instanceof VariableExprToken) {
+                            analyzer.getScope().typeInfoOf(previous).addType(nameToken.getName());
+                        }
+
+                        iterator.next();
+                    }
+                }
+
+                iterator.next();
+            }
+
+            iterator.next();
+            iterator.next();
         } else if (next instanceof VariableExprToken) {
             result.setName(processNewExpr(next, closedBrace, braceOpened, iterator, true));
         } else if (next instanceof StaticExprToken) {
@@ -767,6 +792,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         if (current instanceof OperatorExprToken) {
             isRef = false;
+
+            if (current instanceof InstanceofExprToken && next instanceof NameToken) {
+                if (previous instanceof VariableExprToken) {
+                    analyzer.getScope().typeInfoOf(previous).addType(analyzer.getRealName((NameToken) next, NamespaceUseStmtToken.UseType.CLASS).getName());
+                }
+            }
         }
 
         if (current instanceof NameToken && next instanceof StringExprToken) {
@@ -809,9 +840,15 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         // Если переменная меняется, значит она нестабильна и не может быть заменена на костантное значение.
         if ((current instanceof AssignOperatorExprToken || current instanceof IncExprToken || current instanceof DecExprToken)
                 && previous instanceof VariableExprToken) {
+
             if (analyzer.getFunction() != null) {
                 analyzer.getFunction().variable((VariableExprToken) previous).setUnstable(true);
             }
+        }
+
+        if (current instanceof AssignExprToken && previous instanceof VariableExprToken && next instanceof VariableExprToken) {
+            ExpressionInfo info = analyzer.getScope().typeInfoOf(next);
+            analyzer.getScope().typeInfoOf(previous).addTypes(info.getTypes());
         }
 
         if (current instanceof ValueIfElseToken){

@@ -722,7 +722,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (tokens.isEmpty())
             return null;
 
-        return new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), tokens);
+        ExprStmtToken stmtToken = new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), tokens);
+        return stmtToken;
     }
 
     @Override
