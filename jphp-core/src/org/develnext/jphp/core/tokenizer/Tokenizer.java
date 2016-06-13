@@ -99,7 +99,7 @@ public class Tokenizer {
         try {
             return (T) (prevToken = constructor.newInstance(meta));
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getTargetException());
+            throw new RuntimeException("Unable build " + clazz.getSimpleName() + " token: " + e.getTargetException());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

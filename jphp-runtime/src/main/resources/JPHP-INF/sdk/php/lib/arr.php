@@ -9,9 +9,8 @@ use Traversable;
 /**
  * Library for working with collections - arrays, iterators, etc.
  * --RU--
- * Библиотека для работы с коллекциями - массивы, итераторы и т.д.
+ * Р‘РёР±Р»РёРѕС‚РµРєР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєРѕР»Р»РµРєС†РёСЏРјРё - РјР°СЃСЃРёРІС‹, РёС‚РµСЂР°С‚РѕСЂС‹ Рё С‚.Рґ.
  *
- * Class arr
  * @package php\lib
  */
 class arr
@@ -26,12 +25,12 @@ class arr
      *   .. warning:: for iterators it will iterate all elements to return the result
      *
      * --RU--
-     * Возвращает количество элементов коллекции
+     * Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РєРѕР»Р»РµРєС†РёРё
      *
-     *   .. warning:: для итераторов для подсчета количества требуется итерация по всем элементам
+     *   .. warning:: РґР»СЏ РёС‚РµСЂР°С‚РѕСЂРѕРІ РґР»СЏ РїРѕРґСЃС‡РµС‚Р° РєРѕР»РёС‡РµСЃС‚РІР° С‚СЂРµР±СѓРµС‚СЃСЏ РёС‚РµСЂР°С†РёСЏ РїРѕ РІСЃРµРј СЌР»РµРјРµРЅС‚Р°Рј
      *
      * @param array|Countable|Iterator $collection
-     * @return int element count --RU-- количество элементов
+     * @return int element count --RU-- РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ
      */
     public static function count($collection)
     {
@@ -52,7 +51,7 @@ class arr
     /**
      * Converts $collection to array
      * --RU--
-     * Конвертирует коллекцию в массив
+     * РљРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РєРѕР»Р»РµРєС†РёСЋ РІ РјР°СЃСЃРёРІ
      *
      * @param array|Iterator $collection
      * @param bool $withKeys
@@ -89,7 +88,7 @@ class arr
     /**
      * Returns all keys of collection
      * --RU--
-     * Возвращает все ключи коллекции
+     * Р’РѕР·РІСЂР°С‰Р°РµС‚ РІСЃРµ РєР»СЋС‡Рё РєРѕР»Р»РµРєС†РёРё
      *
      * @param array|Iterator $collection
      * @return array
@@ -123,7 +122,7 @@ class arr
      * That is, for every element that is an collection, extract its elements into the new array.
      * If the optional $maxLevel argument > -1 the level of recursion to flatten.
      * --RU--
-     * Возвращает новый массив полученный исходя из всех элементов коллекции рекурсивно.
+     * Р’РѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРІС‹Р№ РјР°СЃСЃРёРІ РїРѕР»СѓС‡РµРЅРЅС‹Р№ РёСЃС…РѕРґСЏ РёР· РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ РєРѕР»Р»РµРєС†РёРё СЂРµРєСѓСЂСЃРёРІРЅРѕ.
      *
      * @param array|Iterator $collection
      * @param int $maxLevel

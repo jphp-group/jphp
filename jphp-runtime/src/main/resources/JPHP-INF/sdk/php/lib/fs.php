@@ -14,6 +14,8 @@ class fs
 {
     /**
      * Return the local filesystem's name-separator character.
+     * --RU--
+     * Возвращает символ разделитель для имен файлов на текущей ОС.
      * @return string
      */
     static function separator()
@@ -22,6 +24,8 @@ class fs
 
     /**
      * Return the local filesystem's path-separator character.
+     * --RU--
+     * Возвращает символ разделитель для файловых-путей на текущей ОС.
      * @return string
      */
     static function pathSeparator()
@@ -30,6 +34,8 @@ class fs
 
     /**
      * Validate file name.
+     * --RU--
+     * Проверяет имя файла на корректность.
      * @param $name
      * @return bool
      */
@@ -39,6 +45,8 @@ class fs
 
     /**
      * Returns absolute real path.
+     * --RU--
+     * Возвращает абсолютный путь.
      *
      * @param $path
      * @return string
@@ -48,6 +56,10 @@ class fs
     }
 
     /**
+     * Returns name of the path.
+     * --RU--
+     * Возвращает имя файла пути.
+     *
      * @param $path
      * @return string
      */
@@ -56,6 +68,9 @@ class fs
     }
 
     /**
+     * Returns name of the path without extension.
+     * --RU--
+     * Возвращает имя файла пути отсекая расшерение с точкой.
      * @param $path
      * @return string
      */
@@ -65,6 +80,8 @@ class fs
 
     /**
      * Returns path without extension.
+     * --RU--
+     * Возвращает путь отсекая расшерение с точкой.
      *
      * @param string $path
      * @return string
@@ -75,6 +92,9 @@ class fs
 
     /**
      * Returns extension of path.
+     * --RU--
+     * Возвращает расширение пути или файла без точки.
+     *
      * @param $path
      * @return string
      */
@@ -95,6 +115,8 @@ class fs
 
     /**
      * Returns parent directory.
+     * --RU--
+     * Возвращает родительскую директорию.
      *
      * @param $path
      * @return string
@@ -106,6 +128,9 @@ class fs
     /**
      * Checks parent of path and if it is not exists, tries to create parent directory.
      * See makeDir().
+     * --RU--
+     * Проверяет - есть ли родительские директории для пути и пытается их создать если их нет.
+     * См. также: makeDir().
      *
      * @param string $path
      * @return bool
@@ -116,6 +141,8 @@ class fs
 
     /**
      * Normalizes file path for current OS.
+     * --RU--
+     * Приводит файловый путь к родному виду текущей ОС.
      *
      * @param $path
      * @return string
@@ -123,7 +150,12 @@ class fs
     static function normalize($path)
     {
     }
+
     /**
+     * Checks that file is exists.
+     * --RU--
+     * Проверяет, существует ли файл.
+     *
      * @param $path
      * @return string
      */
@@ -133,6 +165,8 @@ class fs
 
     /**
      * Returns size of file in bytes.
+     * --RU--
+     * Возвращает размер файла в байтах.
      *
      * @param $path
      * @return int
@@ -142,6 +176,10 @@ class fs
     }
 
     /**
+     * Checks that path is file.
+     * --RU--
+     * Проверяет, является ли указанный путь файлом.
+     *
      * @param $path
      * @return bool
      */
@@ -150,6 +188,10 @@ class fs
     }
 
     /**
+     * Checks that path is directory.
+     * --RU--
+     * Проверяет, является ли указанный путь папкой.
+     *
      * @param $path
      * @return bool
      */
@@ -158,6 +200,10 @@ class fs
     }
 
     /**
+     * Checks that path is hidden.
+     * --RU--
+     * Проверяет, является ли указанный путь скрытым системой.
+     *
      * @param $path
      * @return bool
      */
@@ -167,6 +213,8 @@ class fs
 
     /**
      * Returns last modification time of file or directory.
+     * --RU--
+     * Возвращает последнее время модификации пути в unix timestamp (млсек).
      *
      * @param $path
      * @return int
@@ -177,6 +225,8 @@ class fs
 
     /**
      * Creates empty directory (mkdirs) if not exists.
+     * --RU--
+     * Создает папку по указаному пути если их еще нет.
      *
      * @param $path
      * @return bool
@@ -187,6 +237,8 @@ class fs
 
     /**
      * Creates empty file, if file already exists then rewrite it.
+     * --RU--
+     * Создает пустой файл, если файл уже существует, перезаписывает его.
      *
      * @param $path
      * @return bool
@@ -197,6 +249,8 @@ class fs
 
     /**
      * Deletes file or empty directory.
+     * --RU--
+     * Удаляет файл или пустую папку.
      *
      * @param $path
      * @return bool
@@ -208,6 +262,9 @@ class fs
     /**
      * Deletes all files in path. This method does not delete the $path directory.
      * Returns array with error, success and skip file list.
+     * --RU--
+     * Удаляет все файлы найденные по указанному пути. Метод не удаляет саму указанную директорию.
+     * Возвращает массив с ключами error, success и skip, в которых список файлов.
      *
      * @param string $path
      * @param callable $checker (File $file, $depth) optional, must return true to delete the file.
@@ -218,6 +275,10 @@ class fs
     }
 
     /**
+     * Scans the path with callback.
+     * --RU--
+     * Сканирует директорию с коллбэком.
+     *
      * @param string $path
      * @param callable $onProgress (File $file, $depth)
      * @param int $maxDepth if 0 then unlimited.
@@ -229,6 +290,8 @@ class fs
 
     /**
      * Calculates hash of file or stream.
+     * --RU--
+     * Возвращает хеш файла или потока (stream), по-умолчанию MD5.
      *
      * @param string|Stream $source
      * @param string $algo MD5, MD2, SHA-1, SHA-256, SHA-512
@@ -240,6 +303,8 @@ class fs
 
     /**
      * Copies $source stream to $dest stream.
+     * --RU--
+     * Копирует из одного файла/потока(stream) в другой файл/поток.
      *
      * @param string|File|Stream $source
      * @param string|File|Stream $dest
@@ -253,6 +318,9 @@ class fs
 
     /**
      * Reads fully data from source and returns it as binary string.
+     * --RU--
+     * Возвращает данные полученные из потока или файла в виде бинарной строки.
+     *
      * @param string $source
      * @param null|string $charset UTF-8, windows-1251, etc.
      * @param string $mode

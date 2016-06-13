@@ -83,7 +83,17 @@ public class CommentToken extends Token {
                 return builder.toString();
             }
             default:
-                return getWord().substring(oldStyle ? 1 : 2);
+                if (oldStyle) {
+                    if (getWord().length() >= 1) {
+                        return getWord().substring(1);
+                    }
+                } else {
+                    if (getWord().length() >= 2) {
+                        return getWord().substring(2);
+                    }
+                }
+
+                return "";
         }
     }
 }

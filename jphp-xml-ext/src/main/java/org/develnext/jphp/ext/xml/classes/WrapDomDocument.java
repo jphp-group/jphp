@@ -61,6 +61,11 @@ public class WrapDomDocument extends WrapDomNode {
     }
 
     @Signature
+    public Element importElement(Element element, boolean deep) {
+        return (Element) getWrappedObject().importNode(element, deep);
+    }
+
+    @Signature
     public Node createProcessingInstruction(String name, String value) {
         return getWrappedObject().createProcessingInstruction(name, value);
     }

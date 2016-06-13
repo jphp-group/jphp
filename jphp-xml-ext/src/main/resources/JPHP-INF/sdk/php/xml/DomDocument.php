@@ -93,6 +93,13 @@ abstract class DomDocument extends DomElement
     public function importNode(DomNode $importedNode, $deep) {}
 
     /**
+     * @param DomElement $importedNode
+     * @param bool $deep
+     * @return DomElement
+     */
+    public function importElement(DomElement $importedNode, $deep) {}
+
+    /**
      * @param DomNode $source
      * @return DomNode
      */

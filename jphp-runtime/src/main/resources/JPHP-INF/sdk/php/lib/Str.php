@@ -3,6 +3,8 @@ namespace php\lib;
 
 /**
  * Class str
+ * --RU--
+ * Класс для работы со строками.
  * @package php\lib
  */
 class str
@@ -14,6 +16,9 @@ class str
     /**
      * Returns the index within this string of the first occurrence of the
      * specified substring, starting at the specified index.
+     * --RU--
+     * Возвращает первую позицию найденной строки в подстроке, начиная
+     * с указанной позиции ($fromIndex). Если ничего не найдено, возвращает -1.
      *
      * @param string $string
      * @param string $search the substring to search for
@@ -26,7 +31,9 @@ class str
     }
 
     /**
-     * The same method as ``pos()`` only with ignoring case characters
+     * The same method as pos() only with ignoring case characters
+     * --RU--
+     * Метод такой же как pos() только с игнорированием регистра символов.
      *
      * @param string $string
      * @param string $search the substring to search for.
@@ -41,7 +48,10 @@ class str
     /**
      * Returns the index within this string of the last occurrence of the
      * specified substring. The last occurrence of the empty string ""
-     * is considered to occur at the index value ``$string.length``.
+     * is considered to occur at the index value $string.length.
+     * --RU--
+     * Возвращает позицию первой найденной подстроки в строке начиная с конца.
+     * Если ничего не найдено, возвращает -1.
      *
      * @param string $string
      * @param string $search the substring to search for.
@@ -55,6 +65,8 @@ class str
 
     /**
      * The same method as ``lastPos()`` only with ignoring case characters
+     * --RU--
+     * Метод такой же как lastPos() только с игнорированием регистра символов.
      *
      * @param string $string
      * @param string $search the substring to search for.
@@ -71,6 +83,10 @@ class str
      * substring begins at the specified ``$beginIndex`` and
      * extends to the character at index ``$endIndex`` - 1.
      * Thus the length of the substring is ``endIndex - beginIndex``.
+     * --RU--
+     * Возвращает подстроку из другой строки, которая укзывается через
+     * начальную позицию (включительно) $beginIndex и до конечной позиции (не включительно) $endIndex.
+     * В итоге длина подстроки будет равна $endIndex - $beginIndex.
      *
      * @param string $string
      * @param int $beginIndex
@@ -134,12 +150,12 @@ class str
      * Tests if the substring of this string beginning at the
      * specified index starts with the specified prefix.
      *
-     * Returns ```true`` if the character sequence represented by the
+     * Returns true if the character sequence represented by the
      *          argument is a prefix of the substring of this object starting
-     *          at index ``offset``; ``false`` otherwise.
-     *          The result is ``false`` if ``toffset`` is
+     *          at index `offset`; `false` otherwise.
+     *          The result is `false` if `toffset` is
      *          negative or greater than the length of this
-     *          ``$string``; otherwise the result is the same
+     *          `$string`; otherwise the result is the same
      *          as the result of the expression
      *
      *          .. code-block:: php
@@ -169,8 +185,10 @@ class str
     }
 
     /**
-     * Converts all of the characters in ``$string`` to lower
+     * Converts all of the characters in `$string` to lower
      * case using the rules of the default locale.
+     * --RU--
+     * Конвертирует все символы строки в нижний регистр и возвращает её.
      *
      * @param string $string
      * @return string
@@ -183,6 +201,8 @@ class str
     /**
      * Converts all of the characters in ``$string`` to upper
      * case using the rules of the default locale.
+     * --RU--
+     * Конвертирует все символы строки в верхний регистр и возвращает её.
      *
      * @param string $string
      * @return string
@@ -195,6 +215,9 @@ class str
     /**
      * Returns the length of ``$string``.
      * The length is equal to the number of `Unicode code units` in the string.
+     * --RU--
+     * Возвращает длину строки.
+     * Длина строки равна количеству юникодных единиц в строке.
      *
      * @param string $string
      * @return int
@@ -210,6 +233,8 @@ class str
      * replacement proceeds from the beginning of the string to the end, for
      * example, replacing "aa" with "b" in the string "aaa" will result in
      * "ba" rather than "ab".
+     * --RU--
+     * Заменяет каждую подстроку на другую.
      *
      * @param string $string
      * @param string $target The sequence of char values to be replaced
@@ -223,6 +248,8 @@ class str
 
     /**
      * Return s a new string consisting of the original ``$string`` repeated
+     * --RU--
+     * Возвращает новую строку состояющую из повторов указанной строки.
      *
      * @param string $string
      * @param int $amount number of times to repeat str
@@ -236,6 +263,8 @@ class str
     /**
      * Returns a copy of the string, with leading and trailing whitespace
      * omitted.
+     * --RU--
+     * Возвращает копию строки без пробельных символов слева и справа.
      *
      * @param string $string
      * @param string $charList
@@ -267,6 +296,10 @@ class str
     }
 
     /**
+     * Reverse the string.
+     * --RU--
+     * Возвращает перевернутую строку.
+     *
      * @param string $string
      * @return string
      */
@@ -286,6 +319,10 @@ class str
     }
 
     /**
+     * Returns a new random string based on set.
+     * --RU--
+     * Возвращает новую случайную строку основанную на наборе символов из $set.
+     *
      * @param int $length
      * @param string $set
      * @return string
@@ -296,7 +333,10 @@ class str
     }
 
     /**
-     * The method like ``explode()`` in Zend PHP
+     * The method like explode() in Zend PHP.
+     * --RU--
+     * Разбивает строку на массив используя строку-разделитель $separator.
+     * Аналог функции explode() из zend php.
      *
      * @param string $string
      * @param string $separator
@@ -309,7 +349,10 @@ class str
     }
 
     /**
-     * The method like ``implode()`` in Zend PHP
+     * The method like ``implode()`` in Zend PHP.
+     * --RU--
+     * Собирает массив в строку с разделителем $separator.
+     * Аналог функции implode() из zend php.
      *
      * @param array|\Iterator $iterable
      * @param string $separator
@@ -322,7 +365,9 @@ class str
     }
 
     /**
-     * Converts $string by using $charset and returns a binary string
+     * Converts $string by using $charset and returns a binary string.
+     * --RU--
+     * Кодирует юникодную строку в любую другую кодировку и возвращает бинарную строку.
      *
      * @param string $string
      * @param string $charset e.g. UTF-8, Windows-1251, etc.
@@ -334,7 +379,9 @@ class str
     }
 
     /**
-     * Decodes $string by using $charset to UNICODE, returns a unicode string
+     * Decodes $string by using $charset to UNICODE, returns a unicode string.
+     * --RU--
+     * Декодирует строку из указанной кодировке в родную юникодную строку.
      *
      * @param string $string
      * @param string $charset e.g. UTF-8, Windows-1251, etc.
@@ -346,7 +393,7 @@ class str
     }
 
     /**
-     * Returns *true* if $string is integer number (e.g: '12893', '3784', '0047')
+     * Returns true if $string is integer number (e.g: '12893', '3784', '0047')
      *
      *  - for ``123`` - true
      *  - for ``00304`` - true
@@ -407,6 +454,9 @@ class str
     }
 
     /**
+     * Returns true if string contains a substring.
+     * --RU--
+     * Возвращает true если строка содержит укзанную подстроку.
      * @param string $string
      * @param string $search
      * @return bool
@@ -416,6 +466,8 @@ class str
     }
 
     /**
+     * --RU--
+     * Возвращает количество найденный строк в другой строке.
      * @param string $string
      * @param string $subString
      * @param int $offset
@@ -434,6 +486,8 @@ class str
     }
 
     /**
+     * --RU--
+     * Возвращает хеш строки.
      * @param string $string
      * @param string $algorithm MD5, SHA-1, SHA-256, etc.
      * @return string

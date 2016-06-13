@@ -191,7 +191,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
     @SuppressWarnings("unchecked")
     public FunctionStmtToken getToken(Token current, ListIterator<Token> iterator, boolean closureAllowed) {
-        if (current instanceof FunctionStmtToken){
+        if (current instanceof FunctionStmtToken) {
             CommentToken commentToken = null;
 
             iterator.previous();
@@ -257,6 +257,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 result.setLabels(analyzer.getScope().getLabels());
                 result.setLocal(analyzer.removeScope().getVariables());
 
+                Token previous = iterator.previous();
+                result.getMeta().setEndLine(previous.getMeta().getStartLine());
+                result.getMeta().setEndPosition(previous.getMeta().getStartPosition());
+                iterator.next();
+
                 analyzer.setFunction(oldFunction);
                 return result;
             } else if (next instanceof BraceExprToken){
@@ -303,6 +308,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         }
 
                         analyzer.getScope().addVariables(uses);
+
+                        Token previous = iterator.previous();
+                        result.getMeta().setEndLine(previous.getMeta().getStartLine());
+                        result.getMeta().setEndPosition(previous.getMeta().getStartPosition());
+                        iterator.next();
 
                         return result;
                     }
