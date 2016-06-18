@@ -36,7 +36,12 @@ public class LogicOperatorExprToken extends OperatorExprToken {
 
     @Override
     public Token getLast() {
+        if (rightValue == null) {
+            return null;
+        }
+
         Token token = rightValue.getLast();
+
         if (token instanceof ExprToken)
             return ((ExprToken) token).getLast();
 
