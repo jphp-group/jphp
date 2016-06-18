@@ -172,7 +172,9 @@ public class PSqlStatement extends BaseObject implements Iterator {
             resultSet = statement.executeQuery();
 
             if (resultSet != null) {
-                resultSet.next();
+                valid = resultSet.next();
+            } else {
+                valid = false;
             }
         } catch (SQLException e) {
             throw new WrapSqlException(env, e);
