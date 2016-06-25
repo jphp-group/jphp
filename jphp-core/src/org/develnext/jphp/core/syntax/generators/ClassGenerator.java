@@ -84,6 +84,11 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             } else {
                 ExtendsStmtToken extend = (ExtendsStmtToken)token;
                 FulledNameToken what = analyzer.generator(NameGenerator.class).getToken(nextToken(iterator), iterator);
+
+                if (what == null) {
+                    unexpectedToken(extend);
+                }
+
                 extend.setName(analyzer.getRealName(what));
                 result.setExtend(extend);
             }
