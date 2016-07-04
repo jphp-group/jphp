@@ -100,7 +100,7 @@ public class FileStream extends Stream {
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
     public Memory write(Environment env, Memory... args){
         int len = args[1].toInteger();
-        byte[] bytes = args[0].getBinaryBytes();
+        byte[] bytes = args[0].getBinaryBytes(env.getDefaultCharset());
 
         try {
             accessFile.write(bytes, 0, len == 0 ? bytes.length : len);

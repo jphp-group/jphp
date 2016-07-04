@@ -19,7 +19,7 @@ public class ByteArrayInputStreamMemoryOperation extends MemoryOperation<ByteArr
 
     @Override
     public ByteArrayInputStream convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-        return new ByteArrayInputStream(arg.getBinaryBytes());
+        return new ByteArrayInputStream(arg.getBinaryBytes(env.getDefaultCharset()));
     }
 
     @Override

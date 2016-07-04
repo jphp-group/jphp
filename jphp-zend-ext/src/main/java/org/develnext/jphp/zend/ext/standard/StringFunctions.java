@@ -849,20 +849,18 @@ public class StringFunctions extends FunctionsContainer {
         }
     };
 
-    @Runtime.Immutable
-    public static Memory md5(Memory value, boolean rawOutput)  {
+    public static Memory md5(Environment env, Memory value, boolean rawOutput)  {
         MessageDigest md = md5Digest.get();
         md.reset();
-        md.update(value.getBinaryBytes());
+        md.update(value.getBinaryBytes(env.getDefaultCharset()));
         if (rawOutput)
             return new BinaryMemory(md.digest());
         else
             return new StringMemory(DigestUtils.bytesToHex(md.digest()));
     }
 
-    @Runtime.Immutable
-    public static Memory md5(Memory value)  {
-        return md5(value, false);
+    public static Memory md5(Environment env, Memory value)  {
+        return md5(env, value, false);
     }
 
     public static Memory md5_file(Environment env, TraceInfo trace, String fileName){
@@ -898,11 +896,10 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
-    public static Memory sha1(Memory value, boolean rawOutput)  {
+    public static Memory sha1(Environment env, Memory value, boolean rawOutput)  {
         MessageDigest md = sha1Digest.get();
         md.reset();
-        md.update(value.getBinaryBytes());
+        md.update(value.getBinaryBytes(env.getDefaultCharset()));
         if (rawOutput){
             return new BinaryMemory(md.digest());
         } else {
@@ -911,8 +908,8 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static Memory sha1(Memory value)  {
-        return sha1(value, false);
+    public static Memory sha1(Environment env, Memory value)  {
+        return sha1(env, value, false);
     }
 
     public static Memory sha1_file(Environment env, TraceInfo trace, String fileName){
@@ -1338,7 +1335,7 @@ public class StringFunctions extends FunctionsContainer {
             return Memory.NULL;
         }
         if (string instanceof BinaryMemory)
-            return LongMemory.valueOf(string.getBinaryBytes().length);
+            return LongMemory.valueOf(string.getBinaryBytes(env.getDefaultCharset()).length);
 
         return LongMemory.valueOf(string.toString().length());
     }
@@ -1610,9 +1607,9 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable
-    public static int crc32(Memory value){
+    public static int crc32(Environment env, Memory value){
         CRC32 crc = new CRC32();
-        crc.update(value.getBinaryBytes());
+        crc.update(value.getBinaryBytes(env.getDefaultCharset()));
 
         return (int)crc.getValue();
     }
@@ -1731,11 +1728,10 @@ public class StringFunctions extends FunctionsContainer {
         return htmlspecialchars(env, trace, _string, StringConstants.ENT_COMPAT, "UTF-8");
     }
 
-    @Runtime.Immutable
     public static Memory htmlspecialchars(Environment env, TraceInfo trace,
                                           Memory _string, int quoteStyle, String charset) {
         try {
-            String string = new String(_string.getBinaryBytes(), charset);
+            String string = new String(_string.getBinaryBytes(env.getDefaultCharset()), charset);
             int len = string.length();
 
             StringBuilderMemory sb = new StringBuilderMemory();
@@ -1784,7 +1780,7 @@ public class StringFunctions extends FunctionsContainer {
     public static Memory html_entity_decode(Environment env, TraceInfo trace,
                                             Memory _string, int flags, String encoding){
         try {
-            String string = new String(_string.getBinaryBytes(), encoding);
+            String string = new String(_string.getBinaryBytes(env.getDefaultCharset()), encoding);
 
             int len = string.length();
             int htmlEntityStart = -1;
@@ -1829,7 +1825,7 @@ public class StringFunctions extends FunctionsContainer {
     public static Memory htmlentities(Environment env, TraceInfo trace,
                                      Memory _string, int quoteStyle, String encoding) {
         try {
-            String string = new String(_string.getBinaryBytes(), encoding);
+            String string = new String(_string.getBinaryBytes(env.getDefaultCharset()), encoding);
             StringBuffer sb = new StringBuffer();
 
             int length = string.length();
@@ -2742,8 +2738,8 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    public static String base64_encode(Memory value) {
-        return DatatypeConverter.printBase64Binary(value.getBinaryBytes());
+    public static String base64_encode(Environment env, Memory value) {
+        return DatatypeConverter.printBase64Binary(value.getBinaryBytes(env.getDefaultCharset()));
     }
 
     public static Memory base64_decode(String value) {

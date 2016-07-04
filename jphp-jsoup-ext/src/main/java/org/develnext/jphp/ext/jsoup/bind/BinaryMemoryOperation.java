@@ -15,7 +15,7 @@ public class BinaryMemoryOperation extends MemoryOperation<byte[]> {
 
     @Override
     public byte[] convert(Environment environment, TraceInfo traceInfo, Memory memory) throws Throwable {
-        return memory.getBinaryBytes();
+        return memory.getBinaryBytes(environment.getDefaultCharset());
     }
 
     @Override

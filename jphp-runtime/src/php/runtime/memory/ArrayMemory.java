@@ -17,6 +17,7 @@ import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
@@ -1331,7 +1332,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return MemoryStringUtils.getBinaryBytes(this);
     }
 

@@ -16,6 +16,7 @@ import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -855,7 +856,12 @@ abstract public class Memory implements Comparable<Memory> {
         return value ? "1" : "";
     }
 
-    abstract public byte[] getBinaryBytes();
+    abstract public byte[] getBinaryBytes(Charset charset);
+
+    @Deprecated
+    final public byte[] getBinaryBytes() {
+        return getBinaryBytes(Charset.defaultCharset());
+    }
 
     public ForeachIterator getNewIterator(Environment env,
                                           boolean getReferences, boolean getKeyReferences){ return null; }

@@ -28,7 +28,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return bytes;
     }
 

@@ -377,7 +377,7 @@ public class StrUtils extends BaseObject {
             return Memory.FALSE;
         }
 
-        CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(args[0].getBinaryBytes()));
+        CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(args[0].getBinaryBytes(env.getDefaultCharset())));
         return StringMemory.valueOf(charBuffer.toString());
     }
 
@@ -610,7 +610,7 @@ public class StrUtils extends BaseObject {
     public static Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(args[1].toString());
 
-        messageDigest.update(args[0].getBinaryBytes());
+        messageDigest.update(args[0].getBinaryBytes(env.getDefaultCharset()));
         return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
     }
 }

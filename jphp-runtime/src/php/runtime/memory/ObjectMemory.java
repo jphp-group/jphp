@@ -20,6 +20,7 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.PropertyEntity;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -266,8 +267,8 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
-        return MemoryStringUtils.getBinaryBytes(this);
+    public byte[] getBinaryBytes(Charset charset) {
+        return toString().getBytes(charset);
     }
 
     @Override

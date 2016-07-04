@@ -3,6 +3,7 @@ package php.runtime.memory;
 import php.runtime.Memory;
 import php.runtime.memory.support.MemoryStringUtils;
 
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 public class DoubleMemory extends Memory {
@@ -312,7 +313,7 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return MemoryStringUtils.getBinaryBytes(this);
     }
 }

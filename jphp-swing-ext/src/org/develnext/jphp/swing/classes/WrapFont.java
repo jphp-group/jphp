@@ -165,7 +165,7 @@ public class WrapFont extends RootObject {
             Stream stream = args[0].toObject(Stream.class);
             Memory result = stream.readFully(env);
 
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(result.getBinaryBytes());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(result.getBinaryBytes(env.getDefaultCharset()));
             try {
                 r = Font.createFont(
                         args[1].toBoolean() ? Font.TRUETYPE_FONT : Font.TYPE1_FONT,

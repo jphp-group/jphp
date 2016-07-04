@@ -61,7 +61,7 @@ public class PWebResponse extends BaseWrapper<HttpServletResponse> {
 
     @Signature
     public void writeToBody(Environment env, Memory value) throws IOException {
-        getWrappedObject().getOutputStream().write(value.getBinaryBytes());
+        getWrappedObject().getOutputStream().write(value.getBinaryBytes(env.getDefaultCharset()));
     }
 
     @Setter

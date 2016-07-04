@@ -6,6 +6,8 @@ import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 
+import java.nio.charset.Charset;
+
 public class ReferenceMemory extends Memory {
     public Memory value;
 
@@ -705,8 +707,8 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
-        return value.getBinaryBytes();
+    public byte[] getBinaryBytes(Charset charset) {
+        return value.getBinaryBytes(charset);
     }
 
     @Override

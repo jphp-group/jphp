@@ -2,6 +2,8 @@ package php.runtime.memory;
 
 import php.runtime.Memory;
 
+import java.nio.charset.Charset;
+
 public class TrueMemory extends Memory {
 
     public final static TrueMemory INSTANCE = new TrueMemory();
@@ -255,7 +257,7 @@ public class TrueMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return new byte[]{ 1 };
     }
 

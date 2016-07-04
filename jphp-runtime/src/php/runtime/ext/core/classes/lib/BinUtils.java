@@ -35,6 +35,6 @@ public class BinUtils extends BaseObject {
             return new BinaryMemory(tmp.toByteArray());
         }
 
-        return new BinaryMemory(args[0].getBinaryBytes());
+        return new BinaryMemory(args[0].getBinaryBytes(env.getDefaultCharset()));
     }
 }

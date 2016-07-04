@@ -200,7 +200,7 @@ public class OutputBuffer {
             }
             if (result != Memory.FALSE){
                 byte[] data = result instanceof BinaryMemory
-                        ? result.getBinaryBytes() : result.toString().getBytes(environment.getDefaultCharset());
+                        ? result.getBinaryBytes(environment.getDefaultCharset()) : result.toString().getBytes(environment.getDefaultCharset());
                 if (flush){
                     if (output == null)
                         parentOutput.write(data);
@@ -234,7 +234,7 @@ public class OutputBuffer {
         if (!isLock()){
             content = content.toValue();
             if (content instanceof BinaryMemory)
-                write(content.getBinaryBytes());
+                write(content.getBinaryBytes(environment.getDefaultCharset()));
             else
                 write(content.toString());
         }

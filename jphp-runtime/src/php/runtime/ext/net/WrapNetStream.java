@@ -111,7 +111,7 @@ public class WrapNetStream extends Stream {
     @Override
     public Memory write(Environment env, Memory... args) throws IOException {
         int len      = args[1].toInteger();
-        byte[] bytes = args[0].getBinaryBytes();
+        byte[] bytes = args[0].getBinaryBytes(env.getDefaultCharset());
 
         len          = len == 0 || len > bytes.length ? bytes.length : len;
 

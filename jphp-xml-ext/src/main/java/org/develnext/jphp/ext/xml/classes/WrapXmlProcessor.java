@@ -91,7 +91,7 @@ public class WrapXmlProcessor extends WrapProcessor {
             if (args[0].instanceOf(Stream.class)) {
                 stream = Stream.getInputStream(environment, args[0]);
             } else {
-                stream = new ByteArrayInputStream(args[0].getBinaryBytes());
+                stream = new ByteArrayInputStream(args[0].getBinaryBytes(environment.getDefaultCharset()));
             }
 
             Document document = builder.parse(stream);

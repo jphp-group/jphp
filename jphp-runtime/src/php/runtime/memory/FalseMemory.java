@@ -4,6 +4,8 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 
+import java.nio.charset.Charset;
+
 public class FalseMemory extends Memory {
 
     public final static FalseMemory INSTANCE = new FalseMemory();
@@ -253,7 +255,7 @@ public class FalseMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return new byte[]{};
     }
 

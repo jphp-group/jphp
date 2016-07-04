@@ -411,7 +411,7 @@ abstract public class Stream extends BaseObject implements Resource {
         @Override
         public int read() throws IOException {
             Memory result = stream.read(env, Memory.CONST_INT_1);
-            return result.isString() ? result.getBinaryBytes()[0] & 0xFF : -1;
+            return result.isString() ? result.getBinaryBytes(env.getDefaultCharset())[0] & 0xFF : -1;
         }
 
         @Override
@@ -420,7 +420,7 @@ abstract public class Stream extends BaseObject implements Resource {
             if (!result.isString())
                 return -1;
 
-            byte[] copy = result.getBinaryBytes();
+            byte[] copy = result.getBinaryBytes(env.getDefaultCharset());
 
             System.arraycopy(copy, 0, b, off, copy.length);
 

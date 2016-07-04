@@ -3,6 +3,8 @@ package php.runtime.memory;
 import php.runtime.Memory;
 import php.runtime.memory.support.MemoryStringUtils;
 
+import java.nio.charset.Charset;
+
 public class LongMemory extends Memory {
 
     protected final static int MAX_CACHE_STRING = 10000;
@@ -281,7 +283,7 @@ public class LongMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
+    public byte[] getBinaryBytes(Charset charset) {
         return MemoryStringUtils.getBinaryBytes(this);
     }
 }

@@ -4,6 +4,9 @@ php\lib\str Test - isLower, isUpper, lower,  upper
 <?php
 
 use php\lib\Str as str;
+use php\util\Locale;
+
+Locale::setDefault(Locale::RUSSIAN(), true);
 
 var_dump(str::isLower('моя строка'));
 var_dump(str::isLower('Моя строка'));

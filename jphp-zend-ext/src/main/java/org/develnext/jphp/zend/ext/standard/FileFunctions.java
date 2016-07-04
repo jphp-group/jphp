@@ -58,7 +58,7 @@ public class FileFunctions extends FunctionsContainer {
 
         try {
             outputStream.setLength(0);
-            outputStream.write(value.getBinaryBytes());
+            outputStream.write(value.getBinaryBytes(env.getDefaultCharset()));
             return true;
         } catch (IOException e) {
             env.warning("copy(): " + e.getMessage());
@@ -115,7 +115,7 @@ public class FileFunctions extends FunctionsContainer {
             stream.setContext(env, context);
             Memory value = env.invokeMethod(trace, stream, "readFully");
 
-            byte[] bytes = value.getBinaryBytes();
+            byte[] bytes = value.getBinaryBytes(env.getDefaultCharset());
             ArrayMemory result = new ArrayMemory();
 
             int prev = 0;

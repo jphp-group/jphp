@@ -4,6 +4,8 @@ import php.runtime.Memory;
 import php.runtime.OperatorUtils;
 import php.runtime.env.TraceInfo;
 
+import java.nio.charset.Charset;
+
 public class StringMemory extends Memory {
     String value = "";
 
@@ -595,8 +597,8 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public byte[] getBinaryBytes() {
-        return toString().getBytes();
+    public byte[] getBinaryBytes(Charset charset) {
+        return toString().getBytes(charset);
     }
 
     @Override
