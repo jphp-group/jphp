@@ -55,7 +55,7 @@ public class ResourceStream extends Stream {
 
         setPath("res://" + path);
 
-        url = Thread.currentThread().getContextClassLoader().getResource(path);
+        url = env.getScope().getClassLoader().getResource(path);
 
         if (url == null) {
             throw new IOException("Resource not found - " + getPath());

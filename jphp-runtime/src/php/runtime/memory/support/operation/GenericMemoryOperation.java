@@ -4,10 +4,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.memory.support.MemoryOperation;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 abstract public class GenericMemoryOperation<T> extends MemoryOperation<T> {
     protected MemoryOperation[] operations;
@@ -18,13 +15,11 @@ abstract public class GenericMemoryOperation<T> extends MemoryOperation<T> {
 
     public static Class<?> getRawType(ParameterizedType type) {
         try {
-            Field field = type.getClass().getDeclaredField("rawTypeName");
-            field.setAccessible(true);
-            return Class.forName(field.get(type).toString());
-        } catch (NoSuchFieldException e) {
+            return Class.forName(type.getRawType().toString().split(" ", 2)[1]);
+        /*} catch (NoSuchMethodException e) {
             Field field = null;
             try {
-                field = type.getClass().getDeclaredField("rawType");
+                field = type.getClass().getDeclaredField("rawTypeName");
                 field.setAccessible(true);
 
                 try {
@@ -35,10 +30,8 @@ abstract public class GenericMemoryOperation<T> extends MemoryOperation<T> {
             } catch (NoSuchFieldException e1) {
                 throw new CriticalException(e1);
             }
-
-        } catch (ClassNotFoundException e) {
-            throw new CriticalException(e);
-        } catch (IllegalAccessException e) {
+          */
+        } catch (ClassNotFoundException /*| IllegalAccessException | InvocationTargetException*/ e) {
             throw new CriticalException(e);
         }
     }

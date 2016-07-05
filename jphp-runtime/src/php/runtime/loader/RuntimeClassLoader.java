@@ -8,11 +8,12 @@ import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RuntimeClassLoader extends ClassLoader {
-
+public class RuntimeClassLoader extends URLClassLoader {
     protected Map<String, ClassEntity> internalClasses = new HashMap<String, ClassEntity>();
     protected Map<String, FunctionEntity> internalFunctions = new HashMap<String, FunctionEntity>();
     protected Map<String, ModuleEntity> internalModules = new HashMap<String, ModuleEntity>();
@@ -22,7 +23,7 @@ public class RuntimeClassLoader extends ClassLoader {
     }
 
     public RuntimeClassLoader(ClassLoader parent) {
-        super(parent);
+        super(new URL[0], parent);
     }
 
     public ClassEntity getClass(String internalName) {
@@ -143,5 +144,13 @@ public class RuntimeClassLoader extends ClassLoader {
 
     protected byte[] translateData(byte[] data) {
         return data;
+    }
+
+    public void addLibrary(URL url) {
+        addURL(url);
+    }
+
+    public URL[] getLibraries() {
+        return getURLs();
     }
 }
