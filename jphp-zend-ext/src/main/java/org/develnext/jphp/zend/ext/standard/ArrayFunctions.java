@@ -706,7 +706,7 @@ public class ArrayFunctions extends FunctionsContainer {
                                        @Runtime.Reference Memory values) {
         if (expecting(env, trace, 1, keys, Memory.Type.ARRAY) && expecting(env, trace, 2, values, Memory.Type.ARRAY)) {
             ArrayMemory _keys = keys.toValue(ArrayMemory.class);
-            ArrayMemory _values = keys.toValue(ArrayMemory.class);
+            ArrayMemory _values = values.toValue(ArrayMemory.class);
             int size1 = _keys.size();
             int size2 = _values.size();
 
