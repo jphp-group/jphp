@@ -9,6 +9,7 @@ use php\time\Time;
 /**
  * Class SqlStatement
  * @package php\sql
+ * @iterator-type SqlResult
  */
 abstract class SqlStatement implements Iterator
 {

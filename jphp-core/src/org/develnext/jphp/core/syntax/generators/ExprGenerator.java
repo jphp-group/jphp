@@ -185,6 +185,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
                         .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
 
+                if (eValue == null) {
+                    unexpectedToken(next);
+                    return;
+                }
+
                 Token single = eValue.getLast();
 
                 if (!(single instanceof VariableExprToken
@@ -202,6 +207,11 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             //next = iterator.previous();
             ExprStmtToken eValue = analyzer.generator(SimpleExprGenerator.class)
                     .getToken(next, iterator, null, BraceExprToken.Kind.SIMPLE);
+
+            if (eValue == null) {
+                unexpectedToken(next);
+                return;
+            }
 
             Token single = eValue.getLast();
 
