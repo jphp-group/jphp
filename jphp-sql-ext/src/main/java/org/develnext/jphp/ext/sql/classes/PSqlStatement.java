@@ -39,7 +39,12 @@ public class PSqlStatement extends BaseObject implements Iterator {
     @Signature
     public PSqlResult fetch(Environment env) throws SQLException {
         ResultSet resultSet = statement.executeQuery();
-        return new PSqlResult(env, resultSet);
+
+        if (resultSet.next()) {
+            return new PSqlResult(env, resultSet);
+        } else {
+            return null;
+        }
     }
 
     @Signature
@@ -112,7 +117,7 @@ public class PSqlStatement extends BaseObject implements Iterator {
         } else if (value.instanceOf(Stream.class)) {
             statement.setBlob(index + 1, Stream.getInputStream(env, value));
         } else if (value.toValue() instanceof BinaryMemory) {
-            statement.setBytes(index + 1, value.getBinaryBytes());
+            statement.setBytes(index + 1, value.getBinaryBytes(env.getDefaultCharset()));
         } else {
             if (value.isNull()) {
                 statement.setNull(index + 1, Types.NULL);

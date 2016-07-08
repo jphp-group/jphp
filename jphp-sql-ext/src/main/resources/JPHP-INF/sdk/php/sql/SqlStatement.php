@@ -54,7 +54,9 @@ abstract class SqlStatement implements Iterator
     }
 
     /**
-     * @return SqlResult
+     * Returns null if rows does not exist.
+     *
+     * @return SqlResult|null
      * @throws SqlException
      */
     public function fetch()
