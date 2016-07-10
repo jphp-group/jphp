@@ -142,7 +142,7 @@ public class ResourceStream extends Stream {
 
     @Signature(@Arg("name"))
     public static Memory getResources(Environment env, Memory... args) throws IOException {
-        Enumeration<URL> list = Thread.currentThread().getContextClassLoader().getResources(args[0].toString());
+        Enumeration<URL> list = env.getScope().getClassLoader().getResources(args[0].toString());
 
         ArrayMemory r = new ArrayMemory();
         while (list.hasMoreElements()) {

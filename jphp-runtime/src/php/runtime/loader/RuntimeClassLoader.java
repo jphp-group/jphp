@@ -1,6 +1,7 @@
 package php.runtime.loader;
 
 import php.runtime.Memory;
+import php.runtime.common.Callback;
 import php.runtime.env.Environment;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.*;
@@ -10,13 +11,17 @@ import php.runtime.reflection.helper.GeneratorEntity;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RuntimeClassLoader extends URLClassLoader {
     protected Map<String, ClassEntity> internalClasses = new HashMap<String, ClassEntity>();
     protected Map<String, FunctionEntity> internalFunctions = new HashMap<String, FunctionEntity>();
     protected Map<String, ModuleEntity> internalModules = new HashMap<String, ModuleEntity>();
+
+    protected List<Callback<Void, URL>> addLibraryListeners = new ArrayList<>();
 
     public RuntimeClassLoader() {
         this(Thread.currentThread().getContextClassLoader());
@@ -146,11 +151,19 @@ public class RuntimeClassLoader extends URLClassLoader {
         return data;
     }
 
-    public void addLibrary(URL url) {
+    synchronized public void addLibrary(URL url) {
         addURL(url);
+
+        for (Callback<Void, URL> listener : addLibraryListeners) {
+            listener.call(url);
+        }
     }
 
     public URL[] getLibraries() {
         return getURLs();
+    }
+
+    public void onAddLibrary(Callback<Void, URL> listener) {
+        addLibraryListeners.add(listener);
     }
 }

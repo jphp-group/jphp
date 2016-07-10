@@ -5,6 +5,7 @@ import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
 import php.runtime.common.StringUtils;
 import php.runtime.env.*;
@@ -191,7 +192,15 @@ public class Launcher {
         }
     }
 
-    protected void initExtensions(){
+    protected void loadExtensions() {
+        ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class, compileScope.getClassLoader());
+
+        for (Extension extension : loader) {
+            compileScope.registerExtension(extension);
+        }
+    }
+
+    protected void initExtensions() {
         String tmp = getConfigValue("env.extensions", "spl").toString();
         String[] _extensions = StringUtils.split(tmp, ",");
 
@@ -200,11 +209,15 @@ public class Launcher {
             extensions.add(ext.trim());
         }
 
-        ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);
+        loadExtensions();
 
-        for (Extension extension : loader) {
-            compileScope.registerExtension(extension);
-        }
+        compileScope.getClassLoader().onAddLibrary(new Callback<Void, URL>() {
+            @Override
+            public Void call(URL param) {
+                loadExtensions();
+                return null;
+            }
+        });
 
         if (getConfigValue("env.autoregister_extensions", Memory.TRUE).toBoolean()) {
             for(InputStream list : getResources("JPHP-INF/extensions.list")) {
