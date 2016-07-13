@@ -309,7 +309,9 @@ public class FsUtils extends BaseObject {
         byte[] buf = new byte[bufferSize];
         int n;
 
-        while ((n = input.read(buf)) > 0) {
+        BufferedInputStream inputStream = new BufferedInputStream(input, bufferSize);
+
+        while ((n = inputStream.read(buf)) > 0) {
             output.write(buf, 0, n);
             nread += n;
 
