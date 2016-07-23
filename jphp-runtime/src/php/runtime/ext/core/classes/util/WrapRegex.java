@@ -163,19 +163,28 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory group(Environment env, Memory... args) {
-        if (args[0].isNull())
+        Memory group = args[0];
+
+        if (group.isNull())
             return StringMemory.valueOf(matcher.group());
-        else
-            return StringMemory.valueOf(matcher.group(args[0].toInteger()));
+        else {
+            if (group.isString() || group.isObject()) {
+                Memory longMemory = StringMemory.toLong(group.toString(), false);
+
+                if (longMemory == null) {
+                    return StringMemory.valueOf(matcher.group(group.toString()));
+                }
+            }
+
+            return StringMemory.valueOf(matcher.group(group.toInteger()));
+        }
     }
 
     @Signature(@Arg("replacement"))
     public Memory replace(Environment env, Memory... args) {
         try {
             return StringMemory.valueOf(matcher.replaceAll(args[0].toString()));
-        } catch (IllegalStateException e) {
-            throw new RegexException(env, e);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IllegalStateException | IndexOutOfBoundsException e) {
             throw new RegexException(env, e);
         }
     }

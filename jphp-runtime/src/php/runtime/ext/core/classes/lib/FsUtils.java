@@ -310,9 +310,10 @@ public class FsUtils extends BaseObject {
         int n;
 
         BufferedInputStream inputStream = new BufferedInputStream(input, bufferSize);
+        BufferedOutputStream outputStream = new BufferedOutputStream(output, bufferSize);
 
         while ((n = inputStream.read(buf)) > 0) {
-            output.write(buf, 0, n);
+            outputStream.write(buf, 0, n);
             nread += n;
 
             if (callback != null) {
@@ -321,6 +322,8 @@ public class FsUtils extends BaseObject {
                 }
             }
         }
+
+        outputStream.flush();
 
         return nread;
     }
