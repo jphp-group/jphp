@@ -72,11 +72,15 @@ public class WrapNetStream extends Stream {
         return currentOutputStream;
     }
 
-    public InputStream getInputStream() throws IOException {
+    synchronized public InputStream getInputStream() throws IOException {
         if (currentInputStream == null) {
             URLConnection urlConnection = getURLConnection();
             try {
                 currentInputStream = urlConnection.getInputStream();
+
+                if (currentInputStream == null && urlConnection instanceof HttpURLConnection) {
+                    currentInputStream = ((HttpURLConnection) urlConnection).getErrorStream();
+                }
             } catch (IOException e) {
                 if (urlConnection instanceof HttpURLConnection) {
                     currentInputStream = ((HttpURLConnection) urlConnection).getErrorStream();
@@ -84,6 +88,10 @@ public class WrapNetStream extends Stream {
                     throw e;
                 }
             }
+        }
+
+        if (currentInputStream == null) {
+            throw new IOException("Unable to get input stream for connection " + getPath());
         }
 
         return currentInputStream;
