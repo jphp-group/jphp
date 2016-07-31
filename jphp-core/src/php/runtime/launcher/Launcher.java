@@ -311,6 +311,8 @@ public class Launcher {
                 argv.unshift(Memory.NULL);
 
                 environment.getGlobals().put("argv", argv);
+                environment.getGlobals().put("argc", LongMemory.valueOf(argv.size()));
+
                 environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
                 try {
                     bootstrap.includeNoThrow(environment);
