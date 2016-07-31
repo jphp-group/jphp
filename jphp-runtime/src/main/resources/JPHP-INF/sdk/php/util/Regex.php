@@ -38,7 +38,7 @@ class Regex implements \Iterator {
      * Creates a new Regex of regex with $string and $flag
      *
      * @param string $pattern regular expression
-     * @param int $flag Regex::CASE_INSENSITIVE and other constants
+     * @param int|string $flag Regex::CASE_INSENSITIVE and other constants, or string "i m s etc."
      * @return Regex
      * @throws RegexException
      */
@@ -114,7 +114,7 @@ class Regex implements \Iterator {
     /**
      * Clone this object with the new $flags
      *
-     * @param int $flags
+     * @param int|string $flags
      * @return Regex
      */
     public function withFlags($flags) { return new Regex(); }
@@ -261,7 +261,7 @@ class Regex implements \Iterator {
      *
      * @param string $pattern regular expression
      * @param string $string
-     * @param int $flags
+     * @param int|string $flags
      * @return bool
      */
     public static function match($pattern, $string, $flags = 0) { return false; }

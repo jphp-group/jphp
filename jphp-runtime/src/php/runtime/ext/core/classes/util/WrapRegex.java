@@ -26,6 +26,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
     public static final int CANON_EQ = Pattern.CANON_EQ;
     public static final int CASE_INSENSITIVE = Pattern.CASE_INSENSITIVE;
     public static final int UNICODE_CASE = Pattern.UNICODE_CASE;
+    public static final int UNICODE_CHARACTER_CLASS = Pattern.UNICODE_CHARACTER_CLASS;
     public static final int COMMENTS = Pattern.COMMENTS;
     public static final int DOTALL = Pattern.DOTALL;
     public static final int LITERAL = Pattern.LITERAL;
@@ -239,7 +240,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
             @Arg(value = "flags", optional = @Reflection.Optional("0"))
     })
     public static Memory of(Environment env, Memory... args) {
-        int flags = args[1].toInteger();
+        int flags = convertFlags(args[1]);
         Pattern pattern = Pattern.compile(args[0].toString(), flags);
         Matcher matcher = pattern.matcher("");
 
@@ -248,7 +249,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature(@Arg(value = "flags"))
     public Memory withFlags(Environment env, Memory... args) {
-        int flags = args[0].toInteger();
+        int flags = convertFlags(args[0]);
         Pattern pattern = Pattern.compile(matcher.pattern().pattern(), flags);
         Matcher matcher1 = pattern.matcher(input);
 
@@ -303,7 +304,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
             @Arg(value = "flags", optional = @Optional("0"))
     })
     public static Memory match(Environment env, Memory... args) {
-        Pattern pattern = Pattern.compile(args[0].toString(), args[2].toInteger());
+        Pattern pattern = Pattern.compile(args[0].toString(), convertFlags(args[2]));
 
         return pattern.matcher(args[1].toString()).find() ? Memory.TRUE : Memory.FALSE;
     }
@@ -350,6 +351,53 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Override
     public ForeachIterator getNewIterator(Environment env) {
         return ObjectMemory.valueOf(this).getNewIterator(env);
+    }
+
+    private static int convertFlags(Memory _flags) {
+        int result = 0;
+
+        if (_flags.isNumber()) {
+            return _flags.toInteger();
+        }
+
+        String flags = _flags.toString();
+
+        if (StringMemory.toLong(flags) != null) {
+            return _flags.toInteger();
+        }
+
+        for (int i = 0; i < flags.length(); i++) {
+            char c = flags.charAt(i);
+
+            switch (c) {
+                case 'i':
+                    result |= CASE_INSENSITIVE;
+                    break;
+                case 'm':
+                    result |= MULTILINE;
+                    break;
+                case 'L':
+                    result |= LITERAL;
+                    break;
+                case 'd':
+                    result |= UNIX_LINES;
+                    break;
+                case 'u':
+                    result |= UNICODE_CASE;
+                    break;
+                case 'U':
+                    result |= Pattern.UNICODE_CHARACTER_CLASS;
+                    break;
+                case 'x':
+                    result |= COMMENTS;
+                    break;
+                case 's':
+                    result |= DOTALL;
+                    break;
+            }
+        }
+
+        return result;
     }
 
     @Name("php\\util\\RegexException")
