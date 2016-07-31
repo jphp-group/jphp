@@ -7,16 +7,11 @@ import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.ObjectInvokeHelper;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.BinaryMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static org.develnext.jphp.zend.ext.standard.FileConstants.*;
 import static php.runtime.annotation.Runtime.Immutable;
@@ -499,6 +494,183 @@ public class FileFunctions extends FunctionsContainer {
             throws Throwable {
         return readfile(env, trace, path, false, Memory.NULL);
     }
+
+    public static Memory fopen(Environment env, TraceInfo trace, String path, String mode) {
+        try {
+            return ObjectMemory.valueOf(Stream.create(env, path, mode));
+        } catch (Throwable throwable) {
+            env.warning("fopen(): failed to open stream, " + throwable.getMessage());
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory ftell(Environment env, TraceInfo trace, Memory stream) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                return env.invokeMethod(trace, stream, "getPosition");
+            } catch (Throwable throwable) {
+                env.warning(trace, "ftell(): " + throwable.getMessage());
+                return Memory.FALSE;
+            }
+        }
+
+        env.warning(trace, "ftell(): unable to get position from a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory feof(Environment env, TraceInfo trace, Memory stream) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                return env.invokeMethod(trace, stream, "eof");
+            } catch (Throwable throwable) {
+                env.warning(trace, "feof(): " + throwable.getMessage());
+                return Memory.FALSE;
+            }
+        }
+
+        env.warning(trace, "feof(): unable get eof from a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory fread(Environment env, TraceInfo trace, Memory stream, int length) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                return env.invokeMethod(trace, stream, "read", LongMemory.valueOf(length));
+            } catch (Throwable throwable) {
+                env.warning(trace, "fread(): " + throwable.getMessage());
+                return Memory.FALSE;
+            }
+        }
+
+        env.warning(trace, "fread(): unable to read from a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory fgetc(Environment env, TraceInfo trace, Memory stream) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                Memory memory = env.invokeMethod(trace, stream, "read", Memory.CONST_INT_1);
+                return memory.isNull() ? Memory.FALSE : memory;
+            } catch (Throwable throwable) {
+                env.warning(trace, "fgetc(): " + throwable.getMessage());
+                return Memory.FALSE;
+            }
+        }
+
+        env.warning(trace, "fgetc(): unable to read from a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory fseek(Environment env, TraceInfo trace, Memory stream, long offset) {
+        return fseek(env, trace, stream, offset, 0);
+    }
+
+    public static Memory fseek(Environment env, TraceInfo trace, Memory stream, long offset, int whence) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                switch (whence) {
+                    case 1:
+                        offset += env.invokeMethod(trace, stream, "getPosition").toLong();
+                        break;
+                    case 2:
+                        env.error(trace, "fseek(): flag SEEK_END is not supported.");
+                        break;
+                    default:
+                    case 0:
+                        break;
+                }
+
+                env.invokeMethod(trace, stream, "seek", LongMemory.valueOf(offset));
+                return Memory.CONST_INT_0;
+            } catch (Throwable throwable) {
+                env.warning(trace, "fseek(): " + throwable.getMessage());
+                return Memory.CONST_INT_M1;
+            }
+        }
+
+        env.warning(trace, "fseek(): unable to seek in a non-stream");
+        return Memory.CONST_INT_M1;
+    }
+
+    public static Memory fputs(Environment env, TraceInfo trace, Memory stream, Memory value) {
+        return fwrite(env, trace, stream, value);
+    }
+
+    public static Memory fputs(Environment env, TraceInfo trace, Memory stream, Memory value, Memory length) {
+        return fwrite(env, trace, stream, value, length);
+    }
+
+    public static Memory fgets(Environment env, TraceInfo trace, Memory stream) {
+        return fgets(env, trace, stream, Memory.NULL);
+    }
+
+    public static Memory fgets(Environment env, TraceInfo trace, Memory stream, Memory length) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            InputStream in = Stream.getInputStream(env, stream);
+
+            if (in != null) {
+                int read;
+
+                StringBuilder sb = new StringBuilder();
+
+                try {
+                    while ((read = in.read()) != -1) {
+                        if (length.isNotNull() && sb.length() >= length.toInteger()) {
+                            break;
+                        }
+
+                        if (read == '\n' || read == '\r') {
+                            break;
+                        }
+
+                        sb.append((char)read);
+                    }
+
+                    return StringMemory.valueOf(sb.toString());
+                } catch (IOException e) {
+                    env.warning(trace, "fgets(): " + e.getMessage());
+                    return Memory.FALSE;
+                }
+            }
+        }
+
+        env.warning(trace, "fgets(): unable to get from a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory fwrite(Environment env, TraceInfo trace, Memory stream, Memory value) {
+        return fwrite(env, trace, stream, value, Memory.NULL);
+    }
+
+    public static Memory fwrite(Environment env, TraceInfo trace, Memory stream, Memory value, Memory length) {
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
+            try {
+                return env.invokeMethod(trace, stream, "write", value, length);
+            } catch (Throwable throwable) {
+                env.warning(trace, "fwrite(): " + throwable.getMessage());
+                return Memory.FALSE;
+            }
+        }
+
+        env.warning(trace, "fwrite(): unable to write to a non-stream");
+        return Memory.FALSE;
+    }
+
+    public static Memory fclose(Environment env, TraceInfo trace, Memory stream) {
+        if (stream.instanceOf(Stream.CLASS_NAME)){
+            try {
+                env.invokeMethod(trace, stream, "close");
+                return Memory.TRUE;
+            } catch (Throwable throwable) {
+                return Memory.FALSE;
+            }
+        } else {
+            env.warning("fclose(): unable to close a non-stream");
+            return Memory.FALSE;
+        }
+    }
+
+
 
     //public static Memory glob()
 }

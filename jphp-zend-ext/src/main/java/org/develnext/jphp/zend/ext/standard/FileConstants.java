@@ -13,4 +13,8 @@ public class FileConstants extends ConstantsContainer {
     public final static int PATHINFO_BASENAME = 2;
     public final static int PATHINFO_EXTENSION = 3;
     public final static int PATHINFO_FILENAME = 4;
+
+    public final static int SEEK_END = 2;
+    public final static int SEEK_CUR = 1;
+    public final static int SEEK_SET = 0;
 }

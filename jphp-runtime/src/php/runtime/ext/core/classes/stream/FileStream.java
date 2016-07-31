@@ -47,6 +47,7 @@ public class FileStream extends Stream {
         try {
             if (getMode().equals("r")) {
                 accessFile = new RandomAccessFile(getPath(), "r");
+                position = 0;
             } else if (getMode().equals("r+")){
                 if (!new File(getPath()).getAbsoluteFile().exists())
                     throwFileNotFound(env);
