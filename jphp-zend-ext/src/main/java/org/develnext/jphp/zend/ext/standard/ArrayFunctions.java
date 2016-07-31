@@ -2,6 +2,7 @@ package org.develnext.jphp.zend.ext.standard;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
+import php.runtime.annotation.Runtime.Reference;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.RecursiveException;
@@ -12,15 +13,16 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import static php.runtime.Memory.Type.ARRAY;
 
 public class ArrayFunctions extends FunctionsContainer {
 
     @Runtime.Immutable(ignoreRefs = true)
-    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Runtime.Reference Memory array,
+    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Reference Memory array,
                                    boolean strict) {
-        if (expecting(env, trace, 2, array, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 2, array, ARRAY)) {
             ForeachIterator iterator = array.getNewIterator(env, false, false);
             while (iterator.next()) {
                 if (strict) {
@@ -37,13 +39,13 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable(ignoreRefs = true)
-    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Runtime.Reference Memory array) {
+    public static boolean in_array(Environment env, TraceInfo trace, Memory needle, @Reference Memory array) {
         return in_array(env, trace, needle, array, false);
     }
 
     @Runtime.Immutable(ignoreRefs = true)
-    public static boolean array_key_exists(Environment env, TraceInfo trace, Memory key, @Runtime.Reference Memory array) {
-        if (expecting(env, trace, 2, array, Memory.Type.ARRAY)) {
+    public static boolean array_key_exists(Environment env, TraceInfo trace, Memory key, @Reference Memory array) {
+        if (expecting(env, trace, 2, array, ARRAY)) {
             ArrayMemory tmp = array.toValue(ArrayMemory.class);
             return tmp.get(key) != null;
         } else
@@ -51,13 +53,13 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     @Runtime.Immutable(ignoreRefs = true)
-    public static boolean key_exists(Environment env, TraceInfo trace, Memory key, @Runtime.Reference Memory array) {
+    public static boolean key_exists(Environment env, TraceInfo trace, Memory key, @Reference Memory array) {
         return array_key_exists(env, trace, key, array);
     }
 
-    public static Memory reset(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory reset(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 return memory.resetCurrentIterator().toImmutable();
             }
@@ -65,9 +67,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory next(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory next(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.next())
@@ -79,9 +81,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory prev(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory prev(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
                 if (iterator.prev())
@@ -93,9 +95,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory current(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory current(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getValue();
                 return value == null ? Memory.FALSE : value.toImmutable();
             }
@@ -103,9 +105,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory key(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory key(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getMemoryKey();
                 return value == null ? Memory.FALSE : value;
             }
@@ -113,13 +115,13 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory pos(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory pos(Environment env, TraceInfo trace, @Reference Memory array) {
         return current(env, trace, array);
     }
 
-    public static Memory end(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory end(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.end()) {
                     return iterator.getValue().toImmutable();
@@ -131,9 +133,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory each(Environment env, TraceInfo trace, @Runtime.Reference Memory array) {
+    public static Memory each(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array)) {
-            if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
+            if (expecting(env, trace, 1, array, ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.next()) {
                     Memory value = iterator.getValue().toImmutable();
@@ -201,8 +203,8 @@ public class ArrayFunctions extends FunctionsContainer {
         }
     }
 
-    public static boolean shuffle(Environment env, TraceInfo trace, @Runtime.Reference Memory value) {
-        if (expectingReference(env, trace, value) && expecting(env, trace, 1, value, Memory.Type.ARRAY)) {
+    public static boolean shuffle(Environment env, TraceInfo trace, @Reference Memory value) {
+        if (expectingReference(env, trace, value) && expecting(env, trace, 1, value, ARRAY)) {
             ArrayMemory array = value.toValue(ArrayMemory.class);
             array.shuffle(MathFunctions.RANDOM);
             return true;
@@ -220,7 +222,7 @@ public class ArrayFunctions extends FunctionsContainer {
 
         ArrayMemory result = new ArrayMemory();
         ForeachIterator[] iterators;
-        if (!expecting(env, trace, 2, _array, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 2, _array, ARRAY))
             return Memory.NULL;
 
         if (arrays == null) {
@@ -229,7 +231,7 @@ public class ArrayFunctions extends FunctionsContainer {
             iterators = new ForeachIterator[1 + arrays.length];
             iterators[0] = _array.getNewIterator(env, false, false);
             for (int i = 0; i < arrays.length; i++) {
-                if (!expecting(env, trace, i + 3, arrays[i], Memory.Type.ARRAY))
+                if (!expecting(env, trace, i + 3, arrays[i], ARRAY))
                     return Memory.NULL;
                 iterators[i + 1] = arrays[i].getNewIterator(env, false, false);
             }
@@ -257,9 +259,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory array_filter(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
+    public static Memory array_filter(Environment env, TraceInfo trace, Memory input, Memory callback)
             throws Throwable {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+        if (!expecting(env, trace, 1, input, ARRAY)) {
             return Memory.NULL;
         }
 
@@ -287,15 +289,15 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory array_filter(Environment env, TraceInfo trace, @Runtime.Reference Memory input)
+    public static Memory array_filter(Environment env, TraceInfo trace, Memory input)
             throws Throwable {
         return array_filter(env, trace, input, null);
     }
 
-    public static Memory array_reduce(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback,
+    public static Memory array_reduce(Environment env, TraceInfo trace, Memory input, Memory callback,
                                       Memory initial)
             throws Throwable {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         Invoker invoker = expectingCallback(env, trace, 2, callback);
@@ -316,17 +318,17 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toValue();
     }
 
-    public static Memory array_reduce(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
+    public static Memory array_reduce(Environment env, TraceInfo trace, Memory input, Memory callback)
             throws Throwable {
         return array_reduce(env, trace, input, callback, Memory.NULL);
     }
 
-    public static boolean array_walk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback,
+    public static boolean array_walk(Environment env, TraceInfo trace, Memory input, Memory callback,
                                      Memory userData) throws Throwable {
         if (!expectingReference(env, trace, input))
             return false;
 
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return false;
 
         Invoker invoker = expectingCallback(env, trace, 2, callback);
@@ -342,7 +344,7 @@ public class ArrayFunctions extends FunctionsContainer {
         return true;
     }
 
-    public static boolean array_walk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory callback)
+    public static boolean array_walk(Environment env, TraceInfo trace, Memory input, Memory callback)
             throws Throwable {
         return array_walk(env, trace, input, callback, Memory.NULL);
     }
@@ -374,13 +376,13 @@ public class ArrayFunctions extends FunctionsContainer {
         return true;
     }
 
-    public static boolean array_walk_recursive(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
+    public static boolean array_walk_recursive(Environment env, TraceInfo trace, Memory input,
                                                Memory callback, Memory userData)
             throws Throwable {
         if (!expectingReference(env, trace, input))
             return false;
 
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return false;
 
         Invoker invoker = expectingCallback(env, trace, 2, callback);
@@ -392,14 +394,14 @@ public class ArrayFunctions extends FunctionsContainer {
         return _array_walk_recursive(env, trace, input, invoker, userData, used);
     }
 
-    public static boolean array_walk_recursive(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
+    public static boolean array_walk_recursive(Environment env, TraceInfo trace, Memory input,
                                                Memory callback)
             throws Throwable {
         return array_walk_recursive(env, trace, input, callback, Memory.NULL);
     }
 
-    public static Memory array_flip(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+    public static Memory array_flip(Environment env, TraceInfo trace, Memory input) {
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory result = new ArrayMemory();
@@ -410,8 +412,8 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory array_reverse(Environment env, TraceInfo trace, @Runtime.Reference Memory input, boolean saveKeys) {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+    public static Memory array_reverse(Environment env, TraceInfo trace, Memory input, boolean saveKeys) {
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory array = input.toValue(ArrayMemory.class);
@@ -439,12 +441,12 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory array_reverse(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
+    public static Memory array_reverse(Environment env, TraceInfo trace, Memory input) {
         return array_reverse(env, trace, input, false);
     }
 
-    public static Memory array_rand(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int numReq) {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+    public static Memory array_rand(Environment env, TraceInfo trace, Memory input, int numReq) {
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory array = input.toValue(ArrayMemory.class);
@@ -480,25 +482,25 @@ public class ArrayFunctions extends FunctionsContainer {
         }
     }
 
-    public static Memory array_rand(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
+    public static Memory array_rand(Environment env, TraceInfo trace, Memory input) {
         return array_rand(env, trace, input, 1);
     }
 
-    public static Memory array_pop(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
+    public static Memory array_pop(Environment env, TraceInfo trace, Memory input) {
         if (!expectingReference(env, trace, input))
             return Memory.NULL;
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         Memory value = input.toValue(ArrayMemory.class).pop();
         return value == null ? Memory.NULL : value.toImmutable();
     }
 
-    public static Memory array_push(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory var,
+    public static Memory array_push(Environment env, TraceInfo trace, Memory input, Memory var,
                                     Memory... args) {
         if (!expectingReference(env, trace, input))
             return Memory.NULL;
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory array = input.toValue(ArrayMemory.class);
@@ -510,21 +512,21 @@ public class ArrayFunctions extends FunctionsContainer {
         return LongMemory.valueOf(array.size());
     }
 
-    public static Memory array_shift(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
+    public static Memory array_shift(Environment env, TraceInfo trace, Memory input) {
         if (!expectingReference(env, trace, input))
             return Memory.NULL;
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         Memory value = input.toValue(ArrayMemory.class).shift();
         return value == null ? Memory.NULL : value.toImmutable();
     }
 
-    public static Memory array_unshift(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory var,
+    public static Memory array_unshift(Environment env, TraceInfo trace, Memory input, Memory var,
                                        Memory... args) {
         if (!expectingReference(env, trace, input))
             return Memory.NULL;
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory array = input.toValue(ArrayMemory.class);
@@ -538,29 +540,30 @@ public class ArrayFunctions extends FunctionsContainer {
         return LongMemory.valueOf(array.size());
     }
 
-    public static Memory array_values(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+    public static Memory array_values(Environment env, TraceInfo trace, Memory input) {
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         Memory[] values = input.toValue(ArrayMemory.class).values();
-        return new ArrayMemory(true, values).toConstant();
+        return ArrayMemory.of(values).toConstant();
     }
 
-    public static Memory array_keys(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (!expecting(env, trace, 1, input, Memory.Type.ARRAY))
+    public static Memory array_keys(Environment env, TraceInfo trace, Memory input) {
+        if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory result = new ArrayMemory();
         ForeachIterator iterator = input.getNewIterator(env, false, false);
+
         while (iterator.next())
             result.add(iterator.getMemoryKey());
 
         return result.toConstant();
     }
 
-    public static Memory array_pad(Environment env, TraceInfo trace, @Runtime.Reference Memory input,
+    public static Memory array_pad(Environment env, TraceInfo trace, Memory input,
                                    int padSize, Memory padValue) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ArrayMemory array = input.toValue(ArrayMemory.class);
             int size = array.size();
             int needSize = Math.abs(padSize);
@@ -582,9 +585,8 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_product(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+    public static Memory array_product(Environment env, TraceInfo trace, Memory input) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ForeachIterator iterator = input.getNewIterator(env, false, false);
             Memory result = Memory.CONST_INT_1;
             while (iterator.next()) {
@@ -595,9 +597,8 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_sum(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+    public static Memory array_sum(Environment env, TraceInfo trace, Memory input) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ForeachIterator iterator = input.getNewIterator(env, false, false);
             Memory result = Memory.CONST_INT_0;
             while (iterator.next()) {
@@ -608,9 +609,8 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_change_key_case(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int _case) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+    public static Memory array_change_key_case(Environment env, TraceInfo trace, Memory input, int _case) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ArrayMemory result = new ArrayMemory();
             ForeachIterator iterator = input.getNewIterator(env, false, false);
             while (iterator.next()) {
@@ -627,15 +627,13 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_change_key_case(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
+    public static Memory array_change_key_case(Environment env, TraceInfo trace, Memory input) {
         return array_change_key_case(env, trace, input, 0);
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_chunk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int size,
+    public static Memory array_chunk(Environment env, TraceInfo trace, Memory input, int size,
                                      boolean saveKeys) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             if (size < 1) {
                 env.warning(trace, "array_chunk(): Size parameter expected to be greater than 0");
                 return Memory.NULL;
@@ -666,15 +664,13 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_chunk(Environment env, TraceInfo trace, @Runtime.Reference Memory input, int size) {
+    public static Memory array_chunk(Environment env, TraceInfo trace, Memory input, int size) {
         return array_chunk(env, trace, input, size, false);
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_column(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory columnKey,
+    public static Memory array_column(Environment env, TraceInfo trace, Memory input, Memory columnKey,
                                       Memory indexKey) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             if (columnKey.isNull() && indexKey.isNull())
                 return array_values(env, trace, input);
 
@@ -696,15 +692,12 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_column(Environment env, TraceInfo trace, @Runtime.Reference Memory input, Memory columnKey) {
+    public static Memory array_column(Environment env, TraceInfo trace, Memory input, Memory columnKey) {
         return array_column(env, trace, input, columnKey, Memory.NULL);
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_combine(Environment env, TraceInfo trace, @Runtime.Reference Memory keys,
-                                       @Runtime.Reference Memory values) {
-        if (expecting(env, trace, 1, keys, Memory.Type.ARRAY) && expecting(env, trace, 2, values, Memory.Type.ARRAY)) {
+    public static Memory array_combine(Environment env, TraceInfo trace, Memory keys, Memory values) {
+        if (expecting(env, trace, 1, keys, ARRAY) && expecting(env, trace, 2, values, ARRAY)) {
             ArrayMemory _keys = keys.toValue(ArrayMemory.class);
             ArrayMemory _values = values.toValue(ArrayMemory.class);
             int size1 = _keys.size();
@@ -731,9 +724,8 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.FALSE;
     }
 
-    @Runtime.Immutable(ignoreRefs = true)
-    public static Memory array_count_values(Environment env, TraceInfo trace, @Runtime.Reference Memory input) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+    public static Memory array_count_values(Environment env, TraceInfo trace, Memory input) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ArrayMemory counts = new ArrayMemory();
             ForeachIterator iterator = input.getNewIterator(env, false, false);
             boolean warning = false;
@@ -758,7 +750,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_search(Environment env, TraceInfo trace, Memory input, Memory needle, boolean strict) {
-        if (expecting(env, trace, 1, input, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 1, input, ARRAY)) {
             ForeachIterator iterator = input.getNewIterator(env, false, false);
 
             while (iterator.next()) {
@@ -882,7 +874,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_fill_keys(Environment env, TraceInfo trace, Memory keys, Memory value) {
-        if (expecting(env, trace, 1, keys, Memory.Type.ARRAY)) {
+        if (expecting(env, trace, 1, keys, ARRAY)) {
             ForeachIterator iterator = keys.getNewIterator(env);
             ArrayMemory result = new ArrayMemory();
 
@@ -894,5 +886,46 @@ public class ArrayFunctions extends FunctionsContainer {
         } else {
             return new ArrayMemory().toConstant();
         }
+    }
+
+    public static Memory array_unique(Environment env, TraceInfo trace, Memory array) {
+        return array_unique(env, trace, array, 0);
+    }
+
+    public static Memory array_unique(Environment env, TraceInfo trace, Memory array, int flag) {
+        if (expecting(env, trace, 1, array, ARRAY)) {
+            Set<Object> keys = new TreeSet<>();
+            ArrayMemory newArray = new ArrayMemory();
+
+            ForeachIterator iterator = array.getNewIterator(env);
+
+            while (iterator.next()) {
+                Object key;
+
+                switch (flag) {
+                    case 1:
+                        key = iterator.getValue().toLong();
+                        break;
+                    case 2:
+                        key = iterator.getValue().toBinaryString();
+                        break;
+                    case 5:
+                        key = iterator.getValue().toString();
+                        break;
+                    case 0:
+                    default:
+                        key = iterator.getValue().toString();
+                        break;
+                }
+
+                if (keys.add(key)) {
+                    newArray.put(iterator.getKey(), iterator.getValue().toImmutable());
+                }
+            }
+
+            return newArray.toConstant();
+        }
+
+        return Memory.NULL;
     }
 }
