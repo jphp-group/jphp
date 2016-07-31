@@ -10,6 +10,8 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.memory.*;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -670,7 +672,9 @@ public class FileFunctions extends FunctionsContainer {
         }
     }
 
-
-
+    public static String getcwd() {
+        Path currentRelativePath = Paths.get("");
+        return currentRelativePath.toAbsolutePath().toString();
+    }
     //public static Memory glob()
 }
