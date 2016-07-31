@@ -11,6 +11,8 @@ import php.runtime.env.message.WarningMessage;
 import php.runtime.exceptions.*;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.ext.core.classes.WrapEnvironment;
+import php.runtime.ext.core.classes.WrapEnvironmentVariables;
 import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
@@ -234,6 +236,8 @@ public class Environment {
         });
 
         this.globals.put("GLOBALS", this.globals);
+        this.globals.put("_ENV", ObjectMemory.valueOf(new WrapEnvironmentVariables(this)));
+
         this.constants = new HashMap<String, ConstantEntity>();
 
         //classMap.putAll(scope.getClassMap());

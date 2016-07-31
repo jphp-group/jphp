@@ -1,6 +1,7 @@
 package org.develnext.jphp.zend.ext.standard;
 
 import php.runtime.Memory;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.classes.stream.Stream;
@@ -13,6 +14,8 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static org.develnext.jphp.zend.ext.standard.FileConstants.*;
@@ -675,6 +678,43 @@ public class FileFunctions extends FunctionsContainer {
     public static String getcwd() {
         Path currentRelativePath = Paths.get("");
         return currentRelativePath.toAbsolutePath().toString();
+    }
+
+    public static String getenv(Environment env, String name) {
+        Map<String, String> zendEnv = env.getUserValue("env", Map.class);
+
+        if (zendEnv != null) {
+            String s = zendEnv.get(name);
+
+            if (s != null) {
+                return s;
+            }
+        }
+
+        return System.getenv(name);
+    }
+
+    synchronized public static void putenv(Environment env, String _value) {
+        if (_value.isEmpty()) {
+            return;
+        }
+
+        String[] strings = StringUtils.split(_value, "=", 2);
+
+        String name = strings[0];
+        String value = strings.length > 1 ? strings[1] : null;
+
+        Map<String, String> zendEnv = env.getUserValue("env", Map.class);
+
+        if (zendEnv == null) {
+            env.setUserValue("env", zendEnv = new HashMap<String, String>());
+        }
+
+        if (value == null) {
+            zendEnv.remove(name);
+        } else {
+            zendEnv.put(name, value);
+        }
     }
     //public static Memory glob()
 }

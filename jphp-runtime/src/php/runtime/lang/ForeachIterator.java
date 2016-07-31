@@ -8,6 +8,7 @@ import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 
 import java.util.Iterator;
+import java.util.Map;
 
 abstract public class ForeachIterator implements Iterable<Memory> {
     protected Object currentKey;
@@ -20,10 +21,54 @@ abstract public class ForeachIterator implements Iterable<Memory> {
     protected boolean plainReferences = false;
 
     abstract protected boolean init();
+
     abstract protected boolean nextValue();
+
     abstract protected boolean prevValue();
 
     protected TraceInfo trace = TraceInfo.UNKNOWN;
+
+    public static ForeachIterator of(final Environment env, final Map map) {
+        return new ForeachIterator(false, false, false) {
+            private Iterator<Map.Entry<Object, Object>> entries;
+
+            @Override
+            protected boolean init() {
+                reset();
+                return !map.isEmpty();
+            }
+
+            @Override
+            protected boolean nextValue() {
+                if (entries.hasNext()) {
+                    Map.Entry<Object, Object> entry = entries.next();
+
+                    currentKey = entry.getKey();
+                    currentKeyMemory = currentKey == null ? Memory.NULL : StringMemory.valueOf(currentKey.toString());
+
+                    currentValue = Memory.wrap(env, entry.getValue());
+
+                    if (!getReferences) {
+                        currentValue = currentValue.toValue();
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            protected boolean prevValue() {
+                return false;
+            }
+
+            @Override
+            public void reset() {
+                entries = map.entrySet().iterator();
+            }
+        };
+    }
 
     public static ForeachIterator of(final Environment env, final Iterable iterable) {
         return new ForeachIterator(false, false, false) {
@@ -75,7 +120,7 @@ abstract public class ForeachIterator implements Iterable<Memory> {
         this.plainReferences = plainReferences;
     }
 
-    public boolean prev(){
+    public boolean prev() {
         currentKeyMemory = null;
         if (!init || !withPrevious) {
             this.currentKey = null;
@@ -85,9 +130,9 @@ abstract public class ForeachIterator implements Iterable<Memory> {
             return prevValue();
     }
 
-    public boolean next(){
+    public boolean next() {
         currentKeyMemory = null;
-        if (!init){
+        if (!init) {
             init = true;
             if (!init())
                 return false;
@@ -96,7 +141,7 @@ abstract public class ForeachIterator implements Iterable<Memory> {
         return nextValue();
     }
 
-    public boolean end(){
+    public boolean end() {
         return false;
     }
 
@@ -111,14 +156,14 @@ abstract public class ForeachIterator implements Iterable<Memory> {
 
     abstract public void reset();
 
-    public Memory getMemoryKey(){
+    public Memory getMemoryKey() {
         if (currentKeyMemory != null)
             return currentKeyMemory;
 
         if (currentKey instanceof String)
-            return currentKeyMemory = new StringMemory((String)currentKey);
+            return currentKeyMemory = new StringMemory((String) currentKey);
         if (currentKey instanceof Long)
-            return currentKeyMemory = LongMemory.valueOf((Long)currentKey);
+            return currentKeyMemory = LongMemory.valueOf((Long) currentKey);
         if (currentKey instanceof Memory)
             return currentKeyMemory = (Memory) currentKey;
 

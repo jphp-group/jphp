@@ -107,6 +107,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapModule.class);
         registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
         registerClass(scope, WrapEnvironment.class);
+        registerClass(scope, WrapEnvironmentVariables.class);
         registerClass(scope, WrapThreadGroup.class);
         registerClass(scope, WrapThread.class);
         registerClass(scope, WrapSystem.class);
