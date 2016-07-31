@@ -2,6 +2,8 @@ package org.develnext.jphp.zend.ext.standard;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
+import php.runtime.annotation.Runtime.Immutable;
+import php.runtime.annotation.Runtime.Reference;
 import php.runtime.common.DigestUtils;
 import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
@@ -28,13 +30,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 
 /**
  * TODO:
- *    - addcslashes
- *    - bin2hex ?
- *    - chunk_split
+ * - addcslashes
+ * - bin2hex ?
+ * - chunk_split
  */
 public class StringFunctions extends FunctionsContainer {
 
@@ -99,7 +103,7 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     public static Memory sscanf(Environment env, TraceInfo trace, String string, String format,
-                                @Runtime.Reference Memory... args){
+                                @Reference Memory... args) {
         SScanF.Segment[] formatArray = SScanF.parse(env, trace, format);
 
         int strlen = string.length();
@@ -118,7 +122,7 @@ public class StringFunctions extends FunctionsContainer {
             SScanF.Segment segment = formatArray[i];
             Memory var;
 
-            if (! segment.isAssigned()) {
+            if (!segment.isAssigned()) {
                 var = null;
             } else if (isReturnArray) {
                 var = array;
@@ -129,7 +133,7 @@ public class StringFunctions extends FunctionsContainer {
                     if (sIndex < strlen)
                         argIndex++;
 
-                }  else {
+                } else {
                     env.warning(trace, "sscanf(): not enough variables passed in");
                     var = new ReferenceMemory();
                 }
@@ -138,7 +142,7 @@ public class StringFunctions extends FunctionsContainer {
             if (!(var instanceof ReferenceMemory))
                 var = new ReferenceMemory(var);
 
-            sIndex = segment.apply(string, strlen, sIndex, (ReferenceMemory)var, isReturnArray);
+            sIndex = segment.apply(string, strlen, sIndex, (ReferenceMemory) var, isReturnArray);
 
             if (sIndex < 0) {
                 if (isReturnArray)
@@ -152,11 +156,11 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     private static Memory sscanfReturn(Environment env, TraceInfo trace,
-                                      ArrayMemory array,
-                                      Memory[] args,
-                                      int argIndex,
-                                      boolean isReturnArray,
-                                      boolean isWarn) {
+                                       ArrayMemory array,
+                                       Memory[] args,
+                                       int argIndex,
+                                       boolean isReturnArray,
+                                       boolean isWarn) {
         if (isReturnArray)
             return array;
         else {
@@ -177,24 +181,24 @@ public class StringFunctions extends FunctionsContainer {
     }
 
 
-    public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args){
+    public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args) {
         PrintF printF = new PrintF(env.getLocale(), format, args);
         String result = printF.toString();
-        if (result == null){
+        if (result == null) {
             env.warning(trace, "Too few arguments");
             return Memory.NULL;
         } else
             return new StringMemory(result);
     }
 
-    public static Memory vsprintf(Environment env, TraceInfo trace, String format, Memory array){
-        if (array.isArray()){
+    public static Memory vsprintf(Environment env, TraceInfo trace, String format, Memory array) {
+        if (array.isArray()) {
             return sprintf(env, trace, format, array.toValue(ArrayMemory.class).values());
         } else
             return sprintf(env, trace, format, array);
     }
 
-    public static int printf(Environment env, TraceInfo trace, String format, Memory... args){
+    public static int printf(Environment env, TraceInfo trace, String format, Memory... args) {
         Memory str = sprintf(env, trace, format, args);
         if (str.isNull())
             return 0;
@@ -205,8 +209,8 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    public static int vprintf(Environment env, TraceInfo trace, String format, Memory array){
-        if (array.isArray()){
+    public static int vprintf(Environment env, TraceInfo trace, String format, Memory array) {
+        if (array.isArray()) {
             return printf(env, trace, format, array.toValue(ArrayMemory.class).values());
         } else
             return printf(env, trace, format, array);
@@ -255,7 +259,7 @@ public class StringFunctions extends FunctionsContainer {
         return bitmap;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String addcslashes(Environment env, TraceInfo trace, String source, String characters) {
         boolean[] bitmap = parseCharsetBitmap(env, trace, characters);
 
@@ -300,8 +304,7 @@ public class StringFunctions extends FunctionsContainer {
                         sb.append((char) ('0' + ((ch >> 3) & 7)));
                         sb.append((char) ('0' + ((ch) & 7)));
                         break;
-                    }
-                    else {
+                    } else {
                         sb.append("\\");
                         sb.append(ch);
                         break;
@@ -312,7 +315,7 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String addslashes(String source) {
         StringBuilder sb = new StringBuilder();
 
@@ -341,8 +344,8 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
-    public static String bin2hex(Memory _value){
+    @Immutable
+    public static String bin2hex(Memory _value) {
         String value = _value.toBinaryString();
         StringBuilder sb = new StringBuilder();
 
@@ -368,7 +371,7 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String hex2bin(Memory _s) {
         String s = _s.toBinaryString();
         StringBuilder sb = new StringBuilder();
@@ -398,7 +401,7 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory chunk_split(Environment env, TraceInfo trace, String body, int chunkLen, String end) {
         if (chunkLen < 1) {
             env.warning(trace, "chunk_split(): Chunk length should be greater than zero");
@@ -421,32 +424,32 @@ public class StringFunctions extends FunctionsContainer {
         return new StringMemory(sb.toString());
     }
 
-    @Runtime.Immutable
-    public static Memory chunk_split(Environment env, TraceInfo trace, String body, int chunkLen){
+    @Immutable
+    public static Memory chunk_split(Environment env, TraceInfo trace, String body, int chunkLen) {
         return chunk_split(env, trace, body, chunkLen, "\r\n");
     }
 
-    @Runtime.Immutable
-    public static Memory chunk_split(Environment env, TraceInfo trace, String body){
+    @Immutable
+    public static Memory chunk_split(Environment env, TraceInfo trace, String body) {
         return chunk_split(env, trace, body, 76);
     }
 
-    @Runtime.Immutable
-    public static Memory convert_cyr_string(Environment env, TraceInfo trace, String str, String from, String to){
+    @Immutable
+    public static Memory convert_cyr_string(Environment env, TraceInfo trace, String str, String from, String to) {
         throw new TodoException();
     }
 
-    @Runtime.Immutable
-    public static String trim(String s){
+    @Immutable
+    public static String trim(String s) {
         return s.trim();
     }
 
-    @Runtime.Immutable
-    public static String trim(String s, String charsetList){
+    @Immutable
+    public static String trim(String s, String charsetList) {
         return rtrim(ltrim(s, charsetList), charsetList);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String ltrim(String s) {
         int i = 0;
         while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
@@ -455,7 +458,7 @@ public class StringFunctions extends FunctionsContainer {
         return i >= s.length() ? "" : s.substring(i);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String ltrim(String s, String charsetList) {
         int i = 0;
         while (i < s.length() && charsetList.indexOf(s.charAt(i)) > -1) {
@@ -464,7 +467,7 @@ public class StringFunctions extends FunctionsContainer {
         return i >= s.length() ? "" : s.substring(i);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String rtrim(String s) {
         int i = s.length() - 1;
         while (i > 0 && Character.isWhitespace(s.charAt(i))) {
@@ -473,7 +476,7 @@ public class StringFunctions extends FunctionsContainer {
         return i <= 0 ? "" : s.substring(0, i + 1);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String rtrim(String s, String charsetList) {
         int i = s.length() - 1;
         while (i > 0 && charsetList.indexOf(s.charAt(i)) > -1) {
@@ -482,12 +485,12 @@ public class StringFunctions extends FunctionsContainer {
         return i <= 0 ? "" : s.substring(0, i + 1);
     }
 
-    @Runtime.Immutable
-    public static String chop(String s){
+    @Immutable
+    public static String chop(String s) {
         return rtrim(s);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String quotemeta(String string) {
         int len = string.length();
         StringBuilder sb = new StringBuilder(len * 5 / 4);
@@ -496,8 +499,17 @@ public class StringFunctions extends FunctionsContainer {
             char ch = string.charAt(i);
 
             switch (ch) {
-                case '.': case '\\': case '+': case '*': case '?':
-                case '[': case '^': case ']': case '(': case ')': case '$':
+                case '.':
+                case '\\':
+                case '+':
+                case '*':
+                case '?':
+                case '[':
+                case '^':
+                case ']':
+                case '(':
+                case ')':
+                case '$':
                     sb.append("\\");
                     sb.append(ch);
                     break;
@@ -510,7 +522,7 @@ public class StringFunctions extends FunctionsContainer {
 
     private static final char[] SOUNDEX_VALUES = "01230120022455012623010202".toCharArray();
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory soundex(String string) {
         int length = string.length();
 
@@ -547,8 +559,8 @@ public class StringFunctions extends FunctionsContainer {
         return new StringMemory(sb.toString());
     }
 
-    @Runtime.Immutable
-    public static String str_rot13(String string){
+    @Immutable
+    public static String str_rot13(String string) {
         int len = string.length();
         StringBuilder sb = new StringBuilder(len);
 
@@ -613,8 +625,8 @@ public class StringFunctions extends FunctionsContainer {
         return str_split(string, 1);
     }
 
-    @Runtime.Immutable
-    public static int strcoll(String value1, String value2){
+    @Immutable
+    public static int strcoll(String value1, String value2) {
         int cmp = value1.compareTo(value2);
 
         if (cmp == 0)
@@ -625,8 +637,8 @@ public class StringFunctions extends FunctionsContainer {
             return 1;
     }
 
-    @Runtime.Immutable
-    public static int strcmp(String value1, String value2){
+    @Immutable
+    public static int strcmp(String value1, String value2) {
         int aLen = value1.length();
         int bLen = value2.length();
 
@@ -651,8 +663,8 @@ public class StringFunctions extends FunctionsContainer {
             return 1;
     }
 
-    @Runtime.Immutable
-    public static int strncmp(String value1, String value2, int len){
+    @Immutable
+    public static int strncmp(String value1, String value2, int len) {
         int len1 = value1.length();
         int len2 = value2.length();
         String _value1 = len1 <= len ? value1 : value1.substring(0, len);
@@ -661,8 +673,8 @@ public class StringFunctions extends FunctionsContainer {
         return _value1.compareTo(_value2);
     }
 
-    @Runtime.Immutable
-    public static int strcasecmp(String value1, String value2){
+    @Immutable
+    public static int strcasecmp(String value1, String value2) {
         int aLen = value1.length();
         int bLen = value1.length();
 
@@ -693,8 +705,8 @@ public class StringFunctions extends FunctionsContainer {
             return 1;
     }
 
-    @Runtime.Immutable
-    public static int strncasecmp(String value1, String value2, int len){
+    @Immutable
+    public static int strncasecmp(String value1, String value2, int len) {
         int len1 = value1.length();
         int len2 = value2.length();
         String _value1 = len1 <= len ? value1 : value1.substring(0, len);
@@ -728,20 +740,20 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }*/
 
-    @Runtime.Immutable
-    public static String nl2br(String value){
+    @Immutable
+    public static String nl2br(String value) {
         return nl2br(value, true);
     }
 
-    @Runtime.Immutable
-    public static Memory implode(Environment env, TraceInfo trace, Memory glue, Memory pieces){
+    @Immutable
+    public static Memory implode(Environment env, TraceInfo trace, Memory glue, Memory pieces) {
         ArrayMemory array;
         String delimiter;
         if (glue.isArray()) {
-            array = (ArrayMemory)glue;
+            array = (ArrayMemory) glue;
             delimiter = pieces.toString();
         } else if (pieces.isArray()) {
-            array = (ArrayMemory)pieces;
+            array = (ArrayMemory) pieces;
             delimiter = glue.toString();
         } else {
             env.warning(trace, "Argument must be an array");
@@ -750,7 +762,7 @@ public class StringFunctions extends FunctionsContainer {
 
         StringBuilder builder = new StringBuilder();
         int i = 0, size = array.size();
-        for(Memory el : array){
+        for (Memory el : array) {
             builder.append(el.toString());
             if (i != size - 1)
                 builder.append(delimiter);
@@ -760,27 +772,27 @@ public class StringFunctions extends FunctionsContainer {
         return new StringMemory(builder.toString());
     }
 
-    @Runtime.Immutable
-    public static Memory implode(Environment env, TraceInfo trace, Memory pieces){
+    @Immutable
+    public static Memory implode(Environment env, TraceInfo trace, Memory pieces) {
         return implode(env, trace, Memory.NULL, pieces);
     }
 
-    @Runtime.Immutable
-    public static Memory join(Environment env, TraceInfo trace, Memory glue, Memory pieces){
+    @Immutable
+    public static Memory join(Environment env, TraceInfo trace, Memory glue, Memory pieces) {
         return implode(env, trace, glue, pieces);
     }
 
-    @Runtime.Immutable
-    public static Memory join(Environment env, TraceInfo trace, Memory pieces){
+    @Immutable
+    public static Memory join(Environment env, TraceInfo trace, Memory pieces) {
         return implode(env, trace, Memory.NULL, pieces);
     }
 
-    public static Memory explode(String delimiter, String string, int limit){
+    public static Memory explode(String delimiter, String string, int limit) {
         if (limit == 0)
             limit = 1;
 
         String[] result;
-        if (limit < 0){
+        if (limit < 0) {
             result = StringUtils.split(string, delimiter);
             result = Arrays.copyOfRange(result, 0, result.length + limit);
         } else
@@ -789,37 +801,37 @@ public class StringFunctions extends FunctionsContainer {
         return ArrayMemory.ofStrings(result);
     }
 
-    public static Memory explode(String delimiter, String string){
+    public static Memory explode(String delimiter, String string) {
         return explode(delimiter, string, Integer.MAX_VALUE);
     }
 
-    @Runtime.Immutable
-    public static String lcfirst(String value){
+    @Immutable
+    public static String lcfirst(String value) {
         if (value.isEmpty())
             return "";
 
-        return String.valueOf(Character.toLowerCase( value.charAt(0) )) + value.substring(1);
+        return String.valueOf(Character.toLowerCase(value.charAt(0))) + value.substring(1);
     }
 
-    @Runtime.Immutable
-    public static String ucfirst(String value){
+    @Immutable
+    public static String ucfirst(String value) {
         if (value.isEmpty())
             return "";
-        return String.valueOf(Character.toUpperCase( value.charAt(0) )) + value.substring(1);
+        return String.valueOf(Character.toUpperCase(value.charAt(0))) + value.substring(1);
     }
 
-    @Runtime.Immutable
-    public static String ucwords(String value){
+    @Immutable
+    public static String ucwords(String value) {
         char[] buffer = value.toCharArray();
 
         boolean prevSpace = true; // first char to Upper
         for (int i = 0; i < buffer.length; i++) {
             char ch = buffer[i];
-            if (Character.isSpaceChar(ch)){
+            if (Character.isSpaceChar(ch)) {
                 prevSpace = true;
                 continue;
             }
-            if (prevSpace){
+            if (prevSpace) {
                 buffer[i] = Character.toUpperCase(ch);
                 prevSpace = false;
             }
@@ -827,7 +839,7 @@ public class StringFunctions extends FunctionsContainer {
         return new String(buffer);
     }
 
-    private static final ThreadLocal<MessageDigest> md5Digest = new ThreadLocal<MessageDigest>(){
+    private static final ThreadLocal<MessageDigest> md5Digest = new ThreadLocal<MessageDigest>() {
         @Override
         protected MessageDigest initialValue() {
             try {
@@ -838,7 +850,7 @@ public class StringFunctions extends FunctionsContainer {
         }
     };
 
-    private static final ThreadLocal<MessageDigest> sha1Digest = new ThreadLocal<MessageDigest>(){
+    private static final ThreadLocal<MessageDigest> sha1Digest = new ThreadLocal<MessageDigest>() {
         @Override
         protected MessageDigest initialValue() {
             try {
@@ -849,7 +861,7 @@ public class StringFunctions extends FunctionsContainer {
         }
     };
 
-    public static Memory md5(Environment env, Memory value, boolean rawOutput)  {
+    public static Memory md5(Environment env, Memory value, boolean rawOutput) {
         MessageDigest md = md5Digest.get();
         md.reset();
         md.update(value.getBinaryBytes(env.getDefaultCharset()));
@@ -859,15 +871,15 @@ public class StringFunctions extends FunctionsContainer {
             return new StringMemory(DigestUtils.bytesToHex(md.digest()));
     }
 
-    public static Memory md5(Environment env, Memory value)  {
+    public static Memory md5(Environment env, Memory value) {
         return md5(env, value, false);
     }
 
-    public static Memory md5_file(Environment env, TraceInfo trace, String fileName){
+    public static Memory md5_file(Environment env, TraceInfo trace, String fileName) {
         return md5_file(env, trace, fileName, false);
     }
 
-    public static Memory md5_file(Environment env, TraceInfo trace, String fileName, boolean rawOutput){
+    public static Memory md5_file(Environment env, TraceInfo trace, String fileName, boolean rawOutput) {
         try {
             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(fileName));
             try {
@@ -876,7 +888,7 @@ public class StringFunctions extends FunctionsContainer {
 
                 int len;
                 byte[] buff = new byte[1024];
-                while ((len = reader.read(buff)) > 0){
+                while ((len = reader.read(buff)) > 0) {
                     md.update(buff, 0, len);
                 }
 
@@ -896,27 +908,27 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    public static Memory sha1(Environment env, Memory value, boolean rawOutput)  {
+    public static Memory sha1(Environment env, Memory value, boolean rawOutput) {
         MessageDigest md = sha1Digest.get();
         md.reset();
         md.update(value.getBinaryBytes(env.getDefaultCharset()));
-        if (rawOutput){
+        if (rawOutput) {
             return new BinaryMemory(md.digest());
         } else {
             return new StringMemory(DigestUtils.bytesToHex(md.digest()));
         }
     }
 
-    @Runtime.Immutable
-    public static Memory sha1(Environment env, Memory value)  {
+    @Immutable
+    public static Memory sha1(Environment env, Memory value) {
         return sha1(env, value, false);
     }
 
-    public static Memory sha1_file(Environment env, TraceInfo trace, String fileName){
+    public static Memory sha1_file(Environment env, TraceInfo trace, String fileName) {
         return sha1_file(env, trace, fileName, false);
     }
 
-    public static Memory sha1_file(Environment env, TraceInfo trace, String fileName, boolean rawOutput){
+    public static Memory sha1_file(Environment env, TraceInfo trace, String fileName, boolean rawOutput) {
         try {
             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(fileName));
             try {
@@ -925,7 +937,7 @@ public class StringFunctions extends FunctionsContainer {
 
                 int len;
                 byte[] buff = new byte[1024];
-                while ((len = reader.read(buff)) > 0){
+                while ((len = reader.read(buff)) > 0) {
                     md.update(buff, 0, len);
                 }
 
@@ -945,8 +957,8 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
-    public static Memory substr(String value, int start, int length){
+    @Immutable
+    public static Memory substr(String value, int start, int length) {
         int strLen = value.length();
         if (start < 0)
             start = strLen + start;
@@ -972,8 +984,8 @@ public class StringFunctions extends FunctionsContainer {
             return new StringMemory(value.substring(start, end));
     }
 
-    @Runtime.Immutable
-    public static Memory substr(String value, int start){
+    @Immutable
+    public static Memory substr(String value, int start) {
         int length = value.length();
         if (start < 0)
             start = length + start;
@@ -984,7 +996,7 @@ public class StringFunctions extends FunctionsContainer {
         return new StringMemory(value.substring(start));
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_count(Environment env, TraceInfo trace,
                                       String haystack, String needle, int offset, Memory _length) {
         if (needle.isEmpty()) {
@@ -1008,7 +1020,7 @@ public class StringFunctions extends FunctionsContainer {
         int end;
         int needleLength = needle.length();
 
-        if (_length != null){
+        if (_length != null) {
             length = _length.toInteger();
             end = offset + length - 1;
 
@@ -1027,9 +1039,9 @@ public class StringFunctions extends FunctionsContainer {
 
         int count = 0;
 
-        if (needleLength == 1){
+        if (needleLength == 1) {
             char ch = needle.charAt(0);
-            for(int i = offset; i < end; i++){
+            for (int i = offset; i < end; i++) {
                 if (ch == haystack.charAt(i))
                     count++;
             }
@@ -1045,19 +1057,19 @@ public class StringFunctions extends FunctionsContainer {
         return LongMemory.valueOf(count);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_count(Environment env, TraceInfo trace, String haystack, String needle, int offset) {
         return substr_count(env, trace, haystack, needle, offset, null);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_count(Environment env, TraceInfo trace, String haystack, String needle) {
         return substr_count(env, trace, haystack, needle, 0, null);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_compare(Environment env, TraceInfo trace, String mainStr, String str, int offset,
-                                       Memory lenV, boolean isCaseInsensitive) {
+                                        Memory lenV, boolean isCaseInsensitive) {
         int strLen = mainStr.length();
 
         if (lenV != null && lenV.toInteger() == 0)
@@ -1087,33 +1099,33 @@ public class StringFunctions extends FunctionsContainer {
             return LongMemory.valueOf(strcmp(mainStr, str));
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_compare(Environment env, TraceInfo trace, String mainStr, String str, int offset,
                                         Memory lenV) {
         return substr_compare(env, trace, mainStr, str, offset, lenV, false);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_compare(Environment env, TraceInfo trace, String mainStr, String str, int offset) {
         return substr_compare(env, trace, mainStr, str, offset, null, false);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strtolower(String string) {
         return string.toLowerCase();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strtoupper(String string) {
         return string.toUpperCase();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strrev(String string) {
         return StringUtils.reverse(string);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strrchr(String haystack, char needle) {
         int i = haystack.lastIndexOf(needle);
         if (i > 0)
@@ -1122,7 +1134,7 @@ public class StringFunctions extends FunctionsContainer {
             return Memory.FALSE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strchr(String haystack, char needle, boolean beforeNeedle) {
         int i = haystack.indexOf(needle);
         if (i >= 0) {
@@ -1131,23 +1143,23 @@ public class StringFunctions extends FunctionsContainer {
             return Memory.FALSE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strchr(String haystack, char needle) {
         return strchr(haystack, needle, false);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strstr(String haystack, char needle, boolean beforeNeedle) {
         return strchr(haystack, needle, beforeNeedle);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strstr(String haystack, char needle) {
         return strchr(haystack, needle, false);
     }
 
-    @Runtime.Immutable
-    public static Memory strpos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset){
+    @Immutable
+    public static Memory strpos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset) {
         int haystackLen = haystack.length();
         if (offset < 0 || offset > haystackLen) {
             env.warning(trace, "strpos(): Offset not contained in string");
@@ -1159,7 +1171,7 @@ public class StringFunctions extends FunctionsContainer {
 
         char ch = '\0';
         String search = null;
-        if (needle.isString()){
+        if (needle.isString()) {
             search = needle.toString();
             if (search.length() == 1) {
                 ch = search.charAt(0);
@@ -1170,10 +1182,10 @@ public class StringFunctions extends FunctionsContainer {
         }
 
         int p;
-        if (search == null){
+        if (search == null) {
             p = haystack.indexOf(ch, offset);
         } else {
-            if (search.isEmpty()){
+            if (search.isEmpty()) {
                 env.warning(trace, "Empty needle");
                 return Memory.FALSE;
             }
@@ -1186,14 +1198,14 @@ public class StringFunctions extends FunctionsContainer {
             return LongMemory.valueOf(p);
     }
 
-    @Runtime.Immutable
-    public static Memory strpos(Environment env, TraceInfo trace, String haystack, Memory needle){
+    @Immutable
+    public static Memory strpos(Environment env, TraceInfo trace, String haystack, Memory needle) {
         return strpos(env, trace, haystack, needle, 0);
     }
 
 
-    @Runtime.Immutable
-    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset){
+    @Immutable
+    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset) {
         int haystackLen = haystack.length();
         if (offset < 0 || offset > haystackLen) {
             env.warning(trace, "Offset not contained in string");
@@ -1205,7 +1217,7 @@ public class StringFunctions extends FunctionsContainer {
 
         char ch = '\0';
         String search = null;
-        if (needle.isString()){
+        if (needle.isString()) {
             search = needle.toString();
             if (search.length() == 1) {
                 ch = search.charAt(0);
@@ -1216,10 +1228,10 @@ public class StringFunctions extends FunctionsContainer {
         }
 
         int p;
-        if (search == null){
+        if (search == null) {
             p = haystack.lastIndexOf(ch, offset);
         } else {
-            if (search.isEmpty()){
+            if (search.isEmpty()) {
                 env.warning(trace, "Empty needle");
                 return Memory.FALSE;
             }
@@ -1232,17 +1244,17 @@ public class StringFunctions extends FunctionsContainer {
             return LongMemory.valueOf(p);
     }
 
-    @Runtime.Immutable
-    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle){
+    @Immutable
+    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle) {
         return strrpos(env, trace, haystack, needle, 0);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strripos(Environment env, TraceInfo trace, String haystack, Memory needleV) {
         return strripos(env, trace, haystack, needleV, null);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strripos(Environment env, TraceInfo trace, String haystack, Memory needleV, Memory offsetV) {
         String needle;
 
@@ -1277,8 +1289,8 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
-    public static Memory stripos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset){
+    @Immutable
+    public static Memory stripos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset) {
         int haystackLen = haystack.length();
         if (offset < 0 || offset > haystackLen) {
             env.warning(trace, "stripos(): Offset not contained in string");
@@ -1290,7 +1302,7 @@ public class StringFunctions extends FunctionsContainer {
 
         char ch = '\0';
         String search = null;
-        if (needle.isString()){
+        if (needle.isString()) {
             search = needle.toString();
             if (search.length() == 1) {
                 ch = Character.toUpperCase(search.charAt(0));
@@ -1301,15 +1313,15 @@ public class StringFunctions extends FunctionsContainer {
         }
 
         int p = -1;
-        if (search == null){
-            for(int i = offset; i < haystackLen; i++){
-                if (Character.toUpperCase(haystack.charAt(i)) == ch){
+        if (search == null) {
+            for (int i = offset; i < haystackLen; i++) {
+                if (Character.toUpperCase(haystack.charAt(i)) == ch) {
                     p = i;
                     break;
                 }
             }
         } else {
-            if (search.isEmpty()){
+            if (search.isEmpty()) {
                 env.warning(trace, "Empty needle");
                 return Memory.FALSE;
             }
@@ -1323,14 +1335,14 @@ public class StringFunctions extends FunctionsContainer {
             return LongMemory.valueOf(p);
     }
 
-    @Runtime.Immutable
-    public static Memory stripos(Environment env, TraceInfo trace, String haystack, Memory needle){
+    @Immutable
+    public static Memory stripos(Environment env, TraceInfo trace, String haystack, Memory needle) {
         return stripos(env, trace, haystack, needle, 0);
     }
 
-    @Runtime.Immutable
-    public static Memory strlen(Environment env, TraceInfo trace, Memory string){
-        if (string.isArray()){
+    @Immutable
+    public static Memory strlen(Environment env, TraceInfo trace, Memory string) {
+        if (string.isArray()) {
             env.warning(trace, "expects parameter 1 to be string, array given");
             return Memory.NULL;
         }
@@ -1341,7 +1353,7 @@ public class StringFunctions extends FunctionsContainer {
     }
 
 
-    protected static String _substr_replace(String string, String replacement, int start, int length){
+    protected static String _substr_replace(String string, String replacement, int start, int length) {
         int strLength = string.length();
         if (start > strLength)
             start = strLength;
@@ -1366,7 +1378,130 @@ public class StringFunctions extends FunctionsContainer {
         return result.toString();
     }
 
-    @Runtime.Immutable
+    public static Memory str_replace(Environment env, TraceInfo trace, Memory search, Memory replace, Memory string) {
+        return str_replace(env, trace, search, replace, string, Memory.UNDEFINED);
+    }
+
+    public static Memory str_replace(Environment env, TraceInfo trace, Memory search, Memory replace, Memory string,
+                                     @Reference Memory _count) {
+        return _str_replace(env, trace, search, replace, string, _count, false);
+    }
+
+    public static Memory str_ireplace(Environment env, TraceInfo trace, Memory search, Memory replace, Memory string) {
+        return str_ireplace(env, trace, search, replace, string, Memory.UNDEFINED);
+    }
+
+    public static Memory str_ireplace(Environment env, TraceInfo trace, Memory search, Memory replace, Memory string,
+                                     @Reference Memory _count) {
+        return _str_replace(env, trace, search, replace, string, _count, true);
+    }
+
+    protected static Memory _str_replace_impl(Environment env, TraceInfo trace,
+                                              Memory search, Memory replace, Memory string,
+                                              @Reference Memory _count, boolean isInsensitive) {
+        String searchText = search.toString();
+        String replaceText = replace.toString();
+        String text = string.toString();
+
+        AtomicLong count = _count.isUndefined() ? null : new AtomicLong(_count.toLong());
+        text = StringUtils.replace(text, searchText, replaceText, isInsensitive, count);
+
+        if (count != null) _count.assign(count.get());
+
+        return StringMemory.valueOf(text);
+    }
+
+    protected static Memory _str_replace(Environment env, TraceInfo trace,
+                                         Memory search, Memory replace, Memory string,
+                                         @Reference Memory count, boolean isInsensitive) {
+        if (count.isReference()) {
+            count.assign(0);
+        }
+
+        if (string.isNull()) {
+            return Memory.CONST_EMPTY_STRING;
+        }
+
+        if (string.isArray()) {
+            ForeachIterator iterator = string.getNewIterator(env);
+            ArrayMemory result = new ArrayMemory();
+
+            while (iterator.next()) {
+                Memory key = iterator.getMemoryKey();
+                Memory value = iterator.getValue();
+
+                if (value.isArray()) {
+                    result.refOfIndex(key).assign(value.toImmutable());
+                } else {
+                    Memory ret = _str_replace(
+                            env, trace, search, replace,
+                            StringMemory.valueOf(value.toString()), count, isInsensitive
+                    );
+
+                    result.refOfIndex(key).assign(ret);
+                }
+            }
+
+            return result.toConstant();
+        } else {
+            if (!search.isArray()) {
+                String searchStr = search.toString();
+
+                if (searchStr.isEmpty()) {
+                    return string;
+                }
+
+                if (replace.isArray()) {
+                    env.warning(trace, "str_replace(): Array to string conversion");
+                }
+
+                string = _str_replace_impl(env, trace,
+                        StringMemory.valueOf(searchStr),
+                        StringMemory.valueOf(replace.toString()),
+                        string,
+                        count,
+                        isInsensitive);
+            } else if (replace.isArray()) {
+                ForeachIterator searchIterator = search.getNewIterator(env);
+                ForeachIterator replaceIterator = replace.getNewIterator(env);
+
+                while (searchIterator.next()) {
+                    Memory searchValue = searchIterator.getValue();
+                    Memory replaceValue;
+
+                    if (replaceIterator.next()) {
+                        replaceValue = replaceIterator.getValue();
+                    } else {
+                        replaceValue = Memory.NULL;
+                    }
+
+                    string = _str_replace(env, trace,
+                            StringMemory.valueOf(searchValue.toString()),
+                            StringMemory.valueOf(replaceValue.toString()),
+                            string,
+                            count,
+                            isInsensitive);
+                }
+            } else {
+                ForeachIterator searchIterator = search.getNewIterator(env);
+
+                while (searchIterator.next()) {
+                    string = _str_replace(
+                            env, trace,
+                            StringMemory.valueOf(searchIterator.getValue().toString()),
+                            replace,
+                            string,
+                            count,
+                            isInsensitive
+                    );
+                }
+            }
+        }
+
+        return string;
+    }
+
+    @Immutable
     public static Memory substr_replace(Environment env, TraceInfo trace,
                                         Memory string, Memory replacementM, Memory startM, Memory lengthM) {
         int start = 0;
@@ -1391,11 +1526,11 @@ public class StringFunctions extends FunctionsContainer {
         else
             length = lengthM.toInteger();
 
-        if (string.isArray()){
+        if (string.isArray()) {
             ArrayMemory resultArray = new ArrayMemory();
             ForeachIterator iterator = string.getNewIterator(env, false, false);
 
-            while (iterator.next()){
+            while (iterator.next()) {
                 String value = iterator.getValue().toString();
 
                 if (replacementIterator != null && replacementIterator.next())
@@ -1422,19 +1557,19 @@ public class StringFunctions extends FunctionsContainer {
             if (startIterator != null && startIterator.next())
                 start = startIterator.getValue().toInteger();
 
-            return new StringMemory( _substr_replace(string.toString(), replacement, start, length));
+            return new StringMemory(_substr_replace(string.toString(), replacement, start, length));
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory substr_replace(Environment env, TraceInfo trace,
                                         Memory string, Memory replacementM, Memory startM) {
         return substr_replace(env, trace, string, replacementM, startM, LongMemory.valueOf(Integer.MAX_VALUE / 2));
     }
 
 
-    @Runtime.Immutable
-    public static Memory wordwrap(String str, int width, String _break, boolean cut){
+    @Immutable
+    public static Memory wordwrap(String str, int width, String _break, boolean cut) {
         int length = str.length();
         StringBuilderMemory sb = new StringBuilderMemory();
 
@@ -1442,12 +1577,12 @@ public class StringFunctions extends FunctionsContainer {
         int prevSpacePos = 0;
         int start = 0;
         int wordLength = 0;
-        for(int i = 0; i < length + 1; i++){
+        for (int i = 0; i < length + 1; i++) {
             char ch = i == length ? ' ' : str.charAt(i);
 
             if (Character.isSpaceChar(ch)
-                    || (cut && wordLength + 1 >= width)){
-                if (done >= width || i == length){
+                    || (cut && wordLength + 1 >= width)) {
+                if (done >= width || i == length) {
                     if (done <= width) {
                         sb.append(str.substring(start, i));
                     } else {
@@ -1473,23 +1608,23 @@ public class StringFunctions extends FunctionsContainer {
         return sb;
     }
 
-    @Runtime.Immutable
-    public static Memory wordwrap(String str, int width, String _break){
+    @Immutable
+    public static Memory wordwrap(String str, int width, String _break) {
         return wordwrap(str, width, _break, false);
     }
 
-    @Runtime.Immutable
-    public static Memory wordwrap(String str, int width){
+    @Immutable
+    public static Memory wordwrap(String str, int width) {
         return wordwrap(str, width, "\n", false);
     }
 
-    @Runtime.Immutable
-    public static Memory wordwrap(String str){
+    @Immutable
+    public static Memory wordwrap(String str) {
         return wordwrap(str, 75, "\n", false);
     }
 
-    @Runtime.Immutable
-    public static String number_format(double number, int decimals, char decPoint, char thousandsSep){
+    @Immutable
+    public static String number_format(double number, int decimals, char decPoint, char thousandsSep) {
         String pattern;
         if (decimals > 0) {
             StringBuilder patternBuilder = new StringBuilder(6 + decimals);
@@ -1529,29 +1664,29 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
-    public static String number_format(double number, int decimals){
+    @Immutable
+    public static String number_format(double number, int decimals) {
         return number_format(number, decimals, '.', ',');
     }
 
-    @Runtime.Immutable
-    public static String number_format(double number){
+    @Immutable
+    public static String number_format(double number) {
         return number_format(number, 0, '.', ',');
     }
 
-    @Runtime.Immutable
-    public static String str_repeat(String input, int multiplier){
+    @Immutable
+    public static String str_repeat(String input, int multiplier) {
         if (multiplier <= 0)
             return "";
 
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < multiplier; i++)
+        for (int i = 0; i < multiplier; i++)
             sb.append(input);
 
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String str_pad(String string, int length, String pad, int type) {
         int strLen = string.length();
         int padLen = length - strLen;
@@ -1596,25 +1731,25 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String str_pad(String string, int length, String pad) {
         return str_pad(string, length, pad, constants.STR_PAD_RIGHT);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String str_pad(String string, int length) {
         return str_pad(string, length, " ", constants.STR_PAD_RIGHT);
     }
 
-    @Runtime.Immutable
-    public static int crc32(Environment env, Memory value){
+    @Immutable
+    public static int crc32(Environment env, Memory value) {
         CRC32 crc = new CRC32();
         crc.update(value.getBinaryBytes(env.getDefaultCharset()));
 
-        return (int)crc.getValue();
+        return (int) crc.getValue();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String nl2br(String string, boolean isXhtml) {
         String br = "<br />";
 
@@ -1624,12 +1759,12 @@ public class StringFunctions extends FunctionsContainer {
         return string.replaceAll("(\\r?\\n)", br + "$1");
     }
 
-    @Runtime.Immutable
-    public static String htmlspecialchars_decode(String string){
+    @Immutable
+    public static String htmlspecialchars_decode(String string) {
         return htmlspecialchars_decode(string, StringConstants.ENT_COMPAT);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String htmlspecialchars_decode(String string, int quoteStyle) {
         int len = string.length();
 
@@ -1716,13 +1851,13 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory htmlspecialchars(Environment env, TraceInfo trace,
                                           Memory _string, int quoteStyle) {
         return htmlspecialchars(env, trace, _string, quoteStyle, "UTF-8");
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory htmlspecialchars(Environment env, TraceInfo trace,
                                           Memory _string) {
         return htmlspecialchars(env, trace, _string, StringConstants.ENT_COMPAT, "UTF-8");
@@ -1770,15 +1905,15 @@ public class StringFunctions extends FunctionsContainer {
             }
 
             return sb;
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             env.warning(trace, "htmlspecialchars(): unsupported encoding - %s", charset);
             return Memory.FALSE;
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory html_entity_decode(Environment env, TraceInfo trace,
-                                            Memory _string, int flags, String encoding){
+                                            Memory _string, int flags, String encoding) {
         try {
             String string = new String(_string.getBinaryBytes(env.getDefaultCharset()), encoding);
 
@@ -1823,7 +1958,7 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     public static Memory htmlentities(Environment env, TraceInfo trace,
-                                     Memory _string, int quoteStyle, String encoding) {
+                                      Memory _string, int quoteStyle, String encoding) {
         try {
             String string = new String(_string.getBinaryBytes(env.getDefaultCharset()), encoding);
             StringBuffer sb = new StringBuffer();
@@ -1833,13 +1968,13 @@ public class StringFunctions extends FunctionsContainer {
                 char ch = string.charAt(i);
                 Memory el = HTML_ENTITIES.getByScalar(String.valueOf(ch));
 
-                if (ch == '"'){
+                if (ch == '"') {
                     if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_DOUBLE) != 0) {
                         sb.append("&quot;");
                     } else {
                         sb.append(ch);
                     }
-                } else if (ch == '\''){
+                } else if (ch == '\'') {
                     if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_SINGLE) != 0) {
                         sb.append("&#039;");
                     } else {
@@ -1852,18 +1987,18 @@ public class StringFunctions extends FunctionsContainer {
                 }
             }
             return new StringMemory(sb.toString());
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             env.warning(trace, "htmlentities(): unsupported encoding - %s", encoding);
             return Memory.FALSE;
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static int levenshtein(String str1, String str2) {
         return levenshtein(str1, str2, 1, 1, 1);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static int levenshtein(String s1, String s2, int cost_ins, int cost_rep, int cost_del) {
         int i, j, flip, ii, ii2, cost;
         int l1 = s1.length();
@@ -1905,7 +2040,7 @@ public class StringFunctions extends FunctionsContainer {
         return buf[l2 + cutHalf - flip];
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory convert_uudecode(String source) {
         int length = source.length();
 
@@ -1951,7 +2086,7 @@ public class StringFunctions extends FunctionsContainer {
         return new StringMemory(builder.toString());
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory convert_uuencode(String source) {
         if (source.length() == 0) {
             return Memory.FALSE;
@@ -1996,7 +2131,7 @@ public class StringFunctions extends FunctionsContainer {
         return result;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String metaphone(String string) {
         int length = string.length();
         int index = 0;
@@ -2341,17 +2476,17 @@ public class StringFunctions extends FunctionsContainer {
         return result.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strspn(String string, String characters, int offset, int length) {
         return strspnImpl(string, characters, offset, length, true);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strspn(String string, String characters, int offset) {
         return strspnImpl(string, characters, offset, -2147483648, true);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strspn(String string, String characters) {
         return strspnImpl(string, characters, 0, -2147483648, true);
     }
@@ -2403,7 +2538,7 @@ public class StringFunctions extends FunctionsContainer {
         return LongMemory.valueOf(count);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory strpbrk(String haystack, String charList) {
         int len = haystack.length();
         int sublen = charList.length();
@@ -2419,7 +2554,7 @@ public class StringFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory stristr(String haystack, Memory needleV) {
         String needleLower;
 
@@ -2442,7 +2577,7 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String stripslashes(String string) {
         StringBuilder sb = new StringBuilder();
         int len = string.length();
@@ -2467,7 +2602,7 @@ public class StringFunctions extends FunctionsContainer {
         return sb.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String stripcslashes(String source) {
         StringBuilder result = new StringBuilder(source.length());
         int length = source.length();
@@ -2566,12 +2701,12 @@ public class StringFunctions extends FunctionsContainer {
         return result.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strip_tags(String string) {
         return strip_tags(string, null);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strip_tags(String string, Memory allowTags) {
         StringBuilder result = new StringBuilder();
 
@@ -3102,7 +3237,7 @@ public class StringFunctions extends FunctionsContainer {
         HTML_SPECIALCHARS.put("&", new StringMemory("&amp;"));
 
         ForeachIterator iterator = HTML_ENTITIES.foreachIterator(false, false);
-        while (iterator.next()){
+        while (iterator.next()) {
             HTML_SPECIALCHARS.refOfIndex(iterator.getValue()).assign(iterator.getKey().toString());
         }
     }

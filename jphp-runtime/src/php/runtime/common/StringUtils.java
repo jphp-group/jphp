@@ -1,8 +1,12 @@
 package php.runtime.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 final public class StringUtils {
 
@@ -274,11 +278,11 @@ final public class StringUtils {
     }
 
     public static String[] split(String str, String separatorChars, int max) {
-        return splitWorker(str, separatorChars, max, false);
+        return str.split(Pattern.quote(separatorChars), max);
     }
 
-    public static String[] split(String str, String separatorChars) {
-        return splitWorker(str, separatorChars, -1, false);
+    public static String[] split(String toSplit, String delimiter) {
+        return toSplit.split(Pattern.quote(delimiter));
     }
 
     public static String reverse(String str) {
@@ -356,5 +360,49 @@ final public class StringUtils {
             return false;
         }
         return true;
+    }
+
+    public static boolean hasLength(CharSequence str) {
+        return (str != null && str.length() > 0);
+    }
+
+    public static String replace(String inString, String oldPattern, String newPattern) {
+        return replace(inString, oldPattern, newPattern, false, null);
+    }
+
+    public static String replaceIgnoreCase(String inString, String oldPattern, String newPattern) {
+        return replace(inString, oldPattern, newPattern, true, null);
+    }
+
+    public static String replace(String inString, String oldPattern, String newPattern, boolean ignoreCase, AtomicLong count) {
+        if (!hasLength(inString) || !hasLength(oldPattern) || newPattern == null) {
+            return inString;
+        }
+
+        if (count != null) count.set(0);
+
+        StringBuilder sb = new StringBuilder();
+        int pos = 0; // our position in the old string
+        int index = ignoreCase
+                ? inString.toLowerCase().indexOf(oldPattern.toLowerCase())
+                : inString.indexOf(oldPattern);
+
+        // the index of an occurrence we've found, or -1
+        int patLen = oldPattern.length();
+
+        while (index >= 0) {
+            sb.append(inString.substring(pos, index));
+            sb.append(newPattern);
+            pos = index + patLen;
+            index = ignoreCase
+                ? inString.toLowerCase().indexOf(oldPattern.toLowerCase(), pos)
+                : inString.indexOf(oldPattern, pos);
+
+            if (count != null) count.incrementAndGet();
+        }
+
+        sb.append(inString.substring(pos));
+        // remember to append any characters to the right of a match
+        return sb.toString();
     }
 }

@@ -45,10 +45,12 @@ split('foobar', ',', 3) == array(1) {
   [0]=>
   string(6) "foobar"
 }
-split('foo,,bar', ',') == array(2) {
+split('foo,,bar', ',') == array(3) {
   [0]=>
   string(3) "foo"
   [1]=>
+  string(0) ""
+  [2]=>
   string(3) "bar"
 }
 split('foo,,bar', ',,') == array(2) {
