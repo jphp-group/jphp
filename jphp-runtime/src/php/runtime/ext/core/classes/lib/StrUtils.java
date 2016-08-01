@@ -289,10 +289,15 @@ public class StrUtils extends BaseObject {
     })
     public static Memory split(Environment env, Memory... args) {
         String string = args[0].toString();
+
+        if (string.isEmpty()) {
+            return new ArrayMemory().toConstant();
+        }
+
         String separator = args[1].toString();
         int limit = args[2].toInteger();
 
-        String[] strings = limit > 0 ? StringUtils.split(string, separator, limit) : StringUtils.split(string, separator);
+        String[] strings = StringUtils.split(string, separator, limit);
         return ArrayMemory.ofStrings(strings).toConstant();
     }
 
