@@ -937,7 +937,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 if (i > 0) {
                     replacement = replacements[i - 1];
 
-                    if (!expecting(env, trace, i + 1, replacement, ARRAY)) {
+                    if (!expecting(env, trace, i + 2, replacement, ARRAY)) {
                         return Memory.NULL;
                     }
                 }
