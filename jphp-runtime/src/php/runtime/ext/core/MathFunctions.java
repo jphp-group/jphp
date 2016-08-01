@@ -300,7 +300,7 @@ public class MathFunctions extends FunctionsContainer {
     @Runtime.Immutable
     public static double round(double value, int precession){
         return BigDecimal.valueOf(value)
-                .round(new MathContext(precession, RoundingMode.UP))
+                .setScale(precession, RoundingMode.HALF_UP)
                 .doubleValue();
     }
 
