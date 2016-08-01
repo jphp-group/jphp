@@ -2,6 +2,7 @@ package php.runtime.ext.core;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
+import php.runtime.annotation.Runtime.Immutable;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
@@ -82,7 +83,7 @@ public class MathFunctions extends FunctionsContainer {
             return Math.sin(value);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double cos(Memory memory){
         switch (memory.type){
             case DOUBLE: return Math.cos(memory.toDouble());
@@ -92,7 +93,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double sin(Memory memory){
         switch (memory.type){
             case DOUBLE: return Math.sin(memory.toDouble());
@@ -102,7 +103,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory abs(Memory value) {
         switch (value.type){
             case DOUBLE: return new DoubleMemory(Math.abs(value.toDouble()));
@@ -111,27 +112,27 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double asinh(double x) {
         return Math.log(x + Math.sqrt(x*x + 1.0));
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double acosh(double x) {
         return Math.log(x + Math.sqrt(x*x - 1.0));
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double atanh(double x) {
         return 0.5 * Math.log( (x + 1.0) / (x - 1.0) );
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String base_convert(String number, int fromBase, int toBase){
         return new BigInteger(number, fromBase).toString( toBase);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static long bindec(String binary){
         try {
             return Long.parseLong(binary, 2);
@@ -140,32 +141,32 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String decbin(long value){
         return Long.toString(value, 2);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String dechex(long value){
         return Long.toString(value, 16);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String decoct(long value){
         return Long.toString(value, 8);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double fmod(double x, double y){
         return x % y;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static long getmaxrand(){
         return Integer.MAX_VALUE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static long hexdec(String hex){
         try {
             return Long.parseLong(hex, 16);
@@ -174,7 +175,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_finite(double value){
         return !Double.isInfinite(value);
     }
@@ -183,7 +184,7 @@ public class MathFunctions extends FunctionsContainer {
         return Math.random();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory max(Memory value, Memory... args){
         if (value.isArray() && args == null){
             Memory max = null;
@@ -203,7 +204,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory min(Memory value, Memory... args){
         if (value.isArray() && args == null){
             Memory min = null;
@@ -222,7 +223,7 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static long mt_getrandmax(){
         return Integer.MAX_VALUE;
     }
@@ -263,7 +264,7 @@ public class MathFunctions extends FunctionsContainer {
         RANDOM = new Random(seed);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory octdec(String octalString){
         try {
             return LongMemory.valueOf(Long.parseLong(octalString, 8));
@@ -272,12 +273,12 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double pi(){
         return constants.M_PI;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static Memory pow(Memory base, Memory exp) {
         Memory realBase = base.toNumeric();
         Memory realExp = exp.toNumeric();
@@ -292,19 +293,19 @@ public class MathFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double round(double value){
         return Math.round(value);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double round(double value, int precession){
         return BigDecimal.valueOf(value)
                 .setScale(precession, RoundingMode.HALF_UP)
                 .doubleValue();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double round(double value, int precession, int mode){
         MathContext context;
         switch (mode){

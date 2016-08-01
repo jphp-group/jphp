@@ -928,4 +928,30 @@ public class ArrayFunctions extends FunctionsContainer {
 
         return Memory.NULL;
     }
+
+    public static Memory array_replace(Environment env, TraceInfo trace, Memory array, Memory replacement, Memory... replacements) {
+        if (expecting(env, trace, 1, array, ARRAY) && expecting(env, trace, 2, replacement, ARRAY)) {
+            ArrayMemory result = array.toValue(ArrayMemory.class).duplicate();
+
+            for (int i = 0; i < (replacements == null ? 0 : replacements.length) + 1; i++) {
+                if (i > 0) {
+                    replacement = replacements[i - 1];
+
+                    if (!expecting(env, trace, i + 1, replacement, ARRAY)) {
+                        return Memory.NULL;
+                    }
+                }
+
+                ForeachIterator iterator = replacement.getNewIterator(env);
+
+                while (iterator.next()) {
+                    result.put(iterator.getKey(), iterator.getValue().toImmutable());
+                }
+            }
+
+            return result.toConstant();
+        }
+
+        return Memory.NULL;
+    }
 }
