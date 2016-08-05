@@ -173,7 +173,7 @@ public class FileFunctions extends FunctionsContainer {
                 return stream.readFully(env, LongMemory.valueOf(4096));
             else
                 return stream.read(env, maxLength);
-        } catch (WrapIOException e){
+        } catch (WrapIOException | IOException e){
             if (stream == null && useIncludePaths){
                 path = env.findInIncludePaths(path);
                 if (path != null)
