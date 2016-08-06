@@ -156,6 +156,10 @@ abstract public class ForeachIterator implements Iterable<Memory> {
 
     abstract public void reset();
 
+    public boolean isLongKey() {
+        return currentKey instanceof Long || (currentKey instanceof Memory && ((Memory) currentKey).isNumber());
+    }
+
     public Memory getMemoryKey() {
         if (currentKeyMemory != null)
             return currentKeyMemory;

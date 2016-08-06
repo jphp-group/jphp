@@ -1080,4 +1080,26 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory array_udiff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
         return _array_udiff_impl(env, trace, array1, array, true, arrays);
     }
+
+    public static Memory array_slice(Environment env, TraceInfo trace, Memory array, int offset) {
+        return array_slice(env, trace, array, offset, Memory.NULL);
+    }
+
+    public static Memory array_slice(Environment env, TraceInfo trace, Memory array, int offset, Memory length) {
+        return array_slice(env, trace, array, offset, length, false);
+    }
+
+    public static Memory array_slice(Environment env, TraceInfo trace, Memory array, int offset, Memory length, boolean preserveKeys) {
+        if (expecting(env, trace, 1, array, ARRAY)) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            try {
+                return (length.isNull() ? arrayMemory.slice(offset, preserveKeys) : arrayMemory.slice(offset, length.toInteger(), preserveKeys)).toConstant();
+            } catch (IndexOutOfBoundsException e) {
+                return new ArrayMemory().toConstant();
+            }
+        } else {
+            return Memory.NULL;
+        }
+    }
 }

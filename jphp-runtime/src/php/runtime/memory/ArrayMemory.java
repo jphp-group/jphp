@@ -1653,4 +1653,108 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         return result;
     }
+
+    public ArrayMemory slice(int offset) {
+        return slice(offset, false);
+    }
+
+    public ArrayMemory slice(int offset, int length) {
+        return slice(offset, length, false);
+    }
+
+    public ArrayMemory slice(int offset, boolean saveKeys) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (offset < 0) {
+            offset = size() + offset;
+        }
+
+        if (isList()) {
+            int i = 0;
+            try {
+                for (ReferenceMemory referenceMemory : list.subList(offset, list.size())) {
+                    if (saveKeys) {
+                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                    } else {
+                        result.add(referenceMemory.toImmutable());
+                    }
+
+                    i++;
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IndexOutOfBoundsException(e.getMessage());
+            }
+        } else {
+            int i = 0;
+
+            ForeachIterator iterator = foreachIterator(false, false);
+
+            while (iterator.next()) {
+                if (i >= offset) {
+                    if (saveKeys || !iterator.isLongKey()) {
+                        result.put(iterator.getKey(), iterator.getValue().toImmutable());
+                    } else {
+                        result.add(iterator.getValue().toImmutable());
+                    }
+                }
+
+                i++;
+            }
+        }
+
+        return result;
+    }
+
+    public ArrayMemory slice(int offset, int length, boolean saveKeys) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (offset < 0) {
+            offset = size() + offset;
+        }
+
+        if (length < 0) {
+            length = size() + length - offset;
+        }
+
+        if (isList()) {
+            int i = 0;
+            try {
+                for (ReferenceMemory referenceMemory : list.subList(offset, offset + length)) {
+                    if (saveKeys) {
+                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                    } else {
+                        result.add(referenceMemory.toImmutable());
+                    }
+
+                    i++;
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IndexOutOfBoundsException(e.getMessage());
+            }
+        } else {
+            int i = 0, count = 0;
+
+            ForeachIterator iterator = foreachIterator(false, false);
+
+            while (iterator.next()) {
+                if (i >= offset) {
+                    count++;
+
+                    if (saveKeys || !iterator.isLongKey()) {
+                        result.put(iterator.getKey(), iterator.getValue().toImmutable());
+                    } else {
+                        result.add(iterator.getValue().toImmutable());
+                    }
+
+                    if (count >= length) {
+                        break;
+                    }
+                }
+
+                i++;
+            }
+        }
+
+        return result;
+    }
 }
