@@ -1029,6 +1029,15 @@ public class ArrayFunctions extends FunctionsContainer {
         });
     }
 
+    public static Memory array_diff_key(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
+        return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
+            @Override
+            public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) {
+                return keyValue.equal(keyComparable);
+            }
+        });
+    }
+
     public static Memory array_diff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
         return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
             @Override
