@@ -11,8 +11,11 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.memory.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +27,7 @@ import static php.runtime.annotation.Runtime.Immutable;
 public class FileFunctions extends FunctionsContainer {
 
     @Immutable
-    public static String basename(String path, String suffix){
+    public static String basename(String path, String suffix) {
         String result = new File(path).getName();
         if (suffix != null && !suffix.isEmpty() && result.endsWith(suffix))
             result = result.substring(0, result.length() - suffix.length());
@@ -33,11 +36,11 @@ public class FileFunctions extends FunctionsContainer {
     }
 
     @Immutable
-    public static String basename(String path){
+    public static String basename(String path) {
         return basename(path, null);
     }
 
-    public static boolean chgrp(String fileName, Memory group){
+    public static boolean chgrp(String fileName, Memory group) {
         return false;
     }
 
@@ -73,26 +76,26 @@ public class FileFunctions extends FunctionsContainer {
     }
 
     @Immutable
-    public static String dirname(String path){
+    public static String dirname(String path) {
         String r = new File(path).getParent();
         if (r == null)
             return "";
         return r;
     }
 
-    public static Memory disk_free_space(String path){
+    public static Memory disk_free_space(String path) {
         return LongMemory.valueOf(new File(path).getFreeSpace());
     }
 
-    public static Memory disk_total_space(String path){
+    public static Memory disk_total_space(String path) {
         return LongMemory.valueOf(new File(path).getTotalSpace());
     }
 
-    public static Memory diskfreespace(String path){
+    public static Memory diskfreespace(String path) {
         return disk_free_space(path);
     }
 
-    public static boolean file_exists(String path){
+    public static boolean file_exists(String path) {
         return new File(path).getAbsoluteFile().exists();
     }
 
@@ -108,7 +111,7 @@ public class FileFunctions extends FunctionsContainer {
         Stream stream = null;
         try {
             stream = Stream.create(env, path, "r");
-            if (stream == null){
+            if (stream == null) {
                 env.warning(trace, "file(): failed to open stream");
                 return Memory.FALSE;
             }
@@ -121,10 +124,10 @@ public class FileFunctions extends FunctionsContainer {
             int prev = 0;
             boolean ignoreNewLines = (flags & FileConstants.FILE_IGNORE_NEW_LINES) == FileConstants.FILE_IGNORE_NEW_LINES;
             int i;
-            for(i = 0; i < bytes.length; i++){
+            for (i = 0; i < bytes.length; i++) {
                 byte ch = bytes[i];
                 if (ch == '\n') {
-                    if (prev == i && (flags & FileConstants.FILE_SKIP_EMPTY_LINES) == FileConstants.FILE_SKIP_EMPTY_LINES){
+                    if (prev == i && (flags & FileConstants.FILE_SKIP_EMPTY_LINES) == FileConstants.FILE_SKIP_EMPTY_LINES) {
                         prev += 1;
                         continue;
                     }
@@ -135,14 +138,14 @@ public class FileFunctions extends FunctionsContainer {
                     result.add(new BinaryMemory(chunk));
                 }
             }
-            if (prev != i){
+            if (prev != i) {
                 byte[] chunk = Arrays.copyOfRange(bytes, prev, i);
                 result.add(new BinaryMemory(chunk));
             }
 
             return result.toConstant();
-        } catch (WrapIOException e){
-            if (stream == null && (flags & FileConstants.FILE_USE_INCLUDE_PATH) == FileConstants.FILE_USE_INCLUDE_PATH){
+        } catch (WrapIOException e) {
+            if (stream == null && (flags & FileConstants.FILE_USE_INCLUDE_PATH) == FileConstants.FILE_USE_INCLUDE_PATH) {
                 path = env.findInIncludePaths(path);
                 if (path != null)
                     return file(env, trace, path, flags ^ FileConstants.FILE_USE_INCLUDE_PATH, context);
@@ -160,7 +163,7 @@ public class FileFunctions extends FunctionsContainer {
         Stream stream = null;
         try {
             stream = Stream.create(env, path, "r");
-            if (stream == null){
+            if (stream == null) {
                 env.warning(trace, "file_get_contents(): failed to open stream");
                 return Memory.FALSE;
             }
@@ -173,8 +176,8 @@ public class FileFunctions extends FunctionsContainer {
                 return stream.readFully(env, LongMemory.valueOf(4096));
             else
                 return stream.read(env, maxLength);
-        } catch (WrapIOException | IOException e){
-            if (stream == null && useIncludePaths){
+        } catch (WrapIOException | IOException e) {
+            if (stream == null && useIncludePaths) {
                 path = env.findInIncludePaths(path);
                 if (path != null)
                     return file_get_contents(env, trace, path, false, context, offset, maxLength);
@@ -215,17 +218,17 @@ public class FileFunctions extends FunctionsContainer {
                 mode = "a";
 
             stream = Stream.create(env, path, mode);
-            if (stream == null){
+            if (stream == null) {
                 env.warning(trace, "file_put_contents(): failed to open stream");
                 return Memory.FALSE;
             }
             stream.setContext(env, context);
-            if (data.instanceOf(Stream.CLASS_NAME)){
+            if (data.instanceOf(Stream.CLASS_NAME)) {
                 data = env.invokeMethod(trace, data, "readFully");
             }
 
             return stream.write(env, data, Memory.NULL);
-        } catch (WrapIOException e){
+        } catch (WrapIOException e) {
             env.warning(trace, "file_put_contents(): " + e.getMessage());
             return Memory.FALSE;
         } finally {
@@ -244,15 +247,15 @@ public class FileFunctions extends FunctionsContainer {
         return file_put_contents(env, trace, path, data, 0, Memory.NULL);
     }
 
-    public static boolean is_dir(String path){
+    public static boolean is_dir(String path) {
         return new File(path).isDirectory();
     }
 
-    public static boolean is_file(String path){
+    public static boolean is_file(String path) {
         return new File(path).isFile();
     }
 
-    public static boolean is_link(String path){
+    public static boolean is_link(String path) {
         try {
             File file = new File(path);
 
@@ -264,82 +267,157 @@ public class FileFunctions extends FunctionsContainer {
                 canon = new File(canonDir, file.getName());
             }
             return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
-        } catch (IOException e){
+        } catch (IOException e) {
             return false;
         }
     }
 
-    public static boolean is_executable(String path){
+    public static boolean is_executable(String path) {
         return new File(path).canExecute();
     }
 
-    public static boolean is_readable(String path){
+    public static boolean is_readable(String path) {
         return new File(path).canRead();
     }
 
-    public static boolean is_writable(String path){
+    public static boolean is_writable(String path) {
         return new File(path).canWrite();
     }
 
-    public static boolean is_writeable(String path){
+    public static boolean is_writeable(String path) {
         return new File(path).canWrite();
     }
 
-    public static boolean mkdir(String path, int mode, boolean recursive){
+    public static boolean mkdir(String path, int mode, boolean recursive) {
         if (recursive)
             return new File(path).mkdirs();
         else
             return new File(path).mkdir();
     }
 
-    public static boolean mkdir(String path, int mode){
+    public static boolean mkdir(String path, int mode) {
         return mkdir(path, mode, false);
     }
 
-    public static boolean mkdir(String path){
+    public static boolean mkdir(String path) {
         return mkdir(path, 777, false);
     }
 
-    public static Memory filemtime(String path){
-        if (!file_exists(path))
-            return Memory.FALSE;
+    public static Memory filemtime(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
 
         try {
-            return LongMemory.valueOf(new File(path).lastModified());
-        } catch (Exception e){
+            return LongMemory.valueOf(Files.getLastModifiedTime(file).toMillis() / 1000);
+        } catch (IOException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
             return Memory.FALSE;
         }
     }
 
-    public static Memory fileatime(String path){
-        return Memory.FALSE;
+    public static Memory fileatime(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
+
+        try {
+            BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+            return LongMemory.valueOf(attributes.lastAccessTime().toMillis() / 1000);
+        } catch (IOException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
+            return Memory.FALSE;
+        }
     }
 
-    public static Memory filectime(String path){
-        return Memory.FALSE;
+    public static Memory filectime(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
+
+        try {
+            BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+            return LongMemory.valueOf(attributes.creationTime().toMillis() / 1000);
+        } catch (IOException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
+            return Memory.FALSE;
+        }
     }
 
-    public static Memory filesize(Environment env, TraceInfo trace, String path){
+    public static Memory filesize(Environment env, TraceInfo trace, String path) {
         try {
             return LongMemory.valueOf(new File(path).length());
-        } catch (Exception e){
+        } catch (Exception e) {
             env.warning(trace, "filesize(): file not found - %s", path);
             return Memory.FALSE;
         }
     }
 
-    public static Memory filetype(Environment env, TraceInfo trace, String path){
+    public static Memory filetype(Environment env, TraceInfo trace, String path) {
         File file = new File(path);
         if (file.isFile())
             return new StringMemory("file");
         else if (file.isDirectory())
             return new StringMemory("dir");
-        else
-            return new StringMemory("unknown");
+        else {
+            try {
+                BasicFileAttributes attributes = Files.readAttributes(Paths.get(path), BasicFileAttributes.class);
+
+                if (attributes.isSymbolicLink()) {
+                    return new StringMemory("link");
+                }
+
+                return new StringMemory("unknown");
+            } catch (IOException e) {
+                env.warning(trace, e.getMessage());
+                return Memory.FALSE;
+            }
+        }
     }
 
+    public static Memory filegroup(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
 
-    public static Memory pathinfo(String path, int options){
+        try {
+            int attribute = (int) Files.getAttribute(file, "unix:gid");
+            return LongMemory.valueOf(attribute);
+        } catch (IOException|SecurityException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory fileowner(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
+
+        try {
+            int attribute = (int) Files.getAttribute(file, "unix:uid");
+            return LongMemory.valueOf(attribute);
+        } catch (IOException|SecurityException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory fileperms(Environment env, TraceInfo trace, String path) {
+        Path file = Paths.get(path);
+
+        try {
+            int attribute = (int) Files.getAttribute(file, "unix:mode");
+            return LongMemory.valueOf(attribute);
+        } catch (IOException|SecurityException e) {
+            env.warning(trace, e.getMessage());
+            return Memory.FALSE;
+        } catch (UnsupportedOperationException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory pathinfo(String path, int options) {
         File file = new File(path);
         ArrayMemory result = new ArrayMemory();
         String basename = file.getName();
@@ -364,19 +442,19 @@ public class FileFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
-    public static Memory pathinfo(String path){
+    public static Memory pathinfo(String path) {
         return pathinfo(path, PATHINFO_BASENAME | PATHINFO_DIRNAME | PATHINFO_EXTENSION | PATHINFO_FILENAME);
     }
 
-    public static boolean rename(String oldname, String newname){
+    public static boolean rename(String oldname, String newname) {
         try {
             return new File(oldname).renameTo(new File(newname));
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public static boolean rmdir(String path){
+    public static boolean rmdir(String path) {
         File file = new File(path);
         if (file.isDirectory()) {
             try {
@@ -388,19 +466,19 @@ public class FileFunctions extends FunctionsContainer {
             return false;
     }
 
-    public static boolean unlink(String path){
+    public static boolean unlink(String path) {
         File file = new File(path);
         if (file.isDirectory())
             return false;
 
         try {
             return file.delete();
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public static boolean touch(Environment env, TraceInfo trace, String path, long time, long atime){
+    public static boolean touch(Environment env, TraceInfo trace, String path, long time, long atime) {
         File file = new File(path);
         if (!file.exists())
             try {
@@ -414,15 +492,15 @@ public class FileFunctions extends FunctionsContainer {
         return file.setLastModified(time * 1000);
     }
 
-    public static boolean touch(Environment env, TraceInfo trace, String path, long time){
+    public static boolean touch(Environment env, TraceInfo trace, String path, long time) {
         return touch(env, trace, path, time, 0);
     }
 
-    public static boolean touch(Environment env, TraceInfo trace, String path){
+    public static boolean touch(Environment env, TraceInfo trace, String path) {
         return touch(env, trace, path, System.currentTimeMillis() / 1000, 0);
     }
 
-    public static Memory tempnam(String dir, String prefix){
+    public static Memory tempnam(String dir, String prefix) {
         try {
             return new StringMemory(File.createTempFile(prefix, "", new File(dir)).getPath());
         } catch (IOException e) {
@@ -430,7 +508,7 @@ public class FileFunctions extends FunctionsContainer {
         }
     }
 
-    public static Memory realpath(String path){
+    public static Memory realpath(String path) {
         try {
             return new StringMemory(new File(path).getCanonicalPath());
         } catch (IOException e) {
@@ -441,7 +519,7 @@ public class FileFunctions extends FunctionsContainer {
     public static Memory readfile(Environment env, TraceInfo trace, String path, boolean useIncludePaths,
                                   Memory stream) throws Throwable {
         File file = new File(path);
-        if (useIncludePaths && !file.exists()){
+        if (useIncludePaths && !file.exists()) {
             path = env.findInIncludePaths(path);
             if (path == null)
                 return Memory.FALSE;
@@ -452,8 +530,8 @@ public class FileFunctions extends FunctionsContainer {
         try {
             RandomAccessFile accessFile = new RandomAccessFile(file, "r");
             try {
-                if (!stream.isNull()){
-                    if (!stream.instanceOf(Stream.CLASS_NAME)){
+                if (!stream.isNull()) {
+                    if (!stream.instanceOf(Stream.CLASS_NAME)) {
                         env.warning(trace, "readfile(): Argument 3 must be stream, %s given", stream.getRealType().toString());
                         return Memory.FALSE;
                     }
@@ -461,7 +539,7 @@ public class FileFunctions extends FunctionsContainer {
                     byte[] buff = new byte[4096];
                     int len = 0;
                     int read = 0;
-                    while ((len = accessFile.read(buff)) != -1){
+                    while ((len = accessFile.read(buff)) != -1) {
                         read += len;
                         ObjectInvokeHelper.invokeMethod(
                                 stream, "write", env, trace, new BinaryMemory(buff), LongMemory.valueOf(len)
@@ -472,7 +550,7 @@ public class FileFunctions extends FunctionsContainer {
                     byte[] buff = new byte[4096];
                     int len = 0;
                     int read = 0;
-                    while ((len = accessFile.read(buff)) != -1){
+                    while ((len = accessFile.read(buff)) != -1) {
                         read += len;
                         env.echo(buff, len);
                     }
@@ -628,7 +706,7 @@ public class FileFunctions extends FunctionsContainer {
                             break;
                         }
 
-                        sb.append((char)read);
+                        sb.append((char) read);
                     }
 
                     return StringMemory.valueOf(sb.toString());
@@ -662,7 +740,7 @@ public class FileFunctions extends FunctionsContainer {
     }
 
     public static Memory fclose(Environment env, TraceInfo trace, Memory stream) {
-        if (stream.instanceOf(Stream.CLASS_NAME)){
+        if (stream.instanceOf(Stream.CLASS_NAME)) {
             try {
                 env.invokeMethod(trace, stream, "close");
                 return Memory.TRUE;
