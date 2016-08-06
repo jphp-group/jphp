@@ -549,14 +549,31 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory array_keys(Environment env, TraceInfo trace, Memory input) {
+        return array_keys(env, trace, input, null);
+    }
+
+    public static Memory array_keys(Environment env, TraceInfo trace, Memory input, Memory search) {
+        return array_keys(env, trace, input, search, false);
+    }
+
+    public static Memory array_keys(Environment env, TraceInfo trace, Memory input, Memory search, boolean strict) {
         if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
 
         ArrayMemory result = new ArrayMemory();
         ForeachIterator iterator = input.getNewIterator(env, false, false);
 
-        while (iterator.next())
-            result.add(iterator.getMemoryKey());
+        while (iterator.next()) {
+            if (search == null) {
+                result.add(iterator.getMemoryKey());
+            } else {
+                if (strict && iterator.getValue().identical(search)) {
+                    result.add(iterator.getMemoryKey());
+                } else if (iterator.getValue().equal(search)) {
+                    result.add(iterator.getMemoryKey());
+                }
+            }
+        }
 
         return result.toConstant();
     }
