@@ -1047,14 +1047,14 @@ public class ArrayFunctions extends FunctionsContainer {
         });
     }
 
-    protected static Memory _array_udiff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, boolean assoc, Memory... arrays) throws Throwable {
+    protected static Memory _array_udiff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, final boolean assoc, Memory... arrays) throws Throwable {
         if (arrays == null) {
             expectingCallback(env, trace, 3, Memory.NULL);
             return Memory.NULL;
         }
 
         Memory callback = arrays[arrays.length - 1];
-        Invoker expectingCallback = expectingCallback(env, trace, arrays.length + 2, callback);
+        final Invoker expectingCallback = expectingCallback(env, trace, arrays.length + 2, callback);
 
         if (expectingCallback != null) {
             return _array_diff_impl(env, trace, array1, array, Arrays.copyOf(arrays, arrays.length - 1), new ArrayDiffCallback() {
