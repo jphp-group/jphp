@@ -3,6 +3,7 @@ package org.develnext.jphp.zend.ext.standard;
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.Reference;
+import php.runtime.common.Callback;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.RecursiveException;
@@ -970,5 +971,70 @@ public class ArrayFunctions extends FunctionsContainer {
         }
 
         return Memory.NULL;
+    }
+
+    interface ArrayDiffCallback {
+        boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable);
+    }
+
+    protected static Memory _array_diff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, Memory[] arrays, ArrayDiffCallback callback) {
+        if (expecting(env, trace, 1, array1, ARRAY) && expecting(env, trace, 2, array, ARRAY)) {
+            ForeachIterator iterator = array1.getNewIterator(env);
+
+            ArrayMemory result = new ArrayMemory();
+
+            while (iterator.next()) {
+                Memory value = iterator.getValue();
+
+                boolean exists = false;
+
+                for (int i = 0; i < (arrays == null ? 0 : arrays.length) +1; i++){
+                    if (i > 0) {
+                        array = arrays[i - 1];
+
+                        if (!expecting(env, trace, i + 2, array, ARRAY)) {
+                            return Memory.NULL;
+                        }
+                    }
+
+                    ForeachIterator newIterator = array.getNewIterator(env);
+
+                    while (newIterator.next()) {
+                        if (callback.apply(iterator.getMemoryKey(), value, newIterator.getMemoryKey(), newIterator.getValue())) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (exists) break;
+                }
+
+                if (!exists) {
+                    result.put(iterator.getKey(), value.toImmutable());
+                }
+            }
+
+            return result.toConstant();
+        }
+
+        return Memory.NULL;
+    }
+
+    public static Memory array_diff(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) {
+        return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
+            @Override
+            public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) {
+                return value.toString().equals(comparable.toString());
+            }
+        });
+    }
+
+    public static Memory array_diff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) {
+        return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
+            @Override
+            public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) {
+                return keyValue.equal(keyComparable) && value.toString().equals(comparable.toString());
+            }
+        });
     }
 }
