@@ -1247,4 +1247,12 @@ public class ArrayFunctions extends FunctionsContainer {
     public static boolean arsort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
         return _asort_impl(env, trace, array, flags, true);
     }
+
+    public static boolean natsort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return _asort_impl(env, trace, array, SORT_NATURAL, false);
+    }
+
+    public static boolean natcasesort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return _asort_impl(env, trace, array, SORT_NATURAL | SORT_FLAG_CASE, false);
+    }
 }
