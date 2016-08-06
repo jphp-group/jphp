@@ -974,10 +974,10 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     interface ArrayDiffCallback {
-        boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable);
+        boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) throws Throwable;
     }
 
-    protected static Memory _array_diff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, Memory[] arrays, ArrayDiffCallback callback) {
+    protected static Memory _array_diff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, Memory[] arrays, ArrayDiffCallback callback) throws Throwable {
         if (expecting(env, trace, 1, array1, ARRAY) && expecting(env, trace, 2, array, ARRAY)) {
             ForeachIterator iterator = array1.getNewIterator(env);
 
@@ -1020,7 +1020,7 @@ public class ArrayFunctions extends FunctionsContainer {
         return Memory.NULL;
     }
 
-    public static Memory array_diff(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) {
+    public static Memory array_diff(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
         return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
             @Override
             public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) {
@@ -1029,12 +1029,46 @@ public class ArrayFunctions extends FunctionsContainer {
         });
     }
 
-    public static Memory array_diff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) {
+    public static Memory array_diff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
         return _array_diff_impl(env, trace, array1, array, arrays, new ArrayDiffCallback() {
             @Override
             public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) {
                 return keyValue.equal(keyComparable) && value.toString().equals(comparable.toString());
             }
         });
+    }
+
+    protected static Memory _array_udiff_impl(Environment env, TraceInfo trace, Memory array1, Memory array, boolean assoc, Memory... arrays) throws Throwable {
+        if (arrays == null) {
+            expectingCallback(env, trace, 3, Memory.NULL);
+            return Memory.NULL;
+        }
+
+        Memory callback = arrays[arrays.length - 1];
+        Invoker expectingCallback = expectingCallback(env, trace, arrays.length + 2, callback);
+
+        if (expectingCallback != null) {
+            return _array_diff_impl(env, trace, array1, array, Arrays.copyOf(arrays, arrays.length - 1), new ArrayDiffCallback() {
+                @Override
+                public boolean apply(Memory keyValue, Memory value, Memory keyComparable, Memory comparable) throws Throwable {
+                    if (assoc && keyValue.notEqual(keyComparable)) {
+                        return false;
+                    }
+
+                    Memory memory = expectingCallback.call(value, comparable);
+                    return memory.toInteger() == 0;
+                }
+            });
+        } else {
+            return Memory.NULL;
+        }
+    }
+
+    public static Memory array_udiff(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
+        return _array_udiff_impl(env, trace, array1, array, false, arrays);
+    }
+
+    public static Memory array_udiff_assoc(Environment env, TraceInfo trace, Memory array1, Memory array, Memory... arrays) throws Throwable {
+        return _array_udiff_impl(env, trace, array1, array, true, arrays);
     }
 }
