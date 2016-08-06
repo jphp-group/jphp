@@ -413,7 +413,7 @@ public class StringMemory extends Memory {
     public boolean greater(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) > 0;
-            case REFERENCE: return smaller(memory.toValue());
+            case REFERENCE: return greater(memory.toValue());
         }
         return toNumeric().greater(memory);
     }
@@ -427,7 +427,7 @@ public class StringMemory extends Memory {
     public boolean greaterEq(Memory memory) {
         switch (memory.type){
             case STRING: return toString().compareTo(memory.toString()) >= 0;
-            case REFERENCE: return smaller(memory.toValue());
+            case REFERENCE: return greaterEq(memory.toValue());
         }
         return toNumeric().greaterEq(memory);
     }

@@ -979,4 +979,9 @@ public class ReferenceMemory extends Memory {
     public <T extends IObject> T toObject(Class<T> clazz) {
         return value.toObject(clazz);
     }
+
+    @Override
+    public int compareTo(Memory o) {
+        return value.compareTo(o);
+    }
 }

@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import org.develnext.jphp.zend.ext.support.NaturalOrderComparator;
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.Reference;
@@ -12,10 +13,13 @@ import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.ReferenceMemory;
 
 import java.util.*;
 
+import static org.develnext.jphp.zend.ext.standard.ArrayConstants.*;
 import static php.runtime.Memory.Type.ARRAY;
 
 public class ArrayFunctions extends FunctionsContainer {
@@ -1101,5 +1105,146 @@ public class ArrayFunctions extends FunctionsContainer {
         } else {
             return Memory.NULL;
         }
+    }
+
+    protected static Comparator makeComparatorForSort(int flags, final boolean revert) {
+        switch (flags) {
+            case ArrayConstants.SORT_NUMERIC:
+                return new Comparator<Memory>() {
+                    @Override
+                    public int compare(Memory o1, Memory o2) {
+                        o1 = o1.toNumeric();
+                        o2 = o2.toNumeric();
+
+                        return o1.equal(o2) ? 0 : (o1.greater(o2) ? 1 : -1) * (revert ? -1 : 1);
+                    }
+                };
+
+            case SORT_STRING | SORT_FLAG_CASE:
+            case SORT_LOCALE_STRING | SORT_FLAG_CASE:
+                return new Comparator<Memory>() {
+                    @Override
+                    public int compare(Memory o1, Memory o2) {
+                        String s1 = o1.toString();
+                        String s2 = o2.toString();
+
+                        int cmp = s1.compareToIgnoreCase(s2);
+                        return cmp == 0 ? 0 : (cmp < 0 ? -1 : 1) * (revert ? -1 : 1);
+                    }
+                };
+
+            case SORT_STRING:
+            case SORT_LOCALE_STRING:
+                return new Comparator<Memory>() {
+                    @Override
+                    public int compare(Memory o1, Memory o2) {
+                        String s1 = o1.toString();
+                        String s2 = o2.toString();
+
+                        int cmp = s1.compareTo(s2);
+                        return cmp == 0 ? 0 : (cmp < 0 ? -1 : 1) * (revert ? -1 : 1);
+                    }
+                };
+
+            case SORT_NATURAL | SORT_FLAG_CASE:
+                return new NaturalOrderComparator(true, revert);
+
+            case SORT_NATURAL:
+                return new NaturalOrderComparator(false, revert);
+
+            case ArrayConstants.SORT_REGULAR:
+            default:
+                return new Comparator<Memory>() {
+                    @Override
+                    public int compare(Memory o1, Memory o2) {
+                        return o1.compareTo(o2)  * (revert ? -1 : 1);
+                    }
+                };
+        }
+    }
+
+    protected static boolean _sort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        if (expecting(env, trace, 1, array, ARRAY)) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            Memory[] values = arrayMemory.values();
+            arrayMemory.clear();
+
+            try {
+                Arrays.sort(values, makeComparatorForSort(flags, revert));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            for (Memory value : values) {
+                arrayMemory.add(value);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean sort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return sort(env, trace, array, 0);
+    }
+
+    public static boolean sort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _sort_impl(env, trace, array, flags, false);
+    }
+
+    public static boolean rsort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return rsort(env, trace, array, 0);
+    }
+
+    public static boolean rsort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _sort_impl(env, trace, array, flags, true);
+    }
+
+    protected static boolean _asort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        if (expecting(env, trace, 1, array, ARRAY)) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            Memory[] values = new Memory[arrayMemory.size()];
+            ForeachIterator iterator = arrayMemory.getNewIterator(env);
+
+            int i = 0;
+            while (iterator.next()) {
+                values[i++] = new KeyValueMemory(iterator.getMemoryKey(), iterator.getValue());
+            }
+
+            arrayMemory.clear();
+
+            try {
+                Arrays.sort(values, makeComparatorForSort(flags, revert));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            for (Memory value : values) {
+                arrayMemory.add(value);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean asort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return asort(env, trace, array, 0);
+    }
+
+    public static boolean asort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _asort_impl(env, trace, array, flags, false);
+    }
+
+    public static boolean arsort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return arsort(env, trace, array, 0);
+    }
+
+    public static boolean arsort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _asort_impl(env, trace, array, flags, true);
     }
 }
