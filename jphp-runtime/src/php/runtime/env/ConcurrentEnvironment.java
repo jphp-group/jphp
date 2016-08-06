@@ -138,11 +138,13 @@ public class ConcurrentEnvironment extends Environment {
 
     public void __clearSilent(){
         Stack<Integer> silents = silentFlags.get();
-        Integer flags = 0;
+        Integer flags = null;
         while (!silents.empty())
             flags = silents.pop();
 
-        setErrorFlags(flags);
+        if (flags != null) {
+            setErrorFlags(flags);
+        }
     }
 
     @Override

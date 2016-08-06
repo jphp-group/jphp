@@ -71,6 +71,6 @@ abstract public class JavaReflection extends BaseObject {
                 throw new CriticalException(e1);
             }
         }
-        env.__throwException(exception);
+        env.__throwException(exception, false);
     }
 }

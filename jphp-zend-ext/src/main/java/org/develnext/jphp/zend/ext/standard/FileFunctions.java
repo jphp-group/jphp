@@ -504,7 +504,7 @@ public class FileFunctions extends FunctionsContainer {
         try {
             return ObjectMemory.valueOf(Stream.create(env, path, mode));
         } catch (Throwable throwable) {
-            env.warning("fopen(): failed to open stream, " + throwable.getMessage());
+            env.warning(trace, "fopen(): failed to open stream, " + throwable.getMessage());
             return Memory.FALSE;
         }
     }

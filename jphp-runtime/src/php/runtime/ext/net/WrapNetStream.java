@@ -107,6 +107,7 @@ public class WrapNetStream extends Stream {
         }
 
         url = new URL(args[0].toString());
+        getInputStream();
 
         return Memory.NULL;
     }

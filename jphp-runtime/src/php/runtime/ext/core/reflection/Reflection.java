@@ -25,7 +25,7 @@ abstract public class Reflection extends BaseObject {
     protected final void exception(Environment env, String message, Object... args){
         ReflectionException e = new ReflectionException(env);
         e.__construct(env, new StringMemory(String.format(message, args)));
-        env.__throwException(e);
+        env.__throwException(e, false);
     }
 
     @Signature(@Arg(value = "modifiers", type = HintType.INT))

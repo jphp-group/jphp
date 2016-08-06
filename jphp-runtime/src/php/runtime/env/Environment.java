@@ -1363,7 +1363,14 @@ public class Environment {
     }
 
     public void __throwException(BaseBaseException e){
-        __clearSilent();
+        __throwException(e, true);
+    }
+
+    public void __throwException(BaseBaseException e, boolean clearSilent){
+        if (clearSilent) {
+            __clearSilent();
+        }
+
         e.setTraceInfo(this, trace());
         throw e;
     }
@@ -1420,11 +1427,13 @@ public class Environment {
 
     public void __clearSilent(){
         Stack<Integer> silents = silentFlags;
-        Integer flags = 0;
+        Integer flags = null;
         while (!silents.empty())
             flags = silents.pop();
 
-        setErrorFlags(flags);
+        if (flags != null) {
+            setErrorFlags(flags);
+        }
     }
 
     public Memory __getMacroClass() {

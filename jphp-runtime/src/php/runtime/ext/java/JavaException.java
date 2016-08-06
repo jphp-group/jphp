@@ -27,6 +27,16 @@ public class JavaException extends BaseException {
         return throwable;
     }
 
+    @Override
+    public String getMessage() {
+        return throwable != null ? throwable.getMessage() : super.getMessage();
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return throwable != null ? throwable.getLocalizedMessage() : super.getLocalizedMessage();
+    }
+
     public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
         clazz.setProperty(this, "message", new StringMemory(throwable.toString()));
