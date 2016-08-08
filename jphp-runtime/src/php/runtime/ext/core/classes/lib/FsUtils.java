@@ -410,12 +410,12 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
-    public ArrayMemory clean(final Environment env, String path) {
+    public static ArrayMemory clean(final Environment env, String path) {
         return clean(env, path, null);
     }
 
     @Signature
-    public ArrayMemory clean(final Environment env, String path, @Nullable final Invoker checker) {
+    public static ArrayMemory clean(final Environment env, String path, @Nullable final Invoker checker) {
         ArrayMemory result = new ArrayMemory();
         final ArrayMemory success = new ArrayMemory();
         final ArrayMemory error = new ArrayMemory();
