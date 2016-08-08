@@ -8,11 +8,13 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.develnext.jphp.ext.compress.classes.PArchiveEntry;
-import org.develnext.jphp.ext.compress.classes.PArchiveInputStream;
-import org.develnext.jphp.ext.compress.classes.PArchiveOutputStream;
+import org.develnext.jphp.ext.compress.classes.*;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
+
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 public class CompressExtension extends Extension {
     public static final String NS = "php\\compress";
@@ -35,5 +37,10 @@ public class CompressExtension extends Extension {
 
         registerClass(scope, PArchiveInputStream.class);
         registerClass(scope, PArchiveOutputStream.class);
+
+        registerWrapperClass(scope, ZipEntry.class, PZipEntry.class);
+        registerWrapperClass(scope, ZipFile.class, PZipFile.class);
+
+        registerJavaException(scope, PZipException.class, ZipException.class);
     }
 }

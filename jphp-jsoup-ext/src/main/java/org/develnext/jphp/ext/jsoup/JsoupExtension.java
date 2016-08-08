@@ -31,6 +31,6 @@ public class JsoupExtension extends Extension {
         registerWrapperClass(scope, Elements.class, WrapElements.class);
 
         MemoryOperation.register(new UrlMemoryOperation());
-        MemoryOperation.register(new BinaryMemoryOperation());
+        //MemoryOperation.register(new BinaryMemoryOperation());
     }
 }

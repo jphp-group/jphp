@@ -20,6 +20,6 @@ public class BinaryMemoryOperation extends MemoryOperation<byte[]> {
 
     @Override
     public Memory unconvert(Environment environment, TraceInfo traceInfo, byte[] bytes) throws Throwable {
-        return new BinaryMemory(bytes);
+        return bytes == null ? Memory.NULL : new BinaryMemory(bytes);
     }
 }
