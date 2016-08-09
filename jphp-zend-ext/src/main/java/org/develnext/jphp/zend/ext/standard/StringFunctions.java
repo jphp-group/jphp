@@ -20,6 +20,7 @@ import php.runtime.util.SScanF;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -1365,7 +1366,7 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     public static Memory str_ireplace(Environment env, TraceInfo trace, Memory search, Memory replace, Memory string,
-                                     @Reference Memory _count) {
+                                      @Reference Memory _count) {
         return _str_replace(env, trace, search, replace, string, _count, true);
     }
 
@@ -2935,6 +2936,20 @@ public class StringFunctions extends FunctionsContainer {
 
     public static String urlencode(String url) throws UnsupportedEncodingException {
         return URLEncoder.encode(url, "UTF-8");
+    }
+
+    public static String rawurlencode(String url) throws UnsupportedEncodingException {
+        return URLEncoder.encode(url, "UTF-8")
+                // OAuth encodes some characters differently:
+                .replace("+", "%20").replace("*", "%2A")
+                .replace("%7E", "~");
+    }
+
+    public static String rawurldecode(String url) throws UnsupportedEncodingException {
+        return URLDecoder.decode(url, "UTF-8")
+                // OAuth encodes some characters differently:
+                .replace("%20", "+").replace("%2A", "*")
+                .replace("~", "%7E");
     }
 
     public static void dl(String extension) {
