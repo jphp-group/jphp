@@ -31,6 +31,10 @@ public class LangFunctions extends FunctionsContainer {
         Thread.sleep(sec * 1000);
     }
 
+    public static void usleep(long microsec) throws InterruptedException {
+        Thread.sleep(microsec / 1000);
+    }
+
     public static Memory compact(@Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {
         ArrayMemory result = new ArrayMemory();
         Memory value = locals.valueOfIndex(varName).toValue();

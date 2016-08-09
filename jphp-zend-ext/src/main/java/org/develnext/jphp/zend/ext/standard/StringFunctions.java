@@ -2952,6 +2952,10 @@ public class StringFunctions extends FunctionsContainer {
                 .replace("~", "%7E");
     }
 
+    public static void setLocale() {
+        // nop.
+    }
+
     public static void dl(String extension) {
         // ... nop
     }
