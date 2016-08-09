@@ -1352,4 +1352,44 @@ public class ArrayFunctions extends FunctionsContainer {
     public static boolean usort(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
         return _usort_impl(env, trace, array, callback);
     }
+
+    protected static boolean _uksort_impl(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        Invoker invoker = expectingCallback(env, trace, 2, callback);
+
+        if (expecting(env, trace, 1, array, ARRAY) && invoker != null) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            Memory[] values = new Memory[arrayMemory.size()];
+            ForeachIterator iterator = arrayMemory.getNewIterator(env);
+
+            int i = 0;
+            while (iterator.next()) {
+                values[i++] = iterator.getMemoryKey();
+            }
+
+            //arrayMemory.clear();
+
+            try {
+                Arrays.sort(values, makeComparatorForUSort(env, invoker));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            ArrayMemory newArray = new ArrayMemory();
+
+            for (Memory value : values) {
+                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value));
+                arrayMemory.remove(value);
+            }
+
+            array.assign(newArray);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean uksort(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        return _uksort_impl(env, trace, array, callback);
+    }
 }
