@@ -35,6 +35,11 @@ public class LangFunctions extends FunctionsContainer {
         Thread.sleep(microsec / 1000);
     }
 
+    public static boolean time_nanosleep(long second, int nanosecond) throws InterruptedException {
+        Thread.sleep(second * 1000, nanosecond);
+        return true;
+    }
+
     public static Memory compact(@Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {
         ArrayMemory result = new ArrayMemory();
         Memory value = locals.valueOfIndex(varName).toValue();
