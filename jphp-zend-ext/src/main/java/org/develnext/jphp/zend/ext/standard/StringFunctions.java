@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import org.develnext.jphp.zend.ext.support.NaturalOrderComparator;
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.Immutable;
@@ -2958,6 +2959,14 @@ public class StringFunctions extends FunctionsContainer {
 
     public static void dl(String extension) {
         // ... nop
+    }
+
+    public static int strnatcmp(String one, String two) {
+        return new NaturalOrderComparator(false, false).compare(one, two);
+    }
+
+    public static int strnatcasecmp(String one, String two) {
+        return new NaturalOrderComparator(true, false).compare(one, two);
     }
 
     static {
