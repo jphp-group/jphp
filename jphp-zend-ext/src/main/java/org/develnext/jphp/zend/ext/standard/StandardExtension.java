@@ -12,6 +12,9 @@ public class StandardExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+        registerConstants(new LangConstants());
+        registerFunctions(new LangFunctions());
+
         registerConstants(new StringConstants());
         registerFunctions(new StringFunctions());
 
