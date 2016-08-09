@@ -27,6 +27,10 @@ import php.runtime.util.StackTracer;
 
 public class LangFunctions extends FunctionsContainer {
 
+    public static Memory time() {
+        return LongMemory.valueOf(System.currentTimeMillis() / 1000);
+    }
+
     public static void sleep(int sec) throws InterruptedException {
         Thread.sleep(sec * 1000);
     }
@@ -38,6 +42,19 @@ public class LangFunctions extends FunctionsContainer {
     public static boolean time_nanosleep(long second, int nanosecond) throws InterruptedException {
         Thread.sleep(second * 1000, nanosecond);
         return true;
+    }
+
+    public static boolean time_sleep_until(double time) throws InterruptedException {
+        long now = System.currentTimeMillis();
+        long to = (long) (time * 1000);
+
+        long diff = to - now;
+        if (diff >= 0) {
+            Thread.sleep(diff);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static Memory compact(@Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {

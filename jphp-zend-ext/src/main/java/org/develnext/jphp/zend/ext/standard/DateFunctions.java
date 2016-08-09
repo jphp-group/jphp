@@ -7,6 +7,7 @@ import php.runtime.Memory;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 
 public class DateFunctions extends FunctionsContainer {
