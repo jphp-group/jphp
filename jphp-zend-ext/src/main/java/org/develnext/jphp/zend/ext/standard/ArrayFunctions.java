@@ -1107,6 +1107,24 @@ public class ArrayFunctions extends FunctionsContainer {
         }
     }
 
+    protected static Comparator<Memory> makeComparatorForUSort(final Environment env, final Invoker invoker) {
+        return new Comparator<Memory>() {
+            @Override
+            public int compare(Memory o1, Memory o2) {
+                if (invoker == null) {
+                    return 0;
+                }
+
+                try {
+                    return invoker.call(o1, o2).toInteger();
+                } catch (Throwable throwable) {
+                    env.forwardThrow(throwable);
+                    return 0;
+                }
+            }
+        };
+    }
+
     protected static Comparator makeComparatorForSort(int flags, final boolean revert) {
         switch (flags) {
             case ArrayConstants.SORT_NUMERIC:
@@ -1304,5 +1322,34 @@ public class ArrayFunctions extends FunctionsContainer {
 
     public static boolean krsort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
         return _ksort_impl(env, trace, array, flags, true);
+    }
+
+    protected static boolean _usort_impl(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        Invoker invoker = expectingCallback(env, trace, 2, callback);
+
+        if (expecting(env, trace, 1, array, ARRAY) && invoker != null) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            Memory[] values = arrayMemory.values();
+            arrayMemory.clear();
+
+            try {
+                Arrays.sort(values, makeComparatorForUSort(env, invoker));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            for (Memory value : values) {
+                arrayMemory.add(value);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean usort(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        return _usort_impl(env, trace, array, callback);
     }
 }

@@ -112,6 +112,7 @@ abstract public class Invoker implements Cloneable {
         this.trace = trace;
     }
 
+    @Deprecated
     public static Invoker valueOf(Environment env, Memory method){
         return valueOf(env, env.peekCall(0).trace, method);
     }
@@ -120,6 +121,10 @@ abstract public class Invoker implements Cloneable {
 
     public static Invoker create(Environment env, Memory method) {
         return Invoker.valueOf(env, null, method);
+    }
+
+    public static Invoker make(Environment env, Memory memory) {
+        return valueOf(env, null, memory);
     }
 
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
