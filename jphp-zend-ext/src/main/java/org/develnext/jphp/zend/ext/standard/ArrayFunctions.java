@@ -1255,4 +1255,54 @@ public class ArrayFunctions extends FunctionsContainer {
     public static boolean natcasesort(Environment env, TraceInfo trace, @Reference Memory array) {
         return _asort_impl(env, trace, array, SORT_NATURAL | SORT_FLAG_CASE, false);
     }
+
+    protected static boolean _ksort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        if (expecting(env, trace, 1, array, ARRAY)) {
+            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
+
+            Memory[] values = new Memory[arrayMemory.size()];
+            ForeachIterator iterator = arrayMemory.getNewIterator(env);
+
+            int i = 0;
+            while (iterator.next()) {
+                values[i++] = iterator.getMemoryKey();
+            }
+
+            //arrayMemory.clear();
+
+            try {
+                Arrays.sort(values, makeComparatorForSort(flags, revert));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            ArrayMemory newArray = new ArrayMemory();
+
+            for (Memory value : values) {
+                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value));
+                arrayMemory.remove(value);
+            }
+
+            array.assign(newArray);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean ksort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return ksort(env, trace, array, 0);
+    }
+
+    public static boolean ksort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _ksort_impl(env, trace, array, flags, false);
+    }
+
+    public static boolean krsort(Environment env, TraceInfo trace, @Reference Memory array) {
+        return krsort(env, trace, array, 0);
+    }
+
+    public static boolean krsort(Environment env, TraceInfo trace, @Reference Memory array, int flags) {
+        return _ksort_impl(env, trace, array, flags, true);
+    }
 }
