@@ -104,7 +104,12 @@ public class ItemsUtils extends BaseObject {
         }
 
         if (args[1].isNull()) {
-            Arrays.sort(sortTmp);
+            Arrays.sort(sortTmp, new Comparator<Memory>() {
+                @Override
+                public int compare(Memory o1, Memory o2) {
+                    return o1.compareTo(o2);
+                }
+            });
         } else {
             final Invoker invoker = Invoker.valueOf(env, null, args[1]);
             Arrays.sort(sortTmp, new Comparator<Memory>() {

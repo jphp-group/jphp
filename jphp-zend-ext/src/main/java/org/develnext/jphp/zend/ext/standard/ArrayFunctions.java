@@ -1182,6 +1182,10 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     protected static boolean _sort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        return _sort_impl(env, trace, array, makeComparatorForSort(flags, revert));
+    }
+
+    protected static boolean _sort_impl(Environment env, TraceInfo trace, @Reference Memory array, Comparator comparator) {
         if (expecting(env, trace, 1, array, ARRAY)) {
             ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
 
@@ -1189,7 +1193,7 @@ public class ArrayFunctions extends FunctionsContainer {
             arrayMemory.clear();
 
             try {
-                Arrays.sort(values, makeComparatorForSort(flags, revert));
+                Arrays.sort(values, comparator);
             } catch (IllegalArgumentException e) {
                 return false;
             }
@@ -1221,6 +1225,10 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     protected static boolean _asort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        return _asort_impl(env, trace, array, makeComparatorForSort(flags, revert));
+    }
+
+    protected static boolean _asort_impl(Environment env, TraceInfo trace, @Reference Memory array, Comparator comparator) {
         if (expecting(env, trace, 1, array, ARRAY)) {
             ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
 
@@ -1235,7 +1243,7 @@ public class ArrayFunctions extends FunctionsContainer {
             arrayMemory.clear();
 
             try {
-                Arrays.sort(values, makeComparatorForSort(flags, revert));
+                Arrays.sort(values, comparator);
             } catch (IllegalArgumentException e) {
                 return false;
             }
@@ -1275,6 +1283,10 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     protected static boolean _ksort_impl(Environment env, TraceInfo trace, @Reference Memory array, int flags, boolean revert) {
+        return _ksort_impl(env, trace, array, makeComparatorForSort(flags, revert));
+    }
+
+    protected static boolean _ksort_impl(Environment env, TraceInfo trace, @Reference Memory array, Comparator comparator) {
         if (expecting(env, trace, 1, array, ARRAY)) {
             ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
 
@@ -1289,7 +1301,7 @@ public class ArrayFunctions extends FunctionsContainer {
             //arrayMemory.clear();
 
             try {
-                Arrays.sort(values, makeComparatorForSort(flags, revert));
+                Arrays.sort(values, comparator);
             } catch (IllegalArgumentException e) {
                 return false;
             }
@@ -1327,23 +1339,8 @@ public class ArrayFunctions extends FunctionsContainer {
     protected static boolean _usort_impl(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
         Invoker invoker = expectingCallback(env, trace, 2, callback);
 
-        if (expecting(env, trace, 1, array, ARRAY) && invoker != null) {
-            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
-
-            Memory[] values = arrayMemory.values();
-            arrayMemory.clear();
-
-            try {
-                Arrays.sort(values, makeComparatorForUSort(env, invoker));
-            } catch (IllegalArgumentException e) {
-                return false;
-            }
-
-            for (Memory value : values) {
-                arrayMemory.add(value);
-            }
-
-            return true;
+        if (invoker != null) {
+            return _sort_impl(env, trace, array, makeComparatorForUSort(env, invoker));
         } else {
             return false;
         }
@@ -1353,37 +1350,25 @@ public class ArrayFunctions extends FunctionsContainer {
         return _usort_impl(env, trace, array, callback);
     }
 
+    protected static boolean _uasort_impl(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        Invoker invoker = expectingCallback(env, trace, 2, callback);
+
+        if (invoker != null) {
+            return _asort_impl(env, trace, array, makeComparatorForUSort(env, invoker));
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean uasort(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
+        return _uasort_impl(env, trace, array, callback);
+    }
+
     protected static boolean _uksort_impl(Environment env, TraceInfo trace, @Reference Memory array, Memory callback) {
         Invoker invoker = expectingCallback(env, trace, 2, callback);
 
-        if (expecting(env, trace, 1, array, ARRAY) && invoker != null) {
-            ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
-
-            Memory[] values = new Memory[arrayMemory.size()];
-            ForeachIterator iterator = arrayMemory.getNewIterator(env);
-
-            int i = 0;
-            while (iterator.next()) {
-                values[i++] = iterator.getMemoryKey();
-            }
-
-            //arrayMemory.clear();
-
-            try {
-                Arrays.sort(values, makeComparatorForUSort(env, invoker));
-            } catch (IllegalArgumentException e) {
-                return false;
-            }
-
-            ArrayMemory newArray = new ArrayMemory();
-
-            for (Memory value : values) {
-                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value));
-                arrayMemory.remove(value);
-            }
-
-            array.assign(newArray);
-            return true;
+        if (invoker != null) {
+            return _ksort_impl(env, trace, array, makeComparatorForUSort(env, invoker));
         } else {
             return false;
         }

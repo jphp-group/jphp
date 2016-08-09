@@ -675,34 +675,7 @@ public class StringFunctions extends FunctionsContainer {
 
     @Immutable
     public static int strcasecmp(String value1, String value2) {
-        int aLen = value1.length();
-        int bLen = value1.length();
-
-        for (int i = 0; i < aLen && i < bLen; i++) {
-            char chA = value1.charAt(i);
-            char chB = value1.charAt(i);
-
-            if (chA == chB)
-                continue;
-
-            if (Character.isUpperCase(chA))
-                chA = Character.toLowerCase(chA);
-
-            if (Character.isUpperCase(chB))
-                chB = Character.toLowerCase(chB);
-
-            if (chA < chB)
-                return -1;
-            else
-                return 1;
-        }
-
-        if (aLen == bLen)
-            return 0;
-        else if (aLen < bLen)
-            return -1;
-        else
-            return 1;
+        return value1.compareToIgnoreCase(value2);
     }
 
     @Immutable
