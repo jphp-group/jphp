@@ -60,9 +60,7 @@ final public class PSqlDriverManager extends BaseObject {
     }};
 
     protected static String _getDriverClass(String dbName) {
-        dbName = dbName.toLowerCase();
-
-        String driverClass = driverClasses.get(dbName);
+        String driverClass = driverClasses.get(dbName.toLowerCase());
 
         if (driverClass == null) {
             driverClass = dbName;
