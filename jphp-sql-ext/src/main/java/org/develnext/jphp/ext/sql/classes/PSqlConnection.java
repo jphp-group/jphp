@@ -159,7 +159,7 @@ public class PSqlConnection extends BaseObject {
 
     @Signature
     public PSqlStatement query(Environment env, String sql, @Nullable ArrayMemory args) throws Throwable {
-        PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement statement = connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS);
         PSqlStatement sqlStatement = new PSqlStatement(env, statement);
 
         if (args != null) {
