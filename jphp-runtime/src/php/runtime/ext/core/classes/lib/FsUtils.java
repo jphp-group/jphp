@@ -317,7 +317,7 @@ public class FsUtils extends BaseObject {
             nread += n;
 
             if (callback != null) {
-                if (callback.callAny(nread).toValue() == Memory.FALSE) {
+                if (callback.callAny(nread, n).toValue() == Memory.FALSE) {
                     break;
                 }
             }
