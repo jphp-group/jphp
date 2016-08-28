@@ -63,7 +63,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory reset(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "reset")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 return memory.resetCurrentIterator().toImmutable();
@@ -73,7 +73,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory next(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "next")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
@@ -87,7 +87,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory prev(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "prev")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
                 ForeachIterator iterator = memory.getCurrentIterator();
@@ -101,7 +101,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory current(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "current")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getValue();
                 return value == null ? Memory.FALSE : value.toImmutable();
@@ -111,7 +111,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory key(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "key")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 Memory value = array.toValue(ArrayMemory.class).getCurrentIterator().getMemoryKey();
                 return value == null ? Memory.FALSE : value;
@@ -125,7 +125,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory end(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "end")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.end()) {
@@ -139,7 +139,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static Memory each(Environment env, TraceInfo trace, @Reference Memory array) {
-        if (expectingReference(env, trace, array)) {
+        if (expectingReference(env, trace, array, "each")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
                 if (iterator.next()) {
@@ -209,7 +209,7 @@ public class ArrayFunctions extends FunctionsContainer {
     }
 
     public static boolean shuffle(Environment env, TraceInfo trace, @Reference Memory value) {
-        if (expectingReference(env, trace, value) && expecting(env, trace, 1, value, ARRAY)) {
+        if (expectingReference(env, trace, value, "shuffle") && expecting(env, trace, 1, value, ARRAY)) {
             ArrayMemory array = value.toValue(ArrayMemory.class);
             array.shuffle(MathFunctions.RANDOM);
             return true;
@@ -328,9 +328,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return array_reduce(env, trace, input, callback, Memory.NULL);
     }
 
-    public static boolean array_walk(Environment env, TraceInfo trace, Memory input, Memory callback,
+    public static boolean array_walk(Environment env, TraceInfo trace, @Reference Memory input, Memory callback,
                                      Memory userData) throws Throwable {
-        if (!expectingReference(env, trace, input))
+        if (!expectingReference(env, trace, input, "array_walk"))
             return false;
 
         if (!expecting(env, trace, 1, input, ARRAY))
@@ -349,7 +349,7 @@ public class ArrayFunctions extends FunctionsContainer {
         return true;
     }
 
-    public static boolean array_walk(Environment env, TraceInfo trace, Memory input, Memory callback)
+    public static boolean array_walk(Environment env, TraceInfo trace, @Reference Memory input, Memory callback)
             throws Throwable {
         return array_walk(env, trace, input, callback, Memory.NULL);
     }
@@ -381,10 +381,10 @@ public class ArrayFunctions extends FunctionsContainer {
         return true;
     }
 
-    public static boolean array_walk_recursive(Environment env, TraceInfo trace, Memory input,
+    public static boolean array_walk_recursive(Environment env, TraceInfo trace, @Reference Memory input,
                                                Memory callback, Memory userData)
             throws Throwable {
-        if (!expectingReference(env, trace, input))
+        if (!expectingReference(env, trace, input, "array_walk_recursive"))
             return false;
 
         if (!expecting(env, trace, 1, input, ARRAY))
@@ -491,8 +491,8 @@ public class ArrayFunctions extends FunctionsContainer {
         return array_rand(env, trace, input, 1);
     }
 
-    public static Memory array_pop(Environment env, TraceInfo trace, Memory input) {
-        if (!expectingReference(env, trace, input))
+    public static Memory array_pop(Environment env, TraceInfo trace, @Reference Memory input) {
+        if (!expectingReference(env, trace, input, "array_pop"))
             return Memory.NULL;
         if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
@@ -501,9 +501,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return value == null ? Memory.NULL : value.toImmutable();
     }
 
-    public static Memory array_push(Environment env, TraceInfo trace, Memory input, Memory var,
+    public static Memory array_push(Environment env, TraceInfo trace, @Reference Memory input, Memory var,
                                     Memory... args) {
-        if (!expectingReference(env, trace, input))
+        if (!expectingReference(env, trace, input, "array_push"))
             return Memory.NULL;
         if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
@@ -517,8 +517,8 @@ public class ArrayFunctions extends FunctionsContainer {
         return LongMemory.valueOf(array.size());
     }
 
-    public static Memory array_shift(Environment env, TraceInfo trace, Memory input) {
-        if (!expectingReference(env, trace, input))
+    public static Memory array_shift(Environment env, TraceInfo trace, @Reference Memory input) {
+        if (!expectingReference(env, trace, input, "array_shift"))
             return Memory.NULL;
         if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;
@@ -527,9 +527,9 @@ public class ArrayFunctions extends FunctionsContainer {
         return value == null ? Memory.NULL : value.toImmutable();
     }
 
-    public static Memory array_unshift(Environment env, TraceInfo trace, Memory input, Memory var,
+    public static Memory array_unshift(Environment env, TraceInfo trace, @Reference Memory input, Memory var,
                                        Memory... args) {
-        if (!expectingReference(env, trace, input))
+        if (!expectingReference(env, trace, input, "array_unshift"))
             return Memory.NULL;
         if (!expecting(env, trace, 1, input, ARRAY))
             return Memory.NULL;

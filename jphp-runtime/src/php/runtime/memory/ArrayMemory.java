@@ -1229,7 +1229,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 } else {
                     ArrayList<Object> tmp = new ArrayList<Object>(map.keySet());
                     keys = tmp.listIterator(tmp.size() - 1);
-                    return true;
+
+                    if (keys.hasNext() && next()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
 

@@ -15,15 +15,23 @@ import java.util.Map;
 
 abstract public class FunctionsContainer {
 
-    protected static boolean expectingReference(Environment env, TraceInfo trace, Memory memory){
-        if (!memory.isReference()){
-            env.warning(trace, "Only variables can be passed by reference");
+    protected static boolean expectingReference(Environment env, TraceInfo trace, Memory memory, String funcName) {
+        if (!memory.isReference()) {
+            env.error(trace, (funcName == null ? "" : funcName + "() - ") + "Only variables can be passed by reference");
             return false;
         }
         return true;
     }
 
-    protected static boolean expecting(Environment env, TraceInfo trace, int index, Memory memory, Memory.Type type){
+    /**
+     * Use expectingReference(Environment env, TraceInfo trace, Memory memory, String funcName)
+     */
+    @Deprecated
+    protected static boolean expectingReference(Environment env, TraceInfo trace, Memory memory) {
+        return expectingReference(env, trace, memory, null);
+    }
+
+    protected static boolean expecting(Environment env, TraceInfo trace, int index, Memory memory, Memory.Type type) {
         if (memory.getRealType() != type) {
             env.warning(trace, "expects parameter " + index + " to be " + type.toString() +
                     ", " + memory.getRealType().toString() + " given");
@@ -33,7 +41,7 @@ abstract public class FunctionsContainer {
     }
 
     protected static boolean expectingImplement(Environment env, TraceInfo trace,
-                                                int index, Memory memory, Class<?> clazz){
+                                                int index, Memory memory, Class<?> clazz) {
         if (!memory.isObject() || !memory.toValue(ObjectMemory.class).getClass().isAssignableFrom(clazz)) {
             String given = memory.getRealType().toString();
             if (memory.isObject())
@@ -47,7 +55,7 @@ abstract public class FunctionsContainer {
         return true;
     }
 
-    protected static Invoker expectingCallback(Environment env, TraceInfo trace, int index, Memory memory){
+    protected static Invoker expectingCallback(Environment env, TraceInfo trace, int index, Memory memory) {
         Invoker invoker = Invoker.valueOf(env, null, memory);
         if (invoker == null) {
             env.warning(trace, "expects parameter " + index + " to be valid callback");
@@ -75,9 +83,9 @@ abstract public class FunctionsContainer {
     public Collection<CompileFunction> getFunctions() {
         Map<String, CompileFunction> result = new HashMap<String, CompileFunction>();
 
-        for(Method method : getClass().getDeclaredMethods()){
+        for (Method method : getClass().getDeclaredMethods()) {
             int mod = method.getModifiers();
-            if (Modifier.isStatic(mod) && Modifier.isPublic(mod)){
+            if (Modifier.isStatic(mod) && Modifier.isPublic(mod)) {
                 String name = method.getName();
                 Reflection.Name altName = method.getAnnotation(Reflection.Name.class);
                 if (altName != null)
@@ -91,10 +99,10 @@ abstract public class FunctionsContainer {
             }
         }
 
-        for(Map.Entry<String, Method> item : getNativeFunctions().entrySet()){
+        for (Map.Entry<String, Method> item : getNativeFunctions().entrySet()) {
             Method method = item.getValue();
             CompileFunction function = result.get(item.getKey());
-            if (function == null){
+            if (function == null) {
                 result.put(item.getKey(),
                         function = new CompileFunction(
                                 item.getKey()
