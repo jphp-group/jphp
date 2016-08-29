@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static php.runtime.annotation.Reflection.*;
@@ -389,6 +390,26 @@ abstract public class Stream extends BaseObject implements Resource {
         @Override
         public void write(int b) throws IOException {
             stream.write(env, new BinaryMemory((byte)b), Memory.NULL);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (b == null) {
+                throw new NullPointerException();
+            } else if ((off < 0) || (off > b.length) || (len < 0) ||
+                    ((off + len) > b.length) || ((off + len) < 0)) {
+                throw new IndexOutOfBoundsException();
+            } else if (len == 0) {
+                return;
+            }
+
+            if (off == 0 && len == b.length) {
+                stream.write(env, new BinaryMemory(b), Memory.NULL);
+            } else if (off == 0 && len != b.length) {
+                stream.write(env, new BinaryMemory(Arrays.copyOf(b, len)), Memory.NULL);
+            } else {
+                stream.write(env, new BinaryMemory(Arrays.copyOfRange(b, off, off + len)), Memory.NULL);
+            }
         }
 
         @Override
