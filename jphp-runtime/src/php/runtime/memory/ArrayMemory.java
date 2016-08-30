@@ -1227,6 +1227,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     setCurrentValue(list.get(cursor));
                     return true;
                 } else {
+                    init = true;
+
                     ArrayList<Object> tmp = new ArrayList<Object>(map.keySet());
                     keys = tmp.listIterator(tmp.size() - 1);
 
