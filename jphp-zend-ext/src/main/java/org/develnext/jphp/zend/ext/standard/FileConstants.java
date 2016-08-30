@@ -17,4 +17,8 @@ public class FileConstants extends ConstantsContainer {
     public final static int SEEK_END = 2;
     public final static int SEEK_CUR = 1;
     public final static int SEEK_SET = 0;
+
+    public final static int SCANDIR_SORT_ASCENDING = 0;
+    public final static int SCANDIR_SORT_DESCENDING = 1;
+    public final static int SCANDIR_SORT_NONE = 2;
 }

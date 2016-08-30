@@ -16,10 +16,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static org.develnext.jphp.zend.ext.standard.FileConstants.*;
 import static php.runtime.annotation.Runtime.Immutable;
@@ -794,5 +791,41 @@ public class FileFunctions extends FunctionsContainer {
             zendEnv.put(name, value);
         }
     }
-    //public static Memory glob()
+
+    public static Memory scandir(String path, int order) {
+        ArrayMemory r = new ArrayMemory();
+
+        String[] list = new File(path).list();
+
+        switch (order) {
+            case FileConstants.SCANDIR_SORT_DESCENDING:
+                Arrays.sort(list, Collections.reverseOrder());
+                for (String s : list) { r.add(s); }
+                r.add("..");
+                r.add(".");
+                break;
+
+            case FileConstants.SCANDIR_SORT_ASCENDING:
+                r.add(".");
+                r.add("..");
+                Arrays.sort(list);
+                for (String s : list) { r.add(s); }
+
+                break;
+
+            default:
+                r.add(".");
+                r.add("..");
+                for (String s : list) { r.add(s); }
+
+                break;
+        }
+
+
+        return r.toConstant();
+    }
+
+    public static Memory scandir(String path) {
+        return scandir(path, FileConstants.SCANDIR_SORT_ASCENDING);
+    }
 }

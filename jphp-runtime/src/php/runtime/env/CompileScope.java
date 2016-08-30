@@ -1,6 +1,7 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
+import php.runtime.Startup;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.CompilerFactory;
 import php.runtime.common.LangMode;
@@ -297,6 +298,8 @@ public class CompileScope {
     }
 
     public void registerExtension(Extension extension) {
+        long t = System.currentTimeMillis();
+
         if (extensions.containsKey(extension.getName()))
             return;
 
@@ -334,15 +337,20 @@ public class CompileScope {
         compileConstantMap.putAll(extension.getConstants());
         compileFunctionMap.putAll(extension.getFunctions());
 
-        for(Class<?> clazz : extension.getClasses().values()){
+        for(Class<?> clazz : extension.getClasses().values()) {
             registerLazyClass(extension, clazz);
         }
 
-        for(CompileFunction function : extension.getFunctions().values()){
+        for(CompileFunction function : extension.getFunctions().values()) {
             functionMap.put(function.name.toLowerCase(), new CompileFunctionEntity(extension, function));
         }
 
         extensions.put(extension.getName().toLowerCase(), extension);
+
+        if (Startup.isTracing()) {
+            t = System.currentTimeMillis() - t;
+            Startup.trace("Register extension '" + extension.getName() + "', " + t + "ms");
+        }
     }
 
     public Extension getExtension(String name){

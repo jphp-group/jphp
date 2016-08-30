@@ -1,22 +1,20 @@
 package php.runtime.launcher;
 
-import org.develnext.jphp.core.common.ObjectSizeCalculator;
 import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.Startup;
 import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
 import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
-import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
-import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
@@ -179,7 +177,7 @@ public class Launcher {
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
 
-                isDebug = Boolean.getBoolean("jphp.debug");
+                isDebug = Startup.isDebug();
 
                 compileScope.setDebugMode(isDebug);
 
@@ -238,7 +236,11 @@ public class Launcher {
             if (className == null)
                 className = ext.trim();
 
+
+            long t = System.currentTimeMillis();
+
             compileScope.registerExtension(className);
+
         }
 
         this.environment = getConfigValue("env.concurrent", "1").toBoolean()
@@ -273,9 +275,11 @@ public class Launcher {
             if (compileScope.getTickHandler() == null) {
                 throw new LaunchException("Cannot find a debugger, please add the jphp-debugger dependency");
             }
+        }
 
+        if (Startup.isShowInitDelay()) {
             long t = System.currentTimeMillis() - startTime;
-           // System.out.println("Starting delay = " + t + " millis");
+            Startup.trace("Startup time = " + t + "ms");
         }
 
         String file = config.getProperty("bootstrap.file", "JPHP-INF/.bootstrap.php");
