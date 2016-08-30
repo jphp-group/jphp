@@ -36,7 +36,7 @@ Our project started in October 2013. There were a few reasons for that:
 + GUI (Swing or JavaFX)
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions
-+ Ability to use on **Android** OS
++ -Ability to use on **Android** OS- (not yet)
 
 **What JPHP supports from PHP 7?**
 + Context Sensitive Lexer.
