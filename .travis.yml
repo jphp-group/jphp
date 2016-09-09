@@ -19,3 +19,8 @@ before_install:
  - chmod +x gradlew
 
 script: ./gradlew check --stacktrace -Dfile.encoding=UTF-8
+
+addons:
+  hosts:
+    - myshorthost
+  hostname: myshorthost
