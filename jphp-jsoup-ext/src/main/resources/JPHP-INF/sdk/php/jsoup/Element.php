@@ -19,6 +19,14 @@ abstract class Element
     /**
      * @return string
      */
+    function outerHtml()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
     function text()
     {
         return '';

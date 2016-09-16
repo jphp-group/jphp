@@ -46,6 +46,11 @@ public class WrapElement extends BaseWrapper<Element> implements ICloneableObjec
         getWrappedObject().attr(name, value);
     }
 
+    @Signature
+    public String outerHtml() {
+        return getWrappedObject().outerHtml();
+    }
+
     interface WrappedInterface {
         String nodeName();
 
