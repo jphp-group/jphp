@@ -2,6 +2,7 @@ package php.runtime.ext;
 
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.net.WrapNetAddress;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.net.WrapNetStream;
 import php.runtime.ext.net.WrapProxy;
@@ -9,10 +10,7 @@ import php.runtime.ext.net.WrapURL;
 import php.runtime.ext.net.WrapURLConnection;
 import php.runtime.ext.support.Extension;
 
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 
 public class NetExtension extends Extension {
     public final static String NAMESPACE = "php\\net\\";
@@ -34,6 +32,7 @@ public class NetExtension extends Extension {
         registerWrapperClass(scope, Proxy.class, WrapProxy.class);
         registerWrapperClass(scope, URLConnection.class, WrapURLConnection.class);
         registerWrapperClass(scope, URL.class, WrapURL.class);
+        registerWrapperClass(scope, InetAddress.class, WrapNetAddress.class);
     }
 
     @Override

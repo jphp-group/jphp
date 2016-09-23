@@ -9,6 +9,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;

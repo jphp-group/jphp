@@ -1522,6 +1522,32 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return r;
     }
 
+    public static ArrayMemory ofPair(String key, Memory value) {
+        ArrayMemory r = new ArrayMemory();
+        r.refOfIndex(key).assign(value.toImmutable());
+        return r;
+    }
+
+    public static ArrayMemory ofPair(String key, String value) {
+        return ofPair(key, StringMemory.valueOf(value));
+    }
+
+    public static ArrayMemory ofPair(String key, long value) {
+        return ofPair(key, LongMemory.valueOf(value));
+    }
+
+    public static ArrayMemory ofPair(String key, double value) {
+        return ofPair(key, DoubleMemory.valueOf(value));
+    }
+
+    public static ArrayMemory ofPair(String key, boolean value) {
+        return ofPair(key, TrueMemory.valueOf(value));
+    }
+
+    public static ArrayMemory ofPair(String key, IObject value) {
+        return ofPair(key, ObjectMemory.valueOf(value));
+    }
+
     public static ArrayMemory ofShorts(short... array) {
         ArrayMemory result = new ArrayMemory();
 
@@ -1533,6 +1559,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public static ArrayMemory ofIntegers(int... array) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (array != null) {
+            for (int el : array) result.add(el);
+        }
+
+        return  result;
+    }
+
+    public static ArrayMemory ofBytes(byte... array) {
         ArrayMemory result = new ArrayMemory();
 
         if (array != null) {

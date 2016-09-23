@@ -2,7 +2,6 @@ package org.develnext.jphp.zend.ext.standard;
 
 import org.develnext.jphp.zend.ext.support.NaturalOrderComparator;
 import php.runtime.Memory;
-import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.Immutable;
 import php.runtime.annotation.Runtime.Reference;
 import php.runtime.common.DigestUtils;
@@ -21,9 +20,9 @@ import php.runtime.util.SScanF;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -32,9 +31,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * TODO:
@@ -2968,6 +2968,70 @@ public class StringFunctions extends FunctionsContainer {
     public static int strnatcasecmp(String one, String two) {
         return new NaturalOrderComparator(true, false).compare(one, two);
     }
+
+    static class MyGZIPOutputStream
+            extends GZIPOutputStream {
+
+        public MyGZIPOutputStream( OutputStream out ) throws IOException {
+            super( out );
+        }
+
+        public void setLevel( int level ) {
+            def.setLevel(level);
+        }
+    }
+
+    /*protected static byte[] gzencodeImpl(String str, int level) throws IOException
+    {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream())
+        {
+            try (MyGZIPOutputStream gzip = new MyGZIPOutputStream(out))
+            {
+                gzip.setLevel(level);
+                gzip.write(str.getBytes(StandardCharsets.UTF_8));
+            }
+            return out.toByteArray();
+            //return out.toString(StandardCharsets.ISO_8859_1);
+            // Some single byte encoding
+        }
+    }
+
+    public static String gzdecodeImpl(byte[] str) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str)))
+        {
+            int b;
+            while ((b = gis.read()) != -1) {
+                baos.write((byte) b);
+            }
+        }
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public static Memory gzencode(String value) throws IOException {
+        return gzencode(value, -1);
+    }
+
+    public static Memory gzencode(String value, int level) {
+        if (level == -1) {
+            level = 6;
+        }
+
+        try {
+            return new BinaryMemory(gzencodeImpl(value, level));
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory gzdecode(Environment env, Memory value) {
+        try {
+            return StringMemory.valueOf(gzdecodeImpl(value.getBinaryBytes(env.getDefaultCharset())));
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
+    }*/
 
     static {
         DEFAULT_DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols();
