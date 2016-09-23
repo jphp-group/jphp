@@ -516,7 +516,13 @@ public class ObjectMemory extends Memory {
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
         ArrayMemory props = value.getProperties();
-        ForeachIterator iterator = props.foreachIterator(false, false);
+
+        ForeachIterator iterator = props == null ? null : props.foreachIterator(false, false);
+
+        if (iterator == null) {
+            return new ArrayMemory().toConstant();
+        }
+
         ClassEntity reflection = value.getReflection();
 
         while (iterator.next()){
