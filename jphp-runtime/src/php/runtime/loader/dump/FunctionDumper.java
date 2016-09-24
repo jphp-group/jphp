@@ -91,12 +91,7 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
             entity.getParameters()[i] = param;
         }
 
-        int dataLength = data.readInt();
-        byte[] code = new byte[dataLength];
-        if (data.read(code) != dataLength)
-            throw new DumpException("Cannot read byte-code");
-
-        entity.setData(code);
+        entity.setData(data.readRawData(Integer.MAX_VALUE));
         data.readRawData();
 
         return entity;
