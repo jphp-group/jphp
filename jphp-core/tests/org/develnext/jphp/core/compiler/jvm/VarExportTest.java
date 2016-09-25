@@ -24,4 +24,9 @@ public class VarExportTest extends JvmCompilerCase {
     public void testArrays(){
         check("var_export/arrays.php");
     }
+
+    @Test
+    public void testClosure(){
+        check("var_export/closure.php");
+    }
 }

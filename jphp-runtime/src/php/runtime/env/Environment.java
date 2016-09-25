@@ -1189,6 +1189,28 @@ public class Environment {
         Memory constant = findConstant(name, lowerName);
 
         if (constant == null){
+            int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
+
+            if (p > -1) // for global scope
+            {
+                name = name.substring(p + 1);
+                lowerName = lowerName.substring(p + 1);
+                constant = findConstant(name, lowerName);
+            }
+        }
+
+        if (constant == null) {
+            error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
+            return StringMemory.valueOf(name);
+        }
+
+        return constant;
+    }
+
+    /*public Memory __getConstant(String name, String lowerName, TraceInfo trace){
+        Memory constant = findConstant(name, lowerName);
+
+        if (constant == null){
             error(trace, E_NOTICE, Messages.ERR_USE_UNDEFINED_CONSTANT, name, name);
             int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
 
@@ -1199,7 +1221,7 @@ public class Environment {
         }
 
         return constant;
-    }
+    }*/
 
     private Memory __import(String path, ArrayMemory locals, TraceInfo trace, String funcName, boolean once, Callback<Void, Void> callback)
             throws Throwable {

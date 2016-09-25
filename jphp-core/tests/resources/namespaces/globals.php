@@ -34,7 +34,7 @@ function_success
 function_success
 Foo\FOOBAR_success
 const_success
-Notice: Use of undefined constant Foo\FOOBAR2 - assumed 'Foo\FOOBAR2' in %s on line %d at pos %d
-FOOBAR2const2_success
-Notice: Use of undefined constant Foo\bar\FOOBAR - assumed 'Foo\bar\FOOBAR' in %s on line %d at pos %d
-FOOBARbar\FOOBAR_success
+const2_success
+const2_success
+const_success
+bar\FOOBAR_success
