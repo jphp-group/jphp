@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
 @Ignore
 @BaseType
 abstract public class BaseObject implements IObject {
-    protected final ArrayMemory __dynamicProperties__;
+    protected ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
     protected final WeakReference<Environment> __env__;
 
@@ -48,6 +48,16 @@ abstract public class BaseObject implements IObject {
 
     @Override
     public ArrayMemory getProperties() {
+        if (__dynamicProperties__ == null) {
+            synchronized (this) {
+                if (__dynamicProperties__ != null) return __dynamicProperties__;
+
+                if (__dynamicProperties__ == null) {
+                    __dynamicProperties__ = new ArrayMemory(true);
+                }
+            }
+        }
+
         return __dynamicProperties__;
     }
 

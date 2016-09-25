@@ -7,6 +7,7 @@ import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.support.IStaticVariables;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
