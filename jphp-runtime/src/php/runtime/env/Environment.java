@@ -89,7 +89,6 @@ public class Environment {
     // vars
     protected final ArrayMemory globals;
     protected final Map<String, ReferenceMemory> statics;
-    protected final Map<String, ConstantEntity> constants;
     protected final Map<String, Object> userValues = new HashMap<String, Object>();
 
     // classes, funcs, consts
@@ -237,8 +236,6 @@ public class Environment {
 
         this.globals.put("GLOBALS", this.globals);
         this.globals.put("_ENV", ObjectMemory.valueOf(new WrapEnvironmentVariables(this)));
-
-        this.constants = new HashMap<String, ConstantEntity>();
 
         //classMap.putAll(scope.getClassMap());
         functionMap.putAll(scope.getFunctionMap());
@@ -586,6 +583,10 @@ public class Environment {
             classMap.put(entity.getLowerName(), entity);
             entity.initEnvironment(this);
         }
+    }
+
+    public Map<String, ConstantEntity> getConstants() {
+        return constantMap;
     }
 
     public Memory findConstant(String name, String nameLower){

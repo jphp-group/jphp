@@ -84,6 +84,11 @@ public class InfoFunctions extends FunctionsContainer {
                 item.put(constant.getName(), constant.getValue());
         }
 
+        for(ConstantEntity constant : env.getConstants().values()){
+            if (!exists.contains(constant.getName()))
+                item.put(constant.getName(), constant.getValue());
+        }
+
         return result;
     }
 
