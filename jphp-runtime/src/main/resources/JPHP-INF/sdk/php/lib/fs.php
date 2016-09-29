@@ -317,6 +317,30 @@ class fs
     }
 
     /**
+     * Renames or moves a file or empty dir.
+     * --RU--
+     * Переименновывает или перемещает файл, либо пустую папку.
+     *
+     * @param string $fromPath
+     * @param string $toPath
+     */
+    static function move($fromPath, $toPath)
+    {
+    }
+
+    /**
+     * Set name for file, returns true if success.
+     * --RU--
+     * Задает файлу новое название, возвращает true при успехе.
+     *
+     * @param string $pathToFile
+     * @param string $newName
+     */
+    static function rename($pathToFile, $newName)
+    {
+    }
+
+    /**
      * Reads fully data from source and returns it as binary string.
      * --RU--
      * Возвращает данные полученные из потока или файла в виде бинарной строки.

@@ -447,6 +447,17 @@ public class FsUtils extends BaseObject {
         return result.toConstant();
     }
 
+    @Signature
+    public static boolean rename(String path, String newName) {
+        String parent = parent(path);
+        return new File(path).renameTo(new File((parent != null ? parent + File.separator : "") + newName));
+    }
+
+    @Signature
+    public static boolean move(String path, String newPath) {
+        return new File(path).renameTo(new File(newPath));
+    }
+
     public abstract static class ScanProgressHandler {
         protected final boolean subIsFirst;
 
