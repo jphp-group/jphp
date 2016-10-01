@@ -18,9 +18,13 @@ class Regex implements \Iterator {
     const UNIX_LINES = 0x01;
 
     /**
-     * Use ``of()`` instead of this
+     * Regex of $pattern and $flag
+     *
+     * @param string $pattern regular expression
+     * @param int|string $flag Regex::CASE_INSENSITIVE and other constants, or string "i m s etc."
+     * @param string $string
      */
-    private function __construct() { }
+    public function __construct($pattern, $flag = 0, $string = "") { }
 
     /**
      * Get the current pattern
@@ -39,11 +43,21 @@ class Regex implements \Iterator {
      *
      * @param string $pattern regular expression
      * @param int|string $flag Regex::CASE_INSENSITIVE and other constants, or string "i m s etc."
+     * @param string $string
      * @return Regex
-     * @throws RegexException
      */
-    public static function of($pattern, $flag = 0) { return new Regex(); }
+    public static function of($pattern, $flag = 0, $string = "") { }
 
+
+    /**
+     * Executes a search for a match between a regular expression and a specified string. Returns true or false.
+     *
+     * @param string $string
+     * @return bool
+     */
+    public function test($string)
+    {
+    }
 
     /**
      * Attempts to match the entire region against the pattern.
@@ -51,6 +65,47 @@ class Regex implements \Iterator {
      * @return bool
      */
     public function matches() { return false; }
+
+    /**
+     * Returns array of all found groups.
+     *
+     * @param int $start
+     * @return array
+     */
+    public function all($start = null)
+    {
+    }
+
+    /**
+     * Calls find() + groups() methods and returns the result of the groups() method.
+     * Returns the first found groups, if founds nothing returns null.
+     *
+     * @param int $start
+     * @return array|null
+     */
+    public function one($start = null)
+    {
+    }
+
+    /**
+     * Alias of one() method.
+     *
+     * @param int $start
+     * @return array
+     */
+    public function first($start = null)
+    {
+    }
+
+    /**
+     * Finds the last match and returns last groups.
+     *
+     * @param int $start
+     * @return array
+     */
+    public function last($start = null)
+    {
+    }
 
     /**
      * Resets this matcher and then attempts to find the next subsequence of
@@ -120,6 +175,13 @@ class Regex implements \Iterator {
     public function withFlags($flags) { return new Regex(); }
 
     /**
+     * Returns an array of all group.
+     *
+     * @return array
+     */
+    public function groups() { return []; }
+
+    /**
      * Returns the input subsequence captured by the given group during the
      * previous match operation.
      *
@@ -128,6 +190,13 @@ class Regex implements \Iterator {
      * @throws RegexException
      */
     public function group($group = null) { return ''; }
+
+    /**
+     * Returns group names.
+     *
+     * @return array
+     */
+    public function groupNames() { }
 
     /**
      * Returns the number of capturing groups in this matcher's pattern.

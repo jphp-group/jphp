@@ -9,12 +9,12 @@ import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.iterator.Iterator;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,8 +49,16 @@ final public class WrapRegex extends BaseObject implements Iterator {
         super(env, clazz);
     }
 
-    @Signature
-    private Memory __construct(Environment env, Memory... args) {
+    @Signature({
+            @Arg("pattern"),
+            @Arg(value = "flags", optional = @Reflection.Optional("0")),
+            @Arg(value = "string", optional = @Reflection.Optional(""))
+    })
+    public Memory __construct(Environment env, Memory... args) {
+        int flags = convertFlags(args[1]);
+        Pattern pattern = Pattern.compile(args[0].toString(), flags);
+        matcher = pattern.matcher(args[2].toString());
+
         return Memory.NULL;
     }
 
@@ -88,6 +96,13 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Signature
     public Memory matches(Environment env, Memory... args) {
         return matcher.matches() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @FastMethod
+    @Signature(@Arg("string"))
+    public Memory test(Environment env, Memory... args) {
+        Matcher matcher1 = matcher.pattern().matcher(args[0].toString());
+        return TrueMemory.valueOf(matcher1.matches());
     }
 
     @Signature(@Arg(value = "string", optional = @Reflection.Optional("null")))
@@ -162,6 +177,72 @@ final public class WrapRegex extends BaseObject implements Iterator {
         return LongMemory.valueOf(matcher.regionEnd());
     }
 
+    @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
+    public Memory all(Environment env, Memory... args) {
+        int start = args[0].toInteger();
+
+        int count = 0;
+
+        ArrayMemory r = new ArrayMemory();
+
+        while ((count == 0 ? matcher.find(start) : matcher.find())) {
+            count++;
+
+            r.add(groups(env));
+        }
+
+        return r.toConstant();
+    }
+
+    @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
+    public Memory last(Environment env, Memory... args) {
+        int count = 0, index = args[0].toInteger();
+
+        while ((count == 0 ? matcher.find(index) : matcher.find())) {
+            index = matcher.start();
+
+            count++;
+        }
+
+        if (count > 0) {
+            matcher.find(index);
+            return groups(env);
+        } else {
+            return Memory.NULL;
+        }
+    }
+
+    @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
+    public Memory first(Environment env, Memory... args) {
+        return one(env, args);
+    }
+
+    @Signature(@Arg(value = "start", optional = @Reflection.Optional("null")))
+    public Memory one(Environment env, Memory... args) {
+        int start = args[0].toInteger();
+
+        if (matcher.find(start)) {
+            return groups(env);
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature
+    public Memory groups(Environment env, Memory... args) {
+        int count = matcher.groupCount();
+
+        ArrayMemory r = new ArrayMemory();
+
+        r.add(matcher.group());
+
+        for (int i = 0; i < count; i++) {
+            r.add(matcher.group(i + 1));
+        }
+
+        return r.toConstant();
+    }
+
     @Signature(@Arg(value = "group", optional = @Reflection.Optional("null")))
     public Memory group(Environment env, Memory... args) {
         Memory group = args[0];
@@ -179,6 +260,32 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
             return StringMemory.valueOf(matcher.group(group.toInteger()));
         }
+    }
+
+    @Signature
+    public Memory groupNames() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Map<String, Integer> namedGroups = getNamedGroups(matcher.pattern());
+
+        ArrayMemory r = new ArrayMemory();
+
+        for (String s : namedGroups.keySet()) {
+            r.put(s, StringMemory.valueOf(s));
+        }
+
+        return r.toConstant();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Integer> getNamedGroups(Pattern regex)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+
+        Method namedGroupsMethod = Pattern.class.getDeclaredMethod("namedGroups");
+        namedGroupsMethod.setAccessible(true);
+
+        Map<String, Integer> namedGroups = null;
+        return (Map<String, Integer>) namedGroupsMethod.invoke(regex);
     }
 
     @Signature(@Arg("replacement"))
@@ -237,12 +344,13 @@ final public class WrapRegex extends BaseObject implements Iterator {
 
     @Signature({
             @Arg("pattern"),
-            @Arg(value = "flags", optional = @Reflection.Optional("0"))
+            @Arg(value = "flags", optional = @Reflection.Optional("0")),
+            @Arg(value = "string", optional = @Reflection.Optional(""))
     })
     public static Memory of(Environment env, Memory... args) {
         int flags = convertFlags(args[1]);
         Pattern pattern = Pattern.compile(args[0].toString(), flags);
-        Matcher matcher = pattern.matcher("");
+        Matcher matcher = pattern.matcher(args[2].toString());
 
         return ObjectMemory.valueOf(new WrapRegex(env, matcher, ""));
     }
