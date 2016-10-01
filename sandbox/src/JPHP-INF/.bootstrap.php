@@ -1,19 +1,1 @@
-<?php
-
-
-class B {
-    function doButtonAction($a)
-    {
-        //$a = ['a', 'b', 'c'];
-        $this->method($a);
-        var_dump($a); // NULL ???
-    }
-
-    public function method()
-    {
-        echo "foobar\n";
-    }
-}
-
-$b = new B();
-$b->doButtonAction(['a', 'b', 'c']);
+<?use php\util\Regex;$regex = new Regex('(?<name>[a-z]+)(?<id>[0-9]+)', 'i', 'Abcd123 dJAlkja453 dkd567');print_r($regex->groupNames());

@@ -27,10 +27,18 @@ class Regex implements \Iterator {
     public function __construct($pattern, $flag = 0, $string = "") { }
 
     /**
-     * Get the current pattern
+     * Get the current pattern.
+     *
      * @return string
      */
     public function getPattern() { return ''; }
+
+    /**
+     * Get the input string.
+     *
+     * @return string
+     */
+    public function getInput() {}
 
     /**
      * Get the current flags

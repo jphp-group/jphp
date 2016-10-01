@@ -57,7 +57,7 @@ final public class WrapRegex extends BaseObject implements Iterator {
     public Memory __construct(Environment env, Memory... args) {
         int flags = convertFlags(args[1]);
         Pattern pattern = Pattern.compile(args[0].toString(), flags);
-        matcher = pattern.matcher(args[2].toString());
+        matcher = pattern.matcher(input = args[2].toString());
 
         return Memory.NULL;
     }
@@ -335,6 +335,11 @@ final public class WrapRegex extends BaseObject implements Iterator {
     @Signature
     public Memory getPattern(Environment env, Memory... args) {
         return StringMemory.valueOf(matcher.pattern().pattern());
+    }
+
+    @Signature
+    public Memory getInput(Environment env, Memory... args) {
+        return StringMemory.valueOf(getInput());
     }
 
     @Signature
