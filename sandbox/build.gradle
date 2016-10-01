@@ -25,7 +25,7 @@ dependencies {
 }
 
 run {
-    jvmArgs = ["-Dfile.encoding=UTF-8"]
+    jvmArgs = ["-Dfile.encoding=UTF-8", "-Djphp.trace=true"]  
 }
 
 /*task debug(dependsOn: run.dependsOn) {
