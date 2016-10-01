@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import php.runtime.Startup;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
 
@@ -12,16 +13,19 @@ public class StandardExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+
         registerConstants(new LangConstants());
-        registerFunctions(new LangFunctions());
-
         registerConstants(new StringConstants());
-        registerFunctions(new StringFunctions());
-
         registerConstants(new ArrayConstants());
-        registerFunctions(new ArrayFunctions());
-
         registerConstants(new FileConstants());
+
+        long time = System.currentTimeMillis();
+
+        registerFunctions(new LangFunctions());
+        registerFunctions(new StringFunctions());
+        registerFunctions(new ArrayFunctions());
         registerFunctions(new FileFunctions());
+
+        Startup.traceWithTime("!!!", time);
     }
 }

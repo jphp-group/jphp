@@ -7,17 +7,19 @@ import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
+import php.runtime.ext.support.compile.CompileFunctionSpec;
 import php.runtime.memory.support.MemoryUtils;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class CompileFunctionEntity extends FunctionEntity {
-    private final CompileFunction compileFunction;
+    private final CompileFunctionSpec compileFunctionSpec;
+    private CompileFunction compileFunction;
 
-    public CompileFunctionEntity(Extension extension, CompileFunction compileFunction) {
+    public CompileFunctionEntity(Extension extension, CompileFunctionSpec compileFunction) {
         super(null);
-        this.compileFunction = compileFunction;
-        this.setName(compileFunction.name);
+        this.compileFunctionSpec = compileFunction;
+        this.setName(compileFunction.getName());
         this.setExtension(extension);
     }
 
@@ -27,12 +29,24 @@ public class CompileFunctionEntity extends FunctionEntity {
     }
 
     public CompileFunction getCompileFunction() {
+        if (compileFunction != null) {
+            return compileFunction;
+        }
+
+        synchronized (compileFunctionSpec) {
+            if (compileFunction != null) {
+                return compileFunction;
+            }
+
+            compileFunction = compileFunctionSpec.toFunction();
+        }
+
         return compileFunction;
     }
 
     @Override
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
-        CompileFunction.Method method = compileFunction.find(arguments.length);
+        CompileFunction.Method method = getCompileFunction().find(arguments.length);
         if (method == null){
             env.warning(trace, Messages.ERR_EXPECT_LEAST_PARAMS.fetch(
                     name, compileFunction.getMinArgs(), arguments.length

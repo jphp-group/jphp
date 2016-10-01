@@ -1,6 +1,7 @@
 package php.runtime.ext.core;
 
 
+import php.runtime.Startup;
 import php.runtime.common.StringUtils;
 import php.runtime.ext.support.compile.ConstantsContainer;
 

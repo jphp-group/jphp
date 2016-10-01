@@ -22,4 +22,11 @@ public class Startup {
             System.out.println("[TRACE] " + message);
         }
     }
+
+    public static void traceWithTime(String message, long startTime) {
+        if (isTracing()) {
+            startTime = System.currentTimeMillis() - startTime;
+            System.out.println("[TRACE] " + message + ", " + startTime +"ms");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package php.runtime.ext;
 
+import php.runtime.Startup;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
@@ -43,8 +44,9 @@ public class CoreExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerConstants(new LangConstants());
+
         registerFunctions(new LangFunctions());
+        registerConstants(new LangConstants());
 
         registerConstants(new InfoConstants());
         registerFunctions(new InfoFunctions());

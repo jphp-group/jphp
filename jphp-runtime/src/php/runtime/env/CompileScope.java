@@ -19,6 +19,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
+import php.runtime.ext.support.compile.CompileFunctionSpec;
 import php.runtime.lang.*;
 import php.runtime.lang.exception.*;
 import php.runtime.lang.spl.ArrayAccess;
@@ -64,6 +65,7 @@ public class CompileScope {
     protected Map<String, CompileConstant> compileConstantMap;
     protected Map<String, CompileFunction> compileFunctionMap;
     protected Map<String, CompileClass> compileClassMap;
+    protected Map<String, CompileFunctionSpec> compileFunctionSpecMap;
 
     protected CompilerFactory compilerFactory;
 
@@ -98,6 +100,7 @@ public class CompileScope {
 
         compileConstantMap = new HashMap<>();
         compileFunctionMap = new HashMap<>();
+        compileFunctionSpecMap = new HashMap<>();
         compileClassMap    = new HashMap<>();
 
         superGlobals = new HashSet<>();
@@ -108,6 +111,7 @@ public class CompileScope {
 
         functionMap.putAll(parent.functionMap);
         compileFunctionMap.putAll(parent.compileFunctionMap);
+        compileFunctionSpecMap.putAll(parent.compileFunctionSpecMap);
 
         constantMap.putAll(parent.constantMap);
         compileConstantMap.putAll(parent.compileConstantMap);
@@ -151,6 +155,7 @@ public class CompileScope {
         extensions = new LinkedHashMap<>();
         compileConstantMap = new HashMap<>();
         compileFunctionMap = new HashMap<>();
+        compileFunctionSpecMap = new HashMap<>();
         compileClassMap    = new HashMap<>();
         exceptionMap = new HashMap<>();
         exceptionMapForContext = new HashMap<>();
@@ -334,22 +339,23 @@ public class CompileScope {
         }
 
         extension.onRegister(this);
+
         compileConstantMap.putAll(extension.getConstants());
-        compileFunctionMap.putAll(extension.getFunctions());
+        compileFunctionSpecMap.putAll(extension.getFunctions());
+
 
         for(Class<?> clazz : extension.getClasses().values()) {
             registerLazyClass(extension, clazz);
         }
 
-        for(CompileFunction function : extension.getFunctions().values()) {
-            functionMap.put(function.name.toLowerCase(), new CompileFunctionEntity(extension, function));
+        for(CompileFunctionSpec function : extension.getFunctions().values()) {
+            functionMap.put(function.getLowerName(), new CompileFunctionEntity(extension, function));
         }
 
         extensions.put(extension.getName().toLowerCase(), extension);
 
         if (Startup.isTracing()) {
-            t = System.currentTimeMillis() - t;
-            Startup.trace("Register extension '" + extension.getName() + "', " + t + "ms");
+            Startup.traceWithTime("Register extension '" + extension.getName() + "'", t);
         }
     }
 
@@ -507,8 +513,26 @@ public class CompileScope {
         return compileConstantMap.get(name);
     }
 
-    public CompileFunction findCompileFunction(String name){
-        return compileFunctionMap.get(name.toLowerCase());
+    public CompileFunction findCompileFunction(String name) {
+        name = name.toLowerCase();
+
+        CompileFunction function = compileFunctionMap.get(name);
+
+        if (function != null) {
+            return function;
+        }
+
+        synchronized (this) {
+            CompileFunctionSpec functionSpec = compileFunctionSpecMap.get(name);
+
+            if (functionSpec == null) {
+                return null;
+            }
+
+            compileFunctionMap.put(name, function = functionSpec.toFunction());
+        }
+
+        return function;
     }
 
     public CompileClass findCompileClass(String name) {

@@ -1,16 +1,14 @@
 package php.runtime.ext.support;
 
 import php.runtime.Information;
+import php.runtime.Startup;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.java.JavaException;
-import php.runtime.ext.support.compile.CompileConstant;
-import php.runtime.ext.support.compile.CompileFunction;
-import php.runtime.ext.support.compile.ConstantsContainer;
-import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.ext.support.compile.*;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
@@ -25,9 +23,9 @@ abstract public class Extension {
         Extension getExtension();
     }
 
-    protected final Map<String, CompileConstant> constants = new LinkedHashMap<String, CompileConstant>();
-    protected final Map<String, CompileFunction> functions = new LinkedHashMap<String, CompileFunction>();
-    protected final Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
+    protected final Map<String, CompileConstant> constants = new LinkedHashMap<>();
+    protected final Map<String, CompileFunctionSpec> functions = new LinkedHashMap<>();
+    protected final Map<String, Class<?>> classes = new LinkedHashMap<>();
 
     public String getName() {
         return getClass().getName();
@@ -55,7 +53,7 @@ abstract public class Extension {
     }
 
     public Map<String, String> getINIEntries(){
-        return new HashedMap<String, String>();
+        return new HashedMap<>();
     }
 
     abstract public void onRegister(CompileScope scope);
@@ -68,7 +66,7 @@ abstract public class Extension {
         return constants;
     }
 
-    public Map<String, CompileFunction> getFunctions() {
+    public Map<String, CompileFunctionSpec> getFunctions() {
         return functions;
     }
 
@@ -127,8 +125,8 @@ abstract public class Extension {
     }
 
     public void registerFunctions(FunctionsContainer container){
-        for(CompileFunction function : container.getFunctions()){
-            functions.put(function.name.toLowerCase(), function);
+        for(CompileFunctionSpec function : container.getFunctionSpecs()){
+            functions.put(function.getLowerName(), function);
         }
     }
 }

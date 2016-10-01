@@ -80,6 +80,37 @@ abstract public class FunctionsContainer {
         }
     }
 
+    public Collection<CompileFunctionSpec> getFunctionSpecs() {
+        Map<String, CompileFunctionSpec> result = new HashMap<String, CompileFunctionSpec>();
+
+        for (Method method : getClass().getMethods()) {
+            int mod = method.getModifiers();
+            if (Modifier.isStatic(mod)) {
+                String name = method.getName();
+                Reflection.Name altName = method.getAnnotation(Reflection.Name.class);
+                if (altName != null)
+                    name = altName.value();
+
+                CompileFunctionSpec function = result.get(name);
+                if (function == null)
+                    result.put(name, function = new CompileFunctionSpec(name));
+
+                function.addMethod(method);
+            }
+        }
+
+        for (Map.Entry<String, Method> item : getNativeFunctions().entrySet()) {
+            Method method = item.getValue();
+            CompileFunctionSpec function = new CompileFunctionSpec(item.getKey(), true);
+
+            result.put(item.getKey(), function);
+
+            function.addMethod(method);
+        }
+
+        return result.values();
+    }
+
     public Collection<CompileFunction> getFunctions() {
         Map<String, CompileFunction> result = new HashMap<String, CompileFunction>();
 
