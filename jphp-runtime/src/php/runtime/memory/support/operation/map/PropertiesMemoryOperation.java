@@ -21,6 +21,10 @@ public class PropertiesMemoryOperation extends MemoryOperation<Properties> {
 
     @Override
     public Properties convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+        if (arg == Memory.NULL) {
+            return null;
+        }
+
         Properties properties = new Properties();
 
         ForeachIterator iterator = arg.getNewIterator(env);
@@ -38,6 +42,10 @@ public class PropertiesMemoryOperation extends MemoryOperation<Properties> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Properties arg) throws Throwable {
+        if (arg == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory result = new ArrayMemory(true);
 
         for (Map.Entry<Object, Object> entry : arg.entrySet()) {
@@ -47,7 +55,7 @@ public class PropertiesMemoryOperation extends MemoryOperation<Properties> {
             );
         }
 
-        return null;
+        return result.toConstant();
     }
 
     @Override

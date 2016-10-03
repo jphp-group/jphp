@@ -211,6 +211,7 @@ final public class InvokeHelper {
 
         MethodEntity method = classEntity == null ? null : classEntity.findMethod(methodName);
         Memory[] passed = null;
+        boolean isMagic = false;
 
         if (method == null){
             IObject maybeObject = env.getLateObject();
@@ -221,6 +222,7 @@ final public class InvokeHelper {
 
             if (classEntity != null && classEntity.methodMagicCallStatic != null){
                 method = classEntity.methodMagicCallStatic;
+                isMagic = true;
                 passed = new Memory[]{
                         new StringMemory(originMethodName),
                         ArrayMemory.of(args)
@@ -251,7 +253,7 @@ final public class InvokeHelper {
             );
         }
 
-        if (callCache != null) {
+        if (callCache != null && !isMagic) {
             callCache.put(env, cacheIndex, method);
         }
 
@@ -267,7 +269,7 @@ final public class InvokeHelper {
             if (trace != null)
                 env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
 
-            return method.invokeStatic(env, passed);
+            return method.invokeStatic(env, trace, passed);
         } finally {
             if (trace != null)
                 env.popCall();

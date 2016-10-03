@@ -27,13 +27,11 @@ public class CompilePropertyEntity extends PropertyEntity {
             throw new CriticalException("Unsupported bind private fields: " + field.toGenericString());
         }
 
-
         this.operation = MemoryOperation.get(field.getType(), field.getGenericType());
 
         if (this.operation == null) {
             throw new CriticalException("Unsupported type for field " + field.toGenericString());
         }
-
 
         setStatic(Modifier.isStatic(field.getModifiers()));
     }
@@ -46,6 +44,15 @@ public class CompilePropertyEntity extends PropertyEntity {
             throw new CriticalException(e);
         }
         return value;
+    }
+
+    @Override
+    public Memory getStaticValue(Environment env, TraceInfo trace) {
+        try {
+            return operation.unconvertNoThow(env, trace, field.get(null));
+        } catch (IllegalAccessException e) {
+            throw new CriticalException(e);
+        }
     }
 
     @Override

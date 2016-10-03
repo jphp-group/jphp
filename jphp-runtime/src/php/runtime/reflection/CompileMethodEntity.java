@@ -2,6 +2,8 @@ package php.runtime.reflection;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.common.Callback;
+import php.runtime.common.CallbackW;
 import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -18,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 public class CompileMethodEntity extends MethodEntity {
@@ -36,13 +39,18 @@ public class CompileMethodEntity extends MethodEntity {
         function.name = name + "()";
     }
 
-    public void addMethod(Method method, boolean skipConflicts) {
+    public boolean addMethod(Method method, boolean skipConflicts) {
+        return addMethod(method, skipConflicts, null);
+    }
+
+    public boolean addMethod(Method method, boolean skipConflicts, CallbackW<MemoryOperation, Class<?>, Type> unknownTypeFetcher) {
         if (skipConflicts && function.find(method.getParameterTypes().length) != null) {
-            return;
+            return false;
         }
 
         method.setAccessible(true);
         CompileMethod.Method compileMethod = function.addMethod(method);
+        compileMethod.setUnknownTypeFetcher(unknownTypeFetcher);
 
         int mods = method.getModifiers();
 
@@ -74,6 +82,7 @@ public class CompileMethodEntity extends MethodEntity {
 
             ParameterEntity param = new ParameterEntity(context);
             param.setName("arg" + i);
+            param.setTrace(TraceInfo.UNKNOWN);
 
             Annotation[] argAnnotations = annotations[i];
 
@@ -97,18 +106,18 @@ public class CompileMethodEntity extends MethodEntity {
         } catch (CriticalException e) {
             if (skipConflicts) {
                 function.delete(parameters.length);
-                return;
+                return false;
             }
 
             throw e;
         }
+
+        return true;
     }
 
     @Override
     public void unsetArguments(Memory[] arguments) {
         super.unsetArguments(arguments);
-
-
     }
 
     @Override
@@ -271,9 +280,10 @@ public class CompileMethodEntity extends MethodEntity {
             return new Method(method, count, asImmutable);
         }
 
-        public static class Method extends CompileFunction.Method {
+        public class Method extends CompileFunction.Method {
             protected MemoryOperation[] argumentOperations;
             protected MemoryOperation returnOperation;
+            protected CallbackW<MemoryOperation, Class<?>, Type> unknownTypeFetcher;
 
             protected ParameterEntity[] parameters;
 
@@ -281,10 +291,19 @@ public class CompileMethodEntity extends MethodEntity {
                 super(method, argsCount, _asImmutable);
             }
 
+            public void setUnknownTypeFetcher(CallbackW<MemoryOperation, Class<?>, Type> unknownTypeFetcher) {
+                this.unknownTypeFetcher = unknownTypeFetcher;
+            }
+
             public void setParameters(ParameterEntity[] parameters) {
                 this.parameters = parameters;
 
-                returnOperation    = MemoryOperation.get(resultType, method.getGenericReturnType());
+                returnOperation = MemoryOperation.get(resultType, method.getGenericReturnType());
+
+                if (returnOperation == null && unknownTypeFetcher != null) {
+                    returnOperation = unknownTypeFetcher.call(resultType, null);
+                }
+
                 if (returnOperation == null) {
                     throw new CriticalException("Unsupported type for binding - " + resultType + " in " + method.getDeclaringClass().getName() + "." + method.getName());
                 }
@@ -293,21 +312,26 @@ public class CompileMethodEntity extends MethodEntity {
 
                 MemoryOperation op;
                 for (int i = 0; i < argumentOperations.length; i++) {
-                    op = argumentOperations[i] = MemoryOperation.get(parameterTypes[i], method.getGenericParameterTypes()[i]);
+                    Class<?> parameterType = parameterTypes[i];
+                    Type genericTypes = method.getGenericParameterTypes()[i];
+
+                    op = MemoryOperation.get(parameterType, genericTypes);
+
+                    argumentOperations[i] = op;
 
                     if (op != null) {
                         if (i <= parameters.length - 1) {
                             op.applyTypeHinting(parameters[i]);
                         }
                     } else {
-                        if (parameterTypes[i] == Environment.class) {
+                        if (parameterType == Environment.class) {
                             argumentOperations[i] = new InjectMemoryOperation() {
                                 @Override
                                 public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
                                     return env;
                                 }
                             };
-                        } else if (parameterTypes[i] == TraceInfo.class) {
+                        } else if (parameterType == TraceInfo.class) {
                             argumentOperations[i] = new InjectMemoryOperation() {
                                 @Override
                                 public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
@@ -315,7 +339,20 @@ public class CompileMethodEntity extends MethodEntity {
                                 }
                             };
                         } else {
-                            throw new CriticalException("Unsupported type for binding - " + parameterTypes[i]);
+                            if (unknownTypeFetcher != null) {
+                                op = unknownTypeFetcher.call(parameterType, genericTypes);
+                                argumentOperations[i] = op;
+
+                                if (op != null) {
+                                    if (i <= parameters.length - 1) {
+                                        op.applyTypeHinting(parameters[i]);
+                                    }
+
+                                    continue;
+                                }
+                            }
+
+                            throw new CriticalException("Unsupported type for binding - " + parameterType);
                         }
                     }
                 }

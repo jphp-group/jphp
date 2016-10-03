@@ -387,6 +387,10 @@ public class CompileScope {
         exceptionMapForContext.put(ReflectionUtils.getClassName(context).toLowerCase(), clazz);
     }
 
+    public void registerClass(String name, ClassEntity entity) {
+        classMap.put(name.toLowerCase(), entity);
+    }
+
     public void registerClass(ClassEntity clazz) {
         classMap.put(clazz.getLowerName(), clazz);
     }
@@ -443,21 +447,24 @@ public class CompileScope {
     }
 
     public ClassEntity fetchUserClass(String name) {
-        name = name.toLowerCase();
+        return fetchUserClass(name, name.toLowerCase());
+    }
+
+    public ClassEntity fetchUserClass(String name, String nameLower) {
         ClassEntity entity;
 
         if (classEntityFetchHandler != null) {
             for (EntityFetchHandler handler : classEntityFetchHandler) {
-                handler.fetch(this, name);
+                handler.fetch(this, name, nameLower);
             }
         }
 
-        entity = classMap.get(name);
+        entity = classMap.get(nameLower);
         if (entity != null) {
             return entity;
         }
 
-        CompileClass compileClass = compileClassMap.get(name);
+        CompileClass compileClass = compileClassMap.get(nameLower);
         if (compileClass == null)
             return null;
 
@@ -474,13 +481,14 @@ public class CompileScope {
     }
 
     public FunctionEntity findUserFunction(String name) {
+        String originName = name;
         name = name.toLowerCase();
 
         FunctionEntity entity = functionMap.get(name);
 
         if (entity == null && functionEntityFetchHandler != null) {
             for (EntityFetchHandler handler : functionEntityFetchHandler) {
-                handler.fetch(this, name);
+                handler.fetch(this, originName, name);
             }
 
             entity = functionMap.get(name);
@@ -490,13 +498,14 @@ public class CompileScope {
     }
 
     public ConstantEntity findUserConstant(String name){
+        String originName = name;
         name = name.toLowerCase();
 
         ConstantEntity entity = constantMap.get(name.toLowerCase());
 
         if (entity == null && constantEntityFetchHandler != null) {
             for (EntityFetchHandler handler : constantEntityFetchHandler) {
-                handler.fetch(this, name);
+                handler.fetch(this, originName, name);
             }
 
             entity = constantMap.get(name);

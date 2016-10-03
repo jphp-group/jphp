@@ -1313,7 +1313,7 @@ ClassReader classReader;
             boolean saveCache = context == null && callCache != null;
 
             context = context == null ? env.getLastClassOnStack() : context;
-            entity = isInstanceOf(context) ? context.staticProperties.get(property) : staticProperties.get(property);
+            entity = isInstanceOf(context) ? context.findStaticProperty(property) : findStaticProperty(property);
 
             if (saveCache && entity != null) {
                 callCache.put(env, cacheIndex, entity);
@@ -1334,10 +1334,7 @@ ClassReader classReader;
             }
         }
 
-        return env.getOrCreateStatic(
-                entity.specificName,
-                entity.getDefaultValue(env).toImmutable()
-        );
+        return entity.getStaticValue(env, trace);
     }
 
     public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property,

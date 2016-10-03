@@ -13,6 +13,7 @@ public class WrapCompileMethodEntity extends CompileMethodEntity {
 
     @Override
     public Memory invokeDynamic(IObject _this, Environment env, Memory... arguments) throws Throwable {
-        return super.invokeDynamic(((BaseWrapper)_this).getWrappedObject(), env, arguments);
+        BaseWrapper aThis = (BaseWrapper) _this;
+        return super.invokeDynamic(aThis == null ? null : aThis.getWrappedObject(), env, arguments);
     }
 }

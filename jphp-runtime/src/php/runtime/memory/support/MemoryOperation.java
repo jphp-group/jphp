@@ -1,6 +1,7 @@
 package php.runtime.memory.support;
 
 import php.runtime.Memory;
+import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
@@ -85,6 +86,11 @@ abstract public class MemoryOperation<T> {
 
     @SuppressWarnings("unchecked")
     public static MemoryOperation get(final Class<?> type, Type genericTypes) {
+        return get(type, genericTypes, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static MemoryOperation get(final Class<?> type, Type genericTypes, boolean includeParents) {
         MemoryOperation operation = null;
         if (genericTypes instanceof ParameterizedType) {
             operation = genericOperations.get(new ParametrizedClass(type, ((ParameterizedType) genericTypes).getActualTypeArguments()));
@@ -129,12 +135,18 @@ abstract public class MemoryOperation<T> {
                 final Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
 
                 if (wrapperClass != null) {
-                    final Constructor<BaseWrapper> constructor;
+                    Constructor<BaseWrapper> constructor;
                     try {
                         constructor = (Constructor<BaseWrapper>) wrapperClass.getConstructor(Environment.class, type);
                     } catch (NoSuchMethodException e) {
-                        throw new CriticalException(e);
+                        try {
+                            constructor = (Constructor<BaseWrapper>) wrapperClass.getConstructor(Environment.class, Object.class);
+                        } catch (NoSuchMethodException e1) {
+                            throw new CriticalException(e);
+                        }
                     }
+
+                    final Constructor<BaseWrapper> finalConstructor = constructor;
 
                     return new MemoryOperation() {
                         @Override
@@ -157,7 +169,7 @@ abstract public class MemoryOperation<T> {
                                 return Memory.NULL;
                             }
 
-                            Constructor<BaseWrapper> constructorContext = constructor;
+                            Constructor<BaseWrapper> constructorContext = finalConstructor;
 
                             Class<? extends BaseWrapper> wrapperClassContext = wrapperClass;
 
@@ -216,8 +228,8 @@ abstract public class MemoryOperation<T> {
                 } else {
                     Class<?> superType = type.getSuperclass();
 
-                    if (Object.class != superType && type.isAnonymousClass()) {
-                        return get(superType, type.getGenericSuperclass());
+                    if (Object.class != superType && (includeParents || type.isAnonymousClass())) {
+                        return get(superType, type.getGenericSuperclass(), includeParents);
                     }
                 }
              }

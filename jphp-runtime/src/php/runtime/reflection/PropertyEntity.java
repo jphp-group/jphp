@@ -255,6 +255,13 @@ public class PropertyEntity extends Entity {
         return ((IObject) object).getProperties().refOfIndex(name).assign(value);
     }
 
+    public Memory getStaticValue(Environment env, TraceInfo trace) {
+        return env.getOrCreateStatic(
+                specificName,
+                getDefaultValue(env).toImmutable()
+        );
+    }
+
     public Memory getValue(Environment env, TraceInfo trace, Object object) throws Throwable {
         if (getter != null && object instanceof IObject) {
             return ObjectInvokeHelper.invokeMethod((IObject) object, getter, env, trace, null, false);

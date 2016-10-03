@@ -525,7 +525,7 @@ public class Environment {
         ClassEntity entity = classMap.get(nameL);
 
         if (entity == null){
-            entity = scope.fetchUserClass(nameL);
+            entity = scope.fetchUserClass(name, nameL);
 
             if (entity != null) {
                 try {

@@ -9,6 +9,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.support.MemoryOperation;
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class OutputStreamMemoryOperation extends MemoryOperation<OutputStream> {
     @Override

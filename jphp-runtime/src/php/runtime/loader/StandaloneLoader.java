@@ -42,7 +42,7 @@ public class StandaloneLoader {
 
         scope.addClassEntityFetchHandler(new EntityFetchHandler() {
             @Override
-            public void fetch(CompileScope scope, String name) {
+            public void fetch(CompileScope scope, String originName, String name) {
                 ModuleEntity module = fetchClass(name);
 
                 if (module != null) {
@@ -55,7 +55,7 @@ public class StandaloneLoader {
 
         scope.addFunctionEntityFetchHandler(new EntityFetchHandler() {
             @Override
-            public void fetch(CompileScope scope, String name) {
+            public void fetch(CompileScope scope, String originName, String name) {
                 ModuleEntity module = fetchFunction(name);
 
                 if (module != null) {
@@ -68,7 +68,7 @@ public class StandaloneLoader {
 
         scope.addConstantEntityFetchHandler(new EntityFetchHandler() {
             @Override
-            public void fetch(CompileScope scope, String name) {
+            public void fetch(CompileScope scope, String originName, String name) {
                 ModuleEntity module = fetchConstant(name);
 
                 if (module != null) {

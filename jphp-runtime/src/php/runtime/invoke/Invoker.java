@@ -79,7 +79,9 @@ abstract public class Invoker implements Cloneable {
                     continue;
                 }
 
-                MemoryOperation operation = MemoryOperation.get(args[i].getClass(), args[i].getClass().getGenericSuperclass());
+                MemoryOperation operation = MemoryOperation.get(
+                        args[i].getClass(), args[i].getClass().getGenericSuperclass()
+                );
 
                 if (operation == null) {
                     throw new CriticalException("Unsupported bind type - " + args[i].getClass().toString());

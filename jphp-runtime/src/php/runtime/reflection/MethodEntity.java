@@ -228,8 +228,12 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invokeStatic(Environment environment, Memory... arguments) throws Throwable {
+    public Memory invokeStatic(Environment environment, TraceInfo trace, Memory... arguments) throws Throwable {
         return invokeDynamic(null, environment, arguments);
+    }
+
+    final public Memory invokeStatic(Environment environment, Memory... arguments) throws Throwable {
+        return invokeStatic(environment, TraceInfo.UNKNOWN, arguments);
     }
 
     @Override

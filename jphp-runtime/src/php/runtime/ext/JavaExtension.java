@@ -31,13 +31,13 @@ public class JavaExtension extends Extension {
         registerClass(scope, JavaMethod.class);
         registerClass(scope, JavaField.class);
 
-        scope.addClassEntityFetchHandler(new EntityFetchHandler() {
+        /*scope.addClassEntityFetchHandler(new EntityFetchHandler() {
             @Override
-            public void fetch(CompileScope scope, String name) {
+            public void fetch(CompileScope scope, String originName, String name) {
                 ClassEntity entity = new ClassEntity((Context) null);
                 entity.setNativeClazz(JavaObject.class);
             }
-        });
+        });*/
     }
 
     public static class JavaObject extends BaseObject {
