@@ -1,1 +1,1 @@
-<?use php\util\Regex;$regex = new Regex('(?<name>[a-z]+)(?<id>[0-9]+)', 'i', 'Abcd123 dJAlkja453 dkd567');print_r($regex->groupNames());
+<?use java\lang\System;$console = System::console();$line = $console->readLine("Hi world", []);

@@ -2,6 +2,7 @@
 include 'jphp-runtime',
         'jphp-core',
         'jphp-cli',
+        'jphp-pni-ext',
         'jphp-zend-ext',
         'jphp-swing-ext',
         'jphp-json-ext',

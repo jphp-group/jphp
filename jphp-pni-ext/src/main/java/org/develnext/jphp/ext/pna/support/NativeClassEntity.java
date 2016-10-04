@@ -268,12 +268,12 @@ public class NativeClassEntity extends ClassEntity {
 
                 @Override
                 public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                    return arg.toObject(NativeObject.class).getWrappedObject();
+                    return arg.isNull() ? null : arg.toObject(NativeObject.class).getWrappedObject();
                 }
 
                 @Override
                 public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
-                    return ObjectMemory.valueOf(new NativeObject(env, NativeClassEntity.this, arg));
+                    return arg == null ? Memory.NULL : ObjectMemory.valueOf(new NativeObject(env, NativeClassEntity.this, arg));
                 }
 
                 @Override

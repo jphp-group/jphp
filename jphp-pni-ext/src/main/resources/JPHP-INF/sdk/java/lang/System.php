@@ -1,6 +1,7 @@
 <?php
-namespace j\java\lang;
+namespace java\lang;
 
+use java\io\Console;
 use php\io\Stream;
 
 /**
@@ -71,6 +72,13 @@ class System
      * @return string
      */
     public static function lineSeparator()
+    {
+    }
+
+    /**
+     * @return Console
+     */
+    public static function console()
     {
     }
 }

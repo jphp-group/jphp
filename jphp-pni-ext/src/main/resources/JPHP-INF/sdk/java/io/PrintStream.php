@@ -1,5 +1,5 @@
 <?php
-namespace j\java\io;
+namespace java\io;
 
 use php\io\Stream;
 

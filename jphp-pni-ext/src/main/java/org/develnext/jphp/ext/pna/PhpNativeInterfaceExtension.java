@@ -24,7 +24,7 @@ public class PhpNativeInterfaceExtension extends Extension {
     }
 
     public static String getNativeName(Class<?> type) {
-        return "j\\" + type.getName().replace('.', Information.NAMESPACE_SEP_CHAR);
+        return type.getName().replace('.', Information.NAMESPACE_SEP_CHAR);
     }
 
     @Override
@@ -33,10 +33,9 @@ public class PhpNativeInterfaceExtension extends Extension {
         scope.addClassEntityFetchHandler(new EntityFetchHandler() {
             @Override
             public void fetch(CompileScope scope, String name, String lowerName) {
-            if (name.startsWith("j\\")) {
                 String originName = name;
 
-                name = name.substring(2).replace(Information.NAMESPACE_SEP_CHAR, '.');
+                name = name.replace(Information.NAMESPACE_SEP_CHAR, '.');
 
                 try {
                     Class<?> cls = Class.forName(name, true, scope.getClassLoader());
@@ -46,9 +45,8 @@ public class PhpNativeInterfaceExtension extends Extension {
 
                     scope.registerClass(classEntity);
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                    return;
                 }
-            }
             }
         });
     }
