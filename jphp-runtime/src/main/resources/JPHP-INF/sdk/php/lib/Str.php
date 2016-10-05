@@ -496,4 +496,15 @@ class str
     public static function hash($string, $algorithm = 'SHA-1')
     {
     }
+
+    /**
+     * --RU--
+     * Переводит многострочный текст в массив, если $removeEmpty true, то удаляет пустые строки из результата.
+     * @param string $string
+     * @param bool $removeEmpty
+     * @return array
+     */
+    public static function lines($string, $removeEmpty = false)
+    {
+    }
 }

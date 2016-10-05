@@ -54,7 +54,13 @@ public class CompileMethodEntity extends MethodEntity {
 
         int mods = method.getModifiers();
 
-        setName(method.getName());
+        String name = method.getName();
+
+        if (method.isAnnotationPresent(Reflection.Name.class)) {
+            name = method.getAnnotation(Reflection.Name.class).value();
+        }
+
+        setName(name);
         setStatic(Modifier.isStatic(mods));
         setDeprecated(method.getAnnotation(Deprecated.class) != null);
 

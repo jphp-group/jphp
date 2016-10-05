@@ -33,4 +33,28 @@ final class System {
      * @return string
      */
     public static function getProperty($name, $def = '') { return ''; }
+
+    /**
+     * Sets a system property by name and value.
+     * @param string $name
+     * @param string $value
+     * @return string
+     */
+    public static function setProperty($name, $value)
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public static function getProperties()
+    {
+    }
+
+    /**
+     * @param array $properties
+     */
+    public static function setProperties(array $properties)
+    {
+    }
 }

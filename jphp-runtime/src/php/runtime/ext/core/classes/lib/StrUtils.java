@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.UUID;
 
 import static php.runtime.annotation.Reflection.*;
@@ -618,5 +619,33 @@ public class StrUtils extends BaseObject {
 
         messageDigest.update(args[0].getBinaryBytes(env.getDefaultCharset()));
         return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+    }
+
+    @Signature({
+            @Arg(value = "string"),
+            @Arg(value = "removeEmpty", optional = @Optional("false"))
+    })
+    public static Memory lines(Environment env, Memory... args) {
+        boolean removeEmpty = args[1].toBoolean();
+
+        Scanner scanner = new Scanner(args[0].toString());
+
+        ArrayMemory result = new ArrayMemory();
+
+        while (scanner.hasNextLine()) {
+            String value = scanner.nextLine();
+
+            if (removeEmpty) {
+                value = value.trim();
+
+                if (value.isEmpty()) {
+                    continue;
+                }
+            }
+
+            result.add(value);
+        }
+
+        return result.toConstant();
     }
 }

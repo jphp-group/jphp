@@ -364,7 +364,9 @@ public class ClassWrapper {
 
 
     protected void onWrapCompileMethod(ClassEntity classEntity, Method method) {
-        MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
+        String name = method.getName();
+
+        MethodEntity _entity = classEntity.findMethod(name.toLowerCase());
 
         CompileMethodEntity entity;
         if (_entity instanceof CompileMethodEntity) {
@@ -379,6 +381,7 @@ public class ClassWrapper {
         }
 
         entity.addMethod(method, false);
+
         if (_entity == null) {
             entity.setClazz(classEntity);
             classEntity.addMethod(entity, null);

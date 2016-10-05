@@ -7,6 +7,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.Map;
+import java.util.Properties;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -33,6 +34,22 @@ final public class WrapSystem extends BaseObject {
     })
     public static Memory getProperty(Environment env, Memory... args) {
         return StringMemory.valueOf(System.getProperty(args[0].toString(), args[1].toString()));
+    }
+
+    @Signature
+    public static String setProperty(String name, String value) {
+        return System.setProperty(name, value);
+    }
+
+    @Signature
+    @Name("getProperties")
+    public static Properties getProperties1() {
+        return System.getProperties();
+    }
+
+    @Signature
+    public static void setProperties(Properties properties) {
+        System.setProperties(properties);
     }
 
     @Signature
