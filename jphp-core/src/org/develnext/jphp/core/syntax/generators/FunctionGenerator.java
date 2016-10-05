@@ -55,6 +55,14 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         NameToken hintTypeClass = null;
         HintType hintType = null;
 
+        if (next instanceof SelfExprToken) {
+            if (analyzer.getClazz() == null) {
+                unexpectedToken(next);
+            }
+
+            next = analyzer.getClazz().getName();
+        }
+
         if (next instanceof NameToken){
             String word = ((NameToken) next).getName().toLowerCase();
             if (scalarTypeHints.contains(word))
