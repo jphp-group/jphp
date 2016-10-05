@@ -13,19 +13,14 @@ public class StandardExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-
         registerConstants(new LangConstants());
         registerConstants(new StringConstants());
         registerConstants(new ArrayConstants());
         registerConstants(new FileConstants());
 
-        long time = System.currentTimeMillis();
-
         registerFunctions(new LangFunctions());
         registerFunctions(new StringFunctions());
         registerFunctions(new ArrayFunctions());
         registerFunctions(new FileFunctions());
-
-        Startup.traceWithTime("!!!", time);
     }
 }

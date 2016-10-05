@@ -524,32 +524,32 @@ public class Environment {
     public ClassEntity fetchClass(String name, String nameL, boolean autoLoad) {
         ClassEntity entity = classMap.get(nameL);
 
-        if (entity == null){
-            entity = scope.fetchUserClass(name, nameL);
+        if (entity != null) {
+            return entity;
+        }
 
-            if (entity != null) {
-                try {
-                    entity.initEnvironment(this);
-                } catch (Throwable throwable) {
-                    throw new CriticalException(throwable);
+        synchronized (classMap) {
+            entity = classMap.get(nameL); // try retry!
+
+            if (entity == null) {
+                entity = scope.fetchUserClass(name, nameL);
+
+                if (entity != null) {
+                    try {
+                        entity.initEnvironment(this);
+                    } catch (Throwable throwable) {
+                        throw new CriticalException(throwable);
+                    }
+                    classMap.put(entity.getLowerName(), entity);
+                    return entity;
                 }
-                classMap.put(entity.getLowerName(), entity);
+
+                ClassEntity classEntity = autoLoad ? autoloadCall(name, nameL) : null;
+
+                return classEntity;
+            } else {
                 return entity;
             }
-
-            ClassEntity classEntity = autoLoad ? autoloadCall(name, nameL) : null;
-
-            return classEntity;
-        } else {
-            return entity;/*
-            if (isLoadedClass(nameL) || entity.isInternal())
-                return entity;
-            else {
-                if (autoLoad){
-                    return autoloadCall(name);
-                }
-                return null;
-            }*/
         }
     }
 

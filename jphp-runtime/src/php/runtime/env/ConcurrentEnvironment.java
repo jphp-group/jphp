@@ -1,6 +1,7 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.output.OutputBuffer;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
