@@ -295,9 +295,10 @@ class fs
      *
      * @param string|Stream $source
      * @param string $algo MD5, MD2, SHA-1, SHA-256, SHA-512
+     * @param callable $onProgress ($sum, $readBytes)
      * @return string
      */
-    static function hash($source, $algo = 'MD5')
+    static function hash($source, $algo = 'MD5', callable $onProgress = null)
     {
     }
 

@@ -331,19 +331,34 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory hash(InputStream source) throws NoSuchAlgorithmException {
-        return hash(source, "MD5");
+        return hash(source, "MD5", null);
     }
 
     @Signature
     public static Memory hash(InputStream source, String algo) throws NoSuchAlgorithmException {
+        return hash(source, algo, null);
+    }
+
+    @Signature
+    public static Memory hash(InputStream source, String algo, @Nullable Invoker invoker) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(algo);
 
         byte[] buffer = new byte[BUFFER_SIZE];
         int len;
 
         try {
+            int sum = 0;
+
             while ((len = source.read(buffer)) > 0) {
                 messageDigest.update(buffer, 0, len);
+
+                sum += len;
+
+                if (invoker != null) {
+                    if (invoker.callAny(sum, len).toValue() == Memory.FALSE) {
+                        break;
+                    }
+                }
             }
 
             return StringMemory.valueOf(DigestUtils.bytesToHex(messageDigest.digest()));

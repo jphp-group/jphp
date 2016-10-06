@@ -256,9 +256,13 @@ public class FileObject extends BaseObject {
         }
     }
 
-    @Signature(@Arg(value = "algorithm", optional = @Optional("MD5")))
+    @Signature({
+            @Arg(value = "algorithm", optional = @Optional("MD5")),
+            @Arg(value = "progress", type = HintType.CALLABLE, optional = @Optional("null"))
+    })
     public Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(args[0].toString());
+        Invoker invoker = Invoker.valueOf(env, null, args[1]);
 
         byte[] buffer = new byte[FsUtils.BUFFER_SIZE];
         int len;
@@ -267,11 +271,23 @@ public class FileObject extends BaseObject {
         try {
             is = new FileInputStream(file);
 
-            while ((len = is.read(buffer)) > 0) {
-                messageDigest.update(buffer, 0, len);
-            }
+            int sum = 0;
 
-            is.close();
+            try {
+                while ((len = is.read(buffer)) > 0) {
+                    messageDigest.update(buffer, 0, len);
+
+                    sum += len;
+
+                    if (invoker != null) {
+                        if (invoker.callAny(sum, len).toValue() == Memory.FALSE) {
+                            break;
+                        }
+                    }
+                }
+            } finally {
+                is.close();
+            }
 
             return StringMemory.valueOf(DigestUtils.bytesToHex(messageDigest.digest()));
         } catch (FileNotFoundException e) {

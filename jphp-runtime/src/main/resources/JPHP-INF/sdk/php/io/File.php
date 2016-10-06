@@ -161,9 +161,10 @@ class File {
 
     /**
      * @param string $algorithm
-     * @return string|null if not exists or io exception
+     * @param callable $onProgress ($sum, $len)
+     * @return null|string if not exists or io exception
      */
-    public function hash($algorithm = 'MD5') { return ''; }
+    public function hash($algorithm = 'MD5', callable $onProgress = null) { return ''; }
 
     /**
      * @param string $newName
