@@ -16,6 +16,9 @@ public class TokenMeta {
     protected final int startLine;
     protected int endLine;
 
+    protected int startIndex = -1;
+    protected int endIndex = -1;
+
     public TokenMeta(String word, int startLine, int endLine, int startPosition, int endPosition) {
         this.startLine = startLine;
         this.endLine = endLine;
@@ -25,27 +28,36 @@ public class TokenMeta {
     }
 
     public static TokenMeta of(List<? extends Token> tokens){
-        int startPosition = 0, startLine = 0, endPosition = 0, endLine = 0;
+        int startPosition = 0, startLine = 0, endPosition = 0, endLine = 0, startIndex = -1, endIndex = -1;
 
         StringBuilder builder = new StringBuilder();
         int i = 0;
         int size = tokens.size();
+
         for(Token token : tokens){
             if (token == null) continue;
 
             if (i == 0){
+                startIndex = token.getMeta().startIndex;
                 startPosition = token.getMeta().startPosition;
                 startLine = token.getMeta().startLine;
             }
+
             builder.append(token.getMeta().word);
             if (i == size - 1){
                 endPosition = token.getMeta().endPosition;
                 endLine = token.getMeta().endLine;
+                endIndex = token.getMeta().endIndex;
             }
+
             i++;
         }
 
-        return new TokenMeta(builder.toString(), startLine, endLine, startPosition, endPosition);
+        TokenMeta meta = new TokenMeta(builder.toString(), startLine, endLine, startPosition, endPosition);
+        meta.setStartIndex(startIndex);
+        meta.setEndIndex(endIndex);
+
+        return meta;
     }
 
     public static TokenMeta of(Token... tokens){
@@ -53,13 +65,16 @@ public class TokenMeta {
     }
 
     public static TokenMeta of(String word, Token token){
-        return new TokenMeta(
+        TokenMeta tokenMeta = new TokenMeta(
                 word,
                 token.getMeta().startLine,
                 token.getMeta().endLine,
                 token.getMeta().startPosition,
                 token.getMeta().endPosition
         );
+        tokenMeta.setStartIndex(token.getMeta().getStartIndex());
+        tokenMeta.setEndIndex(token.getMeta().getEndIndex());
+        return tokenMeta;
     }
 
     public static TokenMeta of(String word){
@@ -109,5 +124,21 @@ public class TokenMeta {
 
     public static TokenMeta empty(){
         return empty;
+    }
+
+    public int getStartIndex() {
+        return startIndex;
+    }
+
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    public int getEndIndex() {
+        return endIndex;
+    }
+
+    public void setEndIndex(int endIndex) {
+        this.endIndex = endIndex;
     }
 }

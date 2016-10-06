@@ -109,7 +109,18 @@ public class Tokenizer {
         String word = getWord(startPosition, currentPosition);
         if (word == null)
             return null;
-        return new TokenMeta(word, startLine, currentLine, startRelativePosition, relativePosition);
+
+        TokenMeta meta = new TokenMeta(word, startLine, currentLine, startRelativePosition, relativePosition);
+        int length = word.length();
+        meta.setStartIndex(currentPosition - length);
+        meta.setEndIndex(currentPosition);
+
+        if (length == 1 && GrammarUtils.isDelimiter(word.charAt(0))) {
+            meta.setStartIndex(currentPosition);
+            meta.setEndIndex(currentPosition + 1);
+        }
+
+        return meta;
     }
 
     protected String getWord(int startPosition, int endPosition){
@@ -202,6 +213,8 @@ public class Tokenizer {
 
         boolean isMagic = quote != null && quote.isMagic();
         String endString = null;
+
+        int startIndex = currentPosition + 1;
 
         if (quote == StringExprToken.Quote.DOC){
             StringBuilder tmp = new StringBuilder();
@@ -483,6 +496,14 @@ public class Tokenizer {
         }
 
         TokenMeta meta = buildMeta(startPosition + 1, startLine);
+        meta.setStartIndex(startIndex - 1);
+
+        if (quote == StringExprToken.Quote.DOC) {
+            meta.setEndIndex(meta.getEndIndex() + 3);
+        } else {
+            meta.setEndIndex(meta.getEndIndex() + 1);
+        }
+
         meta.setWord(sb.toString());
 
         StringExprToken expr = new StringExprToken(meta, quote);
@@ -492,6 +513,8 @@ public class Tokenizer {
 
     protected Token readComment(CommentToken.Kind kind, int startPosition, int startLine){
         int i, pos = relativePosition, k = 0;
+
+        boolean isOldComment = code.charAt(currentPosition) == '#';
 
         for(i = currentPosition + 1; i < codeLength; i++, k++){
             char ch = code.charAt(i);
@@ -528,6 +551,18 @@ public class Tokenizer {
                         text,
                         startLine, currentLine, startRelativePosition, relativePosition
                 );
+
+                meta.setStartIndex(currentPosition - 1);
+
+                if (isOldComment || kind == CommentToken.Kind.DOCTYPE) {
+                    meta.setStartIndex(currentPosition);
+                }
+
+                if (kind == CommentToken.Kind.BLOCK || kind == CommentToken.Kind.DOCTYPE) {
+                    meta.setEndIndex(i + 1);
+                } else {
+                    meta.setEndIndex(i);
+                }
 
                 currentPosition = i;
                 relativePosition = pos;
