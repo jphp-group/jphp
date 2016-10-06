@@ -2,6 +2,7 @@ package php.runtime.ext.core.classes.stream;
 
 import php.runtime.Memory;
 import php.runtime.common.Constants;
+import php.runtime.common.DigestUtils;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -271,7 +272,7 @@ public class FileObject extends BaseObject {
 
             is.close();
 
-            return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+            return StringMemory.valueOf(DigestUtils.bytesToHex(messageDigest.digest()));
         } catch (FileNotFoundException e) {
             return Memory.NULL;
         } catch (IOException e) {

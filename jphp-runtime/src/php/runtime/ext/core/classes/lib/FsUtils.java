@@ -6,6 +6,7 @@ import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Runtime.FastMethod;
+import php.runtime.common.DigestUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.FileObject;
 import php.runtime.ext.core.classes.stream.Stream;
@@ -345,7 +346,7 @@ public class FsUtils extends BaseObject {
                 messageDigest.update(buffer, 0, len);
             }
 
-            return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+            return StringMemory.valueOf(DigestUtils.bytesToHex(messageDigest.digest()));
         } catch (FileNotFoundException e) {
             return Memory.NULL;
         } catch (IOException e) {
