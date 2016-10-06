@@ -6,6 +6,7 @@ import php.runtime.common.DigestUtils;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
@@ -259,7 +260,7 @@ public class FileObject extends BaseObject {
     public Memory hash(Environment env, Memory... args) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(args[0].toString());
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[FsUtils.BUFFER_SIZE];
         int len;
 
         FileInputStream is;

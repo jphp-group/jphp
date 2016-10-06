@@ -25,7 +25,7 @@ import java.util.Set;
 
 @Name("php\\lib\\fs")
 public class FsUtils extends BaseObject {
-    private static final int BUFFER_SIZE = 8192;
+    public static final int BUFFER_SIZE = 8192;
     private final static char CHAR_UNDEFINED = 0xFFFF;
 
     private final static Set<String> winSystemNames = new HashSet<>(Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"));
@@ -338,7 +338,7 @@ public class FsUtils extends BaseObject {
     public static Memory hash(InputStream source, String algo) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(algo);
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int len;
 
         try {
