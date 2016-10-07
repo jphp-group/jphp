@@ -499,9 +499,9 @@ public class Tokenizer {
         meta.setStartIndex(startIndex - 1);
 
         if (quote == StringExprToken.Quote.DOC) {
-            meta.setEndIndex(meta.getEndIndex() + 3);
+            meta.setEndIndex(currentPosition + 3);
         } else {
-            meta.setEndIndex(meta.getEndIndex() + 1);
+            meta.setEndIndex(currentPosition + 1);
         }
 
         meta.setWord(sb.toString());
