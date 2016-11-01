@@ -365,6 +365,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 List<Token> modifiers = new ArrayList<Token>();
                 CommentToken lastComment = null;
 
+                boolean breakByClose = false;
+
                 while (iterator.hasNext()){
                     Token current = iterator.next();
                     if (current instanceof ExprStmtToken)
@@ -466,12 +468,21 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         processUse(result, iterator);
                         lastComment = null;
                     } else if (isClosedBrace(current, BraceExprToken.Kind.BLOCK)) {
+                        breakByClose = true;
                         break;
                     } else if (current instanceof CommentToken){
                         lastComment = (CommentToken) current;
                     } else
                         unexpectedToken(current);
                 }
+
+                if (!breakByClose) { // bug-fix from DN.
+                    token = nextTokenAndPrev(iterator);
+
+                    if (!isClosedBrace(token, BraceExprToken.Kind.BLOCK)) {
+                        unexpectedToken(token);
+                    }
+                } // ---
 
                 result.setConstants(constants);
 
