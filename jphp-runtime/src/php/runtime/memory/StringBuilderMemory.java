@@ -76,6 +76,10 @@ public class StringBuilderMemory extends StringMemory {
         this.builder.append(value);
     }
 
+    public void append(char value) {
+        append(StringMemory.valueOf(value));
+    }
+
     public void append(long value){
         resolveBuilder();
         builder.append(value);
