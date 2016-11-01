@@ -107,6 +107,15 @@ abstract class Stream
     {
     }
 
+    /**
+     * Each line of stream.
+     * @param callable $callback ($line)
+     * @param string|null $encoding
+     */
+    public function eachLine(callable $callback, $encoding = null)
+    {
+    }
+
 
     /**
      * @param string $path

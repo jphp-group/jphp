@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static php.runtime.annotation.Reflection.*;
@@ -271,6 +272,31 @@ abstract public class Stream extends BaseObject implements Resource {
     public Memory __destruct(Environment env, Memory... args) throws IOException {
         close(env, args);
         return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg(value = "callback", type = HintType.CALLABLE),
+            @Arg(value = "encoding", optional = @Optional("null"))
+    })
+    public Memory eachLine(Environment env, Memory... args) throws Throwable {
+        Invoker invoker = Invoker.create(env, args[0]);
+        InputStream is = getInputStream(env, this);
+
+        Scanner scanner = new Scanner(is, args[1].isNull() ? env.getDefaultCharset().name() : args[1].toString());
+
+        int count = 0;
+
+        while (scanner.hasNextLine()) {
+            Memory call = invoker.call(StringMemory.valueOf(scanner.nextLine()));
+
+            if (call.toBoolean()) {
+                break;
+            }
+
+            count++;
+        }
+
+        return LongMemory.valueOf(count);
     }
 
     /**
