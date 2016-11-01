@@ -47,9 +47,10 @@ class Process {
      * Kills the subprocess. The subprocess represented by this
      * `Process` object is forcibly terminated.
      *
+     * @param bool $force
      * @throws IllegalStateException
      */
-    public function destroy() { }
+    public function destroy($force = false) { }
 
     /**
      * Returns the input stream connected to the normal output of the

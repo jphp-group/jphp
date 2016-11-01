@@ -13,6 +13,8 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import static php.runtime.annotation.Reflection.*;
@@ -106,5 +108,22 @@ public class WrapProcess extends BaseObject {
     @Signature
     public Memory getError(Environment env, Memory... args) {
         return new ObjectMemory(new MiscStream(env, getProcess().getErrorStream()));
+    }
+
+    @Signature(@Arg(value = "force", optional = @Optional("false")))
+    public void destroy(Environment env, Memory... args) throws Throwable {
+        if (args[0].toBoolean()) {
+            Process process = getProcess();
+
+            Method destroyForcibly = process.getClass().getMethod("destroyForcibly");
+
+            try {
+                destroyForcibly.invoke(process);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
+        } else {
+            getProcess().destroy();
+        }
     }
 }
