@@ -110,4 +110,23 @@ class URL {
      * @return string
      */
     public function __toString() { return $this->getRef(); }
+
+
+    /**
+     * @param string $text
+     * @param string $encoding
+     * @return string
+     */
+    public static function encode($text, $encoding = null)
+    {
+    }
+
+    /**
+     * @param string $text
+     * @param string $encoding
+     * @return string
+     */
+    public static function decode($text, $encoding = null)
+    {
+    }
 }

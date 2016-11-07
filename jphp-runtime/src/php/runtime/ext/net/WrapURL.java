@@ -1,5 +1,6 @@
 package php.runtime.ext.net;
 
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Reflection.WrapInterface;
@@ -8,9 +9,8 @@ import php.runtime.ext.NetExtension;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
 
 @Name(NetExtension.NAMESPACE + "URL")
 @WrapInterface(value = URL.class, skipConflicts = true)
@@ -31,5 +31,25 @@ public class WrapURL extends BaseWrapper<URL> {
     @Signature
     public String __toString() {
         return getWrappedObject().getRef();
+    }
+
+    @Signature
+    public static String encode(Environment env, String text) throws UnsupportedEncodingException {
+        return encode(env, text, Memory.NULL);
+    }
+
+    @Signature
+    public static String encode(Environment env, String text, Memory encoding) throws UnsupportedEncodingException {
+        return URLEncoder.encode(text, encoding.isNull() ? env.getDefaultCharset().name() : encoding.toString());
+    }
+
+    @Signature
+    public static String decode(Environment env, String text) throws UnsupportedEncodingException {
+        return decode(env, text, Memory.NULL);
+    }
+
+    @Signature
+    public static String decode(Environment env, String text, Memory encoding) throws UnsupportedEncodingException {
+        return URLDecoder.decode(text, encoding.isNull() ? env.getDefaultCharset().name() : encoding.toString());
     }
 }
