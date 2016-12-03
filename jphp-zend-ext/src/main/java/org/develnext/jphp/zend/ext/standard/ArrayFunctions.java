@@ -901,7 +901,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory result = new ArrayMemory();
 
             while (iterator.next()) {
-                result.refOfIndex(iterator.getMemoryKey()).assign(value.toImmutable());
+                result.refOfIndex(iterator.getValue()).assign(value.toImmutable());
             }
 
             return result.toConstant();
