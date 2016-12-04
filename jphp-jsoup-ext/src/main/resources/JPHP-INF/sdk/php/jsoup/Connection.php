@@ -1,5 +1,6 @@
 <?php
 namespace php\jsoup;
+use php\net\Proxy;
 
 /**
  * Class Connection
@@ -56,6 +57,14 @@ abstract class Connection
      * @return Connection
      */
     public function method($method)
+    {
+    }
+
+    /**
+     * @param Proxy $proxy
+     * @return Connection
+     */
+    public function proxy(Proxy $proxy)
     {
     }
 

@@ -8,6 +8,7 @@ import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.net.Proxy;
 import java.util.Map;
 
 import static org.jsoup.Connection.Request;
@@ -19,6 +20,7 @@ import static php.runtime.annotation.Reflection.*;
 @Namespace(JsoupExtension.NS)
 public class WrapConnection extends BaseWrapper<Connection> {
     public interface WrappedInterface {
+        Connection proxy(Proxy proxy);
         Connection url(String url);
         Connection userAgent(String userAgent);
         Connection timeout(int millis);
