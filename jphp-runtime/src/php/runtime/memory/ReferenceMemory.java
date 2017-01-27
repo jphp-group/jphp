@@ -636,7 +636,7 @@ public class ReferenceMemory extends Memory {
     public Memory assign(Memory memory) {
         switch (value.type){
             case REFERENCE: return value.assign(memory);
-            case ARRAY: value.unset(); // do not need break!!
+            case ARRAY: //value.unset(); // do not need break!!
             default:
                 return value = memory;
         }

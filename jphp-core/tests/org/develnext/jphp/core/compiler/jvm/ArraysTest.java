@@ -96,5 +96,6 @@ public class ArraysTest extends JvmCompilerCase {
     @Test
     public void testBugs() {
         check("arrays/bug148.php");
+        check("arrays/bug_unset_and_ref.php");
     }
 }
