@@ -17,6 +17,11 @@ public class XmlExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "std", "xml" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerWrapperClass(scope, Node.class, WrapDomNode.class);
         registerWrapperClass(scope, Element.class, WrapDomElement.class);

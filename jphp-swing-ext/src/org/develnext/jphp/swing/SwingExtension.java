@@ -50,6 +50,11 @@ public class SwingExtension extends Extension {
         return Status.DEPRECATED;
     }
 
+    @Override
+    public String[] getPackageNames() {
+        return new String[] { "swing" };
+    }
+
     @SuppressWarnings("unchecked")
     public void registerPropertyReaders(PropertyReaders readers) {
         SwingExtension.readers.put(readers.getRegisterClass(), readers);

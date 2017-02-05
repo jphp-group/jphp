@@ -16,6 +16,7 @@ import php.runtime.ext.core.classes.WrapEnvironmentVariables;
 import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.ext.support.compile.CompileFunctionSpec;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.*;
@@ -97,6 +98,7 @@ public class Environment {
     protected final Map<String, ConstantEntity> constantMap = new LinkedHashMap<String, ConstantEntity>();
 
     protected final ModuleManager moduleManager;
+    protected final PackageManager packageManager;
 
     protected static final ThreadLocal<Environment> environment = new ThreadLocal<Environment>();
 
@@ -178,6 +180,7 @@ public class Environment {
         constantMap.putAll(parent.constantMap);
 
         moduleManager.apply(parent.moduleManager);
+        packageManager.apply(parent.packageManager);
     }
 
     public Environment(CompileScope scope, OutputStream output) {
@@ -194,6 +197,7 @@ public class Environment {
         }
 
         this.moduleManager = new ModuleManager(this);
+        this.packageManager = new PackageManager();
 
         this.outputBuffers = new Stack<OutputBuffer>();
 
@@ -246,8 +250,41 @@ public class Environment {
         if (invoker != null)
             this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
 
-        for(Extension e: scope.extensions.values())
+        for(Extension e: scope.extensions.values()) {
             e.onLoad(this);
+
+            if (scope.getLangMode() == LangMode.MODERN) {
+                String[] packageNames = e.getPackageNames();
+
+                if (packageNames != null) {
+
+                    Package aPackage = null;
+                    for (String packageName : packageNames) {
+                        if (aPackage == null) {
+                            aPackage = getPackageManager().fetch(packageName);
+
+                            for (Class<?> aClass : e.getClasses().values()) {
+                                aPackage.addClass(ReflectionUtils.getClassName(aClass));
+                            }
+
+                            for (CompileFunctionSpec functionSpec : e.getFunctions().values()) {
+                                aPackage.addFunction(functionSpec.getName());
+                            }
+
+                            for (CompileConstant constant : e.getConstants().values()) {
+                                aPackage.addConstant(constant.name);
+                            }
+                        } else {
+                            Package aPackage2 = getPackageManager().fetch(packageName);
+
+                            for (String s : aPackage.getClasses()) aPackage2.addClass(s);
+                            for (String s : aPackage.getFunctions()) aPackage2.addFunction(s);
+                            for (String s : aPackage.getConstants()) aPackage2.addConstant(s);
+                        }
+                    }
+                }
+            }
+        }
 
         environment.set(this);
     }
@@ -398,6 +435,10 @@ public class Environment {
 
     public ModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    public PackageManager getPackageManager() {
+        return packageManager;
     }
 
     public CompileScope getScope() {
@@ -1134,12 +1175,14 @@ public class Environment {
 
     public void registerModule(ModuleEntity module, boolean ignoreErrors) {
         for(ClassEntity entity : module.getClasses()) {
-            if (entity.isStatic()){
+            if (entity.isStatic()) {
                 entity.setModule(module);
 
                 if (classMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CLASS.fetch(entity.getName()));
                 }
+
+                entity.register(this);
             }
         }
 
@@ -1150,6 +1193,8 @@ public class Environment {
                 if (functionMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                     error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(entity.getName()));
                 }
+
+                entity.register(this);
             }
         }
 
@@ -1159,6 +1204,8 @@ public class Environment {
             if (constantMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
                 error(entity.getTrace(), Messages.ERR_CANNOT_REDECLARE_CONSTANT.fetch(entity.getName()));
             }
+
+            entity.register(this);
         }
     }
 

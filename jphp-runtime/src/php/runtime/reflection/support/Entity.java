@@ -3,6 +3,7 @@ package php.runtime.reflection.support;
 import php.runtime.common.Function;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 
 import java.lang.reflect.InvocationTargetException;
@@ -156,5 +157,9 @@ abstract public class Entity {
             e = (InvocationTargetException)e.getTargetException();
         }
         return e.getCause();
+    }
+
+    public void register(Environment environment) {
+        // nop.
     }
 }

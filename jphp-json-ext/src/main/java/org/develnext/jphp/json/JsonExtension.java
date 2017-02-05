@@ -11,6 +11,11 @@ public class JsonExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "std", "json" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerClass(scope, JsonSerializable.class);
         registerClass(scope, JsonProcessor.class);

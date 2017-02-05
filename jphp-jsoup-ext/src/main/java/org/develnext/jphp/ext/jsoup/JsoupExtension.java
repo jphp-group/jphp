@@ -16,7 +16,12 @@ public class JsoupExtension extends Extension {
 
     @Override
     public Status getStatus() {
-        return Status.BETA;
+        return Status.STABLE;
+    }
+
+    @Override
+    public String[] getPackageNames() {
+        return new String[] { "jsoup" };
     }
 
     @Override

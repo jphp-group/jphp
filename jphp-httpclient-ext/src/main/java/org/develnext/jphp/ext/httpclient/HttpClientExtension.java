@@ -16,7 +16,12 @@ public class HttpClientExtension extends Extension {
 
     @Override
     public Status getStatus() {
-        return Status.EXPERIMENTAL;
+        return Status.STABLE;
+    }
+
+    @Override
+    public String[] getPackageNames() {
+        return new String[] { "http", "httpclient" };
     }
 
     @Override

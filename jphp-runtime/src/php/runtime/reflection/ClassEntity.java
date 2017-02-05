@@ -2,8 +2,10 @@ package php.runtime.reflection;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.common.LangMode;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
+import php.runtime.common.StringUtils;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -162,6 +164,23 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public void setNotRuntime(boolean isNotRuntime) {
         this.isNotRuntime = isNotRuntime;
+    }
+
+    @Override
+    public void register(Environment environment) {
+        if (environment.scope.getLangMode() == LangMode.MODERN) {
+            ConstantEntity pkg = findConstant("__PACKAGE__");
+
+            if (pkg != null && pkg.getClazz() == this) {
+                String value = pkg.getValue().toString();
+
+                for (String p : StringUtils.split(value, ',')) {
+                    p = p.trim();
+
+                    environment.getPackageManager().fetch(p).addClass(getName());
+                }
+            }
+        }
     }
 
     public void doneDeclare() {

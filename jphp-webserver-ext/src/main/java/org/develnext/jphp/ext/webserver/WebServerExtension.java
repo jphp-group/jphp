@@ -18,6 +18,11 @@ public class WebServerExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "http", "webserver" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerClass(scope, PWebServer.class);
         registerWrapperClass(scope, HttpServletRequest.class, PWebRequest.class);

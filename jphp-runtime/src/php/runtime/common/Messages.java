@@ -81,6 +81,7 @@ final public class Messages {
     public final static Item ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT = new Item("Cannot inherit previously-inherited or override constant %s from interface %s");
 
     public final static Item ERR_INTERFACE_MAY_NOT_INCLUDE_VARS = new Item("Interfaces may not include member variables");
+    public final static Item ERR_PACKAGE_CONSTANT_MUST_BE_NON_EMPTY_STRING = new Item("Class constant %s::__PACKAGE__ must be a non-empty string");
 
     public final static Item ERR_CANNOT_USE_SYSTEM_CLASS = new Item("Cannot use system class/interface %s for %s");
 

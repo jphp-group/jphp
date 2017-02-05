@@ -4,9 +4,12 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.*;
+import php.runtime.env.Package;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 
@@ -217,6 +220,40 @@ public class WrapEnvironment extends BaseObject {
         }
 
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory getPackages(Environment env, Memory... args) {
+        PackageManager packageManager = this.environment.getPackageManager();
+
+        return ArrayMemory.ofStringCollection(packageManager.names()).toConstant();
+    }
+
+    @Signature(@Arg("name"))
+    public Memory hasPackage(Environment env, Memory... args) {
+        return TrueMemory.valueOf(this.environment.getPackageManager().has(args[0].toString()));
+    }
+
+    @Signature(@Arg("name"))
+    public Memory getPackage(Environment env, Memory... args) {
+        PackageManager packageManager = this.environment.getPackageManager();
+
+        if (packageManager.has(args[0].toString())) {
+            Package aPackage = packageManager.fetch(args[0].toString());
+
+            ArrayMemory classes = ArrayMemory.ofStringCollection(aPackage.getClasses());
+            ArrayMemory functions = ArrayMemory.ofStringCollection(aPackage.getFunctions());
+            ArrayMemory constants = ArrayMemory.ofStringCollection(aPackage.getConstants());
+
+            ArrayMemory result = new ArrayMemory();
+            result.put("classes", classes);
+            result.put("functions", functions);
+            result.put("constants", constants);
+
+            return result.toConstant();
+        } else {
+            return Memory.NULL;
+        }
     }
 
     @Signature

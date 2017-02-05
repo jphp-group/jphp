@@ -15,6 +15,11 @@ public class MailExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "mail" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerMemoryOperation(InternetAddressMemoryOperation.class);
 

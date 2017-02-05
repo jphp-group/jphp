@@ -1,10 +1,13 @@
 package php.runtime.ext.core;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Runtime;
 import php.runtime.common.GrammarUtils;
+import php.runtime.common.LangMode;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
+import php.runtime.env.PackageManager;
 import php.runtime.env.TraceInfo;
 import php.runtime.env.handler.ErrorHandler;
 import php.runtime.env.handler.ExceptionHandler;
@@ -907,5 +910,49 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory flow(Environment env, Memory result) {
         return WrapFlow.of(env, result);
+    }
+
+    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes) {
+        return define_package(env, trace, name, classes, new ArrayMemory(), new ArrayMemory());
+    }
+
+    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes, Memory functions) {
+        return define_package(env, trace, name, classes, functions, new ArrayMemory());
+    }
+
+    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes, Memory functions, Memory constants) {
+        if (env.scope.getLangMode() != LangMode.MODERN) {
+            env.error(trace, ErrorType.E_NOTICE, "define_package(): Packages are available only in modern language mode");
+            return Memory.FALSE;
+        }
+
+        if (!expecting(env, trace, 1, classes, Memory.Type.ARRAY)) {
+            return Memory.FALSE;
+        }
+
+        if (!expecting(env, trace, 2, functions, Memory.Type.ARRAY)) {
+            return Memory.FALSE;
+        }
+
+        if (!expecting(env, trace, 3, constants, Memory.Type.ARRAY)) {
+            return Memory.FALSE;
+        }
+
+        PackageManager manager = env.getPackageManager();
+        php.runtime.env.Package aPackage = manager.fetch(name);
+
+        for (Memory cls : classes.toValue(ArrayMemory.class)) {
+            aPackage.addClass(cls.toString());
+        }
+
+        for (Memory func : functions.toValue(ArrayMemory.class)) {
+            aPackage.addFunction(func.toString());
+        }
+
+        for (Memory c : constants.toValue(ArrayMemory.class)) {
+            aPackage.addConstant(c.toString());
+        }
+
+        return Memory.TRUE;
     }
 }

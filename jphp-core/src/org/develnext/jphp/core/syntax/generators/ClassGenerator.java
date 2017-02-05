@@ -11,9 +11,12 @@ import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.common.LangMode;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.common.Separator;
+import php.runtime.common.StringUtils;
+import php.runtime.env.Package;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.reflection.ClassEntity;
@@ -381,6 +384,28 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
                         one.setDocComment(lastComment);
+
+                        if (analyzer.getEnvironment() != null && analyzer.getEnvironment().scope.getLangMode() == LangMode.MODERN) {
+                            for (ConstStmtToken.Item item : one.items) {
+                                if (item.getFulledName().equals("__PACKAGE__")) {
+                                    if (item.value == null || !item.value.isConstantly() || !item.value.isSingle() || !(item.value.getSingle() instanceof StringExprToken)) {
+                                        analyzer.getEnvironment().error(result.toTraceInfo(analyzer.getContext()),
+                                                ErrorType.E_ERROR, Messages.ERR_PACKAGE_CONSTANT_MUST_BE_NON_EMPTY_STRING, result.getName().getName()
+                                        );
+                                        return;
+                                    }
+
+                                    String value = ((StringExprToken) item.value.getSingle()).getValue();
+
+                                    if (value.trim().isEmpty()) {
+                                        analyzer.getEnvironment().error(result.toTraceInfo(analyzer.getContext()),
+                                                ErrorType.E_ERROR, Messages.ERR_PACKAGE_CONSTANT_MUST_BE_NON_EMPTY_STRING, result.getName().getName()
+                                        );
+                                        return;
+                                    }
+                                }
+                            }
+                        }
 
                         lastComment = null;
 

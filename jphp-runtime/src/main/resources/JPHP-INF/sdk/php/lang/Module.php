@@ -36,4 +36,10 @@ class Module {
      * @throws
      */
     public function dump($target, $saveDebugInfo = true) { }
+
+    /**
+     * @param string $name
+     * @param array $classes
+     */
+    public static function package($name, array $classes) { }
 }

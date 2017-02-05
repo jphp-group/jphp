@@ -151,6 +151,29 @@ class Environment
     }
 
     /**
+     * @return string[]
+     */
+    public function getPackages()
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasPackage($name)
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return array like [classes => [], functions => [], constants => []]
+     */
+    public function getPackage($name)
+    {
+    }
+
+    /**
      * Get environment of current execution
      * --RU--
      * Взять окружение текущего выполнения

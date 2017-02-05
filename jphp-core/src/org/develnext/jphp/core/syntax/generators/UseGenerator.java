@@ -10,6 +10,12 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
+import php.runtime.Information;
+import php.runtime.common.LangMode;
+import php.runtime.common.StringUtils;
+import php.runtime.env.Environment;
+import php.runtime.env.Package;
+import php.runtime.env.PackageManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +35,14 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
                           NamespaceUseStmtToken.UseType prefixUseType) {
         boolean first = true;
         NamespaceUseStmtToken.UseType useType = prefixUseType;
+
+
+        Environment environment = this.analyzer.getEnvironment();
+
+        PackageManager packageManager = null;
+        if (environment != null) {
+            packageManager = environment.getPackageManager();
+        }
 
         do {
             Token next = nextToken(iterator);
@@ -97,7 +111,46 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
             }
 
             NamespaceStmtToken namespace = analyzer.getNamespace();
-            namespace.getUses().add(use);
+
+            if (analyzer.getEnvironment() != null && analyzer.getEnvironment().scope.getLangMode() == LangMode.MODERN) {
+                if (packageManager != null && packageManager.has(use.getName().toName())) {
+                    Package aPackage = packageManager.fetch(use.getName().toName());
+
+                    for (String cls : aPackage.getClasses()) {
+                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(cls, Information.NAMESPACE_SEP_CHAR));
+
+                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(cls, use));
+                        useStmtToken.setName(nameToken);
+                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CLASS);
+
+                        namespace.getUses().add(useStmtToken);
+                    }
+
+                    for (String s : aPackage.getFunctions()) {
+                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
+
+                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
+                        useStmtToken.setName(nameToken);
+                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.FUNCTION);
+
+                        namespace.getUses().add(useStmtToken);
+                    }
+
+                    for (String s : aPackage.getConstants()) {
+                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
+
+                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
+                        useStmtToken.setName(nameToken);
+                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CONSTANT);
+
+                        namespace.getUses().add(useStmtToken);
+                    }
+                } else {
+                    namespace.getUses().add(use);
+                }
+            } else {
+                namespace.getUses().add(use);
+            }
 
             if (token instanceof CommaToken){
                 use = new NamespaceUseStmtToken(current.getMeta());

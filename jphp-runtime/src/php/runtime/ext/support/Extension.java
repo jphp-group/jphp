@@ -31,6 +31,10 @@ abstract public class Extension {
         return getClass().getName();
     }
 
+    public String[] getPackageNames() {
+        return new String[0];
+    }
+
     public String getVersion() {
         return Information.CORE_VERSION;
     }

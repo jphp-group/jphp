@@ -15,6 +15,11 @@ public class SqlExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "sql" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerJavaException(scope, WrapSqlException.class, SQLException.class);
 

@@ -25,6 +25,11 @@ public class CompressExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "compress" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerWrapperClass(scope, ArchiveEntry.class, PArchiveEntry.class);
         registerWrapperClass(scope, ZipArchiveEntry.class, PArchiveEntry.class);

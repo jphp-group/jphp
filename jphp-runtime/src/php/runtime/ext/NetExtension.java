@@ -26,6 +26,11 @@ public class NetExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "std", "http" };
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerClass(scope, WrapNetStream.class);
 

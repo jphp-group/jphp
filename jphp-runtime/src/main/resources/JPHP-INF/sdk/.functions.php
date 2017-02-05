@@ -12,3 +12,14 @@ function flow($iterator)
 {
     return Flow::of($iterator);
 }
+
+/**
+ * @param string $name
+ * @param array $classes
+ * @param array $functions
+ * @param array $constants
+ * @return bool
+ */
+function define_package($name, array $classes, array $functions = [], array $constants = [])
+{
+}

@@ -38,13 +38,17 @@ public class CoreExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] { "std", "core" };
+    }
+
+    @Override
     public Status getStatus() {
         return Status.STABLE;
     }
 
     @Override
     public void onRegister(CompileScope scope) {
-
         registerFunctions(new LangFunctions());
         registerConstants(new LangConstants());
 
@@ -154,5 +158,7 @@ public class CoreExtension extends Extension {
     @Override
     public void onLoad(Environment env) {
         Stream.initEnvironment(env);
+
+
     }
 }

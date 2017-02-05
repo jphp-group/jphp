@@ -3,9 +3,7 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.HintType;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
-import php.runtime.env.ModuleManager;
+import php.runtime.env.*;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
@@ -106,6 +104,27 @@ public class WrapModule extends BaseObject {
         } finally {
             Stream.closeStream(env, os);
         }
+        return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("name"),
+            @Arg(value = "classes", type = HintType.ARRAY),
+            @Arg(value = "functions", type = HintType.ARRAY, optional = @Optional())
+    })
+    @Name("package")
+    public static Memory _package(Environment env, Memory... args) {
+        PackageManager manager = env.getPackageManager();
+        php.runtime.env.Package aPackage = manager.fetch(args[0].toString());
+
+        for (Memory cls : args[1].toValue(ArrayMemory.class)) {
+            aPackage.addClass(cls.toString());
+        }
+
+        for (Memory func : args[2].toValue(ArrayMemory.class)) {
+            aPackage.addFunction(func.toString());
+        }
+
         return Memory.NULL;
     }
 }
