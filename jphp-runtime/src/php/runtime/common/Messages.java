@@ -1,5 +1,7 @@
 package php.runtime.common;
 
+import java.util.IllegalFormatException;
+
 final public class Messages {
 
     private Messages(){}
@@ -118,8 +120,12 @@ final public class Messages {
         public Item(String message){
             this.message = message;
         }
-        public String fetch(Object... args){
-            return String.format(message, args);
+        public String fetch(Object... args) {
+            try {
+                return String.format(message, args);
+            } catch (IllegalFormatException e) {
+                return message;
+            }
         }
     }
 }

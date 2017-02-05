@@ -1277,7 +1277,7 @@ public class Environment {
                 return Memory.TRUE;
             }
 
-            ModuleEntity module = moduleManager.fetchCachedModule(path);
+            ModuleEntity module = moduleManager.fetchCachedModule(path, path.endsWith(".phb"));
 
             if (module == null) {
                 callback.call(null);

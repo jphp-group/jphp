@@ -20,13 +20,13 @@ public class ModuleManager {
         this.modules.putAll(parent.modules);
     }
 
-    public ModuleEntity fetchCachedModule(String path) throws Throwable {
+    public ModuleEntity fetchCachedModule(String path, boolean compiled) throws Throwable {
         ModuleEntity moduleEntity = modules.get(path);
 
         if (moduleEntity != null) {
             return moduleEntity;
         } else {
-            moduleEntity = fetchModule(path);
+            moduleEntity = fetchModule(path, compiled);
 
             if (moduleEntity == null) {
                 return null;
