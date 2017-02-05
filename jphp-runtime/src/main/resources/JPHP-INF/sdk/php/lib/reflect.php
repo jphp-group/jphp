@@ -8,6 +8,8 @@ use php\lang\Module;
  */
 class reflect
 {
+    const __PACKAGE__ = 'std, core';
+
     private function __construct()
     {
     }

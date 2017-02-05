@@ -9,6 +9,8 @@ namespace php\webserver;
  */
 class WebServer
 {
+    const __PACKAGE__ = 'net, webserver';
+
     /**
      * @readonly
      * @var string

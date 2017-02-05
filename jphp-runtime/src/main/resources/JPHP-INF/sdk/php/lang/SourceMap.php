@@ -7,6 +7,8 @@ namespace php\lang;
  */
 class SourceMap
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string $moduleName
      */

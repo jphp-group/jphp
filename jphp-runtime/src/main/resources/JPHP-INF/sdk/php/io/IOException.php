@@ -7,6 +7,7 @@ use php\lang\JavaException;
  * Class IOException
  * @package php\io
  */
-class IOException extends JavaException {
-
+class IOException extends JavaException
+{
+    const __PACKAGE__ = 'std, core';
 }

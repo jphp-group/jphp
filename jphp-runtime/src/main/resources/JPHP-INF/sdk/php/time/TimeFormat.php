@@ -8,7 +8,10 @@ use php\util\Locale;
  * Class TimeFormat, Immutable
  * @package php\time
  */
-class TimeFormat {
+class TimeFormat
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string $format
      * @param Locale $locale if ``null`` then it uses the default locale

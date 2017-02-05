@@ -7,6 +7,8 @@ namespace php\util;
  */
 class SharedValue extends SharedMemory
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param mixed $value (optional)
      */

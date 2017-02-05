@@ -5,7 +5,9 @@ namespace php\lang;
  * Class System
  * @package php\lang
  */
-final class System {
+final class System
+{
+    const __PACKAGE__ = 'std, core';
 
     private function __construct() { }
 

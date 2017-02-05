@@ -1,7 +1,9 @@
 <?php
 namespace php\lang;
 
-final class JavaField extends JavaReflection {
+final class JavaField extends JavaReflection
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * @param JavaObject $object

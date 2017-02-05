@@ -9,6 +9,8 @@ use php\io\Stream;
  */
 class WebRequest
 {
+    const __PACKAGE__ = 'net, webserver';
+
     /**
      * @readonly
      * @var string

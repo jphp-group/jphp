@@ -8,7 +8,10 @@ use php\io\Stream;
  * Class Module
  * @package php\lang
  */
-class Module {
+class Module
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * Register all functions and classes of module in current environment
      *

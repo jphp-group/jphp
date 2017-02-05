@@ -9,6 +9,8 @@ use php\concurrent\Future;
  */
 class ThreadPool
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * internal
      */

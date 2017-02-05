@@ -8,6 +8,8 @@ use php\net\Proxy;
  */
 abstract class Connection
 {
+    const __PACKAGE__ = 'jsoup';
+
     const METHOD_POST = 'POST';
     const METHOD_GET = 'GET';
 

@@ -10,6 +10,8 @@ use Traversable;
  */
 abstract class SharedCollection extends SharedMemory implements Countable, Traversable
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @return bool
      */

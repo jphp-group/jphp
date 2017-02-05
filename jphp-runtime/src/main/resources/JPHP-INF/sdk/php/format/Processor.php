@@ -7,6 +7,7 @@ use php\io\Stream;
  * @package php\format
  */
 abstract class Processor {
+    const __PACKAGE__ = 'std, core';
 
     abstract public function format($value);
     abstract public function formatTo($value, Stream $output);

@@ -9,6 +9,8 @@ use php\io\IOException;
  */
 class ServerSocket
 {
+    const __PACKAGE__ = 'std, net';
+
     /**
      * @param int $port
      * @param int $backLog

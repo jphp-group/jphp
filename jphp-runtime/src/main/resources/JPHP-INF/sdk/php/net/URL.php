@@ -7,7 +7,10 @@ use php\io\Stream;
  * Class URL
  * @package php\net
  */
-class URL {
+class URL
+{
+    const __PACKAGE__ = 'std, net';
+
     /**
      * @param string $uri
      */

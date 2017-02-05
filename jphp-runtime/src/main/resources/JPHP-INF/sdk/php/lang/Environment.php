@@ -7,6 +7,8 @@ namespace php\lang;
  */
 class Environment
 {
+    const __PACKAGE__ = 'std, core';
+
     const CONCURRENT = 1; // experimental - for use in multi-threading
     const HOT_RELOAD = 2; // for hot-reload working (like classical PHP)
 

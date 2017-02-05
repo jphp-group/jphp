@@ -19,7 +19,7 @@ public class WebServerExtension extends Extension {
 
     @Override
     public String[] getPackageNames() {
-        return new String[] { "http", "webserver" };
+        return new String[] { "net", "webserver" };
     }
 
     @Override

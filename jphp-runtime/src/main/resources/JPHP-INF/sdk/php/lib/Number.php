@@ -12,4 +12,5 @@ use php\lib\num;
  */
 class number extends num
 {
+    const __PACKAGE__ = 'std, core';
 }

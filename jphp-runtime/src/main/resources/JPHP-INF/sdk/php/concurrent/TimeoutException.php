@@ -8,5 +8,5 @@ use php\lang\JavaException;
  * @package php\concurrent
  */
 class TimeoutException extends JavaException {
-
+    const __PACKAGE__ = 'std, core';
 }

@@ -12,7 +12,9 @@ use Traversable;
  * Class Flow, Immutable
  * @package php\util
  */
-class Flow implements Iterator {
+class Flow implements Iterator
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * Create a new flow, you can also use ``of()`` method

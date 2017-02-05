@@ -9,6 +9,8 @@ use php\lang\ClassLoader;
  */
 class LauncherClassLoader extends ClassLoader
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string $name
      */

@@ -11,6 +11,8 @@ use Traversable;
  */
 class SharedMap extends SharedCollection
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param array|Traversable $array (optional)
      */

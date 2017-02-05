@@ -5,7 +5,9 @@ namespace php\io;
  * Class File
  * @package php\io
  */
-class File {
+class File
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * ``;`` on WINDOWS or ``:`` on UNIX

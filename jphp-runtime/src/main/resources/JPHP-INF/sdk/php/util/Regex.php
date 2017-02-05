@@ -7,7 +7,10 @@ namespace php\util;
  * Class Regex, Immutable
  * @package php\util
  */
-class Regex implements \Iterator {
+class Regex implements \Iterator
+{
+    const __PACKAGE__ = 'std, core';
+
     const CANON_EQ = 0x80;
     const CASE_INSENSITIVE = 0x02;
     const UNICODE_CASE = 0x40;

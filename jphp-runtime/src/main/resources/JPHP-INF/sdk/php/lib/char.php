@@ -8,7 +8,9 @@ namespace php\lib;
  * Class char
  * @package php\lib
  */
-class char {
+class char
+{
+    const __PACKAGE__ = 'std, core';
 
     private function __construct() { }
 

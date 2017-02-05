@@ -5,7 +5,9 @@ namespace php\lang;
  * Class JavaClass
  * @package php\lang
  */
-final class JavaClass {
+final class JavaClass
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * @param string $className - full name of java class

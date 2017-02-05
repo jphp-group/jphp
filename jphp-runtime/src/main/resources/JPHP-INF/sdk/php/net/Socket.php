@@ -8,7 +8,10 @@ use php\io\Stream;
  * Class Socket
  * @package php\net
  */
-class Socket {
+class Socket
+{
+    const __PACKAGE__ = 'std, net';
+
     /**
      * @param null|string $host
      * @param null|int $port

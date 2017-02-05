@@ -6,7 +6,9 @@ use php\io\Stream;
  * Class JsonProcessor
  * @package php\format
  */
-class JsonProcessor extends Processor {
+class JsonProcessor extends Processor
+{
+    const __PACKAGE__ = 'std, json';
 
     const SERIALIZE_PRETTY_PRINT = 1;
     const DESERIALIZE_AS_ARRAYS  = 1024;

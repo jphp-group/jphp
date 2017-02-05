@@ -11,5 +11,6 @@ namespace php\lib;
  */
 class Mirror extends reflect
 {
+    const __PACKAGE__ = 'std, core';
 
 }

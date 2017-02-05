@@ -9,6 +9,8 @@ use php\io\Stream;
  */
 final class Jsoup
 {
+    const __PACKAGE__ = 'jsoup';
+
     private function __construct()
     {
     }

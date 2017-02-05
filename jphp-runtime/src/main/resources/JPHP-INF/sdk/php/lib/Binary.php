@@ -7,6 +7,8 @@ namespace php\lib;
  * Class Binary
  * @deprecated use bin
  */
-class binary extends bin {
+class binary extends bin
+{
+    const __PACKAGE__ = 'std, core';
 
 }

@@ -9,6 +9,8 @@ use Iterator;
  */
 abstract class Elements implements Iterator
 {
+    const __PACKAGE__ = 'jsoup';
+
     /**
      * @return string
      */

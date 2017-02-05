@@ -7,6 +7,8 @@ namespace php\jsoup;
  */
 abstract class ConnectionRequest
 {
+    const __PACKAGE__ = 'jsoup';
+
     /**
      * Setter and getter for timeout.
      *

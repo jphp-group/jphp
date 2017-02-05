@@ -8,7 +8,10 @@ use php\io\Stream;
  * Class Process
  * @package php\lang
  */
-class Process {
+class Process
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param array $commands
      * @param null|string|File $directory

@@ -7,6 +7,8 @@ namespace php\lang;
  */
 abstract class ClassLoader
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string $name
      */

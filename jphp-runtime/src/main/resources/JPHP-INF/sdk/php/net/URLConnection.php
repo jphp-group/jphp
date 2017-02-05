@@ -9,6 +9,8 @@ use php\io\Stream;
  */
 class URLConnection
 {
+    const __PACKAGE__ = 'std, net';
+
     /**
      * @var bool
      */

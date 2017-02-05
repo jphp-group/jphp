@@ -5,7 +5,10 @@ namespace php\lang;
  * Class ThreadGroup
  * @package php\lang
  */
-class ThreadGroup {
+class ThreadGroup
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param $name
      * @param ThreadGroup $parent

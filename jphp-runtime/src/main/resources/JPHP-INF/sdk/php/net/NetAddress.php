@@ -8,6 +8,8 @@ use php\io\IOException;
  */
 class NetAddress
 {
+    const __PACKAGE__ = 'std, net';
+
     /**
      * @param string $host
      * @return NetAddress[]

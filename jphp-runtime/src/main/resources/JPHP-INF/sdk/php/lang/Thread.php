@@ -7,6 +7,8 @@ namespace php\lang;
  */
 class Thread
 {
+    const __PACKAGE__ = 'std, core';
+
     const MAX_PRIORITY = 10;
     const MIN_PRIORITY = 1;
     const NORM_PRIORITY = 5;

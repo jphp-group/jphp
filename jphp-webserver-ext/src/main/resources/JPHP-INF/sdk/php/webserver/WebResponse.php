@@ -7,6 +7,8 @@ namespace php\webserver;
  */
 class WebResponse
 {
+    const __PACKAGE__ = 'net, webserver';
+
     /** @var int */
     public $status;
 

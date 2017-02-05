@@ -12,7 +12,10 @@ use php\lang\IllegalArgumentException;
  * Class Scanner
  * @package php\util
  */
-class Scanner implements \Iterator {
+class Scanner implements \Iterator
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string|Stream $source
      * @param string|null $charset e.g.: UTF-8, windows-1251, etc., only for Stream objects

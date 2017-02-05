@@ -6,7 +6,10 @@ use php\lang\JavaException;
  * Class Time, Immutable
  * @package php\time
  */
-class Time {
+class Time
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param int $date unix long timestamp (in millis)
      * @param null|TimeZone $timezone - if null then gets default timezone

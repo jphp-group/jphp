@@ -9,6 +9,8 @@ namespace php\util;
  */
 class Shared
 {
+    const __PACKAGE__ = 'std, core';
+
     private function __construct()
     {
     }

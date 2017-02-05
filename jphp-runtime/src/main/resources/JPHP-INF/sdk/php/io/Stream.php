@@ -5,6 +5,8 @@ use Iterator;
 
 abstract class Stream
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @var string
      */

@@ -7,6 +7,8 @@ namespace php\jsoup;
  */
 abstract class Document
 {
+    const __PACKAGE__ = 'jsoup';
+
     /**
      * @return string
      */

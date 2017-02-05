@@ -5,7 +5,10 @@ namespace php\lang;
  * Class JavaException
  * @package php\lang
  */
-class JavaException extends \Exception {
+class JavaException extends \Exception
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * Check exception instance of java.lang.RuntimeException
      * @return bool

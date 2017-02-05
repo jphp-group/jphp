@@ -5,7 +5,10 @@ namespace php\time;
  * Class TimeZone, Immutable
  * @package php\time
  */
-class TimeZone {
+class TimeZone
+{
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param int $rawOffset
      * @param string $ID

@@ -9,7 +9,9 @@ use php\io\Stream;
  * Class XmlProcessor
  * @package php\xml
  */
-class XmlProcessor extends Processor {
+class XmlProcessor extends Processor
+{
+    const __PACKAGE__ = 'std, xml';
 
     /**
      * @param DomDocument $value

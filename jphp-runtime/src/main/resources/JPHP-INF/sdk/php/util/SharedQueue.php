@@ -10,6 +10,8 @@ use Traversable;
  */
 class SharedQueue extends SharedCollection
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param array|Traversable $array (optional)
      */

@@ -10,6 +10,8 @@ use Traversable;
  */
 class Configuration
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * @param string|Stream $source
      * @param string $encoding

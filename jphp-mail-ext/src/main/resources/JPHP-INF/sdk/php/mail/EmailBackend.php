@@ -7,6 +7,8 @@ namespace php\mail;
  */
 class EmailBackend
 {
+    const __PACKAGE__ = 'mail';
+
     /**
      * The host name of the SMTP server.
      * @var string

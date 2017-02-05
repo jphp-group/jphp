@@ -12,6 +12,8 @@ use php\io\Stream;
  */
 class fs
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * Return the local filesystem's name-separator character.
      * --RU--

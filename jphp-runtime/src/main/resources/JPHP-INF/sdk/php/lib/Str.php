@@ -9,6 +9,8 @@ namespace php\lib;
  */
 class str
 {
+    const __PACKAGE__ = 'std, core';
+
     private function __construct()
     {
     }

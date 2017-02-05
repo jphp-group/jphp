@@ -9,6 +9,8 @@ use php\io\File;
  */
 class Email
 {
+    const __PACKAGE__ = 'mail';
+
     /**
      * @param string $email
      * @param string $name (optional)

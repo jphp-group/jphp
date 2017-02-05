@@ -27,7 +27,7 @@ public class NetExtension extends Extension {
 
     @Override
     public String[] getPackageNames() {
-        return new String[] { "std", "http" };
+        return new String[] { "std", "net" };
     }
 
     @Override

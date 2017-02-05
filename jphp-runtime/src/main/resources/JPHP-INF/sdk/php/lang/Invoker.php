@@ -8,7 +8,9 @@ namespace php\lang;
  *
  * @package php\lang
  */
-class Invoker {
+class Invoker
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * @param callable $callback

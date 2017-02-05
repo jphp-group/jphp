@@ -3,6 +3,8 @@ namespace php\util;
 
 abstract class SharedMemory
 {
+    const __PACKAGE__ = 'std, core';
+
     /**
      * You can use a shared value as a mutex
      * @param callable $callback (SharedValue $this)

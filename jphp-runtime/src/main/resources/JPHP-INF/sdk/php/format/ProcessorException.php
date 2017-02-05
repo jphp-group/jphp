@@ -9,5 +9,5 @@ use Exception;
  */
 class ProcessorException extends Exception
 {
-    
+    const __PACKAGE__ = 'std, core';
 }

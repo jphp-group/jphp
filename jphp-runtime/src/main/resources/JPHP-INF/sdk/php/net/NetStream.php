@@ -10,7 +10,9 @@ use php\io\Stream;
  * Class NetStream
  * @package php\net
  */
-class NetStream extends Stream {
+class NetStream extends Stream
+{
+    const __PACKAGE__ = 'std, net';
 
     /**
      * {@inheritdoc}

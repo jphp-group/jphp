@@ -7,6 +7,8 @@ namespace php\jsoup;
  */
 abstract class ConnectionResponse
 {
+    const __PACKAGE__ = 'jsoup';
+
     /**
      * @return array
      */

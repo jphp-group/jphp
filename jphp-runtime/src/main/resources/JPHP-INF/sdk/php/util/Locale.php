@@ -5,7 +5,9 @@ namespace php\util;
  * Class Locale, Immutable
  * @package php\util
  */
-class Locale {
+class Locale
+{
+    const __PACKAGE__ = 'std, core';
 
     /**
      * @param string $lang
