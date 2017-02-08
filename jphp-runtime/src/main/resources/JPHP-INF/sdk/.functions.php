@@ -23,3 +23,11 @@ function flow($iterator)
 function define_package($name, array $classes, array $functions = [], array $constants = [])
 {
 }
+
+/**
+ * @param string $name
+ * @param string $file
+ */
+function define_autoload_package($name, $file)
+{
+}

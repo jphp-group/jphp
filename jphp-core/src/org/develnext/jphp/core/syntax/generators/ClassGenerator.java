@@ -385,28 +385,6 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         one.setClazz(result);
                         one.setDocComment(lastComment);
 
-                        if (analyzer.getEnvironment() != null && analyzer.getEnvironment().scope.getLangMode() == LangMode.MODERN) {
-                            for (ConstStmtToken.Item item : one.items) {
-                                if (item.getFulledName().equals("__PACKAGE__")) {
-                                    if (item.value == null || !item.value.isConstantly() || !item.value.isSingle() || !(item.value.getSingle() instanceof StringExprToken)) {
-                                        analyzer.getEnvironment().error(result.toTraceInfo(analyzer.getContext()),
-                                                ErrorType.E_ERROR, Messages.ERR_PACKAGE_CONSTANT_MUST_BE_NON_EMPTY_STRING, result.getName().getName()
-                                        );
-                                        return;
-                                    }
-
-                                    String value = ((StringExprToken) item.value.getSingle()).getValue();
-
-                                    if (value.trim().isEmpty()) {
-                                        analyzer.getEnvironment().error(result.toTraceInfo(analyzer.getContext()),
-                                                ErrorType.E_ERROR, Messages.ERR_PACKAGE_CONSTANT_MUST_BE_NON_EMPTY_STRING, result.getName().getName()
-                                        );
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
                         lastComment = null;
 
                         constants.add(one);

@@ -106,25 +106,4 @@ public class WrapModule extends BaseObject {
         }
         return Memory.NULL;
     }
-
-    @Signature({
-            @Arg("name"),
-            @Arg(value = "classes", type = HintType.ARRAY),
-            @Arg(value = "functions", type = HintType.ARRAY, optional = @Optional())
-    })
-    @Name("package")
-    public static Memory _package(Environment env, Memory... args) {
-        PackageManager manager = env.getPackageManager();
-        php.runtime.env.Package aPackage = manager.fetch(args[0].toString());
-
-        for (Memory cls : args[1].toValue(ArrayMemory.class)) {
-            aPackage.addClass(cls.toString());
-        }
-
-        for (Memory func : args[2].toValue(ArrayMemory.class)) {
-            aPackage.addFunction(func.toString());
-        }
-
-        return Memory.NULL;
-    }
 }

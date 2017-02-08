@@ -239,7 +239,7 @@ public class WrapEnvironment extends BaseObject {
         PackageManager packageManager = this.environment.getPackageManager();
 
         if (packageManager.has(args[0].toString())) {
-            Package aPackage = packageManager.fetch(args[0].toString());
+            Package aPackage = packageManager.fetch(args[0].toString(), env.trace());
 
             ArrayMemory classes = ArrayMemory.ofStringCollection(aPackage.getClasses());
             ArrayMemory functions = ArrayMemory.ofStringCollection(aPackage.getFunctions());

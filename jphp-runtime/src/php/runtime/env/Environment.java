@@ -197,7 +197,7 @@ public class Environment {
         }
 
         this.moduleManager = new ModuleManager(this);
-        this.packageManager = new PackageManager();
+        this.packageManager = new PackageManager(this);
 
         this.outputBuffers = new Stack<OutputBuffer>();
 
@@ -261,7 +261,7 @@ public class Environment {
                     Package aPackage = null;
                     for (String packageName : packageNames) {
                         if (aPackage == null) {
-                            aPackage = getPackageManager().fetch(packageName);
+                            aPackage = getPackageManager().fetch(packageName, TraceInfo.UNKNOWN);
 
                             for (Class<?> aClass : e.getClasses().values()) {
                                 aPackage.addClass(ReflectionUtils.getClassName(aClass));
@@ -275,7 +275,7 @@ public class Environment {
                                 aPackage.addConstant(constant.name);
                             }
                         } else {
-                            Package aPackage2 = getPackageManager().fetch(packageName);
+                            Package aPackage2 = getPackageManager().fetch(packageName, TraceInfo.UNKNOWN);
 
                             for (String s : aPackage.getClasses()) aPackage2.addClass(s);
                             for (String s : aPackage.getFunctions()) aPackage2.addFunction(s);
@@ -1286,6 +1286,10 @@ public class Environment {
 
             pushCall(trace, null, new Memory[]{StringMemory.valueOf(path)}, funcName, null, null);
             try {
+                if (locals == null) {
+                    locals = new ArrayMemory();
+                }
+
                 return module.include(this, locals);
             } finally {
                 popCall();
@@ -1297,23 +1301,23 @@ public class Environment {
         return __include(path, globals, null);
     }
 
-    public Memory __includeOnce(String path, ArrayMemory locals, final TraceInfo trace)
+    public Memory __includeOnce(final String path, ArrayMemory locals, final TraceInfo trace)
             throws Throwable {
         return __import(path, locals, trace, "include_once", true, new Callback<Void, Void>() {
             @Override
             public Void call(Void param) {
-                warning(trace, Messages.ERR_INCLUDE_FAILED, "include_once");
+                warning(trace, Messages.ERR_INCLUDE_FAILED, "include_once", path);
                 return null;
             }
         });
     }
 
-    public Memory __include(String fileName, ArrayMemory locals, final TraceInfo trace)
+    public Memory __include(final String fileName, ArrayMemory locals, final TraceInfo trace)
             throws Throwable {
         return __import(fileName, locals, trace, "include", false, new Callback<Void, Void>() {
             @Override
             public Void call(Void param) {
-                warning(trace, Messages.ERR_INCLUDE_FAILED, "include");
+                warning(trace, Messages.ERR_INCLUDE_FAILED, "include", fileName);
                 return null;
             }
         });

@@ -166,23 +166,6 @@ public class ClassEntity extends Entity implements Cloneable {
         this.isNotRuntime = isNotRuntime;
     }
 
-    @Override
-    public void register(Environment environment) {
-        if (environment.scope.getLangMode() == LangMode.MODERN) {
-            ConstantEntity pkg = findConstant("__PACKAGE__");
-
-            if (pkg != null && pkg.getClazz() == this) {
-                String value = pkg.getValue().toString();
-
-                for (String p : StringUtils.split(value, ',')) {
-                    p = p.trim();
-
-                    environment.getPackageManager().fetch(p).addClass(getName());
-                }
-            }
-        }
-    }
-
     public void doneDeclare() {
         if (isClass()) {
             methodConstruct = methods.get("__construct");

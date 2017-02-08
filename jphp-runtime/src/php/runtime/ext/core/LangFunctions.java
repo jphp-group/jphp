@@ -920,6 +920,18 @@ public class LangFunctions extends FunctionsContainer {
         return define_package(env, trace, name, classes, functions, new ArrayMemory());
     }
 
+    public static Memory define_autoload_package(Environment env, TraceInfo trace, String pkg, String path) {
+        if (env.scope.getLangMode() != LangMode.MODERN) {
+            env.error(trace, ErrorType.E_NOTICE, "define_autoload_package(): Packages are available only in modern language mode");
+            return Memory.FALSE;
+        }
+
+        PackageManager manager = env.getPackageManager();
+        manager.addAutoload(pkg, path);
+
+        return Memory.TRUE;
+    }
+
     public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes, Memory functions, Memory constants) {
         if (env.scope.getLangMode() != LangMode.MODERN) {
             env.error(trace, ErrorType.E_NOTICE, "define_package(): Packages are available only in modern language mode");
@@ -939,7 +951,7 @@ public class LangFunctions extends FunctionsContainer {
         }
 
         PackageManager manager = env.getPackageManager();
-        php.runtime.env.Package aPackage = manager.fetch(name);
+        php.runtime.env.Package aPackage = manager.fetch(name, trace);
 
         for (Memory cls : classes.toValue(ArrayMemory.class)) {
             aPackage.addClass(cls.toString());

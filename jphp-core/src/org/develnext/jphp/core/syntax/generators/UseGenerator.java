@@ -114,7 +114,7 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
 
             if (analyzer.getEnvironment() != null && analyzer.getEnvironment().scope.getLangMode() == LangMode.MODERN) {
                 if (packageManager != null && packageManager.has(use.getName().toName())) {
-                    Package aPackage = packageManager.fetch(use.getName().toName());
+                    Package aPackage = packageManager.fetch(use.getName().toName(), use.toTraceInfo(analyzer.getContext()));
 
                     for (String cls : aPackage.getClasses()) {
                         FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(cls, Information.NAMESPACE_SEP_CHAR));
