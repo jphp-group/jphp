@@ -9,5 +9,5 @@ use php\lang\JavaException;
  */
 class IOException extends JavaException
 {
-    const __PACKAGE__ = 'std, core';
+
 }

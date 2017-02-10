@@ -5,11 +5,12 @@ namespace php\util;
  * Class to work with shared memory of Environments
  *
  * Class Shared
+ * @packages std, core
  * @package php\util
  */
 class Shared
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct()
     {

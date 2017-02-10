@@ -8,10 +8,11 @@ use Traversable;
 /**
  * Class SharedMap
  * @package php\util
+ * @packages std, core
  */
 class SharedMap extends SharedCollection
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param array|Traversable $array (optional)

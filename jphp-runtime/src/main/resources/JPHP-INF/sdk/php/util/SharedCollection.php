@@ -7,10 +7,11 @@ use Traversable;
 /**
  * Class SharedCollection
  * @package php\util
+ * @packages std, core
  */
 abstract class SharedCollection extends SharedMemory implements Countable, Traversable
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @return bool

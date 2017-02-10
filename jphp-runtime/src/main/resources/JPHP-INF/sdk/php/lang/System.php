@@ -3,11 +3,11 @@ namespace php\lang;
 
 /**
  * Class System
- * @package php\lang
+ * @packages std, core
  */
 final class System
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct() { }
 

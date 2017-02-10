@@ -6,11 +6,11 @@ namespace php\lib;
  *      (using string[0] char)
  *
  * Class char
- * @package php\lib
+ * @packages std, core
  */
 class char
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct() { }
 

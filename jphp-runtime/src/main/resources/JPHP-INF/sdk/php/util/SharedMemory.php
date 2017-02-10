@@ -1,9 +1,14 @@
 <?php
 namespace php\util;
 
+/**
+ * Class SharedMemory
+ * @package php\util
+ * @packages std, core
+ */
 abstract class SharedMemory
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * You can use a shared value as a mutex

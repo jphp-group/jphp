@@ -4,10 +4,11 @@ namespace php\io;
 /**
  * Class ResourceStream
  * @package php\io
+ * @packages std, core
  */
 class ResourceStream extends Stream
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string $path

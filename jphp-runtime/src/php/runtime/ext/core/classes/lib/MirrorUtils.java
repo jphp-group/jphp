@@ -7,6 +7,8 @@ import php.runtime.annotation.Runtime.FastMethod;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.env.Package;
+import php.runtime.env.PackageManager;
 import php.runtime.ext.core.classes.WrapModule;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;

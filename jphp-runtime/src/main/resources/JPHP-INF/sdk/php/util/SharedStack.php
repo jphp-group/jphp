@@ -8,10 +8,11 @@ use Traversable;
 /**
  * Class SharedStack
  * @package php\util
+ * @packages std, core
  */
 class SharedStack extends SharedCollection
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param array|Traversable $array (optional)

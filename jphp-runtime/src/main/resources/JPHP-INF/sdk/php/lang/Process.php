@@ -6,11 +6,11 @@ use php\io\Stream;
 
 /**
  * Class Process
- * @package php\lang
+ * @packages std, core
  */
 class Process
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param array $commands

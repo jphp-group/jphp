@@ -9,6 +9,6 @@ namespace php\lib;
  */
 class binary extends bin
 {
-    const __PACKAGE__ = 'std, core';
+
 
 }

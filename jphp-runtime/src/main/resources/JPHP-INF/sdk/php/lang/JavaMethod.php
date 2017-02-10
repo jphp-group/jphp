@@ -4,7 +4,7 @@ namespace php\lang;
 
 final class JavaMethod extends JavaReflection
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * Invoke method

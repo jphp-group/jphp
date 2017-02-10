@@ -5,10 +5,11 @@ use php\lang\JavaException;
 /**
  * Class Time, Immutable
  * @package php\time
+ * @packages std, core
  */
 class Time
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param int $date unix long timestamp (in millis)

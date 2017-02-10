@@ -4,9 +4,11 @@ namespace php\concurrent;
 /**
  * Class Future
  * @package php\concurrent
+ *
+ * @packages std, core
  */
 class Future {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct() {}
 

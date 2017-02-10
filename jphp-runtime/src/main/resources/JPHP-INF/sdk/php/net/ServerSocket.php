@@ -5,11 +5,10 @@ use php\io\IOException;
 
 /**
  * Class SocketServer
- * @package php\net
+ * @packages std, net
  */
 class ServerSocket
 {
-    const __PACKAGE__ = 'std, net';
 
     /**
      * @param int $port

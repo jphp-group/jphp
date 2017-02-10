@@ -7,10 +7,11 @@ use php\util\Locale;
 /**
  * Class TimeFormat, Immutable
  * @package php\time
+ * @packages std, core
  */
 class TimeFormat
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string $format

@@ -4,11 +4,11 @@ namespace php\lang;
 /**
  * Class ClassLoader
  * @package php\lang
+ *
+ * @packages std, core
  */
 abstract class ClassLoader
 {
-    const __PACKAGE__ = 'std, core';
-
     /**
      * @param string $name
      */

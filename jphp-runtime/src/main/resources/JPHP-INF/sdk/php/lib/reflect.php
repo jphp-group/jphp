@@ -4,11 +4,11 @@ use php\lang\Module;
 
 /**
  * Class reflect
- * @package php\lib
+ * @packages std, core
  */
 class reflect
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct()
     {

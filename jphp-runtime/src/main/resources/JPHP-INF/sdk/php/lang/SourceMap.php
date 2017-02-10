@@ -3,11 +3,11 @@ namespace php\lang;
 
 /**
  * Class SourceMap
- * @package php\lang
+ * @packages std, core
  */
 class SourceMap
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string $moduleName

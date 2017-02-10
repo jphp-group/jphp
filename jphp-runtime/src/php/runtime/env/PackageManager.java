@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PackageManager {
     private final Map<String, Package> packages = new HashMap<>();
-    private final Map<String, Set<String>> autoload = new HashMap<>();
+    private final Set<PackageLoader> loaders = new LinkedHashSet<>();
     private final Environment env;
 
     public PackageManager(Environment env) {
@@ -28,10 +28,33 @@ public class PackageManager {
     }
 
     public boolean has(String name) {
-        return packages.containsKey(name) || autoload.containsKey(name);
+        return packages.containsKey(name);
     }
 
-    public Package fetch(String name, TraceInfo trace) {
+    public Package tryFind(String name, TraceInfo trace) {
+        Package aPackage = packages.get(name);
+
+        if (aPackage == null) {
+            synchronized (loaders) {
+                for (PackageLoader loader : loaders) {
+                    Package newPackage = loader.load(name, trace);
+
+                    if (newPackage != null) {
+                        synchronized (packages) {
+                            packages.put(name, newPackage);
+                            return newPackage;
+                        }
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        return aPackage;
+    }
+
+    public Package fetch(String name) {
         Package aPackage = packages.get(name);
 
         if (aPackage == null) {
@@ -40,89 +63,18 @@ public class PackageManager {
 
                 if (aPackage != null) return aPackage;
 
-                packages.put(name, aPackage = new Package(name));
-            }
-        }
-
-        Set<String> strings = autoload.get(name);
-
-        if (strings != null && !strings.isEmpty()) {
-            List<String> tmp = new ArrayList<>();
-
-            for (String string : strings) {
-                if (env.getModuleManager().hasModule(string)) {
-                    continue;
-                }
-
-                tmp.add(string);
-            }
-
-            if (!tmp.isEmpty()) {
-                synchronized (autoload) {
-                    for (String string : tmp) {
-                        try {
-                            Memory memory = env.__require(string, null, trace);
-
-                            if (!memory.isArray()) {
-                                env.error(trace, ErrorType.E_ERROR, Messages.ERR_PACKAGE_FILE_MUST_RETURN_ARRAY, string, name);
-                            } else {
-                                ArrayMemory arrayMemory = memory.toValue(ArrayMemory.class);
-
-                                ReferenceMemory classes = arrayMemory.getByScalar("classes");
-                                ReferenceMemory functions = arrayMemory.getByScalar("functions");
-                                ReferenceMemory constants = arrayMemory.getByScalar("constants");
-
-                                if (classes != null && !classes.isArray()) {
-                                    env.error(trace, ErrorType.E_ERROR, Messages.ERR_PACKAGE_FILE_MUST_RETURN_ARRAY, string, name);
-                                }
-
-                                if (functions != null && !functions.isArray()) {
-                                    env.error(trace, ErrorType.E_ERROR, Messages.ERR_PACKAGE_FILE_MUST_RETURN_ARRAY, string, name);
-                                }
-
-                                if (constants != null && !constants.isArray()) {
-                                    env.error(trace, ErrorType.E_ERROR, Messages.ERR_PACKAGE_FILE_MUST_RETURN_ARRAY, string, name);
-                                }
-
-                                if (classes != null) {
-                                    for (Memory one : classes.toValue(ArrayMemory.class)) {
-                                        aPackage.addClass(one.toString());
-                                    }
-                                }
-
-                                if (functions != null) {
-                                    for (Memory one : functions.toValue(ArrayMemory.class)) {
-                                        aPackage.addFunction(one.toString());
-                                    }
-                                }
-
-                                if (constants != null) {
-                                    for (Memory one : constants.toValue(ArrayMemory.class)) {
-                                        aPackage.addConstant(one.toString());
-                                    }
-                                }
-                            }
-                        } catch (Throwable throwable) {
-                            env.forwardThrow(throwable);
-                        }
-                    }
-
-                    strings.clear();
-                }
+                packages.put(name, aPackage = new Package());
             }
         }
 
         return aPackage;
     }
 
-    synchronized public void addAutoload(String pkg, String path) {
-        Set<String> strings = autoload.get(pkg);
-
-        if (strings == null) {
-            autoload.put(pkg, strings = new HashSet<>());
-        }
-
-        strings.add(path);
+    synchronized public boolean registerLoader(PackageLoader loader) {
+        return loaders.add(loader);
     }
 
+    synchronized public boolean unregisterLoader(PackageLoader loader) {
+        return loaders.remove(loader);
+    }
 }

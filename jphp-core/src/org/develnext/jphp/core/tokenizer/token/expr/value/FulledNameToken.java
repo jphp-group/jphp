@@ -79,7 +79,7 @@ public class FulledNameToken extends NameToken {
         return toName();
     }
 
-    public boolean isSingle(){
+    public boolean isSingle() {
         return names.size() == 1;
     }
 

@@ -5,9 +5,9 @@ use Exception;
 
 /**
  * Class NotImplementedException
- * @package php\lang
+ * @packages std, core
  */
 class NotImplementedException extends Exception
 {
-    const __PACKAGE__ = 'std, core';
+
 }

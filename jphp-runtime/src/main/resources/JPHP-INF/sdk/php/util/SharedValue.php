@@ -4,10 +4,11 @@ namespace php\util;
 /**
  * Class SharedValue
  * @package php\util
+ * @packages std, core
  */
 class SharedValue extends SharedMemory
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param mixed $value (optional)

@@ -11,10 +11,11 @@ use php\lang\IllegalArgumentException;
  *
  * Class Scanner
  * @package php\util
+ * @packages std, core
  */
 class Scanner implements \Iterator
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string|Stream $source

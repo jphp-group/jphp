@@ -3,11 +3,11 @@ namespace php\lang;
 
 /**
  * Class JavaObject
- * @package php\lang
+ * @packages std, core
  */
 final class JavaObject
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * Get class of object

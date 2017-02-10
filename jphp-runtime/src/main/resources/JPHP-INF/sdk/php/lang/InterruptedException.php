@@ -3,9 +3,9 @@ namespace php\lang;
 
 /**
  * Class InterruptedException
- * @package php\lang
+ * @packages std, core
  */
 class InterruptedException extends JavaException
 {
-    const __PACKAGE__ = 'std, core';
+
 }

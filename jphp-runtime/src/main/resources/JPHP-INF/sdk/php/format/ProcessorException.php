@@ -6,8 +6,10 @@ use Exception;
 /**
  * Class ProcessorException
  * @package php\format
+ *
+ * @packages std, core
  */
 class ProcessorException extends Exception
 {
-    const __PACKAGE__ = 'std, core';
+
 }

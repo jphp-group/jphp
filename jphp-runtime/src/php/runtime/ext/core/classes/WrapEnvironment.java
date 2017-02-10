@@ -9,6 +9,7 @@ import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
@@ -226,7 +227,13 @@ public class WrapEnvironment extends BaseObject {
     public Memory getPackages(Environment env, Memory... args) {
         PackageManager packageManager = this.environment.getPackageManager();
 
-        return ArrayMemory.ofStringCollection(packageManager.names()).toConstant();
+        ArrayMemory result = new ArrayMemory();
+
+        for (String name : packageManager.names()) {
+            result.add(new WrapPackage(env, packageManager.fetch(name)));
+        }
+
+        return result.toConstant();
     }
 
     @Signature(@Arg("name"))
@@ -239,18 +246,13 @@ public class WrapEnvironment extends BaseObject {
         PackageManager packageManager = this.environment.getPackageManager();
 
         if (packageManager.has(args[0].toString())) {
-            Package aPackage = packageManager.fetch(args[0].toString(), env.trace());
+            Package aPackage = packageManager.tryFind(args[0].toString(), env.trace());
 
-            ArrayMemory classes = ArrayMemory.ofStringCollection(aPackage.getClasses());
-            ArrayMemory functions = ArrayMemory.ofStringCollection(aPackage.getFunctions());
-            ArrayMemory constants = ArrayMemory.ofStringCollection(aPackage.getConstants());
+            if (aPackage == null) {
+                return Memory.NULL;
+            }
 
-            ArrayMemory result = new ArrayMemory();
-            result.put("classes", classes);
-            result.put("functions", functions);
-            result.put("constants", constants);
-
-            return result.toConstant();
+            return ObjectMemory.valueOf(new WrapPackage(env, aPackage));
         } else {
             return Memory.NULL;
         }

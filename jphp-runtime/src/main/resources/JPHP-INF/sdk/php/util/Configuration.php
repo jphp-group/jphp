@@ -7,10 +7,11 @@ use Traversable;
 /**
  * Class Configuration
  * @package php\util
+ * @packages std, core
  */
 class Configuration
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string|Stream $source

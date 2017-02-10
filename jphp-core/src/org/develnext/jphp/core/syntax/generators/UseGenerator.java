@@ -113,37 +113,41 @@ public class UseGenerator extends Generator<NamespaceUseStmtToken> {
             NamespaceStmtToken namespace = analyzer.getNamespace();
 
             if (analyzer.getEnvironment() != null && analyzer.getEnvironment().scope.getLangMode() == LangMode.MODERN) {
-                if (packageManager != null && packageManager.has(use.getName().toName())) {
-                    Package aPackage = packageManager.fetch(use.getName().toName(), use.toTraceInfo(analyzer.getContext()));
+                if (packageManager != null && use.isPackageImport()) {
+                    Package aPackage = packageManager.tryFind(use.getName().toName(), use.toTraceInfo(analyzer.getContext()));
 
-                    for (String cls : aPackage.getClasses()) {
-                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(cls, Information.NAMESPACE_SEP_CHAR));
+                    if (aPackage != null) {
+                        for (String cls : aPackage.getClasses()) {
+                            FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(cls, Information.NAMESPACE_SEP_CHAR));
 
-                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(cls, use));
-                        useStmtToken.setName(nameToken);
-                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CLASS);
+                            NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(cls, use));
+                            useStmtToken.setName(nameToken);
+                            useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CLASS);
 
-                        namespace.getUses().add(useStmtToken);
-                    }
+                            namespace.getUses().add(useStmtToken);
+                        }
 
-                    for (String s : aPackage.getFunctions()) {
-                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
+                        for (String s : aPackage.getFunctions()) {
+                            FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
 
-                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
-                        useStmtToken.setName(nameToken);
-                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.FUNCTION);
+                            NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
+                            useStmtToken.setName(nameToken);
+                            useStmtToken.setUseType(NamespaceUseStmtToken.UseType.FUNCTION);
 
-                        namespace.getUses().add(useStmtToken);
-                    }
+                            namespace.getUses().add(useStmtToken);
+                        }
 
-                    for (String s : aPackage.getConstants()) {
-                        FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
+                        for (String s : aPackage.getConstants()) {
+                            FulledNameToken nameToken = FulledNameToken.valueOf(StringUtils.split(s, Information.NAMESPACE_SEP_CHAR));
 
-                        NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
-                        useStmtToken.setName(nameToken);
-                        useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CONSTANT);
+                            NamespaceUseStmtToken useStmtToken = new NamespaceUseStmtToken(TokenMeta.of(s, use));
+                            useStmtToken.setName(nameToken);
+                            useStmtToken.setUseType(NamespaceUseStmtToken.UseType.CONSTANT);
 
-                        namespace.getUses().add(useStmtToken);
+                            namespace.getUses().add(useStmtToken);
+                        }
+                    } else {
+                        namespace.getUses().add(use);
                     }
                 } else {
                     namespace.getUses().add(use);

@@ -3,7 +3,7 @@ namespace php\lib;
 
 /**
  * Class String
- * @package php\lib
+ * @packages std, core
  * @deprecated
  *
  * ! has been deleted

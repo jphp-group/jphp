@@ -1,10 +1,14 @@
 <?php
 namespace php\util;
 
-
+/**
+ * Class Promise
+ * @package php\util
+ * @packages std, core
+ */
 class Promise
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct() {}
 

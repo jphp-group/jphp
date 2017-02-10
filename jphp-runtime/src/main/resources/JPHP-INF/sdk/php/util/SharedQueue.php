@@ -7,10 +7,11 @@ use Traversable;
 /**
  * Class SharedQueue
  * @package php\util
+ * @packages std, core
  */
 class SharedQueue extends SharedCollection
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param array|Traversable $array (optional)

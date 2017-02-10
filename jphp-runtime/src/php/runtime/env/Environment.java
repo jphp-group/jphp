@@ -261,7 +261,7 @@ public class Environment {
                     Package aPackage = null;
                     for (String packageName : packageNames) {
                         if (aPackage == null) {
-                            aPackage = getPackageManager().fetch(packageName, TraceInfo.UNKNOWN);
+                            aPackage = getPackageManager().fetch(packageName);
 
                             for (Class<?> aClass : e.getClasses().values()) {
                                 aPackage.addClass(ReflectionUtils.getClassName(aClass));
@@ -275,7 +275,7 @@ public class Environment {
                                 aPackage.addConstant(constant.name);
                             }
                         } else {
-                            Package aPackage2 = getPackageManager().fetch(packageName, TraceInfo.UNKNOWN);
+                            Package aPackage2 = getPackageManager().fetch(packageName);
 
                             for (String s : aPackage.getClasses()) aPackage2.addClass(s);
                             for (String s : aPackage.getFunctions()) aPackage2.addFunction(s);

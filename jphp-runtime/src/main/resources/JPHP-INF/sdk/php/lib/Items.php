@@ -9,11 +9,11 @@ use Traversable;
 /**
  *
  * Class items
- * @package php\lib
+ * @packages std, core
  *
  * @deprecated use arr
  */
 class items extends arr
 {
-    const __PACKAGE__ = 'std, core';
+
 }

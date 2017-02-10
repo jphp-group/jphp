@@ -3,11 +3,11 @@ namespace php\lang;
 
 /**
  * Class ThreadGroup
- * @package php\lang
+ * @packages std, core
  */
 class ThreadGroup
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param $name

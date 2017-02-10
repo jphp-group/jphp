@@ -4,10 +4,11 @@ namespace php\io;
 /**
  * Class MiscStream
  * @package php\io
+ * @packages std, core
  */
 class MiscStream extends Stream
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param int $length - count of bytes

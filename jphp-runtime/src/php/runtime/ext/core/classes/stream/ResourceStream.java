@@ -141,6 +141,19 @@ public class ResourceStream extends Stream {
     }
 
     @Signature(@Arg("name"))
+    public static Memory exists(Environment env, Memory... args) throws IOException {
+        String name = args[0].toString();
+
+        if (name.startsWith("res:///")) {
+            name = name.substring(7);
+        } else if (name.startsWith("res://")) {
+            name = name.substring(6);
+        }
+
+        return env.getScope().getClassLoader().getResource(name) == null ? Memory.FALSE : Memory.TRUE;
+    }
+
+    @Signature(@Arg("name"))
     public static Memory getResources(Environment env, Memory... args) throws IOException {
         Enumeration<URL> list = env.getScope().getClassLoader().getResources(args[0].toString());
 

@@ -3,11 +3,11 @@ namespace php\lang;
 
 /**
  * Class Thread
- * @package php\lang
+ * @packages std, core
  */
 class Thread
 {
-    const __PACKAGE__ = 'std, core';
+
 
     const MAX_PRIORITY = 10;
     const MIN_PRIORITY = 1;

@@ -4,10 +4,12 @@ namespace php\lang;
 /**
  * Class Environment
  * @package php\lang
+ *
+ * @packages std, core
  */
 class Environment
 {
-    const __PACKAGE__ = 'std, core';
+
 
     const CONCURRENT = 1; // experimental - for use in multi-threading
     const HOT_RELOAD = 2; // for hot-reload working (like classical PHP)
@@ -153,7 +155,7 @@ class Environment
     }
 
     /**
-     * @return string[]
+     * @return Package[]
      */
     public function getPackages()
     {
@@ -169,7 +171,7 @@ class Environment
 
     /**
      * @param string $name
-     * @return array like [classes => [], functions => [], constants => []]
+     * @return Package
      */
     public function getPackage($name)
     {

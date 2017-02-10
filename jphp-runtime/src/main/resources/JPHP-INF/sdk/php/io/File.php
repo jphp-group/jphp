@@ -4,10 +4,12 @@ namespace php\io;
 /**
  * Class File
  * @package php\io
+ *
+ * @packages std, core
  */
 class File
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * ``;`` on WINDOWS or ``:`` on UNIX

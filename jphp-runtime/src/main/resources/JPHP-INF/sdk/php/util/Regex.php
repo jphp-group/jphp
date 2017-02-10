@@ -6,10 +6,11 @@ namespace php\util;
  *
  * Class Regex, Immutable
  * @package php\util
+ * @packages std, core
  */
 class Regex implements \Iterator
 {
-    const __PACKAGE__ = 'std, core';
+
 
     const CANON_EQ = 0x80;
     const CASE_INSENSITIVE = 0x02;

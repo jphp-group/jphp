@@ -6,11 +6,11 @@ namespace php\lang;
  * --RU--
  * Класс для вызова методов/функций/и т.д.
  *
- * @package php\lang
+ * @packages std, core
  */
 class Invoker
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param callable $callback

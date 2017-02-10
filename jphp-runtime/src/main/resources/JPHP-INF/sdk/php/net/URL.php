@@ -5,11 +5,10 @@ use php\io\Stream;
 
 /**
  * Class URL
- * @package php\net
+ * @packages std, net
  */
 class URL
 {
-    const __PACKAGE__ = 'std, net';
 
     /**
      * @param string $uri

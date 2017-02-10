@@ -8,11 +8,11 @@ use php\io\Stream;
  * File System class.
  *
  * Class fs
- * @package php\lib
+ * @packages std, core
  */
 class fs
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * Return the local filesystem's name-separator character.

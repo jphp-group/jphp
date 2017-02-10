@@ -4,10 +4,11 @@ namespace php\time;
 /**
  * Class TimeZone, Immutable
  * @package php\time
+ * @packages std, core
  */
 class TimeZone
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param int $rawOffset

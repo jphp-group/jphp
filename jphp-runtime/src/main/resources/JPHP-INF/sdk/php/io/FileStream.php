@@ -2,9 +2,15 @@
 namespace php\io;
 
 
+/**
+ * Class FileStream
+ * @package php\io
+ *
+ * @packages std, core
+ */
 class FileStream extends Stream
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param int $length - count of bytes

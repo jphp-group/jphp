@@ -3,12 +3,10 @@ namespace php\net;
 
 /**
  * Class Proxy
- * @package php\net
+ * @packages std, net
  */
 class Proxy
 {
-    const __PACKAGE__ = 'std, net';
-
     /**
      * @param string $type - DIRECT, HTTP or SOCKS
      * @param string $host

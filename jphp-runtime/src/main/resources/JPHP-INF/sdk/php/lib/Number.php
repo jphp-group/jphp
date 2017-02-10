@@ -6,11 +6,11 @@ use php\lib\num;
  * Utils for numbers
  *
  * Class num
- * @package php\lib
+ * @packages std, core
  *
  * @deprecated use num
  */
 class number extends num
 {
-    const __PACKAGE__ = 'std, core';
+
 }

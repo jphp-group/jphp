@@ -3,9 +3,15 @@ namespace php\io;
 
 use Iterator;
 
+/**
+ * Class Stream
+ * @package php\io
+ *
+ * @packages std, core
+ */
 abstract class Stream
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @var string

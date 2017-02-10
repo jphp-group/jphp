@@ -4,7 +4,7 @@ use php\io\IOException;
 
 /**
  * Class NetAddress
- * @package php\net
+ * @packages std, net
  */
 class NetAddress
 {

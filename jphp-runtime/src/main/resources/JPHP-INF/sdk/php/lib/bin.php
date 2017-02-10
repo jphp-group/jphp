@@ -9,7 +9,7 @@ namespace php\lib;
  */
 class bin
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct() { }
 

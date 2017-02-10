@@ -4,10 +4,11 @@ namespace php\util;
 /**
  * Class Locale, Immutable
  * @package php\util
+ * @packages std, core
  */
 class Locale
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * @param string $lang

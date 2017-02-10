@@ -5,11 +5,11 @@ use php\concurrent\Future;
 
 /**
  * Class ThreadPool
- * @package php\lang
+ * @packages std, core
  */
 class ThreadPool
 {
-    const __PACKAGE__ = 'std, core';
+
 
     /**
      * internal

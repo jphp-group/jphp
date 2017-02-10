@@ -5,11 +5,11 @@ namespace php\lib;
  * Class str
  * --RU--
  * Класс для работы со строками.
- * @package php\lib
+ * @packages std, core
  */
 class str
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct()
     {

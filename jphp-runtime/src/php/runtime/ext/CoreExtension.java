@@ -95,6 +95,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, SharedUtils.SharedMap.class);
         registerClass(scope, SharedUtils.class);
 
+        registerClass(scope, WrapPackageLoader.class);
         registerClass(scope, WrapClassLoader.class);
         registerClass(scope, WrapClassLoader.WrapLauncherClassLoader.class);
 
@@ -111,6 +112,7 @@ public class CoreExtension extends Extension {
 
         registerClass(scope, WrapInvoker.class);
         registerClass(scope, WrapModule.class);
+        registerClass(scope, WrapPackage.class);
         registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
         registerClass(scope, WrapEnvironment.class);
         registerClass(scope, WrapEnvironmentVariables.class);

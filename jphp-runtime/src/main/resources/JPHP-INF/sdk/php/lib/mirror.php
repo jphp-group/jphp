@@ -6,11 +6,11 @@ namespace php\lib;
  * Reflection Lib.
  *
  * Class mirror
- * @package php\lib
+ * @packages std, core
  * @deprecated use reflect
  */
 class Mirror extends reflect
 {
-    const __PACKAGE__ = 'std, core';
+
 
 }

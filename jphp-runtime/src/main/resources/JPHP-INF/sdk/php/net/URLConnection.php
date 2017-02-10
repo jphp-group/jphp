@@ -5,12 +5,10 @@ use php\io\Stream;
 
 /**
  * Class URLConnection
- * @package php\net
+ * @packages std, core
  */
 class URLConnection
 {
-    const __PACKAGE__ = 'std, net';
-
     /**
      * @var bool
      */

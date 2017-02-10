@@ -8,12 +8,10 @@ use php\io\Stream;
  * http, ftp protocols
  *
  * Class NetStream
- * @package php\net
+ * @packages std, net
  */
 class NetStream extends Stream
 {
-    const __PACKAGE__ = 'std, net';
-
     /**
      * {@inheritdoc}
      */

@@ -4,10 +4,11 @@ namespace php\io;
 /**
  * Class MemoryStream
  * @package php\io
+ * @packages std, core
  */
 class MemoryStream extends MiscStream
 {
-    const __PACKAGE__ = 'std, core';
+
 
     public function __construct() { }
 }

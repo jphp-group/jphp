@@ -11,11 +11,11 @@ use Traversable;
  * --RU--
  * Библиотека для работы с коллекциями - массивы, итераторы и т.д.
  *
- * @package php\lib
+ * @packages std, core
  */
 class arr
 {
-    const __PACKAGE__ = 'std, core';
+
 
     private function __construct()
     {

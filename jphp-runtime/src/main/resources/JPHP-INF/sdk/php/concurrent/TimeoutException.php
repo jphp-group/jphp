@@ -6,7 +6,9 @@ use php\lang\JavaException;
 /**
  * Class TimeoutException
  * @package php\concurrent
+ *
+ * @packages std, core
  */
 class TimeoutException extends JavaException {
-    const __PACKAGE__ = 'std, core';
+
 }

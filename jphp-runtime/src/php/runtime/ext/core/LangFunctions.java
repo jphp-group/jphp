@@ -912,45 +912,25 @@ public class LangFunctions extends FunctionsContainer {
         return WrapFlow.of(env, result);
     }
 
-    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes) {
-        return define_package(env, trace, name, classes, new ArrayMemory(), new ArrayMemory());
-    }
 
-    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes, Memory functions) {
-        return define_package(env, trace, name, classes, functions, new ArrayMemory());
-    }
-
-    public static Memory define_autoload_package(Environment env, TraceInfo trace, String pkg, String path) {
-        if (env.scope.getLangMode() != LangMode.MODERN) {
-            env.error(trace, ErrorType.E_NOTICE, "define_autoload_package(): Packages are available only in modern language mode");
-            return Memory.FALSE;
-        }
-
-        PackageManager manager = env.getPackageManager();
-        manager.addAutoload(pkg, path);
-
-        return Memory.TRUE;
-    }
-
-    public static Memory define_package(Environment env, TraceInfo trace, String name, Memory classes, Memory functions, Memory constants) {
+    /*public static Memory define_package(Environment env, TraceInfo trace, String name, Memory info) {
         if (env.scope.getLangMode() != LangMode.MODERN) {
             env.error(trace, ErrorType.E_NOTICE, "define_package(): Packages are available only in modern language mode");
             return Memory.FALSE;
         }
 
-        if (!expecting(env, trace, 1, classes, Memory.Type.ARRAY)) {
+        if (!expecting(env, trace, 1, info, Memory.Type.ARRAY)) {
             return Memory.FALSE;
         }
 
-        if (!expecting(env, trace, 2, functions, Memory.Type.ARRAY)) {
-            return Memory.FALSE;
-        }
-
-        if (!expecting(env, trace, 3, constants, Memory.Type.ARRAY)) {
-            return Memory.FALSE;
-        }
 
         PackageManager manager = env.getPackageManager();
+
+        if (manager.has(name)) {
+            env.error(trace, "define_package(): Package '" + name + "' already defined");
+            return Memory.FALSE;
+        }
+
         php.runtime.env.Package aPackage = manager.fetch(name, trace);
 
         for (Memory cls : classes.toValue(ArrayMemory.class)) {
@@ -966,5 +946,5 @@ public class LangFunctions extends FunctionsContainer {
         }
 
         return Memory.TRUE;
-    }
+    }*/
 }
