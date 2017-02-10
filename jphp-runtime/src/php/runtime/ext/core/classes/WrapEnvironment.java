@@ -223,6 +223,17 @@ public class WrapEnvironment extends BaseObject {
         return Memory.NULL;
     }
 
+    @Signature({
+        @Arg("name"), @Arg(value = "package", nativeType = WrapPackage.class)
+    })
+    public Memory setPackage(Environment env, Memory... args) {
+        PackageManager packageManager = this.environment.getPackageManager();
+
+        packageManager.set(args[0].toString(), args[1].toObject(WrapPackage.class).getPackage());
+
+        return Memory.NULL;
+    }
+
     @Signature
     public Memory getPackages(Environment env, Memory... args) {
         PackageManager packageManager = this.environment.getPackageManager();

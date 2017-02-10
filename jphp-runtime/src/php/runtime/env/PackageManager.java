@@ -77,4 +77,8 @@ public class PackageManager {
     synchronized public boolean unregisterLoader(PackageLoader loader) {
         return loaders.remove(loader);
     }
+
+    synchronized public void set(String name, Package aPackage) {
+        packages.put(name, aPackage);
+    }
 }

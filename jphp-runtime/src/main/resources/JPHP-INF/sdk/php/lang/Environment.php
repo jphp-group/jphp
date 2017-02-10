@@ -178,6 +178,14 @@ class Environment
     }
 
     /**
+     * @param string $name
+     * @param Package $package
+     */
+    public function setPackage($name, Package $package)
+    {
+    }
+
+    /**
      * Get environment of current execution
      * --RU--
      * Взять окружение текущего выполнения
