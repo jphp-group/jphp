@@ -371,6 +371,19 @@ public class ItemsUtils extends BaseObject {
         return peek == null ? Memory.NULL : peek;
     }
 
+    @Signature(@Arg(value = "array", type = HintType.ARRAY))
+    public static Memory last(Environment env, Memory... args) throws Throwable {
+        return peak(env, args);
+    }
+
+    @Signature(@Arg(value = "array", type = HintType.ARRAY))
+    public static Memory lastKey(Environment env, Memory... args) throws Throwable {
+        Memory array  = args[0];
+
+        Memory peek = array.toValue(ArrayMemory.class).peekKey();
+        return peek == null ? Memory.NULL : peek;
+    }
+
     @Signature({
             @Arg(value = "array", type = HintType.ARRAY, reference = true),
             @Arg(value = "values", type = HintType.VARARG)

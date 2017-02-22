@@ -685,6 +685,25 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return value.toValue();
     }
 
+    public Memory peekKey() {
+        if (size < 1)
+            return null;
+
+        Memory value;
+        if (list != null)
+            return LongMemory.valueOf(size - 1);
+        else {
+            Object key = map.lastKey();
+            if (key instanceof Memory) {
+                return (Memory) key;
+            } else if (key instanceof String) {
+                return StringMemory.valueOf(key.toString());
+            }
+        }
+
+        return null;
+    }
+
     public Memory getRandomElementKey(Random rnd){
         int index = rnd.nextInt(size);
         if (list != null){

@@ -220,6 +220,23 @@ class arr
     }
 
     /**
+     * Alias to peek().
+     * @param array $collection
+     * @return mixed
+     */
+    public static function last($collection)
+    {
+    }
+
+    /**
+     * @param array $collection
+     * @return string|int|null
+     */
+    public static function lastKey($collection)
+    {
+    }
+
+    /**
      * @param array $array
      * @return array
      */
