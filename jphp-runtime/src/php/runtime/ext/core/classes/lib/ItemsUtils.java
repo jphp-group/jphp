@@ -194,6 +194,14 @@ public class ItemsUtils extends BaseObject {
         return toArray(env, args);
     }
 
+    @FastMethod
+    @Signature({
+            @Arg(value = "collection", type = HintType.TRAVERSABLE)
+    })
+    public static Memory values(Environment env, Memory... args) {
+        return toArray(env, args[0], Memory.FALSE);
+    }
+
     @Signature({
             @Arg(value = "keys", type = HintType.TRAVERSABLE),
             @Arg(value = "values", type = HintType.TRAVERSABLE),
@@ -381,6 +389,7 @@ public class ItemsUtils extends BaseObject {
         Memory array  = args[0];
 
         Memory peek = array.toValue(ArrayMemory.class).peekKey();
+
         return peek == null ? Memory.NULL : peek;
     }
 

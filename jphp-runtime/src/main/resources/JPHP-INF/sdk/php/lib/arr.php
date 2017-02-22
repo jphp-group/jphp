@@ -101,6 +101,19 @@ class arr
     }
 
     /**
+     * Returns all values of collection
+     * --RU--
+     * Возвращает все значения коллекции
+     *
+     * @param array|Iterator $collection
+     * @return array
+     */
+    public static function values($collection)
+    {
+        return [];
+    }
+
+    /**
      * Combines two collections to array.
      *
      * @param array|Iterator $keys
