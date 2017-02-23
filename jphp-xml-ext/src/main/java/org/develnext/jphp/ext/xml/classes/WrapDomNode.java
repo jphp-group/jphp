@@ -109,6 +109,11 @@ public class WrapDomNode extends BaseWrapper<Node> {
     }
 
     @Signature
+    public NodeList getChildNodes() {
+        return getWrappedObject().getChildNodes();
+    }
+
+    @Signature
     public String __toString() {
         return getWrappedObject().getTextContent();
     }

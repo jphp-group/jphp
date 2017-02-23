@@ -144,6 +144,13 @@ abstract class DomNode
     }
 
     /**
+     * @return DomNodeList
+     */
+    public function getChildNodes()
+    {
+    }
+
+    /**
      * @param string $namespace
      */
     public function isDefaultNamespace($namespace)
