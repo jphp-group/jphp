@@ -1861,7 +1861,7 @@ public class StringFunctions extends FunctionsContainer {
                         }
                         break;
                     case '\'':
-                        if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_DOUBLE) != 0) {
+                        if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_SINGLE) != 0) {
                             sb.append("&#039;");
                         } else {
                             sb.append(ch);

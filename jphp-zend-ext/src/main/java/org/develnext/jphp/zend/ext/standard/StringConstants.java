@@ -13,8 +13,7 @@ public class StringConstants extends ConstantsContainer {
     public static final int ENT_HTML_QUOTE_SINGLE = 1;
     public static final int ENT_HTML_QUOTE_DOUBLE = 2;
     public static final int ENT_COMPAT = ENT_HTML_QUOTE_DOUBLE;
-    public static final int ENT_QUOTES =
-            ENT_HTML_QUOTE_SINGLE | ENT_HTML_QUOTE_DOUBLE;
+    public static final int ENT_QUOTES = ENT_HTML_QUOTE_SINGLE | ENT_HTML_QUOTE_DOUBLE;
     public static final int ENT_NOQUOTES = ENT_HTML_QUOTE_NONE;
 
 

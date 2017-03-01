@@ -17,6 +17,8 @@ abstract public class Invoker implements Cloneable {
     protected TraceInfo trace;
     protected boolean pushCallTrace = true;
 
+    private Object userData;
+
     protected Invoker(Environment env, TraceInfo trace) {
         this.env = env;
         this.trace = trace;
@@ -25,6 +27,14 @@ abstract public class Invoker implements Cloneable {
     @Override
     protected Invoker clone() throws CloneNotSupportedException {
         return (Invoker) super.clone();
+    }
+
+    public Object getUserData() {
+        return userData;
+    }
+
+    public void setUserData(Object userData) {
+        this.userData = userData;
     }
 
     public Invoker forEnvironment(Environment env) {

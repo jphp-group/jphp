@@ -85,12 +85,12 @@ public class WrapDomNode extends BaseWrapper<Node> {
 
     @Signature
     public String get(String expression) throws XPathExpressionException {
-        return (String) getXPath().compile(expression).evaluate(getWrappedObject(), XPathConstants.STRING);
+        return (String) getXPath().evaluate(expression, getWrappedObject(), XPathConstants.STRING);
     }
 
     @Signature
     public IObject find(Environment env, String expression) throws XPathExpressionException {
-        Node node = (Node) getXPath().compile(expression).evaluate(getWrappedObject(), XPathConstants.NODE);
+        Node node = (Node) getXPath().evaluate(expression, getWrappedObject(), XPathConstants.NODE);
 
         if (node == null) {
             return null;
@@ -105,7 +105,7 @@ public class WrapDomNode extends BaseWrapper<Node> {
 
     @Signature
     public NodeList findAll(String expression) throws XPathExpressionException {
-        return (NodeList) getXPath().compile(expression).evaluate(getWrappedObject(), XPathConstants.NODESET);
+        return (NodeList) getXPath().evaluate(expression, getWrappedObject(), XPathConstants.NODESET);
     }
 
     @Signature
