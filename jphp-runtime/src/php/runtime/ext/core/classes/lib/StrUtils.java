@@ -1,6 +1,7 @@
 package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
+import php.runtime.common.DigestUtils;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
@@ -618,7 +619,7 @@ public class StrUtils extends BaseObject {
         MessageDigest messageDigest = MessageDigest.getInstance(args[1].toString());
 
         messageDigest.update(args[0].getBinaryBytes(env.getDefaultCharset()));
-        return StringMemory.valueOf(String.format("%064x", new java.math.BigInteger(1, messageDigest.digest())));
+        return StringMemory.valueOf(DigestUtils.bytesToHex(messageDigest.digest()));
     }
 
     @Signature({
