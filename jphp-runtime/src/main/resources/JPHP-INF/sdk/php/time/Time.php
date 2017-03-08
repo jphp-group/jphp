@@ -1,6 +1,7 @@
 <?php
 namespace php\time;
 use php\lang\JavaException;
+use php\util\Locale;
 
 /**
  * Class Time, Immutable
@@ -12,10 +13,12 @@ class Time
 
 
     /**
-     * @param int $date unix long timestamp (in millis)
+     * Create a new time with unix timestamp
+     * @param int $date unix long timestamp (in millis), if is null, date will be as "now".
      * @param null|TimeZone $timezone - if null then gets default timezone
+     * @param Locale $locale
      */
-    public function __construct($date, TimeZone $timezone = null) { }
+    public function __construct($date = null, TimeZone $timezone = null, Locale $locale = null) { }
 
     /**
      * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT
@@ -132,6 +135,12 @@ class Time
     public function withTimeZone(TimeZone $timeZone) { return new Time(0); }
 
     /**
+     * @param Locale $locale
+     * @return Time
+     */
+    public function withLocale(Locale $locale) { return new Time(0); }
+
+    /**
      * Get a new time + $args
      *
      * .. note::
@@ -154,30 +163,31 @@ class Time
     /**
      * Format the current datetime to string with $format
      *
-     *  - G 	Era designator 	Text 	AD
-     *  - y 	Year 	Year 	1996; 96
-     *  - M 	Month in year 	Month 	July; Jul; 07
-     *  - w 	Week in year 	Number 	27
-     *  - W 	Week in month 	Number 	2
-     *  - D 	Day in year 	Number 	189
-     *  - d 	Day in month 	Number 	10
-     *  - F 	Day of week in month 	Number 	2
-     *  - E 	Day in week 	Text 	Tuesday; Tue
-     *  - a 	Am/pm marker 	Text 	PM
-     *  - H 	Hour in day (0-23) 	Number 	0
-     *  - k 	Hour in day (1-24) 	Number 	24
-     *  - K 	Hour in am/pm (0-11) 	Number 	0
-     *  - h 	Hour in am/pm (1-12) 	Number 	12
-     *  - m 	Minute in hour 	Number 	30
-     *  - s 	Second in minute 	Number 	55
-     *  - S 	Millisecond 	Number 	978
-     *  - z 	Time zone 	General time zone 	Pacific Standard Time; PST; GMT-08:00
-     *  - Z 	Time zone 	RFC 822 time zone 	-0800
+     *  - G    Era designator    Text    AD
+     *  - y    Year    Year    1996; 96
+     *  - M    Month in year    Month    July; Jul; 07
+     *  - w    Week in year    Number    27
+     *  - W    Week in month    Number    2
+     *  - D    Day in year    Number    189
+     *  - d    Day in month    Number    10
+     *  - F    Day of week in month    Number    2
+     *  - E    Day in week    Text    Tuesday; Tue
+     *  - a    Am/pm marker    Text    PM
+     *  - H    Hour in day (0-23)    Number    0
+     *  - k    Hour in day (1-24)    Number    24
+     *  - K    Hour in am/pm (0-11)    Number    0
+     *  - h    Hour in am/pm (1-12)    Number    12
+     *  - m    Minute in hour    Number    30
+     *  - s    Second in minute    Number    55
+     *  - S    Millisecond    Number    978
+     *  - z    Time zone    General time zone    Pacific Standard Time; PST; GMT-08:00
+     *  - Z    Time zone    RFC 822 time zone    -0800
      *
      * @param string $format date time format
+     * @param Locale $locale
      * @return string
      */
-    public function toString($format) { return ''; }
+    public function toString($format, Locale $locale = null) { return ''; }
 
     /**
      * Format the time to yyyy-MM-dd'T'HH:mm:ss
@@ -193,16 +203,18 @@ class Time
     /**
      * Returns now time object (date + time)
      * @param TimeZone $timeZone
+     * @param Locale $locale
      * @return Time
      */
-    public static function now(TimeZone $timeZone = null) { return new Time(0); }
+    public static function now(TimeZone $timeZone = null, Locale $locale = null) { return new Time(0); }
 
     /**
      * Returns today date (without time)
      * @param TimeZone $timeZone
+     * @param Locale $locale
      * @return Time
      */
-    public static function today(TimeZone $timeZone = null)  { return new Time(0); }
+    public static function today(TimeZone $timeZone = null, Locale $locale = null)  { return new Time(0); }
 
     /**
      * Create a new time by using the $args arrays that can contain the ``sec``, ``min``, ``hour`` and other keys::
@@ -211,9 +223,10 @@ class Time
      *
      * @param array $args [millis, sec, min, hour, day, month, year]
      * @param TimeZone $timeZone if null then it uses the default timezone
+     * @param Locale $locale
      * @return Time
      */
-    public static function of(array $args, TimeZone $timeZone = null) { return new Time(0); }
+    public static function of(array $args, TimeZone $timeZone = null, Locale $locale = null) { return new Time(0); }
 
     /**
      * Returns the current time in seconds (like the ``millis()`` method only in seconds)

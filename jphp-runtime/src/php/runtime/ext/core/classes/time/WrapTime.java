@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes.time;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.util.WrapLocale;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
@@ -14,6 +15,7 @@ import php.runtime.reflection.ClassEntity;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static php.runtime.annotation.Reflection.*;
@@ -25,20 +27,29 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
     protected Date date;
     protected TimeZone timeZone;
     protected Calendar calendar;
+    protected Locale locale;
 
     public WrapTime(Environment env, Date date) {
         super(env);
         this.date = date;
         timeZone = UTC;
-        calendar = Calendar.getInstance(UTC);
+        calendar = Calendar.getInstance(UTC, Locale.ENGLISH);
         calendar.setTime(date);
+        locale = Locale.ENGLISH;
     }
 
     public WrapTime(Environment env, Date date, TimeZone timeZone) {
+        this(env, date, timeZone, null);
+    }
+
+    public WrapTime(Environment env, Date date, TimeZone timeZone, Locale locale) {
         super(env);
         this.date = date;
         this.timeZone = timeZone;
-        calendar = Calendar.getInstance(timeZone);
+
+        this.locale = locale == null ? Locale.ENGLISH : locale;
+        this.calendar = Calendar.getInstance(timeZone, this.locale);
+
         calendar.setTime(date);
     }
 
@@ -59,16 +70,19 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
     }
 
     @Signature({
-            @Arg(value = "date"),
-            @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null"))
+            @Arg(value = "date", optional = @Optional("null")),
+            @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")),
+            @Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("null"))
     })
     public Memory __construct(Environment env, Memory... args) {
         TimeZone zone = WrapTimeZone.getTimeZone(env, args[1]);
 
-        this.date = new Date(args[0].toLong());
         this.timeZone = zone;
-        
-        calendar = Calendar.getInstance(timeZone);
+        this.locale = args[2].isNull() ? Locale.ENGLISH : args[2].toObject(WrapLocale.class).getLocale();
+
+        this.date = args[0].isNull() ? Calendar.getInstance(zone, this.locale).getTime() : new Date(args[0].toLong());
+
+        calendar = Calendar.getInstance(timeZone, this.locale);
         calendar.setTime(date);
         
         return Memory.NULL;
@@ -162,16 +176,26 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
         return LongMemory.valueOf(calendar.compareTo(args[0].toObject(WrapTime.class).calendar));
     }
 
-    @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")))
+    @Signature({
+        @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")),
+        @Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("NULL"))
+    })
     public static Memory now(Environment env, Memory... args) {
+        Locale aLocale = args[1].isNull() ? Locale.ENGLISH : args[1].toObject(WrapLocale.class).getLocale();
+
         TimeZone zone = WrapTimeZone.getTimeZone(env, args[0]);
-        return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone).getTime(), zone));
+        return new ObjectMemory(new WrapTime(env, Calendar.getInstance(zone, aLocale).getTime(), zone, aLocale));
     }
 
     @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class))
     public Memory withTimezone(Environment env, Memory... args) {
         TimeZone zone = WrapTimeZone.getTimeZone(env, args[0]);
-        return new ObjectMemory(new WrapTime(env, date, zone));
+        return new ObjectMemory(new WrapTime(env, date, zone, locale));
+    }
+
+    @Signature(@Arg(value = "locale", nativeType = WrapLocale.class))
+    public Memory withLocale(Environment env, Memory... args) {
+        return new ObjectMemory(new WrapTime(env, date, timeZone, args[0].toObject(WrapLocale.class).getLocale()));
     }
 
     @Signature(@Arg(value = "args", type = HintType.ARRAY))
@@ -211,10 +235,16 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
         return new StringMemory(isoFormat.format(date));
     }
 
-    @Signature(@Arg("format"))
+    @Signature({
+        @Arg("format"),
+        @Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("NULL"))
+    })
     public Memory toString(Environment env, Memory... args) {
-        SimpleDateFormat format = new SimpleDateFormat(args[0].toString());
+        Locale aLocale = args[1].isNull() ? locale : args[1].toObject(WrapLocale.class).getLocale();
+
+        SimpleDateFormat format = new SimpleDateFormat(args[0].toString(), aLocale);
         format.setTimeZone(timeZone);
+
         return StringMemory.valueOf(format.format(date));
     }
 
@@ -274,25 +304,35 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
         return LongMemory.valueOf(System.nanoTime());
     }
 
-    @Signature(@Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("NULL")))
+    @Signature({
+        @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("NULL")),
+        @Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("NULL"))
+    })
     public static Memory today(Environment env, Memory... args) {
         Date date1 = new Date();
-        Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[0]));
+        Locale aLocale = args[1].isNull() ? Locale.ENGLISH : args[1].toObject(WrapLocale.class).getLocale();
+        Calendar calendar = Calendar.getInstance(
+                WrapTimeZone.getTimeZone(env, args[0]),
+                aLocale
+        );
         calendar.setTime(date1);
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone()));
+        return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone(), aLocale));
     }
 
     @Signature({
             @Arg(value = "args", type = HintType.ARRAY),
-            @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null"))
+            @Arg(value = "timeZone", nativeType = WrapTimeZone.class, optional = @Optional("null")),
+            @Arg(value = "locale", nativeType = WrapLocale.class, optional = @Optional("null"))
     })
     public static Memory of(Environment env, Memory... args) {
-        Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[1]));
+        Locale aLocale = args[2].isNull() ? Locale.ENGLISH : args[2].toObject(WrapLocale.class).getLocale();
+
+        Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[1]), aLocale);
         Memory arg = args[0];
         int year  = arg.valueOfIndex("year").toInteger();
         Memory m = arg.toValue(ArrayMemory.class).getByScalar("month");
@@ -311,7 +351,7 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
         calendar.set(year, month - 1, day, hour, min, sec);
         calendar.set(Calendar.MILLISECOND, arg.valueOfIndex("millis").toInteger());
 
-        return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone()));
+        return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone(), aLocale));
     }
 
     @Override
