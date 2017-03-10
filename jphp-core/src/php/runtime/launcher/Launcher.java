@@ -265,6 +265,14 @@ public class Launcher {
         run(mustBootstrap, false);
     }
 
+    public void beforeIncludeBootstrap()
+    {
+    }
+
+    public void afterIncludeBootstrap()
+    {
+    }
+
     public void run(boolean mustBootstrap, boolean disableExtensions) throws Throwable {
         readConfig();
         if (!disableExtensions) {
@@ -304,6 +312,8 @@ public class Launcher {
                     throw new IOException();
                 }
 
+                beforeIncludeBootstrap();
+
                 if (new StringMemory(config.getProperty("bootstrap.showBytecode", "")).toBoolean()) {
                     ModuleOpcodePrinter moduleOpcodePrinter = new ModuleOpcodePrinter(bootstrap);
                     System.out.println(moduleOpcodePrinter.toString());
@@ -321,6 +331,8 @@ public class Launcher {
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {
+                    afterIncludeBootstrap();
+
                     environment.popCall();
                     compileScope.triggerProgramShutdown(environment);
 
