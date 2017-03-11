@@ -166,11 +166,10 @@ final public class JavaMethod extends JavaReflection {
         try {
             return method.isAnnotationPresent((Class<? extends Annotation>) Class.forName(args[0].toString()))
                     ? Memory.TRUE : Memory.FALSE;
-        } catch (ClassNotFoundException e) {
-            exception(env, e);
-        } catch (ClassCastException e){
+        } catch (ClassNotFoundException | ClassCastException e) {
             exception(env, e);
         }
+
         return Memory.NULL;
     }
 
@@ -197,6 +196,7 @@ final public class JavaMethod extends JavaReflection {
     public static Object[] makePassed(Environment env, MemoryUtils.Converter[] converters, Memory... args){
         Object[] passed = new Object[converters.length];
         int i = 0;
+
         for(MemoryUtils.Converter converter : converters){
             Memory arg = args[i];
             if (arg.instanceOf("php\\lang\\JavaObject")){
@@ -210,6 +210,7 @@ final public class JavaMethod extends JavaReflection {
             }
             i++;
         }
+
         return passed;
     }
 }

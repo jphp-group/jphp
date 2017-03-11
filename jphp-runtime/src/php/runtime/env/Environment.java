@@ -129,7 +129,11 @@ public class Environment {
                 try {
                     env.catchUncaught((Exception) e);
                 } catch (RuntimeException e2) {
-                    e2.getCause().printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
+                    if (env.getDefaultBuffer() == null || env.getDefaultBuffer().getOutput() == null) {
+                        e2.printStackTrace();
+                    } else {
+                        e2.getCause().printStackTrace(new PrintStream(env.getDefaultBuffer().getOutput()));
+                    }
                 }
                 return;
             }

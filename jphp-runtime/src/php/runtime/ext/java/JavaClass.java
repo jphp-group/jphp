@@ -22,6 +22,11 @@ import static php.runtime.annotation.Reflection.*;
 final public class JavaClass extends JavaReflection {
     protected Class<?> clazz;
 
+    public JavaClass(Environment env, Class<?> clazz) {
+        super(env);
+        this.clazz = clazz;
+    }
+
     public JavaClass(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -47,9 +52,7 @@ final public class JavaClass extends JavaReflection {
             Field field = clazz.getField(name);
             field.setAccessible(true);
             return MemoryUtils.valueOf(env, field.get(null));
-        } catch (NoSuchFieldException e) {
-            exception(env, e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             exception(env, e);
         }
         return Memory.NULL;
@@ -62,9 +65,7 @@ final public class JavaClass extends JavaReflection {
             Field field = clazz.getField(name);
             field.setAccessible(true);
             field.set(null, MemoryUtils.fromMemory(args[1], field.getType()));
-        } catch (NoSuchFieldException e) {
-            exception(env, e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             exception(env, e);
         }
         return Memory.NULL;
@@ -146,11 +147,10 @@ final public class JavaClass extends JavaReflection {
         try {
             return clazz.isAnnotationPresent((Class<? extends Annotation>) Class.forName(args[0].toString()))
                     ? Memory.TRUE : Memory.FALSE;
-        } catch (ClassNotFoundException e) {
-            exception(env, e);
-        } catch (ClassCastException e){
+        } catch (ClassNotFoundException | ClassCastException e) {
             exception(env, e);
         }
+
         return Memory.NULL;
     }
 
@@ -215,9 +215,7 @@ final public class JavaClass extends JavaReflection {
     public Memory newInstance(Environment env, Memory... args){
         try {
             return new ObjectMemory(JavaObject.of(env, clazz.newInstance()));
-        } catch (InstantiationException e) {
-            exception(env, e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             exception(env, e);
         }
         return Memory.NULL;
@@ -235,21 +233,15 @@ final public class JavaClass extends JavaReflection {
             return new ObjectMemory(JavaObject.of(env,
                     constructor.newInstance(JavaMethod.makePassed(env, converters, passed))
             ));
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalArgumentException | IllegalAccessException e) {
             exception(env, e);
         } catch (InvocationTargetException e) {
             exception(env, e.getTargetException());
-        } catch (InstantiationException e) {
-            exception(env, e);
-        } catch (IllegalAccessException e) {
-            exception(env, e);
-        } catch (IllegalArgumentException e){
-            exception(env, e);
         }
         return Memory.NULL;
     }
 
-    @Signature(@Arg(value = "class", typeClass = "php\\lang\\JavaClass"))
+    @Signature(@Arg(value = "class", nativeType = JavaClass.class))
     public Memory isAssignableFrom(Environment env, Memory... args){
         JavaClass javaClass = ((JavaClass)args[0].toValue(ObjectMemory.class).value);
         return clazz.isAssignableFrom(javaClass.clazz) ? Memory.TRUE : Memory.FALSE;
@@ -285,9 +277,7 @@ final public class JavaClass extends JavaReflection {
     }
 
     public static JavaClass of(Environment env, Class<?> clazz){
-        JavaClass javaClass = new JavaClass(env, env.fetchClass("php\\lang\\JavaClass"));
-        javaClass.setClazz(clazz);
-        return javaClass;
+        return new JavaClass(env, clazz);
     }
 
     private final static Map<String, Class<?>> primitives = new HashMap<String, Class<?>>(){{

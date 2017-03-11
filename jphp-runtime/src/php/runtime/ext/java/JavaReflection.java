@@ -13,9 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Reflection.Name("php\\lang\\JavaReflection")
 abstract public class JavaReflection extends BaseObject {
-
     protected static Map<Class<? extends JavaException>, Constructor<? extends JavaException>> constructors;
     protected static Map<Class<? extends Throwable>, Class<? extends JavaException>> cachedThClasses;
+
+    public JavaReflection(Environment env) {
+        super(env);
+    }
 
     public JavaReflection(Environment env, ClassEntity clazz) {
         super(env, clazz);

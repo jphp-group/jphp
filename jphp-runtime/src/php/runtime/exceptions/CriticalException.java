@@ -9,4 +9,8 @@ public class CriticalException extends RuntimeException implements JPHPException
     public CriticalException(String message) {
         super(message);
     }
+
+    public CriticalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
