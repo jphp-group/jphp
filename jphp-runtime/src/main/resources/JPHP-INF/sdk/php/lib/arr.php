@@ -55,7 +55,7 @@ class arr
      * --RU--
      * Конвертирует коллекцию в массив
      *
-     * @param array|Iterator $collection
+     * @param array|\Traversable $collection
      * @param bool $withKeys
      * @return array
      */

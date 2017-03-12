@@ -128,7 +128,6 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
-    @FastMethod
     @Signature(@Arg(value = "collection", type = HintType.TRAVERSABLE))
     public static Memory count(Environment env, Memory... args) {
         if (args[0].isArray())
@@ -158,7 +157,6 @@ public class ItemsUtils extends BaseObject {
             return Memory.CONST_INT_0;
     }
 
-    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "withKeys", optional = @Optional("false"))
@@ -185,7 +183,6 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
-    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "withKeys", optional = @Optional("false"))
@@ -194,7 +191,6 @@ public class ItemsUtils extends BaseObject {
         return toArray(env, args);
     }
 
-    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })
@@ -222,7 +218,6 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
-    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "value"),
@@ -277,7 +272,6 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
-    @FastMethod
     @Signature(@Arg("collection"))
     public static Memory toList(Environment env, Memory... args) {
         ArrayMemory r = new ArrayMemory();
@@ -292,7 +286,6 @@ public class ItemsUtils extends BaseObject {
         return r.toConstant();
     }
 
-    @FastMethod
     @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE)
     })
@@ -326,7 +319,6 @@ public class ItemsUtils extends BaseObject {
         }
     }
 
-    @FastMethod
     @Signature({
         @Arg(value = "collection", type = HintType.TRAVERSABLE),
         @Arg(value = "level", optional = @Optional("-1"))

@@ -30,6 +30,8 @@ public class FsUtils extends BaseObject {
 
     private final static Set<String> winSystemNames = new HashSet<>(Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"));
 
+    private final static char[] deniedNameChars = {'*', '?', '"', '>', '<', '|', ':', '/', '\\'};
+
     public FsUtils(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -56,30 +58,37 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static boolean valid(String name) {
-        if (name.isEmpty()) {
+        if (name.trim().isEmpty()) {
             return false;
         }
 
-        if (name.indexOf('*') > -1 || name.indexOf('?') > -1 || name.indexOf('"') > -1) {
-            return false;
+        for (char c : deniedNameChars) {
+            if (name.indexOf(c) > -1) {
+                return false;
+            }
         }
 
-        if (name.contains("..")) {
-            return false;
-        }
-
-        if (name.equals(".")) {
+        if (name.equals(".") || name.startsWith("./") || name.startsWith(".\\")) {
             return false;
         }
 
         int length = name.length();
+        boolean onlySpecs = true;
 
         for (int i = 0; i < length; i++) {
             char ch = name.charAt(i);
 
+            if (ch != '.' && ch != '/' && ch != '\\') {
+                onlySpecs = false;
+            }
+
             if (!isPrintableChar(ch)) {
                 return false;
             }
+        }
+
+        if (onlySpecs) {
+            return false;
         }
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) {

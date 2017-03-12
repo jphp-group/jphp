@@ -89,6 +89,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, OldMirrorUtils.class);
 
         registerClass(scope, SharedUtils.SharedMemory.class);
+        registerClass(scope, SharedUtils.SharedCollection.class);
         registerClass(scope, SharedUtils.SharedValue.class);
         registerClass(scope, SharedUtils.SharedStack.class);
         registerClass(scope, SharedUtils.SharedQueue.class);

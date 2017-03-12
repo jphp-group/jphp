@@ -2,6 +2,7 @@ package php.runtime.env.handler;
 
 import php.runtime.Memory;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
 import php.runtime.ext.java.JavaException;
 import php.runtime.invoke.Invoker;
@@ -34,9 +35,16 @@ public class ExceptionHandler {
 
             env.echo("\nStack Trace:\n");
             env.echo(exception.getTraceAsString(env).toString());
+
+            TraceInfo trace = exception.getTrace();
+
+            if (trace == null) {
+                trace = TraceInfo.UNKNOWN;
+            }
+
             env.echo("\n  thrown in "
-                            + exception.getTrace().getFileName()
-                            + " on line " + (exception.getTrace().getStartLine() + 1) + "\n"
+                            + trace.getFileName()
+                            + " on line " + (trace.getStartLine() + 1) + "\n"
             );
 
             if (exception instanceof JavaException && ((JavaException) exception).getThrowable() != null){
