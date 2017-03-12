@@ -1,6 +1,6 @@
 dependencies {
     compile project(':jphp-runtime')
-    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.google.code.gson:gson:2.7'
 
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-zend-ext')
