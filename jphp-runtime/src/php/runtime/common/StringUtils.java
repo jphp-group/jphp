@@ -405,4 +405,20 @@ final public class StringUtils {
         // remember to append any characters to the right of a match
         return sb.toString();
     }
+
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
+    }
+
+    public static boolean isBlank(String str) {
+        return str == null || str.isEmpty() || str.trim().isEmpty();
+    }
+
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
 }

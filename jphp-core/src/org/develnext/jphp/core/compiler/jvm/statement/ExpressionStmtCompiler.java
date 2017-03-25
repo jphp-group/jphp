@@ -1679,8 +1679,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
             return new StringMemory(parent);
         } else if (macro instanceof FunctionMacroToken) {
+            if (method.clazz == null) {
+                return Memory.CONST_EMPTY_STRING;
+            }
 
-            if (method.clazz.getFunctionName().isEmpty())
+            if (method.clazz.isClosure()) {
+                return new StringMemory("{closure}");
+            }
+
+            if (StringUtils.isEmpty(method.clazz.getFunctionName()))
                 return method.clazz.isSystem()
                         ? Memory.CONST_EMPTY_STRING
                         : method.getRealName() == null
@@ -1692,6 +1699,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
         } else if (macro instanceof MethodMacroToken) {
+            if (method.clazz == null) {
+                return Memory.CONST_EMPTY_STRING;
+            }
+
+            if (method.clazz.isClosure()) {
+                return new StringMemory("{closure}");
+            }
+
             if (method.clazz.isSystem())
                 return method.clazz.getFunctionName() != null
                         ? new StringMemory(method.clazz.getFunctionName()) : Memory.NULL;
