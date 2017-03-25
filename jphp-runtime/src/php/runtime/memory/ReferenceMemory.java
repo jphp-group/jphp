@@ -635,7 +635,8 @@ public class ReferenceMemory extends Memory {
     @Override
     public Memory assign(Memory memory) {
         switch (value.type){
-            case REFERENCE: return value.assign(memory);
+            case REFERENCE:
+                return value.assign(memory);
             case ARRAY: //value.unset(); // do not need break!!
             default:
                 return value = memory;
@@ -654,6 +655,11 @@ public class ReferenceMemory extends Memory {
         if (reference.isReference()){
             reference = ((ReferenceMemory)reference).getReference();
         }
+
+        if (reference == this) {
+            return reference;
+        }
+
         value = reference;
         return reference;
     }
