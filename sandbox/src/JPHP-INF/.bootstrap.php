@@ -1,1 +1,1 @@
-<?use java\lang\System;$console = System::console();$line = $console->readLine("Hi world", []);
+<?use php\compress\ZipFile;$zip = new ZipFile('my.zip');echo $zip->get('my.txt')->readFully();//$zip->addFromString('my.txt', 'Hello World');

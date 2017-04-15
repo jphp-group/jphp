@@ -33,6 +33,16 @@ allprojects {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
+
+    configurations {
+        provided
+    }
+
+    sourceSets {
+        main {
+            compileClasspath += configurations.provided
+        }
+    }
 }
 
 task wrapper(type: Wrapper) {

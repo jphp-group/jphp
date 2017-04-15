@@ -1,0 +1,6 @@
+
+dependencies {
+    provided project(':jphp-runtime')
+
+    compile group: 'org.zeroturnaround', name: 'zt-zip', version: '1.11'
+}

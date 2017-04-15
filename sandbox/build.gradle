@@ -9,7 +9,7 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-zend-ext')
-    compile project(':jphp-pni-ext')
+    compile project(':jphp-zip-ext')
     //compile project(':jphp-xml-ext')
     //compile project(':jphp-json-ext')
     //compile project(':jphp-jsoup-ext')
