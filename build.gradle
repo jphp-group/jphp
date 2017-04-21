@@ -45,10 +45,6 @@ allprojects {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = 2.12;
-}
-
 configure(subprojects) {
     apply plugin: 'maven'
     apply plugin: 'java'
