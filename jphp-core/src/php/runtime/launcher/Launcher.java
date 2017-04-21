@@ -22,6 +22,7 @@ import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class Launcher {
@@ -322,7 +323,13 @@ public class Launcher {
                 initModule(bootstrap);
 
                 ArrayMemory argv = ArrayMemory.ofStrings(this.args);
-                argv.unshift(Memory.NULL);
+
+                String path = URLDecoder.decode(
+                        Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),
+                        "UTF-8"
+                );
+
+                argv.unshift(StringMemory.valueOf(path));
 
                 environment.getGlobals().put("argv", argv);
                 environment.getGlobals().put("argc", LongMemory.valueOf(argv.size()));

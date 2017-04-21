@@ -1,4 +1,4 @@
-
+apply plugin: 'maven'
 
 dependencies {
     compile project(':jphp-runtime')

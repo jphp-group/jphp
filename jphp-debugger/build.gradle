@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 dependencies {
     compile project(':jphp-core')
     compile 'commons-codec:commons-codec:1.10'

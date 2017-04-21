@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 sourceSets {
     main.java.srcDirs = ['src']
     main.resources.srcDirs = ['resources']

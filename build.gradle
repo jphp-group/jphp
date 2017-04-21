@@ -1,20 +1,10 @@
 def javaVersion    = '1.7';
 def projectVersion = '0.9.0';
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-    }
-}
-
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'signing'
     apply plugin: 'java'
-    apply plugin: 'maven'
 
     project.group = 'org.develnext.jphp'
     project.version = projectVersion
@@ -46,7 +36,6 @@ allprojects {
 }
 
 configure(subprojects) {
-    apply plugin: 'maven'
     apply plugin: 'java'
 
     sourceCompatibility = javaVersion
