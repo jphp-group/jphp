@@ -1,7 +1,0 @@
-dependencies {
-    compile project(':jphp-runtime')
-
-    testCompile 'junit:junit:4.+'
-    testCompile project(':jphp-zend-ext')
-    testCompile project(':jphp-core').sourceSets.test.output
-}

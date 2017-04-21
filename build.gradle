@@ -71,16 +71,12 @@ configure(subprojects) {
 configure([
         project(':jphp-runtime'),
         project(':jphp-core'),
-        project(':jphp-swing-ext'),
         project(':jphp-zend-ext'),
         project(':jphp-json-ext'),
         project(':jphp-jsoup-ext'),
         project(':jphp-xml-ext'),
         project(':jphp-mail-ext'),
         project(':jphp-sql-ext'),
-        project(':jphp-webserver-ext'),
-        project(':jphp-compress-ext'),
-        project(':jphp-orientdb-ext'),
         project(':jphp-debugger'),
 
         project(':jphp-scripting'),

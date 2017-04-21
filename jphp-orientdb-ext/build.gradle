@@ -1,6 +1,0 @@
-
-dependencies {
-    compile project(':jphp-runtime')
-
-    compile 'com.orientechnologies:orientdb-core:2.1.11'
-}

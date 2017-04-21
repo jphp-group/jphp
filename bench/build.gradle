@@ -7,7 +7,6 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-zend-ext')
-    compile project(':jphp-webserver-ext')
 }
 
 mainClassName = 'php.runtime.launcher.Launcher'

@@ -1,8 +1,0 @@
-sourceSets {
-    main.java.srcDirs = ['src']
-    main.resources.srcDirs = ['resources']
-}
-
-dependencies {
-    compile project(':jphp-runtime')
-}

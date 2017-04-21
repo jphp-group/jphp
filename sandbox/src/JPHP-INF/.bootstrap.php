@@ -1,1 +1,1 @@
-<?use php\compress\ZipFile;$zip = new ZipFile('my.zip');echo $zip->get('my.txt')->readFully();//$zip->addFromString('my.txt', 'Hello World');
+<?echo "Hello World";

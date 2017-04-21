@@ -2,8 +2,8 @@
 namespace benchmarks;
 
 use php\lang\System;
-use php\webserver\WebRequest;
-use php\webserver\WebServer;
+//use php\webserver\WebRequest;
+//use php\webserver\WebServer;
 
 abstract class Benchmark {
 	const DEFAULT_ITERATIONS = 100;
@@ -27,7 +27,7 @@ abstract class Benchmark {
 	}
 
 	static function startServer() {
-		$server = new WebServer(function (WebRequest $request) {
+		/*$server = new WebServer(function (WebRequest $request) {
 			self::registerAll();
 
 			if ($request->servletPath == '/bench') {
@@ -45,7 +45,7 @@ abstract class Benchmark {
 		$server->hotReload = false;
 		$server->isolated  = false;
 
-		$server->run();
+		$server->run();*/
 	}
 
 	static function registerAll() {

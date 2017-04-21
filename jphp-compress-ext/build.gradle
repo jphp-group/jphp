@@ -1,6 +1,0 @@
-
-dependencies {
-    compile project(':jphp-runtime')
-
-    compile 'org.apache.commons:commons-compress:1.10'
-}
