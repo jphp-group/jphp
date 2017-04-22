@@ -3,6 +3,7 @@ package php.runtime.ext;
 import php.runtime.Startup;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
+import php.runtime.env.handler.ProgramShutdownHandler;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
@@ -16,9 +17,7 @@ import php.runtime.ext.core.classes.net.WrapServerSocket;
 import php.runtime.ext.core.classes.net.WrapSocket;
 import php.runtime.ext.core.classes.net.WrapSocketException;
 import php.runtime.ext.core.classes.stream.*;
-import php.runtime.ext.core.classes.time.WrapTime;
-import php.runtime.ext.core.classes.time.WrapTimeFormat;
-import php.runtime.ext.core.classes.time.WrapTimeZone;
+import php.runtime.ext.core.classes.time.*;
 import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
@@ -27,9 +26,10 @@ import php.runtime.loader.sourcemap.SourceMap;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
-public class CoreExtension extends Extension {
+public class CoreExtension extends Extension implements ProgramShutdownHandler {
     public final static String NAMESPACE = "php\\";
 
     @Override
@@ -49,6 +49,8 @@ public class CoreExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+        scope.registerProgramShutdownHandler(this);
+        
         registerFunctions(new LangFunctions());
         registerConstants(new LangConstants());
 
@@ -110,6 +112,7 @@ public class CoreExtension extends Extension {
         registerClass(scope, WrapTimeZone.class);
         registerClass(scope, WrapTimeFormat.class);
         registerClass(scope, WrapTime.class);
+        registerWrapperClass(scope, TimerTask.class, WrapTimer.class);
 
         registerClass(scope, WrapInvoker.class);
         registerClass(scope, WrapModule.class);
@@ -161,7 +164,11 @@ public class CoreExtension extends Extension {
     @Override
     public void onLoad(Environment env) {
         Stream.initEnvironment(env);
+    }
 
 
+    @Override
+    public void onShutdown(CompileScope scope, Environment env) {
+        WrapTimer.cancelAll();
     }
 }

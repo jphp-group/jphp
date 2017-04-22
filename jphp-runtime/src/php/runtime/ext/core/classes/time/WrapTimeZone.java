@@ -13,6 +13,7 @@ import php.runtime.reflection.ClassEntity;
 
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
+import java.util.Timer;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;

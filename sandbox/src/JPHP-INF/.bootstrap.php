@@ -1,1 +1,1 @@
-<?var_dump($argv);
+<?
