@@ -75,6 +75,24 @@ class Timer
     }
 
     /**
+     * Converts a string period to amount of millis.
+     * 
+     * '' - millis
+     *  's' - seconds
+     *  'm' - minutes
+     *  'h' - hours
+     *  'd' - days (24 hours)
+     *
+     *  for example '2h 30m 10s' or '2.5s' or '2000' or '1m 30s'
+     *
+     * @param string $value
+     * @return int
+     */
+    static function parsePeriod($value)
+    {
+    }
+
+    /**
      * Cancel timer task.
      */
     function cancel()

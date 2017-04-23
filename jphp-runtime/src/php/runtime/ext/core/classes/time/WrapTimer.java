@@ -47,6 +47,7 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
         return getWrappedObject().scheduledExecutionTime();
     }
 
+    @Signature
     public static long parsePeriod(String period) {
         if (period == null || period.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid period - '" + period + "', is empty");
