@@ -613,13 +613,17 @@ public class Tokenizer {
 
                 if (i + 1 >= codeLength){
                     break;
-                } else if (code.charAt(i + 1) == '-' || code.charAt(i + 1) == '+' ||
-                        Character.isDigit(code.charAt(i + 2))) {
-                    if (i + 2 >= codeLength || !Character.isDigit(code.charAt(i + 2))) {
-                        break;
-                    } else
-                        i++;
+                } else {
+                    if (code.charAt(i + 1) == '-' || code.charAt(i + 1) == '+' ||
+                            (i + 2 >= codeLength || Character.isDigit(code.charAt(i + 2)))) {
+                        if (i + 2 >= codeLength || !Character.isDigit(code.charAt(i + 2))) {
+                            break;
+                        } else {
+                            i++;
+                        }
+                    }
                 }
+
                 e_char = true;
             } else if (isHex && ((ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
                 // nop
