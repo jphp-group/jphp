@@ -1,6 +1,6 @@
 package org.develnext.jphp.core.tokenizer;
 
-import org.develnext.jphp.core.common.GrammarUtils;
+import org.develnext.jphp.core.common.TokenizeGrammarUtils;
 import org.develnext.jphp.core.tokenizer.token.*;
 import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
@@ -115,7 +115,7 @@ public class Tokenizer {
         meta.setStartIndex(currentPosition - length);
         meta.setEndIndex(currentPosition);
 
-        if (length == 1 && GrammarUtils.isDelimiter(word.charAt(0))) {
+        if (length == 1 && TokenizeGrammarUtils.isDelimiter(word.charAt(0))) {
             meta.setStartIndex(currentPosition);
             meta.setEndIndex(currentPosition + 1);
         }
@@ -144,11 +144,11 @@ public class Tokenizer {
         char ch;
         if (currentPosition + 1 < codeLength){
             ch = code.charAt(currentPosition + 1);
-            if (GrammarUtils.isDelimiter(ch) && !GrammarUtils.isSpace(ch)){
+            if (TokenizeGrammarUtils.isDelimiter(ch) && !TokenizeGrammarUtils.isSpace(ch)){
                 len = 1;
                 if (currentPosition + 2 < codeLength){
                     ch = code.charAt(currentPosition + 2);
-                    if (GrammarUtils.isDelimiter(ch) && !GrammarUtils.isSpace(ch)){
+                    if (TokenizeGrammarUtils.isDelimiter(ch) && !TokenizeGrammarUtils.isSpace(ch)){
                         len = 2;
                     }
                 }
@@ -181,23 +181,25 @@ public class Tokenizer {
             while (currentPosition > 0 && value < 0){
                 currentPosition--;
                 value++;
-                if (GrammarUtils.isNewline(code.charAt(currentPosition)))
+                if (TokenizeGrammarUtils.isNewline(code.charAt(currentPosition)))
                     currentLine--;
             }
         }
     }
 
     protected boolean checkNewLine(char ch, boolean invert){
-        if (GrammarUtils.isNewline(ch)){
-            if (invert)
+        if (TokenizeGrammarUtils.isNewline(ch)){
+            if (invert) {
                 currentLine--;
-            else
+            } else {
                 currentLine++;
+            }
 
             relativePosition = 0;
             startRelativePosition = 0;
             return true;
         }
+        
         return false;
     }
 
@@ -224,10 +226,10 @@ public class Tokenizer {
                 char ch = code.charAt(i);
                 pos++;
 
-                if (docType == null && GrammarUtils.isQuote(ch) != null) {
-                    docType = GrammarUtils.isQuote(ch);
-                } else if (docType != null && docType == GrammarUtils.isQuote(ch)) {
-                    if (i + 1 >= codeLength || !GrammarUtils.isNewline(code.charAt(i + 1))) {
+                if (docType == null && TokenizeGrammarUtils.isQuote(ch) != null) {
+                    docType = TokenizeGrammarUtils.isQuote(ch);
+                } else if (docType != null && docType == TokenizeGrammarUtils.isQuote(ch)) {
+                    if (i + 1 >= codeLength || !TokenizeGrammarUtils.isNewline(code.charAt(i + 1))) {
                         throw new ParseException(
                                 Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch(),
                                 new TraceInfo(context, currentLine, currentLine, pos + 1, pos + 1)
@@ -238,14 +240,14 @@ public class Tokenizer {
                     // nop
                 } else if (tmp.length() == 0 && (ch == ' ' || ch == '\t')) {
                     //nop
-                } else if (GrammarUtils.isEngLetter(ch) || ch == '_' || (tmp.length() != 0 && Character.isDigit(ch))){
+                } else if (TokenizeGrammarUtils.isEngLetter(ch) || ch == '_' || (tmp.length() != 0 && Character.isDigit(ch))){
                     tmp.append(ch);
                 } else if (tmp.length() > 0 && checkNewLine(ch)){
                     pos = 0;
                     break;
                 } else {
                     String error = Messages.ERR_PARSE_UNEXPECTED_X.fetch(ch);
-                    if (GrammarUtils.isNewline(ch))
+                    if (TokenizeGrammarUtils.isNewline(ch))
                         error = Messages.ERR_PARSE_UNEXPECTED_END_OF_STRING.fetch();
 
                     throw new ParseException(
@@ -269,7 +271,7 @@ public class Tokenizer {
             char ch = code.charAt(i);
 
             pos++;
-            ch_quote = GrammarUtils.isQuote(ch);
+            ch_quote = TokenizeGrammarUtils.isQuote(ch);
             if (endString == null && (ch_quote == quote && !slash)){
                 currentPosition  = i;
                 relativePosition = pos;
@@ -282,7 +284,7 @@ public class Tokenizer {
                     int end = i + 1 + endString.length();
                     if (end < codeLength){
                         if (code.substring(i + 1, end).equals(endString)) {
-                            if ((code.charAt(end) == ';' && GrammarUtils.isNewline(code.charAt(end + 1))) || GrammarUtils.isNewline(code.charAt(end))) {
+                            if ((code.charAt(end) == ';' && TokenizeGrammarUtils.isNewline(code.charAt(end + 1))) || TokenizeGrammarUtils.isNewline(code.charAt(end))) {
                                 currentPosition = i + endString.length();
                                 relativePosition = endString.length();
                                 ch_quote = StringExprToken.Quote.DOC;
@@ -433,15 +435,15 @@ public class Tokenizer {
                             int complex = 0;
                             if (k < codeLength) {
                                 char first = code.charAt(k);
-                                if (GrammarUtils.isEngLetter(first) || first == '_'){
+                                if (TokenizeGrammarUtils.isEngLetter(first) || first == '_'){
                                     k++;
                                     done = true;
                                     for(; i < codeLength; k++){
                                         if (k < codeLength){
                                             first = code.charAt(k);
-                                            if (Character.isDigit(first) || GrammarUtils.isEngLetter(first) || first == '_') {
+                                            if (Character.isDigit(first) || TokenizeGrammarUtils.isEngLetter(first) || first == '_') {
                                                 // nop
-                                            } else if (complex == 1 && GrammarUtils.isVariableChar(first) && code.charAt(k - 1) == '[') {
+                                            } else if (complex == 1 && TokenizeGrammarUtils.isVariableChar(first) && code.charAt(k - 1) == '[') {
                                                 // nop
                                             } else if (complex == 0 && first == '[') {
                                                 opened++;
@@ -528,8 +530,8 @@ public class Tokenizer {
             boolean closed = false;
             switch (kind){
                 case SIMPLE:
-                    closed = (GrammarUtils.isNewline(ch));
-                    if (GrammarUtils.isCloseTag(String.valueOf(new char[]{prev_ch, ch}))) {
+                    closed = (TokenizeGrammarUtils.isNewline(ch));
+                    if (TokenizeGrammarUtils.isCloseTag(prev_ch, ch)) {
                         i -= 2;
                         closed = true;
                     }
@@ -537,7 +539,7 @@ public class Tokenizer {
                     break;
                 case DOCTYPE:
                 case BLOCK:
-                    closed = k != 0 && (GrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
+                    closed = k != 0 && (TokenizeGrammarUtils.isCloseComment(String.valueOf(new char[]{prev_ch, ch}))); break;
             }
 
             closed = closed || i == codeLength - 1;
@@ -603,7 +605,7 @@ public class Tokenizer {
         for(; i < codeLength; i++){
             char ch = code.charAt(i);
 
-            if (!isHex && GrammarUtils.isFloatDot(ch)){
+            if (!isHex && TokenizeGrammarUtils.isFloatDot(ch)){
                 if (dot)
                     break;
                 dot = true;
@@ -652,24 +654,29 @@ public class Tokenizer {
         StringExprToken.Quote string = null;
         CommentToken.Kind comment = null;
 
-        if (codeLength == 0)
+        if (codeLength == 0) {
             return null;
+        }
 
         boolean first = true;
         while (currentPosition < codeLength){
             currentPosition++;
             relativePosition++;
-            if (currentPosition == codeLength)
+
+            if (currentPosition == codeLength) {
                 break;
+            }
 
             ch = code.charAt(currentPosition);
-            if (currentPosition > 0 && init)
+            
+            if (currentPosition > 0 && init) {
                 prev_ch = code.charAt(currentPosition - 1);
+            }
 
             checkNewLine(ch);
 
             if (rawMode){
-                if (GrammarUtils.isOpenTag(String.valueOf(new char[]{prev_ch, ch}))){
+                if (TokenizeGrammarUtils.isOpenTag(prev_ch, ch)){
                     TokenMeta meta = new TokenMeta(
                             code.substring(startPosition, currentPosition - 1), startLine, currentLine,
                             startRelativePosition, relativePosition
@@ -715,16 +722,17 @@ public class Tokenizer {
                 }
 
                 // strings, herdoc, etc.
-                string = GrammarUtils.isQuote(ch);
+                string = TokenizeGrammarUtils.isQuote(ch);
                 if (string != null) {
                     return readString(string, startPosition, startLine);
                 }
             }
+            
             init = true;
             first = false;
 
-            if (GrammarUtils.isDelimiter(ch)){
-                if (startPosition == currentPosition && GrammarUtils.isSpace(ch)){
+            if (TokenizeGrammarUtils.isDelimiter(ch)) {
+                if (startPosition == currentPosition && TokenizeGrammarUtils.isSpace(ch)){
                     startPosition = currentPosition + 1;
                     startLine = currentLine;
                     startRelativePosition = relativePosition;
@@ -750,13 +758,14 @@ public class Tokenizer {
                         return readString(string, startPosition, startLine);
                     }
 
-                    if (token != null)
+                    if (token != null) {
                         return token;
+                    }
                 }
 
                 break;
-            } else if (GrammarUtils.isVariableChar(ch)){
-                if (GrammarUtils.isVariableChar(prev_ch)){
+            } else if (TokenizeGrammarUtils.isVariableChar(ch)){
+                if (TokenizeGrammarUtils.isVariableChar(prev_ch)){
                     currentPosition -= 1;
                     break;
                 }
@@ -764,7 +773,8 @@ public class Tokenizer {
         }
 
         TokenMeta meta = buildMeta(startPosition, startLine);
-        if (currentPosition != startPosition && GrammarUtils.isDelimiter(ch)){
+        
+        if (currentPosition != startPosition && TokenizeGrammarUtils.isDelimiter(ch)) {
             checkNewLine(ch, true);
             currentPosition -= 1;
             relativePosition -= 1;
@@ -781,8 +791,6 @@ public class Tokenizer {
             return buildToken(tokenClazz, meta);
         }
     }
-
-    private Token token = new Token(null, TokenType.T_STRING);
 
     public List<Token> fetchAll(){
         List<Token> result = new ArrayList<Token>();

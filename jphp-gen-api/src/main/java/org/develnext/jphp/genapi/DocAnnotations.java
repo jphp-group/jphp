@@ -1,6 +1,6 @@
 package org.develnext.jphp.genapi;
 
-import org.develnext.jphp.core.common.GrammarUtils;
+import org.develnext.jphp.core.common.TokenizeGrammarUtils;
 
 import java.util.*;
 
@@ -22,11 +22,11 @@ public class DocAnnotations {
             char ch = i < source.length() ? source.charAt(i) : '\0';
             char prev_ch = i < 1 ? '\0' : source.charAt(i - 1);
 
-            if (name == null && GrammarUtils.isSpace(ch)) {
+            if (name == null && TokenizeGrammarUtils.isSpace(ch)) {
                 name = source.substring(offset, i);
                 valueOffset = i + 1;
             }
-            if (ch == '\0' || (ch == '@' && GrammarUtils.isNewline(prev_ch))) {
+            if (ch == '\0' || (ch == '@' && TokenizeGrammarUtils.isNewline(prev_ch))) {
                 if (name != null) {
                     String value = source.substring(valueOffset, i);
                     Parameter parameter = parameters.get(name.toLowerCase());
@@ -48,7 +48,7 @@ public class DocAnnotations {
             char ch = text.charAt(i);
             char prev_ch = i < 1 ? '\0' : text.charAt(i - 1);
 
-            if (ch == '@' && (GrammarUtils.isNewline(prev_ch) || i == 0)) {
+            if (ch == '@' && (TokenizeGrammarUtils.isNewline(prev_ch) || i == 0)) {
                 if (description == null) {
                     description = i == 0 ? "" : text.substring(0, i - 1);
                 }
