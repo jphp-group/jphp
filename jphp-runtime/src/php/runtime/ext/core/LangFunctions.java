@@ -3,16 +3,16 @@ package php.runtime.ext.core;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Runtime;
+import php.runtime.common.AbstractCompiler;
 import php.runtime.common.GrammarUtils;
 import php.runtime.common.LangMode;
-import php.runtime.env.CallStackItem;
-import php.runtime.env.Environment;
-import php.runtime.env.PackageManager;
-import php.runtime.env.TraceInfo;
+import php.runtime.env.*;
 import php.runtime.env.handler.ErrorHandler;
 import php.runtime.env.handler.ExceptionHandler;
 import php.runtime.env.handler.ShutdownHandler;
 import php.runtime.env.message.SystemMessage;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.util.WrapFlow;
 import php.runtime.ext.support.compile.FunctionsContainer;
@@ -29,6 +29,25 @@ import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
 
 public class LangFunctions extends FunctionsContainer {
+    private static String evalErrorMessage(ErrorException e){
+        return e.getMessage() + ", eval()'s code on line " + (e.getTraceInfo().getStartLine() + 1)
+                + ", position " + (e.getTraceInfo().getStartPosition() + 1);
+    }
+
+    public static Memory eval(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, String code)
+            throws Throwable {
+        try {
+            return env.eval(code, locals);
+        } catch (ErrorException e){
+            if (e.getType() == ErrorType.E_PARSE){
+                if (env.isHandleErrors(ErrorType.E_PARSE))
+                    throw new ParseException(evalErrorMessage(e), trace);
+            } else
+                env.error(trace, e.getType(), evalErrorMessage(e));
+        }
+        
+        return Memory.FALSE;
+    }
 
     public static Memory time() {
         return LongMemory.valueOf(System.currentTimeMillis() / 1000);

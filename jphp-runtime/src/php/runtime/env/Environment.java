@@ -104,10 +104,11 @@ public class Environment {
 
     /**
      * Gets Environment for current thread context
+     *
      * @return
      */
     @Deprecated
-    public static Environment current(){
+    public static Environment current() {
         return environment.get();
     }
 
@@ -172,7 +173,7 @@ public class Environment {
         //constants.putAll(parent.constants);
 
         classMap.putAll(parent.classMap);
-        for(ClassEntity e : classMap.values()) {
+        for (ClassEntity e : classMap.values()) {
             try {
                 e.initEnvironment(this);
             } catch (Throwable throwable) {
@@ -231,7 +232,7 @@ public class Environment {
             public boolean onFatal(ErrorException error) {
                 Environment.this.echo("\n");
                 Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
-                if (error.getTraceInfo() != null){
+                if (error.getTraceInfo() != null) {
                     Environment.this.echo(
                             " in " + error.getTraceInfo().getFileName()
                                     + " on line " + (error.getTraceInfo().getStartLine() + 1)
@@ -254,7 +255,7 @@ public class Environment {
         if (invoker != null)
             this.defaultAutoLoader = new SplClassLoader(invoker, splAutoloader);
 
-        for(Extension e: scope.extensions.values()) {
+        for (Extension e : scope.extensions.values()) {
             e.onLoad(this);
 
             if (scope.getLangMode() == LangMode.MODERN) {
@@ -294,20 +295,20 @@ public class Environment {
     }
 
     public void doFinal() throws Throwable {
-        for (ShutdownHandler handler : shutdownFunctions){
+        for (ShutdownHandler handler : shutdownFunctions) {
             try {
                 handler.call();
-            } catch (DieException e){
+            } catch (DieException e) {
                 finalizeObjects();
                 catchUncaught(e);
                 break;
-            } catch (BaseBaseException e){
+            } catch (BaseBaseException e) {
                 catchUncaught(e);
                 break;
-            } catch (ErrorException e){
+            } catch (ErrorException e) {
                 catchUncaught(e);
                 break;
-            } catch (Exception e){
+            } catch (Exception e) {
                 catchUncaught(e);
                 break;
             }
@@ -326,11 +327,12 @@ public class Environment {
 
     /**
      * Remove all method which does not destruct
+     *
      * @throws Throwable
      */
     public void finalizeObjects() throws Throwable {
         cleanGcObjects();
-        for (WeakReference<IObject> el : gcObjects){
+        for (WeakReference<IObject> el : gcObjects) {
             IObject o = el.get();
             if (o == null)
                 continue;
@@ -353,7 +355,7 @@ public class Environment {
 
     private void cleanGcObjects() throws Throwable {
         Reference<? extends IObject> object;
-        while (true){
+        while (true) {
             object = gcObjectRefQueue.poll();
             if (object == null)
                 break;
@@ -366,23 +368,23 @@ public class Environment {
         getCallStack().push(stackItem);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz){
+    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
         getCallStack().push(trace, self, args, function, clazz, staticClazz);
     }
 
-    public void pushCall(IObject self, String method, Memory... args){
+    public void pushCall(IObject self, String method, Memory... args) {
         getCallStack().push(self, method, args);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, String method, Memory... args){
+    public void pushCall(TraceInfo trace, IObject self, String method, Memory... args) {
         getCallStack().push(trace, self, method, args);
     }
 
-    public void popCall(){
+    public void popCall() {
         getCallStack().pop();
     }
 
-    public CallStackItem peekCall(int depth){
+    public CallStackItem peekCall(int depth) {
         return getCallStack().peekCall(depth);
     }
 
@@ -390,27 +392,27 @@ public class Environment {
         return getCallStack().trace();
     }
 
-    public TraceInfo trace(int systemOffsetStackTrace){
+    public TraceInfo trace(int systemOffsetStackTrace) {
         return getCallStack().trace(systemOffsetStackTrace);
     }
 
-    public int getCallStackTop(){
+    public int getCallStackTop() {
         return getCallStack().getTop();
     }
 
-    public CallStackItem[] getCallStackSnapshot(){
+    public CallStackItem[] getCallStackSnapshot() {
         return getCallStack().getSnapshot();
     }
 
-    public Environment(OutputStream output){
+    public Environment(OutputStream output) {
         this(new CompileScope(), output);
     }
 
-    public Environment(CompileScope scope){
+    public Environment(CompileScope scope) {
         this(scope, null);
     }
 
-    public Environment(){
+    public Environment() {
         this((OutputStream) null);
     }
 
@@ -426,11 +428,11 @@ public class Environment {
         this.locale = locale;
     }
 
-    public String findInIncludePaths(String path){
+    public String findInIncludePaths(String path) {
         if (new File(path).exists())
             return path;
 
-        for(String e : includePaths)
+        for (String e : includePaths)
             if (new File(e, path).exists())
                 return e + path;
 
@@ -469,7 +471,7 @@ public class Environment {
         return includePaths;
     }
 
-    public void addIncludePath(String value){
+    public void addIncludePath(String value) {
         includePaths.add(value);
     }
 
@@ -485,15 +487,15 @@ public class Environment {
         return functionMap;
     }
 
-    public boolean isLoadedClass(String lowerName){
+    public boolean isLoadedClass(String lowerName) {
         return classMap.containsKey(lowerName);
     }
 
-    public boolean isLoadedFunction(String lowerName){
+    public boolean isLoadedFunction(String lowerName) {
         return functionMap.containsKey(lowerName);
     }
 
-    public boolean isLoadedConstant(String lowerName){
+    public boolean isLoadedConstant(String lowerName) {
         return constantMap.containsKey(lowerName);
     }
 
@@ -528,7 +530,7 @@ public class Environment {
         }
     }
 
-    public ClassEntity fetchClass(Class<?> clazz){
+    public ClassEntity fetchClass(Class<?> clazz) {
         ClassEntity result = fetchClass(ReflectionUtils.getClassName(clazz), false);
 
         if (result == null)
@@ -545,17 +547,17 @@ public class Environment {
         return fetchClass(name, name.toLowerCase(), autoLoad);
     }
 
-    public ClassEntity fetchMagicClass(String name){
+    public ClassEntity fetchMagicClass(String name) {
         return fetchMagicClass(name, name.toLowerCase());
     }
 
-    public ClassEntity fetchMagicClass(String name, String nameL){
-        if ("self".equals(nameL)){
+    public ClassEntity fetchMagicClass(String name, String nameL) {
+        if ("self".equals(nameL)) {
             ClassEntity e = getContextClass();
             if (e == null)
                 e = getLateStaticClass();
             return e;
-        } else if ("static".equals(nameL)){
+        } else if ("static".equals(nameL)) {
             return getLateStaticClass();
         }/* else if ("parent".equals(nameL)){
             ClassEntity e = getContextClass();
@@ -612,7 +614,7 @@ public class Environment {
     }
 
     public void registerFunction(FunctionEntity entity) {
-        synchronized (functionMap){
+        synchronized (functionMap) {
             if (functionMap.containsKey(entity.getLowerName()))
                 exception("Function '%s' already registered", entity.getName());
 
@@ -621,7 +623,7 @@ public class Environment {
     }
 
     public void registerClass(ClassEntity entity) {
-        synchronized (classMap){
+        synchronized (classMap) {
             if (classMap.containsKey(entity.getLowerName()))
                 exception("Class '%s' already registered", entity.getName());
 
@@ -634,7 +636,7 @@ public class Environment {
         return constantMap;
     }
 
-    public Memory findConstant(String name, String nameLower){
+    public Memory findConstant(String name, String nameLower) {
         ConstantEntity entity = constantMap.get(nameLower);
         if (entity != null) {
             if (!entity.caseSensitise || name.equals(entity.getName()))
@@ -648,11 +650,11 @@ public class Environment {
         return null;
     }
 
-    public Memory findConstant(String name){
+    public Memory findConstant(String name) {
         return findConstant(name, name.toLowerCase());
     }
 
-    public boolean defineConstant(String name, Memory value, boolean caseSensitise){
+    public boolean defineConstant(String name, Memory value, boolean caseSensitise) {
         Memory constant = findConstant(name);
         if (constant != null)
             return false;
@@ -661,9 +663,9 @@ public class Environment {
         return true;
     }
 
-    public Memory getConfigValue(String name, Memory defaultValue){
+    public Memory getConfigValue(String name, Memory defaultValue) {
         Memory result = null;
-        if (scope.configuration == null || (result = configuration.get(name)) != null){
+        if (scope.configuration == null || (result = configuration.get(name)) != null) {
             if (result == null) result = configuration.get(name);
             if (result == null)
                 return defaultValue;
@@ -675,18 +677,18 @@ public class Environment {
         return result == null ? defaultValue : result;
     }
 
-    public Memory getConfigValue(String name){
+    public Memory getConfigValue(String name) {
         return getConfigValue(name, null);
     }
 
-    public ArrayMemory getConfigValues(String prefix, boolean includingGlobal){
+    public ArrayMemory getConfigValues(String prefix, boolean includingGlobal) {
         if (prefix != null)
             prefix = prefix + ".";
 
         ArrayMemory result = new ArrayMemory();
         if (includingGlobal)
-            if (scope.configuration != null){
-                for(Map.Entry<String, Memory> entry : scope.configuration.entrySet()){
+            if (scope.configuration != null) {
+                for (Map.Entry<String, Memory> entry : scope.configuration.entrySet()) {
                     String key = entry.getKey();
                     if (prefix != null && !key.startsWith(prefix)) continue;
 
@@ -694,7 +696,7 @@ public class Environment {
                 }
             }
 
-        for(Map.Entry<String, Memory> entry : configuration.entrySet()){
+        for (Map.Entry<String, Memory> entry : configuration.entrySet()) {
             String key = entry.getKey();
 
             if (prefix != null && !key.startsWith(prefix)) continue;
@@ -703,7 +705,7 @@ public class Environment {
         return result;
     }
 
-    public Memory setConfigValue(String name, Memory value){
+    public Memory setConfigValue(String name, Memory value) {
         value = value.toValue();
         if (!value.isString())
             value = new StringMemory(value.toString());   // fix capability with zend php
@@ -715,7 +717,7 @@ public class Environment {
         return configuration.put(name, value);
     }
 
-    public void restoreConfigValue(String name){
+    public void restoreConfigValue(String name) {
         configuration.remove(name);
 
         ConfigChangeHandler handler = configurationHandler.get(name);
@@ -736,16 +738,16 @@ public class Environment {
         return result; // globals.getByScalarOrCreate(name, initValue);
     }
 
-    public Memory getStatic(String name){
+    public Memory getStatic(String name) {
         return statics.get(name);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getUserValue(String name, Class<T> clazz){
+    public <T> T getUserValue(String name, Class<T> clazz) {
         return (T) userValues.get(name);
     }
 
-    public void setUserValue(String name, Object value){
+    public void setUserValue(String name, Object value) {
         userValues.put(name, value);
     }
 
@@ -761,7 +763,7 @@ public class Environment {
         setUserValue(object.getClass().getName(), object);
     }
 
-    public boolean removeUserValue(String name){
+    public boolean removeUserValue(String name) {
         return userValues.remove(name) != null;
     }
 
@@ -814,7 +816,7 @@ public class Environment {
         return errorHandler;
     }
 
-    protected void triggerError(ErrorException err){
+    protected void triggerError(ErrorException err) {
         ErrorType type = err.getType();
         if (type.isFatal() || isHandleErrors(type)) {
             lastMessage = new CustomSystemMessage(
@@ -840,14 +842,14 @@ public class Environment {
         }
     }
 
-    public boolean catchUncaught(Exception e){
+    public boolean catchUncaught(Exception e) {
         return catchUncaught(e, false);
     }
 
-    public boolean catchUncaught(Exception e, boolean retry){
+    public boolean catchUncaught(Exception e, boolean retry) {
         if (e instanceof UncaughtException)
             return catchUncaught((UncaughtException) e);
-        else if (e instanceof DieException){
+        else if (e instanceof DieException) {
             System.exit(((DieException) e).getExitCode());
             return true;
         } else if (e instanceof ErrorException) {
@@ -876,13 +878,13 @@ public class Environment {
         } else if (e instanceof FinallyException) {
             // nop
             return true;
-        } else if (e instanceof BaseBaseException){
+        } else if (e instanceof BaseBaseException) {
             BaseBaseException be = (BaseBaseException) e;
 
-            if (exceptionHandler != null){
+            if (exceptionHandler != null) {
                 try {
                     exceptionHandler.onException(this, be);
-                } catch (BaseBaseException _e){
+                } catch (BaseBaseException _e) {
                     if (retry) {
                         throw new RuntimeException(_e);
                     } else {
@@ -905,13 +907,13 @@ public class Environment {
         }
     }
 
-    public boolean catchUncaught(UncaughtException e){
-        if (exceptionHandler != null){
+    public boolean catchUncaught(UncaughtException e) {
+        if (exceptionHandler != null) {
             try {
                 if (!(e.getException() instanceof FinallyException)) {
                     exceptionHandler.onException(this, e.getException());
                 }
-            } catch (BaseBaseException _e){
+            } catch (BaseBaseException _e) {
                 catchUncaught(_e);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
@@ -921,11 +923,11 @@ public class Environment {
             return false;
     }
 
-    public void error(TraceInfo trace, ErrorType type, String message, Object... args){
+    public void error(TraceInfo trace, ErrorType type, String message, Object... args) {
         error(trace, type, new Messages.Item(message), args);
     }
 
-    public void error(TraceInfo trace, ErrorType type, Messages.Item message, Object... args){
+    public void error(TraceInfo trace, ErrorType type, Messages.Item message, Object... args) {
         if (type.isFatal()) {
             if (scope.getLangMode() == LangMode.MODERN) {
                 if (type == E_PARSE) {
@@ -935,7 +937,7 @@ public class Environment {
                 }
             }
 
-            if (type.isHandled() && errorHandler != null && ErrorType.check(errorHandler.errorHandlerFlags, type)){
+            if (type.isHandled() && errorHandler != null && ErrorType.check(errorHandler.errorHandlerFlags, type)) {
                 triggerMessage(new CustomSystemMessage(type, new CallStackItem(trace), message, args));
             } else
                 triggerError(new CustomErrorException(type, message.fetch(args), trace));
@@ -944,17 +946,17 @@ public class Environment {
         }
     }
 
-    public void error(ErrorType type, String message, Object... args){
+    public void error(ErrorType type, String message, Object... args) {
         error(trace(), type, message, args);
     }
 
-    public void error(TraceInfo trace, String message, Object... args){
+    public void error(TraceInfo trace, String message, Object... args) {
         error(trace, E_ERROR, message, args);
     }
 
-    public void triggerMessage(SystemMessage message){
+    public void triggerMessage(SystemMessage message) {
         lastMessage = message;
-        if (errorHandler != null){
+        if (errorHandler != null) {
             if (errorHandler.onError(this, message))
                 return;
         }
@@ -963,16 +965,16 @@ public class Environment {
             errorReportHandler.onError(message);
     }
 
-    public void exception(TraceInfo trace, String message, Object... args){
+    public void exception(TraceInfo trace, String message, Object... args) {
         BaseException e = new BaseException(this);
         exception(trace, e, message, args);
     }
 
-    public void exception(String message, Object... args){
+    public void exception(String message, Object... args) {
         exception(trace(), message, args);
     }
 
-    public void exception(TraceInfo trace, BaseError e, String message, Object... args){
+    public void exception(TraceInfo trace, BaseError e, String message, Object... args) {
         __clearSilent();
 
         if (args == null || args.length == 0) {
@@ -989,7 +991,7 @@ public class Environment {
         throw e;
     }
 
-    public void exception(TraceInfo trace, BaseException e, String message, Object... args){
+    public void exception(TraceInfo trace, BaseException e, String message, Object... args) {
         __clearSilent();
 
         if (args == null || args.length == 0) {
@@ -1006,19 +1008,19 @@ public class Environment {
         throw e;
     }
 
-    public void exception(BaseException e, String message, Object... args){
+    public void exception(BaseException e, String message, Object... args) {
         exception(trace(), e, message, args);
     }
 
-    public void exception(BaseError e, String message, Object... args){
+    public void exception(BaseError e, String message, Object... args) {
         exception(trace(), e, message, args);
     }
 
-    public void exception(Class<? extends BaseBaseException> e, String message, Object... args){
+    public void exception(Class<? extends BaseBaseException> e, String message, Object... args) {
         exception(trace(), e, message, args);
     }
 
-    public void exception(TraceInfo trace, Class<? extends BaseBaseException> e, String message, Object... args){
+    public void exception(TraceInfo trace, Class<? extends BaseBaseException> e, String message, Object... args) {
         ClassEntity entity = fetchClass(e);
         IObject object = entity.newObjectWithoutConstruct(this);
 
@@ -1031,23 +1033,23 @@ public class Environment {
         }
     }
 
-    public boolean isHandleErrors(ErrorType type){
+    public boolean isHandleErrors(ErrorType type) {
         return ErrorType.check(errorFlags, type);
     }
 
-    public void warning(String message, Object... args){
+    public void warning(String message, Object... args) {
         triggerMessage(new WarningMessage(peekCall(0), new Messages.Item(message), args));
     }
 
-    public void warning(TraceInfo trace, String message, Object... args){
+    public void warning(TraceInfo trace, String message, Object... args) {
         error(trace, E_WARNING, message, args);
     }
 
-    public void warning(TraceInfo trace, Messages.Item message, Object... args){
+    public void warning(TraceInfo trace, Messages.Item message, Object... args) {
         error(trace, E_WARNING, message, args);
     }
 
-    public void notice(String message, Object... args){
+    public void notice(String message, Object... args) {
         triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
     }
 
@@ -1055,7 +1057,7 @@ public class Environment {
         return defaultBuffer;
     }
 
-    public OutputBuffer pushOutputBuffer(Memory callback, int chunkSize, boolean erase){
+    public OutputBuffer pushOutputBuffer(Memory callback, int chunkSize, boolean erase) {
         Stack<OutputBuffer> outputBuffers = getOutputBuffers();
 
         OutputBuffer buffer = new OutputBuffer(this, peekOutputBuffer(), callback, chunkSize, erase);
@@ -1081,48 +1083,48 @@ public class Environment {
         Stack<OutputBuffer> outputBuffers = getOutputBuffers();
 
         List<OutputBuffer> result = new ArrayList<OutputBuffer>();
-        for(OutputBuffer el : outputBuffers)
+        for (OutputBuffer el : outputBuffers)
             result.add(el);
 
         return result;
     }
 
-    public OutputBuffer peekOutputBuffer(){
+    public OutputBuffer peekOutputBuffer() {
         Stack<OutputBuffer> outputBuffers = getOutputBuffers();
 
         return outputBuffers.empty() ? null : outputBuffers.peek();
     }
 
-    public void echo(byte[] bytes, int length){
+    public void echo(byte[] bytes, int length) {
         OutputBuffer buffer = peekOutputBuffer();
         if (buffer != null)
             try {
                 buffer.write(bytes, length);
-            } catch (RuntimeException e){
+            } catch (RuntimeException e) {
                 throw e;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
     }
 
-    public void echo(Memory value){
+    public void echo(Memory value) {
         OutputBuffer buffer = peekOutputBuffer();
         if (buffer != null)
             try {
                 buffer.write(value);
-            } catch (RuntimeException e){
+            } catch (RuntimeException e) {
                 throw e;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
     }
 
-    public void echo(String value){
+    public void echo(String value) {
         OutputBuffer buffer = peekOutputBuffer();
         if (buffer != null)
             try {
                 buffer.write(value);
-            } catch (RuntimeException e){
+            } catch (RuntimeException e) {
                 throw e;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
@@ -1130,7 +1132,7 @@ public class Environment {
     }
 
     public void flushAll() throws Throwable {
-        while (popOutputBuffer() != null);
+        while (popOutputBuffer() != null) ;
         defaultBuffer.close();
     }
 
@@ -1153,7 +1155,7 @@ public class Environment {
     public ModuleEntity importModule(Context context) throws Throwable {
         String moduleName = context.getModuleName();
         ModuleEntity module = moduleName == null ? null : scope.findUserModule(moduleName);
-        if (module == null){
+        if (module == null) {
             AbstractCompiler compiler = scope.createCompiler(this, context);
             module = compiler.compile(true);
             synchronized (scope) {
@@ -1163,6 +1165,21 @@ public class Environment {
 
         registerModule(module);
         return module;
+    }
+
+    public Memory eval(String code) throws Throwable {
+        return eval(code, getGlobals());
+    }
+
+    public Memory eval(String code, ArrayMemory locals) throws Throwable {
+        Context context = new Context(code);
+        AbstractCompiler compiler = scope.createCompiler(this, context);
+        
+        ModuleEntity module = compiler.compile();
+        scope.loadModule(module);
+        registerModule(module);
+
+        return module.include(this, locals);
     }
 
     public void registerSourceMap(SourceMap sourceMap) {
@@ -1178,7 +1195,7 @@ public class Environment {
     }
 
     public void registerModule(ModuleEntity module, boolean ignoreErrors) {
-        for(ClassEntity entity : module.getClasses()) {
+        for (ClassEntity entity : module.getClasses()) {
             if (entity.isStatic()) {
                 entity.setModule(module);
 
@@ -1190,7 +1207,7 @@ public class Environment {
             }
         }
 
-        for(FunctionEntity entity : module.getFunctions()) {
+        for (FunctionEntity entity : module.getFunctions()) {
             if (entity.isStatic()) {
                 entity.setModule(module);
 
@@ -1202,7 +1219,7 @@ public class Environment {
             }
         }
 
-        for(ConstantEntity entity : module.getConstants()) {
+        for (ConstantEntity entity : module.getConstants()) {
             entity.setModule(module);
 
             if (constantMap.put(entity.getLowerName(), entity) != null && !ignoreErrors) {
@@ -1236,10 +1253,10 @@ public class Environment {
         }
     }
 
-    public Memory __getConstant(String name, String lowerName, TraceInfo trace){
+    public Memory __getConstant(String name, String lowerName, TraceInfo trace) {
         Memory constant = findConstant(name, lowerName);
 
-        if (constant == null){
+        if (constant == null) {
             int p = name.lastIndexOf(Information.NAMESPACE_SEP_CHAR);
 
             if (p > -1) // for global scope
@@ -1376,26 +1393,33 @@ public class Environment {
         IObject object = entity.newObject(this, trace, true, args);
 
         registerObjectInGC(object);
-        return new ObjectMemory( object );
+        return new ObjectMemory(object);
     }
 
     private static ForeachIterator invalidIterator = new ForeachIterator(false, false, false) {
         @Override
-        protected boolean init() { return false; }
+        protected boolean init() {
+            return false;
+        }
 
         @Override
-        protected boolean nextValue() { return false; }
+        protected boolean nextValue() {
+            return false;
+        }
 
         @Override
-        protected boolean prevValue() { return false; }
+        protected boolean prevValue() {
+            return false;
+        }
 
         @Override
-        public void reset() { }
+        public void reset() {
+        }
     };
 
-    public ForeachIterator __getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences){
+    public ForeachIterator __getIterator(TraceInfo trace, Memory memory, boolean getReferences, boolean getKeyReferences) {
         ForeachIterator iterator = memory.getNewIterator(this, getReferences, getKeyReferences);
-        if (iterator == null){
+        if (iterator == null) {
             warning(trace, "Invalid argument supplied for foreach()");
             return invalidIterator;
         }
@@ -1406,7 +1430,7 @@ public class Environment {
     public ClassEntity __getGenerator(String moduleIndex, int index) {
         ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
         if (moduleEntity == null)
-            throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a generator object");
+            throw new CriticalException("Cannot find the module (" + moduleIndex + ") for getting a generator object");
 
         return moduleEntity.findGenerator(index);
     }
@@ -1414,12 +1438,12 @@ public class Environment {
     public ClassEntity __getClosure(String moduleIndex, int index) {
         ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
         if (moduleEntity == null)
-            throw new CriticalException("Cannot find the module ("+moduleIndex+") for getting a closure object");
+            throw new CriticalException("Cannot find the module (" + moduleIndex + ") for getting a closure object");
 
         return moduleEntity.findClosure(index);
     }
 
-    public Memory __getSingletonClosure(String moduleIndex, int index){
+    public Memory __getSingletonClosure(String moduleIndex, int index) {
         Memory result = scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
         assert result != null;
         return result;
@@ -1432,7 +1456,7 @@ public class Environment {
         }
 
         if (throwable instanceof JPHPException)
-            throw (RuntimeException)throwable;
+            throw (RuntimeException) throwable;
         else {
             JavaReflection.exception(this, throwable);
         }
@@ -1440,11 +1464,11 @@ public class Environment {
         return Memory.NULL;
     }
 
-    public void __throwException(BaseBaseException e){
+    public void __throwException(BaseBaseException e) {
         __throwException(e, true);
     }
 
-    public void __throwException(BaseBaseException e, boolean clearSilent){
+    public void __throwException(BaseBaseException e, boolean clearSilent) {
         if (clearSilent) {
             __clearSilent();
         }
@@ -1453,12 +1477,12 @@ public class Environment {
         throw e;
     }
 
-    public void __throwException(TraceInfo trace, Memory exception){
-        if (exception.isObject() ) {
+    public void __throwException(TraceInfo trace, Memory exception) {
+        if (exception.isObject()) {
             IObject object;
-            if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseBaseException){
+            if ((object = exception.toValue(ObjectMemory.class).value) instanceof BaseBaseException) {
                 __clearSilent();
-                BaseBaseException e = (BaseBaseException)object;
+                BaseBaseException e = (BaseBaseException) object;
                 e.setTraceInfo(this, trace);
                 throw e;
             } else {
@@ -1493,17 +1517,17 @@ public class Environment {
             return Memory.NULL;
     }
 
-    public void __pushSilent(){
+    public void __pushSilent() {
         silentFlags.push(errorFlags);
         setErrorFlags(0);
     }
 
-    public void __popSilent(){
+    public void __popSilent() {
         Integer flags = silentFlags.pop();
         setErrorFlags(flags);
     }
 
-    public void __clearSilent(){
+    public void __clearSilent() {
         Stack<Integer> silents = silentFlags;
         Integer flags = null;
         while (!silents.empty())
@@ -1516,7 +1540,7 @@ public class Environment {
 
     public Memory __getMacroClass() {
         CallStackItem item = peekCall(0);
-        if (item != null && item.clazz != null){
+        if (item != null && item.clazz != null) {
             if (item.classEntity == null)
                 item.classEntity = fetchClass(item.clazz, false);
 
@@ -1532,14 +1556,14 @@ public class Environment {
             return Memory.CONST_EMPTY_STRING;
     }
 
-    public void __defineFunction(TraceInfo trace, String moduleInternalName, int index){
+    public void __defineFunction(TraceInfo trace, String moduleInternalName, int index) {
         ModuleEntity module = scope.moduleIndexMap.get(moduleInternalName);
         if (module == null)
             throw new CriticalException("Cannot find module: " + moduleInternalName);
 
         FunctionEntity function = module.findFunction(index);
 
-        if (functionMap.put(function.getLowerName(), function) != null){
+        if (functionMap.put(function.getLowerName(), function) != null) {
             triggerError(new FatalException(
                     Messages.ERR_CANNOT_REDECLARE_FUNCTION.fetch(function.getName()),
                     trace
@@ -1554,7 +1578,7 @@ public class Environment {
     }
 
     public void die(Memory value) {
-        if (value != null){
+        if (value != null) {
             if (!value.isNumber())
                 echo(value.toString());
 
@@ -1576,10 +1600,10 @@ public class Environment {
             return invokeMethod(object, name, args);
         } catch (RuntimeException e) {
             throw e;
-        } catch (Exception e){
+        } catch (Exception e) {
             this.catchUncaught(e);
             return Memory.NULL;
-        } catch (Throwable e){
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -1592,7 +1616,7 @@ public class Environment {
         return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace(), args);
     }
 
-    public String getLateStatic(){
+    public String getLateStatic() {
         CallStackItem item = peekCall(0);
         if (item == null || item.clazz == null)
             return "";
@@ -1628,7 +1652,7 @@ public class Environment {
         }
     }
 
-    public String getContext(){
+    public String getContext() {
         CallStackItem item = peekCall(1);
         return item == null ? "" : item.clazz == null ? "" : item.clazz;
     }
@@ -1658,9 +1682,9 @@ public class Environment {
 
     public ClassEntity getLastClassOnStack(boolean includeClosures) {
         int N = getCallStackTop();
-        for (int i = 0; i < N; i++){
+        for (int i = 0; i < N; i++) {
             CallStackItem item = peekCall(i);
-            if (item != null && item.clazz != null){
+            if (item != null && item.clazz != null) {
                 if (item.classEntity != null) {
                     if (item.object instanceof Closure) {
                         Memory self = ((Closure) item.object).getSelf();
@@ -1681,9 +1705,9 @@ public class Environment {
         return null;
     }
 
-    public ClassEntity __getParentClass(TraceInfo trace){
+    public ClassEntity __getParentClass(TraceInfo trace) {
         ClassEntity context = getLastClassOnStack(false);
-        if (context == null){
+        if (context == null) {
             error(trace, "Cannot access parent:: when no class scope is active");
             return null;
         }
@@ -1696,11 +1720,11 @@ public class Environment {
         return parent;
     }
 
-    public String __getParent(TraceInfo trace){
+    public String __getParent(TraceInfo trace) {
         return __getParentClass(trace).getName();
     }
 
-    public String __getParent(TraceInfo trace, String className){
+    public String __getParent(TraceInfo trace, String className) {
         ClassEntity o = fetchClass(className, true);
         if (o == null) {
             error(trace, ErrorType.E_ERROR, Messages.ERR_CLASS_NOT_FOUND, className);
@@ -1715,7 +1739,7 @@ public class Environment {
         return o.getParent().getName();
     }
 
-    public void registerAutoloader(SplClassLoader classLoader, boolean prepend){
+    public void registerAutoloader(SplClassLoader classLoader, boolean prepend) {
         for (SplClassLoader loader : classLoaders)
             if (loader.equals(classLoader))
                 return;
@@ -1726,15 +1750,15 @@ public class Environment {
             classLoaders.add(classLoader);
     }
 
-    public List<SplClassLoader> getClassLoaders(){
+    public List<SplClassLoader> getClassLoaders() {
         return classLoaders;
     }
 
-    public boolean unRegisterAutoloader(SplClassLoader classLoader){
+    public boolean unRegisterAutoloader(SplClassLoader classLoader) {
         boolean result = false;
         Iterator<SplClassLoader> iterator = classLoaders.iterator();
-        while (iterator.hasNext()){
-            if (iterator.next().equals(classLoader)){
+        while (iterator.hasNext()) {
+            if (iterator.next().equals(classLoader)) {
                 result = true;
                 iterator.remove();
             }
@@ -1742,7 +1766,7 @@ public class Environment {
         return result;
     }
 
-    public void setErrorHandler(ErrorHandler handler){
+    public void setErrorHandler(ErrorHandler handler) {
         previousErrorHandler = errorHandler;
         errorHandler = handler;
     }
@@ -1795,7 +1819,7 @@ public class Environment {
         this.callStack = stack;
     }
 
-    public void registerShutdownFunction(ShutdownHandler handler){
+    public void registerShutdownFunction(ShutdownHandler handler) {
         shutdownFunctions.add(handler);
     }
 

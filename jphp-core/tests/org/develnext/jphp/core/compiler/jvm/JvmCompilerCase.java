@@ -1,6 +1,5 @@
 package org.develnext.jphp.core.compiler.jvm;
 
-import org.develnext.jphp.core.ext.CompilerExtension;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tester.Test;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
@@ -53,7 +52,6 @@ abstract public class JvmCompilerCase {
 
         compileScope.registerExtension(new CoreExtension());
         compileScope.registerExtension(new SPLExtension());
-        compileScope.registerExtension(new CompilerExtension());
 
         return compileScope;
     }

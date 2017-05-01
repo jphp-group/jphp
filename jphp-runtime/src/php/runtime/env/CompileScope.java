@@ -213,7 +213,7 @@ public class CompileScope {
 
     public AbstractCompiler createCompiler(Environment env, Context context) throws Throwable {
         if (compilerFactory == null) {
-            throw new NullPointerException("compilerFactory is not set");
+            throw new CriticalException("Cannot find a compiler to compile php code");
         }
 
         try {
