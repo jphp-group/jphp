@@ -1,10 +1,7 @@
 package org.develnext.jphp.core.tokenizer;
 
 import org.develnext.jphp.core.tokenizer.token.*;
-import org.develnext.jphp.core.tokenizer.token.expr.BackslashExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
-import org.develnext.jphp.core.tokenizer.token.expr.DollarExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.*;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
@@ -12,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.GrammarUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class TokenFinder {
 
@@ -177,33 +175,56 @@ public class TokenFinder {
 
         put("yield", YieldExprToken.class);
     }};
+    public static final int MAX_FIND_CACHE_SIZE = 10000;
+
+    private Map<String, Class<? extends Token>> findCache = new HashMap<>();
 
     public TokenFinder() {
     }
 
-    public Class<? extends Token> find(String word){
-        word = word.toLowerCase();
-        Class<? extends Token> token = patterns.get(word);
-        if (token != null)
+    public Class<? extends Token> find(String word) {
+        if (findCache.size() > MAX_FIND_CACHE_SIZE) {
+            findCache.clear();
+        }
+        
+        Class<? extends Token> token = findCache.get(word);
+
+        if (token != null) {
             return token;
+        }
+
+        word = word.toLowerCase();
+        token = patterns.get(word);
+        
+        if (token != null) {
+            findCache.put(word, token);
+            return token;
+        }
 
         int length = word.length();
+
         if (length == 0) {
             return null;
         }
 
         if (GrammarUtils.isVariable(word)) {
+            findCache.put(word, VariableExprToken.class);
             return VariableExprToken.class;
         }
+        
         if (GrammarUtils.isInteger(word) || GrammarUtils.isHexInteger(word)
                 || GrammarUtils.isBinaryInteger(word)) {
+            findCache.put(word, IntegerExprToken.class);
             return IntegerExprToken.class;
         }
+        
         if (GrammarUtils.isSimpleFloat(word) || GrammarUtils.isExpFloat(word)) {
+            findCache.put(word, DoubleExprToken.class);
             return DoubleExprToken.class;
         }
 
         boolean fulledName = false;
+        
         for (int i = 0; i < length; i++) {
             char ch = word.charAt(i);
             if (ch == '\\') {
@@ -212,9 +233,19 @@ public class TokenFinder {
                 return null;
             }
         }
+
         if (fulledName) {
+            if (word.length() < 32) {
+                findCache.put(word, FulledNameToken.class);
+            }
+
             return FulledNameToken.class;
         }
+
+        if (word.length() < 32) {
+            findCache.put(word, NameToken.class);
+        }
+        
         return NameToken.class;
     }
 
