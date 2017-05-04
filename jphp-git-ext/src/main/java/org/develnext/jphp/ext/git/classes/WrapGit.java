@@ -7,6 +7,7 @@ import org.develnext.jphp.ext.git.GitExtension;
 import org.develnext.jphp.ext.git.support.GitUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -14,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.FS;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
@@ -21,7 +23,6 @@ import php.runtime.annotation.Reflection.Namespace;
 import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.classes.lib.ItemsUtils;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
@@ -31,10 +32,7 @@ import php.runtime.reflection.ClassEntity;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Name("Git")
 @Namespace(GitExtension.NS)
@@ -52,13 +50,7 @@ public class WrapGit extends BaseWrapper<Git> {
 
     @Signature
     public void __construct(File directory) throws IOException {
-        Repository repo = new FileRepositoryBuilder()
-                .setGitDir(new File(directory, "/.git"))
-                .setWorkTree(directory)
-                .setup()
-                .build();
-
-        __wrappedObject = new Git(repo);
+        __wrappedObject = Git.open(directory, FS.DETECTED);
     }
 
     @Signature
@@ -647,6 +639,63 @@ public class WrapGit extends BaseWrapper<Git> {
     }
 
     @Signature
+    public Memory diff() throws GitAPIException {
+        return diff(null);
+    }
+
+    @Signature
+    public Memory diff(ArrayMemory settings) throws GitAPIException {
+        DiffCommand command = getWrappedObject().diff();
+
+        if (settings != null) {
+            command.setCached(settings.valueOfIndex("cached").toBoolean());
+
+            Memory contextLines = settings.valueOfIndex("contextLines");
+            if (contextLines.isNotNull()) {
+                command.setContextLines(contextLines.toInteger());
+            }
+
+            Memory destPrefix = settings.valueOfIndex("destPrefix");
+            if (destPrefix.isNotNull()) {
+                command.setDestinationPrefix(destPrefix.toString());
+            }
+
+            Memory sourcePrefix = settings.valueOfIndex("sourcePrefix");
+            if (sourcePrefix.isNotNull()) {
+                command.setSourcePrefix(sourcePrefix.toString());
+            }
+
+            command.setShowNameAndStatusOnly(settings.valueOfIndex("showNameAndStatusOnly").toBoolean());
+
+            Memory pathFilter = settings.valueOfIndex("pathFilter");
+            if (pathFilter.isNotNull()) {
+                command.setPathFilter(PathFilter.create(pathFilter.toString()));
+            }
+        }
+
+        List<DiffEntry> call = command.call();
+
+        return GitUtils.valueOfDiffEntries(call);
+    }
+
+    @Signature
+    public Memory reflog() throws GitAPIException {
+        return reflog(Memory.NULL);
+    }
+
+    @Signature
+    public Memory reflog(Memory ref) throws GitAPIException {
+        ReflogCommand command = getWrappedObject().reflog();
+
+        if (ref.isNotNull()) {
+            command.setRef(ref.toString());
+        }
+
+        Collection<ReflogEntry> call = command.call();
+        return GitUtils.valueOfReflogEntries(call);
+    }
+
+    @Signature
     public Memory log(Environment env) throws Throwable {
         return log(env, null);
     }
@@ -763,6 +812,124 @@ public class WrapGit extends BaseWrapper<Git> {
 
         MergeResult call = command.call();
         return GitUtils.valueOf(call);
+    }
+
+    @Signature
+    public Memory reset(Environment env, ArrayMemory settings) throws GitAPIException {
+        ResetCommand reset = getWrappedObject().reset();
+
+        Memory mode = settings.valueOfIndex("mode");
+        if (mode.isNotNull()) {
+            reset.setMode(ResetCommand.ResetType.valueOf(mode.toString()));
+        }
+
+        Memory ref = settings.valueOfIndex("ref");
+        if (ref.isNotNull()) {
+            reset.setRef(ref.toString());
+        }
+
+        reset.disableRefLog(settings.valueOfIndex("disableRefLog").toBoolean());
+
+        Memory paths = settings.valueOfIndex("paths");
+        if (paths.isNotNull()) {
+            ForeachIterator iterator = paths.getNewIterator(env);
+
+            if (iterator != null) {
+                while (iterator.next()) {
+                    reset.addPath(iterator.getValue().toString());
+                }
+            } else {
+                reset.addPath(paths.toString());
+            }
+        }
+
+        Ref call = reset.call();
+        return GitUtils.valueOf(call);
+    }
+
+    @Signature
+    public Memory stashCreate() throws GitAPIException {
+        return stashCreate(null);
+    }
+
+    @Signature
+    public Memory stashCreate(ArrayMemory settings) throws GitAPIException {
+        StashCreateCommand command = getWrappedObject().stashCreate();
+
+        if (settings != null) {
+            command.setIncludeUntracked(settings.valueOfIndex("includeUntracked").toBoolean());
+
+            Memory indexMessage = settings.valueOfIndex("indexMessage");
+            if (indexMessage.isNotNull()) {
+                command.setIndexMessage(indexMessage.toString());
+            }
+
+            Memory ref = settings.valueOfIndex("ref");
+            if (ref.isNotNull()) {
+                command.setRef(ref.toString());
+            }
+
+            Memory workingDirectoryMessage = settings.valueOfIndex("workingDirectoryMessage");
+            if (workingDirectoryMessage.isNotNull()) {
+                command.setWorkingDirectoryMessage(workingDirectoryMessage.toString());
+            }
+        }
+
+        return GitUtils.valueOf(command.call());
+    }
+
+    @Signature
+    public Memory stashApply() throws GitAPIException {
+        return stashApply(null);
+    }
+
+    @Signature
+    public Memory stashApply(ArrayMemory settings) throws GitAPIException {
+        StashApplyCommand command = getWrappedObject().stashApply();
+
+        if (settings != null) {
+            command.setApplyIndex(settings.valueOfIndex("applyIndex").toBoolean());
+            command.setApplyUntracked(settings.valueOfIndex("applyUntracked").toBoolean());
+
+            Memory stashRef = settings.valueOfIndex("stashRef");
+            if (stashRef.isNotNull()) {
+                command.setStashRef(stashRef.toString());
+            }
+
+            Memory strategy = settings.valueOfIndex("strategy");
+            if (strategy.isNotNull()) {
+                command.setStrategy(MergeStrategy.get(strategy.toString()));
+            }
+        }
+
+        return GitUtils.valueOf(command.call());
+    }
+
+    @Signature
+    public Memory stashDrop() throws GitAPIException {
+        return stashDrop(null);
+    }
+
+    @Signature
+    public Memory stashDrop(ArrayMemory settings) throws GitAPIException {
+        StashDropCommand command = getWrappedObject().stashDrop();
+
+        if (settings != null) {
+            command.setAll(settings.valueOfIndex("all").toBoolean());
+
+            Memory stashRef = settings.valueOfIndex("stashRef");
+            if (stashRef.isNotNull()) {
+                command.setStashRef(stashRef.toInteger());
+            }
+        }
+
+        return GitUtils.valueOf(command.call());
+    }
+
+    @Signature
+    public Memory stashList() throws GitAPIException {
+        StashListCommand command = getWrappedObject().stashList();
+        return GitUtils.valueOfRevCommits(command.call());
     }
 
     @Signature

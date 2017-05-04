@@ -3,9 +3,11 @@ package org.develnext.jphp.ext.git.support;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.transport.OperationResult;
@@ -19,6 +21,7 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 
 import java.util.Collection;
+import java.util.List;
 
 public class GitUtils {
 
@@ -210,6 +213,51 @@ public class GitUtils {
         memory.refOfIndex("success").assign(call.getMergeStatus().isSuccessful());
 
         memory.refOfIndex("checkoutConflicts").assign(ArrayMemory.ofStringCollection(call.getCheckoutConflicts()));
+
+        return memory;
+    }
+
+    public static ArrayMemory valueOf(ReflogEntry value) {
+        ArrayMemory memory = new ArrayMemory();
+        memory.refOfIndex("newId").assign(valueOf(value.getNewId()));
+        memory.refOfIndex("oldId").assign(valueOf(value.getOldId()));
+        memory.refOfIndex("who").assign(value.getWho() == null ? Memory.NULL : valueOf(value.getWho()));
+        memory.refOfIndex("comment").assign(value.getComment());
+        return memory;
+    }
+
+    public static ArrayMemory valueOfReflogEntries(Iterable<ReflogEntry> values) {
+        ArrayMemory memory = new ArrayMemory();
+
+        for (ReflogEntry value : values) {
+            memory.add(valueOf(value));
+        }
+
+        return memory;
+    }
+
+    public static ArrayMemory valueOf(DiffEntry value) {
+        ArrayMemory memory = new ArrayMemory();
+        memory.refOfIndex("oldId").assign(value.getOldId() == null ? Memory.NULL : valueOf(value.getOldId().toObjectId()));
+        memory.refOfIndex("oldPath").assign(value.getOldPath());
+        memory.refOfIndex("oldMode").assign(value.getOldMode() == null ? Memory.NULL : StringMemory.valueOf(value.getOldMode().toString()));
+
+        memory.refOfIndex("newId").assign(value.getNewId() == null ? Memory.NULL : valueOf(value.getNewId().toObjectId()));
+        memory.refOfIndex("newPath").assign(value.getNewPath());
+        memory.refOfIndex("newMode").assign(value.getNewMode() == null ? Memory.NULL : StringMemory.valueOf(value.getNewMode().toString()));
+
+        memory.refOfIndex("score").assign(value.getScore());
+        memory.refOfIndex("changeType").assign(value.getChangeType().name());
+
+        return memory;
+    }
+
+    public static Memory valueOfDiffEntries(Iterable<DiffEntry> values) {
+        ArrayMemory memory = new ArrayMemory();
+
+        for (DiffEntry value : values) {
+            memory.add(valueOf(value));
+        }
 
         return memory;
     }

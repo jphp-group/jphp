@@ -265,6 +265,33 @@ class Git
     }
 
     /**
+     * Diff git command, options are:
+     *
+     *      cached => bool
+     *      contextLines => int
+     *      destPrefix => string
+     *      sourcePrefix => string
+     *      showNameAndStatusOnly => bool
+     *      pathFilter => string
+     *
+     * @param array $options
+     * @return array
+     * @throws GitAPIException
+     */
+    function diff(array $options = [])
+    {
+    }
+
+    /**
+     * @param string $ref
+     * @return array
+     * @throws GitAPIException
+     */
+    function reflog($ref = null)
+    {
+    }
+
+    /**
      * Options are:
      *
      *      maxCount => int
@@ -458,6 +485,22 @@ class Git
     }
 
     /**
+     * Options are:
+     *
+     *      mode => string (SOFT|MIXED|HARD)
+     *      ref => string
+     *      disableRefLog => bool
+     *      paths => string[] or string
+     *
+     * @param array $options
+     * @return array
+     * @throws GitAPIException
+     */
+    function reset(array $options)
+    {
+    }
+
+    /**
      * Clean git command, options:
      * 
      *      cleanDirectories => bool
@@ -501,6 +544,57 @@ class Git
      * @throws GitAPIException
      */
     function checkout(array $options)
+    {
+    }
+
+    /**
+     * Stash create git command, options are:
+     *
+     *      includeUntracked => bool
+     *      indexMessage => string
+     *      ref => string
+     *      workingDirectoryMessage => string
+     *
+     * @param array $options
+     * @return array rev commit
+     */
+    function stashCreate(array $options = [])
+    {
+    }
+
+    /**
+     * Options are:
+     *
+     *      applyIndex => bool
+     *      applyUntracked => bool
+     *      stashRef => string
+     *      strategy => string
+     *
+     * @param array $options
+     * @return array
+     */
+    function stashApply(array $options = [])
+    {
+    }
+
+    /**
+     * Options are:
+     *
+     *      all => bool
+     *      stashRef => int
+     *
+     * @param array $options
+     * @return array
+     */
+    function stashDrop(array $options = [])
+    {
+    }
+
+    /**
+     * Stash list git command.
+     * @return array
+     */
+    function stashList()
     {
     }
 }
