@@ -1,0 +1,20 @@
+apply plugin: 'maven'
+
+def jettyVersion = '9.4.3.v20170317'
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+}
+
+dependencies {
+    provided project(':jphp-runtime')
+
+    compile "org.eclipse.jetty:jetty-server:${jettyVersion}"
+    compile "org.eclipse.jetty:jetty-security:${jettyVersion}"
+}
