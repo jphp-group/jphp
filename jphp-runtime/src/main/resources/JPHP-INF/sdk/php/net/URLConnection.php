@@ -238,4 +238,18 @@ class URLConnection
     public static function create($url, Proxy $proxy = null)
     {
     }
+
+    /**
+     * Enable checking ssl for https
+     */
+    public static function enableSSLVerificationForHttp()
+    {
+    }
+
+    /**
+     * Disable checking ssl for https
+     */
+    public static function disableSSLVerificationForHttps()
+    {
+    }
 }
