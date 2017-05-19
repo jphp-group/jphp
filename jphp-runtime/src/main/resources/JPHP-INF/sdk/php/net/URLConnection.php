@@ -242,7 +242,7 @@ class URLConnection
     /**
      * Enable checking ssl for https
      */
-    public static function enableSSLVerificationForHttp()
+    public static function enableSSLVerificationForHttps()
     {
     }
 
