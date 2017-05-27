@@ -484,7 +484,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             next = iterator.next();
             if (result.getField() instanceof VariableExprToken) {
                 if (isOpenedBrace(nextTokenAndPrev(iterator), ARRAY)){
-                    ArrayGetExprToken arr = (ArrayGetExprToken) processArrayToken(next, nextToken(iterator), iterator);
+                    Token arr = processArrayToken(next, nextToken(iterator), iterator);
                     result.setFieldExpr(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), result.getField(), arr));
                     result.setField(null);
                 }

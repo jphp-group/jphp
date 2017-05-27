@@ -86,13 +86,13 @@ public class ASMExpression {
                     unexpectedToken(operator);
 
                 if (el instanceof IncExprToken || el instanceof DecExprToken){
-                    if (prev.getClass() == DynamicAccessExprToken.class){
+                    if (prev != null && prev.getClass() == DynamicAccessExprToken.class){
                         DynamicAccessAssignExprToken newAssign
                                 = new DynamicAccessAssignExprToken((DynamicAccessExprToken)prev);
                         newAssign.setAssignOperator(el);
                         result.set(i - 1, newAssign);
                         result.set(i, null);
-                    } else if (prev.getClass() == ArrayGetExprToken.class){
+                    } else if (prev != null && prev.getClass() == ArrayGetExprToken.class){
                         ArrayGetRefExprToken newAssign = new ArrayGetRefExprToken((ArrayGetExprToken)prev);
                         result.set(i - 1, newAssign);
                     }
