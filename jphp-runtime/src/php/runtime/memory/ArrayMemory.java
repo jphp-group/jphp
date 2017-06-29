@@ -5,6 +5,7 @@ import php.runtime.common.Messages;
 import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.RecursiveException;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -17,6 +18,9 @@ import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -1714,6 +1718,132 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
 
         return result;
+    }
+
+    public static <T> ArrayMemory ofBean(Environment env, T anyObject) {
+        return ofBean(env, env.trace(), anyObject);
+    }
+
+    public static <T> ArrayMemory ofBean(Environment env, TraceInfo trace, T anyObject) {
+        Method[] methods = anyObject.getClass().getMethods();
+
+        ArrayMemory value = new ArrayMemory(true);
+
+        for (Method method : methods) {
+            String name = method.getName();
+            String key = null;
+
+
+            if (name.startsWith("get") && name.length() > 3 && method.getParameterTypes().length == 0) {
+                key = name.substring(3);
+
+                if (name.length() == 4) {
+                    key = key.toLowerCase();
+                } else {
+                    key = key.substring(0, 1).toLowerCase() + key.substring(1);
+                }
+            } else if (name.startsWith("is") && name.length() > 2 && method.getParameterTypes().length == 0 &&
+                    (method.getReturnType() == Boolean.class || method.getReturnType() == Boolean.TYPE)) {
+
+                key = name.substring(2);
+
+                if (name.length() == 3) {
+                    key = key.toLowerCase();
+                } else {
+                    key = key.substring(0, 1).toLowerCase() + key.substring(1);
+                }
+            }
+
+            if (key == null) continue;
+
+                try {
+                    Object invoke = method.invoke(anyObject);
+                    Memory memory = MemoryOperation.get(method.getReturnType(), method.getGenericReturnType())
+                            .unconvert(env, trace, invoke);
+
+                    value.put(key, memory);
+                } catch (IllegalAccessException e) {
+                    throw new CriticalException(e);
+                } catch (InvocationTargetException e) {
+                    env.__throwException(e);
+                } catch (Throwable throwable) {
+                    env.wrapThrow(throwable);
+                }
+        }
+
+        return value;
+    }
+
+    public static <T> Memory ofNullableBean(Environment env, T anyObject) {
+        return ofNullableBean(env, env.trace(), anyObject);
+    }
+
+    public static <T> Memory ofNullableBean(Environment env, TraceInfo trace, T anyObject) {
+        if (anyObject == null) {
+            return NULL;
+        }
+
+        return ofBean(env, trace, anyObject);
+    }
+
+    public <T> T toBean(Environment env, Class<T> beanClass) {
+        return toBean(env, env.trace(), beanClass);
+    }
+
+    public <T> T toBean(Environment env, TraceInfo trace, Class<T> beanClass) {
+        try {
+            Constructor<T> constructor = beanClass.getConstructor();
+
+            T instance = constructor.newInstance();
+
+            ForeachIterator iterator = foreachIterator(false, false);
+
+            while (iterator.next()) {
+                String key = iterator.getStringKey();
+
+                String name = key.substring(0, 1).toUpperCase() + key.substring(1);
+
+                String getterName = "get" + name;
+                String getterIsName = "is" + name;
+                String setterName = "set" + name;
+
+                try {
+                    Method method = null;
+
+                    try {
+                        method = beanClass.getMethod(getterName);
+                    } catch (NoSuchMethodException e) {
+                        method = beanClass.getMethod(getterIsName);
+
+                        if (method.getReturnType() != Boolean.TYPE && method.getReturnType() != Boolean.class) {
+                            continue;
+                        }
+                    }
+
+                    Class<?> returnType = method.getReturnType();
+
+                    MemoryOperation operation = MemoryOperation.get(returnType, method.getGenericReturnType());
+
+                    if (operation == null) {
+                        continue;
+                    }
+
+                    method = beanClass.getMethod(setterName, returnType);
+
+                    Object value = operation.convert(env, trace, iterator.getValue());
+                    method.invoke(instance, value);
+
+                } catch (NoSuchMethodException e) {
+                    continue;
+                } catch (Throwable throwable) {
+                    env.wrapThrow(throwable);
+                }
+            }
+
+            return instance;
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new CriticalException(e);
+        }
     }
 
     public ArrayMemory slice(int offset) {
