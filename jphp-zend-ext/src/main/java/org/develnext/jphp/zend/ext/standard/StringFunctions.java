@@ -1178,13 +1178,21 @@ public class StringFunctions extends FunctionsContainer {
         return strpos(env, trace, haystack, needle, 0);
     }
 
-
     @Immutable
-    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle, int offset) {
+    public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle, Memory offsetV) {
         int haystackLen = haystack.length();
-        if (offset < 0 || offset > haystackLen) {
-            env.warning(trace, "Offset not contained in string");
-            return Memory.FALSE;
+
+        int offset;
+
+        if (offsetV == null) {
+            offset = haystack.length();
+        } else {
+            offset = offsetV.toInteger();
+
+            if (haystack.length() < offset) {
+                env.warning(trace, "strrpos(): offset cannot exceed string length");
+                return Memory.FALSE;
+            }
         }
 
         if (haystackLen == 0)
@@ -1221,7 +1229,7 @@ public class StringFunctions extends FunctionsContainer {
 
     @Immutable
     public static Memory strrpos(Environment env, TraceInfo trace, String haystack, Memory needle) {
-        return strrpos(env, trace, haystack, needle, 0);
+        return strrpos(env, trace, haystack, needle, null);
     }
 
     @Immutable
