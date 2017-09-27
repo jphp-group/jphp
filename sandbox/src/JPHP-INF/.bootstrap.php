@@ -1,1 +1,1 @@
-<?
+<?use php\lib\fs;$result = fs::clean('./sandbox', [    'extensions' => ['log', 'tmp', 'html', 'zip'],    'callback' => function ($file, $depth) {        echo $file, " -> ", $depth, "\n";        return $file;    }]);var_dump($result);

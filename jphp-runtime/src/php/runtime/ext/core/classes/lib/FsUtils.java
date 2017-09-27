@@ -1,16 +1,17 @@
 package php.runtime.ext.core.classes.lib;
 
-import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.annotation.Runtime.FastMethod;
+import php.runtime.common.Callback;
 import php.runtime.common.DigestUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.FileObject;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
+import php.runtime.invoke.RunnableInvoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.*;
@@ -413,25 +414,222 @@ public class FsUtils extends BaseObject {
         });
     }
 
-    @Signature
-    public static void scan(String path, final Invoker progress)  {
-        scan(path, progress, 0);
+    public static class FilterProperties {
+        private Set<String> extensions;
+        private Set<String> excludeExtensions;
+
+        private boolean excludeDirs;
+        private boolean excludeFiles;
+        private boolean excludeHidden;
+
+        private Invoker callback;
+
+        private long minSize = 0L;
+        private long maxSize = Long.MAX_VALUE;
+        private long minTime = 0L;
+        private long maxTime = Long.MAX_VALUE;
+
+        public Set<String> getExtensions() {
+            return extensions;
+        }
+
+        public void setExtensions(Set<String> extensions) {
+            this.extensions = extensions;
+        }
+
+        public Set<String> getExcludeExtensions() {
+            return excludeExtensions;
+        }
+
+        public void setExcludeExtensions(Set<String> excludeExtensions) {
+            this.excludeExtensions = excludeExtensions;
+        }
+
+        public boolean isExcludeDirs() {
+            return excludeDirs;
+        }
+
+        public void setExcludeDirs(boolean excludeDirs) {
+            this.excludeDirs = excludeDirs;
+        }
+
+        public boolean isExcludeFiles() {
+            return excludeFiles;
+        }
+
+        public void setExcludeFiles(boolean excludeFiles) {
+            this.excludeFiles = excludeFiles;
+        }
+
+        public boolean isExcludeHidden() {
+            return excludeHidden;
+        }
+
+        public void setExcludeHidden(boolean excludeHidden) {
+            this.excludeHidden = excludeHidden;
+        }
+
+        public Invoker getCallback() {
+            return callback;
+        }
+
+        public void setCallback(Invoker callback) {
+            this.callback = callback;
+        }
+
+        public long getMinSize() {
+            return minSize;
+        }
+
+        public void setMinSize(long minSize) {
+            this.minSize = minSize;
+        }
+
+        public long getMaxSize() {
+            return maxSize;
+        }
+
+        public void setMaxSize(long maxSize) {
+            this.maxSize = maxSize;
+        }
+
+        public long getMinTime() {
+            return minTime;
+        }
+
+        public void setMinTime(long minTime) {
+            this.minTime = minTime;
+        }
+
+        public long getMaxTime() {
+            return maxTime;
+        }
+
+        public void setMaxTime(long maxTime) {
+            this.maxTime = maxTime;
+        }
+    }
+
+    //@Signature
+    private static Memory scanFilter(final Environment env, final ArrayMemory props) {
+        final FilterProperties filterProperties = props.toBean(env, FilterProperties.class);
+
+        return RunnableInvoker.make(env, new Callback<Memory, Memory[]>() {
+            @Override
+            public Memory call(Memory[] args) {
+                if (args == null || args.length == 0) {
+                    return Memory.NULL;
+                }
+
+                Memory file = args[0];
+                File path;
+
+                if (file.instanceOf(FileObject.class)) {
+                    path = file.toObject(FileObject.class).getFile();
+                } else {
+                    path = new File(file.toString());
+                }
+
+                Set<String> extensions = filterProperties.extensions;
+                Set<String> excludeExtensions = filterProperties.excludeExtensions;
+
+                if (filterProperties.excludeDirs && path.isDirectory()) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.excludeFiles && path.isFile()) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.excludeHidden && path.isHidden()) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.minSize > 0 && path.length() < filterProperties.minSize) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.maxSize != Long.MAX_VALUE && path.length() > filterProperties.maxSize) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.minTime > 0 && path.lastModified() < filterProperties.minTime) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.maxTime != Long.MAX_VALUE && path.lastModified() > filterProperties.maxTime) {
+                    return Memory.NULL;
+                }
+
+                String ext = ext(path.getPath());
+
+                if (extensions != null && extensions.size() > 0 && !extensions.contains(ext)) {
+                    return Memory.NULL;
+                }
+
+                if (excludeExtensions != null && excludeExtensions.size() > 0 && excludeExtensions.contains(ext)) {
+                    return Memory.NULL;
+                }
+
+                if (filterProperties.getCallback() != null) {
+                    Memory ret = filterProperties.getCallback().callNoThrow(args);
+
+                    if (ret.isNotNull() && ret.toValue() != Memory.FALSE) {
+                        return ret.toImmutable();
+                    } else {
+                        return Memory.NULL;
+                    }
+                }
+
+                return file;
+            }
+        });
     }
 
     @Signature
-    public static void scan(String path, final Invoker progress, int maxDepth)  {
-        scan(path, progress, maxDepth, false);
+    public static Memory scan(Environment env, String path)  {
+        return scan(env, path, null, 0);
     }
 
     @Signature
-    public static void scan(String path, final Invoker progress, int maxDepth, boolean filesIsFirst)  {
+    public static Memory scan(Environment env, String path, @Nullable final Memory progress)  {
+        return scan(env, path, progress, 0);
+    }
+
+    @Signature
+    public static Memory scan(Environment env, String path, @Nullable final Memory progress, int maxDepth)  {
+        return scan(env, path, progress, maxDepth, false);
+    }
+
+    @Signature
+    public static Memory scan(final Environment env, String path,
+                              @Nullable Memory filter, int maxDepth, boolean filesIsFirst)  {
+        final ArrayMemory result = new ArrayMemory();
+
+        if (filter.isArray()) {
+            filter = scanFilter(env, filter.toValue(ArrayMemory.class));
+        }
+
+        final Invoker progress = Invoker.create(env, filter);
+
         scan(path, new ScanProgressHandler(filesIsFirst) {
             @Override
             public boolean call(File pathname, int depth) {
-                progress.callAny(pathname, depth);
+                if (progress != null) {
+                    Memory ret = progress.callAny(pathname, depth);
+
+                    if (ret.isNotNull() && ret.toValue() != Memory.FALSE) {
+                        result.add(ret.toImmutable());
+                    }
+                } else {
+                    result.add(new FileObject(env, pathname));
+                }
+
                 return true;
             }
         }, maxDepth);
+
+        return result;
     }
 
     @Signature
@@ -440,7 +638,7 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
-    public static ArrayMemory clean(final Environment env, String path, @Nullable final Invoker checker) {
+    public static ArrayMemory clean(final Environment env, String path, @Nullable Memory filter) {
         ArrayMemory result = new ArrayMemory();
         final ArrayMemory success = new ArrayMemory();
         final ArrayMemory error = new ArrayMemory();
@@ -448,7 +646,15 @@ public class FsUtils extends BaseObject {
 
         result.put("success", success);
         result.put("error", error);
-        result.put("skip", error);
+        result.put("skip", skip);
+
+        boolean isFilter = filter.isArray();
+
+        if (isFilter) {
+            filter = scanFilter(env, filter.toValue(ArrayMemory.class));
+        }
+
+        final Invoker checker = Invoker.create(env, filter);
 
         scan(path, new ScanProgressHandler(true) {
             @Override

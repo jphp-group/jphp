@@ -264,29 +264,98 @@ class fs
     /**
      * Deletes all files in path. This method does not delete the $path directory.
      * Returns array with error, success and skip file list.
+     *
+     * Array filter, e.g.:
+     * [
+     *      extensions => [...],
+     *      excludeExtensions => [...],
+     *      excludeDirs => bool,
+     *      excludeFiles => bool,
+     *      excludeHidden => bool,
+     *
+     *      minSize => int
+     *      maxSize => int
+     *      minTime => int, millis
+     *      maxTime => int, millis
+     *
+     *      callback => function (File $file, $depth) { }
+     * ]
+     *
      * --RU--
      * Удаляет все файлы найденные по указанному пути. Метод не удаляет саму указанную директорию.
      * Возвращает массив с ключами error, success и skip, в которых список файлов.
      *
+     * Фильтр может быть в виде массива:
+     *  [
+     *      extensions => [...],
+     *      excludeExtensions => [...],
+     *      excludeDirs => bool,
+     *      excludeFiles => bool,
+     *      excludeHidden => bool,
+     *
+     *      minSize => int (мин. размер файла, включительно)
+     *      maxSize => int (макс. размер файла, включительно),
+     *      minTime => int, millis (мин. время изменения файла, включительно)
+     *      maxTime => int, millis (макс. время изменения файла, включительно)
+     *
+     *      callback => function (File $file, $depth) { }
+     *  ]
+     *
      * @param string $path
-     * @param callable $checker (File $file, $depth) optional, must return true to delete the file.
+     * @param callable|array $filter (File $file, $depth) optional, must return true to delete the file.
      * @return array [success => [], error => [], skip = []]
      */
-    static function clean($path, callable $checker = null)
+    static function clean($path, $filter = null)
     {
     }
 
     /**
-     * Scans the path with callback.
+     * Scans the path with callback or array filter and can returns found list
+     * if the callback returns any result or if the callback is null.
+     *
+     * Array filter, e.g.:
+     * [
+     *      extensions => [...],
+     *      excludeExtensions => [...],
+     *      excludeDirs => bool,
+     *      excludeFiles => bool,
+     *      excludeHidden => bool,
+     *
+     *      minSize => int
+     *      maxSize => int
+     *      minTime => int, millis
+     *      maxTime => int, millis
+     *
+     *      callback => function (File $file, $depth) { }
+     * ]
+     *
      * --RU--
-     * Сканирует директорию с коллбэком.
+     * Сканирует директорию с коллбэком или фильтром, и может возвращать список найденного, если
+     * из коллбэка возвращать результат или если коллбэк не передан.
+     *
+     * Фильтр в виде массива:
+     *  [
+     *      extensions => [...],
+     *      excludeExtensions => [...],
+     *      excludeDirs => bool,
+     *      excludeFiles => bool,
+     *      excludeHidden => bool,
+     *
+     *      minSize => int (мин. размер файла, включительно)
+     *      maxSize => int (макс. размер файла, включительно),
+     *      minTime => int, millis (мин. время изменения файла, включительно)
+     *      maxTime => int, millis (макс. время изменения файла, включительно)
+     *
+     *      callback => function (File $file, $depth) { }
+     *  ]
      *
      * @param string $path
-     * @param callable $onProgress (File $file, $depth)
+     * @param callable|array $filter (File $file, $depth): mixed|null
      * @param int $maxDepth if 0 then unlimited.
      * @param bool $subIsFirst
+     * @return array[]
      */
-    static function scan($path, callable $onProgress, $maxDepth = 0, $subIsFirst = false)
+    static function scan($path, $filter = null, $maxDepth = 0, $subIsFirst = false)
     {
     }
 

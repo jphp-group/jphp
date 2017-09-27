@@ -4,12 +4,14 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.operation.GenericMemoryOperation;
 import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -24,7 +26,7 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
 
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class<?>[] { Set.class, TreeSet.class };
+        return new Class<?>[] { Set.class, LinkedHashSet.class };
     }
 
     @Override
@@ -32,7 +34,13 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
     public Set convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         Set result = createTreeSet();
 
-        for (Memory el : arg.getNewIterator(env)) {
+        ForeachIterator newIterator = arg.getNewIterator(env);
+
+        if (newIterator == null) {
+            return result;
+        }
+
+        for (Memory el : newIterator) {
             result.add(operations[0].convert(env, trace, el));
         }
 
@@ -60,6 +68,6 @@ public class SetMemoryOperation extends GenericMemoryOperation<Set> {
     }
 
     protected Set createTreeSet() {
-        return new TreeSet();
+        return new LinkedHashSet();
     }
 }
