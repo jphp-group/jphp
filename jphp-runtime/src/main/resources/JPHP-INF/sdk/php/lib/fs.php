@@ -267,6 +267,7 @@ class fs
      *
      * Array filter, e.g.:
      * [
+     *      namePattern => string (regex),
      *      extensions => [...],
      *      excludeExtensions => [...],
      *      excludeDirs => bool,
@@ -287,6 +288,7 @@ class fs
      *
      * Фильтр может быть в виде массива:
      *  [
+     *      namePattern => string (regex),
      *      extensions => [...],
      *      excludeExtensions => [...],
      *      excludeDirs => bool,
@@ -315,6 +317,7 @@ class fs
      *
      * Array filter, e.g.:
      * [
+     *      namePattern => string (regex),
      *      extensions => [...],
      *      excludeExtensions => [...],
      *      excludeDirs => bool,
@@ -335,6 +338,7 @@ class fs
      *
      * Фильтр в виде массива:
      *  [
+     *      namePattern => string (regex),
      *      extensions => [...],
      *      excludeExtensions => [...],
      *      excludeDirs => bool,

@@ -1,1 +1,1 @@
-<?use php\lib\fs;$result = fs::clean('./sandbox', [    'extensions' => ['log', 'tmp', 'html', 'zip'],    'callback' => function ($file, $depth) {        echo $file, " -> ", $depth, "\n";        return $file;    }]);var_dump($result);
+<?use php\lib\fs;use php\util\Regex;$result = fs::scan('./sandbox', [    'namePattern' => new Regex('^Build.+', 'i')]);var_dump($result);

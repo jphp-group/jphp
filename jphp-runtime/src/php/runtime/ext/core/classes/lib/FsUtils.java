@@ -10,6 +10,7 @@ import php.runtime.common.DigestUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.FileObject;
 import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.core.classes.util.WrapRegex;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.RunnableInvoker;
 import php.runtime.lang.BaseObject;
@@ -415,6 +416,7 @@ public class FsUtils extends BaseObject {
     }
 
     public static class FilterProperties {
+        private Memory namePattern;
         private Set<String> extensions;
         private Set<String> excludeExtensions;
 
@@ -508,6 +510,14 @@ public class FsUtils extends BaseObject {
         public void setMaxTime(long maxTime) {
             this.maxTime = maxTime;
         }
+
+        public Memory getNamePattern() {
+            return namePattern;
+        }
+
+        public void setNamePattern(Memory namePattern) {
+            this.namePattern = namePattern;
+        }
     }
 
     //@Signature
@@ -569,6 +579,19 @@ public class FsUtils extends BaseObject {
 
                 if (excludeExtensions != null && excludeExtensions.size() > 0 && excludeExtensions.contains(ext)) {
                     return Memory.NULL;
+                }
+
+                if (filterProperties.namePattern != null && filterProperties.namePattern.isNotNull()) {
+                    boolean matches;
+
+                    if (filterProperties.namePattern.instanceOf(WrapRegex.class)) {
+                        WrapRegex regex = filterProperties.namePattern.toObject(WrapRegex.class);
+                        matches = regex.test(env, StringMemory.valueOf(path.getName())).toBoolean();
+                    } else {
+                        matches = path.getName().matches(filterProperties.namePattern.toString());
+                    }
+
+                    if (!matches) return Memory.NULL;
                 }
 
                 if (filterProperties.getCallback() != null) {
