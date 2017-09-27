@@ -657,7 +657,7 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static ArrayMemory clean(final Environment env, String path) {
-        return clean(env, path, null);
+        return clean(env, path, Memory.NULL);
     }
 
     @Signature
