@@ -192,7 +192,7 @@ public class ArrayFunctions extends FunctionsContainer {
             i++;
         }
 
-        return result.toConstant();
+        return result;
     }
 
     public static Memory array_merge(Environment env, TraceInfo trace, Memory array, Memory... arrays) {
@@ -971,7 +971,7 @@ public class ArrayFunctions extends FunctionsContainer {
                 }
             }
 
-            return result.toConstant();
+            return result;
         }
 
         return Memory.NULL;
@@ -1098,7 +1098,9 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory arrayMemory = array.toValue(ArrayMemory.class);
 
             try {
-                return (length.isNull() ? arrayMemory.slice(offset, preserveKeys) : arrayMemory.slice(offset, length.toInteger(), preserveKeys)).toConstant();
+                return (length.isNull()
+                        ? arrayMemory.slice(offset, preserveKeys)
+                        : arrayMemory.slice(offset, length.toInteger(), preserveKeys)).toConstant();
             } catch (IndexOutOfBoundsException e) {
                 return new ArrayMemory().toConstant();
             }
