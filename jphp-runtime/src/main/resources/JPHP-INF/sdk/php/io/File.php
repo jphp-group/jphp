@@ -164,6 +164,11 @@ class File
     public function crc32() { return 0; }
 
     /**
+     * @return string
+     */
+    public function toUrl() { return ''; }
+
+    /**
      * @param string $algorithm
      * @param callable $onProgress ($sum, $len)
      * @return null|string if not exists or io exception

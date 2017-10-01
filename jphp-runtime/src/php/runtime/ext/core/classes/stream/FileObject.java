@@ -16,6 +16,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
@@ -405,6 +406,11 @@ public class FileObject extends BaseObject {
         }
 
         return arr.toConstant();
+    }
+
+    @Signature
+    public Memory toUrl(Environment env, Memory... args) throws MalformedURLException {
+        return StringMemory.valueOf(file.toURI().toURL().toString());
     }
 
     @Signature
