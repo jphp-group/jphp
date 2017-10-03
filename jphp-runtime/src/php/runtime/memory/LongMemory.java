@@ -186,7 +186,7 @@ public class LongMemory extends Memory {
             case STRING: return equal(memory.toNumeric());
             case REFERENCE: return equal(memory.toValue());
             default:
-                return value == toLong();
+                return value == memory.toLong();
         }
     }
 
