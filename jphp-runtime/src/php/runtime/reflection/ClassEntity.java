@@ -405,30 +405,31 @@ ClassReader classReader;
 
                     if (!implMethod.equalsBySignature(method)) {
                         if (!method.isDynamicSignature() || method.isAbstractable()) {
-                            boolean isStrict = true;
+                            boolean isWarning = true;
                             MethodEntity pr = method;
 
                             while (pr != null) {
                                 if (pr.isAbstractable()) {
-                                    isStrict = false;
+                                    isWarning = false;
                                     break;
                                 }
                                 pr = method.getPrototype();
                             }
 
-                            if (isStrict) {
+                            if (isWarning) {
                                 TypeChecker implTypeChecker = implMethod.getReturnTypeChecker();
                                 TypeChecker typeChecker = method.getReturnTypeChecker();
 
-                                if (typeChecker != implTypeChecker && typeChecker == null || implTypeChecker == null) {
-                                    isStrict = false;
-                                } else if (!typeChecker.getSignature().equals(implTypeChecker.getSignature())) {
-                                    isStrict = false;
+                                if (typeChecker != implTypeChecker && (typeChecker == null || implTypeChecker == null)) {
+                                    isWarning = false;
+                                } else if (typeChecker != null &&
+                                        !typeChecker.getSignature().equals(implTypeChecker.getSignature())) {
+                                    isWarning = false;
                                 }
                             }
 
                             result.add(
-                                    !isStrict
+                                    !isWarning
                                             ? InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
                                             : InvalidMethod.warning(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
                             );
