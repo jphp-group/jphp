@@ -17,6 +17,7 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.*;
+import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.TypeChecker;
 
 final public class InvokeHelper {
@@ -139,16 +140,24 @@ final public class InvokeHelper {
         }
     }
 
-    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method) {
+    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method,
+                                         final ClassEntity classEntity) {
         return checkReturnType(
                 env, trace, result,
                 new Function<String>() {
                     @Override
                     public String call() {
-                        return method.getClazz().getName() + "::" + method.getName();
+                        return classEntity.getName() + "::" + method.getName();
                     }
                 },
                 method.getReturnTypeChecker(), method.isReturnTypeNullable()
+        );
+    }
+
+    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method) {
+        return checkReturnType(
+                env, trace, result,
+                method, method.getClazz()
         );
     }
 

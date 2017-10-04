@@ -183,7 +183,7 @@ final public class ObjectInvokeHelper {
         Memory result = method.getImmutableResult();
 
         if (result != null) {
-            return InvokeHelper.checkReturnType(env, trace, result, method);
+            return InvokeHelper.checkReturnType(env, trace, result, method, clazz);
         }
 
         try {

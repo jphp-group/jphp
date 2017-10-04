@@ -1,4 +1,4 @@
-def javaVersion    = '1.7';
+def javaVersion    = '1.8';
 def projectVersion = '0.9.0';
 
 allprojects {
