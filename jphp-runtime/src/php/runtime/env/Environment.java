@@ -11,7 +11,6 @@ import php.runtime.env.message.WarningMessage;
 import php.runtime.exceptions.*;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.WrapEnvironment;
 import php.runtime.ext.core.classes.WrapEnvironmentVariables;
 import php.runtime.ext.java.JavaReflection;
 import php.runtime.ext.support.Extension;
@@ -368,20 +367,20 @@ public class Environment {
         getCallStack().push(stackItem);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
-        getCallStack().push(trace, self, args, function, clazz, staticClazz);
+    public CallStackItem pushCall(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
+        return getCallStack().push(trace, self, args, function, clazz, staticClazz);
     }
 
-    public void pushCall(IObject self, String method, Memory... args) {
-        getCallStack().push(self, method, args);
+    public CallStackItem pushCall(IObject self, String method, Memory... args) {
+        return getCallStack().push(self, method, args);
     }
 
-    public void pushCall(TraceInfo trace, IObject self, String method, Memory... args) {
-        getCallStack().push(trace, self, method, args);
+    public CallStackItem pushCall(TraceInfo trace, IObject self, String method, Memory... args) {
+        return getCallStack().push(trace, self, method, args);
     }
 
-    public void popCall() {
-        getCallStack().pop();
+    public CallStackItem popCall() {
+        return getCallStack().pop();
     }
 
     public CallStackItem peekCall(int depth) {
@@ -1298,14 +1297,17 @@ public class Environment {
                 return Memory.TRUE;
             }
 
-            ModuleEntity module = moduleManager.fetchCachedModule(path, path.endsWith(".phb"));
+            ModuleEntity module = moduleManager.fetchModule(path, path.endsWith(".phb"));
 
             if (module == null) {
                 callback.call(null);
                 return Memory.FALSE;
             }
 
-            pushCall(trace, null, new Memory[]{StringMemory.valueOf(path)}, funcName, null, null);
+            CallStackItem stackItem = pushCall(
+                    trace, null, new Memory[]{StringMemory.valueOf(path)}, funcName, null, null
+            );
+
             try {
                 if (locals == null) {
                     locals = new ArrayMemory();

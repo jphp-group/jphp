@@ -21,6 +21,8 @@ public class ModuleEntity extends Entity {
     private Class<?> nativeClazz;
     protected Method nativeMethod;
 
+    private boolean strictTypes = false;
+
     private final Map<String, ClassEntity> classes;
     private final List<FunctionEntity> functions;
     private final Map<String, ConstantEntity> constants;
@@ -76,13 +78,8 @@ public class ModuleEntity extends Entity {
     public Memory includeNoThrow(Environment env, ArrayMemory locals){
         try {
             return include(env, locals);
-        } catch (DieException e) {
+        } catch (DieException | ErrorException e) {
             throw e;
-        } catch (ErrorException e){
-            throw e;
-        } catch (BaseException e){
-            env.catchUncaught(e);
-            return Memory.NULL;
         } catch (Exception e) {
             env.catchUncaught(e);
             return Memory.NULL;
@@ -190,5 +187,13 @@ public class ModuleEntity extends Entity {
 
     public void setNativeClazz(Class<?> nativeClazz) {
         this.nativeClazz = nativeClazz;
+    }
+
+    public boolean isStrictTypes() {
+        return strictTypes;
+    }
+
+    public void setStrictTypes(boolean strictTypes) {
+        this.strictTypes = strictTypes;
     }
 }

@@ -16,6 +16,7 @@ import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -356,6 +357,13 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
 
         sb.append(")");
+
+        TypeChecker returnTypeChecker = getReturnTypeChecker();
+
+        if (returnTypeChecker != null) {
+            sb.append(": ").append(returnTypeChecker.getSignature());
+        }
+
         return sb.toString();
     }
 
@@ -365,13 +373,26 @@ public class MethodEntity extends AbstractFunctionEntity {
 
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        if (parameters != null)
-        for(ParameterEntity param : parameters){
-            if (param.getDefaultValue() == null)
-                sb.append(
-                        param.getType() == null ? HintType.ANY : param.getType()
-                ).append("|").append(param.isReference ? "&" : "");
+
+        if (parameters != null) {
+            for (ParameterEntity param : parameters) {
+                if (param.getDefaultValue() == null) {
+                    sb.append(
+                            param.getType() == null ? HintType.ANY : param.getType()
+                    ).append("|").append(param.isReference ? "&" : "");
+                }
+            }
         }
+
+        TypeChecker typeChecker = getReturnTypeChecker();
+
+        if (typeChecker != null) {
+            String signature = typeChecker.getSignature();
+
+            sb.append(":");
+            sb.append(signature);
+        }
+
         return signature = sb.toString();
     }
 

@@ -14,7 +14,7 @@ abstract public class Entity {
     private Map<String, Object> additionalData = new HashMap<String, Object>();
 
     protected Context context;
-    protected TraceInfo trace;
+    protected TraceInfo trace = TraceInfo.UNKNOWN;
     protected String name;
     protected String lowerName;
 

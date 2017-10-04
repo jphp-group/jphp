@@ -4,6 +4,7 @@ import org.develnext.jphp.core.syntax.ExpressionInfo;
 import org.develnext.jphp.core.syntax.VariableStats;
 import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
+import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -19,6 +20,10 @@ public class FunctionStmtToken extends StmtToken {
     protected CommentToken docComment;
 
     protected boolean returnReference;
+    protected boolean returnOptional;
+    protected HintType returnHintType;
+    protected NameToken returnHintTypeClass;
+
     protected List<ArgumentStmtToken> arguments;
     protected List<ArgumentStmtToken> uses;
     protected BodyStmtToken body;
@@ -286,5 +291,41 @@ public class FunctionStmtToken extends StmtToken {
 
     public Map<Token, ExpressionInfo> getTypeInfo() {
         return typeInfo;
+    }
+
+    public boolean isReturnOptional() {
+        return returnOptional;
+    }
+
+    public void setReturnOptional(boolean returnOptional) {
+        this.returnOptional = returnOptional;
+    }
+
+    public HintType getReturnHintType() {
+        return returnHintType;
+    }
+
+    public void setReturnHintType(HintType returnHintType) {
+        this.returnHintType = returnHintType;
+    }
+
+    public NameToken getReturnHintTypeClass() {
+        return returnHintTypeClass;
+    }
+
+    public void setReturnHintTypeClass(NameToken returnHintTypeClass) {
+        this.returnHintTypeClass = returnHintTypeClass;
+    }
+
+    public Map<String, LabelStmtToken> getLabels() {
+        return labels;
+    }
+
+    public Map<String, VariableStats> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(Map<String, VariableStats> variables) {
+        this.variables = variables;
     }
 }

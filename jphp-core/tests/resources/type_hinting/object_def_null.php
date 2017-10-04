@@ -12,6 +12,7 @@ test();
 echo "success.\n";
 test(null, null);
 
+?>
 --EXPECTF--
 success.
 

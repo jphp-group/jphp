@@ -9,7 +9,6 @@ import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;

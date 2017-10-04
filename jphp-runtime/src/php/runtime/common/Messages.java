@@ -40,6 +40,7 @@ final public class Messages {
     public final static Item ERR_CANNOT_REDECLARE_CLASS = new Item("Cannot redeclare class %s");
     public final static Item ERR_CANNOT_REDECLARE_FUNCTION = new Item("Cannot redeclare function %s");
     public final static Item ERR_CANNOT_REDECLARE_CONSTANT = new Item("Cannot redeclare constant %s");
+    public final static Item ERR_INVALID_DECLARE_CONSTANT = new Item("Invalid declare constant name '%s'");
     public final static Item ERR_CANNOT_IMPLEMENT = new Item("%s cannot implement %s - it is not an interface");
     public final static Item ERR_CANNOT_EXTENDS = new Item("%s cannot extend from %s - it is not an class");
     public final static Item ERR_CANNOT_USE_NON_TRAIT = new Item("%s cannot use %s - it is not a trait");
@@ -115,6 +116,7 @@ final public class Messages {
 
     public final static Item ERR_YIELD_CAN_ONLY_INSIDE_FUNCTION = new Item("The \"yield\" expression can only be used inside a function");
 
+    public final static Item ERR_RETURN_TYPE_INVALID = new Item("Return value of %s() must be %s, %s returned");
 
     public static class Item {
         private String message;

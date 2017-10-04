@@ -16,38 +16,63 @@ import php.runtime.reflection.ParameterEntity;
 public class TypeHintingTest extends JvmCompilerCase {
 
     @Test
-    public void testArray(){
+    public void testArray() {
         check("type_hinting/array.php", true);
     }
 
     @Test
-    public void testArrayRef(){
+    public void testArrayRef() {
         check("type_hinting/array_ref.php", true);
     }
 
     @Test
-    public void testArrayDefault(){
+    public void testArrayDefault() {
         check("type_hinting/array_default.php", true);
     }
 
     @Test
-    public void testCallable(){
+    public void testCallable() {
         check("type_hinting/callable.php", true);
     }
 
     @Test
-    public void testCallableRef(){
+    public void testCallableRef() {
         check("type_hinting/callable_ref.php", true);
     }
 
     @Test
-    public void testObject(){
+    public void testObject() {
         check("type_hinting/object.php", true);
     }
 
     @Test
-         public void testObjectDefNull(){
+    public void testObjectDefNull() {
         check("type_hinting/object_def_null.php", true);
+    }
+
+    @Test
+    public void testVoid() {
+        check("type_hinting/void.php", true);
+    }
+
+    @Test
+    public void testObjectHint() {
+        check("type_hinting/object_hint.php", true);
+    }
+
+    @Test
+    public void testNumberHint() {
+        check("type_hinting/number_hint.php", true);
+    }
+
+    @Test
+    public void testStrictTypes() {
+        check("type_hinting/strict_types.php", true);
+    }
+
+    @Test
+    public void testNullable() {
+        check("type_hinting/nullable.php", true);
     }
 
     /*@Test
@@ -56,39 +81,7 @@ public class TypeHintingTest extends JvmCompilerCase {
     }*/
 
     @Test
-    public void testCoreNumber(){
-        ParameterEntity param = new ParameterEntity(null);
-        param.setType(HintType.NUMBER);
-
-        Assert.assertFalse(param.checkTypeHinting(null, new StringMemory("")));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.FALSE));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.TRUE));
-
-        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0)));
-        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0)));
-    }
-
-    @Test
-    public void testCoreScalar(){
-        ParameterEntity param = new ParameterEntity(null);
-        param.setType(HintType.SCALAR);
-
-        Assert.assertTrue(param.checkTypeHinting(null, new StringMemory("")));
-        Assert.assertFalse(param.checkTypeHinting(null, new ObjectMemory(null)));
-        Assert.assertFalse(param.checkTypeHinting(null, new ArrayMemory()));
-        Assert.assertFalse(param.checkTypeHinting(null, Memory.NULL));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.FALSE));
-        Assert.assertTrue(param.checkTypeHinting(null, Memory.TRUE));
-
-        Assert.assertTrue(param.checkTypeHinting(null, new LongMemory(0)));
-        Assert.assertTrue(param.checkTypeHinting(null, new DoubleMemory(0)));
-    }
-
-    @Test
-    public void testCoreInt(){
+    public void testCoreInt() {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.INT);
 
@@ -104,7 +97,7 @@ public class TypeHintingTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testCoreDouble(){
+    public void testCoreDouble() {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.DOUBLE);
 
@@ -120,7 +113,7 @@ public class TypeHintingTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testCoreString(){
+    public void testCoreString() {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.STRING);
 
@@ -136,7 +129,7 @@ public class TypeHintingTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testCoreBool(){
+    public void testCoreBool() {
         ParameterEntity param = new ParameterEntity(null);
         param.setType(HintType.BOOLEAN);
 

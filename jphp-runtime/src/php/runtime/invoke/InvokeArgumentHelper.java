@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
+import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
@@ -16,6 +17,7 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.ParameterEntity;
 
 import java.lang.reflect.Field;
@@ -125,7 +127,15 @@ public class InvokeArgumentHelper {
                 }
 
                 if (!param.checkTypeHinting(env, passed[i])) {
-                    invalidType(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
+                    ModuleEntity module = env.getModuleManager().findModule(trace);
+
+                    Memory memory = param.applyTypeHinting(env, passed[i], module != null && module.isStrictTypes());
+
+                    if (memory != null) {
+                        passed[i] = memory;
+                    } else {
+                        invalidType(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
+                    }
                 }
                 i++;
             }

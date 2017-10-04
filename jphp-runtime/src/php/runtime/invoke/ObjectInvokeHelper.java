@@ -86,7 +86,9 @@ final public class ObjectInvokeHelper {
         }
 
         Memory result = method.getImmutableResult();
-        if (result != null) return result;
+        if (result != null) {
+            return InvokeHelper.checkReturnType(env, trace, result, method);
+        }
 
         try {
             if (trace != null) {
@@ -94,7 +96,7 @@ final public class ObjectInvokeHelper {
                 if (doublePop)
                     env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
-            result = method.invokeDynamic(iObject, env, passed);
+            result = InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new CriticalException("Unable to call parent:: method " + className + "::" + methodName + "(), error = " + e.getMessage());
         } finally {
@@ -181,7 +183,7 @@ final public class ObjectInvokeHelper {
         Memory result = method.getImmutableResult();
 
         if (result != null) {
-            return result;
+            return InvokeHelper.checkReturnType(env, trace, result, method);
         }
 
         try {
@@ -201,7 +203,7 @@ final public class ObjectInvokeHelper {
                 }
             }
 
-            return method.invokeDynamic(iObject, env, passed);
+            return InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
         } catch (NoClassDefFoundError e) {
             throw new CriticalException("Unable to call method " + className + "::" + methodName + "(), " + e.getMessage());
         } finally {
@@ -240,8 +242,9 @@ final public class ObjectInvokeHelper {
                 env, args, method.getParameters(args == null ? 0 : args.length), className, method.getName(), trace
         );
         Memory result = method.getImmutableResult();
+
         if (result != null) {
-            return result;
+            return InvokeHelper.checkReturnType(env, trace, result, method);
         }
 
         if (trace != null) {
@@ -257,7 +260,7 @@ final public class ObjectInvokeHelper {
         }
 
         try {
-            result = method.invokeDynamic(iObject, env, passed);
+            result = InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
         } finally {
             if (trace != null)
                 env.popCall();

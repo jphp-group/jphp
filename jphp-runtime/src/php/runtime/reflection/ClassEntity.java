@@ -26,6 +26,7 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
+import php.runtime.reflection.support.TypeChecker;
 import php.runtime.wrap.ClassWrapper;
 
 import java.lang.reflect.Constructor;
@@ -406,6 +407,7 @@ ClassReader classReader;
                         if (!method.isDynamicSignature() || method.isAbstractable()) {
                             boolean isStrict = true;
                             MethodEntity pr = method;
+
                             while (pr != null) {
                                 if (pr.isAbstractable()) {
                                     isStrict = false;
@@ -414,10 +416,21 @@ ClassReader classReader;
                                 pr = method.getPrototype();
                             }
 
+                            if (isStrict) {
+                                TypeChecker implTypeChecker = implMethod.getReturnTypeChecker();
+                                TypeChecker typeChecker = method.getReturnTypeChecker();
+
+                                if (typeChecker != implTypeChecker && typeChecker == null || implTypeChecker == null) {
+                                    isStrict = false;
+                                } else if (!typeChecker.getSignature().equals(implTypeChecker.getSignature())) {
+                                    isStrict = false;
+                                }
+                            }
+
                             result.add(
                                     !isStrict
                                             ? InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
-                                            : InvalidMethod.strict(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
+                                            : InvalidMethod.warning(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod)
                             );
                         }
                     } else if (implMethod.isStatic() && !method.isStatic()) {
@@ -1834,7 +1847,7 @@ ClassReader classReader;
                         }
                         e = new FatalException(
                                 Messages.ERR_INVALID_METHOD_SIGNATURE.fetch(
-                                        el.method.getSignatureString(false), prototype.getSignatureString(true)
+                                        el.method.getSignatureString(true), prototype.getSignatureString(true)
                                 ),
                                 el.method.getTrace()
                         );

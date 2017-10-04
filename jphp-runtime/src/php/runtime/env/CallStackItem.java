@@ -7,6 +7,7 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.output.PlainPrinter;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ModuleEntity;
 
 import java.io.StringWriter;
 
@@ -18,6 +19,7 @@ public class CallStackItem {
     public String function;
     public String clazz;
     public String staticClazz;
+
     public ClassEntity classEntity;
     public ClassEntity staticClassEntity;
 

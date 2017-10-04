@@ -162,11 +162,6 @@ public class ReflectionParameter extends Reflection implements Reflector {
     }
 
     @Signature
-    public Memory isScalar(Environment env, Memory... args) {
-        return entity.getType() == HintType.SCALAR ? Memory.TRUE : Memory.FALSE;
-    }
-
-    @Signature
     public Memory isString(Environment env, Memory... args) {
         return entity.getType() == HintType.STRING ? Memory.TRUE : Memory.FALSE;
     }

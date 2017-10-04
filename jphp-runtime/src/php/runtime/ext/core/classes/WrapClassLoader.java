@@ -90,7 +90,7 @@ abstract public class WrapClassLoader extends BaseObject {
         }
 
         protected ModuleEntity fetchClass(Environment env, String fileName, boolean compiled) throws Throwable {
-            return env.getModuleManager().fetchModule("res://" + fileName, compiled);
+            return env.getModuleManager().fetchTemporaryModule("res://" + fileName, compiled);
         }
     }
 }

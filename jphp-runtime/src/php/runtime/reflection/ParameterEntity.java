@@ -205,6 +205,16 @@ public class ParameterEntity extends Entity {
         return true;
     }
 
+    public Memory applyTypeHinting(Environment env, Memory value, boolean strict) {
+        if (typeChecker != null) {
+            return typeChecker.apply(
+                    env, value, nullable || (defaultValue != null && defaultValue.isNotNull()), strict
+            );
+        }
+
+        return null;
+    }
+
     public boolean isArray(){
         return getType() == HintType.ARRAY;
     }

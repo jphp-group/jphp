@@ -1,7 +1,9 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.tokenizer.token.ColonToken;
 import org.develnext.jphp.core.tokenizer.token.CommentToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ValueIfElseToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import php.runtime.common.HintType;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
@@ -26,6 +28,15 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     protected final static Set<String> scalarTypeHints = new HashSet<String>(){{
         add("array");
         add("callable");
+        add("string");
+        add("int");
+        add("float");
+        add("bool");
+        add("object");
+    }};
+
+    protected final static Set<String> disallowScalarTypeHints = new HashSet<String>(){{
+        add("void");
     }};
 
     protected final static Set<String> jphp_scalarTypeHints = new HashSet<String>(){{
@@ -54,6 +65,12 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         NameToken hintTypeClass = null;
         HintType hintType = null;
+        boolean optional = false;
+
+        if (next instanceof ValueIfElseToken) {
+            optional = true;
+            next = nextToken(iterator);
+        }
 
         if (next instanceof SelfExprToken) {
             if (analyzer.getClazz() == null) {
@@ -65,9 +82,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         if (next instanceof NameToken){
             String word = ((NameToken) next).getName().toLowerCase();
-            if (scalarTypeHints.contains(word))
+            if (scalarTypeHints.contains(word)) {
                 hintType = HintType.of(word);
-            else {
+            } else if (disallowScalarTypeHints.contains(word)) {
+                unexpectedToken(next, "valid type");
+            } else {
                 hintType = jphp_scalarTypeHints.contains(word) ? null : HintType.of(word);
 
                 if (hintType == null)
@@ -121,6 +140,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         argument.setReference(isReference);
         argument.setVariadic(isVariadic);
         argument.setValue(value);
+        argument.setOptional(optional);
 
         if (argument.isReference() && argument.getValue() != null)
             analyzer.getFunction().variable(argument.getName()).setUsed(true);
@@ -139,9 +159,40 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             arguments.add(argument);
         }
 
-
-
         result.setArguments(arguments);
+
+        Token token = nextTokenAndPrev(iterator);
+
+        if (token instanceof ColonToken) {
+            nextToken(iterator);
+            Token next = nextToken(iterator);
+
+            if (next instanceof ValueIfElseToken) {
+                result.setReturnOptional(true);
+                next = nextToken(iterator);
+            }
+
+            HintType hintType;
+            NameToken hintTypeClass = null;
+
+            if (next instanceof NameToken){
+                String word = ((NameToken) next).getName().toLowerCase();
+                if (scalarTypeHints.contains(word)) {
+                    hintType = HintType.of(word);
+                } else {
+                    hintType = jphp_scalarTypeHints.contains(word) ? null : HintType.of(word);
+
+                    if (hintType == null) {
+                        hintTypeClass = analyzer.getRealName((NameToken) next);
+                    }
+                }
+
+                result.setReturnHintType(hintType);
+                result.setReturnHintTypeClass(hintTypeClass);
+            } else {
+                unexpectedToken(next, "name");
+            }
+        }
     }
 
     protected void processUses(FunctionStmtToken result, ListIterator<Token> iterator){

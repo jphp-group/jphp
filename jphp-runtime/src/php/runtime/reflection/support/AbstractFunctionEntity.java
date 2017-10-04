@@ -18,6 +18,7 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected boolean returnReference;
     protected ParameterEntity[] parameters;
     protected TypeChecker returnTypeChecker;
+    protected boolean returnTypeNullable;
 
     protected Memory result;
     protected boolean abstractable = false;
@@ -158,5 +159,13 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public TypeChecker getReturnTypeChecker() {
         return returnTypeChecker;
+    }
+
+    public boolean isReturnTypeNullable() {
+        return returnTypeNullable;
+    }
+
+    public void setReturnTypeNullable(boolean returnTypeNullable) {
+        this.returnTypeNullable = returnTypeNullable;
     }
 }

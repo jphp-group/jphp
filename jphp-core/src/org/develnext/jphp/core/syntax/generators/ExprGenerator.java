@@ -25,15 +25,23 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         super(analyzer);
     }
 
-    public ExprStmtToken getInBraces(BraceExprToken.Kind kind, ListIterator<Token> iterator){
-        Token next = nextToken(iterator);
-        if (!isOpenedBrace(next, kind))
-            unexpectedToken(next, BraceExprToken.Kind.toOpen(kind));
+    public ExprStmtToken getInBraces(BraceExprToken.Kind kind, ListIterator<Token> iterator) {
+        return getInBraces(kind, iterator, false);
+    }
+
+    public ExprStmtToken getInBraces(BraceExprToken.Kind kind, ListIterator<Token> iterator, boolean alreadyOpened) {
+        Token next;
+
+        if (!alreadyOpened) {
+            next = nextToken(iterator);
+            if (!isOpenedBrace(next, kind))
+                unexpectedToken(next, BraceExprToken.Kind.toOpen(kind));
+        }
 
         ExprStmtToken result = analyzer.generator(SimpleExprGenerator.class)
                 .getToken(nextToken(iterator), iterator, false, kind);
 
-        if (!isClosedBrace(nextToken(iterator), kind))
+        if (!isClosedBrace(next = nextToken(iterator), kind))
             unexpectedToken(next, BraceExprToken.Kind.toClose(kind));
 
         return result;
@@ -377,9 +385,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
 
     protected void processReturn(ReturnStmtToken result, ListIterator<Token> iterator){
         Token next = nextToken(iterator);
-        if (next instanceof SemicolonToken)
+
+        if (next instanceof SemicolonToken) {
             result.setValue(null);
-        else {
+            result.setEmpty(true);
+        } else {
+            result.setEmpty(false);
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class)
                     .getToken(next, iterator);
             result.setValue(value);

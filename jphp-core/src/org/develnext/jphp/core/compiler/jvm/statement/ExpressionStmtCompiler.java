@@ -736,6 +736,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         writePushMemory(Memory.NULL);
     }
 
+    public void writePushVoid() {
+        writePushMemory(Memory.UNDEFINED);
+    }
+
     public void writePushConstNull() {
         stackPush(Memory.Type.REFERENCE);
         code.add(new InsnNode(ACONST_NULL));
@@ -3033,6 +3037,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     public Memory writeExpression(ExprStmtToken expression, boolean returnValue, boolean returnMemory) {
         return writeExpression(expression, returnValue, returnMemory, true);
+    }
+
+    public Memory tryCalculateExpression(ExprStmtToken expression) {
+        return writeExpression(expression, true, true, false);
     }
 
     @SuppressWarnings("unchecked")

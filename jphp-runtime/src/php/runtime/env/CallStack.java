@@ -2,6 +2,7 @@ package php.runtime.env;
 
 import php.runtime.Memory;
 import php.runtime.lang.IObject;
+import php.runtime.reflection.ModuleEntity;
 
 public class CallStack {
     // call stack
@@ -32,32 +33,40 @@ public class CallStack {
         maxCallStackTop = callStackTop;
     }
 
-    public void push(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
+    public CallStackItem push(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
             System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
             callStack = newCallStack;
         }
 
-        if (callStackTop < maxCallStackTop)
-            callStack[callStackTop++].setParameters(trace, self, args, function, clazz, staticClazz);
-        else
-            callStack[callStackTop++] = new CallStackItem(trace, self, args, function, clazz, staticClazz);
+        CallStackItem result;
+
+        if (callStackTop < maxCallStackTop) {
+            result = callStack[callStackTop++];
+            result.setParameters(trace, self, args, function, clazz, staticClazz);
+        } else {
+            callStack[callStackTop++] = result = new CallStackItem(trace, self, args, function, clazz, staticClazz);
+        }
 
         maxCallStackTop = callStackTop;
+
+        return result;
     }
 
-    public void push(IObject self, String method, Memory... args) {
-        push(null, self, args, method, self.getReflection().getName(), null);
+    public CallStackItem push(IObject self, String method, Memory... args) {
+        return push(null, self, args, method, self.getReflection().getName(), null);
     }
 
-    public void push(TraceInfo trace, IObject self, String method, Memory... args) {
-        push(trace, self, args, method, self.getReflection().getName(), null);
+    public CallStackItem push(TraceInfo trace, IObject self, String method, Memory... args) {
+        return push(trace, self, args, method, self.getReflection().getName(), null);
     }
 
-    public void pop() {
+    public CallStackItem pop() {
         try {
-            callStack[--callStackTop].clear(); // clear for GC
+            CallStackItem result = callStack[--callStackTop];
+            result.clear(); // clear for GC
+            return result;
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalThreadStateException();
         }
@@ -107,6 +116,24 @@ public class CallStack {
             return TraceInfo.UNKNOWN;
 
         return peekCall(0).trace;
+    }
+
+    public ModuleEntity module() {
+        if (callStackTop <= 0) {
+            return null;
+        }
+
+        return env.getModuleManager().findModule(peekCall(0).trace);
+    }
+
+    public ModuleEntity module(int depth) {
+        CallStackItem stackItem = peekCall(depth);
+
+        if (stackItem != null) {
+            return env.getModuleManager().findModule(stackItem.trace);
+        }
+
+        return null;
     }
 
     public TraceInfo trace(int systemOffsetStackTrace){

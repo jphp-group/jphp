@@ -33,6 +33,10 @@ public class MethodStmtToken extends FunctionStmtToken {
         setId(token.id);
         setTypeInfo(token.getTypeInfo());
         setGeneratorId(token.generatorId);
+        setReturnHintType(token.returnHintType);
+        setReturnHintTypeClass(token.returnHintTypeClass);
+        setReturnOptional(token.returnOptional);
+
         labels = token.labels;
         variables = token.variables;
         namespace = token.namespace;

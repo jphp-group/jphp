@@ -20,13 +20,17 @@ public class ModuleManager {
         this.modules.putAll(parent.modules);
     }
 
-    public ModuleEntity fetchCachedModule(String path, boolean compiled) throws Throwable {
+    public ModuleEntity fetchModule(String path) throws Throwable {
+        return fetchModule(path, path.endsWith(".phb"));
+    }
+
+    public ModuleEntity fetchModule(String path, boolean compiled) throws Throwable {
         ModuleEntity moduleEntity = modules.get(path);
 
         if (moduleEntity != null) {
             return moduleEntity;
         } else {
-            moduleEntity = fetchModule(path, compiled);
+            moduleEntity = fetchTemporaryModule(path, compiled);
 
             if (moduleEntity == null) {
                 return null;
@@ -38,11 +42,7 @@ public class ModuleManager {
         }
     }
 
-    public ModuleEntity fetchModule(String path) throws Throwable {
-        return fetchModule(path, false);
-    }
-
-    public ModuleEntity fetchModule(String path, boolean compiled) throws Throwable {
+    public ModuleEntity fetchTemporaryModule(String path, boolean compiled) throws Throwable {
         Stream stream = fetchStream(path);
 
         if (stream == null) {
@@ -54,11 +54,17 @@ public class ModuleManager {
                 env.exception("Cannot import module form external stream: " + stream.getPath());
                 return null;
             } else {
+                ModuleEntity module;
+                Context context = fetchContext(stream);
+
                 if (compiled) {
-                    return env.importCompiledModule(fetchContext(stream), true);
+                    module = env.importCompiledModule(context, true);
                 } else {
-                    return env.importModule(fetchContext(stream));
+                    module = env.importModule(context);
                 }
+
+                module.setTrace(new TraceInfo(context));
+                return module;
             }
         } finally {
             env.invokeMethod(stream, "close");
@@ -75,6 +81,22 @@ public class ModuleManager {
         } catch (WrapIOException e) {
             return null;
         }
+    }
+
+    public ModuleEntity findModule(String path) {
+        return modules.get(path);
+    }
+
+    public void addModule(String path, ModuleEntity module) {
+        modules.put(path, module);
+    }
+
+    public ModuleEntity findModule(TraceInfo traceInfo) {
+        if (traceInfo == null || traceInfo == TraceInfo.UNKNOWN) {
+            return null;
+        }
+
+        return findModule(traceInfo.getFileName());
     }
 
     public boolean hasModule(String path) {

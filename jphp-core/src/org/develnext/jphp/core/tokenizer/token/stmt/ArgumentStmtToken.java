@@ -13,6 +13,7 @@ public class ArgumentStmtToken extends StmtToken {
     private NameToken hintTypeClass;
     private VariableExprToken name;
     private ExprStmtToken value;
+    private boolean optional;
 
     public ArgumentStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -64,5 +65,13 @@ public class ArgumentStmtToken extends StmtToken {
 
     public void setVariadic(boolean variadic) {
         this.variadic = variadic;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
     }
 }

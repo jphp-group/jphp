@@ -1,6 +1,5 @@
 package php.runtime.launcher;
 
-import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
 import php.runtime.Memory;
@@ -12,7 +11,6 @@ import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.support.Extension;
-import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
@@ -113,37 +111,8 @@ public class Launcher {
             return null;
     }
 
-    public void initModule(ModuleEntity moduleEntity){
-        compileScope.loadModule(moduleEntity);
-        compileScope.addUserModule(moduleEntity);
-        environment.registerModule(moduleEntity);
-    }
-
-    public ModuleEntity loadFromCompiled(String file) throws IOException {
-        InputStream inputStream = getResource(file);
-        if (inputStream == null)
-            return null;
-        Context context = new Context(inputStream, file, environment.getDefaultCharset());
-
-        ModuleDumper moduleDumper = new ModuleDumper(context, environment, true);
-        return moduleDumper.load(inputStream);
-    }
-
-    public ModuleEntity loadFromFile(String file) throws IOException {
-        InputStream inputStream = getResource(file);
-        if (inputStream == null)
-            return null;
-        Context context = new Context(inputStream, file, environment.getDefaultCharset());
-
-        JvmCompiler compiler = new JvmCompiler(environment, context);
-        return compiler.compile(false);
-    }
-
-    public ModuleEntity loadFrom(String file) throws IOException {
-        if (file.endsWith(".phb"))
-            return loadFromCompiled(file);
-        else
-            return loadFromFile(file);
+    public ModuleEntity loadFrom(String file) throws Throwable {
+        return environment.getModuleManager().fetchModule(file);
     }
 
     protected void readConfig(){
@@ -291,7 +260,7 @@ public class Launcher {
             Startup.trace("Startup time = " + t + "ms");
         }
 
-        String file = config.getProperty("bootstrap.file", "JPHP-INF/.bootstrap.php");
+        String file = config.getProperty("bootstrap.file", "res://JPHP-INF/.bootstrap.php");
         String classLoader = config.getProperty("env.classLoader", ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class));
 
         if (classLoader != null && !(classLoader.isEmpty())) {
@@ -320,8 +289,6 @@ public class Launcher {
                     System.out.println(moduleOpcodePrinter.toString());
                 }
 
-                initModule(bootstrap);
-
                 ArrayMemory argv = ArrayMemory.ofStrings(this.args);
 
                 String path = URLDecoder.decode(
@@ -334,7 +301,8 @@ public class Launcher {
                 environment.getGlobals().put("argv", argv);
                 environment.getGlobals().put("argc", LongMemory.valueOf(argv.size()));
 
-                environment.pushCall(new CallStackItem(new TraceInfo(bootstrap.getName(), -1, -1)));
+                CallStackItem stackItem = new CallStackItem(bootstrap.getTrace());
+                environment.pushCall(stackItem);
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {

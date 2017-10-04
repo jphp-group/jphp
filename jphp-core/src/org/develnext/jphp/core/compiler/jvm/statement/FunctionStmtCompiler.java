@@ -9,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
 import php.runtime.common.Modifier;
 import php.runtime.reflection.*;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.util.Arrays;
 
@@ -30,6 +31,13 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setModule(module);
         entity.setName(statement.getFulledName());
         entity.setReturnReference(statement.isReturnReference());
+
+        if (statement.getReturnHintTypeClass() != null) {
+            entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintTypeClass().getName()));
+        } else if (statement.getReturnHintType() != null) {
+            entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintType()));
+        }
+
         entity.setInternalName(compiler.getModule().getInternalName() + "_func" + statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 

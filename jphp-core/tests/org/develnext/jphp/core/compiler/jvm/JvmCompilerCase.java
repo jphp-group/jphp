@@ -230,6 +230,7 @@ abstract public class JvmCompilerCase {
             environment.getScope().loadModule(module);
             environment.getScope().addUserModule(module);
             environment.registerModule(module);
+            environment.getModuleManager().addModule(context.getFileName(), module);
 
             Memory memory = module.includeNoThrow(environment, environment.getGlobals());
         } catch (ErrorException e) {

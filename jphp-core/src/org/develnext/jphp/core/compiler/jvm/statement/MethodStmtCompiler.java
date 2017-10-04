@@ -27,6 +27,7 @@ import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -452,6 +453,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             entity.setImmutable(statement.getArguments().isEmpty());
             entity.setGeneratorEntity(generatorEntity);
 
+            if (statement.getReturnHintTypeClass() != null) {
+                entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintTypeClass().getName()));
+            } else if (statement.getReturnHintType() != null) {
+                entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintType()));
+            }
+
+            entity.setReturnTypeNullable(statement.isReturnOptional());
+
             if (clazz.isSystem())
                 entity.setInternalName(entity.getName());
             else
@@ -466,6 +475,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 parameter.setReference(argument.isReference());
                 parameter.setName(argument.getName().getName());
                 parameter.setTrace(argument.toTraceInfo(compiler.getContext()));
+                parameter.setNullable(argument.isOptional());
 
                 parameter.setMutable(
                         statement.isDynamicLocal() || statement.variable(argument.getName()).isMutable()
@@ -600,6 +610,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                 ReturnStmtToken token = new ReturnStmtToken(new TokenMeta("", 0, 0, 0, 0));
                 token.setValue(null);
+                token.setEmpty(true);
                 expr.getCompiler(ReturnStmtToken.class).write(token);
             }
 

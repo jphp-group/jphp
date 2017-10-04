@@ -28,6 +28,7 @@ import java.util.*;
 public class JvmCompiler extends AbstractCompiler {
     protected final ModuleEntity module;
     protected NamespaceStmtToken namespace;
+    protected List<DeclareStmtToken> declareStmtTokens = new ArrayList<>();
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
@@ -178,8 +179,10 @@ public class JvmCompiler extends AbstractCompiler {
         }
 
         for(Token token : tokens) {
-            if (token instanceof NamespaceStmtToken){
-              setNamespace((NamespaceStmtToken)token);
+            if (token instanceof NamespaceStmtToken) {
+                setNamespace((NamespaceStmtToken) token);
+            } if (token instanceof DeclareStmtToken) {
+                declareStmtTokens.add((DeclareStmtToken) token);
             } if (token instanceof ClassStmtToken){
                 ClassStmtCompiler cmp = new ClassStmtCompiler(this, (ClassStmtToken)token);
                 ClassEntity entity = cmp.compile();
@@ -211,6 +214,25 @@ public class JvmCompiler extends AbstractCompiler {
         module.setInternalName("$php_module_m" + UUID.randomUUID().toString().replace("-", ""));
 
         List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());
+
+        for (DeclareStmtToken declare : declareStmtTokens) {
+            String name = declare.getName().getName();
+
+            ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(this);
+
+            Memory value = expressionStmtCompiler.tryCalculateExpression(declare.getValue());
+
+            switch (name.toLowerCase()) {
+                case "strict_types":
+                    module.setStrictTypes(value.toBoolean());
+                    break;
+                default:
+                    environment.error(declare.getValue().getMeta().toTraceInfo(context), ErrorType.E_ERROR,
+                            Messages.ERR_INVALID_DECLARE_CONSTANT,
+                            name
+                    );
+            }
+        }
 
         NamespaceStmtToken namespace = NamespaceStmtToken.getDefault();
 

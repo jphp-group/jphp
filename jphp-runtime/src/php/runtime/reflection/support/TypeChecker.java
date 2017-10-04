@@ -2,16 +2,23 @@ package php.runtime.reflection.support;
 
 import php.runtime.Memory;
 import php.runtime.common.HintType;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
-import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ModuleEntity;
+
+import java.lang.reflect.Field;
 
 abstract public class TypeChecker {
     abstract public String getSignature();
+    abstract public String getHumanString();
+
     abstract public boolean check(Environment env, Memory value, boolean nullable);
+    abstract public Memory apply(Environment env, Memory value, boolean nullable, boolean strict);
 
     public static TypeChecker of(HintType type) {
         return new Simple(type);
@@ -46,20 +53,48 @@ abstract public class TypeChecker {
         }
 
         @Override
+        public String getHumanString() {
+            return "the type " + type.toString();
+        }
+
+        @Override
+        public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
+            if (nullable && value.isNull()) {
+                return value;
+            }
+
+            if (strict) {
+                switch (type) {
+                    case DOUBLE:
+                        if (value.isNumber()) {
+                            return DoubleMemory.valueOf(value.toDouble());
+                        }
+                    default:
+                        return null;
+                }
+            }
+
+            switch (type) {
+                case INT:
+                    return LongMemory.valueOf(value.toLong());
+                case STRING:
+                    return StringMemory.valueOf(value.toString());
+                case BOOLEAN:
+                    return TrueMemory.valueOf(value.toBoolean());
+                case DOUBLE:
+                    return DoubleMemory.valueOf(value.toDouble());
+            }
+
+            return null;
+        }
+
+        @Override
         public boolean check(Environment env, Memory value, boolean nullable) {
             if (nullable && value.isNull())
                 return true;
 
             switch (type){
-                case SCALAR:
-                    switch (value.getRealType()){
-                        case BOOL:
-                        case INT:
-                        case DOUBLE:
-                        case STRING:
-                            return true;
-                    }
-                    return false;
+                case VOID: return value.isUndefined();
                 case OBJECT: return value.isObject();
                 case NUMBER: return value.isNumber();
                 case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;
@@ -102,6 +137,11 @@ abstract public class TypeChecker {
         }
 
         @Override
+        public String getHumanString() {
+            return "an instance of " + getTypeClass();
+        }
+
+        @Override
         public boolean check(Environment env, Memory value, boolean nullable) {
             if (nullable && value.isNull())
                 return true;
@@ -113,6 +153,11 @@ abstract public class TypeChecker {
             ClassEntity oEntity = object.getReflection();
 
             return oEntity.isInstanceOfLower(typeClassLower);
+        }
+
+        @Override
+        public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
+            return null;
         }
     }
 
@@ -126,6 +171,11 @@ abstract public class TypeChecker {
         @Override
         public String getSignature() {
             return ReflectionUtils.getClassName(typeNativeClass);
+        }
+
+        @Override
+        public String getHumanString() {
+            return "an instance of " + ReflectionUtils.getClassName(typeNativeClass);
         }
 
         @Override
@@ -146,6 +196,11 @@ abstract public class TypeChecker {
                 return false;
             }
         }
+
+        @Override
+        public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
+            return null;
+        }
     }
 
     public static class EnumClass extends TypeChecker {
@@ -165,6 +220,18 @@ abstract public class TypeChecker {
         }
 
         @Override
+        public String getHumanString() {
+            Field[] fields = getTypeEnum().getFields();
+            String[] names = new String[fields.length];
+
+            for (int i = 0; i < names.length; i++) {
+                names[i] = fields[i].getName();
+            }
+
+            return "one of range [" + StringUtils.join(names, ", ") + "] as string";
+        }
+
+        @Override
         public boolean check(Environment env, Memory value, boolean nullable) {
             try {
                 if (nullable && value.isNull()) {
@@ -176,6 +243,11 @@ abstract public class TypeChecker {
             } catch (IllegalArgumentException e) {
                 return false;
             }
+        }
+
+        @Override
+        public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
+            return null;
         }
     }
 }

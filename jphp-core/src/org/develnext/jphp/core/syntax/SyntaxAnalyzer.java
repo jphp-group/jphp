@@ -102,6 +102,7 @@ public class SyntaxAnalyzer {
 
         generators.add(new NamespaceGenerator(this));
         generators.add(new UseGenerator(this));
+        generators.add(new DeclareGenerator(this));
         generators.add(new ClassGenerator(this));
         generators.add(new ConstGenerator(this));
         generators.add(new FunctionGenerator(this));

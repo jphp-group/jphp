@@ -29,7 +29,8 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
             );
         }
 
-        Memory result = Memory.NULL;
+        Memory result = token.isEmpty() ? Memory.UNDEFINED : Memory.NULL;
+
         boolean isImmutable = method.getEntity().isImmutable();
         if (token.getValue() != null)
             result = expr.writeExpression(token.getValue(), true, true);
@@ -44,10 +45,11 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
             method.getEntity().setImmutable(false);
         }
 
-        if (expr.stackEmpty(false))
+        if (expr.stackEmpty(false)) {
             expr.writePushNull();
-        else
+        } else {
             expr.writePopBoxing(false);
+        }
 
         if (method.getEntity().isReturnReference()) {
             expr.writePushDup();
