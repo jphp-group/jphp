@@ -35,4 +35,7 @@ bool(true)
 bool(true)
 bool(false)
 
-Recoverable error: Argument 1 passed to php\lang\Invoker::__construct() must be of the type callable, string given, called in %s on line %d, position %d and defined in Unknown on line %d, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to php\lang\Invoker::__construct() must be of the type callable, string given, called in %s on line 26, position %d and defined in %s on line %d, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line %d

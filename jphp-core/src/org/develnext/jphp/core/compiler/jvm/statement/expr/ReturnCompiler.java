@@ -6,10 +6,14 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ReturnStmtToken;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import php.runtime.Memory;
+import php.runtime.common.Function;
+import php.runtime.common.HintType;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.InvokeHelper;
+import php.runtime.reflection.support.TypeChecker;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -32,13 +36,34 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
         Memory result = token.isEmpty() ? Memory.UNDEFINED : Memory.NULL;
 
         boolean isImmutable = method.getEntity().isImmutable();
-        if (token.getValue() != null)
+
+        if (token.getValue() != null) {
             result = expr.writeExpression(token.getValue(), true, true);
+        }
 
         if (result != null) {
+            if (methodStatement.getReturnHintType() == HintType.VOID) {
+                if (methodStatement.isReturnOptional()) {
+                    env.error(
+                            token.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_ERROR,
+                            "Void type cannot be nullable"
+                    );
+                }
+
+                if (!result.isUndefined()) {
+                    env.error(
+                            token.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_ERROR,
+                            "A void function must not return a value"
+                    );
+                }
+            }
+
             if (isImmutable) {
-                if (method.getEntity().getResult() == null)
+                if (method.getEntity().getResult() == null) {
                     method.getEntity().setResult(result);
+                }
             }
             expr.writePushMemory(result);
         } else {
@@ -61,8 +86,9 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
                     void.class,
                     Memory.class, Environment.class, TraceInfo.class
             );
-        } else
+        } else {
             expr.writePopImmutable();
+        }
 
         if (!method.getTryStack().empty()) {
             LocalVariable variable = method.getLocalVariable("~result~");

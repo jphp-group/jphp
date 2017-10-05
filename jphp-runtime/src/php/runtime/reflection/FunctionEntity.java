@@ -1,9 +1,11 @@
 package php.runtime.reflection;
 
 import php.runtime.Memory;
+import php.runtime.common.Function;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.invoke.InvokeHelper;
 import php.runtime.lang.Closure;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.helper.ClosureEntity;
@@ -70,12 +72,27 @@ public class FunctionEntity extends AbstractFunctionEntity {
 
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
         try {
-            return (Memory)nativeMethod.invoke(null, env, arguments);
+            return InvokeHelper.checkReturnType(
+                    env, trace,
+                    (Memory)nativeMethod.invoke(null, env, arguments),
+                    this
+            );
         } catch (InvocationTargetException e){
             return env.__throwException(e);
         } finally {
             unsetArguments(arguments);
         }
+    }
+
+    @Override
+    public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
+        Memory result = getImmutableResult();
+
+        if (result != null) {
+            result = InvokeHelper.checkReturnType(env, trace, result, this);
+        }
+
+        return result;
     }
 
     @Override

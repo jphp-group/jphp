@@ -65,6 +65,9 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         data.writeName(entity.getContext().getModuleName());
         data.writeName(entity.getInternalName());
 
+        // strict types.
+        data.writeBoolean(entity.isStrictTypes());
+
         // trace
         data.writeTrace(entity.getTrace());
 
@@ -126,6 +129,7 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
         ModuleEntity entity = new ModuleEntity(context);
         entity.setName(data.readName());
         entity.setInternalName(data.readName());
+        entity.setStrictTypes(data.readBoolean());
         entity.setTrace(data.readTrace(context));
 
         // constants

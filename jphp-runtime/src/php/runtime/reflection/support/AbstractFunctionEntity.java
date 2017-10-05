@@ -2,10 +2,13 @@ package php.runtime.reflection.support;
 
 
 import php.runtime.Memory;
+import php.runtime.common.Function;
 import php.runtime.common.HintType;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.ext.support.Extension;
+import php.runtime.invoke.InvokeHelper;
 import php.runtime.lang.Closure;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.ParameterEntity;
@@ -125,6 +128,21 @@ abstract public class AbstractFunctionEntity extends Entity {
         return null;
     }
 
+    public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
+        Memory result = getImmutableResult();
+
+        if (result != null) {
+            result = InvokeHelper.checkReturnType(env, trace, result, new Function<String>() {
+                @Override
+                public String call() {
+                    return getName();
+                }
+            }, getReturnTypeChecker(), isReturnTypeNullable());
+        }
+
+        return result;
+    }
+
     public void setImmutable(boolean immutable) {
         isImmutable = immutable;
     }
@@ -167,5 +185,28 @@ abstract public class AbstractFunctionEntity extends Entity {
 
     public void setReturnTypeNullable(boolean returnTypeNullable) {
         this.returnTypeNullable = returnTypeNullable;
+    }
+
+    public HintType getReturnType() {
+        return returnTypeChecker instanceof TypeChecker.Simple
+                ? ((TypeChecker.Simple) returnTypeChecker).getType() : null;
+    }
+
+    public void setReturnType(HintType type) {
+        this.returnTypeChecker = type == null ? null : TypeChecker.of(type);
+    }
+
+    public String getReturnTypeClass() {
+        return returnTypeChecker instanceof TypeChecker.ClassName
+                ? ((TypeChecker.ClassName) returnTypeChecker).getTypeClass() : null;
+    }
+
+    public String getReturnTypeClassLower() {
+        return returnTypeChecker instanceof TypeChecker.ClassName
+                ? ((TypeChecker.ClassName) returnTypeChecker).getTypeClassLower() : null;
+    }
+
+    public void setReturnTypeClass(String returnTypeClass) {
+        this.returnTypeChecker = TypeChecker.of(returnTypeClass);
     }
 }

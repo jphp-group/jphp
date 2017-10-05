@@ -42,6 +42,7 @@ $r2 = new ReflectionClass('Bar');
 $o2 = $r2->newInstanceArgs('foobar2');
 var_dump($o2);
 
+?>
 --EXPECTF--
 Foo construct trigger (100, 500).
 object(Foo)#%d (2) {
@@ -82,4 +83,7 @@ object(Bar)#%d (3) {
   int(20)
 }
 
-Recoverable error: Argument 1 passed to ReflectionClass::newInstanceArgs() must be of the type array, string given, called in %s on line %d, position %d and defined in Unknown on line %d, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to ReflectionClass::newInstanceArgs() must be of the type array, string given, called in %s on line 39, position %d and defined in Unknown on line 0, position 0
+Stack Trace:
+#0 {main}
+  thrown in Unknown on line 0

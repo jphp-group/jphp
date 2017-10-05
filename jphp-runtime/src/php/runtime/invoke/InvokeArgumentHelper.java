@@ -11,6 +11,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapJavaExceptions;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.Generator;
+import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -277,9 +278,9 @@ public class InvokeArgumentHelper {
                         trace.getStartPosition() + 1
                 );
             } else if (param.getTypeHintingChecker() != null) {
-                env.error(
+                env.exception(
                         param.getTrace(),
-                        ErrorType.E_RECOVERABLE_ERROR,
+                        BaseTypeError.class,
                         "Argument %s passed to %s() must be %s, called in %s on line %d, position %d and defined",
                         index,
                         method,
@@ -290,9 +291,9 @@ public class InvokeArgumentHelper {
                         trace.getStartPosition() + 1
                 );
             } else {
-                env.error(
+                env.exception(
                         param.getTrace(),
-                        ErrorType.E_RECOVERABLE_ERROR,
+                        BaseTypeError.class,
                         "Argument %s passed to %s() must be of the type %s, %s given, called in %s on line %d, position %d and defined",
                         index,
                         method,
@@ -313,9 +314,9 @@ public class InvokeArgumentHelper {
             }
 
             what = what + " " + param.getTypeClass();
-            env.error(
+            env.exception(
                     param.getTrace(),
-                    ErrorType.E_RECOVERABLE_ERROR,
+                    BaseTypeError.class,
                     "Argument %s passed to %s() must %s, %s given, called in %s on line %d, position %d and defined",
                     index,
                     method,

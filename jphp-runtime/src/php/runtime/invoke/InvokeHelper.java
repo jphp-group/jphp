@@ -13,6 +13,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.FunctionCallCache;
 import php.runtime.invoke.cache.MethodCallCache;
 import php.runtime.lang.IObject;
+import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -192,15 +193,12 @@ final public class InvokeHelper {
                         ? result.toValue(ObjectMemory.class).getReflection().getName()
                         : result.getRealType().toString();
 
-                env.error(
+                env.exception(
                         trace,
-                        ErrorType.E_RECOVERABLE_ERROR,
-                        Messages.ERR_RETURN_TYPE_INVALID,
-                        callName.call(),
-
-                        typeChecker.getHumanString(),
-                        given
+                        BaseTypeError.class,
+                        Messages.ERR_RETURN_TYPE_INVALID.fetch(callName.call(), typeChecker.getHumanString(), given)
                 );
+
                 return null;
             } else {
                 return newReturn;
@@ -215,17 +213,17 @@ final public class InvokeHelper {
             throws Throwable {
         Memory[] passed = makeArguments(env, args, function.getParameters(), function.getName(), null, trace);
 
-        Memory result = function.getImmutableResult();
+        Memory result = function.getImmutableResultTyped(env, trace);
 
         if (result != null) {
-            return checkReturnType(env, trace, result, function);
+            return result;
         }
 
         if (trace != null && function.isUsesStackTrace())
             env.pushCall(trace, null, args, function.getName(), null, null);
 
         try {
-            result = checkReturnType(env, trace, function.invoke(env, trace, passed), function);
+            result = function.invoke(env, trace, passed);
         } finally {
             if (trace != null && function.isUsesStackTrace())
                 env.popCall();
@@ -380,10 +378,10 @@ final public class InvokeHelper {
         if (checkAccess)
             checkAccess(env, trace, method);
 
-        Memory result = method.getImmutableResult();
+        Memory result = method.getImmutableResultTyped(env, trace);
 
         if (result != null) {
-            return checkReturnType(env, trace, result, method);
+            return result;
         }
 
         String originClassName = method.getClazz().getName();

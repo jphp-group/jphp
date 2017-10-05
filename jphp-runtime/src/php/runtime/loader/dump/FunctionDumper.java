@@ -36,6 +36,11 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
 
         data.writeBoolean(entity.isReturnReference());
 
+        // type hinting.
+        data.writeEnum(entity.getReturnType());
+        data.writeName(entity.getReturnTypeClass());
+        data.writeBoolean(entity.isReturnTypeNullable());
+
         data.writeBoolean(entity.isUsesStackTrace());
 
         data.writeBoolean(entity.isImmutable());
@@ -71,6 +76,15 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
         entity.setInternalName(data.readName());
 
         entity.setReturnReference(data.readBoolean());
+
+        entity.setReturnType(data.readHintType());
+        String returnTypeClass = data.readName();
+
+        if (returnTypeClass != null && !returnTypeClass.isEmpty()) {
+            entity.setReturnTypeClass(returnTypeClass);
+        }
+
+        entity.setReturnTypeNullable(data.readBoolean());
 
         entity.setUsesStackTrace(data.readBoolean());
 

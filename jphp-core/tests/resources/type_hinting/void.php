@@ -41,4 +41,8 @@ test
 test2
 test3
 
-Recoverable error: Return value of A::test3() must be the type void, NULL returned in %s on line 32, position 3
+Fatal error: Uncaught TypeError: Return value of A::test3() must be the type void, NULL returned in %s on line 32, position %d
+Stack Trace:
+#0 A->test3() called at %s
+#1 {main}
+  thrown in %s on line 32

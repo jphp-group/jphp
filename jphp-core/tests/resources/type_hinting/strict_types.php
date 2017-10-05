@@ -2,7 +2,7 @@
 Test strict_types
 --FILE--
 <?php
-declare(strict_types=true);
+declare(strict_types=1);
 
 class A {
     function test(float $x) {
@@ -19,4 +19,7 @@ var_dump($a->test('17'));
 float(1)
 float(1.3)
 
-Recoverable error: Argument 1 passed to A::test() must be of the type float, string given, called in %s on line 13, position 12 and defined in %s on line 5, position 25
+Fatal error: Uncaught TypeError: Argument 1 passed to A::test() must be of the type float, string given, called in %s on line 13, position %d and defined in %s on line 5, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line 5

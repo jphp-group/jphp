@@ -60,6 +60,11 @@ public class MethodDumper extends Dumper<MethodEntity> {
         // ref
         print.writeBoolean(entity.isReturnReference());
 
+        // type hinting.
+        print.writeEnum(entity.getReturnType());
+        print.writeName(entity.getReturnTypeClass());
+        print.writeBoolean(entity.isReturnTypeNullable());
+
         // uses stack trace
         print.writeBoolean(entity.isUsesStackTrace());
 
@@ -112,6 +117,16 @@ public class MethodDumper extends Dumper<MethodEntity> {
 
         // ref
         entity.setReturnReference( data.readBoolean() );
+
+        // type hinting
+        entity.setReturnType(data.readHintType());
+        String returnTypeClass = data.readName();
+
+        if (returnTypeClass != null && !returnTypeClass.isEmpty()) {
+            entity.setReturnTypeClass(returnTypeClass);
+        }
+
+        entity.setReturnTypeNullable(data.readBoolean());
 
         // uses stack trace
         entity.setUsesStackTrace( data.readBoolean() );

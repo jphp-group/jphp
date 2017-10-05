@@ -23,4 +23,7 @@ $a->testArgs('string');
 string(1) "A"
 string(8) "stdClass"
 
-Recoverable error: Argument 1 passed to A::testArgs() must be of the type object, string given, called in %s on line 16, position 3 and defined in %s on line 8, position 30
+Fatal error: Uncaught TypeError: Argument 1 passed to A::testArgs() must be of the type object, string given, called in %s on line 16, position %d and defined in %s on line 8, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line 8

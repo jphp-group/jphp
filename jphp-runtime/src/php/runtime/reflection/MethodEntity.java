@@ -11,6 +11,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.Extension;
+import php.runtime.invoke.InvokeHelper;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
@@ -198,6 +199,18 @@ public class MethodEntity extends AbstractFunctionEntity {
         if (nativeMethod != null) {
             nativeMethod.setAccessible(true);
         }
+    }
+
+
+    @Override
+    public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
+        Memory result = getImmutableResult();
+
+        if (result != null) {
+            result = InvokeHelper.checkReturnType(env, trace, result, this);
+        }
+
+        return result;
     }
 
     public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
