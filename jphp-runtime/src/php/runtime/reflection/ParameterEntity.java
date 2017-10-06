@@ -185,25 +185,36 @@ public class ParameterEntity extends Entity {
     }
 
     public static boolean checkTypeHinting(Environment env, Memory value, HintType type, boolean nullable) {
+        return checkTypeHinting(env, value, type, nullable, null);
+    }
+
+    public static boolean checkTypeHinting(Environment env, Memory value, HintType type, boolean nullable, String staticClassName) {
         if (nullable && value.isNull())
             return true;
 
-        return TypeChecker.of(type).check(env, value, nullable);
+        return TypeChecker.of(type).check(env, value, nullable, staticClassName);
     }
 
     public boolean checkTypeHinting(Environment env, Memory value, String typeClass, boolean nullable) {
         if (nullable && value.isNull())
             return true;
 
-        if (!value.isObject())
+        if (!value.isObject()) {
             return false;
+        }
 
-        return TypeChecker.of(typeClass).check(env, value, nullable);
+        return TypeChecker.of(typeClass).check(env, value, nullable, null);
     }
 
     public boolean checkTypeHinting(Environment env, Memory value) {
+        return checkTypeHinting(env, value, (String) null);
+    }
+
+    public boolean checkTypeHinting(Environment env, Memory value, String staticClassName) {
         if (typeChecker != null) {
-            return typeChecker.check(env, value, nullable || (defaultValue != null && defaultValue.isNull()));
+            return typeChecker.check(
+                    env, value, nullable || (defaultValue != null && defaultValue.isNull()), staticClassName
+            );
         }
 
         return true;

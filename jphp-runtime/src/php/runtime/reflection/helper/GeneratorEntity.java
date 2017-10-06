@@ -23,6 +23,7 @@ public class GeneratorEntity extends ClassEntity {
         this.shortName = getShortName();
         this.name      = getName();
         this.namespaceName = getNamespaceName();
+        setType(Type.GENERATOR);
     }
 
     @Override

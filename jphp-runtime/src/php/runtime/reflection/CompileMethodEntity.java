@@ -127,11 +127,11 @@ public class CompileMethodEntity extends MethodEntity {
     }
 
     @Override
-    public Memory invokeDynamic(IObject _this, Environment env, Memory... arguments) throws Throwable {
-        return invokeDynamic((Object)_this, env, arguments);
+    public Memory invokeDynamic(IObject _this, Environment env, TraceInfo trace, Memory... arguments) throws Throwable {
+        return invokeDynamic((Object)_this, env, trace, arguments);
     }
 
-    public Memory invokeDynamic(Object _this, Environment env, Memory... arguments) throws Throwable {
+    public Memory invokeDynamic(Object _this, Environment env, TraceInfo trace, Memory... arguments) throws Throwable {
         try {
             if (isAbstract){
                 env.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));

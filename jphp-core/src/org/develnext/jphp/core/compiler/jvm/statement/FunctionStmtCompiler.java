@@ -63,6 +63,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         classStmtCompiler.setSystem(true);
         classStmtCompiler.setFunctionName(entity.getName());
         ClassEntity clazzEntity = classStmtCompiler.compile();
+        clazzEntity.setType(ClassEntity.Type.FUNCTION);
         entity.setData(clazzEntity.getData());
 
         MethodEntity methodEntity = clazzEntity.findMethod("__invoke");

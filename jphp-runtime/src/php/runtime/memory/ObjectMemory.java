@@ -105,7 +105,7 @@ public class ObjectMemory extends Memory {
                     value, null, entity.methodMagicToString.getName(), entity.getName(), null
             );
             try {
-                Memory result = entity.methodMagicToString.invokeDynamic(value, env, (Memory[]) null);
+                Memory result = entity.methodMagicToString.invokeDynamic(value, env, env.trace(), (Memory[]) null);
                 if (!result.isString()){
                     env.error(
                             ErrorType.E_RECOVERABLE_ERROR, "Method %s must return a string value",
@@ -562,7 +562,7 @@ public class ObjectMemory extends Memory {
                         ((IManualDestructable) value).onManualDestruct(env);
                     }
 
-                    entity.methodDestruct.invokeDynamic(value, env);
+                    entity.methodDestruct.invokeDynamic(value, env, env.trace());
                 } catch (InvocationTargetException e){
                     env.__throwException(e);
                 } catch (RuntimeException e){

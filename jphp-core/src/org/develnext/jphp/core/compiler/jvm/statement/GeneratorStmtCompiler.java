@@ -55,6 +55,7 @@ public class GeneratorStmtCompiler extends StmtCompiler<GeneratorEntity> {
             entity.setParent(clazzEntity.getParent());
 
         entity.setData(clazzEntity.getData());
+        entity.setType(ClassEntity.Type.GENERATOR);
         entity.doneDeclare();
 
         return entity;

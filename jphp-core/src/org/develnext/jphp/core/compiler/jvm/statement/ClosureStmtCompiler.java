@@ -50,6 +50,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
 
         classStmtCompiler.setFunctionName(null);
         ClassEntity clazzEntity = classStmtCompiler.compile();
+        clazzEntity.setType(ClassEntity.Type.CLOSURE);
 
         MethodEntity __invoke = clazzEntity.findMethod("__invoke");
 

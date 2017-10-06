@@ -1,1 +1,1 @@
-<?use php\format\JsonProcessor;class Test {    protected $data = ['abc', 'abc', 'c' => [1, 2, 3]];    public function load(array $data) {        $this->data = array_merge($this->data, $data);    }    public function method()    {        var_dump($this->data);        $json = (new JsonProcessor())->format($this->data);        var_dump($this->data);    }}$t = new Test();$t->load(['abc', 'abc', 'c' => [1, 2, 3]]);$t->method();
+<?function test(?iterable $x) {    var_dump($x);}function gen(): iterable {    yield 1;}test(gen());

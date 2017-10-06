@@ -24,6 +24,8 @@ abstract public class AbstractFunctionEntity extends Entity {
     protected boolean returnTypeNullable;
 
     protected Memory result;
+    protected boolean resultTypeChecked;
+
     protected boolean abstractable = false;
 
     protected Extension extension;
@@ -122,8 +124,9 @@ abstract public class AbstractFunctionEntity extends Entity {
     }
 
     public Memory getImmutableResult(){
-        if (isImmutable && !abstractable)
+        if (isImmutable && !abstractable) {
             return getResult().toImmutable();
+        }
 
         return null;
     }
@@ -131,13 +134,18 @@ abstract public class AbstractFunctionEntity extends Entity {
     public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
         Memory result = getImmutableResult();
 
-        if (result != null) {
+        if (result != null && !resultTypeChecked) {
             result = InvokeHelper.checkReturnType(env, trace, result, new Function<String>() {
                 @Override
                 public String call() {
                     return getName();
                 }
             }, getReturnTypeChecker(), isReturnTypeNullable());
+
+            if (result != null) {
+                this.result = result;
+                this.resultTypeChecked = true;
+            }
         }
 
         return result;

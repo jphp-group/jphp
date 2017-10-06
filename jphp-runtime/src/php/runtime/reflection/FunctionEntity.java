@@ -70,6 +70,10 @@ public class FunctionEntity extends AbstractFunctionEntity {
         this.module = module;
     }
 
+    public boolean hasParameters() {
+        return parameters != null && parameters.length > 0;
+    }
+
     public Memory invoke(Environment env, TraceInfo trace, Memory[] arguments) throws Throwable {
         try {
             return InvokeHelper.checkReturnType(
@@ -88,8 +92,13 @@ public class FunctionEntity extends AbstractFunctionEntity {
     public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
         Memory result = getImmutableResult();
 
-        if (result != null) {
+        if (result != null && !resultTypeChecked) {
             result = InvokeHelper.checkReturnType(env, trace, result, this);
+
+            if (result != null) {
+                this.result = result;
+                this.resultTypeChecked = true;
+            }
         }
 
         return result;

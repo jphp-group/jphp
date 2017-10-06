@@ -245,7 +245,7 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean isClosure() { return false; }
     public boolean isResource() { return false; }
     public boolean isArray(){ return type == Type.ARRAY; }
-    public boolean isTraversable() { return isArray() || instanceOf(Traversable.class.getName()); }
+    public boolean isTraversable() { return isArray() || instanceOf("Traversable", "traversable"); }
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
     public boolean isReference() { return false; }

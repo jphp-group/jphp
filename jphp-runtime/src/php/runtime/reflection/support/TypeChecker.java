@@ -17,7 +17,7 @@ abstract public class TypeChecker {
     abstract public String getSignature();
     abstract public String getHumanString();
 
-    abstract public boolean check(Environment env, Memory value, boolean nullable);
+    abstract public boolean check(Environment env, Memory value, boolean nullable, String staticClassName);
     abstract public Memory apply(Environment env, Memory value, boolean nullable, boolean strict);
 
     public static TypeChecker of(HintType type) {
@@ -89,7 +89,7 @@ abstract public class TypeChecker {
         }
 
         @Override
-        public boolean check(Environment env, Memory value, boolean nullable) {
+        public boolean check(Environment env, Memory value, boolean nullable, String staticClassName) {
             if (nullable && value.isNull())
                 return true;
 
@@ -104,10 +104,29 @@ abstract public class TypeChecker {
                 case ARRAY:
                     return value.isArray();
                 case TRAVERSABLE:
-                    return value.isArray() || value.instanceOf("Traversable", "traversable");
+                    return value.isTraversable();
+                case ITERABLE:
+                    return value.isTraversable();
                 case CALLABLE:
                     Invoker invoker = Invoker.valueOf(env, null, value);
                     return invoker != null && invoker.canAccess(env) == 0;
+                case SELF:
+                    if (!value.isObject()) {
+                        return false;
+                    }
+
+                    if (staticClassName == null) {
+                        Memory memory = env.__getMacroClass();
+                        staticClassName = memory.isNull() ? null : memory.toString();
+                    }
+
+                    if (staticClassName != null) {
+                        return value.toValue(ObjectMemory.class)
+                                .getReflection()
+                                .isInstanceOf(staticClassName);
+                    }
+
+                    return true;
                 default:
                     return true;
             }
@@ -142,7 +161,7 @@ abstract public class TypeChecker {
         }
 
         @Override
-        public boolean check(Environment env, Memory value, boolean nullable) {
+        public boolean check(Environment env, Memory value, boolean nullable, String staticClassName) {
             if (nullable && value.isNull())
                 return true;
 
@@ -179,7 +198,7 @@ abstract public class TypeChecker {
         }
 
         @Override
-        public boolean check(Environment env, Memory value, boolean nullable) {
+        public boolean check(Environment env, Memory value, boolean nullable, String staticClassName) {
             if (nullable && value.isNull()) {
                 return true;
             }
@@ -232,7 +251,7 @@ abstract public class TypeChecker {
         }
 
         @Override
-        public boolean check(Environment env, Memory value, boolean nullable) {
+        public boolean check(Environment env, Memory value, boolean nullable, String staticClassName) {
             try {
                 if (nullable && value.isNull()) {
                     return true;

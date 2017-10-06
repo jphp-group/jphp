@@ -42,7 +42,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
     // types
     public enum Type {
-        CLASS, INTERFACE, TRAIT
+        CLASS, INTERFACE, TRAIT, CLOSURE, FUNCTION, GENERATOR
     }
 
     private long id;
@@ -168,29 +168,33 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public void doneDeclare() {
-        if (isClass()) {
-            methodConstruct = methods.get("__construct");
-            if (methodConstruct != null
-                    && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
-                methodConstruct.setDynamicSignature(true);
+        switch (getType()) {
+            case CLOSURE:
+            case GENERATOR:
+            case CLASS:
+                methodConstruct = methods.get("__construct");
+                if (methodConstruct != null
+                        && (methodConstruct.getPrototype() == null || !methodConstruct.getPrototype().isAbstractable()))
+                    methodConstruct.setDynamicSignature(true);
 
-            methodDestruct = methods.get("__destruct");
+                methodDestruct = methods.get("__destruct");
 
-            methodMagicSet = methods.get("__set");
-            methodMagicGet = methods.get("__get");
-            methodMagicUnset = methods.get("__unset");
-            methodMagicIsset = methods.get("__isset");
-            methodMagicCall = methods.get("__call");
-            methodMagicCallStatic = methods.get("__callstatic");
+                methodMagicSet = methods.get("__set");
+                methodMagicGet = methods.get("__get");
+                methodMagicUnset = methods.get("__unset");
+                methodMagicIsset = methods.get("__isset");
+                methodMagicCall = methods.get("__call");
+                methodMagicCallStatic = methods.get("__callstatic");
 
-            methodMagicInvoke = methods.get("__invoke");
-            methodMagicToString = methods.get("__tostring");
-            methodMagicClone = methods.get("__clone");
+                methodMagicInvoke = methods.get("__invoke");
+                methodMagicToString = methods.get("__tostring");
+                methodMagicClone = methods.get("__clone");
 
-            methodMagicSleep = methods.get("__sleep");
-            methodMagicWakeup = methods.get("__wakeup");
+                methodMagicSleep = methods.get("__sleep");
+                methodMagicWakeup = methods.get("__wakeup");
 
-            methodMagicDebugInfo = methods.get("__debuginfo");
+                methodMagicDebugInfo = methods.get("__debuginfo");
+                break;
         }
     }
 
@@ -1100,7 +1104,7 @@ ClassReader classReader;
                             env.peekCall(0).flags = FLAG_GET;
 
                             InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
-                            o1 = methodMagicGet.invokeDynamic(object, env, memoryProperty);
+                            o1 = methodMagicGet.invokeDynamic(object, env, trace, memoryProperty);
                         } finally {
                             env.popCall();
                         }
@@ -1114,7 +1118,7 @@ ClassReader classReader;
                     env.peekCall(0).flags = FLAG_SET;
 
                     InvokeArgumentHelper.checkType(env, trace, methodMagicSet, args);
-                    methodMagicSet.invokeDynamic(object, env, args);
+                    methodMagicSet.invokeDynamic(object, env, trace, args);
                 } finally {
                     env.popCall();
                 }
@@ -1205,7 +1209,7 @@ ClassReader classReader;
                     env.peekCall(0).flags = FLAG_UNSET;
 
                     InvokeArgumentHelper.checkType(env, trace, methodMagicUnset, args);
-                    methodMagicUnset.invokeDynamic(object, env, args);
+                    methodMagicUnset.invokeDynamic(object, env, trace, args);
                 } finally {
                     env.popCall();
                 }
@@ -1259,7 +1263,7 @@ ClassReader classReader;
                 env.peekCall(0).flags = FLAG_ISSET;
 
                 InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, new StringMemory(property));
-                result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
+                result = methodMagicIsset.invokeDynamic(object, env, trace, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
                 env.popCall();
@@ -1309,7 +1313,7 @@ ClassReader classReader;
                 env.peekCall(0).flags = FLAG_ISSET;
 
                 InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, new StringMemory(property));
-                result = methodMagicIsset.invokeDynamic(object, env, new StringMemory(property))
+                result = methodMagicIsset.invokeDynamic(object, env, trace, new StringMemory(property))
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
                 env.popCall();
@@ -1464,7 +1468,7 @@ ClassReader classReader;
                 env.peekCall(0).flags = FLAG_GET;
 
                 InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
-                result = methodMagicGet.invokeDynamic(object, env, args);
+                result = methodMagicGet.invokeDynamic(object, env, trace, args);
             } finally {
                 env.popCall();
             }

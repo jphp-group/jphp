@@ -28,11 +28,13 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
     protected final static Set<String> scalarTypeHints = new HashSet<String>(){{
         add("array");
         add("callable");
+        add("iterable");
         add("string");
         add("int");
         add("float");
         add("bool");
         add("object");
+        add("self");
     }};
 
     protected final static Set<String> disallowScalarTypeHints = new HashSet<String>(){{
@@ -77,10 +79,15 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 unexpectedToken(next);
             }
 
-            next = analyzer.getClazz().getName();
-        }
+            if ( !analyzer.getClazz().isTrait() ) {
+                next = analyzer.getClazz().getName();
+                hintTypeClass = analyzer.getRealName((NameToken) next);
+            } else {
+                hintType = HintType.SELF;
+            }
 
-        if (next instanceof NameToken){
+            next = nextToken(iterator);
+        } else if (next instanceof NameToken){
             String word = ((NameToken) next).getName().toLowerCase();
             if (scalarTypeHints.contains(word)) {
                 hintType = HintType.of(word);
@@ -175,7 +182,23 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             HintType hintType;
             NameToken hintTypeClass = null;
 
-            if (next instanceof NameToken){
+            if (next instanceof SelfExprToken) {
+                if (analyzer.getClazz() == null) {
+                    result.setReturnHintType(HintType.SELF);
+                } else {
+                    if (analyzer.getClazz().isTrait()) {
+                        result.setReturnHintType(HintType.SELF);
+                    } else {
+                        result.setReturnHintTypeClass(new FulledNameToken(next.getMeta(), new ArrayList<Token>() {{
+                            if (analyzer.getClazz().getNamespace().getName() != null) {
+                                addAll(analyzer.getClazz().getNamespace().getName().getNames());
+                            }
+
+                            add(analyzer.getClazz().getName());
+                        }}));
+                    }
+                }
+            } else if (next instanceof NameToken){
                 String word = ((NameToken) next).getName().toLowerCase();
                 if (scalarTypeHints.contains(word)) {
                     hintType = HintType.of(word);

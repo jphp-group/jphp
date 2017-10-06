@@ -342,7 +342,7 @@ public class Environment {
                     o.doFinalize();
                     pushCall(o, entity.methodDestruct.getName());
                     try {
-                        entity.methodDestruct.invokeDynamic(o, this);
+                        entity.methodDestruct.invokeDynamic(o, this, TraceInfo.UNKNOWN);
                     } finally {
                         popCall();
                     }
@@ -1549,7 +1549,7 @@ public class Environment {
             if (item.classEntity == null)
                 return Memory.CONST_EMPTY_STRING;
             else {
-                MethodEntity method = item.classEntity.findMethod(item.function);
+                MethodEntity method = item.classEntity.findMethod(item.function.toLowerCase());
                 if (method == null)
                     return Memory.CONST_EMPTY_STRING;
                 return new StringMemory(method.getClazz().getName());

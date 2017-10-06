@@ -18,6 +18,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ParameterEntity;
 
 final public class ObjectInvokeHelper {
 
@@ -80,14 +81,15 @@ final public class ObjectInvokeHelper {
         InvokeHelper.checkAccess(env, trace, method);
 
         if (passed == null) {
-            passed = InvokeHelper.makeArguments(
-                    env, args, method.getParameters(), className, methodName, trace
+            passed = InvokeArgumentHelper.makeArguments(
+                    env, args, method.getParameters(), className, methodName, className, trace
             );
         }
 
-        Memory result = method.getImmutableResult();
+        Memory result = method.getImmutableResultTyped(env, trace);
+
         if (result != null) {
-            return InvokeHelper.checkReturnType(env, trace, result, method);
+            return result;
         }
 
         try {
@@ -96,7 +98,8 @@ final public class ObjectInvokeHelper {
                 if (doublePop)
                     env.pushCall(trace, iObject, passed, method.getName(), method.getClazz().getName(), className);
             }
-            result = InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
+
+            result = method.invokeDynamic(iObject, env, trace, passed);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new CriticalException("Unable to call parent:: method " + className + "::" + methodName + "(), error = " + e.getMessage());
         } finally {
@@ -174,16 +177,22 @@ final public class ObjectInvokeHelper {
 
         InvokeHelper.checkAccess(env, trace, method);
 
+        Memory result = method.getImmutableResultTyped(env, trace);
+
         if (passed == null) {
-            passed = InvokeHelper.makeArguments(
-                    env, args, method.getParameters(args == null ? 0 : args.length), className, methodName, trace
+            ParameterEntity[] parameters = method.getParameters(args == null ? 0 : args.length);
+
+            if (result != null && args == null && (parameters == null || parameters.length == 0)) {
+                return result;
+            }
+
+            passed = InvokeArgumentHelper.makeArguments(
+                    env, args, parameters, className, methodName, className, trace
             );
         }
 
-        Memory result = method.getImmutableResult();
-
         if (result != null) {
-            return InvokeHelper.checkReturnType(env, trace, result, method, clazz);
+            return result;
         }
 
         try {
@@ -203,7 +212,7 @@ final public class ObjectInvokeHelper {
                 }
             }
 
-            return InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
+            return method.invokeDynamic(iObject, env, trace, passed);
         } catch (NoClassDefFoundError e) {
             throw new CriticalException("Unable to call method " + className + "::" + methodName + "(), " + e.getMessage());
         } finally {
@@ -238,13 +247,14 @@ final public class ObjectInvokeHelper {
         if (checkAccess)
             InvokeHelper.checkAccess(env, trace, method);
 
-        Memory[] passed = InvokeHelper.makeArguments(
-                env, args, method.getParameters(args == null ? 0 : args.length), className, method.getName(), trace
+        Memory[] passed = InvokeArgumentHelper.makeArguments(
+                env, args, method.getParameters(args == null ? 0 : args.length), className, method.getName(), className, trace
         );
-        Memory result = method.getImmutableResult();
+
+        Memory result = method.getImmutableResultTyped(env, trace);
 
         if (result != null) {
-            return InvokeHelper.checkReturnType(env, trace, result, method);
+            return result;
         }
 
         if (trace != null) {
@@ -254,13 +264,13 @@ final public class ObjectInvokeHelper {
                 staticClass = ((Closure) iObject).getScope();
             }
 
-            String stackClass  = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
+            String stackClass = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
 
             env.pushCall(trace, iObject, args, method.getName(), stackClass, staticClass);
         }
 
         try {
-            result = InvokeHelper.checkReturnType(env, trace, method.invokeDynamic(iObject, env, passed), method);
+            result = method.invokeDynamic(iObject, env, trace, passed);
         } finally {
             if (trace != null)
                 env.popCall();

@@ -155,7 +155,7 @@ public class Serializer {
             if (reflection.methodMagicSleep != null){
                 env.pushCall(trace, object, reflection.methodMagicSleep.getName());
                 try {
-                    Memory result = reflection.methodMagicSleep.invokeDynamic(object, env);
+                    Memory result = reflection.methodMagicSleep.invokeDynamic(object, env, trace);
                     if (!result.isArray()){
                         env.error(
                                 ErrorType.E_NOTICE,

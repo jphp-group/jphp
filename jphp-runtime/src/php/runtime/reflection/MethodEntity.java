@@ -150,7 +150,7 @@ public class MethodEntity extends AbstractFunctionEntity {
                     if (object == null)
                         return bind.invokeStatic(e, args);
                     else
-                        return bind.invokeDynamic(object, e, args);
+                        return bind.invokeDynamic(object, e, trace, args);
                 } catch (RuntimeException e1){
                     throw e1;
                 } catch (Throwable throwable) {
@@ -201,29 +201,33 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-
     @Override
     public Memory getImmutableResultTyped(Environment env, TraceInfo trace) {
         Memory result = getImmutableResult();
 
-        if (result != null) {
+        if (result != null && !resultTypeChecked) {
             result = InvokeHelper.checkReturnType(env, trace, result, this);
+
+            if (result != null) {
+                this.result = result;
+                this.resultTypeChecked = true;
+            }
         }
 
         return result;
     }
 
-    public Memory invokeDynamic(IObject _this, Environment environment, Memory... arguments) throws Throwable {
+    public Memory invokeDynamic(IObject _this, Environment env, TraceInfo trace, Memory... arguments) throws Throwable {
         try {
             if (isAbstract){
-                environment.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
+                env.error(ErrorType.E_ERROR, "Cannot call abstract method %s", getSignatureString(false));
                 return Memory.NULL;
             }
 
             if (_this == null && !isStatic){
-                _this = clazz.newMock(environment);
+                _this = clazz.newMock(env);
                 if (_this == null)
-                    environment.error(ErrorType.E_ERROR, Messages.ERR_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(
+                    env.error(ErrorType.E_ERROR, Messages.ERR_STATIC_METHOD_CALLED_DYNAMICALLY.fetch(
                             getClazz().getName() + "::" + getName())
                     );
             }
@@ -232,9 +236,9 @@ public class MethodEntity extends AbstractFunctionEntity {
                 return Memory.NULL;
             }
 
-            return (Memory) nativeMethod.invoke(_this, environment, arguments);
+            return InvokeHelper.checkReturnType(env, trace, (Memory) nativeMethod.invoke(_this, env, arguments), this);
         } catch (InvocationTargetException e){
-            return environment.__throwException(e);
+            return env.__throwException(e);
         } catch (Throwable e) {
             throw e;
         } finally {
@@ -242,8 +246,8 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
-    public Memory invokeStatic(Environment environment, TraceInfo trace, Memory... arguments) throws Throwable {
-        return invokeDynamic(null, environment, arguments);
+    public Memory invokeStatic(Environment env, TraceInfo trace, Memory... arguments) throws Throwable {
+        return invokeDynamic(null, env, trace, arguments);
     }
 
     final public Memory invokeStatic(Environment environment, Memory... arguments) throws Throwable {
@@ -539,6 +543,10 @@ public class MethodEntity extends AbstractFunctionEntity {
         methodEntity.setUsesStackTrace(isUsesStackTrace());
         methodEntity.setDeprecated(isDeprecated());
         methodEntity.setInternalName(getInternalName());
+
+        methodEntity.setReturnTypeNullable(isReturnTypeNullable());
+        methodEntity.setReturnTypeChecker(getReturnTypeChecker());
+
         if (trace == null || trace == TraceInfo.UNKNOWN)
             methodEntity.setTrace(getClazz().getTrace());
         else

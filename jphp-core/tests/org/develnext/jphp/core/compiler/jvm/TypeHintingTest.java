@@ -77,6 +77,11 @@ public class TypeHintingTest extends JvmCompilerCase {
         check("type_hinting/nullable.php", true);
     }
 
+    @Test
+    public void testSelf() {
+        check("type_hinting/self.php");
+    }
+
     /*@Test
     public void testNumber(){
         check("type_hinting/number.php", true);

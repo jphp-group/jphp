@@ -30,10 +30,11 @@ public class InvokeArgumentHelper {
 
     public static Memory[] makeArguments(Environment env, Memory[] args,
                                          ParameterEntity[] parameters,
-                                         String originClassName, String originMethodName,
+                                         String originClassName, String originMethodName, String staticClassName,
                                          TraceInfo trace) {
-        if (parameters == null)
+        if (parameters == null) {
             return args;
+        }
 
         args = unpackArgs(env, trace, args, parameters);
 
@@ -127,7 +128,7 @@ public class InvokeArgumentHelper {
                     }
                 }
 
-                if (!param.checkTypeHinting(env, passed[i])) {
+                if (!param.checkTypeHinting(env, passed[i], staticClassName)) {
                     ModuleEntity module = env.getModuleManager().findModule(trace);
 
                     Memory memory = param.applyTypeHinting(env, passed[i], module != null && module.isStrictTypes());

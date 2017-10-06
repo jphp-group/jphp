@@ -275,7 +275,7 @@ public class Deserializer {
                                         if (classEntity.methodMagicWakeup != null){
                                             env.pushCall(trace, iObject, classEntity.methodMagicWakeup.getName());
                                             try {
-                                                classEntity.methodMagicWakeup.invokeDynamic(iObject, env);
+                                                classEntity.methodMagicWakeup.invokeDynamic(iObject, env, trace);
                                             } finally {
                                                 env.popCall();
                                             }

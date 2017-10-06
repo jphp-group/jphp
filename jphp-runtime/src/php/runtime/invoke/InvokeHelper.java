@@ -3,8 +3,10 @@ package php.runtime.invoke;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.common.Callback;
 import php.runtime.common.Function;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -71,12 +73,12 @@ final public class InvokeHelper {
         }
     }
 
-    public static Memory[] makeArguments(Environment env, Memory[] args,
+    /*public static Memory[] makeArguments(Environment env, Memory[] args,
                                          ParameterEntity[] parameters,
                                          String originClassName, String originMethodName,
                                          TraceInfo trace) {
         return InvokeArgumentHelper.makeArguments(env, args, parameters, originClassName, originMethodName, trace);
-    }
+    }*/
 
     /**
      * Method is invoked via bytecode
@@ -141,24 +143,23 @@ final public class InvokeHelper {
         }
     }
 
-    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method,
-                                         final ClassEntity classEntity) {
+    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method) {
         return checkReturnType(
                 env, trace, result,
                 new Function<String>() {
                     @Override
                     public String call() {
-                        return classEntity.getName() + "::" + method.getName();
+                        ClassEntity clazz = method.getClazz();
+
+                        switch (clazz.getType()) {
+                            case CLOSURE:
+                                return "{closure}";
+                            default:
+                                return clazz.getName() + "::" + method.getName();
+                        }
                     }
                 },
                 method.getReturnTypeChecker(), method.isReturnTypeNullable()
-        );
-    }
-
-    public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, final MethodEntity method) {
-        return checkReturnType(
-                env, trace, result,
-                method, method.getClazz()
         );
     }
 
@@ -181,7 +182,7 @@ final public class InvokeHelper {
             return result;
         }
 
-        if (!typeChecker.check(env, result, nullable)) {
+        if (!typeChecker.check(env, result, nullable, null)) {
             ModuleEntity module = env.getModuleManager().findModule(trace);
 
             Memory newReturn = typeChecker.apply(
@@ -211,9 +212,17 @@ final public class InvokeHelper {
 
     public static Memory call(Environment env, TraceInfo trace, FunctionEntity function, Memory[] args)
             throws Throwable {
-        Memory[] passed = makeArguments(env, args, function.getParameters(), function.getName(), null, trace);
-
         Memory result = function.getImmutableResultTyped(env, trace);
+
+        Memory[] passed = null;
+
+        if (result != null && !function.hasParameters() && args == null) {
+            return result;
+        }
+
+        passed = InvokeArgumentHelper.makeArguments(
+                env, args, function.getParameters(), function.getName(), null, null, trace
+        );
 
         if (result != null) {
             return result;
@@ -341,22 +350,23 @@ final public class InvokeHelper {
 
         checkAccess(env, trace, method);
 
-        if (passed == null)
-            passed = makeArguments(env, args, method.getParameters(), originClassName, originMethodName, trace);
+        if (passed == null) {
+            passed = InvokeArgumentHelper.makeArguments(
+                    env, args, method.getParameters(), originClassName, originMethodName, originClassName, trace
+            );
+        }
 
-        Memory result = method.getImmutableResult();
+        Memory result = method.getImmutableResultTyped(env, trace);
 
         if (result != null) {
-            return checkReturnType(env, trace, result, method);
+            return result;
         }
 
         try {
             if (trace != null)
                 env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
 
-            return checkReturnType(
-                    env, trace, method.invokeStatic(env, trace, passed), method
-            );
+            return method.invokeStatic(env, trace, passed);
         } finally {
             if (trace != null)
                 env.popCall();
@@ -372,7 +382,7 @@ final public class InvokeHelper {
     }
 
     public static Memory callStatic(Environment env, TraceInfo trace,
-                                    MethodEntity method, @Reflection.Nullable String staticClass,
+                                    MethodEntity method, @Nullable String staticClass,
                                     Memory[] args, boolean checkAccess)
             throws Throwable {
         if (checkAccess)
@@ -387,13 +397,18 @@ final public class InvokeHelper {
         String originClassName = method.getClazz().getName();
         String originMethodName = method.getName();
 
-        Memory[] passed = makeArguments(env, args, method.getParameters(), originClassName, originMethodName, trace);
+        String staticClazz = staticClass == null ? originClassName : staticClass;
+
+        Memory[] passed = InvokeArgumentHelper.makeArguments(
+                env, args, method.getParameters(), originClassName, originMethodName, staticClass, trace
+        );
 
         try {
-            if (trace != null && method.isUsesStackTrace())
-                env.pushCall(trace, null, passed, originMethodName, originClassName, staticClass == null ? originClassName : staticClass);
+            if (trace != null && method.isUsesStackTrace()) {
+                env.pushCall(trace, null, passed, originMethodName, originClassName, staticClazz);
+            }
 
-            return checkReturnType(env, trace, method.invokeStatic(env, passed), method);
+            return method.invokeStatic(env, passed);
         } finally {
             if (trace != null && method.isUsesStackTrace())
                 env.popCall();
