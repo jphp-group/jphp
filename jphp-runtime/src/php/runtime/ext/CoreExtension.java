@@ -128,6 +128,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope, Reflection.class);
         registerClass(scope, ReflectionException.class);
         registerClass(scope, ReflectionExtension.class);
+        registerClass(scope, ReflectionType.class);
         registerClass(scope, ReflectionFunctionAbstract.class);
         registerClass(scope, ReflectionFunction.class);
         registerClass(scope, ReflectionParameter.class);

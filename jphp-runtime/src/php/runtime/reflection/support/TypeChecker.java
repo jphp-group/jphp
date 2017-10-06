@@ -9,7 +9,6 @@ import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
-import php.runtime.reflection.ModuleEntity;
 
 import java.lang.reflect.Field;
 
@@ -19,6 +18,9 @@ abstract public class TypeChecker {
 
     abstract public boolean check(Environment env, Memory value, boolean nullable, String staticClassName);
     abstract public Memory apply(Environment env, Memory value, boolean nullable, boolean strict);
+    public boolean isBuiltin() {
+        return false;
+    }
 
     public static TypeChecker of(HintType type) {
         return new Simple(type);
@@ -58,6 +60,11 @@ abstract public class TypeChecker {
         }
 
         @Override
+        public boolean isBuiltin() {
+            return type != HintType.SELF;
+        }
+
+        @Override
         public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
             if (nullable && value.isNull()) {
                 return value;
@@ -90,11 +97,17 @@ abstract public class TypeChecker {
 
         @Override
         public boolean check(Environment env, Memory value, boolean nullable, String staticClassName) {
+            if (type == HintType.VOID) {
+                // VOID must check compiler!
+                return true;
+            }
+
             if (nullable && value.isNull())
                 return true;
 
             switch (type){
-                case VOID: return value.isUndefined();
+                /*case VOID:
+                    return value.isUndefined();*/
                 case OBJECT: return value.isObject();
                 case NUMBER: return value.isNumber();
                 case DOUBLE: return value.getRealType() == Memory.Type.DOUBLE;

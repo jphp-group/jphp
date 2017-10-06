@@ -15,6 +15,7 @@ import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -112,10 +113,26 @@ public class ReflectionParameter extends Reflection implements Reflector {
 
     @Signature
     public Memory allowsNull(Environment env, Memory... args) {
-        if (entity.getType() == HintType.OBJECT && entity.getDefaultValue() == null)
-            return Memory.FALSE;
+        return entity.isNullableOrDefaultNull() ? Memory.TRUE : Memory.FALSE;
+    }
 
-        return Memory.TRUE;
+    @Signature
+    public Memory hasType(Environment env, Memory... args) {
+        TypeChecker typeChecker = entity.getTypeChecker();
+        return typeChecker != null ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getType(Environment env, Memory... args) {
+        TypeChecker typeChecker = entity.getTypeChecker();
+
+        if (typeChecker == null) {
+            return Memory.NULL;
+        }
+
+        return ObjectMemory.valueOf(new ReflectionType(
+                env, typeChecker.getSignature(), entity.isNullableOrDefaultNull(), typeChecker.isBuiltin()
+        ));
     }
 
     @Signature

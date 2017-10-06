@@ -39,6 +39,17 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
 
         if (token.getValue() != null) {
             result = expr.writeExpression(token.getValue(), true, true);
+
+            if (methodStatement.getReturnHintType() == HintType.VOID) {
+                String suffix = result != null && result.isNull() ?
+                        " (did you mean \"return;\" instead of \"return null;\"?)" : "";
+
+                env.error(
+                        token.toTraceInfo(compiler.getContext()),
+                        ErrorType.E_ERROR,
+                        "A void function must not return a value" + suffix
+                );
+            }
         }
 
         if (result != null) {
@@ -48,14 +59,6 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
                             token.toTraceInfo(compiler.getContext()),
                             ErrorType.E_ERROR,
                             "Void type cannot be nullable"
-                    );
-                }
-
-                if (!result.isUndefined()) {
-                    env.error(
-                            token.toTraceInfo(compiler.getContext()),
-                            ErrorType.E_ERROR,
-                            "A void function must not return a value"
                     );
                 }
             }

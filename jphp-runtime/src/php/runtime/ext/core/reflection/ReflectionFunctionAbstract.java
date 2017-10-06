@@ -13,6 +13,7 @@ import php.runtime.reflection.CompileFunctionEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import static php.runtime.annotation.Reflection.Signature;
 
@@ -196,6 +197,25 @@ abstract public class ReflectionFunctionAbstract extends Reflection {
         if (getClosureEntity() != null)
             return getClosureEntity().isReturnReference() ? Memory.TRUE : Memory.FALSE;
         return getEntity().isReturnReference() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory hasReturnType(Environment env, Memory... args) {
+        return getEntity().getReturnTypeChecker() != null ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getReturnType(Environment env, Memory... args) {
+        TypeChecker typeChecker = getEntity().getReturnTypeChecker();
+
+        if (typeChecker == null) {
+            return Memory.NULL;
+        }
+
+        String name = typeChecker.getSignature();
+        boolean isBuiltin = typeChecker.isBuiltin();
+
+        return ObjectMemory.valueOf(new ReflectionType(env, name, getEntity().isReturnTypeNullable(), isBuiltin));
     }
 
     @Signature

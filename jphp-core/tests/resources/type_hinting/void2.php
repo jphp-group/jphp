@@ -19,4 +19,4 @@ echo "FAIL";
 ?>
 --EXPECTF--
 
-Fatal error: A void function must not return a value in %s on line 11, position %d
+Fatal error: A void function must not return a value (did you mean "return;" instead of "return null;"?) in %s on line 11, position %d
