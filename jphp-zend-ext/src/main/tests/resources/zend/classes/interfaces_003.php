@@ -23,4 +23,7 @@ $obj = new MyTestClass;
 ===DONE===
 --EXPECTF--
 
-Recoverable error: Argument 1 passed to MyTestClass::__construct() must be an instance of MyObject, none given, called in %s on line 17, position %d and defined in %s on line 12, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to MyTestClass::__construct() must be an instance of MyObject, none given, called in %s on line %d, position %d and defined in %s on line %d, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line %d

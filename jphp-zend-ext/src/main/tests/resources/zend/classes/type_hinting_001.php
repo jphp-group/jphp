@@ -35,4 +35,7 @@ $a->b($b);
 ?>
 --EXPECTF--
 
-Recoverable error: Argument 1 passed to FooBar::a() must implement interface Foo, instance of Blort given, called in %s on line 27, position %d and defined in %s on line 12, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to FooBar::a() must implement interface Foo, instance of Blort given, called in %s on line 27, position %d and defined in %s on line 12, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line 12

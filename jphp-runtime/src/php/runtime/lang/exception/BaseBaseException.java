@@ -132,7 +132,8 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
     @Signature
     public Memory getCode(Environment env, Memory... args){
-        return clazz.refOfProperty(getProperties(), "code").toValue();
+        Memory code = clazz.refOfProperty(getProperties(), "code").toValue();
+        return code.isNull() ? Memory.CONST_INT_0 : code;
     }
 
     @Signature

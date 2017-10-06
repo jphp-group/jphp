@@ -53,6 +53,8 @@ public class TypeHintingTest extends JvmCompilerCase {
     @Test
     public void testVoid() {
         check("type_hinting/void.php", true);
+        check("type_hinting/void2.php", true);
+        check("type_hinting/void3.php", true);
     }
 
     @Test

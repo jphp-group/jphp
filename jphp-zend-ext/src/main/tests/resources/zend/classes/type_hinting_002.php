@@ -14,4 +14,7 @@ $o->a($o);
 ?>
 --EXPECTF--
 
-Recoverable error: Argument 1 passed to Foo::a() must be an instance of NonExisting, instance of Foo given, called in %s on line 8, position %d and defined in %s on line 4, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to Foo::a() must be an instance of NonExisting, instance of Foo given, called in %s on line 8, position %d and defined in %s on line 4, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line 4

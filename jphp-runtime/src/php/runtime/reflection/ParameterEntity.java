@@ -102,6 +102,10 @@ public class ParameterEntity extends Entity {
         return nullable;
     }
 
+    public boolean isNullableOrDefaultNull() {
+        return isNullable() || (getDefaultValue() != null && getDefaultValue().isNull());
+    }
+
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }

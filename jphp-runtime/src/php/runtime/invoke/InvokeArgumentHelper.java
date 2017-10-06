@@ -314,6 +314,11 @@ public class InvokeArgumentHelper {
             }
 
             what = what + " " + param.getTypeClass();
+
+            if (param.isNullableOrDefaultNull()) {
+                what += " or null";
+            }
+
             env.exception(
                     param.getTrace(),
                     BaseTypeError.class,

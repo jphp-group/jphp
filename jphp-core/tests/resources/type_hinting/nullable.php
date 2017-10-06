@@ -36,7 +36,7 @@ NULL
 object(stdClass)#%d (0) {
 }
 
-Fatal error: Uncaught TypeError: Argument 1 passed to A::testArg() must be an instance of stdClass, boolean given, called in %s on line 25, position %d and defined in %s on line 4, position %d
+Fatal error: Uncaught TypeError: Argument 1 passed to A::testArg() must be an instance of stdClass or null, boolean given, called in %s on line 25, position %d and defined in %s on line 4, position %d
 Stack Trace:
 #0 {main}
   thrown in %s on line 4
