@@ -19,7 +19,10 @@ public class Context {
         this.charset = character;
         this.moduleName = fileName;
         this.inputStream = input;
-        this.lastModified = new File(fileName).lastModified();
+
+        if (fileName != null) {
+            this.lastModified = new File(fileName).lastModified();
+        }
     }
 
     public Context(InputStream input, Charset charset) {
