@@ -442,6 +442,17 @@ public class CompileScope {
         return moduleMap.get(name);
     }
 
+    public ModuleEntity removeUserModule(String name) {
+        ModuleEntity userModule = findUserModule(name);
+
+        if (userModule != null) {
+            moduleMap.remove(name);
+            moduleIndexMap.remove(userModule.getInternalName());
+        }
+
+        return userModule;
+    }
+
     public ClassEntity fetchUserClass(Class<? extends IObject> clazz) {
         return fetchUserClass(ReflectionUtils.getClassName(clazz));
     }

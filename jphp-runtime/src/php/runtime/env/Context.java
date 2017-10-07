@@ -9,14 +9,17 @@ public class Context {
     protected final Charset charset;
     protected final File file;
     protected String content;
-    protected String moduleName;
-    protected InputStream inputStream;
+    private String moduleName;
+    private InputStream inputStream;
+
+    private long lastModified = 0;
 
     public Context(InputStream input, String fileName, Charset character){
         this.file = null;
         this.charset = character;
         this.moduleName = fileName;
         this.inputStream = input;
+        this.lastModified = new File(fileName).lastModified();
     }
 
     public Context(InputStream input, Charset charset) {
@@ -47,6 +50,10 @@ public class Context {
         this.charset = Charset.defaultCharset();
     }
 
+    public long getLastModified() {
+        return lastModified;
+    }
+
     protected void readContent(Reader reader) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(reader);
         StringBuilder result = new StringBuilder();
@@ -56,10 +63,6 @@ public class Context {
             result.append("\n");
         }
         this.content = result.toString();
-    }
-
-    public File getFile2() {
-        return file;
     }
 
     public boolean isLikeFile(){

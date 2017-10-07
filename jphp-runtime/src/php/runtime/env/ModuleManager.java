@@ -1,9 +1,11 @@
 package php.runtime.env;
 
+import php.runtime.ext.core.classes.stream.FileStream;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.reflection.ModuleEntity;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,9 +29,14 @@ public class ModuleManager {
     public ModuleEntity fetchModule(String path, boolean compiled) throws Throwable {
         ModuleEntity moduleEntity = modules.get(path);
 
-        if (moduleEntity != null) {
+        if (moduleEntity != null &&
+                (moduleEntity.getContext().getLastModified() == 0
+                        || moduleEntity.getContext().getLastModified() == new File(path).lastModified())) {
+
             return moduleEntity;
         } else {
+            env.scope.removeUserModule(path);
+
             moduleEntity = fetchTemporaryModule(path, compiled);
 
             if (moduleEntity == null) {
@@ -72,6 +79,10 @@ public class ModuleManager {
     }
 
     public Context fetchContext(Stream stream) throws Throwable {
+        if (stream instanceof FileStream) {
+            return new Context(Stream.getInputStream(env, stream), stream.getPath(), env.getDefaultCharset());
+        }
+
         return new Context(Stream.getInputStream(env, stream), stream.getPath(), env.getDefaultCharset());
     }
 
