@@ -617,17 +617,25 @@ public class StringMemory extends Memory {
     }
 
     protected static StringMemory getChar(char ch) {
-        int i = (int)ch;
-        if (i >= CACHED_CHARS.length)
+        int i = (int) ch;
+
+        if (i >= CACHED_CHARS.length) {
             return new StringMemory(ch);
-        else
-            return CACHED_CHARS[i];
+        } else {
+            StringMemory memory = CACHED_CHARS[i];
+
+            if (memory == null) {
+                memory = CACHED_CHARS[i] = new StringMemory(ch);
+            }
+
+            return memory;
+        }
     }
 
     static {
-        CACHED_CHARS = new StringMemory[256];
-        for(int i = 0; i < CACHED_CHARS.length; i++) {
+        CACHED_CHARS = new StringMemory[Short.MAX_VALUE * 2];
+        /*for(int i = 0; i < CACHED_CHARS.length; i++) {
             CACHED_CHARS[i] = new StringMemory((char)i);
-        }
+        }*/
     }
 }

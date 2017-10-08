@@ -344,7 +344,7 @@ public class CompileScope {
         compileFunctionSpecMap.putAll(extension.getFunctions());
 
 
-        for(Class<?> clazz : extension.getClasses().values()) {
+        for(Class<?> clazz : extension.getClasses()) {
             registerLazyClass(extension, clazz);
         }
 

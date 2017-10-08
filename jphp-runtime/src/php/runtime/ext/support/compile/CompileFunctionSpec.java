@@ -4,13 +4,14 @@ import php.runtime.ext.support.Extension;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CompileFunctionSpec {
     protected String name;
     protected boolean asImmutable;
     protected String lowerName;
-    protected List<Method> methods = new ArrayList<>();
+    protected List<Method> methods = new LinkedList<>();
 
     public CompileFunctionSpec(String name) {
         this(name, false);

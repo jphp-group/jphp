@@ -13,8 +13,7 @@ import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 abstract public class Extension {
     public enum Status { EXPERIMENTAL, BETA, STABLE, LEGACY, ZEND_LEGACY, DEPRECATED }
@@ -25,7 +24,7 @@ abstract public class Extension {
 
     protected final Map<String, CompileConstant> constants = new LinkedHashMap<>();
     protected final Map<String, CompileFunctionSpec> functions = new LinkedHashMap<>();
-    protected final Map<String, Class<?>> classes = new LinkedHashMap<>();
+    protected final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
 
     public String getName() {
         return getClass().getName();
@@ -74,7 +73,7 @@ abstract public class Extension {
         return functions;
     }
 
-    public Map<String, Class<?>> getClasses() {
+    public Collection<Class<?>> getClasses() {
         return classes;
     }
 
@@ -83,18 +82,22 @@ abstract public class Extension {
         registerClass(scope, clazz);
     }
 
-    public void registerClass(CompileScope scope, Class<?> clazz) {
-        if (BaseWrapper.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Reflection.NotWrapper.class)) {
-            throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
-        }
+    public void registerClass(CompileScope scope, Class<?>... classes) {
+        for (Class<?> clazz : classes) {
+            if (BaseWrapper.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Reflection.NotWrapper.class)) {
+                throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
+            }
 
-        if (classes.put(clazz.getName(), clazz) != null)
-            throw new CriticalException("Class already registered - " + clazz.getName());
+            if (!this.classes.add(clazz)) {
+                throw new CriticalException("Class already registered - " + clazz.getName());
+            }
+        }
     }
 
     public <T> void registerWrapperClass(CompileScope scope, Class<T> clazz, Class<? extends BaseWrapper> wrapperClass) {
-        if (classes.put(clazz.getName(), wrapperClass) != null)
+        if (!classes.add(wrapperClass)) {
             throw new CriticalException("Class already registered - " + clazz.getName());
+        }
 
         MemoryOperation.registerWrapper(clazz, wrapperClass);
     }
@@ -111,9 +114,11 @@ abstract public class Extension {
     public void registerJavaException(CompileScope scope, Class<? extends JavaException> javaClass,
                                       Class<? extends Throwable>... classes) {
         registerClass(scope, javaClass);
-        if (classes != null)
-        for(Class<? extends Throwable> el : classes)
-            scope.registerJavaException(javaClass, el);
+        if (classes != null) {
+            for (Class<? extends Throwable> el : classes) {
+                scope.registerJavaException(javaClass, el);
+            }
+        }
     }
 
     public void registerJavaExceptionForContext(CompileScope scope, Class<? extends JavaException> javaClass,

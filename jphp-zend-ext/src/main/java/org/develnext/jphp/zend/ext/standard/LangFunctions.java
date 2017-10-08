@@ -21,7 +21,7 @@ public class LangFunctions extends FunctionsContainer {
     public static String php_uname(char mode) {
         switch (mode) {
             case 's':
-                return LangConstants.PHP_OS;
+                return LangConstants.PHP_OS.toString();
             case 'n':
                 try {
                     return InetAddress.getLocalHost().getHostName();

@@ -13,7 +13,7 @@ public class CompileConstant {
     }
 
     public CompileConstant(String name, Object value){
-        this(name, MemoryUtils.valueOf(value));
+        this(name, Memory.wrap(null, value));
     }
 
     @Override

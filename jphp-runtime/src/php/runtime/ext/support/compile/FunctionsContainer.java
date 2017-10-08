@@ -2,6 +2,8 @@ package php.runtime.ext.support.compile;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Name;
+import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;
@@ -12,6 +14,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 abstract public class FunctionsContainer {
 
@@ -69,7 +72,7 @@ abstract public class FunctionsContainer {
     }
 
     protected Map<String, Method> getNativeFunctions() {
-        return new HashMap<String, Method>();
+        return new HashMap<>();
     }
 
     protected Method getNative(Class clazz, String name, Class<?>... argumentTypes) {
@@ -81,19 +84,23 @@ abstract public class FunctionsContainer {
     }
 
     public Collection<CompileFunctionSpec> getFunctionSpecs() {
-        Map<String, CompileFunctionSpec> result = new HashMap<String, CompileFunctionSpec>();
+        Map<String, CompileFunctionSpec> result = new HashedMap<>();
 
-        for (Method method : getClass().getMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             int mod = method.getModifiers();
-            if (Modifier.isStatic(mod)) {
+            if (Modifier.isStatic(mod) && Modifier.isPublic(mod)) {
                 String name = method.getName();
-                Reflection.Name altName = method.getAnnotation(Reflection.Name.class);
-                if (altName != null)
+                Name altName = method.getAnnotation(Name.class);
+
+                if (altName != null) {
                     name = altName.value();
+                }
 
                 CompileFunctionSpec function = result.get(name);
-                if (function == null)
+
+                if (function == null) {
                     result.put(name, function = new CompileFunctionSpec(name));
+                }
 
                 function.addMethod(method);
             }
@@ -118,7 +125,7 @@ abstract public class FunctionsContainer {
             int mod = method.getModifiers();
             if (Modifier.isStatic(mod) && Modifier.isPublic(mod)) {
                 String name = method.getName();
-                Reflection.Name altName = method.getAnnotation(Reflection.Name.class);
+                Name altName = method.getAnnotation(Name.class);
                 if (altName != null)
                     name = altName.value();
 

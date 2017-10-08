@@ -230,6 +230,7 @@ public class MemoryUtils {
             return value;
     }
 
+    @Deprecated
     public static Object toValue(Memory value, Class<?> type){
         if (type == Double.TYPE || type == Double.class)
             return value.toDouble();
@@ -266,10 +267,12 @@ public class MemoryUtils {
         throw new IllegalArgumentException("Unexpected class type: " + type.getName());
     }
 
+    @Deprecated
     public static Memory valueOf(Object value){
         return valueOf(null, value);
     }
 
+    @Deprecated
     public static Memory valueOf(Environment env, Object value){
         if (value == null)
             return Memory.NULL;
@@ -310,6 +313,7 @@ public class MemoryUtils {
         }
     }
 
+    @Deprecated
     public static Memory valueOf(String value, HintType type){
         switch (type){
             case STRING: return new StringMemory(value);

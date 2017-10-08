@@ -846,7 +846,7 @@ abstract public class Memory implements Comparable<Memory> {
         MemoryOperation operation = MemoryOperation.get(o.getClass(), null);
 
         if (operation != null) {
-            return operation.unconvertNoThow(env, env.trace(), o);
+            return operation.unconvertNoThow(env, env == null ? TraceInfo.UNKNOWN : env.trace(), o);
         } else {
             return NULL;
         }

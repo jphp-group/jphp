@@ -275,7 +275,7 @@ public class MathFunctions extends FunctionsContainer {
 
     @Immutable
     public static double pi(){
-        return constants.M_PI;
+        return constants.M_PI.toDouble();
     }
 
     @Immutable

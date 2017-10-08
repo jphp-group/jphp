@@ -62,7 +62,7 @@ public class ReflectionExtension extends Reflection {
     public Memory getClassNames(Environment env, Memory... args){
         ArrayMemory result = new ArrayMemory();
 
-        for(Class<?> e : extension.getClasses().values()){
+        for(Class<?> e : extension.getClasses()){
             result.add(ReflectionUtils.getClassName(e));
         }
 

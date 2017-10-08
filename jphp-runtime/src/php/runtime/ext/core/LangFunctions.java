@@ -29,7 +29,7 @@ import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
 
 public class LangFunctions extends FunctionsContainer {
-    private static String evalErrorMessage(ErrorException e){
+    private static String evalErrorMessage(ErrorException e) {
         return e.getMessage() + ", eval()'s code on line " + (e.getTraceInfo().getStartLine() + 1)
                 + ", position " + (e.getTraceInfo().getStartPosition() + 1);
     }
@@ -38,14 +38,14 @@ public class LangFunctions extends FunctionsContainer {
             throws Throwable {
         try {
             return env.eval(code, locals);
-        } catch (ErrorException e){
-            if (e.getType() == ErrorType.E_PARSE){
+        } catch (ErrorException e) {
+            if (e.getType() == ErrorType.E_PARSE) {
                 if (env.isHandleErrors(ErrorType.E_PARSE))
                     throw new ParseException(evalErrorMessage(e), trace);
             } else
                 env.error(trace, e.getType(), evalErrorMessage(e));
         }
-        
+
         return Memory.FALSE;
     }
 
@@ -196,17 +196,17 @@ public class LangFunctions extends FunctionsContainer {
 
     public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
                               @Runtime.Reference Memory array) {
-        return extract(env, trace, locals, array, LangConstants.EXTR_OVERWRITE, Memory.NULL);
+        return extract(env, trace, locals, array, LangConstants.EXTR_OVERWRITE.toInteger(), Memory.NULL);
     }
 
     public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
                               @Runtime.Reference Memory array, int extractType, Memory _prefix) {
         if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
-            boolean isRefs = (extractType & LangConstants.EXTR_REFS) == LangConstants.EXTR_REFS;
+            boolean isRefs = (extractType & LangConstants.EXTR_REFS.toInteger()) == LangConstants.EXTR_REFS.toInteger();
             ForeachIterator iterator = array.getNewIterator(env, isRefs, false);
             int count = 0;
-            if (extractType == LangConstants.EXTR_PREFIX_ALL || extractType == LangConstants.EXTR_PREFIX_IF_EXISTS
-                    || extractType == LangConstants.EXTR_PREFIX_INVALID || extractType == LangConstants.EXTR_PREFIX_SAME)
+            if (extractType == LangConstants.EXTR_PREFIX_ALL.toInteger() || extractType == LangConstants.EXTR_PREFIX_IF_EXISTS.toInteger()
+                    || extractType == LangConstants.EXTR_PREFIX_INVALID.toInteger() || extractType == LangConstants.EXTR_PREFIX_SAME.toInteger())
                 if (_prefix.isNull()) {
                     env.warning(trace, "extract(): specified extract type requires the prefix parameter");
                     return 0;
@@ -228,71 +228,65 @@ public class LangFunctions extends FunctionsContainer {
                 if (!isRefs)
                     value = value.toImmutable();
 
-                switch (extractType) {
-                    case LangConstants.EXTR_OVERWRITE:
-                        if (GrammarUtils.isValidName(keyS)) {
-                            locals.refOfIndex(keyS).assign(value);
-                            count++;
-                        }
-                        break;
-                    case LangConstants.EXTR_SKIP:
-                        if (GrammarUtils.isValidName(keyS) && locals.valueOfIndex(keyS).isUndefined()) {
-                            locals.refOfIndex(keyS).assign(value);
-                            count++;
-                        }
-                        break;
-                    case LangConstants.EXTR_PREFIX_SAME:
-                        if (!locals.valueOfIndex(keyS).isUndefined()) {
-                            var = prefix.concat(keyS);
-                            if (GrammarUtils.isValidName(var)) {
-                                locals.refOfIndex(var).assign(value);
-                                count++;
-                            }
-                        } else if (GrammarUtils.isValidName(keyS)) {
-                            locals.refOfIndex(keyS).assign(value);
-                            count++;
-                        }
-                        break;
-                    case LangConstants.EXTR_PREFIX_ALL:
+                if (extractType == LangConstants.EXTR_OVERWRITE.toInteger()) {
+                    if (GrammarUtils.isValidName(keyS)) {
+                        locals.refOfIndex(keyS).assign(value);
+                        count++;
+                    }
+                } else if (extractType == LangConstants.EXTR_SKIP.toInteger()) {
+                    if (GrammarUtils.isValidName(keyS) && locals.valueOfIndex(keyS).isUndefined()) {
+                        locals.refOfIndex(keyS).assign(value);
+                        count++;
+                    }
+                } else if (extractType == LangConstants.EXTR_PREFIX_SAME.toInteger()) {
+                    if (!locals.valueOfIndex(keyS).isUndefined()) {
                         var = prefix.concat(keyS);
                         if (GrammarUtils.isValidName(var)) {
-                            locals.refOfIndex(prefix.concat(keyS)).assign(value);
+                            locals.refOfIndex(var).assign(value);
                             count++;
                         }
-                        break;
-                    case LangConstants.EXTR_PREFIX_INVALID:
-                        if (GrammarUtils.isValidName(keyS)) {
+                    } else if (GrammarUtils.isValidName(keyS)) {
+                        locals.refOfIndex(keyS).assign(value);
+                        count++;
+                    }
+                } else if (extractType == LangConstants.EXTR_PREFIX_ALL.toInteger()) {
+                    var = prefix.concat(keyS);
+                    if (GrammarUtils.isValidName(var)) {
+                        locals.refOfIndex(prefix.concat(keyS)).assign(value);
+                        count++;
+                    }
+                } else if (extractType == LangConstants.EXTR_PREFIX_INVALID.toInteger()) {
+                    if (GrammarUtils.isValidName(keyS)) {
+                        locals.refOfIndex(keyS).assign(value);
+                        count++;
+                    } else {
+                        var = prefix.concat(keyS);
+                        if (GrammarUtils.isValidName(var)) {
+                            locals.refOfIndex(var).assign(value);
+                            count++;
+                        }
+                    }
+                } else if (extractType == LangConstants.EXTR_IF_EXISTS.toInteger()) {
+                    if (GrammarUtils.isValidName(keyS))
+                        if (!locals.valueOfIndex(keyS).isUndefined()) {
                             locals.refOfIndex(keyS).assign(value);
                             count++;
-                        } else {
-                            var = prefix.concat(keyS);
-                            if (GrammarUtils.isValidName(var)) {
-                                locals.refOfIndex(var).assign(value);
-                                count++;
-                            }
                         }
-                        break;
-                    case LangConstants.EXTR_IF_EXISTS:
-                        if (GrammarUtils.isValidName(keyS))
-                            if (!locals.valueOfIndex(keyS).isUndefined()) {
-                                locals.refOfIndex(keyS).assign(value);
-                                count++;
-                            }
-                        break;
-                    case LangConstants.EXTR_PREFIX_IF_EXISTS:
-                        if (!locals.valueOfIndex(keyS).isUndefined()) {
-                            var = prefix.concat(keyS);
-                            if (GrammarUtils.isValidName(var)) {
-                                locals.refOfIndex(var).assign(value);
-                                count++;
-                            }
+                } else if (extractType == LangConstants.EXTR_PREFIX_IF_EXISTS.toInteger()) {
+                    if (!locals.valueOfIndex(keyS).isUndefined()) {
+                        var = prefix.concat(keyS);
+                        if (GrammarUtils.isValidName(var)) {
+                            locals.refOfIndex(var).assign(value);
+                            count++;
                         }
-                        break;
+                    }
                 }
             }
+
             return count;
-        } else
+        } else {
             return 0;
+        }
     }
 
     public static boolean defined(Environment env, String name) {
@@ -571,10 +565,10 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory debug_backtrace(Environment env, TraceInfo trace, int options, int limit) {
-        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
-                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
-        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS)
-                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS;
+        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger())
+                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger();
+        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS.toInteger())
+                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS.toInteger();
 
         ArrayMemory result = new ArrayMemory();
         for (int i = 0; i < env.getCallStackTop(); i++) {
@@ -594,15 +588,15 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory debug_backtrace(Environment env, TraceInfo trace) {
-        return debug_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+        return debug_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger(), 0);
     }
 
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace, int options, int limit) {
-        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT)
-                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT;
-        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS)
-                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS;
+        boolean provideObject = (options & LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger())
+                == LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger();
+        boolean ignoreArgs = (options & LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS.toInteger())
+                == LangConstants.DEBUG_BACKTRACE_IGNORE_ARGS.toInteger();
 
         StackTracer stackTracer = new StackTracer(env, limit);
         env.echo(stackTracer.toString(!ignoreArgs));
@@ -613,7 +607,7 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static void debug_print_backtrace(Environment env, TraceInfo trace) {
-        debug_print_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT, 0);
+        debug_print_backtrace(env, trace, LangConstants.DEBUG_BACKTRACE_PROVIDE_OBJECT.toInteger(), 0);
     }
 
     public static boolean function_exists(Environment env, String name) {

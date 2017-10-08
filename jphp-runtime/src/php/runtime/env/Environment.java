@@ -267,7 +267,7 @@ public class Environment {
                         if (aPackage == null) {
                             aPackage = getPackageManager().fetch(packageName);
 
-                            for (Class<?> aClass : e.getClasses().values()) {
+                            for (Class<?> aClass : e.getClasses()) {
                                 aPackage.addClass(ReflectionUtils.getClassName(aClass));
                             }
 

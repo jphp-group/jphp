@@ -6,24 +6,16 @@ import php.runtime.memory.support.MemoryStringUtils;
 import java.nio.charset.Charset;
 
 public class LongMemory extends Memory {
+    private final static int MAX_CACHE_STRING = 10000;
+    private final static int MAX_NEG_CACHE = Short.MAX_VALUE / 7;
+    private final static int MAX_POS_CACHE = Short.MAX_VALUE - MAX_NEG_CACHE;
 
-    protected final static int MAX_CACHE_STRING = 10000;
-    protected final static int MAX_NEG_CACHE = Short.MAX_VALUE / 7;
-    protected final static int MAX_POS_CACHE = Short.MAX_VALUE - MAX_NEG_CACHE;
-
-    protected final static String[] STRING_VALUES;
-    protected final static LongMemory[] CACHE;
+    private final static String[] STRING_VALUES;
+    private final static LongMemory[] CACHE;
 
     static {
         STRING_VALUES = new String[MAX_CACHE_STRING];
-        for(int i = 0; i < MAX_CACHE_STRING; i++){
-            STRING_VALUES[i] = String.valueOf(i);
-        }
-
         CACHE = new LongMemory[MAX_POS_CACHE + MAX_NEG_CACHE];
-        for(int i = -MAX_NEG_CACHE; i < MAX_POS_CACHE; i++){
-            CACHE[i + MAX_NEG_CACHE] = new LongMemory(i);
-        }
     }
 
     public long value;
@@ -33,18 +25,32 @@ public class LongMemory extends Memory {
         this.value = value;
     }
 
-    public static Memory valueOf(long value){
-        if (value >= -MAX_NEG_CACHE && value < MAX_POS_CACHE)
-            return CACHE[(int)value + MAX_NEG_CACHE];
-        else
+    public static Memory valueOf(long value) {
+        if (value >= -MAX_NEG_CACHE && value < MAX_POS_CACHE) {
+            LongMemory result = CACHE[(int) value + MAX_NEG_CACHE];
+
+            if (result == null) {
+                result = CACHE[(int) value + MAX_NEG_CACHE] = new LongMemory(value);
+            }
+
+            return result;
+        } else {
             return new LongMemory(value);
+        }
     }
 
     public static Memory valueOf(int value){
-        if (value >= -MAX_NEG_CACHE && value <= MAX_NEG_CACHE)
-            return CACHE[value + MAX_NEG_CACHE];
-        else
+        if (value >= -MAX_NEG_CACHE && value <= MAX_NEG_CACHE) {
+            LongMemory result = CACHE[value + MAX_NEG_CACHE];
+
+            if (result == null) {
+                result = CACHE[value + MAX_NEG_CACHE] = new LongMemory(value);
+            }
+
+            return result;
+        } else {
             return new LongMemory(value);
+        }
     }
 
     public static Memory valueOf(byte value){
@@ -81,8 +87,15 @@ public class LongMemory extends Memory {
 
     @Override
     public String toString() {
-        if (value >= 0 && value < MAX_CACHE_STRING)
-            return STRING_VALUES[(int)value];
+        if (value >= 0 && value < MAX_CACHE_STRING) {
+            String value = STRING_VALUES[(int) this.value];
+
+            if (value == null) {
+                value = STRING_VALUES[(int) this.value] = String.valueOf(this.value);
+            }
+
+            return value;
+        }
 
         return String.valueOf(value);
     }

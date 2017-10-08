@@ -39,7 +39,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
 
     @Override
     public String[] getPackageNames() {
-        return new String[] { "std", "core" };
+        return new String[]{"std", "core"};
     }
 
     @Override
@@ -49,8 +49,10 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
 
     @Override
     public void onRegister(CompileScope scope) {
+        long t = System.currentTimeMillis();
+
         scope.registerProgramShutdownHandler(this);
-        
+
         registerFunctions(new LangFunctions());
         registerConstants(new LangConstants());
 
@@ -69,97 +71,68 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerFunctions(new OutputFunctions());
 
         // T_ERROR
-        for (ErrorType el : ErrorType.values())
-            constants.put(el.name(), new CompileConstant(el.name(), el.value));
+        for (ErrorType el : ErrorType.values()) {
+            CompileConstant compileConstant = new CompileConstant(el.name(), el.value);
+            constants.put(el.name(), compileConstant);
+        }
 
         registerJavaException(scope, WrapJavaExceptions.IllegalArgumentException.class, IllegalArgumentException.class);
         registerJavaException(scope, WrapJavaExceptions.IllegalStateException.class, IllegalStateException.class);
         registerJavaException(scope, WrapJavaExceptions.NumberFormatException.class, NumberFormatException.class);
         registerJavaException(scope, WrapJavaExceptions.InterruptedException.class, InterruptedException.class);
 
-        registerClass(scope, CharUtils.class);
-        registerClass(scope, StrUtils.class);
-        registerClass(scope, BinUtils.class);
-        registerClass(scope, NumUtils.class);
-        registerClass(scope, ItemsUtils.class);
-        registerClass(scope, MirrorUtils.class);
-        registerClass(scope, FsUtils.class);
 
-        registerClass(scope, OldBinUtils.class);
-        registerClass(scope, OldItemsUtils.class);
-        registerClass(scope, OldNumUtils.class);
-        registerClass(scope, OldMirrorUtils.class);
 
-        registerClass(scope, SharedUtils.SharedMemory.class);
-        registerClass(scope, SharedUtils.SharedCollection.class);
-        registerClass(scope, SharedUtils.SharedValue.class);
-        registerClass(scope, SharedUtils.SharedStack.class);
-        registerClass(scope, SharedUtils.SharedQueue.class);
-        registerClass(scope, SharedUtils.SharedMap.class);
-        registerClass(scope, SharedUtils.class);
+        registerClass(scope,
+                CharUtils.class, StrUtils.class, BinUtils.class, NumUtils.class, ItemsUtils.class,
+                MirrorUtils.class, FsUtils.class, OldBinUtils.class, OldItemsUtils.class, OldNumUtils.class, OldMirrorUtils.class
+        );
 
-        registerClass(scope, WrapPackageLoader.class);
-        registerClass(scope, WrapClassLoader.class);
-        registerClass(scope, WrapClassLoader.WrapLauncherClassLoader.class);
+        registerClass(scope,
+                SharedUtils.SharedMemory.class, SharedUtils.SharedCollection.class, SharedUtils.SharedValue.class,
+                SharedUtils.SharedStack.class, SharedUtils.SharedQueue.class, SharedUtils.SharedMap.class,
+                SharedUtils.class,
 
-        registerClass(scope, WrapLocale.class);
-        registerClass(scope, WrapScanner.class);
-        registerClass(scope, WrapFlow.class);
-        registerClass(scope, WrapConfiguration.class);
-        registerClass(scope, WrapRegex.class);
+                WrapPackageLoader.class, WrapClassLoader.class, WrapClassLoader.WrapLauncherClassLoader.class,
+
+                WrapLocale.class, WrapScanner.class, WrapFlow.class, WrapConfiguration.class, WrapRegex.class
+        );
+
         registerJavaExceptionForContext(scope, WrapRegex.RegexException.class, WrapRegex.class);
 
-        registerClass(scope, WrapTimeZone.class);
-        registerClass(scope, WrapTimeFormat.class);
-        registerClass(scope, WrapTime.class);
+        registerClass(scope, WrapTimeZone.class, WrapTimeFormat.class, WrapTime.class);
         registerWrapperClass(scope, TimerTask.class, WrapTimer.class);
 
-        registerClass(scope, WrapInvoker.class);
-        registerClass(scope, WrapModule.class);
-        registerClass(scope, WrapPackage.class);
+        registerClass(scope, WrapInvoker.class, WrapModule.class, WrapPackage.class);
         registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
-        registerClass(scope, WrapEnvironment.class);
-        registerClass(scope, WrapEnvironmentVariables.class);
-        registerClass(scope, WrapThreadGroup.class);
-        registerClass(scope, WrapThread.class);
-        registerClass(scope, WrapSystem.class);
 
-        registerClass(scope, Reflector.class);
-        registerClass(scope, Reflection.class);
-        registerClass(scope, ReflectionException.class);
-        registerClass(scope, ReflectionExtension.class);
-        registerClass(scope, ReflectionType.class);
-        registerClass(scope, ReflectionFunctionAbstract.class);
-        registerClass(scope, ReflectionFunction.class);
-        registerClass(scope, ReflectionParameter.class);
-        registerClass(scope, ReflectionProperty.class);
-        registerClass(scope, ReflectionMethod.class);
-        registerClass(scope, ReflectionClass.class);
-        registerClass(scope, ReflectionObject.class);
+        registerClass(scope,
+                WrapEnvironment.class, WrapEnvironmentVariables.class, WrapThreadGroup.class,
+                WrapThread.class, WrapSystem.class,
+
+                Reflector.class, Reflection.class, ReflectionException.class, ReflectionExtension.class,
+                ReflectionType.class, ReflectionFunctionAbstract.class, ReflectionFunction.class,
+                ReflectionParameter.class, ReflectionProperty.class, ReflectionMethod.class, ReflectionClass.class,
+                ReflectionObject.class
+        );
 
         registerClass(scope, WrapJavaExceptions.NotImplementedException.class);
 
         // stream
         registerJavaException(scope, WrapIOException.class, IOException.class);
-        registerClass(scope, FileObject.class);
-        registerClass(scope, Stream.class);
-        registerClass(scope, FileStream.class);
-        registerClass(scope, MiscStream.class);
-        registerClass(scope, MemoryMiscStream.class);
-        registerClass(scope, ResourceStream.class);
+        registerClass(scope,
+                FileObject.class, Stream.class, FileStream.class, MiscStream.class, MemoryMiscStream.class,
+                ResourceStream.class
+        );
 
         // net
-        registerClass(scope, WrapSocket.class);
-        registerClass(scope, WrapServerSocket.class);
+        registerClass(scope, WrapSocket.class, WrapServerSocket.class);
         registerJavaException(scope, WrapSocketException.class, SocketException.class);
 
-        registerClass(scope, WrapThreadPool.class);
-        registerClass(scope, WrapFuture.class);
+        registerClass(scope, WrapThreadPool.class, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
-        registerClass(scope, WrapProcessor.class);
-        registerClass(scope, WrapProcessor.ProcessorException.class);
-        registerClass(scope, WrapProcess.class);
+        registerClass(scope, WrapProcessor.class, WrapProcessor.ProcessorException.class, WrapProcess.class);
     }
 
     @Override
