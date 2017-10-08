@@ -24,7 +24,7 @@ abstract public class Extension {
 
     protected final Map<String, CompileConstant> constants = new LinkedHashMap<>();
     protected final Map<String, CompileFunctionSpec> functions = new LinkedHashMap<>();
-    protected final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
+    protected final Map<String, Class<?>> classes = new LinkedHashMap<>();
 
     public String getName() {
         return getClass().getName();
@@ -74,12 +74,16 @@ abstract public class Extension {
     }
 
     public Collection<Class<?>> getClasses() {
-        return classes;
+        return classes.values();
     }
 
     @Deprecated
     public void registerNativeClass(CompileScope scope, Class<?> clazz) {
         registerClass(scope, clazz);
+    }
+
+    public void registerClass(CompileScope scope, Class<?> clazz) {
+        registerClass(scope, new Class[] { clazz });
     }
 
     public void registerClass(CompileScope scope, Class<?>... classes) {
@@ -88,14 +92,14 @@ abstract public class Extension {
                 throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
             }
 
-            if (!this.classes.add(clazz)) {
+            if (this.classes.put(clazz.getName(), clazz) != null) {
                 throw new CriticalException("Class already registered - " + clazz.getName());
             }
         }
     }
 
     public <T> void registerWrapperClass(CompileScope scope, Class<T> clazz, Class<? extends BaseWrapper> wrapperClass) {
-        if (!classes.add(wrapperClass)) {
+        if (classes.put(clazz.getName(), wrapperClass) != null) {
             throw new CriticalException("Class already registered - " + clazz.getName());
         }
 
