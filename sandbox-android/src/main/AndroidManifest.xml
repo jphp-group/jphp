@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chapter 1, Exercise 1: Change version data to 2 and 2.0 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.develnext.sandbox"
+          android:versionCode="2"
+          android:versionName="2.0" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+
+    <uses-sdk
+            android:minSdkVersion="19"
+            android:targetSdkVersion="25" />
+
+    <application android:allowBackup="true" android:label="sandbox-android" android:theme="@style/AppTheme">
+        <activity
+                android:name="org.develnext.sandbox.AppActivity"
+                android:label="Sandbox Android">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="org.develnext.sandbox.MainActivity" android:label="Sandbox Android" />
+    </application>
+
+</manifest>

@@ -5,6 +5,7 @@ import php.runtime.common.Callback;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.lib.FsUtils;
+import php.runtime.ext.support.Extension;
 import php.runtime.launcher.StandaloneLauncher;
 import php.runtime.loader.dump.*;
 import php.runtime.reflection.ClassEntity;
@@ -18,6 +19,7 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ServiceLoader;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -81,7 +83,12 @@ public class StandaloneCompiler {
             compiler.compile(destinationDirectory);
 
             if (jarFile != null) {
-                compiler.compileJar(jarFile, destinationDirectory, StandaloneLauncher.class.getName());
+                try {
+                    compiler.compileJar(jarFile, destinationDirectory, StandaloneLauncher.class.getName());
+                } finally {
+                    FsUtils.clean(env, destinationDirectory.getPath());
+                    FsUtils.delete(destinationDirectory.getPath());
+                }
             }
 
             System.out.println("\nCompiling is SUCCESSFUL, time = " + (System.currentTimeMillis() - time) + "ms.");
@@ -99,6 +106,16 @@ public class StandaloneCompiler {
         }
 
         this.sourceDirectory = sourceDirectory;
+
+        loadExtensions();
+    }
+
+    private void loadExtensions() {
+        ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);
+
+        for (Extension extension : loader) {
+            env.scope.registerExtension(extension);
+        }
     }
 
     public boolean isDebug() {
@@ -110,6 +127,12 @@ public class StandaloneCompiler {
     }
 
     private void saveJavaClass(File file, byte[] data) throws IOException {
+        File parentFile = file.getParentFile();
+
+        if (parentFile != null && !parentFile.isDirectory()) {
+            parentFile.mkdirs();
+        }
+
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(data);
         }
@@ -130,27 +153,10 @@ public class StandaloneCompiler {
         entity.setContext(context);
         entity.setName(moduleName);
 
-        ClassDumper classDumper = new ClassDumper(context, entity, env, debug);
-        classDumper.setIncludeData(false);
-
-        FunctionDumper functionDumper = new FunctionDumper(context, env, debug);
-        functionDumper.setIncludeData(false);
-
-        ClosureDumper closureDumper = new ClosureDumper(context, env, debug);
-        closureDumper.setIncludeData(false);
-
-        GeneratorDumper generatorDumper = new GeneratorDumper(context, env, debug);
-        generatorDumper.setIncludeData(false);
-
         for (ClassEntity classEntity : entity.getClasses()) {
             saveJavaClass(
                     new File(destinationDirectory, "/" + classEntity.getInternalName() + ".class"),
                     classEntity.getData()
-            );
-
-            classDumper.save(
-                    classEntity,
-                    new File(destinationDirectory, "/" + classEntity.getInternalName() + ".dump")
             );
         }
 
@@ -159,11 +165,6 @@ public class StandaloneCompiler {
                     new File(destinationDirectory, "/" + functionEntity.getInternalName() + ".class"),
                     functionEntity.getData()
             );
-
-            functionDumper.save(
-                    functionEntity,
-                    new File(destinationDirectory, "/" + functionEntity.getInternalName() + ".dump")
-            );
         }
 
         for (ClosureEntity one : entity.getClosures()) {
@@ -171,8 +172,6 @@ public class StandaloneCompiler {
                     new File(destinationDirectory, "/" + one.getInternalName() + ".class"),
                     one.getData()
             );
-
-            closureDumper.save(one, new File(destinationDirectory, "/" + one.getInternalName() + ".dump"));
         }
 
         for (GeneratorEntity one : entity.getGenerators()) {
@@ -180,8 +179,6 @@ public class StandaloneCompiler {
                     new File(destinationDirectory, "/" + one.getInternalName() + ".class"),
                     one.getData()
             );
-
-            generatorDumper.save(one, new File(destinationDirectory, "/" + one.getInternalName() + ".dump"));
         }
 
         ModuleDumper dumper = new ModuleDumper(context, env, debug);

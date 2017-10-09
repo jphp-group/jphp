@@ -1,0 +1,67 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.0'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '26.0.2'
+
+    defaultConfig {
+        applicationId "org.develnext.sandbox"
+        minSdkVersion 19
+        targetSdkVersion 19
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        java {
+            exclude 'JPHP-INF/sdk/**'
+        }
+
+        compileClasspath += configurations.provided
+    }
+}
+
+task compileStandalone(type: JavaExec) {
+    classpath = sourceSets.main.compileClasspath
+
+    main = "php.runtime.loader.compile.StandaloneCompiler"
+
+    args "${project.rootDir.path}/src/main/php", "${project.rootDir.path}/libs/${project.name}.jar"
+}
+
+dependencies {
+    compile "org.develnext.jphp:jphp-runtime:0.9.0-SNAPSHOT"
+    compile "org.develnext.jphp:jphp-android-sdk:0.9.0-SNAPSHOT"
+    provided "org.develnext.jphp:jphp-core:0.9.0-SNAPSHOT"
+
+    compile 'com.android.support:appcompat-v7:19.+'
+    compile fileTree(dir: 'libs', include: '*.jar')
+}

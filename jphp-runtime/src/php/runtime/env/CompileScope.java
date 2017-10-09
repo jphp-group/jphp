@@ -76,7 +76,7 @@ public class CompileScope {
     protected TickHandler tickHandler;
     protected List<ProgramShutdownHandler> programShutdownHandlers;
 
-    public Map<String, Memory> configuration;
+    public Map<String, Memory> configuration = new HashMap<>();
 
     // flags
     public boolean debugMode = false;

@@ -4,6 +4,7 @@ import android.widget.TextView;
 import org.develnext.jphp.android.ext.AndroidExtension;
 import org.develnext.jphp.android.ext.classes.app.WrapActivity;
 import org.develnext.jphp.android.ext.classes.view.WrapView;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;

@@ -37,11 +37,11 @@ public class StandaloneLibrary {
         modules.put(module.getName(), module);
 
         for (String name : module.getClasses()) {
-            classModules.put(name, module);
+            classModules.put(name.toLowerCase(), module);
         }
 
         for (String name : module.getFunctions()) {
-            functionModules.put(name, module);
+            functionModules.put(name.toLowerCase(), module);
         }
 
         for (String name : module.getConstants()) {

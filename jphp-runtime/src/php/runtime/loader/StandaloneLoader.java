@@ -1,21 +1,27 @@
 package php.runtime.loader;
 
+import php.runtime.Memory;
+import php.runtime.Startup;
+import php.runtime.common.Callback;
+import php.runtime.common.LangMode;
 import php.runtime.env.CompileScope;
+import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.support.Extension;
+import php.runtime.launcher.LaunchException;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.loader.dump.StandaloneLibrary;
 import php.runtime.loader.dump.StandaloneLibraryDumper;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +32,16 @@ public class StandaloneLoader {
     protected final CompileScope scope;
     protected final Environment env;
     private ClassLoader classLoader;
+    protected final Properties config;
+
+    protected boolean isDebug;
 
     private StandaloneLibrary library;
 
     public StandaloneLoader() {
+        config = new Properties();
         scope = new CompileScope();
-        env = new Environment(scope, System.out);
+        env = new ConcurrentEnvironment(scope, System.out);
         env.getDefaultBuffer().setImplicitFlush(true);
 
         scope.addClassEntityFetchHandler(new EntityFetchHandler() {
@@ -40,9 +50,9 @@ public class StandaloneLoader {
                 ModuleEntity module = fetchClass(name);
 
                 if (module != null) {
-                    loadModule(module);
-                    scope.loadModule(module, false);
-                    scope.registerModule(module);
+                        loadModule(module);
+                        scope.loadModule(module, false);
+                        scope.registerModule(module);
                 }
             }
         });
@@ -53,9 +63,9 @@ public class StandaloneLoader {
                 ModuleEntity module = fetchFunction(name);
 
                 if (module != null) {
-                    loadModule(module);
-                    scope.loadModule(module, false);
-                    scope.registerModule(module);
+                        loadModule(module);
+                        scope.loadModule(module, false);
+                        scope.registerModule(module);
                 }
             }
         });
@@ -66,9 +76,9 @@ public class StandaloneLoader {
                 ModuleEntity module = fetchConstant(name);
 
                 if (module != null) {
-                    loadModule(module);
-                    scope.loadModule(module, false);
-                    scope.registerModule(module);
+                        loadModule(module);
+                        scope.loadModule(module, false);
+                        scope.registerModule(module);
                 }
             }
         });
@@ -86,6 +96,22 @@ public class StandaloneLoader {
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
         this.scope.setNativeClassLoader(classLoader);
+    }
+
+    public Memory getConfigValue(String key) {
+        return getConfigValue(key, Memory.NULL);
+    }
+
+    public Memory getConfigValue(String key, Memory def) {
+        String result = config.getProperty(key);
+        if (result == null)
+            return def;
+
+        return new StringMemory(result);
+    }
+
+    public Memory getConfigValue(String key, String def) {
+        return getConfigValue(key, new StringMemory(def));
     }
 
     public Collection<InputStream> getResources(String name) {
@@ -115,15 +141,49 @@ public class StandaloneLoader {
         }
     }
 
+    public void initExtensions() {
+        scope.getClassLoader().onAddLibrary(new Callback<Void, URL>() {
+            @Override
+            public Void call(URL param) {
+                loadExtensions();
+                return null;
+            }
+        });
+    }
+
     public void loadLibrary() throws IOException {
         if (classLoader == null) {
             throw new NullPointerException("classLoader is null");
         }
 
-        this.loadClassesDump(classLoader.getResourceAsStream("JPHP-INF/library.dump"));
+        this.loadLibraryDump(classLoader.getResourceAsStream("JPHP-INF/library.dump"));
+    }
+
+    public void readConfig() {
+        InputStream resource = classLoader.getResourceAsStream("JPHP-INF/launcher.conf");
+
+        if (resource != null) {
+            try {
+                config.load(resource);
+
+                for (String name : config.stringPropertyNames()){
+                    scope.configuration.put(name, new StringMemory(config.getProperty(name)));
+                }
+
+                isDebug = Startup.isDebug();
+                scope.setDebugMode(isDebug);
+
+                scope.setLangMode(
+                        LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase())
+                );
+            } catch (IOException e) {
+                throw new LaunchException(e.getMessage());
+            }
+        }
     }
 
     public void run() {
+        readConfig();
         run("JPHP-INF/.bootstrap.php");
     }
 
@@ -150,12 +210,17 @@ public class StandaloneLoader {
 
         if (module == null) {
             return null;
+            //throw new CriticalException("Cannot find module of entity: " + name);
+        }
+
+        if (scope.findUserModule(module.getName()) != null) {
+            return null;
         }
 
         InputStream input = classLoader.getResourceAsStream(module.getInternalName() + ".dump");
 
         if (input == null) {
-            return null;
+            throw new CriticalException("Cannot find resource: " + module.getInternalName() + ".dump");
         }
 
         ModuleDumper moduleDumper = new ModuleDumper(
@@ -165,11 +230,15 @@ public class StandaloneLoader {
         try {
             return moduleDumper.load(input);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CriticalException(e);
         }
     }
 
     public ModuleEntity fetchModule(String name) {
+        if (library == null) {
+            throw new CriticalException("Standalone library is not loaded");
+        }
+
         ModuleEntity entity = _fetch(name, library.getModules());
 
         if (entity != null) {
@@ -182,14 +251,26 @@ public class StandaloneLoader {
     }
 
     public ModuleEntity fetchClass(String name) {
+        if (library == null) {
+            throw new CriticalException("Standalone library is not loaded");
+        }
+
         return _fetch(name.toLowerCase(), library.getClassModules());
     }
 
     public ModuleEntity fetchFunction(String name) {
+        if (library == null) {
+            throw new CriticalException("Standalone library is not loaded");
+        }
+
         return _fetch(name.toLowerCase(), library.getFunctionModules());
     }
 
     public ModuleEntity fetchConstant(String name) {
+        if (library == null) {
+            throw new CriticalException("Standalone library is not loaded");
+        }
+
         return _fetch(name, library.getConstantModules());
     }
 
@@ -197,7 +278,7 @@ public class StandaloneLoader {
         return scope;
     }
 
-    protected void loadClassesDump(InputStream input) throws IOException {
+    protected void loadLibraryDump(InputStream input) throws IOException {
         StandaloneLibraryDumper dumper = new StandaloneLibraryDumper();
         library = dumper.load(input);
     }
