@@ -33,6 +33,11 @@ public class AndroidExtension extends Extension {
     }
 
     @Override
+    public String[] getPackageNames() {
+        return new String[] {"android"};
+    }
+
+    @Override
     public void onRegister(CompileScope scope) {
         registerMemoryOperation(ActivityMemoryOperation.class);
 

@@ -11,6 +11,7 @@ include 'jphp-runtime',
         'jphp-httpserver-ext',
         'jphp-gen-api',
         'jphp-scripting',
+        'jphp-android-sdk',
 
         'jphp-debugger',
 

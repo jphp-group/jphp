@@ -4,9 +4,7 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.reflection.support.Entity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 abstract public class Dumper<T extends Entity> {
     protected final Context context;
@@ -27,6 +25,18 @@ abstract public class Dumper<T extends Entity> {
 
     abstract public void save(T entity, OutputStream output) throws IOException;
     abstract public T load(InputStream input) throws IOException;
+
+    public void save(T entity, File file) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            save(entity, outputStream);
+        }
+    }
+
+    public T load(File file) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            return load(inputStream);
+        }
+    }
 
     public boolean isIncludeData() {
         return includeData;

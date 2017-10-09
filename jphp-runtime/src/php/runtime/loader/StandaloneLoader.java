@@ -5,7 +5,10 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
+import php.runtime.ext.support.Extension;
 import php.runtime.loader.dump.ModuleDumper;
+import php.runtime.loader.dump.StandaloneLibrary;
+import php.runtime.loader.dump.StandaloneLibraryDumper;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
@@ -24,21 +27,12 @@ public class StandaloneLoader {
     protected final Environment env;
     private ClassLoader classLoader;
 
-    protected final Map<String, Module> classes;
-    protected final Map<String, Module> functions;
-    protected final Map<String, Module> constants;
-    protected final Map<String, Module> modules;
+    private StandaloneLibrary library;
 
     public StandaloneLoader() {
         scope = new CompileScope();
         env = new Environment(scope, System.out);
         env.getDefaultBuffer().setImplicitFlush(true);
-
-        classes = new HashMap<String, Module>();
-        functions = new HashMap<String, Module>();
-        constants = new HashMap<String, Module>();
-
-        modules = new HashMap<String, Module>();
 
         scope.addClassEntityFetchHandler(new EntityFetchHandler() {
             @Override
@@ -109,29 +103,15 @@ public class StandaloneLoader {
         }
     }
 
-    protected void loadExtension(InputStream stream) {
-        if (stream != null) {
-            Scanner scanner = new Scanner(stream);
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine().trim();
-
-                if (!line.isEmpty()) {
-                    scope.registerExtension(line);
-                }
-            }
-        }
-    }
-
     public void loadExtensions() {
         if (classLoader == null) {
             throw new NullPointerException("classLoader is null");
         }
 
-        loadExtension(classLoader.getResourceAsStream("JPHP-INF/standalone.extensions.list"));
+        ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class, classLoader);
 
-        for (InputStream stream : getResources("JPHP-INF/extensions.list")) {
-            loadExtension(stream);
+        for (Extension extension : loader) {
+            scope.registerExtension(extension);
         }
     }
 
@@ -140,11 +120,11 @@ public class StandaloneLoader {
             throw new NullPointerException("classLoader is null");
         }
 
-        this.loadClassesDump(classLoader.getResourceAsStream("JPHP-INF/classes.dump"));
+        this.loadClassesDump(classLoader.getResourceAsStream("JPHP-INF/library.dump"));
     }
 
     public void run() {
-        run("JPHP-INF/.bootstrap");
+        run("JPHP-INF/.bootstrap.php");
     }
 
     public void run(String bootstrapScriptName) {
@@ -165,20 +145,22 @@ public class StandaloneLoader {
         }
     }
 
-    protected ModuleEntity _fetch(String name, Map<String, Module> source) {
-        Module module = source.get(name);
+    protected ModuleEntity _fetch(String name, Map<String, StandaloneLibrary.Module> source) {
+        StandaloneLibrary.Module module = source.get(name);
 
         if (module == null) {
             return null;
         }
 
-        InputStream input = classLoader.getResourceAsStream(module.internalName + ".dump");
+        InputStream input = classLoader.getResourceAsStream(module.getInternalName() + ".dump");
 
         if (input == null) {
             return null;
         }
 
-        ModuleDumper moduleDumper = new ModuleDumper(new Context(new File(module.name)), env, true);
+        ModuleDumper moduleDumper = new ModuleDumper(
+                new Context(new File(module.getInternalName())), env, true
+        );
 
         try {
             return moduleDumper.load(input);
@@ -188,7 +170,7 @@ public class StandaloneLoader {
     }
 
     public ModuleEntity fetchModule(String name) {
-        ModuleEntity entity = _fetch(name.toLowerCase(), modules);
+        ModuleEntity entity = _fetch(name, library.getModules());
 
         if (entity != null) {
             loadModule(entity);
@@ -200,15 +182,15 @@ public class StandaloneLoader {
     }
 
     public ModuleEntity fetchClass(String name) {
-        return _fetch(name.toLowerCase(), classes);
+        return _fetch(name.toLowerCase(), library.getClassModules());
     }
 
     public ModuleEntity fetchFunction(String name) {
-        return _fetch(name.toLowerCase(), functions);
+        return _fetch(name.toLowerCase(), library.getFunctionModules());
     }
 
     public ModuleEntity fetchConstant(String name) {
-        return _fetch(name, constants);
+        return _fetch(name, library.getConstantModules());
     }
 
     public CompileScope getScope() {
@@ -216,38 +198,8 @@ public class StandaloneLoader {
     }
 
     protected void loadClassesDump(InputStream input) throws IOException {
-        DataInputStream classesDump = new DataInputStream(input);
-
-        int size = classesDump.readInt();
-
-        for (int i = 0; i < size; i++) {
-            String name = classesDump.readUTF();
-            String internalName = classesDump.readUTF();
-
-            // classes
-            int classesSize = classesDump.readInt();
-            Set<String> classes = new HashSet<String>();
-            for (int j = 0; j < classesSize; j++) {
-                classes.add(classesDump.readUTF());
-            }
-
-            // functions
-            int functionsSize = classesDump.readInt();
-            Set<String> functions = new HashSet<String>();
-            for (int j = 0; j < functionsSize; j++) {
-                functions.add(classesDump.readUTF());
-            }
-
-            // constants
-            int constantSize = classesDump.readInt();
-            Set<String> constants = new HashSet<String>();
-            for (int j = 0; j < constantSize; j++) {
-                constants.add(classesDump.readUTF());
-            }
-
-            Module module = new Module(name, internalName, classes, functions, constants);
-            registerModule(module);
-        }
+        StandaloneLibraryDumper dumper = new StandaloneLibraryDumper();
+        library = dumper.load(input);
     }
 
     protected void loadModule(ModuleEntity moduleEntity) {
@@ -282,47 +234,7 @@ public class StandaloneLoader {
         }
     }
 
-    protected void registerModule(Module module) {
-        for (String name : module.classes) {
-            classes.put(name.toLowerCase(), module);
-        }
-
-        for (String name : module.functions) {
-            functions.put(name.toLowerCase(), module);
-        }
-
-        for (String name : module.constants) {
-            constants.put(name, module);
-        }
-
-        String name = module.name;
-
-        if (name.endsWith(".php")) {
-            name = name.substring(0, name.lastIndexOf(".php"));
-        }
-
-        modules.put(name.toLowerCase(), module);
-    }
-
     public Environment getScopeEnvironment() {
         return env;
-    }
-
-    protected static class Module {
-        public final String name;
-        public final String internalName;
-
-        public final Set<String> classes;
-        public final Set<String> functions;
-        public final Set<String> constants;
-
-        public Module(String name, String internalName,
-                      Set<String> classes, Set<String> functions, Set<String> constants) {
-            this.name = name;
-            this.internalName = internalName;
-            this.classes = classes;
-            this.functions = functions;
-            this.constants = constants;
-        }
     }
 }
