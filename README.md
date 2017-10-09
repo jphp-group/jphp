@@ -43,7 +43,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Fix list() behavior inconsistency (SNAPSHOT).
 + Throwable Interface (SNAPSHOT).
 + Group Use Declarations (SNAPSHOT).
-+ Scalar Type Hinting (SNAPSHOT).
++ Scalar and Optional Type Hinting (SNAPSHOT).
 + Return Type Hinting (SNAPSHOT).
 + Void and Iterable Type Hinting (SNAPSHOT).
 + Uniform Variable Syntax (SNAPSHOT, partly).
