@@ -2,7 +2,9 @@ package php.runtime;
 
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.invoke.DynamicMethodInvoker;
 import php.runtime.invoke.Invoker;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
@@ -890,5 +892,20 @@ abstract public class Memory implements Comparable<Memory> {
             return -1;
         else
             return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Memory memory = (Memory) o;
+
+        return equal(memory);
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
 }

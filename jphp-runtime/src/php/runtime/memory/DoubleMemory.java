@@ -307,8 +307,19 @@ public class DoubleMemory extends Memory {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        DoubleMemory that = (DoubleMemory) o;
+
+        return Double.compare(that.value, value) == 0;
+    }
+
+    @Override
     public int hashCode() {
-        long temp = (long)value;
+        long temp = (long) value;
         return (int) (temp ^ (temp >>> 32));
     }
 

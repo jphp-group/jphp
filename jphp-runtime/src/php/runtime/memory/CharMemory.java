@@ -86,4 +86,25 @@ public class CharMemory extends StringMemory {
         makeString(value);
         return new StringMemory(value);
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        CharMemory that = (CharMemory) o;
+
+        if (index != that.index) return false;
+        return origin != null ? origin.equals(that.origin) : that.origin == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (origin != null ? origin.hashCode() : 0);
+        result = 31 * result + index;
+        return result;
+    }
 }

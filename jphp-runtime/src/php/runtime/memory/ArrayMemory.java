@@ -1020,11 +1020,6 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
-
-    @Override
     public void unset() {
         if (original != null) {
             original.copies--;
@@ -1983,6 +1978,28 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             }
         }
 
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ArrayMemory that = (ArrayMemory) o;
+
+        if (original != null ? !original.equals(that.original) : that.original != null) return false;
+        if (list != null ? !list.equals(that.list) : that.list != null) return false;
+        return map != null ? map.equals(that.map) : that.map == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (original != null ? original.hashCode() : 0);
+        result = 31 * result + (list != null ? list.hashCode() : 0);
+        result = 31 * result + (map != null ? map.hashCode() : 0);
         return result;
     }
 }

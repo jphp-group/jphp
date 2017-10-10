@@ -1260,4 +1260,20 @@ public class ObjectMemory extends Memory {
     public boolean isClosure() {
         return value instanceof Closure;
     }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ObjectMemory that = (ObjectMemory) o;
+
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
 }

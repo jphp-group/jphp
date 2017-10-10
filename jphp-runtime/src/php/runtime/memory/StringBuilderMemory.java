@@ -103,4 +103,22 @@ public class StringBuilderMemory extends StringMemory {
         else
             return builder.length();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        StringBuilderMemory that = (StringBuilderMemory) o;
+
+        return builder != null ? builder.equals(that.builder) : that.builder == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (builder != null ? builder.hashCode() : 0);
+        return result;
+    }
 }
