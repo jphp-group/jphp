@@ -9,16 +9,16 @@ import php.runtime.lang.IObject;
 import java.nio.charset.Charset;
 
 public class ReferenceMemory extends Memory {
-    public Memory value;
+    private Memory _value;
 
     protected ReferenceMemory(Type type, Memory value) {
         super(type);
-        this.value = value;
+        this._value = value;
     }
 
     public ReferenceMemory(Memory value) {
         super(Type.REFERENCE);
-        this.value = value == null ? Memory.NULL : value;
+        this._value = value == null ? Memory.NULL : value;
     }
 
     public static Memory valueOf(Memory value){
@@ -27,81 +27,89 @@ public class ReferenceMemory extends Memory {
 
     public ReferenceMemory() {
         super(Type.REFERENCE);
-        this.value = Memory.NULL;
+        this._value = Memory.NULL;
     }
 
     public ReferenceMemory duplicate(){
-        return new ReferenceMemory(value.toImmutable());
+        return new ReferenceMemory(getValue().toImmutable());
+    }
+
+    public Memory getValue() {
+        return _value;
+    }
+
+    public Memory setValue(Memory value) {
+        return this._value = value;
     }
 
     @Override
     public int getPointer() {
-        return value.getPointer();
+        return getValue().getPointer();
     }
 
     @Override
     public int getPointer(boolean absolute) {
-        return absolute ? value.getPointer() : getPointer();
+        return absolute ? getValue().getPointer() : getPointer();
     }
 
     @Override
     public long toLong() {
-        return value.toLong();
+        return getValue().toLong();
     }
 
     @Override
     public double toDouble() {
-        return value.toDouble();
+        return getValue().toDouble();
     }
 
     @Override
     public boolean toBoolean() {
-        return value.toBoolean();
+        return getValue().toBoolean();
     }
 
     @Override
     public Memory toNumeric() {
-        return value.toNumeric();
+        return getValue().toNumeric();
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        return getValue().toString();
     }
 
     @Override
     public char toChar() {
-        return value.toChar();
+        return getValue().toChar();
     }
 
     @Override
     public boolean isNull() {
-        return value.isNull();
+        return getValue().isNull();
     }
 
     @Override
     public boolean isObject() {
-        return value.isObject();
+        return getValue().isObject();
     }
 
     @Override
     public boolean isResource() {
-        return value.isResource();
+        return getValue().isResource();
     }
 
     @Override
     public boolean isArray() {
-        return value.isArray();
+        return getValue().isArray();
     }
 
     @Override
     public boolean isString() {
-        return value.isString();
+        return getValue().isString();
     }
 
     @Override
     public boolean isNumber() {
-        return value.isNumber();
+        return getValue().isNumber();
     }
 
     @Override
@@ -111,519 +119,519 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory inc() {
-        return value.inc();
+        return getValue().inc();
     }
 
     @Override
     public Memory dec() {
-        return value.dec();
+        return getValue().dec();
     }
 
     @Override
     public Memory negative() {
-        return value.negative();
+        return getValue().negative();
     }
 
     @Override
     public Memory plus(Memory memory) {
-        return value.plus(memory);
+        return getValue().plus(memory);
     }
 
     @Override
     public Memory plus(long value) {
-        return this.value.plus(value);
+        return this.getValue().plus(value);
     }
 
     @Override
     public Memory plus(double value) {
-        return this.value.plus(value);
+        return this.getValue().plus(value);
     }
 
     @Override
     public Memory plus(boolean value) {
-        return this.value.plus(value);
+        return this.getValue().plus(value);
     }
 
     @Override
     public Memory plus(String value) {
-        return this.value.plus(value);
+        return this.getValue().plus(value);
     }
 
     @Override
     public Memory minus(Memory memory) {
-        return value.minus(memory);
+        return getValue().minus(memory);
     }
 
     @Override
     public Memory minus(double value) {
-        return this.value.minus(value);
+        return this.getValue().minus(value);
     }
 
     @Override
     public Memory minus(boolean value) {
-        return this.value.minus(value);
+        return this.getValue().minus(value);
     }
 
     @Override
     public Memory minus(String value) {
-        return this.value.minus(value);
+        return this.getValue().minus(value);
     }
 
     @Override
     public Memory minus(long value) {
-        return this.value.minus(value);
+        return this.getValue().minus(value);
     }
 
     @Override
     public Memory mul(Memory memory) {
-        return value.mul(memory);
+        return getValue().mul(memory);
     }
 
     @Override
     public Memory mul(long value) {
-        return this.value.mul(value);
+        return this.getValue().mul(value);
     }
 
     @Override
     public Memory mul(double value) {
-        return this.value.mul(value);
+        return this.getValue().mul(value);
     }
 
     @Override
     public Memory mul(boolean value) {
-        return this.value.mul(value);
+        return this.getValue().mul(value);
     }
 
     @Override
     public Memory mul(String value) {
-        return this.value.mul(value);
+        return this.getValue().mul(value);
     }
 
     @Override
     public Memory pow(Memory memory) {
-        return value.pow(memory);
+        return getValue().pow(memory);
     }
 
     @Override
     public Memory pow(long value) {
-        return this.value.pow(value);
+        return this.getValue().pow(value);
     }
 
     @Override
     public Memory pow(double value) {
-        return this.value.pow(value);
+        return this.getValue().pow(value);
     }
 
     @Override
     public Memory pow(boolean value) {
-        return this.value.pow(value);
+        return this.getValue().pow(value);
     }
 
     @Override
     public Memory pow(String value) {
-        return this.value.pow(value);
+        return this.getValue().pow(value);
     }
 
     @Override
     public Memory div(Memory memory) {
-        return value.div(memory);
+        return getValue().div(memory);
     }
 
     @Override
     public Memory div(long value) {
-        return this.value.div(value);
+        return this.getValue().div(value);
     }
 
     @Override
     public Memory div(double value) {
-        return this.value.div(value);
+        return this.getValue().div(value);
     }
 
     @Override
     public Memory div(boolean value) {
-        return this.value.div(value);
+        return this.getValue().div(value);
     }
 
     @Override
     public Memory div(String value) {
-        return this.value.div(value);
+        return this.getValue().div(value);
     }
 
     @Override
     public Memory mod(long value) {
-        return this.value.mod(value);
+        return this.getValue().mod(value);
     }
 
     @Override
     public Memory mod(double value) {
-       return this.value.mod(value);
+       return this.getValue().mod(value);
     }
 
     @Override
     public Memory mod(boolean value) {
-        return this.value.mod(value);
+        return this.getValue().mod(value);
     }
 
     @Override
     public Memory mod(String value) {
-        return this.value.mod(value);
+        return this.getValue().mod(value);
     }
 
     @Override
     public boolean equal(Memory memory) {
-        return value.equal(memory);
+        return getValue().equal(memory);
     }
 
     @Override
     public boolean equal(long value) {
-        return this.value.equal(value);
+        return this.getValue().equal(value);
     }
 
     @Override
     public boolean equal(double value) {
-        return this.value.equal(value);
+        return this.getValue().equal(value);
     }
 
     @Override
     public boolean equal(boolean value) {
-        return this.value.equal(value);
+        return this.getValue().equal(value);
     }
 
     @Override
     public boolean equal(String value) {
-        return this.value.equal(value);
+        return this.getValue().equal(value);
     }
 
     @Override
     public boolean notEqual(Memory memory) {
-        return value.notEqual(memory);
+        return getValue().notEqual(memory);
     }
 
     @Override
     public boolean notEqual(long value) {
-        return this.value.notEqual(value);
+        return this.getValue().notEqual(value);
     }
 
     @Override
     public boolean notEqual(double value) {
-        return this.value.notEqual(value);
+        return this.getValue().notEqual(value);
     }
 
     @Override
     public boolean notEqual(boolean value) {
-        return this.value.notEqual(value);
+        return this.getValue().notEqual(value);
     }
 
     @Override
     public boolean notEqual(String value) {
-        return this.value.notEqual(value);
+        return this.getValue().notEqual(value);
     }
 
     @Override
     public String concat(Memory memory) {
-        return value.concat(memory);
+        return getValue().concat(memory);
     }
 
     @Override
     public String concat(long value) {
-        return this.value.concat(value);
+        return this.getValue().concat(value);
     }
 
     @Override
     public String concat(double value) {
-        return this.value.concat(value);
+        return this.getValue().concat(value);
     }
 
     @Override
     public String concat(boolean value) {
-        return this.value.concat(value);
+        return this.getValue().concat(value);
     }
 
     @Override
     public String concat(String value) {
-        return this.value.concat(value);
+        return this.getValue().concat(value);
     }
 
     @Override
     public boolean smaller(Memory memory) {
-        return value.smaller(memory);
+        return getValue().smaller(memory);
     }
 
     @Override
     public boolean smaller(long value) {
-        return this.value.smaller(value);
+        return this.getValue().smaller(value);
     }
 
     @Override
     public boolean smaller(double value) {
-        return this.value.smaller(value);
+        return this.getValue().smaller(value);
     }
 
     @Override
     public boolean smaller(boolean value) {
-        return this.value.smaller(value);
+        return this.getValue().smaller(value);
     }
 
     @Override
     public boolean smaller(String value) {
-        return this.value.smaller(value);
+        return this.getValue().smaller(value);
     }
 
     @Override
     public boolean smallerEq(Memory memory) {
-        return value.smallerEq(memory);
+        return getValue().smallerEq(memory);
     }
 
     @Override
     public boolean smallerEq(long value) {
-        return this.value.smallerEq(value);
+        return this.getValue().smallerEq(value);
     }
 
     @Override
     public boolean smallerEq(double value) {
-        return this.value.smallerEq(value);
+        return this.getValue().smallerEq(value);
     }
 
     @Override
     public boolean smallerEq(boolean value) {
-        return this.value.smallerEq(value);
+        return this.getValue().smallerEq(value);
     }
 
     @Override
     public boolean smallerEq(String value) {
-        return this.value.smallerEq(value);
+        return this.getValue().smallerEq(value);
     }
 
     @Override
     public boolean greater(Memory memory) {
-        return value.greater(memory);
+        return getValue().greater(memory);
     }
 
     @Override
     public boolean greater(long value) {
-        return this.value.greater(value);
+        return this.getValue().greater(value);
     }
 
     @Override
     public boolean greater(double value) {
-        return this.value.greater(value);
+        return this.getValue().greater(value);
     }
 
     @Override
     public boolean greater(boolean value) {
-        return this.value.greater(value);
+        return this.getValue().greater(value);
     }
 
     @Override
     public boolean greater(String value) {
-        return this.value.greater(value);
+        return this.getValue().greater(value);
     }
 
     @Override
     public boolean greaterEq(Memory memory) {
-        return value.greaterEq(memory);
+        return getValue().greaterEq(memory);
     }
 
     @Override
     public boolean greaterEq(long value) {
-        return this.value.greaterEq(value);
+        return this.getValue().greaterEq(value);
     }
 
     @Override
     public boolean greaterEq(double value) {
-        return this.value.greaterEq(value);
+        return this.getValue().greaterEq(value);
     }
 
     @Override
     public boolean greaterEq(boolean value) {
-        return this.value.greaterEq(value);
+        return this.getValue().greaterEq(value);
     }
 
     @Override
     public boolean greaterEq(String value) {
-        return this.value.greaterEq(value);
+        return this.getValue().greaterEq(value);
     }
 
     @Override
     public Memory bitAnd(Memory memory) {
-        return this.value.bitAnd(memory);
+        return this.getValue().bitAnd(memory);
     }
 
     @Override
     public Memory bitAnd(long memory) {
-        return this.value.bitAnd(memory);
+        return this.getValue().bitAnd(memory);
     }
 
     @Override
     public Memory bitAnd(double memory) {
-        return this.value.bitAnd(memory);
+        return this.getValue().bitAnd(memory);
     }
 
     @Override
     public Memory bitAnd(boolean memory) {
-        return this.value.bitAnd(memory);
+        return this.getValue().bitAnd(memory);
     }
 
     @Override
     public Memory bitAnd(String memory) {
-        return this.value.bitAnd(memory);
+        return this.getValue().bitAnd(memory);
     }
 
     @Override
     public Memory bitOr(Memory memory) {
-        return this.value.bitOr(memory);
+        return this.getValue().bitOr(memory);
     }
 
     @Override
     public Memory bitOr(long memory) {
-        return this.value.bitOr(memory);
+        return this.getValue().bitOr(memory);
     }
 
     @Override
     public Memory bitOr(double memory) {
-        return this.value.bitOr(memory);
+        return this.getValue().bitOr(memory);
     }
 
     @Override
     public Memory bitOr(boolean memory) {
-        return this.value.bitOr(memory);
+        return this.getValue().bitOr(memory);
     }
 
     @Override
     public Memory bitOr(String memory) {
-        return this.value.bitOr(memory);
+        return this.getValue().bitOr(memory);
     }
 
     @Override
     public Memory bitXor(Memory memory) {
-        return this.value.bitXor(memory);
+        return this.getValue().bitXor(memory);
     }
 
     @Override
     public Memory bitXor(long memory) {
-        return this.value.bitXor(memory);
+        return this.getValue().bitXor(memory);
     }
 
     @Override
     public Memory bitXor(double memory) {
-        return this.value.bitXor(memory);
+        return this.getValue().bitXor(memory);
     }
 
     @Override
     public Memory bitXor(boolean memory) {
-        return this.value.bitXor(memory);
+        return this.getValue().bitXor(memory);
     }
 
     @Override
     public Memory bitXor(String memory) {
-        return this.value.bitXor(memory);
+        return this.getValue().bitXor(memory);
     }
 
     @Override
     public Memory bitNot() {
-        return this.value.bitNot();
+        return this.getValue().bitNot();
     }
 
     @Override
     public Memory bitShr(Memory memory) {
-        return this.value.bitShr(memory);
+        return this.getValue().bitShr(memory);
     }
 
     @Override
     public Memory bitShr(long memory) {
-        return this.value.bitShr(memory);
+        return this.getValue().bitShr(memory);
     }
 
     @Override
     public Memory bitShr(double memory) {
-        return this.value.bitShr(memory);
+        return this.getValue().bitShr(memory);
     }
 
     @Override
     public Memory bitShr(boolean memory) {
-        return this.value.bitShr(memory);
+        return this.getValue().bitShr(memory);
     }
 
     @Override
     public Memory bitShr(String memory) {
-        return this.value.bitShr(memory);
+        return this.getValue().bitShr(memory);
     }
 
     @Override
     public Memory bitShl(Memory memory) {
-        return this.value.bitShl(memory);
+        return this.getValue().bitShl(memory);
     }
 
     @Override
     public Memory bitShl(long memory) {
-        return this.value.bitShl(memory);
+        return this.getValue().bitShl(memory);
     }
 
     @Override
     public Memory bitShl(double memory) {
-        return this.value.bitShl(memory);
+        return this.getValue().bitShl(memory);
     }
 
     @Override
     public Memory bitShl(boolean memory) {
-        return this.value.bitShl(memory);
+        return this.getValue().bitShl(memory);
     }
 
     @Override
     public Memory bitShl(String memory) {
-        return this.value.bitShl(memory);
+        return this.getValue().bitShl(memory);
     }
 
     @Override
     public Memory newKeyValue(Memory memory) {
-        return this.value.newKeyValue(memory);
+        return this.getValue().newKeyValue(memory);
     }
 
     @Override
     public Memory newKeyValue(long memory) {
-        return this.value.newKeyValue(memory);
+        return this.getValue().newKeyValue(memory);
     }
 
     @Override
     public Memory newKeyValue(double memory) {
-        return this.value.newKeyValue(memory);
+        return this.getValue().newKeyValue(memory);
     }
 
     @Override
     public Memory newKeyValue(boolean memory) {
-        return this.value.newKeyValue(memory);
+        return this.getValue().newKeyValue(memory);
     }
 
     @Override
     public Memory newKeyValue(String memory) {
-        return this.value.newKeyValue(memory);
+        return this.getValue().newKeyValue(memory);
     }
 
     @Override
     public Memory toImmutable() {
-        switch (value.type){
+        switch (getValue().type){
             case NULL:
             case REFERENCE:
-            case ARRAY: return value.toImmutable();
-            default: return value;
+            case ARRAY: return getValue().toImmutable();
+            default: return getValue();
         }
     }
 
     @Override
     public <T extends Memory> T toValue(Class<T> clazz){
-        switch (value.type){
-            case REFERENCE: return value.toValue(clazz);
+        switch (getValue().type){
+            case REFERENCE: return getValue().toValue(clazz);
             default:
-                return (T) value;
+                return (T) getValue();
         }
     }
 
     @Override
     public Memory toValue(){
-        switch (value.type){
-            case REFERENCE: return value.toValue();
+        switch (getValue().type){
+            case REFERENCE: return getValue().toValue();
             default:
-                return value;
+                return getValue();
         }
     }
 
@@ -634,18 +642,18 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory assign(Memory memory) {
-        switch (value.type){
+        switch (getValue().type){
             case REFERENCE:
-                return value.assign(memory);
+                return getValue().assign(memory);
             case ARRAY: //value.unset(); // do not need break!!
             default:
-                return value = memory;
+                return setValue(memory);
         }
     }
 
     public ReferenceMemory getReference(){
-        if (value.type == Type.REFERENCE){
-            return ((ReferenceMemory)value).getReference();
+        if (getValue().type == Type.REFERENCE){
+            return ((ReferenceMemory)getValue()).getReference();
         } else
             return this;
     }
@@ -660,53 +668,53 @@ public class ReferenceMemory extends Memory {
             return reference;
         }
 
-        value = reference;
+        setValue(reference);
         return reference;
     }
 
     @Override
     public Memory assign(long memory) {
-        switch (value.type){
-            case REFERENCE: return value.assign(memory);
-            case ARRAY: value.unset(); // do not need break!!
+        switch (getValue().type){
+            case REFERENCE: return getValue().assign(memory);
+            case ARRAY: getValue().unset(); // do not need break!!
             default:
-                return value = LongMemory.valueOf(memory);
+                return setValue(LongMemory.valueOf(memory));
         }
     }
 
     @Override
     public Memory assign(String memory) {
-        switch (value.type){
-            case REFERENCE: return value.assign(memory);
-            case ARRAY: value.unset(); // do not need break!!
+        switch (getValue().type){
+            case REFERENCE: return getValue().assign(memory);
+            case ARRAY: getValue().unset(); // do not need break!!
             default:
-                return value = StringMemory.valueOf(memory);
+                return setValue(StringMemory.valueOf(memory));
         }
     }
 
     @Override
     public Memory assign(boolean memory) {
-        switch (value.type){
-            case REFERENCE: return value.assign(memory);
-            case ARRAY: value.unset(); // do not need break!!
+        switch (getValue().type){
+            case REFERENCE: return getValue().assign(memory);
+            case ARRAY: getValue().unset(); // do not need break!!
             default:
-                return value = memory ? TRUE : FALSE;
+                return setValue(memory ? TRUE : FALSE);
         }
     }
 
     @Override
     public Memory assign(double memory) {
-        switch (value.type){
-            case REFERENCE: return value.assign(memory);
-            case ARRAY: value.unset(); // do not need break!!
+        switch (getValue().type){
+            case REFERENCE: return getValue().assign(memory);
+            case ARRAY: getValue().unset(); // do not need break!!
             default:
-                return value = new DoubleMemory(memory);
+                return setValue(new DoubleMemory(memory));
         }
     }
 
     private StringMemory typeString(){
         if (toValue().type != Type.STRING){
-            assign(new StringMemory(value.toString()));
+            assign(new StringMemory(getValue().toString()));
         }
 
         return (StringMemory)toImmutable();
@@ -714,23 +722,23 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public byte[] getBinaryBytes(Charset charset) {
-        return value.getBinaryBytes(charset);
+        return getValue().getBinaryBytes(charset);
     }
 
     @Override
     public int hashCode(){
-        return value.hashCode();
+        return getValue().hashCode();
     }
 
     @Override
     public void unset() {
-        this.value = UNDEFINED;
+        this.setValue(UNDEFINED);
     }
 
     @Override
     public void manualUnset(Environment env){
-        if (this.value.isObject())
-            this.value.manualUnset(env);
+        if (this.getValue().isObject())
+            this.getValue().manualUnset(env);
 
         this.unset();
     }
@@ -748,56 +756,56 @@ public class ReferenceMemory extends Memory {
         if (value instanceof StringBuilderMemory)
             return (StringBuilderMemory)value;
 
-        StringBuilderMemory builderMemory = new StringBuilderMemory(value.toString());
+        StringBuilderMemory builderMemory = new StringBuilderMemory(getValue().toString());
         assign(builderMemory);
         return builderMemory;
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, Memory index) {
-        return value.valueOfIndex(trace, index);
+        return getValue().valueOfIndex(trace, index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, long index) {
-        return value.valueOfIndex(trace, index);
+        return getValue().valueOfIndex(trace, index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, double index) {
-        return value.valueOfIndex(trace, index);
+        return getValue().valueOfIndex(trace, index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, String index) {
-        return value.valueOfIndex(trace, index);
+        return getValue().valueOfIndex(trace, index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, boolean index) {
-        return value.valueOfIndex(trace, index);
+        return getValue().valueOfIndex(trace, index);
     }
 
     @Override
     public Memory refOfPush(TraceInfo trace) {
         needArray();
-        return value.refOfPush(trace);
+        return getValue().refOfPush(trace);
     }
 
     @Override
     public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index){
         needArray();
-        switch (value.type){
+        switch (getValue().type){
             case STRING:
                 return refOfIndex(trace, index);
-            default: return value.refOfIndexAsShortcut(trace, index);
+            default: return getValue().refOfIndexAsShortcut(trace, index);
         }
     }
 
     @Override
     public Memory refOfIndex(TraceInfo trace, Memory index) {
         needArray();
-        switch (value.type){
+        switch (getValue().type){
             case STRING:
                 if (index.isString()){
                     int _index = -1;
@@ -805,28 +813,28 @@ public class ReferenceMemory extends Memory {
                     if (tmp != null)
                         _index = tmp.toInteger();
 
-                    return CharMemory.valueOf(this, (StringMemory)this.value, _index);
+                    return CharMemory.valueOf(this, (StringMemory)this.getValue(), _index);
                 } else
-                    return CharMemory.valueOf(this, (StringMemory)this.value, (int)index.toNumeric().toLong());
-            default: return value.refOfIndex(trace, index);
+                    return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index.toNumeric().toLong());
+            default: return getValue().refOfIndex(trace, index);
         }
     }
 
     @Override
     public Memory refOfIndex(TraceInfo trace, long index) {
         needArray();
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
-            default: return value.refOfIndex(trace, index);
+        switch (getValue().type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index);
+            default: return getValue().refOfIndex(trace, index);
         }
     }
 
     @Override
     public Memory refOfIndex(TraceInfo trace, double index) {
         needArray();
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, (int)index);
-            default: return value.refOfIndex(trace, index);
+        switch (getValue().type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index);
+            default: return getValue().refOfIndex(trace, index);
         }
     }
 
@@ -838,77 +846,77 @@ public class ReferenceMemory extends Memory {
         if (tmp != null)
             _index = tmp.toInteger();
 
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, _index);
-            default: return value.refOfIndex(trace, index);
+        switch (getValue().type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), _index);
+            default: return getValue().refOfIndex(trace, index);
         }
     }
 
     @Override
     public Memory refOfIndex(TraceInfo trace, boolean index) {
         needArray();
-        switch (value.type){
-            case STRING: return CharMemory.valueOf(this, (StringMemory)this.value, index ? 1 : 0);
-            default: return value.refOfIndex(trace, index);
+        switch (getValue().type){
+            case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), index ? 1 : 0);
+            default: return getValue().refOfIndex(trace, index);
         }
     }
 
     @Override
     public void unsetOfIndex(TraceInfo trace, Memory index) {
-        value.unsetOfIndex(trace, index);
+        getValue().unsetOfIndex(trace, index);
     }
 
     @Override
     public Memory issetOfIndex(TraceInfo trace, Memory index) {
-        return value.issetOfIndex(trace, index);
+        return getValue().issetOfIndex(trace, index);
     }
 
     @Override
     public Memory emptyOfIndex(TraceInfo trace, Memory index) {
-        return value.emptyOfIndex(trace, index);
+        return getValue().emptyOfIndex(trace, index);
     }
 
     @Override
     public boolean isShortcut(){
-        return value.isReference();
+        return getValue().isReference();
     }
 
     @Override
     public boolean identical(Memory memory) {
-        return value.identical(memory);
+        return getValue().identical(memory);
     }
 
     @Override
     public boolean identical(long value) {
-        return this.value.identical(value);
+        return this.getValue().identical(value);
     }
 
     @Override
     public boolean identical(double value) {
-        return this.value.identical(value);
+        return this.getValue().identical(value);
     }
 
     @Override
     public boolean identical(boolean value) {
-        return this.value.identical(value);
+        return this.getValue().identical(value);
     }
 
     @Override
     public boolean identical(String value) {
-        return this.value.identical(value);
+        return this.getValue().identical(value);
     }
 
     @Override
     public ForeachIterator getNewIterator(Environment env, boolean getReferences, boolean getKeyReferences) {
-        return value.getNewIterator(env, getReferences, getKeyReferences);
+        return getValue().getNewIterator(env, getReferences, getKeyReferences);
     }
 
     @Override
     public Type getRealType() {
-        if (value.type == Type.REFERENCE)
-            return value.getRealType();
+        if (getValue().type == Type.REFERENCE)
+            return getValue().getRealType();
 
-        return value.type;
+        return getValue().type;
     }
 
     @Override
@@ -943,51 +951,51 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public boolean instanceOf(String className, String lowerClassName) {
-        return value.instanceOf(className, lowerClassName);
+        return getValue().instanceOf(className, lowerClassName);
     }
 
     @Override
     public boolean instanceOf(String name) {
-        return value.instanceOf(name);
+        return getValue().instanceOf(name);
     }
 
     @Override
     public Memory toArray() {
-        return value.toArray();
+        return getValue().toArray();
     }
 
     @Override
     public Memory toObject(Environment env) {
-        return value.toObject(env);
+        return getValue().toObject(env);
     }
 
     @Override
     public Memory clone(Environment env, TraceInfo trace) throws Throwable {
-        return value.clone(env, trace);
+        return getValue().clone(env, trace);
     }
 
     @Override
     public boolean isClosure() {
-        return value.isClosure();
+        return getValue().isClosure();
     }
 
     @Override
     public String toBinaryString() {
-        return value.toBinaryString();
+        return getValue().toBinaryString();
     }
 
     @Override
     public boolean instanceOf(Class<? extends IObject> clazz) {
-        return value.instanceOf(clazz);
+        return getValue().instanceOf(clazz);
     }
 
     @Override
     public <T extends IObject> T toObject(Class<T> clazz) {
-        return value.toObject(clazz);
+        return getValue().toObject(clazz);
     }
 
     @Override
     public int compareTo(Memory o) {
-        return value.compareTo(o);
+        return getValue().compareTo(o);
     }
 }

@@ -13,9 +13,9 @@ public class StandaloneLibrary {
     private String likePhpVersion;
     private Map<String, Module> modules = new LinkedHashMap<>();
 
-    private Map<String, Module> classModules = new HashedMap<>();
-    private Map<String, Module> functionModules = new HashedMap<>();
-    private Map<String, Module> constantModules = new HashedMap<>();
+    private Map<String, Module> classModules = new HashMap<>();
+    private Map<String, Module> functionModules = new HashMap<>();
+    private Map<String, Module> constantModules = new HashMap<>();
 
     public Map<String, Module> getModules() {
         return modules;

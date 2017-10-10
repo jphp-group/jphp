@@ -12,6 +12,7 @@ import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
+import php.runtime.memory.helper.ProxyReferenceMemory;
 import php.runtime.memory.helper.ShortcutMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryStringUtils;
@@ -253,8 +254,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ReferenceMemory getByScalarOrCreate(Object sKey, Memory initValue) {
         ReferenceMemory value = getByScalar(sKey);
-        if (value == null)
+
+        if (value == null) {
             return put(sKey, initValue);
+        }
 
         return value;
     }
@@ -262,13 +265,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ReferenceMemory getByScalarOrCreateAsShortcut(Object sKey) {
         //checkCopied();
         ReferenceMemory value = getByScalar(sKey);
+
         if (value == null) {
             value = new ReferenceMemory(UNDEFINED);
             return put(sKey, new ShortcutMemory(value));
         }
 
         if (value instanceof ShortcutMemory)
-            return (ShortcutMemory) value.value;
+            return (ShortcutMemory) value.getValue();
         else {
             put(sKey, new ShortcutMemory(value));
             return value;
@@ -321,7 +325,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ReferenceMemory add(Memory value) {
         if (value instanceof KeyValueMemory) {
             KeyValueMemory keyValue = (KeyValueMemory) value;
-            return put(toKey(keyValue.key), keyValue.value.toImmutable());
+            return put(toKey(keyValue.key), keyValue.getValue().toImmutable());
         }
 
         ReferenceMemory ref;
@@ -435,13 +439,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ReferenceMemory putAsKeyString(String key, Memory value) {
         ReferenceMemory mem = new ReferenceMemory(value);
-        if (list != null)
+
+        if (list != null) {
             convertToMap();
+        }
 
         Memory last = map.put(key, mem);
+
         if (last == null) {
             size++;
         }
+
         return mem;
     }
 
@@ -475,14 +483,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (!(key instanceof String))
                 key = key.toString();
 
-            if (list != null)
+            if (list != null) {
                 convertToMap();
+            }
         }
 
         Memory last = map.put(key, mem);
+
         if (last == null) {
             size++;
         }
+
         return mem;
     }
 
@@ -1241,7 +1252,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     else
                         currentValue = new ArrayValueMemory(getMemoryKey(), ArrayMemory.this, value);
                 } else
-                    currentValue = value.value;
+                    currentValue = value.getValue();
 
                 if (getKeyReferences) {
                     currentKeyMemory = new ArrayKeyMemory(ArrayMemory.this, getMemoryKey());

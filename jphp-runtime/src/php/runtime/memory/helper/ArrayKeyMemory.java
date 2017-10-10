@@ -16,19 +16,19 @@ public class ArrayKeyMemory extends ReferenceMemory {
 
     @Override
     public Memory assign(Memory memory) {
-        array.renameKey(value, memory);
+        array.renameKey(getValue(), memory);
         return super.assign(memory);
     }
 
     @Override
     public Memory assign(long memory) {
-        array.renameKey(value, LongMemory.valueOf(memory));
+        array.renameKey(getValue(), LongMemory.valueOf(memory));
         return super.assign(memory);
     }
 
     @Override
     public Memory assign(String memory) {
-        array.renameKey(value, new StringMemory(memory));
+        array.renameKey(getValue(), new StringMemory(memory));
         return super.assign(memory);
     }
 

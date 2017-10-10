@@ -43,7 +43,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
     public BaseBaseException(Environment env, ClassEntity clazz) {
         this.clazz = clazz;
-        this.props = new ArrayMemory();
+        this.props = new ArrayMemory(true);
         this.env = env;
     }
 

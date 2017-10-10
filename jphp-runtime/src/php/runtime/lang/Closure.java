@@ -14,6 +14,7 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import static php.runtime.annotation.Reflection.*;
@@ -91,7 +92,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
 
     public Memory getOrCreateStatic(String name, Memory initValue){
         if (statics == null)
-            statics = new HashedMap<String, ReferenceMemory>();
+            statics = new HashMap<>();
 
         ReferenceMemory result = statics.get(name);
         if (result == null) {

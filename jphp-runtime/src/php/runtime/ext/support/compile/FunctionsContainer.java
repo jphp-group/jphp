@@ -84,7 +84,7 @@ abstract public class FunctionsContainer {
     }
 
     public Collection<CompileFunctionSpec> getFunctionSpecs() {
-        Map<String, CompileFunctionSpec> result = new HashedMap<>();
+        Map<String, CompileFunctionSpec> result = new HashMap<>();
 
         for (Method method : getClass().getDeclaredMethods()) {
             int mod = method.getModifiers();

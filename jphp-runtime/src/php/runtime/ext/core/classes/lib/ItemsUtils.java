@@ -69,7 +69,7 @@ public class ItemsUtils extends BaseObject {
             if (saveKeys)
                 r.add(iterator1.next());
             else
-                r.add(iterator1.next().value);
+                r.add(iterator1.next().getValue());
 
             iterator1.remove();
         }

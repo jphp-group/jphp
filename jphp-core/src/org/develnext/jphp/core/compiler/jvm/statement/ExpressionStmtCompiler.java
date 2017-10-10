@@ -406,7 +406,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (memory instanceof KeyValueMemory) {
             writePushMemory(((KeyValueMemory) memory).key);
             writePopBoxing();
-            writePushMemory(((KeyValueMemory) memory).value);
+            writePushMemory(((KeyValueMemory) memory).getValue());
             writePopBoxing();
             writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class);
             setStackPeekAsImmutable();

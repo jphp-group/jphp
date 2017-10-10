@@ -11,7 +11,7 @@ public class ShortcutMemory extends ReferenceMemory {
 
     @Override
     public Memory toImmutable() {
-        return value;
+        return getValue();
     }
 
     @Override

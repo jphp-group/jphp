@@ -35,17 +35,19 @@ public class BaseException extends BaseBaseException implements BaseThrowable {
     }
 
     @Signature(value = {
-            @Arg(value = "message", optional = @Optional(value = "", type = HintType.STRING)),
-            @Arg(value = "code", optional = @Optional(value = "0", type = HintType.INT)),
+            @Arg(value = "message", optional = @Optional(value = "")),
+            @Arg(value = "code", optional = @Optional(value = "0")),
             @Arg(value = "previous", nativeType = BaseThrowable.class, optional = @Optional(value = "NULL"))
     })
     public Memory __construct(Environment env, Memory... args) {
         clazz.refOfProperty(props, "message").assign(args[0].toString());
-        if (args.length > 1)
+        if (args.length > 1) {
             clazz.refOfProperty(props, "code").assign(args[1].toLong());
+        }
 
-        if (args.length > 2)
+        if (args.length > 2) {
             clazz.refOfProperty(props, "previous").assign(args[2]);
+        }
 
         return Memory.NULL;
     }

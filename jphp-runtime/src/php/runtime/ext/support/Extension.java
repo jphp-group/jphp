@@ -56,7 +56,7 @@ abstract public class Extension {
     }
 
     public Map<String, String> getINIEntries(){
-        return new HashedMap<>();
+        return new HashMap<>();
     }
 
     abstract public void onRegister(CompileScope scope);

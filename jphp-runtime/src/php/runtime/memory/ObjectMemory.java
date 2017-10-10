@@ -658,361 +658,361 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public Memory assignPlus(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlus(memory);
                 }
 
                 @Override
                 public Memory assignPlus(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlus(memory);
                 }
 
                 @Override
                 public Memory assignPlus(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlus(memory);
                 }
 
                 @Override
                 public Memory assignPlus(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlus(memory);
                 }
 
                 @Override
                 public Memory assignPlus(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlus(memory);
                 }
 
                 @Override
                 public Memory assignPlusRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignPlusRight(memory);
                 }
 
                 @Override
                 public Memory assignMinus(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(double memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(boolean memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(String memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinusRight(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMinusRight(memory);
                 }
 
                 @Override
                 public Memory assignMul(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(long memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(double memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(boolean memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(String memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMulRight(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMulRight(memory);
                 }
 
                 @Override
                 public Memory assignDiv(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(long memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(double memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(boolean memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(String memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDivRight(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignDivRight(memory);
                 }
 
                 @Override
                 public Memory assignMod(Memory memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(long memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(double memory) {
-                    value = toValue();
+                   setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignModRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignModRight(memory);
                 }
 
                 @Override
                 public Memory assignBitShr(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShr(memory);
                 }
 
                 @Override
                 public Memory assignBitShr(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShr(memory);
                 }
 
                 @Override
                 public Memory assignBitShr(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShr(memory);
                 }
 
                 @Override
                 public Memory assignBitShr(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShr(memory);
                 }
 
                 @Override
                 public Memory assignBitShr(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShr(memory);
                 }
 
                 @Override
                 public Memory assignBitShrRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShrRight(memory);
                 }
 
                 @Override
                 public Memory assignBitShl(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShl(memory);
                 }
 
                 @Override
                 public Memory assignBitShl(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShl(memory);
                 }
 
                 @Override
                 public Memory assignBitShl(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShl(memory);
                 }
 
                 @Override
                 public Memory assignBitShl(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShl(memory);
                 }
 
                 @Override
                 public Memory assignBitShl(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShl(memory);
                 }
 
                 @Override
                 public Memory assignBitShlRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitShlRight(memory);
                 }
 
                 @Override
                 public Memory assignBitAnd(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAnd(memory);
                 }
 
                 @Override
                 public Memory assignBitAnd(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAnd(memory);
                 }
 
                 @Override
                 public Memory assignBitAnd(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAnd(memory);
                 }
 
                 @Override
                 public Memory assignBitAnd(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAnd(memory);
                 }
 
                 @Override
                 public Memory assignBitAnd(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAnd(memory);
                 }
 
                 @Override
                 public Memory assignBitAndRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitAndRight(memory);
                 }
 
                 @Override
                 public Memory assignBitOr(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOr(memory);
                 }
 
                 @Override
                 public Memory assignBitOr(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOr(memory);
                 }
 
                 @Override
                 public Memory assignBitOr(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOr(memory);
                 }
 
                 @Override
                 public Memory assignBitOr(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOr(memory);
                 }
 
                 @Override
                 public Memory assignBitOr(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOr(memory);
                 }
 
                 @Override
                 public Memory assignBitOrRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitOrRight(memory);
                 }
 
                 @Override
                 public Memory assignBitXor(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXor(memory);
                 }
 
                 @Override
                 public Memory assignBitXor(long memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXor(memory);
                 }
 
                 @Override
                 public Memory assignBitXor(double memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXor(memory);
                 }
 
                 @Override
                 public Memory assignBitXor(boolean memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXor(memory);
                 }
 
                 @Override
                 public Memory assignBitXor(String memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXor(memory);
                 }
 
                 @Override
                 public Memory assignBitXorRight(Memory memory) {
-                    value = toValue();
+                    setValue(toValue());
                     return super.assignBitXorRight(memory);
                 }
 

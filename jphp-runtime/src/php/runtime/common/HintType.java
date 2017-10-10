@@ -2,6 +2,7 @@ package php.runtime.common;
 
 import php.runtime.common.collections.map.HashedMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public enum HintType {
@@ -26,7 +27,7 @@ public enum HintType {
         }
     }
 
-    private static final Map<String, HintType> values = new HashedMap<String, HintType>();
+    private static final Map<String, HintType> values = new HashMap<>();
 
     static {
         for(HintType e : values()) {

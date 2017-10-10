@@ -437,7 +437,7 @@ final public class ObjectInvokeHelper {
 
         ReferenceMemory ref = new ReferenceMemory();
         iObject.getReflection().plusProperty(env, trace, iObject, property, Memory.CONST_INT_1, ref);
-        return ref.value;
+        return ref.getValue();
     }
 
     public static Memory decAndGetProperty(Memory object, String property, Environment env, TraceInfo trace,
@@ -454,7 +454,7 @@ final public class ObjectInvokeHelper {
 
         ReferenceMemory ref = new ReferenceMemory();
         iObject.getReflection().minusProperty(env, trace, iObject, property, Memory.CONST_INT_1, ref);
-        return ref.value;
+        return ref.getValue();
     }
 
     public static Memory assignProperty(Memory object, Memory value, String property, Environment env, TraceInfo trace,
