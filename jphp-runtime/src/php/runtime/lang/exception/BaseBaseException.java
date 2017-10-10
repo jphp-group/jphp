@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference;
 abstract public class BaseBaseException extends RuntimeException implements IObject, JPHPException {
     protected final ArrayMemory props;
     protected ClassEntity clazz;
-    protected WeakReference<Environment> env;
+    protected Environment env;
     protected TraceInfo trace;
     protected CallStackItem[] callStack;
 
@@ -44,7 +44,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     public BaseBaseException(Environment env, ClassEntity clazz) {
         this.clazz = clazz;
         this.props = new ArrayMemory();
-        this.env = env == null ? null : new WeakReference<>(env);
+        this.env = env;
     }
 
     public void setTraceInfo(Environment env, TraceInfo trace) {
@@ -208,7 +208,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
 
     @Override
     public Environment getEnvironment() {
-        return env.get();
+        return env;
     }
 
     @Override
