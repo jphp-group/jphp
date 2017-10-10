@@ -28,10 +28,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.invoke.cache.ConstantCallCache;
-import php.runtime.invoke.cache.FunctionCallCache;
-import php.runtime.invoke.cache.MethodCallCache;
-import php.runtime.invoke.cache.PropertyCallCache;
+import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
@@ -57,6 +54,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     private boolean initDynamicExists = false;
     private int callFuncCount = 0;
+    private int callClassCount = 0;
     private int callMethCount = 0;
     private int callConstCount = 0;
     private int callPropCount = 0;
@@ -75,6 +73,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     public int getAndIncCallFuncCount() {
         return callFuncCount++;
+    }
+
+    public int getAndIncCallClassCount() {
+        return callClassCount++;
     }
 
     public int getAndIncCallMethCount() {
@@ -489,6 +491,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 null
         ));
 
+        node.fields.add(new FieldNode(
+                ACC_PUBLIC + ACC_STATIC, "$CALL_CLASS_CACHE",
+                Type.getDescriptor(ClassCallCache.class),
+                null,
+                null
+        ));
+
         if (functionName != null) {
             node.fields.add(new FieldNode(
                     ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$CL",
@@ -691,6 +700,9 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
         expressionCompiler.writePushNewObject(PropertyCallCache.class);
         expressionCompiler.writePutStatic("$CALL_PROP_CACHE", PropertyCallCache.class);
+
+        expressionCompiler.writePushNewObject(ClassCallCache.class);
+        expressionCompiler.writePutStatic("$CALL_CLASS_CACHE", ClassCallCache.class);
 
         node.instructions.add(new InsnNode(RETURN));
         methodCompiler.writeFooter();

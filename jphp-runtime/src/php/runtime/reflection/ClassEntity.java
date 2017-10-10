@@ -808,14 +808,26 @@ ClassReader classReader;
         }
     }
 
-    public <T extends IObject> T newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
-            throws Throwable {
+    public void checkCanInstance(Environment env) {
         if (isAbstract) {
             env.error(trace, "Cannot instantiate abstract class %s", name);
         } else if (type == Type.INTERFACE) {
             env.error(trace, "Cannot instantiate interface %s", name);
         } else if (type == Type.TRAIT) {
             env.error(trace, "Cannot instantiate trait %s", name);
+        }
+    }
+
+    public <T extends IObject> T newObject(Environment env, TraceInfo trace, boolean doConstruct, Memory... args)
+            throws Throwable {
+        return newObject(env, trace, doConstruct, true, args);
+    }
+
+    public <T extends IObject> T newObject(Environment env, TraceInfo trace, boolean doConstruct, boolean checks, Memory... args)
+            throws Throwable {
+
+        if (checks) {
+            checkCanInstance(env);
         }
 
         IObject object;
@@ -829,6 +841,7 @@ ClassReader classReader;
             env.__throwException(e);
             return null;
         }
+
         ArrayMemory props = object.getProperties();
 
         for (PropertyEntity property : getProperties()) {

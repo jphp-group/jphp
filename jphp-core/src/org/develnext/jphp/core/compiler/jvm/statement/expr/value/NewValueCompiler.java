@@ -9,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.StaticExprToken;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.invoke.cache.ClassCallCache;
 
 public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
     public NewValueCompiler(ExpressionStmtCompiler exprCompiler) {
@@ -19,6 +20,8 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
     public void write(NewExprToken token, boolean returnValue) {
         method.getEntity().setImmutable(false);
         expr.writeLineNumber(token);
+
+        boolean staticName = false;
 
         expr.writePushEnv();
         if (token.isDynamic()){
@@ -41,6 +44,7 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
                 expr.writePopString();
                 expr.writePushDupLowerCase();
             } else {
+                staticName = true;
                 FulledNameToken name = (FulledNameToken) token.getName();
                 expr.writePushString(name.getName());
                 expr.writePushString(name.getName().toLowerCase());
@@ -49,11 +53,25 @@ public class NewValueCompiler extends BaseExprCompiler<NewExprToken> {
 
         expr.writePushTraceInfo(token);
         expr.writePushParameters(token.getParameters());
-        expr.writeSysDynamicCall(
-                Environment.class, "__newObject",
-                Memory.class,
-                String.class, String.class, TraceInfo.class, Memory[].class
-        );
+
+        if (staticName) {
+            int cacheIndex = method.clazz.getAndIncCallClassCount();
+
+            expr.writeGetStatic("$CALL_CLASS_CACHE", ClassCallCache.class);
+            expr.writePushConstInt(cacheIndex);
+
+            expr.writeSysDynamicCall(
+                    Environment.class, "__newObject",
+                    Memory.class,
+                    String.class, String.class, TraceInfo.class, Memory[].class, ClassCallCache.class, int.class
+            );
+        } else {
+            expr.writeSysDynamicCall(
+                    Environment.class, "__newObject",
+                    Memory.class,
+                    String.class, String.class, TraceInfo.class, Memory[].class
+            );
+        }
 
         expr.setStackPeekAsImmutable();
 

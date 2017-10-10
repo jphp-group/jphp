@@ -1,7 +1,5 @@
 package php.runtime.lang;
 
-import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.BaseType;
 import php.runtime.annotation.Reflection.Ignore;
 import php.runtime.env.Environment;
@@ -15,7 +13,7 @@ import java.lang.ref.WeakReference;
 abstract public class BaseObject implements IObject {
     protected ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
-    protected final WeakReference<Environment> __env__;
+    protected final Environment __env__;
 
     private boolean isFinalized;
 
@@ -27,13 +25,13 @@ abstract public class BaseObject implements IObject {
     protected BaseObject(ClassEntity entity) {
         this.__class__ = entity;
         this.__dynamicProperties__ = null;
-        this.__env__ = new WeakReference<Environment>(null);
+        this.__env__ = null;
     }
 
     public BaseObject(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory(true);
-        this.__env__ = new WeakReference<Environment>(env);
+        this.__env__ = env;
     }
 
     @Override
@@ -63,7 +61,7 @@ abstract public class BaseObject implements IObject {
 
     @Override
     public Environment getEnvironment() {
-        return __env__.get();
+        return __env__;
     }
 
     @Override

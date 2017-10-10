@@ -18,6 +18,7 @@ import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunctionSpec;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
+import php.runtime.invoke.cache.ClassCallCache;
 import php.runtime.lang.*;
 import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.lang.exception.BaseError;
@@ -42,6 +43,9 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static php.runtime.exceptions.support.ErrorType.*;
@@ -1378,24 +1382,46 @@ public class Environment {
                 throw new RuntimeException(throwable);
             }
 
-            WeakReference<IObject> wr = new WeakReference<IObject>(object, gcObjectRefQueue);
+            WeakReference<IObject> wr = new WeakReference<>(object, gcObjectRefQueue);
             gcObjects.add(wr);
         }
     }
 
-    public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
-            throws Throwable {
-        ClassEntity entity = fetchClass(originName, lowerName, true);
+    public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args,
+                              ClassCallCache cache, int cacheIndex) throws Throwable {
+        ClassEntity entity = null;
+
+        boolean cached = false;
+
+        if (cache != null) {
+            entity = cache.get(this, cacheIndex);
+        }
+
+        if (entity == null) {
+            entity = fetchClass(originName, lowerName, true);
+
+            if (entity != null && cache != null) {
+                cache.put(this, cacheIndex, entity);
+            }
+        } else {
+            cached = true;
+        }
 
         if (entity == null) {
             error(trace, E_ERROR, Messages.ERR_CLASS_NOT_FOUND.fetch(originName));
             return Memory.NULL;
         }
 
-        IObject object = entity.newObject(this, trace, true, args);
+        IObject object = entity.newObject(this, trace, true, !cached, args);
 
         registerObjectInGC(object);
+
         return new ObjectMemory(object);
+    }
+
+    public Memory __newObject(String originName, String lowerName, TraceInfo trace, Memory[] args)
+            throws Throwable {
+        return __newObject(originName, lowerName, trace, args, null, 0);
     }
 
     private static ForeachIterator invalidIterator = new ForeachIterator(false, false, false) {

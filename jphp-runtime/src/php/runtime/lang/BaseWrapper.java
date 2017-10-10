@@ -15,7 +15,7 @@ import static php.runtime.annotation.Reflection.Ignore;
 abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseWrapper> {
     protected final ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
-    protected final WeakReference<Environment> __env__;
+    protected final Environment __env__;
 
     private boolean __isFinalized;
 
@@ -30,7 +30,7 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     public BaseWrapper(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
         this.__dynamicProperties__ = new ArrayMemory(true);
-        this.__env__ = new WeakReference<Environment>(env);
+        this.__env__ = env;
     }
 
     public T getWrappedObject() {
@@ -54,7 +54,7 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
 
     @Override
     public Environment getEnvironment() {
-        return __env__.get();
+        return __env__;
     }
 
     @Override
