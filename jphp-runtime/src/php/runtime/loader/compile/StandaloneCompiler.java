@@ -34,18 +34,44 @@ public class StandaloneCompiler {
     public static void main(String[] args) {
         Environment env = new Environment();
 
-        if (args == null || args.length < 1) {
-            System.err.println("ERROR: Pass the first argument (source directory).");
+        String opt = null;
+
+        if (args == null || args.length < 2) {
+            System.err.println("ERROR: Pass arguments (--src, --dest, --dest-res).");
             System.exit(1);
         }
 
-        if (args.length < 2) {
-            System.err.println("ERROR: Pass the second argument (destination directory).");
+        File sourceDirectory = null;
+        File destinationDirectory = null;
+        File destinationResDirectory = null;
+
+        for (String arg : args) {
+            if (arg.startsWith("--")) {
+                opt = arg.substring(2);
+            } else {
+                if (opt != null) {
+                    switch (opt) {
+                        case "src": sourceDirectory = new File(arg); break;
+                        case "dest": destinationDirectory = new File(arg); break;
+                        case "dest-res": destinationResDirectory = new File(arg); break;
+                        default:
+                            System.err.println("Unknown option - " + opt);
+                            System.exit(1);
+                    }
+                }
+            }
+        }
+
+        if (sourceDirectory == null) {
+            System.err.println("ERROR: Pass a source directory (--src opt).");
             System.exit(1);
         }
 
-        File sourceDirectory = new File(args[0]);
-        File destinationDirectory = new File(args[1]);
+        if (destinationDirectory == null) {
+            System.err.println("ERROR: Pass a destination directory (--dest opt).");
+            System.exit(1);
+        }
+
         File jarFile = null;
 
         if (destinationDirectory.getName().endsWith(".jar")) {
@@ -56,6 +82,13 @@ public class StandaloneCompiler {
         if (!destinationDirectory.isDirectory()) {
             if (!destinationDirectory.mkdirs()) {
                 System.err.println("ERROR: Failed to create destination directory: " + destinationDirectory);
+                System.exit(2);
+            }
+        }
+
+        if (destinationResDirectory != null && !destinationResDirectory.isDirectory()) {
+            if (!destinationResDirectory.mkdirs()) {
+                System.err.println("ERROR: Failed to create destination res directory: " + destinationDirectory);
                 System.exit(2);
             }
         }
@@ -74,13 +107,18 @@ public class StandaloneCompiler {
         long time = System.currentTimeMillis();
 
         System.out.println(
-                "Start compiling...\n -> source: " + sourceDirectory + "\n -> destination: " + destinationDirectory + "\n"
+                "Start compiling...\n -> src: " + sourceDirectory + "\n -> dest: " + destinationDirectory + "\n"
+                + " -> dest-res: " + destinationResDirectory + "\n"
         );
 
         try {
             StandaloneCompiler compiler = new StandaloneCompiler(sourceDirectory, env);
 
-            compiler.compile(destinationDirectory);
+            if (destinationResDirectory != null) {
+                FsUtils.clean(env, destinationResDirectory.getPath());
+            }
+
+            compiler.compile(destinationDirectory, destinationResDirectory);
 
             if (jarFile != null) {
                 try {
@@ -138,7 +176,7 @@ public class StandaloneCompiler {
         }
     }
 
-    private void saveModuleClasses(ModuleEntity entity, File destinationDirectory) throws IOException {
+    private void saveModuleClasses(ModuleEntity entity, File destinationDirectory, File destinationResDirectory) throws IOException {
         saveJavaClass(new File(destinationDirectory, "/" + entity.getInternalName() + ".class"), entity.getData());
 
         Context _context = entity.getContext();
@@ -183,13 +221,13 @@ public class StandaloneCompiler {
 
         ModuleDumper dumper = new ModuleDumper(context, env, debug);
         dumper.setIncludeData(false);
-        dumper.save(entity, new File(destinationDirectory, "/" + entity.getInternalName() + ".dump"));
+        dumper.save(entity, new File(destinationResDirectory, "/" + entity.getInternalName() + ".dump"));
     }
 
-    private ModuleEntity compileFile(File path, File destinationDirectory) {
+    private ModuleEntity compileFile(File path, File destinationDirectory, File destinationResDirectory) {
         try {
             ModuleEntity entity = env.getModuleManager().fetchModule(path.getPath());
-            saveModuleClasses(entity, destinationDirectory);
+            saveModuleClasses(entity, destinationDirectory, destinationResDirectory);
             return entity;
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
@@ -270,9 +308,18 @@ public class StandaloneCompiler {
     }
 
     public void compile(File destinationDirectory) {
+        compile(destinationDirectory, null);
+    }
+
+    public void compile(File destinationDirectory, File destinationResDirectory) {
         StandaloneLibraryDumper dumper = new StandaloneLibraryDumper();
 
+        if (destinationResDirectory == null) {
+            destinationResDirectory = destinationDirectory;
+        }
+
         try {
+            File finalDestinationResDirectory = destinationResDirectory;
             scan(sourceDirectory, new Callback<Boolean, File>() {
                 @Override
                 public Boolean call(File file) {
@@ -284,7 +331,7 @@ public class StandaloneCompiler {
                                 case "php":
                                 case "phb":
                                     System.out.println("Compile: " + file);
-                                    dumper.addModule(compileFile(file, destinationDirectory));
+                                    dumper.addModule(compileFile(file, destinationDirectory, finalDestinationResDirectory));
                                     break;
                                 default:
                                     Path path = Paths.get(sourceDirectory.getPath());
@@ -292,7 +339,7 @@ public class StandaloneCompiler {
 
                                     try {
                                         System.out.println("Copy: " + file);
-                                        Path target = Paths.get(destinationDirectory.getPath(), "/", relPath.toString());
+                                        Path target = Paths.get(finalDestinationResDirectory.getPath(), "/", relPath.toString());
 
                                         target.toFile().getParentFile().mkdirs();
 
@@ -313,7 +360,7 @@ public class StandaloneCompiler {
             // nop.
         }
 
-        File file = new File(destinationDirectory, "/JPHP-INF/library.dump");
+        File file = new File(destinationResDirectory, "/JPHP-INF/library.dump");
         file.getParentFile().mkdirs();
 
         try {
