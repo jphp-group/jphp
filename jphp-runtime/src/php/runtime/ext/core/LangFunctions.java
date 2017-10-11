@@ -25,8 +25,12 @@ import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
+import php.runtime.memory.helper.ObservableMemory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
+
+import java.util.Observable;
+import java.util.Observer;
 
 public class LangFunctions extends FunctionsContainer {
     private static String evalErrorMessage(ErrorException e) {
@@ -925,6 +929,31 @@ public class LangFunctions extends FunctionsContainer {
         return WrapFlow.of(env, result);
     }
 
+
+    public static Memory observable() {
+        return new ObservableMemory();
+    }
+
+    public static Memory observable(Memory value) {
+        return new ObservableMemory(value);
+    }
+
+    public static void addObserver(Environment env, TraceInfo trace, Memory observer, Memory handler) {
+        Invoker invoker = expectingCallback(env, trace, 2, handler);
+
+        if (invoker != null) {
+            if (observer instanceof ObservableMemory) {
+                ((ObservableMemory) observer).addObserver(new ObservableMemory.Observer() {
+                    @Override
+                    public void update(ObservableMemory observable, Memory oldValue, Memory newValue) {
+                        invoker.callNoThrow(newValue, oldValue);
+                    }
+                });
+            } else {
+                env.error(trace, ErrorType.E_ERROR, "addObserver(): first argument must be observable");
+            }
+        }
+    }
 
     /*public static Memory define_package(Environment env, TraceInfo trace, String name, Memory info) {
         if (env.scope.getLangMode() != LangMode.MODERN) {

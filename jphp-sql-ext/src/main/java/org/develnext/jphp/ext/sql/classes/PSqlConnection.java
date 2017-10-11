@@ -166,7 +166,7 @@ public class PSqlConnection extends BaseObject {
             int index  = 0;
 
             for (ReferenceMemory arg : args) {
-                env.invokeMethod(sqlStatement, "bind", LongMemory.valueOf(index), arg.value);
+                env.invokeMethod(sqlStatement, "bind", LongMemory.valueOf(index), arg.getValue());
                 index += 1;
             }
         }
