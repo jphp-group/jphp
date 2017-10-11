@@ -2,6 +2,7 @@ package php.runtime.memory;
 
 import php.runtime.Memory;
 import php.runtime.common.Messages;
+import php.runtime.common.Pair;
 import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -14,9 +15,7 @@ import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
 import php.runtime.memory.helper.ProxyReferenceMemory;
 import php.runtime.memory.helper.ShortcutMemory;
-import php.runtime.memory.support.MemoryOperation;
-import php.runtime.memory.support.MemoryStringUtils;
-import php.runtime.memory.support.MemoryUtils;
+import php.runtime.memory.support.*;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -33,7 +32,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected ArrayMemory original;
 
     protected List<ReferenceMemory> list;
-    protected LinkedMap<Object, ReferenceMemory> map;
+    //protected LinkedMap<Object, ReferenceMemory> map;
+    protected ArrayMemoryMap map;
 
     protected ForeachIterator foreachIterator;
 
@@ -42,7 +42,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         if (asMap)
             convertToMap();
         else {
-            list = new ArrayList<ReferenceMemory>();
+            list = new ArrayList<>();
         }
         lastLongIndex = -1;
     }
@@ -151,9 +151,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             }
         } else {
             result.list = null;
-            result.map = new LinkedMap<Object, ReferenceMemory>(map);
-            for (Map.Entry<Object, ReferenceMemory> entry : map.entrySet()) {
-                result.map.put(entry.getKey(), entry.getValue().duplicate());
+            result.map = new ArrayMemoryMap();
+
+            for (Map.Entry<Object, Memory> entry : map.entrySet()) {
+                result.map.put(entry.getKey(), entry.getValue().toImmutable());
             }
         }
 
@@ -216,12 +217,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     private void convertToMap() {
-        map = new LinkedMap<Object, ReferenceMemory>();
+        map = new ArrayMemoryMap();
         if (list != null) {
             int i = 0;
             for (ReferenceMemory memory : list) {
                 if (memory != null) {
-                    map.put(LongMemory.valueOf(i), memory);
+                    map.put(LongMemory.valueOf(i), memory.getValue());
                 }
                 i++;
             }
@@ -240,7 +241,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         map.put(key2, map.remove(key1));
     }
 
-    public ReferenceMemory get(Memory key) {
+    public Memory get(Memory key) {
         return getByScalar(toKey(key));
     }
 
@@ -294,7 +295,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             } else
                 return null;
         } else {
-            return map.get(key);
+            return map.getEntry(key);
         }
     }
 
@@ -364,7 +365,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     add(reference.toImmutable());
                 }
             } else {
-                for (Map.Entry<Object, ReferenceMemory> entry : array.map.entrySet()) {
+                for (Map.Entry<Object, Memory> entry : array.map.entrySet()) {
                     Object key = entry.getKey();
                     if (key instanceof LongMemory) {
                         add(entry.getValue().toImmutable());
@@ -412,7 +413,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (array.lastLongIndex > lastLongIndex)
                 lastLongIndex = array.lastLongIndex;
 
-            for (Map.Entry<Object, ReferenceMemory> entry : array.map.entrySet()) {
+            for (Map.Entry<Object, Memory> entry : array.map.entrySet()) {
                 put(entry.getKey(), entry.getValue().toImmutable());
             }
         }
@@ -430,33 +431,32 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (list != null)
                 convertToMap();
 
-            if (array.lastLongIndex > lastLongIndex)
+            if (array.lastLongIndex > lastLongIndex) {
                 lastLongIndex = array.lastLongIndex;
+            }
 
             map.putAll(array.map);
         }
     }
 
     public ReferenceMemory putAsKeyString(String key, Memory value) {
-        ReferenceMemory mem = new ReferenceMemory(value);
-
         if (list != null) {
             convertToMap();
         }
 
-        Memory last = map.put(key, mem);
+        Pair<Memory, ArrayMapEntryMemory> result = map.putWithEntry(key, value);
 
-        if (last == null) {
+        if (!result.hasA()) {
             size++;
         }
 
-        return mem;
+        return result.getB();
     }
 
     public ReferenceMemory put(Object key, Memory value) {
-        ReferenceMemory mem = new ReferenceMemory(value);
-
         if (key instanceof LongMemory) {
+            ReferenceMemory mem = new ReferenceMemory(value);
+
             int index = (int) ((LongMemory) key).value;
 
             if (index > lastLongIndex)
@@ -488,13 +488,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             }
         }
 
-        Memory last = map.put(key, mem);
+        Pair<Memory, ArrayMapEntryMemory> result = map.putWithEntry(key, value);
 
-        if (last == null) {
+        if (!result.hasA()) {
             size++;
         }
 
-        return mem;
+        return result.getB();
     }
 
     public Memory removeByScalar(Object key) {
@@ -748,7 +748,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         } else {
             Set<Object> keys = map.keySet();
 
-            List<ReferenceMemory> values = new ArrayList<ReferenceMemory>(map.values());
+            List<Memory> values = new ArrayList<>(map.values());
             Collections.shuffle(values, rnd);
 
             int i = 0;
@@ -761,11 +761,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void clear() {
         if (list != null) {
-            list = new ArrayList<ReferenceMemory>();
+            list = new ArrayList<>();
         }
 
         if (map != null) {
-            map = new LinkedMap<Object, ReferenceMemory>();
+            map = new ArrayMemoryMap();
         }
 
         size = 0;
@@ -1039,15 +1039,19 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             copies--;
 
         if (list != null) {
-            for (ReferenceMemory memory : list)
-                if (memory.type == type)
+            for (ReferenceMemory memory : list) {
+                if (memory.type == type) {
                     memory.unset();
+                }
+            }
         }
 
         if (map != null) {
-            for (ReferenceMemory memory : map.values())
-                if (memory.type == type)
+            for (Memory memory : map.values()) {
+                if (memory.type == type) {
                     memory.unset();
+                }
+            }
         }
 
         clear();
@@ -1186,11 +1190,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Iterator<ReferenceMemory> iterator() {
         if (list != null) {
             return list.iterator();
         } else
-            return map.values().iterator();
+            return (Iterator<ReferenceMemory>) map.entriesIterator();
     }
 
     public ForeachIterator foreachIterator(boolean getReferences, boolean withPrevious) {
@@ -1302,7 +1307,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     ListIterator<Object> keyIterator = (ListIterator) keys;
                     if (keyIterator.hasPrevious()) {
                         currentKey = keyIterator.previous();
-                        setCurrentValue(map.get(currentKey));
+                        setCurrentValue(map.getEntry(currentKey));
                         return true;
                     } else {
                         currentKey = null;
@@ -1338,7 +1343,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
                     if (keys.hasNext()) {
                         currentKey = keys.next();
-                        setCurrentValue(map.get(currentKey));
+                        setCurrentValue(map.getEntry(currentKey));
                         return true;
                     } else {
                         currentKey = null;
