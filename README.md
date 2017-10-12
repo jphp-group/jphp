@@ -59,6 +59,16 @@ Our project started in October 2013. There were a few reasons for that:
 
 [http://j-php.net/wiki/Getting-started](http://j-php.net/wiki/Getting-started)
 
+### Hot to run benchmarks?
+
+```
+// via jphp
+./gradlew bench
+
+// via php
+php -f bench/src/bench.php
+```
+
 ### Build SNAPSHOT from sources
 
 Use `gradle install` to build and install the jphp modules and libraries into the mavel local repository. After this, you can use jphp in your projects as a maven dependency.
