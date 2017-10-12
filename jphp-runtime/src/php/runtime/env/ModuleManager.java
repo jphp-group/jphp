@@ -5,6 +5,7 @@ import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.reflection.ModuleEntity;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -80,10 +81,14 @@ public class ModuleManager {
 
     public Context fetchContext(Stream stream) throws Throwable {
         if (stream instanceof FileStream) {
-            return new Context(Stream.getInputStream(env, stream), stream.getPath(), env.getDefaultCharset());
+            return new Context(
+                    new BufferedInputStream(Stream.getInputStream(env, stream)), stream.getPath(), env.getDefaultCharset()
+            );
         }
 
-        return new Context(Stream.getInputStream(env, stream), stream.getPath(), env.getDefaultCharset());
+        return new Context(
+                new BufferedInputStream(Stream.getInputStream(env, stream)), stream.getPath(), env.getDefaultCharset()
+        );
     }
 
     protected Stream fetchStream(String path) throws Throwable {

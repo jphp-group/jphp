@@ -26,38 +26,51 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
-    protected long lastLongIndex;
-    protected int size;
-    protected int copies;
-    protected ArrayMemory original;
+    protected transient long lastLongIndex;
+    protected transient int size;
+    protected transient int copies;
+    protected transient ArrayMemory original;
 
-    protected List<ReferenceMemory> list;
-    //protected LinkedMap<Object, ReferenceMemory> map;
-    protected ArrayMemoryMap map;
+    protected transient ArrayMemoryList<ReferenceMemory> _list;
+    protected transient ArrayMemoryMap map;
 
-    protected ForeachIterator foreachIterator;
+    protected transient ForeachIterator foreachIterator;
 
     public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);
+
         if (asMap) {
             convertToMap();
-        } else {
-            list = new ArrayList<>();
         }
 
         lastLongIndex = -1;
     }
 
-    public ArrayMemory(ArrayMemoryMap map) {
+    private ArrayMemory(ArrayMemoryMap map) {
         super(Type.ARRAY);
 
-        this.list = null;
         this.map = map;
+        this.lastLongIndex = -1;
+    }
+
+    private ArrayMemory(ArrayMemoryList<ReferenceMemory> list) {
+        super(Type.ARRAY);
+
+        this.map = null;
+        this._list = list;
         this.lastLongIndex = -1;
     }
 
     public ArrayMemory() {
         this(false);
+    }
+
+    public static ArrayMemory createListed(int expectedSize) {
+        if (expectedSize <= 0) {
+            return new ArrayMemory();
+        }
+
+        return new ArrayMemory(new ArrayMemoryList<>(expectedSize));
     }
 
     public static ArrayMemory createHashed() {
@@ -67,6 +80,22 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public static ArrayMemory createHashed(int expectedSize) {
         ArrayMemoryMap map = new ArrayMemoryMap(expectedSize < 4 ? 7 : (int) (expectedSize * 1.75));
         return new ArrayMemory(map);
+    }
+
+    private List<ReferenceMemory> getList() {
+        if (_list != null) {
+            return _list;
+        }
+
+        synchronized (this) {
+            if (_list != null) {
+                return _list;
+            }
+
+            _list = new ArrayMemoryList<>(7);
+        }
+
+        return _list;
     }
 
     @Deprecated
@@ -91,14 +120,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         this();
         for (Object el : array) {
             if (el == null) {
-                list.add(new ReferenceMemory());
+                getList().add(new ReferenceMemory());
                 continue;
             }
 
             MemoryOperation operation = MemoryOperation.get(el.getClass(), null);
 
             if (operation != null) {
-                list.add(new ReferenceMemory(operation.unconvertNoThow(null, null, el)));
+                getList().add(new ReferenceMemory(operation.unconvertNoThow(null, null, el)));
             }
         }
         size = array.length;
@@ -110,7 +139,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         this();
         if (array != null) {
             for (Memory el : array) {
-                list.add(new ReferenceMemory(toImmutable ? el.toImmutable() : el));
+                getList().add(new ReferenceMemory(toImmutable ? el.toImmutable() : el));
             }
             size = array.length;
 
@@ -122,7 +151,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ArrayMemory(String[] array) {
         this();
         for (String el : array) {
-            list.add(new ReferenceMemory(StringMemory.valueOf(el)));
+            getList().add(new ReferenceMemory(StringMemory.valueOf(el)));
         }
         size = array.length;
         lastLongIndex = size - 1;
@@ -149,13 +178,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public Set<Object> keySet() {
-        if (list != null) {
+        if (map == null) {
             Set<Object> set = new HashSet<Object>(size());
+
             for (int i = 0; i < size(); i++) {
                 set.add(i);
             }
+
             return set;
         }
+
         return map.keySet();
     }
 
@@ -163,12 +195,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         ArrayMemory result = new ArrayMemory();
         result.lastLongIndex = lastLongIndex;
         result.size = size;
-        if (list != null) {
-            for (ReferenceMemory item : list) {
-                result.list.add(item.duplicate());
+
+        if (size() == 0) {
+            return result;
+        }
+
+        if (map == null) {
+            for (ReferenceMemory item : getList()) {
+                result.getList().add(item.duplicate());
             }
         } else {
-            result.list = null;
+            result._list = null;
             result.map = new ArrayMemoryMap();
 
             for (Map.Entry<Object, Memory> entry : map.entrySet()) {
@@ -183,7 +220,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         if (original != null || copies > 0) {
             ArrayMemory dup = duplicate();
             this.map = dup.map;
-            this.list = dup.list;
+            this._list = dup._list;
             this.lastLongIndex = dup.lastLongIndex;
 
             if (this.original == null) {
@@ -227,31 +264,36 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         if (size() == 0) {
             return false;
         }
-        if (list != null) {
+
+        if (_list != null) {
             long t = MemoryUtils.valueOf(key).toLong();
-            return t >= 0 && t < list.size();
+            return t >= 0 && t < _list.size();
         }
+
         return map.containsKey(key);
     }
 
     private void convertToMap() {
         map = new ArrayMemoryMap();
-        if (list != null && !list.isEmpty()) {
+        if (_list != null && !_list.isEmpty()) {
             int i = 0;
-            for (ReferenceMemory memory : list) {
+            for (ReferenceMemory memory : _list) {
                 if (memory != null) {
                     map.put(LongMemory.valueOf(i), memory.getValue());
                 }
                 i++;
             }
         }
-        list = null;
+
+        _list = null;
     }
 
     public void renameKey(Memory oldKey, Memory newKey) {
         checkCopied();
-        if (list != null)
+
+        if (_list != null || map == null) {
             convertToMap();
+        }
 
         Object key1 = toKey(oldKey);
         Object key2 = toKey(newKey);
@@ -303,17 +345,19 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public ReferenceMemory getByScalar(Object key) {
-        if (list != null) {
+        if (_list != null) {
             if (key instanceof Memory) {
                 int index = (int) ((Memory) key).toLong();
-                if (index >= 0 && index < list.size()) {
-                    return list.get(index);
+                if (index >= 0 && index < _list.size()) {
+                    return _list.get(index);
                 } else
                     return null;
             } else
                 return null;
-        } else {
+        } else if (map != null) {
             return map.getEntry(key);
+        } else {
+            return null;
         }
     }
 
@@ -348,14 +392,16 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
 
         ReferenceMemory ref;
-        if (list != null) {
+
+        if (map == null) {
             lastLongIndex++;
             ref = new ReferenceMemory(value);
-            list.add(ref);
+            getList().add(ref);
             size++;
         } else {
             ref = put(LongMemory.valueOf(++lastLongIndex), value);
         }
+
         return ref;
     }
 
@@ -365,21 +411,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
      */
     public void merge(ArrayMemory array, boolean recursive, Set<Integer> done) {
         checkCopied();
-        if (recursive && done == null)
-            done = new HashSet<Integer>();
 
-        if (list != null && array.list != null) {
-            for (ReferenceMemory reference : array.list)
-                list.add(new ReferenceMemory(reference.toImmutable()));
+        if (recursive && done == null) {
+            done = new HashSet<>();
+        }
 
-            size = list.size();
+        if (map == null && array.map == null) {
+            for (ReferenceMemory reference : array.getList())
+                getList().add(new ReferenceMemory(reference.toImmutable()));
+
+            size = getList().size();
             lastLongIndex = size - 1;
         } else {
-            if (list != null)
+            if (map == null) {
                 convertToMap();
+            }
 
-            if (array.list != null) {
-                for (ReferenceMemory reference : array.list) {
+            if (array.map == null) {
+                for (ReferenceMemory reference : array.getList()) {
                     add(reference.toImmutable());
                 }
             } else {
@@ -417,16 +466,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public void putAll(ArrayMemory array) {
-        if (array.list != null) {
+        if (array.map == null) {
             int i = 0;
-            for (ReferenceMemory memory : array.list) {
+            for (ReferenceMemory memory : array.getList()) {
                 if (memory != null)
                     put(LongMemory.valueOf(i), memory.toImmutable());
                 i++;
             }
         } else {
-            if (list != null)
+            if (map == null) {
                 convertToMap();
+            }
 
             if (array.lastLongIndex > lastLongIndex)
                 lastLongIndex = array.lastLongIndex;
@@ -438,16 +488,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public void putAllRef(ArrayMemory array) {
-        if (array.list != null) {
+        if (array.map == null) {
             int i = 0;
-            for (ReferenceMemory memory : array.list) {
+            for (ReferenceMemory memory : array.getList()) {
                 if (memory != null)
                     put(LongMemory.valueOf(i), memory);
                 i++;
             }
         } else {
-            if (list != null)
+            if (map == null) {
                 convertToMap();
+            }
 
             if (array.lastLongIndex > lastLongIndex) {
                 lastLongIndex = array.lastLongIndex;
@@ -458,7 +509,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public ReferenceMemory putAsKeyString(String key, Memory value) {
-        if (list != null) {
+        if (map == null) {
             convertToMap();
         }
 
@@ -480,15 +531,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (index > lastLongIndex)
                 lastLongIndex = index;
 
-            if (list != null) {
-                int size = list.size();
+            if (map == null) {
+                int size = getList().size();
                 if (index >= 0) {
                     if (index < size) {
-                        list.set(index, mem);
+                        getList().set(index, mem);
                         //this.size++;
                         return mem;
                     } else if (index == size) {
-                        list.add(mem);
+                        getList().add(mem);
                         this.size++;
                         return mem;
                     } else {
@@ -501,7 +552,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if (!(key instanceof String))
                 key = key.toString();
 
-            if (list != null) {
+            if (map == null) {
                 convertToMap();
             }
         }
@@ -516,7 +567,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public Memory removeByScalar(Object key) {
-        if (list != null) {
+        if (map == null) {
             int index = -1;
             if (key instanceof Long)
                 index = ((Long) key).intValue();
@@ -528,13 +579,19 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     index = (int) tmp.toLong();
             }
 
-            if (index < 0 || index >= list.size())
+            if (index < 0 || _list == null || index >= getList().size())
                 return null;
 
             if (index == size - 1) {
                 size--;
                 lastLongIndex = size - 1;
-                return list.remove(index);
+                ReferenceMemory remove = getList().remove(index);
+
+                if (getList().isEmpty()) {
+                    _list = null;
+                }
+
+                return remove;
             } else {
                 key = (long) index;
                 convertToMap();
@@ -562,15 +619,21 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public Memory remove(Memory key) {
         Object _key = toKey(key);
-        if (list != null) {
+        if (map == null) {
             int index = _key instanceof LongMemory ? (int) key.toLong() : -1;
-            if (index < 0 || index >= list.size())
+            if (index < 0 || _list == null || index >= getList().size())
                 return null;
 
             if (index == size - 1) {
                 size--;
                 lastLongIndex = index - 1;
-                return list.remove(index);
+                ReferenceMemory remove = getList().remove(index);
+
+                if (getList().isEmpty()) {
+                    _list = null;
+                }
+
+                return remove;
             }
 
             //key = LongMemory.valueOf(index);
@@ -596,13 +659,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             for (int i = 0; i < count; i++)
                 add(value);
         } else {
-            if (list != null) {
+            if (map == null) {
                 List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
                 for (int i = 0; i < count; i++)
                     tmp.add(new ReferenceMemory(value));
 
-                list.addAll(0, tmp);
-                size = list.size();
+                getList().addAll(0, tmp);
+                size = getList().size();
             } else {
                 ArrayMemory tmp = new ArrayMemory();
                 tmp.convertToMap();
@@ -638,17 +701,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             for (Memory value : values)
                 add(value);
         } else {
-            if (list != null) {
+            if (map == null) {
                 if (values.length > 1) {
                     List<ReferenceMemory> tmp = new ArrayList<ReferenceMemory>();
                     for (Memory value : values)
                         tmp.add(new ReferenceMemory(value));
 
-                    list.addAll(0, tmp);
-                    size = list.size();
+                    getList().addAll(0, tmp);
+                    size = getList().size();
                 } else if (values.length == 1) {
-                    list.add(0, new ReferenceMemory(values[0]));
-                    size = list.size();
+                    getList().add(0, new ReferenceMemory(values[0]));
+                    size = getList().size();
                 }
             } else {
                 ArrayMemory tmp = new ArrayMemory();
@@ -681,9 +744,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         size -= 1;
         Memory value;
-        if (list != null) {
-            value = list.get(0);
-            list.remove(0);
+        if (map == null) {
+            value = getList().get(0);
+            getList().remove(0);
         } else {
             value = map.remove(map.firstKey());
         }
@@ -697,9 +760,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return null;
 
         Memory value;
-        if (list != null) {
-            value = list.get(size - 1);
-            list.remove(size - 1);
+        if (getList() != null) {
+            value = getList().get(size - 1);
+            getList().remove(size - 1);
         } else {
             value = map.remove(map.lastKey());
         }
@@ -713,8 +776,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return null;
 
         Memory value;
-        if (list != null)
-            value = list.get(size - 1);
+        if (map == null)
+            value = getList().get(size - 1);
         else {
             value = map.get(map.lastKey());
         }
@@ -727,7 +790,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return null;
 
         Memory value;
-        if (list != null)
+        if (map == null)
             return LongMemory.valueOf(size - 1);
         else {
             Object key = map.lastKey();
@@ -743,7 +806,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public Memory getRandomElementKey(Random rnd) {
         int index = rnd.nextInt(size);
-        if (list != null) {
+        if (map == null) {
             return LongMemory.valueOf(index);
         } else {
             Iterator<Object> keys = map.keySet().iterator();
@@ -761,8 +824,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void shuffle(Random rnd) {
         checkCopied();
-        if (list != null) {
-            Collections.shuffle(list, rnd);
+        if (map == null) {
+            if (_list != null) {
+                Collections.shuffle(getList(), rnd);
+            }
         } else {
             Set<Object> keys = map.keySet();
 
@@ -778,13 +843,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public void clear() {
-        if (list != null) {
-            list = new ArrayList<>();
-        }
-
-        if (map != null) {
-            map = new ArrayMemoryMap();
-        }
+        _list = null;
+        map = null;
 
         size = 0;
     }
@@ -862,10 +922,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public Memory toImmutable() {
         if (copies >= 0) {
             ArrayMemory mem = new ArrayMemory();
-            mem.list = list;
+            mem._list = _list;
             mem.original = this;
             mem.size = size;
-            mem.list = list;
+            mem._list = _list;
             mem.map = map;
             mem.lastLongIndex = lastLongIndex;
             copies++;
@@ -1056,8 +1116,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         } else
             copies--;
 
-        if (list != null) {
-            for (ReferenceMemory memory : list) {
+        /*if (_list != null) {
+            for (ReferenceMemory memory : getList()) {
                 if (memory.type == type) {
                     memory.unset();
                 }
@@ -1070,7 +1130,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     memory.unset();
                 }
             }
-        }
+        }*/
 
         clear();
     }
@@ -1210,8 +1270,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     @Override
     @SuppressWarnings("unchecked")
     public Iterator<ReferenceMemory> iterator() {
-        if (list != null) {
-            return list.iterator();
+        if (map == null) {
+            return getList().iterator();
         } else
             return (Iterator<ReferenceMemory>) map.entriesIterator();
     }
@@ -1233,10 +1293,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
             @Override
             public void reset() {
-                if (getKeyReferences && list != null)
+                if (getKeyReferences && map == null)
                     ArrayMemory.this.convertToMap();
 
-                if (list == null) {
+                if (map != null) {
                     if (withPrevious || getKeyReferences)
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
                     else {
@@ -1247,24 +1307,25 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                         }
                     }
                 } else {
-                    listMax = list.size();
+                    listMax = _list == null ? 0 : getList().size();
                 }
             }
 
             @Override
             protected boolean init() {
-                if (getKeyReferences && list != null)
+                if (getKeyReferences && map == null)
                     ArrayMemory.this.convertToMap();
 
-                if (list == null) {
+                if (map != null) {
                     if (withPrevious || getKeyReferences) {
                         keys = new ArrayList<Object>(map.keySet()).listIterator();
                     } else {
                         keys = new ArrayList<Object>(map.keySet()).iterator();
                     }
                 } else {
-                    listMax = list.size();
+                    listMax = _list == null ? 0 : getList().size();
                 }
+
                 return true;
             }
 
@@ -1287,10 +1348,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 if (ArrayMemory.this.size == 0)
                     return false;
 
-                if (ArrayMemory.this.list != null) {
+                if (ArrayMemory.this.map == null) {
                     cursor = ArrayMemory.this.size - 1;
                     currentKey = (long) cursor;
-                    setCurrentValue(list.get(cursor));
+                    setCurrentValue(getList().get(cursor));
                     return true;
                 } else {
                     init = true;
@@ -1308,7 +1369,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
             @Override
             protected boolean prevValue() {
-                if (ArrayMemory.this.list != null) {
+                if (ArrayMemory.this.map == null) {
                     if (cursor <= 0) {
                         currentKey = null;
                         currentValue = null;
@@ -1318,7 +1379,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     } else {
                         cursor--;
                         currentKey = LongMemory.valueOf((long) cursor);
-                        setCurrentValue(list.get(cursor));
+                        setCurrentValue(getList().get(cursor));
                         return true;
                     }
                 } else {
@@ -1342,7 +1403,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 if (withPrevious && (keys == null && cursor < 0))
                     return false;
 
-                if (ArrayMemory.this.list != null) {
+                if (ArrayMemory.this.map == null) {
                     if (((cursor >= listMax && freeze) || (cursor >= size && !freeze)) || size < listMax) {
                         currentKey = null;
                         currentValue = null;
@@ -1350,7 +1411,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     }
 
                     currentKey = LongMemory.valueOf((long) cursor);
-                    setCurrentValue(list.get(cursor));
+                    setCurrentValue(getList().get(cursor));
                     cursor++;
                     return true;
                 } else {
@@ -1410,8 +1471,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public boolean isList() {
-        return list != null;
+        return map == null;
     }
+
+    public boolean isMap() { return map != null; }
 
     @Override
     public Memory toArray() {
@@ -1929,7 +1992,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         if (isList()) {
             int i = 0;
             try {
-                for (ReferenceMemory referenceMemory : list.subList(offset, list.size())) {
+                for (ReferenceMemory referenceMemory : getList().subList(offset, getList().size())) {
                     if (saveKeys) {
                         result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
                     } else {
@@ -1976,7 +2039,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         if (isList()) {
             int i = 0;
             try {
-                for (ReferenceMemory referenceMemory : list.subList(offset, offset + length)) {
+                for (ReferenceMemory referenceMemory : getList().subList(offset, offset + length)) {
                     if (saveKeys) {
                         result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
                     } else {
@@ -2024,7 +2087,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         ArrayMemory that = (ArrayMemory) o;
 
         if (original != null ? !original.equals(that.original) : that.original != null) return false;
-        if (list != null ? !list.equals(that.list) : that.list != null) return false;
+        if (_list != null ? !_list.equals(that._list) : that._list != null) return false;
         return map != null ? map.equals(that.map) : that.map == null;
     }
 
@@ -2032,7 +2095,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (original != null ? original.hashCode() : 0);
-        result = 31 * result + (list != null ? list.hashCode() : 0);
+        result = 31 * result + (_list != null ? _list.hashCode() : 0);
         result = 31 * result + (map != null ? map.hashCode() : 0);
         return result;
     }

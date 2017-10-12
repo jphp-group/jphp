@@ -46,6 +46,7 @@ public class ResourceStream extends Stream {
     @Signature({@Arg("path")})
     public Memory __construct(Environment env, Memory... args) throws IOException {
         super.__construct(env, args[0], StringMemory.valueOf("r"));
+        //long t = System.currentTimeMillis();
 
         String path = this.getPath().replace('\\', '/').replace("//", "/");
 
@@ -62,6 +63,9 @@ public class ResourceStream extends Stream {
         }
 
         stream = url.openStream();
+
+        //System.err.println(path + ", time = " + (System.currentTimeMillis() - t));
+
         return Memory.NULL;
     }
 

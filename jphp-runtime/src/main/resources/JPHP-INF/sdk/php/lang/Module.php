@@ -41,6 +41,11 @@ class Module
     public function dump($target, $saveDebugInfo = true) { }
 
     /**
+     * Remove bytecode data.
+     */
+    public function cleanData() {}
+
+    /**
      * @param string $name
      * @param array $classes
      */

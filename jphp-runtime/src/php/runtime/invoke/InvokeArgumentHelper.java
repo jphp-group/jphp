@@ -28,14 +28,7 @@ import java.util.List;
 public class InvokeArgumentHelper {
     private static final String INVALID_TYPE_MESSAGE = "Only arrays and Traversables can be unpacked";
 
-    public static Memory[] makeArguments(Environment env, Memory[] args,
-                                         ParameterEntity[] parameters,
-                                         String originClassName, String originMethodName, String staticClassName,
-                                         TraceInfo trace) {
-        if (parameters == null) {
-            return args;
-        }
-
+    private static Memory[] argsToPassed(Environment env, TraceInfo trace, Memory[] args, ParameterEntity[] parameters) {
         args = unpackArgs(env, trace, args, parameters);
 
         Memory[] passed = args;
@@ -47,6 +40,85 @@ public class InvokeArgumentHelper {
                 System.arraycopy(args, 0, passed, 0, args.length);
             }
         }
+
+        return passed;
+    }
+
+    private static Memory makeArg(Environment env, TraceInfo trace, ParameterEntity param,
+                                  Memory arg, int i, String originClassName, String originMethodName, String staticClassName) {
+        if (arg == null) {
+            arg = makeDefaultArg(env, trace, param, i, originClassName, originMethodName);
+        } else {
+            arg = makeNormalArg(env, trace, param, arg);
+        }
+
+        return typeHintArg(env, trace, param, arg, i, originClassName, originMethodName, staticClassName);
+    }
+
+    private static Memory makeNormalArg(Environment env, TraceInfo trace, ParameterEntity param, Memory arg) {
+
+        if (param.isReference()) {
+            if (!arg.isReference() && !arg.isObject()) {
+                env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
+                return new ReferenceMemory(arg);
+            }
+
+            return arg;
+        } else {
+            return param.isMutable() ? arg.toImmutable() : arg.toValue();
+        }
+    }
+
+    private static Memory makeDefaultArg(Environment env, TraceInfo trace, ParameterEntity param,
+                                         int i, String originClassName, String originMethodName) {
+        Memory def = param.getDefaultValue();
+
+        if (def != null) {
+            if (!param.isReference()) {
+                return param.isMutable() ? def.toImmutable(env, trace) : def;
+            } else {
+                return new ReferenceMemory(param.isMutable() ? def.toImmutable(env, trace) : def);
+            }
+        } else {
+            if (param.getTypeClass() != null) {
+                invalidType(env, trace, param, i + 1, null, originClassName, originMethodName);
+            }
+
+            env.error(trace, ErrorType.E_ERROR,
+                    Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
+                    originMethodName == null ? originClassName : originClassName + "::" + originMethodName
+            );
+
+            return param.isReference() ? new ReferenceMemory() : Memory.NULL;
+        }
+    }
+
+    private static Memory typeHintArg(Environment env, TraceInfo trace, ParameterEntity param,
+                                      Memory arg, int i, String originClassName, String originMethodName, String staticClassName) {
+        if (!param.checkTypeHinting(env, arg, staticClassName)) {
+            ModuleEntity module = env.getModuleManager().findModule(trace);
+
+            Memory memory = param.applyTypeHinting(env, arg, module != null && module.isStrictTypes());
+
+            if (memory != null) {
+                return memory;
+            } else {
+                invalidType(env, trace, param, i + 1, arg, originClassName, originMethodName);
+            }
+        }
+
+        return arg;
+    }
+
+    public static Memory[] makeArguments(Environment env, Memory[] args,
+                                         ParameterEntity[] parameters,
+                                         String originClassName, String originMethodName, String staticClassName,
+                                         TraceInfo trace) {
+        if (parameters == null) {
+            return args;
+        }
+
+        Memory[] passed = argsToPassed(env, trace, args, parameters);
 
         int i = 0;
 
@@ -97,59 +169,23 @@ public class InvokeArgumentHelper {
                     break;
                 }
 
-                if (arg == null) {
-                    Memory def = param.getDefaultValue();
-
-                    if (def != null) {
-                        if (!param.isReference()) {
-                            passed[i] = param.isMutable() ? def.toImmutable(env, trace) : def;
-                        } else {
-                            passed[i] = new ReferenceMemory(param.isMutable() ? def.toImmutable(env, trace) : def);
-                        }
-                    } else {
-                        if (param.getTypeClass() != null) {
-                            invalidType(env, trace, param, i + 1, null, originClassName, originMethodName);
-                        }
-
-                        env.error(trace, ErrorType.E_ERROR,
-                                Messages.ERR_MISSING_ARGUMENT, (i + 1) + " ($" + param.getName() + ")",
-                                originMethodName == null ? originClassName : originClassName + "::" + originMethodName
-                        );
-                        passed[i] = param.isReference() ? new ReferenceMemory() : Memory.NULL;
-                    }
-                } else {
-                    if (param.isReference()) {
-                        if (!arg.isReference() && !arg.isObject()) {
-                            env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
-                            passed[i] = new ReferenceMemory(arg);
-                        }
-                    } else {
-                        passed[i] = param.isMutable() ? arg.toImmutable() : arg.toValue();
-                    }
-                }
-
-                if (!param.checkTypeHinting(env, passed[i], staticClassName)) {
-                    ModuleEntity module = env.getModuleManager().findModule(trace);
-
-                    Memory memory = param.applyTypeHinting(env, passed[i], module != null && module.isStrictTypes());
-
-                    if (memory != null) {
-                        passed[i] = memory;
-                    } else {
-                        invalidType(env, trace, param, i + 1, passed[i], originClassName, originMethodName);
-                    }
-                }
+                passed[i] = makeArg(env, trace, param, arg, i, originClassName, originMethodName, staticClassName);
                 i++;
             }
 
             if (!variadicMemoryExists) {
-                for (int j = parameters.length ; j < passed.length; j++) {
-                    passed[j] = passed[j].toImmutable();
-                }
+                makeImmutable(passed, parameters);
             }
         }
 
         return passed;
+    }
+
+
+    private static void makeImmutable(Memory[] passed, ParameterEntity[] parameters) {
+        for (int j = parameters.length ; j < passed.length; j++) {
+            passed[j] = passed[j].toImmutable();
+        }
     }
 
     public static Memory[] unpackArgs(Environment env, TraceInfo trace, Memory[] passed, ParameterEntity[] parameters) {

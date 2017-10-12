@@ -8,9 +8,14 @@ import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
+import php.runtime.reflection.helper.ClosureEntity;
+import php.runtime.reflection.helper.GeneratorEntity;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,6 +44,10 @@ public class WrapModule extends BaseObject {
     public Memory __construct(Environment env, Memory... args) throws Throwable {
         InputStream is = Stream.getInputStream(env, args[0]);
         try {
+            if (is != null) {
+                is = new BufferedInputStream(is);
+            }
+
             Context context = new Context(is, Stream.getPath(args[0]), env.getDefaultCharset());
             if (args[1].toBoolean()) {
                 ModuleDumper moduleDumper = new ModuleDumper(context, env, args[2].toBoolean());
@@ -89,6 +98,29 @@ public class WrapModule extends BaseObject {
             return module.include(env);
         else
             return module.include(env, args[0].toImmutable().toValue(ArrayMemory.class));
+    }
+
+    @Signature
+    public void cleanData() {
+        module.setData(null);
+
+        for (ClassEntity entity : module.getClasses()) {
+            if (!entity.isTrait()) {
+                entity.setData(null);
+            }
+        }
+
+        for (FunctionEntity entity : module.getFunctions()) {
+            entity.setData(null);
+        }
+
+        for (GeneratorEntity entity : module.getGenerators()) {
+            entity.setData(null);
+        }
+
+        for (ClosureEntity entity : module.getClosures()) {
+            entity.setData(null);
+        }
     }
 
     @Signature({

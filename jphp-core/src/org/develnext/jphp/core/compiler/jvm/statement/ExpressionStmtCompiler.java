@@ -418,11 +418,12 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (memory instanceof ArrayMemory) {
             ArrayMemory array = (ArrayMemory) memory;
 
+            writePushConstInt(array.size());
+
             if (!array.isList()) {
-                writePushConstInt(array.size());
                 writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
             } else {
-                writePushNewObject(ArrayMemory.class);
+                writeSysStaticCall(ArrayMemory.class, "createListed", ArrayMemory.class, int.class);
             }
 
             ForeachIterator foreachIterator = ((ArrayMemory) memory).foreachIterator(false, false);
@@ -1590,11 +1591,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (map) break;
                 }
 
+                writePushConstInt(array.getParameters().size());
                 if (map) {
-                    writePushConstInt(array.getParameters().size());
                     writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
                 } else {
-                    writePushNewObject(ArrayMemory.class);
+                    writeSysStaticCall(ArrayMemory.class, "createListed", ArrayMemory.class, int.class);
                 }
             }
 

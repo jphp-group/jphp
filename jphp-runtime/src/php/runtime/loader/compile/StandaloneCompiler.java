@@ -1,11 +1,16 @@
 package php.runtime.loader.compile;
 
 import php.runtime.Information;
+import php.runtime.Memory;
 import php.runtime.common.Callback;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.ext.support.Extension;
+import php.runtime.launcher.LaunchException;
 import php.runtime.launcher.StandaloneLauncher;
 import php.runtime.loader.dump.*;
 import php.runtime.reflection.ClassEntity;
@@ -13,6 +18,7 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.*;
 import java.nio.file.CopyOption;
@@ -316,6 +322,23 @@ public class StandaloneCompiler {
 
         if (destinationResDirectory == null) {
             destinationResDirectory = destinationDirectory;
+        }
+
+        String classLoader = ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class);
+
+        if (classLoader != null && !(classLoader.isEmpty())) {
+            ClassEntity classLoaderEntity = env.fetchClass(classLoader);
+
+            if (classLoaderEntity == null) {
+                throw new LaunchException("Class loader class is not found: " + classLoader);
+            }
+
+            try {
+                WrapClassLoader loader = classLoaderEntity.newObject(env, TraceInfo.UNKNOWN, true);
+                env.invokeMethod(loader, "register", Memory.TRUE);
+            } catch (Throwable e) {
+                throw new CriticalException(e);
+            }
         }
 
         try {

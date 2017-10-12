@@ -4,12 +4,10 @@ import php.runtime.Memory;
 import php.runtime.Startup;
 import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
-import php.runtime.env.CompileScope;
-import php.runtime.env.ConcurrentEnvironment;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
+import php.runtime.env.*;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
+import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.support.Extension;
 import php.runtime.launcher.LaunchException;
 import php.runtime.loader.dump.ModuleDumper;
@@ -21,6 +19,7 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -184,6 +183,27 @@ public class StandaloneLoader {
 
     public void run() {
         readConfig();
+
+        String classLoader = config.getProperty(
+                "env.classLoader",
+                ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class)
+        );
+
+        if (classLoader != null && !(classLoader.isEmpty())) {
+            ClassEntity classLoaderEntity = env.fetchClass(classLoader);
+
+            if (classLoaderEntity == null) {
+                throw new LaunchException("Class loader class is not found: " + classLoader);
+            }
+
+            try {
+                WrapClassLoader loader = classLoaderEntity.newObject(env, TraceInfo.UNKNOWN, true);
+                env.invokeMethod(loader, "register", Memory.TRUE);
+            } catch (Throwable e) {
+                throw new CriticalException(e);
+            }
+        }
+
         run("JPHP-INF/.bootstrap.php");
     }
 
