@@ -557,6 +557,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
             if (statement.isGenerator()) {
                 entity.setEmpty(false);
                 entity.setImmutable(false);
+                entity.setResult(null);
                 GeneratorStmtCompiler generatorStmtCompiler = new GeneratorStmtCompiler(compiler, statement);
                 entity.setGeneratorEntity(generatorStmtCompiler.compile());
 
@@ -593,6 +594,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 ExpressionStmtCompiler expr = new ExpressionStmtCompiler(this, null);
 
                 entity.setEmpty(true);
+
+                if (entity.getResult() == null) {
+                    entity.setResult(Memory.UNDEFINED);
+                }
+
                 if (statement != null && statement.getBody() != null) {
                     expr.writeDefineVariables(statement.getLocal());
                     expr.write(statement.getBody());

@@ -7,6 +7,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
+import php.runtime.Memory;
 import php.runtime.common.Modifier;
 import php.runtime.reflection.*;
 import php.runtime.reflection.support.TypeChecker;
@@ -72,6 +73,7 @@ public class FunctionStmtCompiler extends StmtCompiler<FunctionEntity> {
         entity.setUsesStackTrace(methodEntity.isUsesStackTrace());
         entity.setImmutable(methodEntity.isImmutable());
         entity.setResult(methodEntity.getResult());
+
         entity.setGeneratorEntity(methodEntity.getGeneratorEntity());
 
         return entity;

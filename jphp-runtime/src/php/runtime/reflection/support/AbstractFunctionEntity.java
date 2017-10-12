@@ -124,8 +124,9 @@ abstract public class AbstractFunctionEntity extends Entity {
     }
 
     public Memory getImmutableResult(){
-        if (isImmutable && !abstractable) {
-            return getResult().toImmutable();
+        if ((isImmutable || isEmpty) && !abstractable) {
+            Memory result = getResult();
+            return result == null ? null : result.toImmutable();
         }
 
         return null;

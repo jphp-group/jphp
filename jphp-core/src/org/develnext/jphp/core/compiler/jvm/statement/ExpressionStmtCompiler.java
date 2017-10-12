@@ -416,8 +416,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new InsnNode(DUP));
             code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V", false));
         } else if (memory instanceof ArrayMemory) {
-            writePushNewObject(ArrayMemory.class);
             ArrayMemory array = (ArrayMemory) memory;
+
+            if (!array.isList()) {
+                writePushConstInt(array.size());
+                writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
+            } else {
+                writePushNewObject(ArrayMemory.class);
+            }
 
             ForeachIterator foreachIterator = ((ArrayMemory) memory).foreachIterator(false, false);
             while (foreachIterator.next()) {
@@ -429,8 +435,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 } else {
                     Memory key = foreachIterator.getMemoryKey();
                     writePushMemory(key);
-                    if (!key.isString())
+
+                    if (!key.isString()) {
                         writePopBoxing();
+                    }
 
                     writePushMemory(foreachIterator.getValue());
                     writePopBoxing();
@@ -749,6 +757,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new TypeInsnNode(NEW, Type.getInternalName(clazz)));
         stackPush(Memory.Type.REFERENCE);
         writePushDup();
+
         writeSysCall(clazz, INVOKESPECIAL, Constants.INIT_METHOD, void.class);
         stackPop();
     }
@@ -1568,7 +1577,25 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
 
             if (ret == null) {
-                writePushNewObject(ArrayMemory.class);
+                boolean map = false;
+
+                for (ExprStmtToken token : array.getParameters()) {
+                    for (Token sub : token.getTokens()) {
+                        if (sub instanceof KeyValueExprToken) {
+                            map = true;
+                            break;
+                        }
+                    }
+
+                    if (map) break;
+                }
+
+                if (map) {
+                    writePushConstInt(array.getParameters().size());
+                    writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
+                } else {
+                    writePushNewObject(ArrayMemory.class);
+                }
             }
 
             for (ExprStmtToken param : array.getParameters()) {

@@ -218,8 +218,10 @@ final public class ObjectInvokeHelper {
         } finally {
             if (trace != null) {
                 env.popCall();
-                if (doublePop)
+
+                if (doublePop) {
                     env.popCall();
+                }
             }
         }
     }

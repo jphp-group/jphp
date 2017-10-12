@@ -64,7 +64,8 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
             }
 
             if (isImmutable) {
-                if (method.getEntity().getResult() == null) {
+                Memory r = method.getEntity().getResult();
+                if (r == null || r.isUndefined()) {
                     method.getEntity().setResult(result);
                 }
             }

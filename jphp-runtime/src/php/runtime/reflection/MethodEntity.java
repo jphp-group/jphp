@@ -233,10 +233,12 @@ public class MethodEntity extends AbstractFunctionEntity {
             }
 
             if (isEmpty) {
-                return Memory.NULL;
+                return Memory.UNDEFINED;
             }
 
-            return InvokeHelper.checkReturnType(env, trace, (Memory) nativeMethod.invoke(_this, env, arguments), this);
+            Memory result = (Memory) nativeMethod.invoke(_this, env, arguments);
+
+            return InvokeHelper.checkReturnType(env, trace, result, this);
         } catch (InvocationTargetException e){
             return env.__throwException(e);
         } catch (Throwable e) {

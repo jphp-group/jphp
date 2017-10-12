@@ -39,16 +39,34 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ArrayMemory(boolean asMap) {
         super(Type.ARRAY);
-        if (asMap)
+        if (asMap) {
             convertToMap();
-        else {
+        } else {
             list = new ArrayList<>();
         }
+
         lastLongIndex = -1;
+    }
+
+    public ArrayMemory(ArrayMemoryMap map) {
+        super(Type.ARRAY);
+
+        this.list = null;
+        this.map = map;
+        this.lastLongIndex = -1;
     }
 
     public ArrayMemory() {
         this(false);
+    }
+
+    public static ArrayMemory createHashed() {
+        return createHashed(8);
+    }
+
+    public static ArrayMemory createHashed(int expectedSize) {
+        ArrayMemoryMap map = new ArrayMemoryMap(expectedSize < 4 ? 7 : (int) (expectedSize * 1.75));
+        return new ArrayMemory(map);
     }
 
     @Deprecated
@@ -218,7 +236,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     private void convertToMap() {
         map = new ArrayMemoryMap();
-        if (list != null) {
+        if (list != null && !list.isEmpty()) {
             int i = 0;
             for (ReferenceMemory memory : list) {
                 if (memory != null) {

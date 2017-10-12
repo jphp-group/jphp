@@ -26,11 +26,11 @@ public class ArrayMemoryMap extends AbstractMap<Object, Memory>
     /**
      * The default capacity to use
      */
-    protected static final int DEFAULT_CAPACITY = 16;
+    protected static final int DEFAULT_CAPACITY = 11;
     /**
      * The default threshold to use
      */
-    protected static final int DEFAULT_THRESHOLD = 12;
+    protected static final int DEFAULT_THRESHOLD = 8;
     /**
      * The default load factor to use
      */
@@ -662,29 +662,12 @@ public class ArrayMemoryMap extends AbstractMap<Object, Memory>
      */
     protected ArrayMapEntryMemory addMapping(int hashIndex, int hashCode, Object key, Memory value) {
         modCount++;
-        ArrayMapEntryMemory entry = createEntry(data[hashIndex], hashCode, key, value);
+        ArrayMapEntryMemory entry = new ArrayMapEntryMemory(data[hashIndex], hashCode, key, value);
         addEntry(entry, hashIndex);
         size++;
         checkCapacity();
 
         return entry;
-    }
-
-    /**
-     * Creates an entry to store the key-value data.
-     * <p/>
-     * This implementation creates a new HashEntry instance.
-     * Subclasses can override this to return a different storage class,
-     * or implement caching.
-     *
-     * @param next     the next entry in sequence
-     * @param hashCode the hash code to use
-     * @param key      the key to store
-     * @param value    the value to store
-     * @return the newly created entry
-     */
-    protected ArrayMapEntryMemory createEntry(ArrayMapEntryMemory next, int hashCode, Object key, Memory value) {
-        return new ArrayMapEntryMemory(next, hashCode, key, value);
     }
 
     /**
