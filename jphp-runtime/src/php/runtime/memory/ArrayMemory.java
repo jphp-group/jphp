@@ -388,7 +388,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ReferenceMemory add(Memory value) {
         if (value instanceof KeyValueMemory) {
             KeyValueMemory keyValue = (KeyValueMemory) value;
-            return put(toKey(keyValue.key), keyValue.getValue().toImmutable());
+            return put(keyValue.getArrayKey(), keyValue.getValue().toImmutable());
         }
 
         ReferenceMemory ref;
