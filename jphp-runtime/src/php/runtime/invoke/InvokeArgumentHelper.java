@@ -149,9 +149,7 @@ public class InvokeArgumentHelper {
                                 env.error(trace, "Cannot use positional argument after argument unpacking");
                             }
 
-                            if (!param.checkTypeHinting(env, arg)) {
-                                invalidType(env, trace, param, _i + 1, arg, originClassName, originMethodName);
-                            }
+                            arg = typeHintArg(env, trace, param, arg, _i + 1, originClassName, originMethodName, staticClassName);
 
                             variadicArgs.add(makeValue(param, arg, env, trace));
                         }
@@ -261,9 +259,9 @@ public class InvokeArgumentHelper {
         return passed;
     }
 
-    public static void checkType(Environment env, TraceInfo trace, MethodEntity methodEntity, Memory... args) {
+    public static Memory[] checkType(Environment env, TraceInfo trace, MethodEntity methodEntity, Memory... args) {
         if (args == null) {
-            return;
+            return null;
         }
 
         ParameterEntity[] parameters = methodEntity.getParameters(args.length);
@@ -275,12 +273,14 @@ public class InvokeArgumentHelper {
                 break;
             }
 
-            if (!parameters[i].checkTypeHinting(env, arg)) {
-                invalidType(env, trace, parameters[i], i + 1, arg, methodEntity.getClazzName(), methodEntity.getName());
-            }
+            args[i] = typeHintArg(
+                    env, trace, parameters[i], arg, i + 1, methodEntity.getClazzName(), methodEntity.getName(), null
+            );
 
             i++;
         }
+
+        return args;
     }
 
     public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,

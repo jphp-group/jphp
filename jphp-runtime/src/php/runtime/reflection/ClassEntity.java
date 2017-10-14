@@ -1110,14 +1110,14 @@ ClassReader classReader;
                     Memory o1 = Memory.NULL;
                     if (methodMagicGet != null) {
                         try {
-                            Memory[] args = new Memory[]{memoryProperty};
+                            Memory[] args = new Memory[]{ memoryProperty };
                             env.pushCall(
                                     trace, object, args, methodMagicGet.getName(), methodMagicSet.getClazz().getName(), name
                             );
                             env.peekCall(0).flags = FLAG_GET;
 
-                            InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
-                            o1 = methodMagicGet.invokeDynamic(object, env, trace, memoryProperty);
+                            args = InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
+                            o1 = methodMagicGet.invokeDynamic(object, env, trace, args);
                         } finally {
                             env.popCall();
                         }
@@ -1130,7 +1130,7 @@ ClassReader classReader;
                     env.pushCall(trace, object, args, methodMagicSet.getName(), methodMagicSet.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_SET;
 
-                    InvokeArgumentHelper.checkType(env, trace, methodMagicSet, args);
+                    args = InvokeArgumentHelper.checkType(env, trace, methodMagicSet, args);
                     methodMagicSet.invokeDynamic(object, env, trace, args);
                 } finally {
                     env.popCall();
@@ -1221,7 +1221,7 @@ ClassReader classReader;
                     env.pushCall(trace, object, args, methodMagicUnset.getName(), methodMagicUnset.getClazz().getName(), name);
                     env.peekCall(0).flags = FLAG_UNSET;
 
-                    InvokeArgumentHelper.checkType(env, trace, methodMagicUnset, args);
+                    args = InvokeArgumentHelper.checkType(env, trace, methodMagicUnset, args);
                     methodMagicUnset.invokeDynamic(object, env, trace, args);
                 } finally {
                     env.popCall();
@@ -1321,12 +1321,13 @@ ClassReader classReader;
                 }
 
             try {
-                Memory[] args = new Memory[]{new StringMemory(property)};
+                Memory[] args = new Memory[]{ new StringMemory(property) };
+
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_ISSET;
 
-                InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, new StringMemory(property));
-                result = methodMagicIsset.invokeDynamic(object, env, trace, new StringMemory(property))
+                args = InvokeArgumentHelper.checkType(env, trace, methodMagicIsset, args);
+                result = methodMagicIsset.invokeDynamic(object, env, trace, args)
                         .toBoolean() ? Memory.TRUE : Memory.NULL;
             } finally {
                 env.popCall();
