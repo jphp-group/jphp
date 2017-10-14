@@ -462,8 +462,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                 writePopAll(1);
             }
-            stackPop();
-            stackPush(memory);
+            /*stackPop();
+            stackPush(memory);*/
 
             setStackPeekAsImmutable();
             return;
@@ -522,28 +522,29 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public boolean writePopBoxing(StackItem.Type type, boolean asImmutable, boolean useConstants) {
         switch (type) {
             case BOOL:
-                if (useConstants && code.getLast() instanceof InsnNode) {
+                /*if (useConstants && code.getLast() instanceof InsnNode) {
                     InsnNode node = (InsnNode) code.getLast();
 
-                    switch (node.getType()) {
-                        case ICONST_0:
-                        case ICONST_1:
-                        case ICONST_2:
-                        case ICONST_3:
-                        case ICONST_4:
-                        case ICONST_5:
-                            code.remove(node);
+                    StackItem stackPeek = stackPeek();
 
-                            stackPop();
-                            writePushBooleanAsMemory(node.getType() != ICONST_0);
-                            break;
-                        default:
-                            writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, type.toClass());
+                    if (stackPeek.type == StackItem.Type.BOOL) {
+                        switch (node.getOpcode()) {
+                            case ICONST_0:
+                            case ICONST_1:
+                                code.remove(node);
+
+                                stackPop();
+                                writePushBooleanAsMemory(node.getOpcode() != ICONST_0);
+                                break;
+                            default:
+                                writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, type.toClass());
+                        }
+
+                        break;
                     }
-                } else {
-                    writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, type.toClass());
-                }
+                }*/
 
+                writeSysStaticCall(TrueMemory.class, "valueOf", Memory.class, type.toClass());
                 setStackPeekAsImmutable();
                 return true;
             case SHORT:
