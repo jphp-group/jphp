@@ -274,7 +274,7 @@ public class InvokeArgumentHelper {
             }
 
             args[i] = typeHintArg(
-                    env, trace, parameters[i], arg, i + 1, methodEntity.getClazzName(), methodEntity.getName(), null
+                    env, trace, parameters[i], arg, i, methodEntity.getClazzName(), methodEntity.getName(), null
             );
 
             i++;
