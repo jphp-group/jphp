@@ -24,11 +24,11 @@ if ($x !== 20 || $y !== NULL)
     return 'fail_6: hashed';
 
 list($a, $a) = [10, 20];
-if ($a !== 10)
+if ($a !== 20)
     return 'fail_7: duplicate';
 
 list($b[], $b[]) = [10, 20];
-if ($b[0] !== 20 && $b[1] !== 10)
+if ($b[0] !== 10 && $b[1] !== 20)
     return 'fail_8: array push';
 
 return 'success';

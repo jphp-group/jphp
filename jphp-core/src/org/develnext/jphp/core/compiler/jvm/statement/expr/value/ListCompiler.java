@@ -31,7 +31,7 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
         }
 
         int i, length = list.getVariables().size();
-        for(i = length - 1; i >= 0; i--){ // desc order as in PHP
+        for(i = 0; i < length; i++) { // desc order as in PHP
             ListExprToken.Variable v = list.getVariables().get(i);
             expr.writePushDup();
 
