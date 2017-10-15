@@ -38,7 +38,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Optional Hot Reloading for classes and functions
 + ~~Ability to use on **Android** OS~~ (not yet)
 
-**What JPHP supports from PHP 7?**
+**What JPHP supports from PHP 7.0, 7.1?**
 + Context Sensitive Lexer.
 + Fix list() behavior inconsistency (SNAPSHOT).
 + Throwable Interface (SNAPSHOT).
@@ -48,6 +48,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Void and Iterable Type Hinting (SNAPSHOT).
 + Uniform Variable Syntax (SNAPSHOT, partly).
 + Null Coalesce Operator `??` (SNAPSHOT).
++ Multiple catch syntax (SNAPSHOT).
 
 ### Documentation
 
