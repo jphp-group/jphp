@@ -549,25 +549,36 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
     protected Token processValueIfElse(ValueIfElseToken current, Token next, ListIterator<Token> iterator,
                                        BraceExprToken.Kind closedBrace, int braceOpened, Separator separator){
-        ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getToken(
-                nextToken(iterator), iterator, Separator.COLON, closedBrace
-        );
-        /*if (closedBrace == null || braceOpened < 1)
-            iterator.previous();*/
-        current.setValue(value);
+        ExprStmtToken value = null;
 
-        if (!((next = iterator.previous()) instanceof ColonToken))
-            unexpectedToken(next, ":");
+        if (current instanceof ValueNullCoalesceIfElseToken) {
+            value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                    nextToken(iterator), iterator, separator, BraceExprToken.Kind.ANY
+            );
 
-        iterator.next();
-        ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                nextToken(iterator), iterator, separator, BraceExprToken.Kind.ANY
-        );
+            current.setAlternative(value);
+        } else {
+            value = analyzer.generator(SimpleExprGenerator.class).getToken(
+                    nextToken(iterator), iterator, Separator.COLON, closedBrace
+            );
 
-        if (alternative == null)
-            unexpectedToken(iterator.next());
+            current.setValue(value);
 
-        current.setAlternative(alternative);
+            if (!((next = iterator.previous()) instanceof ColonToken)) {
+                unexpectedToken(next, ":");
+            }
+
+            iterator.next();
+            ExprStmtToken alternative = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
+                    nextToken(iterator), iterator, separator, BraceExprToken.Kind.ANY
+            );
+
+            if (alternative == null)
+                unexpectedToken(iterator.next());
+
+            current.setAlternative(alternative);
+        }
+
         return current;
     }
 

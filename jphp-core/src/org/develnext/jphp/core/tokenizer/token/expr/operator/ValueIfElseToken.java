@@ -8,7 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
 public class ValueIfElseToken extends OperatorExprToken {
     public ExprStmtToken value;
-    public ExprStmtToken alternative;
+    private ExprStmtToken alternative;
 
     public ValueIfElseToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);

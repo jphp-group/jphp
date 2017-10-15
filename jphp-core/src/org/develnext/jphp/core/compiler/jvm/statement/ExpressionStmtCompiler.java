@@ -2744,7 +2744,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 StackItem.Type dup = stackPeek().type;
 
                 writePushDup();
-                writePopBoolean();
+
+                if (operator instanceof ValueNullCoalesceIfElseToken) {
+                    writePopBoxing();
+                    writeSysDynamicCall(Memory.class, "isNotNull", Boolean.TYPE);
+                } else {
+                    writePopBoolean();
+                }
+
                 code.add(new JumpInsnNode(Opcodes.IFEQ, elseL));
                 stackPop();
 
