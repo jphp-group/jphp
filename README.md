@@ -47,6 +47,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Return Type Hinting (SNAPSHOT).
 + Void and Iterable Type Hinting (SNAPSHOT).
 + Uniform Variable Syntax (SNAPSHOT, partly).
++ Null Coalesce Operator `??` (SNAPSHOT).
 
 ### Documentation
 
