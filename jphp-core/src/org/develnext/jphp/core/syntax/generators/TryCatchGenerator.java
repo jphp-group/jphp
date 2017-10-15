@@ -5,6 +5,7 @@ import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.OrExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
@@ -28,12 +29,31 @@ public class TryCatchGenerator extends Generator<TryStmtToken> {
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
 
-        next = nextToken(iterator);
-        if (!(next instanceof NameToken))
-            unexpectedToken(next, TokenType.T_STRING);
+        List<FulledNameToken> exceptions = new ArrayList<>();
 
-        FulledNameToken exception = analyzer.getRealName((NameToken)next);
-        result.setException(exception);
+        do {
+            next = nextToken(iterator);
+            if (!(next instanceof NameToken)) {
+                if (exceptions.isEmpty()) {
+                    unexpectedToken(next, TokenType.T_STRING);
+                } else {
+                    iterator.previous();
+                    break;
+                }
+            }
+
+            FulledNameToken exception = analyzer.getRealName((NameToken) next);
+            exceptions.add(exception);
+
+            next = nextToken(iterator);
+
+            if (!(next instanceof OrExprToken)) {
+                iterator.previous();
+                break;
+            }
+        } while (true);
+
+        result.setExceptions(exceptions);
 
         next = nextToken(iterator);
         if (!(next instanceof VariableExprToken))

@@ -63,4 +63,9 @@ public class ExceptionsTest extends JvmCompilerCase {
         check("exceptions/divzero_2.php", true);
         check("exceptions/shrshl_neg_1.php");
     }
+
+    @Test
+    public void testMultiple() {
+        check("exceptions/multiple.php");
+    }
 }

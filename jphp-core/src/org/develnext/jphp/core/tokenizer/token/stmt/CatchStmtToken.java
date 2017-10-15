@@ -5,8 +5,10 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.FulledNameToken;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 
+import java.util.List;
+
 public class CatchStmtToken extends StmtToken {
-    private FulledNameToken exception;
+    private List<FulledNameToken> exceptions;
     private VariableExprToken variable;
     private BodyStmtToken body;
 
@@ -14,13 +16,21 @@ public class CatchStmtToken extends StmtToken {
         super(meta, TokenType.T_CATCH);
     }
 
-    public FulledNameToken getException() {
+    public List<FulledNameToken> getExceptions() {
+        return exceptions;
+    }
+
+    public void setExceptions(List<FulledNameToken> exceptions) {
+        this.exceptions = exceptions;
+    }
+
+    /*public FulledNameToken getException() {
         return exception;
     }
 
     public void setException(FulledNameToken exception) {
         this.exception = exception;
-    }
+    }*/
 
     public VariableExprToken getVariable() {
         return variable;

@@ -7,7 +7,6 @@ import php.runtime.memory.LongMemory;
 import java.util.Arrays;
 
 public class OperatorUtils {
-
     public static boolean isset(Memory[] values){
         for (Memory value : values)
             if (value.getRealType() == Memory.Type.NULL)
