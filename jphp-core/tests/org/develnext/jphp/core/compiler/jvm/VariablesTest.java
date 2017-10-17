@@ -55,6 +55,12 @@ public class VariablesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testListShortSyntax(){
+        Memory memory = includeResource("variables/list_short_syntax.php");
+        Assert.assertEquals("success", memory.toString());
+    }
+
+    @Test
     public void testBug152(){
         check("variables/bug152.php");
     }

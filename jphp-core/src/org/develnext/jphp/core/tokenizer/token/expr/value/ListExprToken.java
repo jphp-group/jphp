@@ -39,8 +39,7 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
     }
 
     public void addList(ListExprToken list){
-        for(Variable v : list.variables)
-            variables.add(v);
+        variables.addAll(list.variables);
     }
 
     @Override

@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 
+import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.ARRAY;
+
 public class ExprGenerator extends Generator<ExprStmtToken> {
 
     public ExprGenerator(SyntaxAnalyzer analyzer) {
@@ -169,7 +171,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
             next = nextToken(iterator);
         }
 
-        if (next instanceof ListExprToken) {
+        if (next instanceof ListExprToken || isOpenedBrace(next, ARRAY)) {
             ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class).processSingleList(next, iterator);
             result.setValue(new ExprStmtToken(analyzer.getEnvironment(), analyzer.getContext(), listExpr));
         } else if (next instanceof VariableExprToken && nextTokenAndPrev(iterator) instanceof KeyValueExprToken){
@@ -517,11 +519,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         long level = 1;
         if (next instanceof IntegerExprToken){
             level = ((IntegerExprToken) next).getValue();
-            if (level < 1)
+            if (level < 1) {
                 throw new FatalException(
                         Messages.ERR_OPERATOR_ACCEPTS_ONLY_POSITIVE.fetch(result.getWord()),
                         result.toTraceInfo(analyzer.getContext())
                 );
+            }
 
             next = nextToken(iterator);
         }
