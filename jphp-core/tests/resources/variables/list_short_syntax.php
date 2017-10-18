@@ -5,10 +5,10 @@
 if ($x + $y !== 30)
     return 'fail_1: simple';
 
-//[, $x,, $y] = [10, 20, 30, 40];
+[, $x,, $y] = [10, 20, 30, 40];
 
-/*if ($x + $y !== 60)
-    return 'fail_3: with skip';*/
+if ($x + $y !== 60)
+    return 'fail_3: with skip';
 
 [$x, [$a, $b], $y] = [10, [20, 30], 40];
 
@@ -30,5 +30,15 @@ if ($a !== 20)
 [$b[], $b[]] = [10, 20];
 if ($b[0] !== 10 && $b[1] !== 20)
     return 'fail_8: array push';
+
+
+$arr = [[1, 2], [3, 4]];
+$result = 0;
+foreach ($arr as [$x, $y]) {
+    $result += $x + $y;
+}
+if ($result !== 10) {
+    return 'fail_9: foreach + list';
+}
 
 return 'success';

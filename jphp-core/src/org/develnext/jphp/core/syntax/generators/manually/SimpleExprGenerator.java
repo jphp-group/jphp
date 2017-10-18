@@ -1025,18 +1025,31 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         if (isOpenedBrace(current, ARRAY)) {
             next = current;
             braceKind = ARRAY;
+            result.setShortSyntax(true);
         } else {
             next = nextToken(iterator);
-            if (!isOpenedBrace(next, SIMPLE))
+
+            if (!isOpenedBrace(next, SIMPLE)) {
                 unexpectedToken(next, "(");
+            }
+
             braceKind = SIMPLE;
+            result.setShortSyntax(false);
         }
 
         do {
             SimpleExprGenerator generator = analyzer.generator(SimpleExprGenerator.class);
             generator.setCanStartByReference(true);
 
-            ExprStmtToken argument = generator.getToken(nextToken(iterator), iterator, Separator.COMMA, braceKind);
+            Token nextToken = nextToken(iterator);
+
+            if (nextToken instanceof CommaToken && result.isShortSyntax()) {
+                result.setListSyntax(true);
+                parameters.add(null);
+                continue;
+            }
+
+            ExprStmtToken argument = generator.getToken(nextToken, iterator, Separator.COMMA, braceKind);
             if (argument == null)
                 break;
 
@@ -1268,7 +1281,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     int currIndex = iterator.nextIndex() - 1;
                     ArrayExprToken arrToken = (ArrayExprToken) processNewArray(current, iterator);
 
-                    if (nextTokenAndPrev(iterator) instanceof AssignExprToken) {
+                    boolean nextAssign = nextTokenAndPrev(iterator) instanceof AssignExprToken;
+
+                    if (nextAssign) {
                         int doneIndex = iterator.nextIndex();
                         int prevCount = doneIndex - currIndex;
 
@@ -1280,6 +1295,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                         tokens.add(processList(current, iterator, null, closedBraceKind, braceOpened));
                     } else {
+                        if (arrToken.isListSyntax()) {
+                            unexpectedToken(nextToken(iterator), "=");
+                        }
+
                         tokens.add(arrToken);
                     }
                 } else {
