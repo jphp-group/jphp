@@ -80,6 +80,7 @@ final public class Messages {
 
     public final static Item ERR_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'%s' operator accepts only positive numbers > 0");
     public final static Item ERR_CANNOT_MIX_ARRAY_AND_LIST = new Item("Cannot mix [] and list()");
+    public final static Item ERR_CANNOT_MIX_KEYED_AND_UNKEYED_ARRAY_ENTRIES = new Item("Cannot mix keyed and unkeyed array entries in assignments");
 
     public final static Item ERR_CANNOT_REDEFINE_CLASS_CONSTANT = new Item("Cannot redefine class constant %s");
     public final static Item ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT = new Item("Cannot inherit previously-inherited or override constant %s from interface %s");

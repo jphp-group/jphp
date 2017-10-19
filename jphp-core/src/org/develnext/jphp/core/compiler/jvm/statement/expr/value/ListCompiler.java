@@ -36,13 +36,42 @@ public class ListCompiler extends BaseExprCompiler<ListExprToken> {
             expr.writePushDup();
 
             if (v.indexes != null){
-                for(int index : v.indexes){
-                    expr.writePushConstLong(index);
+                for(Object index : v.indexes){
+                    if (index instanceof Integer) {
+                        expr.writePushConstLong((Integer) index);
+                    } else {
+                        expr.writeExpression((ExprStmtToken) index, true, false);
+                        switch (expr.stackPeek().type) {
+                            case INT:
+                            case STRING:
+                                break;
+
+                            default:
+                                expr.writePopBoxing();
+                                break;
+                        }
+                    }
+
                     expr.writeSysStaticCall(MemoryUtils.class, "valueForList", Memory.class, Memory.class, expr.stackPeek().type.toClass());
                     //expr.writeSysDynamicCall(Memory.class, "valueOfIndex", Memory.class, expr.stackPeek().type.toClass());
                 }
             }
-            expr.writePushConstLong(v.index);
+
+            if (v.isWithKey()) {
+                expr.writeExpression(v.exprIndex, true, false);
+                switch (expr.stackPeek().type) {
+                    case INT:
+                    case STRING:
+                        break;
+
+                    default:
+                        expr.writePopBoxing();
+                        break;
+                }
+            } else {
+                expr.writePushConstLong(v.index);
+            }
+
             expr.writeSysStaticCall(MemoryUtils.class, "valueForList", Memory.class, Memory.class, expr.stackPeek().type.toClass());
 
             if (v.isVariable()){

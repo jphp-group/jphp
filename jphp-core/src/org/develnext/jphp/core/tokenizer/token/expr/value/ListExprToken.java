@@ -32,6 +32,12 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
         return variables;
     }
 
+    public Variable addVariable(ExprStmtToken v, ExprStmtToken index, List<Integer> indexes){
+        Variable var = new Variable(v, index, indexes);
+        variables.add(var);
+        return var;
+    }
+
     public Variable addVariable(ExprStmtToken v, int index, List<Integer> indexes){
         Variable var = new Variable(v, index, indexes);
         variables.add(var);
@@ -51,12 +57,20 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
         public final ExprStmtToken var;
         //public final String name;
         public final int index;
-        public final List<Integer> indexes;
+        public final ExprStmtToken exprIndex;
+        public final List indexes;
 
-        public Variable(ExprStmtToken var, int index, List<Integer> indexes) {
+        public Variable(ExprStmtToken var, int index, List indexes) {
             this.var = var;
-            //this.name = var.getName();
             this.index = index;
+            this.exprIndex = null;
+            this.indexes = indexes;
+        }
+
+        public Variable(ExprStmtToken var, ExprStmtToken index, List indexes) {
+            this.var = var;
+            this.index = -1;
+            this.exprIndex = index;
             this.indexes = indexes;
         }
 
@@ -82,6 +96,10 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
 
         public String getVariableName(){
             return isVariable() ? ((VariableExprToken)var.getSingle()).getName() : null;
+        }
+
+        public boolean isWithKey() {
+            return exprIndex != null;
         }
     }
 }

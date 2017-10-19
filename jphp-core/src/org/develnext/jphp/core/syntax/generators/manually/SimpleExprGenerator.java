@@ -84,7 +84,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return processList(current, iterator, null, null, -1);
     }
 
-    protected ListExprToken processList(Token current, ListIterator<Token> iterator, List<Integer> indexes,
+    @SuppressWarnings("unchecked")
+    protected ListExprToken processList(Token current, ListIterator<Token> iterator, List indexes,
                                         BraceExprToken.Kind closedBraceKind, int braceOpened) {
 
         boolean arraySyntax = isOpenedBrace(current, BraceExprToken.Kind.ARRAY);
@@ -101,9 +102,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         int i = 0;
+        boolean withKeys = false;
+        ExprStmtToken keyExpr = null;
+
         while (true){
             next = nextToken(iterator);
-            if (next instanceof ListExprToken || isOpenedBrace(next, ARRAY)){
+            if (next instanceof ListExprToken || isOpenedBrace(next, ARRAY)) {
                 if ((arraySyntax && next instanceof ListExprToken) || (!arraySyntax && isOpenedBrace(next, ARRAY))) {
                     analyzer.getEnvironment().error(
                             next.toTraceInfo(analyzer.getContext()),
@@ -112,12 +116,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     );
                 }
 
-                List<Integer> indexes_ = new ArrayList<>();
+                List indexes_ = new ArrayList();
                 if (indexes != null) {
                     indexes_.addAll(indexes);
                 }
 
-                indexes_.add(i);
+                indexes_.add(keyExpr == null ? i : keyExpr);
 
                 ListExprToken tmp = processList(next, iterator, indexes_, null, -1);
                 result.addList(tmp);
@@ -133,8 +137,82 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 i++;
             } else {
                 SimpleExprGenerator generator = analyzer.generator(SimpleExprGenerator.class);
+                int currIndex = iterator.nextIndex() - 1;
+
                 ExprStmtToken var = generator.getToken(next, iterator, Separator.COMMA, arraySyntax ? ARRAY :  SIMPLE);
-                Token single = var.getLast();
+
+                int k = 0;
+                keyExpr = null;
+                ExprStmtToken valueExpr = var;
+
+                for (Token token : var.getTokens()) {
+                    if (token instanceof KeyValueExprToken) {
+                        keyExpr = new ExprStmtToken(
+                                analyzer.getEnvironment(), analyzer.getContext(), var.getTokens().subList(0, k)
+                        );
+
+                        valueExpr = new ExprStmtToken(
+                                analyzer.getEnvironment(),
+                                analyzer.getContext(),
+                                var.getTokens().subList(k + 1, var.getTokens().size())
+                        );
+
+                        if (valueExpr.getSingle() instanceof ArrayExprToken || valueExpr.getSingle() instanceof ListExprToken) {
+                            if ((arraySyntax && valueExpr.getSingle() instanceof ListExprToken) || (!arraySyntax && valueExpr.getSingle() instanceof ArrayExprToken)) {
+                                analyzer.getEnvironment().error(
+                                        next.toTraceInfo(analyzer.getContext()),
+                                        ErrorType.E_ERROR,
+                                        Messages.ERR_CANNOT_MIX_ARRAY_AND_LIST
+                                );
+                            }
+
+                            int doneIndex = iterator.nextIndex() - 1;
+
+                            int prevCount = doneIndex - currIndex;
+
+                            for (int m = 0; m < prevCount; m++) {
+                                iterator.previous();
+                            }
+
+                            do {
+                                current = iterator.next();
+                                if (current instanceof KeyValueExprToken) {
+                                    current = iterator.next();
+                                    break;
+                                }
+                            } while (iterator.hasNext());
+
+                            List indexes_ = new ArrayList();
+                            if (indexes != null) {
+                                indexes_.addAll(indexes);
+                            }
+
+                            indexes_.add(keyExpr);
+
+
+                            ListExprToken listExprToken = processList(
+                                    current, iterator, indexes_, null, -1
+                            );
+
+                            result.addList(listExprToken);
+
+                            if (nextTokenAndPrev(iterator) instanceof CommaToken) {
+                                iterator.next();
+                            }
+                        }
+
+                        break;
+                    }
+
+                    k++;
+                }
+
+                Token single = valueExpr.getLast();
+
+                if (single instanceof ArrayExprToken || single instanceof ListExprToken) {
+                    i++;
+                    continue;
+                }
 
                 if (!(single instanceof VariableExprToken
                         || single instanceof ArrayGetExprToken
@@ -146,19 +224,45 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
                 if (single instanceof ArrayGetExprToken){
                     single = new ArrayGetRefExprToken((ArrayGetExprToken)single);
-                    var.getTokens().set(var.getTokens().size() - 1, single);
-                    var.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
+                    valueExpr.getTokens().set(var.getTokens().size() - 1, single);
+                    valueExpr.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());
                 }
 
-                result.addVariable(var, i, indexes);
+                if (keyExpr == null) {
+                    if (withKeys) {
+                        analyzer.getEnvironment().error(
+                                next.toTraceInfo(analyzer.getContext()),
+                                ErrorType.E_ERROR,
+                                Messages.ERR_CANNOT_MIX_KEYED_AND_UNKEYED_ARRAY_ENTRIES
+                        );
+                    }
+
+                    result.addVariable(valueExpr, i, indexes);
+                } else {
+                    if (!withKeys && i > 0) {
+                        analyzer.getEnvironment().error(
+                                next.toTraceInfo(analyzer.getContext()),
+                                ErrorType.E_ERROR,
+                                Messages.ERR_CANNOT_MIX_KEYED_AND_UNKEYED_ARRAY_ENTRIES
+                        );
+                    }
+
+                    withKeys = true;
+                    result.addVariable(valueExpr, keyExpr, indexes);
+                }
+
+                cont:
                 i++;
             }
         }
 
         if (braceOpened != -1){
             next = nextToken(iterator);
-            if (!(next instanceof AssignExprToken))
-                unexpectedToken(next, "=");
+            if (!(next instanceof AssignExprToken)) {
+                iterator.previous();
+                return result;
+                //unexpectedToken(next, "=");
+            }
 
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                     nextToken(iterator), iterator, BraceExprToken.Kind.ANY

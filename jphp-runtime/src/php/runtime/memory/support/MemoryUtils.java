@@ -346,8 +346,25 @@ public class MemoryUtils {
     public static Memory valueForList(Memory memory, long index) {
         if (memory.isArray()) {
             return memory.valueOfIndex(index);
-        } else
+        } else {
             return Memory.NULL;
+        }
+    }
+
+    public static Memory valueForList(Memory memory, String index) {
+        if (memory.isArray()) {
+            return memory.valueOfIndex(index);
+        } else {
+            return Memory.NULL;
+        }
+    }
+
+    public static Memory valueForList(Memory memory, Memory index) {
+        if (memory.isArray()) {
+            return memory.valueOfIndex(index);
+        } else {
+            return Memory.NULL;
+        }
     }
 
     abstract public static class Converter<T> {
