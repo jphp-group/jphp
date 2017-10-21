@@ -55,6 +55,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Spaceship Operator `<=>` (SNAPSHOT).
 + Generator Delegation `yield from` (SNAPSHOT).
 + Generator Return Expressions (SNAPSHOT).
++ `intdiv()` function (SNAPSHOT).
 
 ### Documentation
 

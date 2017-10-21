@@ -325,4 +325,9 @@ public class MathFunctions extends FunctionsContainer {
                 .round(context)
                 .doubleValue();
     }
+
+    @Immutable
+    public static int intdiv(int x, int y) {
+        return x / y;
+    }
 }
