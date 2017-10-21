@@ -53,6 +53,7 @@ Our project started in October 2013. There were a few reasons for that:
 + List Keys (SNAPSHOT).
 + Class constant visibility modifiers (SNAPSHOT).
 + Spaceship Operator `<=>` (SNAPSHOT).
++ Generator Delegation `yield from` (SNAPSHOT).
 
 ### Documentation
 
