@@ -51,6 +51,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Multiple catch syntax (SNAPSHOT).
 + Short list syntax (SNAPSHOT)
 + List Keys (SNAPSHOT)
++ Class constant visibility modifiers (SNAPSHOT)
 
 ### Documentation
 

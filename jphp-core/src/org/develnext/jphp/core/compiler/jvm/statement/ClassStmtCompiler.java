@@ -407,6 +407,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             ConstantEntity constantEntity = new ConstantEntity(el.getFulledName(), value, true);
             constantEntity.setTrace(el.name.toTraceInfo(compiler.getContext()));
             constantEntity.setDocComment(documentComment);
+            constantEntity.setModifier(constant.getModifier());
 
             if (value != null && !value.isArray()) {
                 ConstantEntity c = entity.findConstant(el.getFulledName());
@@ -419,16 +420,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     );
                     return;
                 }
-                entity.addConstant(constantEntity);
+                entity.addConstant(constantEntity).check(compiler.getEnvironment());
             } else {
                 if (ValueExprToken.isConstable(el.value.getSingle(), false)) {
                     dynamicConstants.add(el);
-                    entity.addConstant(constantEntity);
-                } else
+                    entity.addConstant(constantEntity).check(compiler.getEnvironment());
+                } else {
                     compiler.getEnvironment().error(
                             constant.toTraceInfo(compiler.getContext()),
                             Messages.ERR_EXPECTED_CONST_VALUE.fetch(entity.getName() + "::" + el.getFulledName())
                     );
+                }
             }
         }
     }
@@ -1075,15 +1077,18 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         entity.setFinal(statement.isFinal());
         entity.setAbstract(statement.isAbstract());
         entity.setName(statement.getFulledName());
-        if (statement.getDocComment() != null)
+
+        if (statement.getDocComment() != null) {
             entity.setDocComment(new DocumentComment(statement.getDocComment().getComment()));
+        }
 
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
         entity.setType(statement.getClassType());
 
         List<ClassEntity> traits = fetchTraits();
-        for (ClassEntity e : traits)
+        for (ClassEntity e : traits) {
             entity.addTrait(e);
+        }
 
         checkAliasAndReplacementsTraits();
 
@@ -1096,6 +1101,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 );
 
             ClassEntity.ExtendsResult result = entity.setParent(parent, false);
+
             if (isInterfaceCheck) {
                 result.check(compiler.getEnvironment());
             }
@@ -1160,7 +1166,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         }
 
         writeTraits(traits);
-        ClassEntity.SignatureResult result = entity.updateParentMethods();
+        ClassEntity.SignatureResult result = entity.updateParentBody();
         if (isInterfaceCheck) {
             result.check(compiler.getEnvironment());
         }

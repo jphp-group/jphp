@@ -174,7 +174,7 @@ public class PropertyEntity extends Entity {
     }
 
     public int canAccess(Environment env) {
-        return canAccess(env, null);
+        return canAccess(env, null, false);
     }
 
     public MethodEntity getGetter() {
@@ -193,6 +193,11 @@ public class PropertyEntity extends Entity {
         this.setter = setter;
     }
 
+
+    public int canAccess(Environment env, ClassEntity context) {
+        return canAccess(env, context, false);
+    }
+
     /**
      * 0 - success
      * 1 - invalid protected
@@ -200,14 +205,14 @@ public class PropertyEntity extends Entity {
      * @param env
      * @return
      */
-    public int canAccess(Environment env, ClassEntity context) {
+    public int canAccess(Environment env, ClassEntity context, boolean lateStaticCall) {
         switch (modifier){
             case PUBLIC: return 0;
             case PRIVATE:
-                ClassEntity cl = context == null ? env.getLastClassOnStack(true) : context;
+                ClassEntity cl = context == null ? (lateStaticCall ? env.getLateStaticClass() : env.getLastClassOnStack()) : context;
                 return cl != null && cl.getId() == this.clazz.getId() ? 0 : 2;
             case PROTECTED:
-                ClassEntity clazz = context == null ? env.getLastClassOnStack(true) : context;
+                ClassEntity clazz = context == null ? (lateStaticCall ? env.getLateStaticClass() : env.getLastClassOnStack()) : context;
                 if (clazz == null)
                     return 1;
 
@@ -217,7 +222,10 @@ public class PropertyEntity extends Entity {
                         return 0;
                     clazz = clazz.parent;
                 } while (clazz != null);
+
+                return 1;
         }
+
         return 2;
     }
 

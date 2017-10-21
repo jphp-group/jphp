@@ -552,7 +552,7 @@ public class ClassWrapper {
 
             ClassEntity.ExtendsResult result = classEntity.setParent(entity, false);
             result.check(null);
-            classEntity.updateParentMethods();
+            classEntity.updateParentBody();
         }
     }
 

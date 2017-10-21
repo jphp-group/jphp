@@ -3,6 +3,7 @@ package php.runtime.reflection.helper;
 import php.runtime.Memory;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.lang.Closure;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
@@ -45,7 +46,31 @@ public class ClosureEntity extends ClassEntity {
         this.uses = uses;
     }
 
+    /**
+     * Use getSingleton(string)
+     */
+    @Deprecated
     public ObjectMemory getSingleton() {
+        return getSingleton(null);
+    }
+
+    public ObjectMemory getSingleton(String selfContextClass) {
+        if (singleton != null) {
+            return singleton;
+        }
+
+        synchronized (this) {
+            if (singleton == null) {
+                try {
+                    singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(null, this, Memory.NULL, selfContextClass, null));
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new CriticalException(e);
+                } catch (InvocationTargetException e) {
+                    throw new CriticalException(e.getTargetException());
+                }
+            }
+        }
+
         return singleton;
     }
 
@@ -72,18 +97,8 @@ public class ClosureEntity extends ClassEntity {
                 this.nativeConstructor = nativeClazz.getConstructor(Environment.class, ClassEntity.class, Memory.class, String.class, Memory[].class);
                 this.nativeConstructor.setAccessible(true);
 
-                //if (uses == null || uses.length == 0)
-                singleton = new ObjectMemory((Closure) this.nativeConstructor.newInstance(null, this, Memory.NULL, null, null));
-                //else
-                  //  singleton = null;
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getTargetException());
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new CriticalException(e);
             }
         }
     }

@@ -320,14 +320,17 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory getConstant(String className, String lowerClassName, String constant,
-                                     Environment env, TraceInfo trace, ConstantCallCache callCache, int cacheIndex) {
+                                     Environment env, TraceInfo trace, ConstantCallCache callCache, int cacheIndex,
+                                     boolean lateStaticCall) {
         ConstantEntity constantEntity = null;
 
         if (callCache != null) {
             constantEntity = callCache.get(env, cacheIndex);
         }
 
-        if (constantEntity == null) {
+        boolean alreadyCached = constantEntity != null;
+
+        if (!alreadyCached) {
             ClassEntity entity = env.fetchClass(className, lowerClassName, true);
 
             if (entity == null) {
@@ -347,6 +350,11 @@ final public class ObjectInvokeHelper {
         }
 
         Memory value = constantEntity.getValue(env);
+
+        if (!alreadyCached) {
+            InvokeHelper.checkAccess(env, trace, constantEntity, lateStaticCall);
+        }
+
         if (value == null) {
             return Memory.NULL;
         }
@@ -387,30 +395,32 @@ final public class ObjectInvokeHelper {
     }
 
     public static Memory getStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
+                                           TraceInfo trace, PropertyCallCache callCache, int cacheIndex, boolean lateStaticCall) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
             env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, true, true, entity, callCache, cacheIndex);
+        return entity.getStaticProperty(
+                env, trace, property, true, true, entity, callCache, cacheIndex, lateStaticCall
+        );
     }
 
     public static Memory issetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
+                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex, boolean lateStaticCall) throws Throwable {
         ClassEntity entity = env.fetchClass(className, lowerClassName, true);
         if (entity == null) {
             env.error(trace, Messages.ERR_CLASS_NOT_FOUND.fetch(className));
             return Memory.NULL;
         }
 
-        return entity.getStaticProperty(env, trace, property, false, true, entity, callCache, cacheIndex);
+        return entity.getStaticProperty(env, trace, property, false, true, entity, callCache, cacheIndex, lateStaticCall);
     }
 
     public static Memory unsetStaticProperty(String className, String lowerClassName, String property, Environment env,
-                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex) throws Throwable {
-        Memory get = getStaticProperty(className, lowerClassName, property, env, trace, callCache, cacheIndex);
+                                             TraceInfo trace, PropertyCallCache callCache, int cacheIndex, boolean lateStaticCall) throws Throwable {
+        Memory get = getStaticProperty(className, lowerClassName, property, env, trace, callCache, cacheIndex, lateStaticCall);
         get.manualUnset(env);
         return Memory.NULL;
     }
@@ -559,5 +569,47 @@ final public class ObjectInvokeHelper {
         IObject iObject = fetchObject(object, property, env, trace);
         if (iObject == null) return Memory.NULL;
         return iObject.getReflection().bitShlProperty(env, trace, iObject, property, value, callCache, cacheIndex);
+    }
+
+
+    /**
+     * 0 - success
+     * 1 - invalid protected
+     * 2 - invalid private
+     * @param env
+     * @return
+     */
+    public static int canAccess(Environment env, Modifier modifier, ClassEntity classEntity, ClassEntity context, boolean lateStaticCall) {
+        switch (modifier){
+            case PUBLIC: return 0;
+            case PRIVATE:
+                ClassEntity cl = context == null
+                        ? (lateStaticCall ? env.getLateStaticClass() : env.getLastClassOnStack())
+                        : context;
+
+                return cl != null && cl.getId() == classEntity.getId() ? 0 : 2;
+
+            case PROTECTED:
+                ClassEntity clazz = context == null
+                        ? (lateStaticCall ? env.getLateStaticClass() : env.getLastClassOnStack())
+                        : context;
+
+                if (clazz == null) {
+                    return 1;
+                }
+
+                long id = classEntity.getId();
+                do {
+                    if (clazz.getId() == id) {
+                        return 0;
+                    }
+
+                    clazz = clazz.getParent();
+                } while (clazz != null);
+
+                return 1;
+        }
+
+        return 2;
     }
 }

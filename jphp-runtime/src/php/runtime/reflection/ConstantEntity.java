@@ -1,14 +1,17 @@
 package php.runtime.reflection;
 
 import php.runtime.Memory;
+import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.reflection.support.Entity;
 
 public class ConstantEntity extends Entity {
 
     protected ModuleEntity module;
     protected ClassEntity clazz;
+    protected Modifier modifier = Modifier.PUBLIC;
 
     protected DocumentComment docComment;
     protected Memory value;
@@ -96,5 +99,42 @@ public class ConstantEntity extends Entity {
 
     public boolean isOwned(ClassEntity entity){
         return clazz != null && clazz.getId() == entity.getId();
+    }
+
+    public Modifier getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(Modifier modifier) {
+        this.modifier = modifier;
+    }
+
+    public boolean isPublic() {
+        return modifier == Modifier.PUBLIC;
+    }
+
+    public boolean isProtected() {
+        return modifier == Modifier.PROTECTED;
+    }
+
+    public boolean isPrivate() {
+        return modifier == Modifier.PRIVATE;
+    }
+
+    public int canAccess(Environment env) {
+        return canAccess(env, null, false);
+    }
+
+    public int canAccess(Environment env, ClassEntity context) {
+        return canAccess(env, context, false);
+    }
+
+    /**
+     * 0 - success
+     * 1 - invalid protected
+     * 2 - invalid private
+     */
+    public int canAccess(Environment env, ClassEntity context, boolean lateStaticCall) {
+        return ObjectInvokeHelper.canAccess(env, modifier, clazz, context, lateStaticCall);
     }
 }

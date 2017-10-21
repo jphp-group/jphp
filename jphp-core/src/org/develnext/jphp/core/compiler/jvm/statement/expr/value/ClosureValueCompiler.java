@@ -93,8 +93,11 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
                 expr.writePushEnv();
                 expr.writePushConstString(compiler.getModule().getInternalName());
                 expr.writePushConstInt((int) entity.getId());
+
+                writeContext();
+
                 expr.writeSysDynamicCall(
-                        Environment.class, "__getSingletonClosure", Memory.class, String.class, Integer.TYPE
+                        Environment.class, "__getSingletonClosure", Memory.class, String.class, Integer.TYPE, String.class
                 );
             } else {
                 add(new TypeInsnNode(NEW, entity.getInternalName()));
@@ -107,10 +110,11 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
                 expr.writePushConstInt((int) entity.getId());
                 expr.writeSysDynamicCall(Environment.class, "__getClosure", ClassEntity.class, String.class, Integer.TYPE);
 
-                if (thisExists)
+                if (thisExists) {
                     expr.writePushThis();
-                else
+                } else {
                     expr.writePushNull();
+                }
 
                 writeContext();
 

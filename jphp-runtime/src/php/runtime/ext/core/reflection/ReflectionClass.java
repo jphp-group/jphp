@@ -81,6 +81,16 @@ public class ReflectionClass extends Reflection {
     }
 
     @Signature
+    public Memory getReflectionConstants(Environment env, Memory... args) {
+        ArrayMemory result = new ArrayMemory();
+        for (ConstantEntity e : entity.getConstants()) {
+            result.putAsKeyString(e.getName(), ObjectMemory.valueOf(new ReflectionClassConstant(env, e)));
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
     public Memory getDefaultProperties(Environment env, Memory... args) {
         ArrayMemory result = new ArrayMemory();
         for (PropertyEntity e : entity.getStaticProperties()) {

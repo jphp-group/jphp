@@ -1465,15 +1465,20 @@ public class Environment {
 
     public ClassEntity __getClosure(String moduleIndex, int index) {
         ModuleEntity moduleEntity = scope.moduleIndexMap.get(moduleIndex);
-        if (moduleEntity == null)
+        if (moduleEntity == null) {
             throw new CriticalException("Cannot find the module (" + moduleIndex + ") for getting a closure object");
+        }
 
         return moduleEntity.findClosure(index);
     }
 
-    public Memory __getSingletonClosure(String moduleIndex, int index) {
-        Memory result = scope.moduleIndexMap.get(moduleIndex).findClosure(index).getSingleton();
+    public Memory __getSingletonClosure(String moduleIndex, int index, String selfContextClass) {
+        Memory result = scope.moduleIndexMap.get(moduleIndex)
+                .findClosure(index)
+                .getSingleton(selfContextClass);
+
         assert result != null;
+
         return result;
     }
 
@@ -1705,10 +1710,6 @@ public class Environment {
     }
 
     public ClassEntity getLastClassOnStack() {
-        return getLastClassOnStack(false);
-    }
-
-    public ClassEntity getLastClassOnStack(boolean includeClosures) {
         int N = getCallStackTop();
         for (int i = 0; i < N; i++) {
             CallStackItem item = peekCall(i);
@@ -1718,8 +1719,9 @@ public class Environment {
                         Memory self = ((Closure) item.object).getSelf();
                         if (self.isObject())
                             return self.toValue(ObjectMemory.class).getReflection();
-                        else
+                        else {
                             return null;
+                        }
                     }
 
                     return item.classEntity;
@@ -1734,7 +1736,8 @@ public class Environment {
     }
 
     public ClassEntity __getParentClass(TraceInfo trace) {
-        ClassEntity context = getLastClassOnStack(false);
+        ClassEntity context = getLastClassOnStack();
+
         if (context == null) {
             error(trace, "Cannot access parent:: when no class scope is active");
             return null;

@@ -176,7 +176,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
         for(int i = 0; i < constantCount; i++){
             ConstantEntity el = constantDumper.load(input);
             el.setClazz(entity);
-            entity.addConstant(el);
+            entity.addConstant(el).check(env);
         }
 
         // properties
@@ -201,7 +201,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
             result.check(env);
         }
 
-        entity.updateParentMethods().check(env);
+        entity.updateParentBody().check(env);
 
         // interfaces
         int interfaceCount = data.readInt();

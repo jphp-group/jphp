@@ -140,9 +140,10 @@ abstract public class Invoker implements Cloneable {
 
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){
         method = method.toValue();
-        if (method.isObject()){
-            if (method.toValue(ObjectMemory.class).value instanceof WrapInvoker)
+        if (method.isObject()) {
+            if (method.toValue(ObjectMemory.class).value instanceof WrapInvoker) {
                 return method.toObject(WrapInvoker.class).getInvoker();
+            }
 
             return DynamicMethodInvoker.valueOf(env, trace, method);
         } else if (method.isArray()){

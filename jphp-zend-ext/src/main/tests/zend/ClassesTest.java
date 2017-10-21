@@ -428,4 +428,21 @@ public class ClassesTest extends ZendJvmTestCase {
     public void testDebugInfo() {
         check("zend/classes/__debug_info_001.php");
     }
+
+    @Test
+    public void testConstVisibility() {
+        check("zend/classes/constants_visibility_001.php");
+        check("zend/classes/constants_visibility_002.php", true);
+        check("zend/classes/constants_visibility_003.php", true);
+        check("zend/classes/constants_visibility_004.php", true);
+
+        check("zend/classes/constants_visibility_error_001.php", true);
+        check("zend/classes/constants_visibility_error_002.php", true);
+        check("zend/classes/constants_visibility_error_003.php", true);
+        check("zend/classes/constants_visibility_error_004.php", true);
+
+        check("zend/classes/constants_visibility_interface_001.php", true);
+        check("zend/classes/constants_visibility_interface_002.php", true);
+        check("zend/classes/constants_visibility_interface_003.php", true);
+    }
 }

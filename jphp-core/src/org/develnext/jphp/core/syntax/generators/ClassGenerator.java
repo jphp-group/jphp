@@ -37,6 +37,13 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         ConstStmtToken.class
     };
 
+    @SuppressWarnings("unchecked")
+    private final static Class<? extends Token>[] constModifiers = new Class[]{
+        PrivateStmtToken.class,
+        ProtectedStmtToken.class,
+        PublicStmtToken.class,
+    };
+
     public ClassGenerator(SyntaxAnalyzer analyzer) {
         super(analyzer);
     }
@@ -375,15 +382,27 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                     if (current instanceof ExprStmtToken)
                         unexpectedToken(current, "expression");
 
-                    if (current instanceof ConstStmtToken){
-                        if (!modifiers.isEmpty())
-                            unexpectedToken(modifiers.get(0));
-                        if (result.isTrait())
+                    if (current instanceof ConstStmtToken) {
+                        if (result.isTrait()) {
                             unexpectedToken(current);
+                        }
 
                         ConstStmtToken one = analyzer.generator(ConstGenerator.class).getToken(current, iterator);
                         one.setClazz(result);
                         one.setDocComment(lastComment);
+                        one.setModifier(Modifier.PUBLIC);
+
+                        for (Token modifier : modifiers) {
+                            if (modifier instanceof PrivateStmtToken) {
+                                one.setModifier(Modifier.PRIVATE);
+                            } else if (modifier instanceof ProtectedStmtToken) {
+                                one.setModifier(Modifier.PROTECTED);
+                            } else if (modifier instanceof PublicStmtToken) {
+                                one.setModifier(Modifier.PUBLIC);
+                            } else {
+                                unexpectedToken(modifier);
+                            }
+                        }
 
                         lastComment = null;
 
@@ -411,7 +430,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         }
 
                         List<ClassVarStmtToken> vars = processProperty(
-                                result, (VariableExprToken)current, modifiers, iterator
+                                result, (VariableExprToken) current, modifiers, iterator
                         );
 
                         if (lastComment != null) {

@@ -114,7 +114,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
                 Reflector.class, Reflection.class, ReflectionException.class, ReflectionExtension.class,
                 ReflectionType.class, ReflectionFunctionAbstract.class, ReflectionFunction.class,
                 ReflectionParameter.class, ReflectionProperty.class, ReflectionMethod.class, ReflectionClass.class,
-                ReflectionObject.class
+                ReflectionObject.class, ReflectionClassConstant.class
         );
 
         registerClass(scope, WrapJavaExceptions.NotImplementedException.class);

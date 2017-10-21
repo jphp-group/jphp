@@ -1403,7 +1403,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                             unexpectedToken(nextToken(iterator), "=");
                         }
 
-                        tokens.add(arrToken);
+                        tokens.add(current = arrToken);
                     }
                 } else {
                     unexpectedToken(current);

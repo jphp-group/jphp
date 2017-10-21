@@ -31,6 +31,9 @@ final public class Messages {
     public final static Item ERR_ACCESS_TO_PRIVATE_PROPERTY = new Item("Cannot access private property %s::$%s");
     public final static Item ERR_ACCESS_TO_UNDECLARED_STATIC_PROPERTY = new Item("Access to undeclared static property: %s::$%s");
 
+    public final static Item ERR_ACCESS_TO_PROTECTED_CONSTANT = new Item("Cannot access protected constant %s::%s");
+    public final static Item ERR_ACCESS_TO_PRIVATE_CONSTANT = new Item("Cannot access private constant %s::%s");
+
     public final static Item ERR_STATIC_METHOD_CALLED_DYNAMICALLY = new Item("Static method %s() should not be called dynamically");
     public final static Item ERR_INCORRECT_ARGUMENTS_TO_FUNCTION = new Item("Pass incorrect number of arguments to function %s()");
     public final static Item ERR_CANNOT_GET_PROPERTY_OF_NON_OBJECT = new Item("Cannot get '%s' property of non-object");
@@ -95,6 +98,9 @@ final public class Messages {
     public final static Item ERR_ACCESS_LEVEL_METHOD_MUST_BE_PROTECTED_OR_WEAKER = new Item("Access level to %s::%s() must be protected (as in class %s) or weaker");
     public final static Item ERR_ACCESS_LEVEL_MUST_BE_PUBLIC = new Item("Access level to %s::$%s must be public (as in class %s)");
     public final static Item ERR_ACCESS_LEVEL_METHOD_MUST_BE_PUBLIC = new Item("Access level to %s::%s() must be public (as in class %s)");
+    public final static Item ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PUBLIC = new Item("Access level to %s::%s must be public (as in class %s)");
+    public final static Item ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PUBLIC_FOR_INTERFACE = new Item("Access type for interface constant %s::%s must be public");
+    public final static Item ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PROTECTED = new Item("Access level to %s::%s must be protected (as in class %s)");
     public final static Item ERR_CANNOT_REDECLARE_STATIC_AS_NON_STATIC = new Item("Cannot redeclare static %s::$%s as non static %s::$%s");
     public final static Item ERR_CANNOT_REDECLARE_NON_STATIC_AS_STATIC = new Item("Cannot redeclare non static %s::$%s as static %s::$%s");
 

@@ -59,15 +59,18 @@ abstract public class FunctionsContainer {
     }
 
     protected static Invoker expectingCallback(Environment env, TraceInfo trace, int index, Memory memory) {
-        Invoker invoker = Invoker.valueOf(env, null, memory);
+        Invoker invoker = Invoker.create(env, memory);
+
         if (invoker == null) {
             env.warning(trace, "expects parameter " + index + " to be valid callback");
             return null;
         }
+
         if (invoker.canAccess(env) != 0) {
             env.warning(trace, "expects parameter " + index + " to be valid callback, cannot access");
             return null;
         }
+
         return invoker;
     }
 

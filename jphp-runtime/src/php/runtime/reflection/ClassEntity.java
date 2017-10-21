@@ -2,10 +2,8 @@ package php.runtime.reflection;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
-import php.runtime.common.LangMode;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
-import php.runtime.common.StringUtils;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -319,8 +317,9 @@ ClassReader classReader;
             }
         }
 
-        if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name)))
+        if (parent == null || (!name.equals(parent.lowerName) || !methods.containsKey(name))) {
             this.methods.put(name, method);
+        }
 
         if (name.equals(lowerName) && !isTrait()) {
             methods.put("__construct", method);
@@ -381,9 +380,24 @@ ClassReader classReader;
         return instanceOfList.contains(lowerName) || this.lowerName.equals(lowerName);
     }
 
-    public SignatureResult updateParentMethods() {
+    public SignatureResult updateParentBody() {
         SignatureResult result = new SignatureResult();
+
         if (parent != null) {
+            for (ConstantEntity constant : parent.getConstants()) {
+                ConstantEntity implConstant = findConstant(constant.getName());
+
+                if (implConstant == constant) continue;
+
+                if (implConstant != null) {
+                    if (constant.isPublic() && !implConstant.isPublic()) {
+                        result.addConstant(InvalidConstant.error(InvalidConstant.Kind.MUST_BE_PUBLIC, implConstant, constant));
+                    } else if (constant.isProtected() && implConstant.isPrivate()) {
+                        result.addConstant(InvalidConstant.error(InvalidConstant.Kind.MUST_BE_PROTECTED, implConstant, constant));
+                    }
+                }
+            }
+
             for (Map.Entry<String, MethodEntity> entry : parent.getMethods().entrySet()) {
                 MethodEntity implMethod = findMethod(entry.getKey());
                 MethodEntity method = entry.getValue();
@@ -450,6 +464,7 @@ ClassReader classReader;
                         result.add(InvalidMethod.error(InvalidMethod.Kind.MUST_BE_PROTECTED, implMethod));
                 }
             }
+
             doneDeclare();
         }
         return result;
@@ -480,11 +495,17 @@ ClassReader classReader;
 
             this.properties.putAll(parent.properties);
             this.staticProperties.putAll(parent.staticProperties);
-            this.constants.putAll(parent.constants);
+
+            for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
+                if (!entry.getValue().isPrivate()) {
+                    this.constants.put(entry.getKey(), entry.getValue());
+                }
+            }
         }
 
-        if (updateParentMethods)
-            result.methods = updateParentMethods();
+        if (updateParentMethods) {
+            result.methods = updateParentBody();
+        }
 
         return result;
     }
@@ -502,7 +523,7 @@ ClassReader classReader;
             ConstantEntity origin = constants.get(e.getName());
             if (origin != null && e.getClazz().getId() == _interface.getId() &&
                     (parent == null || parent.constants.get(e.getName()) == null))
-                result.signature.addConstant(InvalidConstant.error(origin, e));
+                result.signature.addConstant(InvalidConstant.error(InvalidConstant.Kind.INVALID_OVERRIDE, origin, e));
         }
 
         this.constants.putAll(_interface.constants);
@@ -565,9 +586,17 @@ ClassReader classReader;
         return staticProperties.values();
     }
 
-    public void addConstant(ConstantEntity constant) {
+    public SignatureResult addConstant(ConstantEntity constant) {
         constants.put(constant.getName(), constant);
         constant.setClazz(this);
+
+        SignatureResult result = new SignatureResult();
+
+        if (isInterface() && !constant.isPublic()) {
+            result.addConstant(InvalidConstant.error(InvalidConstant.Kind.MUST_BE_PUBLIC_FOR_INTERFACE, constant, null));
+        }
+
+        return result;
     }
 
     public void addDynamicConstant(Environment env, String name, Memory value) {
@@ -1339,7 +1368,8 @@ ClassReader classReader;
     }
 
     public Memory getStaticProperty(Environment env, TraceInfo trace, String property, boolean errorIfNotExists,
-                                    boolean checkAccess, ClassEntity context, PropertyCallCache callCache, int cacheIndex)
+                                    boolean checkAccess, ClassEntity context, PropertyCallCache callCache, int cacheIndex,
+                                    boolean lateStaticCall)
             throws Throwable {
         PropertyEntity entity = callCache == null || env instanceof ConcurrentEnvironment || context != null ? null : callCache.get(env, cacheIndex);
 
@@ -1361,7 +1391,7 @@ ClassReader classReader;
         }
 
         if (checkAccess) {
-            int accessFlag = entity.canAccess(env, context);
+            int accessFlag = entity.canAccess(env, lateStaticCall ? context : null);
             if (accessFlag != 0) {
                 invalidAccessToProperty(env, trace, entity, accessFlag);
                 return Memory.NULL;
@@ -1530,18 +1560,22 @@ ClassReader classReader;
 
 
     public static class InvalidConstant {
+        public enum Kind { INVALID_OVERRIDE, MUST_BE_PUBLIC, MUST_BE_PUBLIC_FOR_INTERFACE, MUST_BE_PROTECTED }
+
+        public final Kind kind;
         public final ConstantEntity constant;
         public final ConstantEntity prototype;
         public final ErrorType errorType;
 
-        protected InvalidConstant(ConstantEntity constant, ConstantEntity prototype, ErrorType errorType) {
+        protected InvalidConstant(Kind kind, ConstantEntity constant, ConstantEntity prototype, ErrorType errorType) {
+            this.kind = kind;
             this.constant = constant;
             this.errorType = errorType;
             this.prototype = prototype;
         }
 
-        public static InvalidConstant error(ConstantEntity constant, ConstantEntity prototype) {
-            return new InvalidConstant(constant, prototype, ErrorType.E_ERROR);
+        public static InvalidConstant error(Kind kind, ConstantEntity constant, ConstantEntity prototype) {
+            return new InvalidConstant(kind, constant, prototype, ErrorType.E_ERROR);
         }
 
         @Override
@@ -1712,11 +1746,12 @@ ClassReader classReader;
                         break;
                 }
 
-                if (e != null)
+                if (e != null) {
                     if (env == null)
                         throw e;
                     else
                         env.error(e.getTraceInfo(), el.errorType, e.getMessage());
+                }
             }
         }
     }
@@ -1791,8 +1826,10 @@ ClassReader classReader;
                         throw e;
                 }
             }
-            if (methods != null)
+
+            if (methods != null) {
                 methods.check(env);
+            }
         }
     }
 
@@ -1801,7 +1838,7 @@ ClassReader classReader;
         private Set<InvalidConstant> overrideConstants_;
 
         SignatureResult() {
-            methods = new HashSet<InvalidMethod>();
+            methods = new HashSet<>();
         }
 
         public void add(InvalidMethod el) {
@@ -1810,7 +1847,7 @@ ClassReader classReader;
 
         public void addConstant(InvalidConstant el) {
             if (overrideConstants_ == null)
-                overrideConstants_ = new HashSet<InvalidConstant>();
+                overrideConstants_ = new HashSet<>();
 
             overrideConstants_.add(el);
         }
@@ -1844,14 +1881,45 @@ ClassReader classReader;
 
         public void check(Environment env) {
             if (overrideConstants_ != null)
-                for (InvalidConstant e : this.overrideConstants_) {
-                    if (env != null)
-                        env.error(
-                                getTrace(), e.errorType,
-                                Messages.ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT,
-                                e.constant.getName(),
-                                e.prototype.getClazz().getName()
-                        );
+                for (InvalidConstant el : this.overrideConstants_) {
+                    ErrorException e = null;
+
+                    switch (el.kind) {
+                        case INVALID_OVERRIDE:
+                            e = new FatalException(Messages.ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT.fetch(
+                                            el.constant.getName(), el.prototype.getClazz().getName()
+                            ), getTrace());
+                            break;
+
+                        case MUST_BE_PUBLIC:
+                            e = new FatalException(Messages.ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PUBLIC.fetch(
+                                    el.constant.getClazz().getName(),
+                                    el.constant.getName(), el.prototype.getClazz().getName()
+                            ), getTrace());
+                            break;
+
+                        case MUST_BE_PUBLIC_FOR_INTERFACE:
+                            e = new FatalException(Messages.ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PUBLIC_FOR_INTERFACE.fetch(
+                                    el.constant.getClazz().getName(),
+                                    el.constant.getName()
+                            ), getTrace());
+                            break;
+
+                        case MUST_BE_PROTECTED:
+                            e = new FatalException(Messages.ERR_ACCESS_LEVEL_CONSTANT_MUST_BE_PROTECTED.fetch(
+                                    el.constant.getClazz().getName(),
+                                    el.constant.getName(), el.prototype.getClazz().getName()
+                            ), getTrace());
+                            break;
+                    }
+
+                    if (e != null) {
+                        if (env == null)
+                            throw e;
+                        else {
+                            env.error(e.getTraceInfo(), el.errorType, e.getMessage());
+                        }
+                    }
                 }
 
             Set<InvalidMethod> nonExists = null;
@@ -1930,17 +1998,18 @@ ClassReader classReader;
                         e = getException(env, el, Messages.ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD);
                         break;
                     case NON_EXISTS:
-                        if (nonExists == null) nonExists = new HashSet<InvalidMethod>();
+                        if (nonExists == null) nonExists = new HashSet<>();
                         nonExists.add(el);
                         break;
                 }
 
-                if (e != null)
+                if (e != null) {
                     if (env == null)
                         throw e;
                     else {
                         env.error(e.getTraceInfo(), el.errorType, e.getMessage());
                     }
+                }
             }
 
             if (nonExists != null) {

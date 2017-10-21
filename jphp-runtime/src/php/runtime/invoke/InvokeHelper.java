@@ -38,18 +38,14 @@ final public class InvokeHelper {
 
         switch (access) {
             case 1:
-                throw new FatalException(
-                        Messages.ERR_CALL_TO_PROTECTED_METHOD.fetch(
-                                method.getClazz().getName() + "::" + method.getName(), context
-                        ),
-                        trace
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_CALL_TO_PROTECTED_METHOD,
+                        method.getClazz().getName() + "::" + method.getName(), context
                 );
             case 2:
-                throw new FatalException(
-                        Messages.ERR_CALL_TO_PRIVATE_METHOD.fetch(
-                                method.getClazz().getName() + "::" + method.getName(), context
-                        ),
-                        trace
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_CALL_TO_PRIVATE_METHOD,
+                        method.getClazz().getName() + "::" + method.getName(), context
                 );
         }
     }
@@ -57,18 +53,29 @@ final public class InvokeHelper {
     public static void checkAccess(Environment env, TraceInfo trace, PropertyEntity property) {
         switch (property.canAccess(env)) {
             case 1:
-                throw new FatalException(
-                        Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY.fetch(
-                                property.getClazz().getName(), property.getName()
-                        ),
-                        trace
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PROTECTED_PROPERTY,
+                        property.getClazz().getName(), property.getName()
                 );
             case 2:
-                throw new FatalException(
-                        Messages.ERR_ACCESS_TO_PRIVATE_PROPERTY.fetch(
-                                property.getClazz().getName(), property.getName()
-                        ),
-                        trace
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PRIVATE_PROPERTY,
+                        property.getClazz().getName(), property.getName()
+                );
+        }
+    }
+
+    public static void checkAccess(Environment env, TraceInfo trace, ConstantEntity constant, boolean lateStaticCall) {
+        switch (constant.canAccess(env, null, lateStaticCall)) {
+            case 1:
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PROTECTED_CONSTANT,
+                        constant.getClazz().getName(), constant.getName()
+                );
+            case 2:
+                env.error(trace, ErrorType.E_ERROR,
+                        Messages.ERR_ACCESS_TO_PRIVATE_CONSTANT,
+                        constant.getClazz().getName(), constant.getName()
                 );
         }
     }
@@ -177,7 +184,7 @@ final public class InvokeHelper {
     }
 
     public static Memory checkReturnType(Environment env, TraceInfo trace, Memory result, Function<String> callName,
-                                   TypeChecker typeChecker, boolean nullable) {
+                                         TypeChecker typeChecker, boolean nullable) {
         if (typeChecker == null) {
             return result;
         }

@@ -24,11 +24,14 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
         /*if (token.getField() == null)
             expr.unexpectedToken(token.getFieldExpr().getSingle());*/
 
+        boolean lateStaticCall = false;
+
         if (token.getField() instanceof ClassExprToken) {
             if (token.getClazz() instanceof ParentExprToken) {
                 expr.writePushParent(token.getClazz());
             } else if (token.getClazz() instanceof StaticExprToken) {
                 expr.writePushStatic();
+                lateStaticCall = true;
             } else if (token.getClazz() instanceof SelfExprToken) {
                 expr.writePushSelf(false);
             } else
@@ -44,6 +47,7 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
             } else {
                 if (clazz instanceof StaticExprToken){
                     expr.writePushStatic();
+                    lateStaticCall = true;
                 } else {
                     if (clazz != null) {
                         expr.writePush(clazz, true, false);
@@ -64,10 +68,11 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                 int cacheIndex = method.clazz.getAndIncCallConstCount();
                 expr.writeGetStatic("$CALL_CONST_CACHE", ConstantCallCache.class);
                 expr.writePushConstInt(cacheIndex);
+                expr.writePushConstBoolean(lateStaticCall);
 
                 expr.writeSysStaticCall(ObjectInvokeHelper.class, "getConstant",
                         Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
-                        ConstantCallCache.class, Integer.TYPE
+                        ConstantCallCache.class, Integer.TYPE, boolean.class
                 );
                 expr.setStackPeekAsImmutable();
             } else {
@@ -97,10 +102,11 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                     expr.writePushConstInt(0);
                 }
 
+                expr.writePushConstBoolean(lateStaticCall);
                 expr.writeSysStaticCall(ObjectInvokeHelper.class,
                         name + "StaticProperty",
                         Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
-                        PropertyCallCache.class, int.class
+                        PropertyCallCache.class, int.class, boolean.class
                 );
             }
         }

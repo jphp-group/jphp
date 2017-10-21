@@ -16,6 +16,7 @@ import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.util.WrapFlow;
 import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.invoke.InvokeHelper;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
@@ -316,6 +317,7 @@ public class LangFunctions extends FunctionsContainer {
                 return Memory.NULL;
 
             ConstantEntity constant = entity.findConstant(constName);
+            InvokeHelper.checkAccess(env, trace, constant, false);
             return constant == null ? Memory.NULL : constant.getValue();
         } else {
             Memory value = env.findConstant(name);

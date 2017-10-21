@@ -303,7 +303,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                 if (entity != null) {
                     ConstantEntity c = entity.findConstant(constant);
-                    if (c != null && c.getValue() != null) {
+
+                    if (c != null && c.getValue() != null && c.isPublic()) {
                         stackPush(c.getValue());
                         stackPeek().setLevel(-1);
                         return;
