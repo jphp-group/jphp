@@ -176,6 +176,7 @@ public class TokenFinder {
         put("print", PrintNameToken.class);
 
         put("yield", YieldExprToken.class);
+        put("from", FromExprToken.class);
     }};
     public static final int MAX_FIND_CACHE_SIZE = 10000;
 

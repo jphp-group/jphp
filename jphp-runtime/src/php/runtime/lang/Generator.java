@@ -25,6 +25,7 @@ import static php.runtime.annotation.Reflection.*;
 abstract public class Generator extends BaseObject implements Iterator, IManualDestructable {
     private enum ClosedType { DEFAULT, MANUAL }
 
+    protected Memory genReturn = null;
     protected Memory self;
     protected final Memory[] uses;
 
@@ -35,7 +36,7 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
     protected final YieldAdapterIterator<Bucket> iterator;
     protected final php.runtime.util.generator.Generator<Bucket> gen;
 
-    protected final static ThreadLocal<Generator> currentGenerator = new ThreadLocal<Generator>();
+    protected final static ThreadLocal<Generator> currentGenerator = new ThreadLocal<>();
 
     protected CallStackItem callStackItem;
     protected CallStack callStack;
@@ -264,6 +265,11 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
         return Memory.NULL;
     }
 
+    @Signature
+    public Memory getReturn(Environment env, Memory... args) {
+        return genReturn == null ? Memory.NULL : genReturn;
+    }
+
     public CallStackItem getCallStackItem() {
         return callStackItem;
     }
@@ -307,6 +313,70 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
         return current;
     }
 
+    protected Memory yieldFrom(Environment env, TraceInfo trace) {
+        return yieldFrom(env, trace, Memory.NULL);
+    }
+
+    protected Memory yieldFrom(Environment env, TraceInfo trace, Memory iterable) {
+        if (closed == ClosedType.MANUAL) {
+            env.error(trace, "Cannot yield from finally in a force-closed generator");
+        }
+
+        ForeachIterator iterator = iterable.getNewIterator(env);
+        if (iterator == null) {
+            env.error(trace, "Can use \"yield from\" only with arrays and Traversables");
+            return Memory.NULL;
+        }
+
+        Generator subGenerator = null;
+
+        if (iterable.instanceOf("Generator", "generator")) {
+            subGenerator = iterable.toObject(Generator.class);
+        }
+
+        Bucket current = null;
+
+        if (subGenerator != null) {
+            if (!subGenerator.isInit) {
+                if (subGenerator.counter < 1) {
+                    subGenerator.rewind(env);
+                } else {
+                    subGenerator._next(env);
+                }
+            }
+
+            while (subGenerator.valid){
+                checkNewThrow();
+
+                current = setCurrent(subGenerator.__current());
+                subGenerator._next(env);
+
+                gen.yield(current);
+
+                checkNewThrow();
+            }
+        } else {
+            while (iterator.next()) {
+                checkNewThrow();
+
+                current = setCurrent(iterator.getValue());
+                gen.yield(current);
+
+                checkNewThrow();
+            }
+        }
+
+        if (subGenerator != null) {
+            Memory genReturn = subGenerator.genReturn;
+
+            if (genReturn != null) {
+                return genReturn;
+            }
+        }
+
+        return current != null ? current.getValue() : Memory.NULL;
+    }
+
     protected Memory yield(Environment env, TraceInfo trace, Memory value) {
         if (closed == ClosedType.MANUAL) {
             env.error(trace, "Cannot yield from finally in a force-closed generator");
@@ -323,6 +393,10 @@ abstract public class Generator extends BaseObject implements Iterator, IManualD
 
     protected Memory yield(Memory key, Memory value) {
         return gen.yield(new Bucket(key, value)).getValue();
+    }
+
+    protected Memory setReturn(Environment env, TraceInfo trace, Memory result) {
+        return genReturn = result;
     }
 
     public static Generator current() {

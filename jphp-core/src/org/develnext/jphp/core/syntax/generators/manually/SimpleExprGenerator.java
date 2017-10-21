@@ -463,6 +463,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         analyzer.getFunction().setGenerator(true);
 
         YieldExprToken result = (YieldExprToken) current;
+
+        // if yield from <iterable>
+        if (next instanceof FromExprToken) {
+            nextToken(iterator);
+            result.setDelegating(true);
+        }
+
         if (next instanceof OperatorExprToken && ((OperatorExprToken) next).isBinary()) {
             result.setValue(null);
         } else {

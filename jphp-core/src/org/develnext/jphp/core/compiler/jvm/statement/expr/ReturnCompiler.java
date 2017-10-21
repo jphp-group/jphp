@@ -13,6 +13,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.InvokeHelper;
+import php.runtime.lang.Generator;
 import php.runtime.reflection.support.TypeChecker;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -25,12 +26,20 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
 
     @Override
     public void write(ReturnStmtToken token) {
+        boolean isGeneratorReturn = false;
+
         if (token.getValue() != null && method.getGeneratorEntity() != null) {
-            env.error(
+            isGeneratorReturn = true;
+
+            expr.writeVarLoad("~this");
+            expr.writePushEnv();
+            expr.writePushTraceInfo(token);
+
+            /*env.error(
                     token.toTraceInfo(compiler.getContext()),
                     ErrorType.E_ERROR,
                     "Generators cannot return values using \"return\""
-            );
+            );*/
         }
 
         Memory result = token.isEmpty() ? Memory.UNDEFINED : Memory.NULL;
@@ -94,10 +103,15 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
             expr.writePopImmutable();
         }
 
+        if (isGeneratorReturn) {
+            expr.writeSysDynamicCall(Generator.class, "setReturn", Memory.class, Environment.class, TraceInfo.class, Memory.class);
+        }
+
         if (!method.getTryStack().empty()) {
             LocalVariable variable = method.getLocalVariable("~result~");
-            if (variable == null)
+            if (variable == null) {
                 variable = method.addLocalVariable("~result~", null, Memory.class);
+            }
 
             expr.writeVarStore(variable, false, false);
             add(new JumpInsnNode(GOTO, method.getTryStack().peek().getReturnLabel()));

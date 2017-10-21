@@ -172,8 +172,8 @@ public class GeneratorsTest extends JvmCompilerCase {
 
     @Test
     public void testErrors() {
-        check("generators/errors/generator_cannot_return_before_yield_error.php", true);
-        check("generators/errors/generator_cannot_return_error.php", true);
+        //check("generators/errors/generator_cannot_return_before_yield_error.php", true);
+        //check("generators/errors/generator_cannot_return_error.php", true);
         check("generators/errors/generator_extend_error.php", true);
         check("generators/errors/generator_instantiate_error.php", true);
         check("generators/errors/non_ref_generator_iterated_by_ref_error.php", true);

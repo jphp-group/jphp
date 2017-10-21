@@ -62,23 +62,29 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     public ArrayMemory getProperties() {
         if (!init){
             init = true;
-            if (trace != null){
+            if (trace != null) {
                 Memory m;
                 m = clazz.refOfProperty(props, "file");
-                if (m.isNull())
+                if (m.isNull()) {
                     m.assign(trace.getFileName());
+                }
 
                 m = clazz.refOfProperty(props, "line");
-                if (m.isNull())
+                if (m.isNull()) {
                     m.assign(trace.getStartLine() + 1);
+                }
 
                 m = clazz.refOfProperty(props, "position");
-                if (m.isNull())
+
+                if (m.isNull()) {
                     m.assign(trace.getStartPosition() + 1);
+                }
 
                 ArrayMemory backTrace = new ArrayMemory();
-                for(CallStackItem el : callStack)
+
+                for(CallStackItem el : callStack) {
                     backTrace.add(el.toArray());
+                }
 
                 clazz.refOfProperty(props, "trace").assign(backTrace);
             }

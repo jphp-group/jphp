@@ -10,6 +10,8 @@ public class YieldExprToken extends ValueExprToken implements CallableExprToken 
     protected boolean onlyGet;
     protected boolean onlyNext;
 
+    protected boolean delegating;
+
     public YieldExprToken(TokenMeta meta) {
         super(meta, TokenType.T_YIELD);
     }
@@ -41,5 +43,13 @@ public class YieldExprToken extends ValueExprToken implements CallableExprToken 
     @Override
     public boolean isNamedToken() {
         return true;
+    }
+
+    public boolean isDelegating() {
+        return delegating;
+    }
+
+    public void setDelegating(boolean delegating) {
+        this.delegating = delegating;
     }
 }

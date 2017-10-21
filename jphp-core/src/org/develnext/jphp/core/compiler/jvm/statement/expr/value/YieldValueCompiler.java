@@ -24,10 +24,11 @@ public class YieldValueCompiler extends BaseExprCompiler<YieldExprToken> {
         expr.writePushEnv();
         expr.writePushTraceInfo(token);
 
-        if (token.getValue() == null) {
-            expr.writeSysDynamicCall(Generator.class, "yield", Memory.class, Environment.class, TraceInfo.class);
-        } else {
+        String methodName = token.isDelegating() ? "yieldFrom" : "yield";
 
+        if (token.getValue() == null) {
+            expr.writeSysDynamicCall(Generator.class, methodName, Memory.class, Environment.class, TraceInfo.class);
+        } else {
             expr.writeExpression(token.getValue(), true, false);
             expr.writePopBoxing();
 
@@ -44,9 +45,9 @@ public class YieldValueCompiler extends BaseExprCompiler<YieldExprToken> {
                             Memory.class, Environment.class, TraceInfo.class
                     );
 
-                expr.writeSysDynamicCall(Generator.class, "yield", Memory.class, Environment.class, TraceInfo.class, Memory.class);
+                expr.writeSysDynamicCall(Generator.class, methodName, Memory.class, Environment.class, TraceInfo.class, Memory.class);
             } else {
-                expr.writeSysDynamicCall(Generator.class, "yield", Memory.class, Environment.class, TraceInfo.class, Memory.class);
+                expr.writeSysDynamicCall(Generator.class, methodName, Memory.class, Environment.class, TraceInfo.class, Memory.class);
             }
         }
 
