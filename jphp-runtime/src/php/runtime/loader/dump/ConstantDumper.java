@@ -8,6 +8,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
 import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.DocumentComment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +29,16 @@ public class ConstantDumper extends Dumper<ConstantEntity> {
     public void save(ConstantEntity entity, OutputStream output) throws IOException {
         DumpOutputStream dump = new DumpOutputStream(output);
 
+        DocumentComment docComment = entity.getDocComment();
+
+        if (docComment != null) {
+            dump.writeUTF(docComment.toString());
+        } else {
+            dump.writeUTF("");
+        }
+
         dump.writeBoolean(entity.isCaseSensitise());
-        dump.writeEnum(Modifier.PUBLIC);
+        dump.writeEnum(entity.getModifier());
         dump.writeName(entity.getName());
         dump.writeTrace(debugInformation ? null : entity.getTrace());
         dump.writeMemory(entity.getValue());
@@ -41,6 +50,8 @@ public class ConstantDumper extends Dumper<ConstantEntity> {
     public ConstantEntity load(InputStream input) throws IOException {
         DumpInputStream dump = new DumpInputStream(input);
 
+        String docComment = dump.readUTF();
+
         boolean cs = dump.readBoolean();
         Modifier modifier = dump.readModifier();
         String name = dump.readName();
@@ -50,6 +61,11 @@ public class ConstantDumper extends Dumper<ConstantEntity> {
         ConstantEntity entity = new ConstantEntity(name, value, cs);
         entity.setContext(context);
         entity.setTrace(trace);
+        entity.setModifier(modifier);
+
+        if (!docComment.isEmpty()) {
+            entity.setDocComment(new DocumentComment(docComment));
+        }
 
         dump.readRawData();
         return entity;
