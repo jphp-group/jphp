@@ -64,4 +64,10 @@ public class ConditionsTest extends JvmCompilerCase {
     public void testElvisBugs() {
         check("conditions/elvis_bug106.php");
     }
+
+    @Test
+    public void testSpaceship() {
+        Memory memory = includeResource("conditions/spaceship.php");
+        Assert.assertEquals("success", memory.toString());
+    }
 }

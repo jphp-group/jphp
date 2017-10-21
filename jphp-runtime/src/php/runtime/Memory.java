@@ -403,6 +403,13 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean xor(boolean value) { return _xor(toBoolean(), value); }
     public boolean xor(String value) { return _xor(toBoolean(), OperatorUtils.toBoolean(value)); }
 
+    // SPACESHIP
+    public long spaceshipCompare(Memory value) { return equal(value) ? 0 : greater(value) ? 1 : -1; }
+    public long spaceshipCompare(long value) { return equal(value) ? 0 : greater(value) ? 1 : -1; }
+    public long spaceshipCompare(double value) { return equal(value) ? 0 : greater(value) ? 1 : -1; }
+    public long spaceshipCompare(boolean value) { return equal(value) ? 0 : greater(value) ? 1 : -1; }
+    public long spaceshipCompare(String value) { return equal(value) ? 0 : greater(value) ? 1 : -1; }
+
     // EQUAL
     abstract public boolean equal(Memory memory);
     public boolean equal(long value){ return toLong() == value; }
@@ -645,6 +652,13 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     /********** RIGHT ******************/
+    // SPACESHIP
+    public long spaceshipCompareRight(Memory value) { return equal(value) ? 0 : greater(value) ? -1 : 1; }
+    public long spaceshipCompareRight(long value) { return equal(value) ? 0 : greater(value) ? -1 : 1; }
+    public long spaceshipCompareRight(double value) { return equal(value) ? 0 : greater(value) ? -1 : 1; }
+    public long spaceshipCompareRight(boolean value) { return equal(value) ? 0 : greater(value) ? -1 : 1; }
+    public long spaceshipCompareRight(String value) { return equal(value) ? 0 : greater(value) ? -1 : 1; }
+
     public Memory minusRight(Memory value){ return value.minus(this); }
     public Memory minusRight(long value){ return LongMemory.valueOf(value).minus(this); }
     public Memory minusRight(double value){ return new DoubleMemory(value).minus(this); }
@@ -698,6 +712,7 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean greaterEqRight(double value) { return this.smaller(value); }
     public boolean greaterEqRight(boolean value) { return this.smaller(value); }
     public boolean greaterEqRight(String value) { return this.smaller(value); }
+
 
 
     public Memory bitShrRight(Memory value){ return value.bitShr(this); }

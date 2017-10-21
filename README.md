@@ -49,9 +49,10 @@ Our project started in October 2013. There were a few reasons for that:
 + Uniform Variable Syntax (SNAPSHOT, partly).
 + Null Coalesce Operator `??` (SNAPSHOT).
 + Multiple catch syntax (SNAPSHOT).
-+ Short list syntax (SNAPSHOT)
-+ List Keys (SNAPSHOT)
-+ Class constant visibility modifiers (SNAPSHOT)
++ Short list syntax (SNAPSHOT).
++ List Keys (SNAPSHOT).
++ Class constant visibility modifiers (SNAPSHOT).
++ Spaceship Operator `<=>` (SNAPSHOT).
 
 ### Documentation
 

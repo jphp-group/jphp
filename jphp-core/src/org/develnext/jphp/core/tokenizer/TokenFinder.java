@@ -78,6 +78,7 @@ public class TokenFinder {
         put(">>=", AssignShiftRightExprToken.class);
         put("<<=", AssignShiftLeftExprToken.class);
         put("...", ArgumentUnpackExprToken.class);
+        put("<=>", SpaceshipExprToken.class);
 
         put("new", NewExprToken.class);
         put("clone", CloneExprToken.class);

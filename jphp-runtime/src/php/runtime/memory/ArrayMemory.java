@@ -854,8 +854,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     }
 
     public int compare(ArrayMemory otherRef, boolean strict, Set<Integer> used) {
-        int size1 = size(),
-                size2 = otherRef.size();
+        int size1 = size(), size2 = otherRef.size();
 
         if (size1 < size2)
             return -1;
@@ -886,8 +885,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 value2 = iterator2.getValue();
             }
 
-            if (value2 == null)
-                return -2;
+            if (value2 == null) {
+                value2 = UNDEFINED;
+                //return -2;
+            }
 
             if (value1.isArray() && value2.isArray()) {
                 ArrayMemory arr1 = value1.toValue(ArrayMemory.class);
