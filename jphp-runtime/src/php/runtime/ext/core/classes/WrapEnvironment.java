@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.*;
 import php.runtime.env.Package;
+import php.runtime.ext.support.Extension;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
@@ -271,6 +272,18 @@ public class WrapEnvironment extends BaseObject {
     @Signature
     public Memory __destruct(Environment env, Memory... args) throws Throwable {
         environment.doFinal();
+        return Memory.NULL;
+    }
+
+    @Signature(@Arg("extensionClass"))
+    public Memory registerExtension(Environment env, Memory... args) {
+        Extension extension = this.environment.scope.getExtension(args[0].toString());
+
+        if (extension != null) {
+            env.exception("Extension '%s' already registered", extension.getName());
+        }
+
+        this.environment.scope.registerExtension(args[0].toString());
         return Memory.NULL;
     }
 

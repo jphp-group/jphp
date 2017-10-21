@@ -302,7 +302,7 @@ public class CompileScope {
         }
     }
 
-    public void registerExtension(Extension extension) {
+    synchronized public void registerExtension(Extension extension) {
         long t = System.currentTimeMillis();
 
         if (extensions.containsKey(extension.getName()))

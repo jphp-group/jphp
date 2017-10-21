@@ -186,6 +186,13 @@ class Environment
     }
 
     /**
+     * @param string $extensionId
+     */
+    public function registerExtension(string $extensionId)
+    {
+    }
+
+    /**
      * Get environment of current execution
      * --RU--
      * Взять окружение текущего выполнения

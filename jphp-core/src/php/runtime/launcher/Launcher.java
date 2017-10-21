@@ -91,7 +91,7 @@ public class Launcher {
         }
     }
 
-    public InputStream getResource(String name){
+    public InputStream getResource(String name) {
         InputStream stream = classLoader.getResourceAsStream(name);
         if (stream == null) {
             try {
@@ -103,7 +103,7 @@ public class Launcher {
         return stream;
     }
 
-    protected Context getContext(String file){
+    protected Context getContext(String file) {
         InputStream bootstrap = getResource(file);
         if (bootstrap != null) {
             return new Context(bootstrap, file, environment.getDefaultCharset());
@@ -115,7 +115,7 @@ public class Launcher {
         return environment.getModuleManager().fetchModule(file);
     }
 
-    protected void readConfig(){
+    protected void readConfig() {
         this.config = new Properties();
         this.compileScope.configuration = new HashMap<>();
 
@@ -127,7 +127,7 @@ public class Launcher {
                 config.load(inStream);
                 inStream.close();
 
-                for (String name : config.stringPropertyNames()){
+                for (String name : config.stringPropertyNames()) {
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
             } catch (IOException e) {
@@ -143,7 +143,7 @@ public class Launcher {
             try {
                 config.load(resource);
 
-                for (String name : config.stringPropertyNames()){
+                for (String name : config.stringPropertyNames()) {
                     compileScope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
 
@@ -173,7 +173,7 @@ public class Launcher {
         String[] _extensions = StringUtils.split(tmp, ",");
 
         Set<String> extensions = new HashSet<String>();
-        for(String ext : _extensions) {
+        for (String ext : _extensions) {
             extensions.add(ext.trim());
         }
 
@@ -188,7 +188,7 @@ public class Launcher {
         });
 
         if (getConfigValue("env.autoregister_extensions", Memory.TRUE).toBoolean()) {
-            for(InputStream list : getResources("JPHP-INF/extensions.list")) {
+            for (InputStream list : getResources("JPHP-INF/extensions.list")) {
                 Scanner scanner = new Scanner(list);
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine().trim();
@@ -201,16 +201,13 @@ public class Launcher {
             }
         }
 
-        for(String ext : extensions){
+        for (String ext : extensions) {
             String className = Information.EXTENSIONS.get(ext.trim().toLowerCase());
-            if (className == null)
+            if (className == null) {
                 className = ext.trim();
-
-
-            long t = System.currentTimeMillis();
+            }
 
             compileScope.registerExtension(className);
-
         }
 
         this.environment = getConfigValue("env.concurrent", "1").toBoolean()
@@ -235,12 +232,10 @@ public class Launcher {
         run(mustBootstrap, false);
     }
 
-    public void beforeIncludeBootstrap()
-    {
+    public void beforeIncludeBootstrap() {
     }
 
-    public void afterIncludeBootstrap()
-    {
+    public void afterIncludeBootstrap() {
     }
 
     public void run(boolean mustBootstrap, boolean disableExtensions) throws Throwable {
@@ -249,7 +244,7 @@ public class Launcher {
             initExtensions();
         }
 
-        if (isDebug()){
+        if (isDebug()) {
             if (compileScope.getTickHandler() == null) {
                 throw new LaunchException("Cannot find a debugger, please add the jphp-debugger dependency");
             }
@@ -274,7 +269,7 @@ public class Launcher {
             environment.invokeMethod(loader, "register", Memory.TRUE);
         }
 
-        if (file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             try {
                 ModuleEntity bootstrap = loadFrom(file);
 
@@ -326,7 +321,7 @@ public class Launcher {
         return isDebug;
     }
 
-    public OutputStream getOut(){
+    public OutputStream getOut() {
         return out;
     }
 

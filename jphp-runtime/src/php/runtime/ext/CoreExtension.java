@@ -81,8 +81,6 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerJavaException(scope, WrapJavaExceptions.NumberFormatException.class, NumberFormatException.class);
         registerJavaException(scope, WrapJavaExceptions.InterruptedException.class, InterruptedException.class);
 
-
-
         registerClass(scope,
                 CharUtils.class, StrUtils.class, BinUtils.class, NumUtils.class, ItemsUtils.class,
                 MirrorUtils.class, FsUtils.class, OldBinUtils.class, OldItemsUtils.class, OldNumUtils.class, OldMirrorUtils.class,
