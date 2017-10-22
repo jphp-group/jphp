@@ -40,22 +40,22 @@ Our project started in October 2013. There were a few reasons for that:
 
 **What JPHP supports from PHP 7.0, 7.1?**
 + Context Sensitive Lexer.
-+ Fix list() behavior inconsistency (SNAPSHOT).
-+ Throwable Interface (SNAPSHOT).
-+ Group Use Declarations (SNAPSHOT).
-+ Scalar and Optional Type Hinting (SNAPSHOT).
-+ Return Type Hinting (SNAPSHOT).
-+ Void and Iterable Type Hinting (SNAPSHOT).
-+ Uniform Variable Syntax (SNAPSHOT, partly).
-+ Null Coalesce Operator `??` (SNAPSHOT).
-+ Multiple catch syntax (SNAPSHOT).
-+ Short list syntax (SNAPSHOT).
-+ List Keys (SNAPSHOT).
-+ Class constant visibility modifiers (SNAPSHOT).
-+ Spaceship Operator `<=>` (SNAPSHOT).
-+ Generator Delegation `yield from` (SNAPSHOT).
-+ Generator Return Expressions (SNAPSHOT).
-+ `intdiv()` function (SNAPSHOT).
++ Fix list() behavior inconsistency.
++ Throwable Interface.
++ Group Use Declarations.
++ Scalar and Optional Type Hinting.
++ Return Type Hinting.
++ Void and Iterable Type Hinting.
++ Uniform Variable Syntax (partly).
++ Null Coalesce Operator `??`.
++ Multiple catch syntax.
++ Short list syntax.
++ List Keys.
++ Class constant visibility modifiers.
++ Spaceship Operator `<=>`.
++ Generator Delegation `yield from`.
++ Generator Return Expressions.
++ `intdiv()` function.
 
 ### Documentation
 
