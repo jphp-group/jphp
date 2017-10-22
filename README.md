@@ -3,7 +3,7 @@ JPHP - an implementation of PHP
 
 [![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp)  [![Download](https://jitpack.io/v/org.develnext/jphp.svg)](https://jitpack.io/#org.develnext/jphp) [![Documentation Status](https://readthedocs.org/projects/jphp-docs/badge/?version=latest)](https://readthedocs.org/projects/jphp-docs/?badge=latest)
 
-JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (5.6+).
+JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (7.0+).
 
 How does it work? JPHP is a compiler like `javac`, it compiles php sources to JVM bytecode and then
 can execute the result on the Java VM.
@@ -28,7 +28,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
-+ PHP 5.6+ (some language features from PHP 7).
++ PHP 5.6+ (and many language features from PHP 7.0 and 7.1).
 + JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7), Optimizer - [Performance benchmarks](http://blog.j-php.net/archives/34)
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
