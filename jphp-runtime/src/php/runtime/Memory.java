@@ -25,46 +25,44 @@ import java.util.Map;
 abstract public class Memory implements Comparable<Memory> {
 
     public enum Type {
-        NULL, BOOL, INT, DOUBLE, STRING, ARRAY, OBJECT, REFERENCE, KEY_VALUE;
+        NULL(null),
+        BOOL(Boolean.TYPE),
+        INT(Long.TYPE),
+        DOUBLE(Double.TYPE),
+        STRING(String.class),
+        ARRAY(ArrayMemory.class),
+        OBJECT(ObjectMemory.class),
+        REFERENCE(Memory.class),
+        KEY_VALUE(KeyValueMemory.class);
+
+        private final Class<?> clazz;
+
+        Type(Class<?> aClass) {
+            clazz = aClass;
+        }
 
         public Class toClass(){
-            if (this == DOUBLE)
-                return Double.TYPE;
-            else if (this == INT)
-                return Long.TYPE;
-            else if (this == STRING)
-                return String.class;
-            else if (this == BOOL)
-                return Boolean.TYPE;
-            else if (this == ARRAY)
-                return ArrayMemory.class;
-            else if (this == OBJECT)
-                return ObjectMemory.class;
-            else if (this == REFERENCE)
-                return Memory.class;
-            else if (this == KEY_VALUE)
-                return KeyValueMemory.class;
+            return clazz;
+        }
 
-            return null;
+        private final static Map<Class<?>, Type> map;
+
+        static {
+            map = new HashMap<>();
+
+            for (Type type : Type.values()) {
+                map.put(type.clazz, type);
+            }
         }
 
         public static Type valueOf(Class clazz){
-            if (clazz == Long.TYPE)
-                return INT;
-            if (clazz == Double.TYPE)
-                return DOUBLE;
-            if (clazz == String.class)
-                return STRING;
-            if (clazz == Boolean.TYPE)
-                return BOOL;
-            if (clazz == ArrayMemory.class)
-                return ARRAY;
-            if (clazz == ObjectMemory.class)
-                return OBJECT;
-            if (clazz == KeyValueMemory.class)
-                return KEY_VALUE;
+            Type type = map.get(clazz);
 
-            return REFERENCE;
+            if (type == null) {
+                return REFERENCE;
+            } else {
+                return type;
+            }
         }
 
         @Override
