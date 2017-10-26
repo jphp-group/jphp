@@ -3,6 +3,8 @@ package php.runtime.ext.core;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Runtime;
+import php.runtime.annotation.Runtime.Immutable;
+import php.runtime.annotation.Runtime.Reference;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.GrammarUtils;
 import php.runtime.common.LangMode;
@@ -101,7 +103,7 @@ public class LangFunctions extends FunctionsContainer {
         return result.toImmutable();
     }
 
-    public static void register_shutdown_function(Environment env, TraceInfo trace, @Runtime.Reference Memory handler,
+    public static void register_shutdown_function(Environment env, TraceInfo trace, @Reference Memory handler,
                                                   Memory... args) {
         Invoker invoker = expectingCallback(env, trace, 1, handler);
         if (invoker != null)
@@ -155,7 +157,7 @@ public class LangFunctions extends FunctionsContainer {
         return trigger_error(env, trace, message);
     }
 
-    public static Memory set_error_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler,
+    public static Memory set_error_handler(Environment env, TraceInfo trace, @Reference Memory handler,
                                            int flags) {
         Invoker invoker = expectingCallback(env, trace, 1, handler);
         if (invoker != null) {
@@ -166,7 +168,7 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
     }
 
-    public static Memory set_error_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler) {
+    public static Memory set_error_handler(Environment env, TraceInfo trace, @Reference Memory handler) {
         return set_error_handler(env, trace, handler, ErrorType.E_ALL.value | ErrorType.E_STRICT.value);
     }
 
@@ -175,7 +177,7 @@ public class LangFunctions extends FunctionsContainer {
         return true;
     }
 
-    public static Memory set_exception_handler(Environment env, TraceInfo trace, @Runtime.Reference Memory handler) {
+    public static Memory set_exception_handler(Environment env, TraceInfo trace, @Reference Memory handler) {
         Invoker invoker = expectingCallback(env, trace, 1, handler);
         if (invoker != null) {
             ExceptionHandler eh = env.getExceptionHandler();
@@ -195,17 +197,17 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
-                              @Runtime.Reference Memory array, int extractType) {
+                              @Reference Memory array, int extractType) {
         return extract(env, trace, locals, array, extractType, Memory.NULL);
     }
 
     public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
-                              @Runtime.Reference Memory array) {
+                              @Reference Memory array) {
         return extract(env, trace, locals, array, LangConstants.EXTR_OVERWRITE.toInteger(), Memory.NULL);
     }
 
     public static int extract(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals,
-                              @Runtime.Reference Memory array, int extractType, Memory _prefix) {
+                              @Reference Memory array, int extractType, Memory _prefix) {
         if (expecting(env, trace, 1, array, Memory.Type.ARRAY)) {
             boolean isRefs = (extractType & LangConstants.EXTR_REFS.toInteger()) == LangConstants.EXTR_REFS.toInteger();
             ForeachIterator iterator = array.getNewIterator(env, isRefs, false);
@@ -328,7 +330,7 @@ public class LangFunctions extends FunctionsContainer {
         }
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String gettype(Memory memory) {
         switch (memory.getRealType()) {
             case ARRAY:
@@ -353,65 +355,69 @@ public class LangFunctions extends FunctionsContainer {
         }
     }
 
-    public static boolean is_array(@Runtime.Reference Memory memory) {
+    public static boolean is_array(@Reference Memory memory) {
         return memory.isArray();
     }
 
-    @Runtime.Immutable
+    public static boolean is_iterable(@Reference Memory memory) {
+        return memory.isTraversable();
+    }
+
+    @Immutable
     public static boolean is_bool(Memory memory) {
         return memory.toValue().type == Memory.Type.BOOL;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_double(Memory memory) {
         return memory.toValue().type == Memory.Type.DOUBLE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_float(Memory memory) {
         return memory.toValue().type == Memory.Type.DOUBLE;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_int(Memory memory) {
         return memory.toValue().type == Memory.Type.INT;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_integer(Memory memory) {
         return memory.toValue().type == Memory.Type.INT;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_long(Memory memory) {
         return memory.toValue().type == Memory.Type.INT;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_null(Memory memory) {
         return memory.isNull();
     }
 
-    public static boolean is_object(@Runtime.Reference Memory memory) {
+    public static boolean is_object(@Reference Memory memory) {
         return memory.isObject();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_real(Memory memory) {
         return is_float(memory);
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_string(Memory memory) {
         return memory.isString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_numeric(Memory memory) {
         return StringMemory.toNumeric(memory.toString(), false, null) != null;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean is_scalar(Memory memory) {
         switch (memory.getRealType()) {
             case BOOL:
@@ -424,11 +430,11 @@ public class LangFunctions extends FunctionsContainer {
         return false;
     }
 
-    public static boolean is_resource(@Runtime.Reference Memory memory) {
+    public static boolean is_resource(@Reference Memory memory) {
         return memory.isResource();
     }
 
-    public static Memory get_resource_type(@Runtime.Reference Memory memory) {
+    public static Memory get_resource_type(@Reference Memory memory) {
         if (memory.isObject()) {
             if (((ObjectMemory) memory).value instanceof Resource)
                 return new StringMemory(
@@ -438,7 +444,7 @@ public class LangFunctions extends FunctionsContainer {
         return Memory.NULL;
     }
 
-    public static boolean is_callable(Environment env, TraceInfo trace, @Runtime.Reference Memory memory)
+    public static boolean is_callable(Environment env, TraceInfo trace, @Reference Memory memory)
             throws Throwable {
         // optimize
         if (memory.isObject() && memory.toValue(ObjectMemory.class).value instanceof Closure)
@@ -447,32 +453,32 @@ public class LangFunctions extends FunctionsContainer {
         return invoker != null && invoker.canAccess(env) == 0;
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static boolean boolval(Memory memory) {
         return memory.toBoolean();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static String strval(Memory memory) {
         return memory.toString();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static long intval(Memory memory) {
         return memory.toLong();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double floatval(Memory memory) {
         return memory.toDouble();
     }
 
-    @Runtime.Immutable
+    @Immutable
     public static double doubleval(Memory memory) {
         return memory.toDouble();
     }
 
-    public static boolean settype(@Runtime.Reference Memory memory, String type) {
+    public static boolean settype(@Reference Memory memory, String type) {
         if (memory.isReference()) {
             if ("string".equals(type)) {
                 memory.assign(memory.toString());
