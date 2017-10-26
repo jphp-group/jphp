@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.collections.map.HashedMap;
 import php.runtime.env.Environment;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.support.IStaticVariables;
 import php.runtime.memory.ArrayMemory;
@@ -30,6 +31,10 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
         this(env, closure, self, null, uses);
     }*/
 
+    public Closure(Environment env, ClassEntity clazz) {
+        super(env, clazz);
+    }
+
     public Closure(Environment env, ClassEntity closure, Memory self, String scope, Memory[] uses) {
         super(closure);
         this.self = self;
@@ -47,7 +52,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
     }
 
     @Signature
-    abstract public Memory __invoke(Environment env, Memory... args);
+    abstract public Memory __invoke(Environment env, Memory... args) throws Throwable;
 
     public Memory[] getUses() {
         return uses == null ? new Memory[0] : uses;
@@ -139,9 +144,45 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
         ParameterEntity.validateTypeHinting(env, 2, args, HintType.OBJECT, true);
         Closure closure = args[0].toObject(Closure.class);
 
-        Closure newClosure = (Closure)closure.clone();
+        Closure newClosure = (Closure) closure.clone();
         newClosure.self = args[0];
         newClosure.scope = args[1].toString();
         return new ObjectMemory(newClosure);
+    }
+
+    @Signature(@Arg(value = "callable", type = HintType.CALLABLE))
+    public static Memory fromCallable(Environment env, Memory... args) {
+        Invoker invoker = Invoker.create(env, args[0]);
+
+        return ObjectMemory.valueOf(new ClosureInvoker(env, invoker));
+    }
+
+    @Name("php\\lang\\ClosureInvoker")
+    public static class ClosureInvoker extends Closure {
+        private Invoker invoker;
+
+        public ClosureInvoker(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+
+        public ClosureInvoker(Environment env, Invoker invoker) {
+            super(env, env.fetchClass(ClosureInvoker.class), Memory.NULL, "", new Memory[0]);
+            this.invoker = invoker;
+        }
+
+        @Signature
+        private void __construct() {
+        }
+
+        @Override
+        @Signature
+        public Memory __invoke(Environment env, Memory... args) throws Throwable {
+            return invoker.forEnvironment(env).call(args);
+        }
+
+        @Override
+        public Memory getOrCreateStatic(String name) {
+            return Memory.NULL;
+        }
     }
 }

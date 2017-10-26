@@ -22,6 +22,7 @@ import php.runtime.ext.core.classes.util.*;
 import php.runtime.ext.core.reflection.*;
 import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
+import php.runtime.lang.Closure;
 import php.runtime.loader.sourcemap.SourceMap;
 
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope, WrapTimeZone.class, WrapTimeFormat.class, WrapTime.class);
         registerWrapperClass(scope, TimerTask.class, WrapTimer.class);
 
-        registerClass(scope, WrapInvoker.class, WrapModule.class, WrapPackage.class);
+        registerClass(scope, WrapInvoker.class, WrapModule.class, WrapPackage.class, Closure.ClosureInvoker.class);
         registerWrapperClass(scope, SourceMap.class, WrapSourceMap.class);
 
         registerClass(scope,
