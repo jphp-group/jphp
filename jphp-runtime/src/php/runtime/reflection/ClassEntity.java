@@ -22,6 +22,7 @@ import php.runtime.lang.support.MagicSignatureClass;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
+import php.runtime.memory.support.ArrayMapEntryMemory;
 import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.reflection.support.TypeChecker;
@@ -1434,11 +1435,21 @@ ClassReader classReader;
         ArrayMemory props = object.getProperties();
         value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
 
-        if (accessFlag != 0)
+        if (accessFlag != 0) {
             invalidAccessToProperty(env, trace, entity, accessFlag);
+        }
 
         if (value == null) {
+            if (methodMagicGet != null) {
+                Memory altResult = getProperty(env, trace, object, property, callCache, cacheIndex);
+
+                if (altResult.isObject()) {
+                    return altResult;
+                }
+            }
+
             value = props == null ? new ReferenceMemory() : object.getProperties().refOfIndex(property);
+
             if (methodMagicGet != null || methodMagicSet != null) {
                 env.error(trace,
                         props == null ? ErrorType.E_ERROR : ErrorType.E_NOTICE,
