@@ -3052,6 +3052,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
                     if (Rt.isReference()) {
                         writePopBoxing(false);
+                    } else if (Rt.isLikeInt()) { // fix bug call int operator.
+                        writePopLong();
+                        Rt = StackItem.Type.LONG;
                     }
 
                     if (!o1.immutable && !operator.isMutableArguments())
