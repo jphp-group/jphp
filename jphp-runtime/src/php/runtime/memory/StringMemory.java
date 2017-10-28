@@ -53,6 +53,7 @@ public class StringMemory extends Memory {
 
     @Override
     public boolean toBoolean() {
+        String value = toString();
         return (value != null && !value.isEmpty() && !value.equals("0"));
     }
 

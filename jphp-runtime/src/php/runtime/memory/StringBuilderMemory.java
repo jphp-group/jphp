@@ -34,7 +34,6 @@ public class StringBuilderMemory extends StringMemory {
         return value;
     }
 
-
     @Override
     public Memory toNumeric(){
         return toImmutable().toNumeric();
