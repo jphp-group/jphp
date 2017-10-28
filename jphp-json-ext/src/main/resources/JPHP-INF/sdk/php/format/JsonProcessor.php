@@ -5,13 +5,14 @@ use php\io\Stream;
 /**
  * Class JsonProcessor
  * @package php\format
+ *
+ * @packages std, core
  */
 class JsonProcessor extends Processor
 {
-    const __PACKAGE__ = 'std, json';
-
     const SERIALIZE_PRETTY_PRINT = 1;
     const DESERIALIZE_AS_ARRAYS  = 1024;
+    const DESERIALIZE_LENIENT    = 2048;
 
     /**
      * @param int $flags

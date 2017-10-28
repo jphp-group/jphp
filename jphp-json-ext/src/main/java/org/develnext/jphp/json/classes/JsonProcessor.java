@@ -15,8 +15,10 @@ import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
 import php.runtime.memory.*;
 import php.runtime.memory.helper.*;
+import php.runtime.memory.support.ArrayMapEntryMemory;
 import php.runtime.reflection.ClassEntity;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -29,6 +31,7 @@ import static php.runtime.annotation.Reflection.*;
 public class JsonProcessor extends WrapProcessor {
     public static final int SERIALIZE_PRETTY_PRINT = 1;
     public static final int DESERIALIZE_AS_ARRAYS = 1024;
+    public static final int DESERIALIZE_LENIENT = 2048;
 
     protected GsonBuilder builder;
     protected Gson gson;
@@ -87,16 +90,22 @@ public class JsonProcessor extends WrapProcessor {
     @Signature(@Arg(value = "flags", optional = @Optional("0")))
     public Memory __construct(Environment env, Memory... args) {
         int flags = args[0].toInteger();
+
         if ((flags & SERIALIZE_PRETTY_PRINT) == SERIALIZE_PRETTY_PRINT) {
             builder.setPrettyPrinting();
+        }
+
+        if ((flags & DESERIALIZE_LENIENT) == DESERIALIZE_LENIENT) {
+            builder.setLenient();
         }
 
         if ((flags & DESERIALIZE_AS_ARRAYS) == DESERIALIZE_AS_ARRAYS) {
             memoryDeserializer.setAssoc(true);
         }
 
-        if (flags > 0)
+        if (flags > 0) {
             gson = builder.create();
+        }
 
         return Memory.NULL;
     }
@@ -140,7 +149,13 @@ public class JsonProcessor extends WrapProcessor {
         OutputStream outputStream = Stream.getOutputStream(env, args[1]);
 
         try {
-            gson.toJson(args[0], Memory.class, new JsonWriter(new OutputStreamWriter(outputStream)));
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+            gson.toJson(args[0], Memory.class, writer);
+            try {
+                writer.close();
+            } catch (IOException e) {
+                throw new JsonIOException(e);
+            }
         } catch (JsonIOException e) {
             env.exception(ProcessorException.class, e.getMessage());
             return Memory.NULL;

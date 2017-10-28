@@ -119,10 +119,11 @@ public class MiscStream extends Stream {
     public Memory readFully(Environment env, Memory... args) throws IOException {
         if (memoryStream != null){
             byte[] result = memoryStream.readFully();
-            if (result != null)
+            if (result != null) {
                 return new BinaryMemory(result);
-            else
+            } else {
                 return Memory.FALSE;
+            }
         } else if (inputStream != null) {
             byte[] buff = new byte[1024];
             int len;

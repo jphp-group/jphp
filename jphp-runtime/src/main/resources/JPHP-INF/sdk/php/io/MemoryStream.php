@@ -8,7 +8,10 @@ namespace php\io;
  */
 class MemoryStream extends MiscStream
 {
-
-
-    public function __construct() { }
+    /**
+     * MemoryStream constructor.
+     * @param mixed $content
+     * @param string $mode
+     */
+    public function __construct($content = null, $mode = 'r') { }
 }

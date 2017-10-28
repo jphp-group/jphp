@@ -83,6 +83,6 @@ public class MemoryStream {
     }
 
     public void close(){
-        data = new byte[0];
+        //data = new byte[0]; // fix bug with json format to + close.
     }
 }
