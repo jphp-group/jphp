@@ -103,6 +103,10 @@ public class OutputBuffer {
         this.implicitFlush = implicitFlush;
     }
 
+    public boolean isImplicitFlush() {
+        return implicitFlush;
+    }
+
     public Memory getCallback() {
         return callback;
     }

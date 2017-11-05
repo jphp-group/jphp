@@ -429,8 +429,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         name = ((FulledNameToken) result.getName()).getLastName().getName().toLowerCase();
                     }
 
-                    if (dynamicLocalFunctions.contains(name.toLowerCase()))
+                    if (dynamicLocalFunctions.contains(name.toLowerCase())) {
                         analyzer.getFunction().setDynamicLocal(true);
+                    }
 
                     if ("get_called_class".equalsIgnoreCase(name)) {
                         analyzer.getScope().setStaticExists(true);
@@ -490,8 +491,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         );
         result.setValue(value);
 
-        if (analyzer.getFunction() != null)
-            analyzer.getFunction().setDynamicLocal(true);
+        FunctionStmtToken function = analyzer.getFunction();
+        if (function != null) {
+            function.setDynamicLocal(true);
+            function.setCallsExist(true);
+            function.setThisExists(true);
+        }
 
         return result;
     }

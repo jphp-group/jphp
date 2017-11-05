@@ -14,6 +14,8 @@ import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
 
+import java.util.Set;
+
 import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\lang\\Environment")
@@ -285,6 +287,49 @@ public class WrapEnvironment extends BaseObject {
 
         this.environment.scope.registerExtension(args[0].toString());
         return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("name"), @Arg(value = "value", optional = @Optional("null"))
+    })
+    public Memory addSuperGlobal(Environment env, Memory... args) {
+        if (hasSuperGlobal(env, args[0]).toBoolean()) {
+            environment.exception("Super-global variable $%s already exists", args[0]);
+        }
+
+        environment.getScope().superGlobals.add(args[0].toString());
+        environment.getGlobals().putAsKeyString(args[0].toString(), args[1].toImmutable());
+        return Memory.UNDEFINED;
+    }
+
+    @Signature(@Arg("name"))
+    public Memory hasSuperGlobal(Environment env, Memory... args) {
+        return environment.getScope().superGlobals.contains(args[0].toString()) ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Set<String> getSuperGlobals() {
+        return environment.getScope().superGlobals;
+    }
+
+    @Signature(@Arg("name"))
+    public Memory getGlobal(Environment env, Memory... args) {
+        return environment.getGlobals().valueOfIndex(args[0]).toImmutable();
+    }
+
+    @Signature(@Arg("name"))
+    public Memory hasGlobal(Environment env, Memory... args) {
+        return environment.getGlobals().containsKey(args[0].toString()) ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature({@Arg("name"), @Arg("value")})
+    public Memory setGlobal(Environment env, Memory... args) {
+        return environment.getOrCreateGlobal(args[0].toString()).assign(args[1]);
+    }
+
+    @Signature
+    public Memory getGlobals(Environment env, Memory... args) {
+        return environment.getGlobals().toImmutable();
     }
 
     @Signature

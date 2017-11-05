@@ -605,6 +605,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                     if (!statement.getBody().getInstructions().isEmpty()) {
                         entity.setEmpty(false);
+
+                        if (entity.getResult() != null && entity.getResult().isUndefined()) {
+                            entity.setResult(null);
+                        }
                     }
                 }
 

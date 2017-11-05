@@ -202,4 +202,60 @@ class Environment
     public static function current()
     {
     }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @throws \Exception if super-global already exists.
+     */
+    public function addSuperGlobal(string $name, $value = null)
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasSuperGlobal(string $name): bool
+    {
+    }
+
+    /**
+     * @return array of string
+     */
+    public function getSuperGlobals(): array
+    {
+    }
+
+    /**
+     * $GLOBALS of environment.
+     * @return array
+     */
+    public function getGlobals(): array
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getGlobal(string $name)
+    {
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasGlobal(string $name): bool
+    {
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setGlobal(string $name, $value): void
+    {
+    }
 }

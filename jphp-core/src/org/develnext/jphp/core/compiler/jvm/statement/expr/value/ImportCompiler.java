@@ -15,6 +15,8 @@ public class ImportCompiler extends BaseExprCompiler<ImportExprToken> {
 
     @Override
     public void write(ImportExprToken token, boolean returnValue) {
+        method.getEntity().setImmutable(false); // fix
+
         expr.writePushEnv();
 
         expr.writeExpression(token.getValue(), true, false);
