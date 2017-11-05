@@ -1768,9 +1768,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return result;
     }
 
+    public static ArrayMemory ofStringEnumeration(Enumeration<String> enumeration) {
+        ArrayMemory result = new ArrayMemory();
+
+        if (enumeration != null) {
+            while (enumeration.hasMoreElements()) {
+                result.add(enumeration.nextElement());
+            }
+        }
+
+        return result;
+    }
+
     public static ArrayMemory ofStringCollection(Collection<String> list) {
         ArrayMemory result = new ArrayMemory();
-        for (String el : list) result.add(el);
+
+        if (list != null) {
+            for (String el : list) result.add(el);
+        }
 
         return result;
     }
@@ -1919,57 +1934,69 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return toBean(env, env.trace(), beanClass);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T toBean(Environment env, T instance) {
+        return toBean(env, env.trace(), instance);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T toBean(Environment env, TraceInfo trace, T instance) {
+        Class<T> beanClass = (Class<T>) instance.getClass();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            String key = iterator.getStringKey();
+
+            String name = key.substring(0, 1).toUpperCase() + key.substring(1);
+
+            String getterName = "get" + name;
+            String getterIsName = "is" + name;
+            String setterName = "set" + name;
+
+            try {
+                Method method = null;
+
+                try {
+                    method = beanClass.getMethod(getterName);
+                } catch (NoSuchMethodException e) {
+                    method = beanClass.getMethod(getterIsName);
+
+                    if (method.getReturnType() != Boolean.TYPE && method.getReturnType() != Boolean.class) {
+                        continue;
+                    }
+                }
+
+                Class<?> returnType = method.getReturnType();
+
+                MemoryOperation operation = MemoryOperation.get(returnType, method.getGenericReturnType());
+
+                if (operation == null) {
+                    continue;
+                }
+
+                method = beanClass.getMethod(setterName, returnType);
+
+                Object value = operation.convert(env, trace, iterator.getValue());
+                method.invoke(instance, value);
+
+            } catch (NoSuchMethodException e) {
+                continue;
+            } catch (Throwable throwable) {
+                env.wrapThrow(throwable);
+            }
+        }
+
+        return instance;
+    }
+
     public <T> T toBean(Environment env, TraceInfo trace, Class<T> beanClass) {
         try {
             Constructor<T> constructor = beanClass.getConstructor();
 
             T instance = constructor.newInstance();
 
-            ForeachIterator iterator = foreachIterator(false, false);
-
-            while (iterator.next()) {
-                String key = iterator.getStringKey();
-
-                String name = key.substring(0, 1).toUpperCase() + key.substring(1);
-
-                String getterName = "get" + name;
-                String getterIsName = "is" + name;
-                String setterName = "set" + name;
-
-                try {
-                    Method method = null;
-
-                    try {
-                        method = beanClass.getMethod(getterName);
-                    } catch (NoSuchMethodException e) {
-                        method = beanClass.getMethod(getterIsName);
-
-                        if (method.getReturnType() != Boolean.TYPE && method.getReturnType() != Boolean.class) {
-                            continue;
-                        }
-                    }
-
-                    Class<?> returnType = method.getReturnType();
-
-                    MemoryOperation operation = MemoryOperation.get(returnType, method.getGenericReturnType());
-
-                    if (operation == null) {
-                        continue;
-                    }
-
-                    method = beanClass.getMethod(setterName, returnType);
-
-                    Object value = operation.convert(env, trace, iterator.getValue());
-                    method.invoke(instance, value);
-
-                } catch (NoSuchMethodException e) {
-                    continue;
-                } catch (Throwable throwable) {
-                    env.wrapThrow(throwable);
-                }
-            }
-
-            return instance;
+            return toBean(env, trace, instance);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new CriticalException(e);
         }

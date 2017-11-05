@@ -3,26 +3,31 @@ package org.develnext.jphp.ext.httpserver.classes;
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.DefaultSessionIdManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Namespace;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 @Name("HttpServer")
 @Namespace(HttpServerExtension.NS)
@@ -30,6 +35,7 @@ public class PHttpServer extends BaseObject {
     private Server server;
     private HandlerList handlers = new HandlerList();
     private SessionIdManager idmanager;
+    private QueuedThreadPool threadPool;
 
     public PHttpServer(Environment env, Server server) {
         super(env);
@@ -42,16 +48,14 @@ public class PHttpServer extends BaseObject {
 
     @Signature
     public void __construct() {
-        server = new Server();
-
+        threadPool = new QueuedThreadPool();
+        server = new Server(threadPool);
         initSessionManager();
     }
 
     @Signature
     public void __construct(int port) {
-        server = new Server(port);
-
-        initSessionManager();
+        __construct(port, null);
     }
 
     private void initSessionManager() {
@@ -65,7 +69,61 @@ public class PHttpServer extends BaseObject {
 
     @Signature
     public void __construct(int port, String host) {
-        server = new Server(new InetSocketAddress(host, port));
+        threadPool = new QueuedThreadPool();
+        server = new Server(threadPool);
+
+        if (host == null || host.isEmpty()) {
+            listen(LongMemory.valueOf(port));
+        } else {
+            listen(StringMemory.valueOf(host + ":" + port));
+        }
+
+        initSessionManager();
+    }
+
+    @Signature
+    public void minThreads(int minThreads) {
+        threadPool.setMinThreads(minThreads);
+    }
+
+    @Signature
+    public int minThreads() {
+        return threadPool.getMinThreads();
+    }
+
+    @Signature
+    public void maxThreads(int maxThreads) {
+        threadPool.setMaxThreads(maxThreads);
+    }
+
+    @Signature
+    public int maxThreads() {
+        return threadPool.getMaxThreads();
+    }
+
+    @Signature
+    public void threadIdleTimeout(int timeout) {
+        threadPool.setIdleTimeout(timeout);
+    }
+
+    @Signature
+    public int threadIdleTimeout() {
+        return threadPool.getIdleTimeout();
+    }
+
+    @Signature
+    public boolean stopAtShutdown() {
+        return server.getStopAtShutdown();
+    }
+
+    @Signature
+    public void stopAtShutdown(boolean val) {
+        server.setStopAtShutdown(val);
+    }
+
+    @Signature
+    public void clearHandlers() {
+        handlers.setHandlers(new Handler[0]);
     }
 
     @Signature
@@ -73,9 +131,52 @@ public class PHttpServer extends BaseObject {
         handlers.addHandler(new AbstractHandler() {
             @Override
             public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-                invoker.callAny(new PHttpServerRequest(env, baseRequest), new PHttpServerResponse(env, response));
+                try {
+                    invoker.callAny(new PHttpServerRequest(env, baseRequest), new PHttpServerResponse(env, response));
+                } catch (Throwable e) {
+                    Environment.catchThrowable(e, env);
+                }
             }
         });
+    }
+
+    @Signature
+    public PHttpRouteHandler route(Environment env, Memory methods, String path, Memory invoker) {
+        PHttpRouteHandler routeHandler = new PHttpRouteHandler(env);
+        routeHandler.reset(env, methods, path, invoker);
+
+        addHandler(env, Invoker.create(env, ObjectMemory.valueOf(routeHandler)));
+        return routeHandler;
+    }
+
+    @Signature
+    public PHttpRouteHandler any(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("*"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler get(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("GET"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler post(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("POST"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler put(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("PUT"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler delete(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("DELETE"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler options(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("OPTIONS"), path, invoker);
     }
 
     @Signature
@@ -206,6 +307,12 @@ public class PHttpServer extends BaseObject {
 
     @Signature
     public void runInBackground() throws Exception {
+        server.setErrorHandler(new ErrorHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+                super.handle(target, baseRequest, request, response);
+            }
+        });
         server.setHandler(handlers);
         server.start();
     }
@@ -219,5 +326,16 @@ public class PHttpServer extends BaseObject {
     @Signature
     public void shutdown() throws Exception {
         server.stop();
+    }
+
+    @Signature
+    public void setRequestLogHandler(Environment env, @Nullable Invoker invoker) {
+        if (invoker == null) {
+            server.setRequestLog(null);
+        } else {
+            server.setRequestLog((request, response) -> {
+                invoker.callAny(new PHttpServerRequest(env, request), new PHttpServerResponse(env, response));
+            });
+        }
     }
 }

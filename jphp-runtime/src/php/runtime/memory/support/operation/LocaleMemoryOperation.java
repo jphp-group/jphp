@@ -7,6 +7,7 @@ import php.runtime.ext.core.classes.util.WrapLocale;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.ParameterEntity;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.util.Locale;
 
@@ -36,6 +37,6 @@ public class LocaleMemoryOperation extends MemoryOperation<Locale> {
 
     @Override
     public void applyTypeHinting(ParameterEntity parameter) {
-        parameter.setTypeNativeClass(WrapLocale.class);
+        parameter.setTypeClass(ReflectionUtils.getClassName(WrapLocale.class));
     }
 }

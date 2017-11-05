@@ -11,6 +11,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.operation.*;
 import php.runtime.memory.support.operation.array.*;
+import php.runtime.memory.support.operation.collection.EnumerationMemoryOperation;
 import php.runtime.memory.support.operation.collection.HashSetMemoryOperation;
 import php.runtime.memory.support.operation.collection.ListMemoryOperation;
 import php.runtime.memory.support.operation.collection.SetMemoryOperation;
@@ -328,6 +329,7 @@ abstract public class MemoryOperation<T> {
         register(new IterableMemoryOperation());
 
         register(new ListMemoryOperation());
+        register(new EnumerationMemoryOperation());
         register(new SetMemoryOperation());
         register(new HashSetMemoryOperation());
 

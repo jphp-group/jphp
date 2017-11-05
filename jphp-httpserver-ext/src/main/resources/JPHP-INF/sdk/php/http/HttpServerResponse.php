@@ -1,9 +1,13 @@
 <?php
 namespace php\http;
 
+use php\io\Stream;
+use php\util\Locale;
+
 /**
  * Class HttpServerResponse
  * @package php\http
+ * @packages http
  */
 class HttpServerResponse
 {
@@ -16,7 +20,7 @@ class HttpServerResponse
      * @param string $message
      * @return HttpServerResponse
      */
-    public function status($status, $message = null)
+    public function status(int $status, string $message = null): HttpServerResponse
     {
     }
 
@@ -24,7 +28,7 @@ class HttpServerResponse
      * @param string $value
      * @return HttpServerResponse
      */
-    public function contentType($value)
+    public function contentType(string $value): HttpServerResponse
     {
     }
 
@@ -32,7 +36,15 @@ class HttpServerResponse
      * @param int $value
      * @return HttpServerResponse
      */
-    public function contentLength($value)
+    public function contentLength(int $value): HttpServerResponse
+    {
+    }
+
+    /**
+     * @param string $encoding
+     * @return HttpServerResponse
+     */
+    public function charsetEncoding(string $encoding): HttpServerResponse
     {
     }
 
@@ -41,7 +53,16 @@ class HttpServerResponse
      * @param string $charset
      * @return HttpServerResponse
      */
-    public function write($content, $charset = 'UTF-8')
+    public function write(string $content, string $charset = 'UTF-8'): HttpServerResponse
+    {
+    }
+
+    /**
+     * @param string $content
+     * @param string $charset
+     * @return HttpServerResponse
+     */
+    public function body(string $content, string $charset = 'UTF-8'): HttpServerResponse
     {
     }
 
@@ -50,16 +71,62 @@ class HttpServerResponse
      * @param string $value
      * @return HttpServerResponse
      */
-    public function header($name, $value)
+    public function header(string $name, string $value): HttpServerResponse
     {
     }
 
     /**
      * @param string $location
-     * @return string
      * @return HttpServerResponse
      */
-    public function redirect($location)
+    public function redirect(string $location): HttpServerResponse
+    {
+    }
+
+    /**
+     * Cookie as array:
+     *      [
+     *       name => string (required), value => string,
+     *       path => string, domain => string,
+     *       comment => string, secure => bool, httpOnly => bool, version => int
+     *      ]
+     *
+     * @param array $cookie
+     * @return HttpServerResponse
+     */
+    public function addCookie(array $cookie): HttpServerResponse
+    {
+    }
+
+    /**
+     * @param string $url
+     * @return string
+     */
+    public function encodeRedirectUrl(string $url): string
+    {
+    }
+
+    /**
+     * @param string $url
+     * @return string
+     */
+    public function encodeUrl(string $url): string
+    {
+    }
+
+    /**
+     * Output Stream for body.
+     * @return Stream
+     */
+    public function bodyStream(): Stream
+    {
+    }
+
+    /**
+     * @param Locale $locale
+     * @return HttpServerResponse
+     */
+    public function locale(Locale $locale): HttpServerResponse
     {
     }
 
@@ -69,7 +136,7 @@ class HttpServerResponse
      * code and headers will be written.
      * @return HttpServerResponse
      */
-    public function flush()
+    public function flush(): HttpServerResponse
     {
     }
 }
