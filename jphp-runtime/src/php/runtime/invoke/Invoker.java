@@ -15,8 +15,8 @@ import php.runtime.reflection.ParameterEntity;
 abstract public class Invoker implements Cloneable {
     protected Environment env;
     protected TraceInfo trace;
-    protected boolean pushCallTrace = true;
 
+    private Memory memory;
     private Object userData;
 
     protected Invoker(Environment env, TraceInfo trace) {
@@ -27,6 +27,14 @@ abstract public class Invoker implements Cloneable {
     @Override
     protected Invoker clone() throws CloneNotSupportedException {
         return (Invoker) super.clone();
+    }
+
+    public Memory getMemory() {
+        return memory;
+    }
+
+    public void setMemory(Memory memory) {
+        this.memory = memory;
     }
 
     public Object getUserData() {
@@ -49,10 +57,6 @@ abstract public class Invoker implements Cloneable {
 
     public Environment getEnvironment() {
         return env;
-    }
-
-    public void setPushCallTrace(boolean pushCallTrace) {
-        this.pushCallTrace = pushCallTrace;
     }
 
     public void check(String name, TraceInfo trace){
@@ -135,7 +139,13 @@ abstract public class Invoker implements Cloneable {
     abstract public int canAccess(Environment env);
 
     public static Invoker create(Environment env, Memory method) {
-        return Invoker.valueOf(env, null, method);
+        Invoker invoker = Invoker.valueOf(env, null, method);
+
+        if (invoker != null) {
+            invoker.setMemory(method);
+        }
+
+        return invoker;
     }
 
     public static Invoker valueOf(Environment env, TraceInfo trace, Memory method){

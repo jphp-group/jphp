@@ -2,10 +2,7 @@ package org.develnext.jphp.ext.httpserver.classes;
 
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.server.session.DefaultSessionIdManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -18,16 +15,14 @@ import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Name("HttpServer")
 @Namespace(HttpServerExtension.NS)
@@ -127,17 +122,22 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
-    public void addHandler(final Environment env, final Invoker invoker) {
-        handlers.addHandler(new AbstractHandler() {
-            @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-                try {
-                    invoker.callAny(new PHttpServerRequest(env, baseRequest), new PHttpServerResponse(env, response));
-                } catch (Throwable e) {
-                    Environment.catchThrowable(e, env);
-                }
+    public void addHandler(final Invoker invoker) {
+        handlers.addHandler(new InvokeHandler(invoker));
+    }
+
+    @Signature
+    public Memory handlers() {
+        ArrayMemory result = ArrayMemory.createListed(handlers.getHandlers().length);
+
+        for (Handler handler : handlers.getHandlers()) {
+            if (handler instanceof InvokeHandler) {
+                Invoker invoker = ((InvokeHandler) handler).getInvoker();
+                result.add(invoker.getMemory().toImmutable());
             }
-        });
+        }
+
+        return result.toImmutable();
     }
 
     @Signature
@@ -145,7 +145,7 @@ public class PHttpServer extends BaseObject {
         PHttpRouteHandler routeHandler = new PHttpRouteHandler(env);
         routeHandler.reset(env, methods, path, invoker);
 
-        addHandler(env, Invoker.create(env, ObjectMemory.valueOf(routeHandler)));
+        addHandler(Invoker.create(env, ObjectMemory.valueOf(routeHandler)));
         return routeHandler;
     }
 
@@ -177,47 +177,6 @@ public class PHttpServer extends BaseObject {
     @Signature
     public PHttpRouteHandler options(Environment env, String path, Memory invoker) {
         return route(env, StringMemory.valueOf("OPTIONS"), path, invoker);
-    }
-
-    @Signature
-    public void addResourceHandler(ArrayMemory h) {
-        ResourceHandler handler = new ResourceHandler();
-
-        if (!h.containsKey("base")) {
-            throw new IllegalArgumentException("Resource handler must contain 'base' value");
-        }
-
-        handler.setResourceBase(h.valueOfIndex("base").toString());
-
-        if (h.containsKey("cacheControl")) {
-            handler.setCacheControl(h.valueOfIndex("cacheControl").toString());
-        }
-
-        if (h.containsKey("acceptRanges")) {
-            handler.setAcceptRanges(h.valueOfIndex("acceptRanges").toBoolean());
-        }
-
-        if (h.containsKey("dirAllowed")) {
-            handler.setDirAllowed(h.valueOfIndex("dirAllowed").toBoolean());
-        }
-
-        if (h.containsKey("dirsListed")) {
-            handler.setDirectoriesListed(h.valueOfIndex("dirsListed").toBoolean());
-        }
-
-        if (h.containsKey("etags")) {
-            handler.setEtags(h.valueOfIndex("etags").toBoolean());
-        }
-
-        if (h.containsKey("pathInfoOnly")) {
-            handler.setPathInfoOnly(h.valueOfIndex("pathInfoOnly").toBoolean());
-        }
-
-        if (h.containsKey("welcomeFile")) {
-            handler.setWelcomeFiles(new String[] { h.valueOfIndex("welcomeFile").toString() });
-        }
-
-        handlers.addHandler(handler);
     }
 
     @Signature
@@ -290,6 +249,7 @@ public class PHttpServer extends BaseObject {
         }
 
         if (value.isNumber()) {
+            connector.setName("0.0.0.0:" + value.toInteger());
             connector.setPort(value.toInteger());
         } else {
             String[] strings = value.toString().split("\\:");
@@ -300,9 +260,50 @@ public class PHttpServer extends BaseObject {
 
             connector.setHost(strings[0]);
             connector.setPort(Integer.parseInt(strings[1]));
+            connector.setName(strings[0] + ":" + strings[1]);
         }
 
         server.addConnector(connector);
+    }
+
+    @Signature
+    public boolean unlisten(Environment env, String value) {
+        if (server.isRunning()) {
+            env.exception("Unable to unlisten() for running server");
+        }
+
+        String host = "0.0.0.0";
+        String port = "80";
+
+        if (value.contains(":")) {
+            String[] strings = value.split("\\:");
+            host = strings[0];
+
+            if (strings.length > 1) {
+                port = strings[1];
+            }
+        }
+
+        for (Connector connector : server.getConnectors()) {
+            if (connector.getName().equals(host + ":" + port)) {
+                server.removeConnector(connector);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Signature
+    public Memory connectors() {
+        Connector[] connectors = server.getConnectors();
+        ArrayMemory arrayMemory = ArrayMemory.createListed(connectors.length);
+
+        for (Connector connector : connectors) {
+            arrayMemory.add(connector.getName());
+        }
+
+        return arrayMemory.toImmutable();
     }
 
     @Signature
@@ -329,6 +330,31 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
+    public boolean isRunning() {
+        return server.isRunning();
+    }
+
+    @Signature
+    public boolean isFailed() {
+        return server.isFailed();
+    }
+
+    @Signature
+    public boolean isStarting() {
+        return server.isStarting();
+    }
+
+    @Signature
+    public boolean isStopping() {
+        return server.isStopping();
+    }
+
+    @Signature
+    public boolean isStopped() {
+        return server.isStopped();
+    }
+
+    @Signature
     public void setRequestLogHandler(Environment env, @Nullable Invoker invoker) {
         if (invoker == null) {
             server.setRequestLog(null);
@@ -336,6 +362,27 @@ public class PHttpServer extends BaseObject {
             server.setRequestLog((request, response) -> {
                 invoker.callAny(new PHttpServerRequest(env, request), new PHttpServerResponse(env, response));
             });
+        }
+    }
+
+    public static class InvokeHandler extends AbstractHandler {
+        private final Invoker invoker;
+
+        public InvokeHandler(Invoker invoker) {
+            this.invoker = invoker;
+        }
+
+        public Invoker getInvoker() {
+            return invoker;
+        }
+
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            try {
+                invoker.callAny(new PHttpServerRequest(invoker.getEnvironment(), baseRequest), new PHttpServerResponse(invoker.getEnvironment(), response));
+            } catch (Throwable e) {
+                Environment.catchThrowable(e, invoker.getEnvironment());
+            }
         }
     }
 }

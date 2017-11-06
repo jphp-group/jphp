@@ -11,6 +11,7 @@ import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.exception.BaseTypeError;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -98,6 +99,16 @@ public class PHttpRouteHandler extends BaseObject {
     @Signature
     public void __construct(Environment env, Memory methods, String path, Memory handler) {
         this.reset(env, methods, path, handler);
+    }
+
+    @Signature
+    public Memory __debugInfo() {
+        ArrayMemory arr = ArrayMemory.createHashed();
+        arr.refOfIndex("*path").assign(path);
+        arr.refOfIndex("*methods").assign(ArrayMemory.ofStringCollection(methods));
+        arr.refOfIndex("*handler").assign(handler.toImmutable());
+
+        return arr;
     }
 
     @Signature

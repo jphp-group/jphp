@@ -59,7 +59,23 @@ class HttpServer
      *
      * @param string $portOrHostPort
      */
-    public function listen($portOrHostPort)
+    public function listen(string $portOrHostPort)
+    {
+    }
+
+    /**
+     * @param string $portOrHostPort
+     * @throws \Exception if server is running
+     */
+    public function unlisten(string $portOrHostPort)
+    {
+    }
+
+    /**
+     * All connectors (host+port)
+     * @return string[]
+     */
+    public function connectors(): array
     {
     }
 
@@ -85,6 +101,13 @@ class HttpServer
     }
 
     /**
+     * @return callable[]
+     */
+    public function handlers(): array
+    {
+    }
+
+    /**
      * @param callable $callback
      */
     public function addHandler(callable $callback)
@@ -99,16 +122,44 @@ class HttpServer
     }
 
     /**
-     * @param array $settings [base=>string, cacheControl=>string, dirAllowed=>bool, dirsListed=>bool, welcomeFile=>string, etags=>bool, acceptRanges=>bool]
+     * @param callable|null $handler ($request, $response)
      */
-    public function addResourceHandler(array $settings)
+    public function setRequestLogHandler(?callable $handler)
     {
     }
 
     /**
-     * @param callable|null $handler ($request, $response)
+     * @return bool
      */
-    public function setRequestLogHandler(?callable $handler)
+    public function isRunning(): bool
+    {
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFailed(): bool
+    {
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStopped(): bool
+    {
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStopping(): bool
+    {
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStarting(): bool
     {
     }
 

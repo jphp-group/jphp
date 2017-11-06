@@ -1,0 +1,15 @@
+apply plugin: 'maven'
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+}
+
+dependencies {
+    provided project(':jphp-runtime')
+}

@@ -9,6 +9,7 @@ include 'jphp-runtime',
         'jphp-git-ext',
         'jphp-sql-ext',
         'jphp-httpserver-ext',
+        'jphp-crypto-ext',
         'jphp-gen-api',
         'jphp-scripting',
 

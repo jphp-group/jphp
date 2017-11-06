@@ -6,9 +6,11 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.resource.Resource;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.File;
@@ -32,6 +34,20 @@ public class PHttpResourceHandler extends BaseObject {
     public void __construct(String directory) throws Exception {
         resourceHandler = new ResourceHandler();
         file(directory);
+    }
+
+    @Signature
+    public Memory __debugInfo() {
+        ArrayMemory arr = ArrayMemory.createHashed();
+        arr.refOfIndex("*file").assign(file);
+        arr.refOfIndex("*dirAllowed").assign(dirAllowed());
+        arr.refOfIndex("*directoriesListed").assign(this.directoriesListed());
+        arr.refOfIndex("*cacheControl").assign(this.cacheControl());
+        arr.refOfIndex("*pathInfoOnly").assign(this.pathInfoOnly());
+        arr.refOfIndex("*acceptRanges").assign(this.acceptRanges());
+        arr.refOfIndex("*etags").assign(this.etags());
+        arr.refOfIndex("*redirectWelcome").assign(this.redirectWelcome());
+        return arr;
     }
 
     @Signature

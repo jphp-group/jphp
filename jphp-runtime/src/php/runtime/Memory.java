@@ -191,8 +191,10 @@ abstract public class Memory implements Comparable<Memory> {
 
     public Invoker toInvoker(Environment env) {
         Invoker invoker = Invoker.valueOf(env, null, this);
+
         if (invoker != null) {
             invoker.setTrace(env.trace());
+            invoker.setMemory(this);
             return invoker;
         }
 

@@ -2,10 +2,12 @@ package org.develnext.jphp.ext.httpserver.classes;
 
 
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
@@ -32,6 +34,14 @@ public class PHttpRedirectHandler extends BaseObject {
     @Signature
     public void __construct(String url, boolean permanently) {
         reset(url, permanently);
+    }
+
+    @Signature
+    public Memory __debugInfo() {
+        ArrayMemory arr = ArrayMemory.createHashed();
+        arr.refOfIndex("*url").assign(url);
+        arr.refOfIndex("*permanently").assign(permanently);
+        return arr;
     }
 
     @Signature
