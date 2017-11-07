@@ -19,19 +19,19 @@ class Cipher
 
     /**
      * @param string $data
-     * @param CryptoKey $key
+     * @param Key $key
      * @return string
      */
-    public function encode(string $data, CryptoKey $key): string
+    public function encode(string $data, Key $key): string
     {
     }
 
     /**
      * @param string $data
-     * @param CryptoKey $key
+     * @param Key $key
      * @return string
      */
-    public function decode(string $data, CryptoKey $key): string
+    public function decode(string $data, Key $key): string
     {
     }
 }

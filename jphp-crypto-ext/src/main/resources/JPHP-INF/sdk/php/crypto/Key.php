@@ -6,10 +6,10 @@ namespace php\crypto;
  * @package php\crypto
  * @packages crypto
  */
-class CryptoKey
+class Key
 {
     /**
-     * CryptoKey constructor.
+     *  constructor.
      * @param string $key
      * @param string $algorithm
      */

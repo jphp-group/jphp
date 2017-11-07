@@ -13,7 +13,7 @@ import php.runtime.reflection.ClassEntity;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 
-@Name("CryptoKey")
+@Name("Key")
 @Namespace(CryptoExtension.NS)
 public class WrapKey extends BaseWrapper<Key> {
     public WrapKey(Environment env, Key wrappedObject) {
