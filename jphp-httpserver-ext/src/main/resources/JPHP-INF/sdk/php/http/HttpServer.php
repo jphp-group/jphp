@@ -108,6 +108,20 @@ class HttpServer
     }
 
     /**
+     * @return callable[]
+     */
+    public function filters(): array
+    {
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function addFilter(callable $callback)
+    {
+    }
+
+    /**
      * @param callable $callback
      */
     public function addHandler(callable $callback)
@@ -160,6 +174,16 @@ class HttpServer
      * @return bool
      */
     public function isStarting(): bool
+    {
+    }
+
+    /**
+     * @param string|array $methods
+     * @param string $path
+     * @param callable $filter
+     * @return HttpRouteFilter
+     */
+    public function filtrate($methods, string $path, callable $filter): HttpRouteFilter
     {
     }
 
@@ -233,6 +257,26 @@ class HttpServer
      * @return HttpRouteHandler
      */
     public function options(string $path, callable $handler): HttpRouteHandler
+    {
+    }
+
+    /**
+     * Route a handler by PATCH method + path.
+     * @param string $path
+     * @param callable $handler
+     * @return HttpRouteHandler
+     */
+    public function patch(string $path, callable $handler): HttpRouteHandler
+    {
+    }
+
+    /**
+     * Route a handler by HEAD method + path.
+     * @param string $path
+     * @param callable $handler
+     * @return HttpRouteHandler
+     */
+    public function head(string $path, callable $handler): HttpRouteHandler
     {
     }
 }

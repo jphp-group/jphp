@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 
 @Reflection.Name("HttpDownloadFileHandler")
 @Reflection.Namespace(HttpServerExtension.NS)
-public class PHttpDownloadFileHandler extends BaseObject {
+public class PHttpDownloadFileHandler extends PHttpAbstractHandler {
     private File file;
     private String fileName;
     private String contentType;

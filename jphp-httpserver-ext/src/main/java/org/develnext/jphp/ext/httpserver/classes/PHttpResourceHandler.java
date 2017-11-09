@@ -17,7 +17,7 @@ import java.io.File;
 
 @Name("HttpResourceHandler")
 @Namespace(HttpServerExtension.NS)
-public class PHttpResourceHandler extends BaseObject {
+public class PHttpResourceHandler extends PHttpAbstractHandler {
     private ResourceHandler resourceHandler;
     private String file;
     private String cacheControl;

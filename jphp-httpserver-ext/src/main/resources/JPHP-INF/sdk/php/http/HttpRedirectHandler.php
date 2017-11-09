@@ -8,7 +8,7 @@ use php\io\File;
  * @package php\http
  * @packages http
  */
-class HttpRedirectHandler
+class HttpRedirectHandler extends HttpAbstractHandler
 {
     /**
      * HttpDownloadFileHandler constructor.

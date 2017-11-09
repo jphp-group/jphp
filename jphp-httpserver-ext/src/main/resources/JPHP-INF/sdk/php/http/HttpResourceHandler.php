@@ -7,7 +7,7 @@ use php\io\File;
  * @package php\http
  * @packages http
  */
-class HttpResourceHandler
+class HttpResourceHandler extends HttpAbstractHandler
 {
     /**
      * HttpFileDirectoryHandler constructor.

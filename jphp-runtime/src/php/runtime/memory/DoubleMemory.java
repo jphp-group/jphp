@@ -23,6 +23,12 @@ public class DoubleMemory extends Memory {
         return new DoubleMemory(value);
     }
 
+    public static Memory valueOf(Number number) {
+        return number instanceof Double || number instanceof Float
+                ? new DoubleMemory(number.doubleValue())
+                : LongMemory.valueOf(number.longValue());
+    }
+
     @Override
     public long toLong() {
         if (value == Double.POSITIVE_INFINITY) {

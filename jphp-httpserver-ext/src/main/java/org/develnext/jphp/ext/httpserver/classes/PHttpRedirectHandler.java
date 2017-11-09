@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Reflection.Name("HttpRedirectHandler")
 @Reflection.Namespace(HttpServerExtension.NS)
-public class PHttpRedirectHandler extends BaseObject {
+public class PHttpRedirectHandler extends PHttpAbstractHandler {
     private String url;
     private boolean permanently;
 

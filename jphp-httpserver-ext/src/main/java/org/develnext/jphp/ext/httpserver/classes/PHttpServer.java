@@ -22,13 +22,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Name("HttpServer")
 @Namespace(HttpServerExtension.NS)
 public class PHttpServer extends BaseObject {
     private Server server;
     private HandlerList handlers = new HandlerList();
+    private HandlerList filters = new HandlerList();
     private SessionIdManager idmanager;
     private QueuedThreadPool threadPool;
 
@@ -59,7 +59,7 @@ public class PHttpServer extends BaseObject {
 
         SessionHandler sessions = new SessionHandler();
         sessions.setSessionIdManager(idmanager);
-        handlers.addHandler(sessions);
+        filters.addHandler(sessions);
     }
 
     @Signature
@@ -127,6 +127,11 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
+    public void addFilter(final Invoker invoker) {
+        filters.addHandler(new InvokeHandler(invoker));
+    }
+
+    @Signature
     public Memory handlers() {
         ArrayMemory result = ArrayMemory.createListed(handlers.getHandlers().length);
 
@@ -138,6 +143,29 @@ public class PHttpServer extends BaseObject {
         }
 
         return result.toImmutable();
+    }
+
+    @Signature
+    public Memory filters() {
+        ArrayMemory result = ArrayMemory.createListed(filters.getHandlers().length);
+
+        for (Handler handler : filters.getHandlers()) {
+            if (handler instanceof InvokeHandler) {
+                Invoker invoker = ((InvokeHandler) handler).getInvoker();
+                result.add(invoker.getMemory().toImmutable());
+            }
+        }
+
+        return result.toImmutable();
+    }
+
+    @Signature
+    public PHttpRouteFilter filtrate(Environment env, Memory methods, String path, Memory invoker) {
+        PHttpRouteFilter routeHandler = new PHttpRouteFilter(env);
+        routeHandler.reset(env, methods, path, invoker);
+
+        filters.addHandler(new InvokeHandler(Invoker.create(env, ObjectMemory.valueOf(routeHandler))));
+        return routeHandler;
     }
 
     @Signature
@@ -177,6 +205,16 @@ public class PHttpServer extends BaseObject {
     @Signature
     public PHttpRouteHandler options(Environment env, String path, Memory invoker) {
         return route(env, StringMemory.valueOf("OPTIONS"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler patch(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("PATCH"), path, invoker);
+    }
+
+    @Signature
+    public PHttpRouteHandler head(Environment env, String path, Memory invoker) {
+        return route(env, StringMemory.valueOf("HEAD"), path, invoker);
     }
 
     @Signature
@@ -314,7 +352,18 @@ public class PHttpServer extends BaseObject {
                 super.handle(target, baseRequest, request, response);
             }
         });
-        server.setHandler(handlers);
+
+        HandlerList handlerList = new HandlerList();
+
+        for (Handler handler : filters.getHandlers()) {
+            handlerList.addHandler(handler);
+        }
+
+        for (Handler handler : handlers.getHandlers()) {
+            handlerList.addHandler(handler);
+        }
+
+        server.setHandler(handlerList);
         server.start();
     }
 

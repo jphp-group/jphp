@@ -6,39 +6,8 @@ namespace php\http;
  * @package php\http
  * @packages http
  */
-class HttpRouteHandler
+class HttpRouteHandler extends HttpRouteFilter
 {
-    /**
-     * HttpRouteHandler constructor.
-     * @param string|array $methods
-     * @param string $path
-     * @param callable $handler
-     */
-    public function __construct($methods, string $path, callable $handler)
-    {
-    }
-
-    /**
-     * @return callable
-     */
-    public function handler(): callable
-    {
-    }
-
-    /**
-     * @return array
-     */
-    public function methods(): array
-    {
-    }
-
-    /**
-     * @return string
-     */
-    public function path(): string
-    {
-    }
-
     /**
      * @param HttpServerRequest $request
      * @param HttpServerResponse $response
