@@ -4,6 +4,9 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.invoke.DynamicMethodInvoker;
+import php.runtime.invoke.Invoker;
+import php.runtime.invoke.StaticMethodInvoker;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -13,6 +16,8 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
 import php.runtime.reflection.support.AbstractFunctionEntity;
+
+import java.util.Arrays;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -189,6 +194,41 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
     public Memory setAccessible(Environment env, Memory... args){
         hackAccess = args[0].toBoolean();
         return Memory.NULL;
+    }
+
+    @Signature({@Arg(value = "object", optional = @Optional, type = HintType.OBJECT)})
+    public Memory invoke(Environment env, Memory... args) throws Throwable {
+        Memory self = args[0];
+
+        Memory[] arguments = args.length == 1 ? new Memory[0] : Arrays.copyOfRange(args, 1, args.length - 1);
+        Invoker invoker;
+
+        if (self.isNull()) {
+            invoker = new StaticMethodInvoker(env, env.trace(), methodEntity.getClazzName(), methodEntity);
+        } else {
+            invoker = new DynamicMethodInvoker(env, env.trace(), self.toObject(IObject.class), methodEntity);
+        }
+
+        return invoker.call(arguments);
+    }
+
+    @Signature({
+            @Arg(value = "object", optional = @Optional, type = HintType.OBJECT),
+            @Arg(value = "args", type = HintType.ARRAY)
+    })
+    public Memory invokeArgs(Environment env, Memory... args) throws Throwable {
+        Memory self = args[0];
+
+        Memory[] arguments = args[1].toValue(ArrayMemory.class).values();
+        Invoker invoker;
+
+        if (self.isNull()) {
+            invoker = new StaticMethodInvoker(env, env.trace(), methodEntity.getClazzName(), methodEntity);
+        } else {
+            invoker = new DynamicMethodInvoker(env, env.trace(), self.toObject(IObject.class), methodEntity);
+        }
+
+        return invoker.call(arguments);
     }
 
     @Signature(@Arg("object"))
