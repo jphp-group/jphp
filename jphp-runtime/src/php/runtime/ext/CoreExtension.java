@@ -91,7 +91,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope,
                 SharedUtils.SharedMemory.class, SharedUtils.SharedCollection.class, SharedUtils.SharedValue.class,
                 SharedUtils.SharedStack.class, SharedUtils.SharedQueue.class, SharedUtils.SharedMap.class,
-                SharedUtils.class,
+                SharedUtils.class, SharedUtils.SharedThreadLocal.class,
 
                 WrapPackageLoader.class, WrapClassLoader.class, WrapClassLoader.WrapLauncherClassLoader.class,
 

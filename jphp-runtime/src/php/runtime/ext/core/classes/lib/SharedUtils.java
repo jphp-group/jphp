@@ -1,6 +1,8 @@
 package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Arg;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
@@ -95,6 +97,56 @@ public class SharedUtils extends BaseObject {
             } else {
                 return sync.call();
             }
+        }
+    }
+
+    @Name("php\\lang\\ThreadLocal")
+    public static class SharedThreadLocal extends BaseObject {
+        private ThreadLocal<Memory> local;
+
+        public SharedThreadLocal(Environment env, ThreadLocal<Memory> local) {
+            super(env);
+            this.local = local;
+        }
+
+        public SharedThreadLocal(Environment env, ClassEntity clazz) {
+            super(env, clazz);
+        }
+
+        @Signature
+        public Memory __debugInfo(Environment env, Memory... args) {
+            ArrayMemory info = new ArrayMemory();
+            info.refOfIndex("*value").assign(local.get());
+            return info.toConstant();
+        }
+
+        @Signature(@Arg(value = "value", optional = @Reflection.Optional("null")))
+        public Memory __construct(Environment env, Memory... args) {
+            this.local = new ThreadLocal<Memory>() {
+                @Override
+                protected Memory initialValue() {
+                    return args[0];
+                }
+            };
+
+            return Memory.NULL;
+        }
+
+        @Signature
+        public Memory get(Environment env, Memory... args) {
+            return this.local.get();
+        }
+
+        @Signature(@Arg("value"))
+        public Memory set(Environment env, Memory... args) {
+            this.local.set(args[0]);
+            return Memory.NULL;
+        }
+
+        @Signature
+        public Memory remove(Environment env, Memory... args) {
+            this.local.remove();
+            return Memory.NULL;
         }
     }
 
