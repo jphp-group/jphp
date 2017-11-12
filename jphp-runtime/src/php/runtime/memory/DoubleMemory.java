@@ -196,7 +196,7 @@ public class DoubleMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.getRealType() == Type.DOUBLE && ((DoubleMemory)memory).value == value;
+        return memory.getRealType() == Type.DOUBLE && (memory.toValue(DoubleMemory.class)).value == value;
     }
 
     @Override

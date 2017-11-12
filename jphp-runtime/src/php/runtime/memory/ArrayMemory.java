@@ -1242,7 +1242,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             case ARRAY:
                 return compare((ArrayMemory) memory, true) == 0;
             case REFERENCE:
-                return equal(memory.toValue());
+                return identical(memory.toValue());
             default:
                 return false;
         }

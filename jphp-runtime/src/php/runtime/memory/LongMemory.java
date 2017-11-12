@@ -188,7 +188,7 @@ public class LongMemory extends Memory {
 
     @Override
     public boolean identical(Memory memory) {
-        return memory.getRealType() == Type.INT && ((LongMemory)memory).value == value;
+        return memory.getRealType() == Type.INT && memory.toValue(LongMemory.class).value == value;
     }
 
     @Override
