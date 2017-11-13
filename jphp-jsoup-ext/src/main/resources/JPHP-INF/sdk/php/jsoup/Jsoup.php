@@ -35,7 +35,7 @@ final class Jsoup
 
     /**
      * @param string $text
-     * @param string $baseUri (optional)
+     * @param string $baseUri [optional]
      * @return Document
      */
     public static function parseText($text, $baseUri)

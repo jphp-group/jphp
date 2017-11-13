@@ -31,9 +31,9 @@ public class JsoupExtension extends Extension {
         registerWrapperClass(scope, Connection.class, WrapConnection.class);
         registerWrapperClass(scope, Connection.Response.class, WrapConnectionResponse.class);
         registerWrapperClass(scope, Connection.Request.class, WrapConnectionRequest.class);
+        registerWrapperClass(scope, Elements.class, WrapElements.class);
         registerWrapperClass(scope, Document.class, WrapDocument.class);
         registerWrapperClass(scope, Element.class, WrapElement.class);
-        registerWrapperClass(scope, Elements.class, WrapElements.class);
 
         MemoryOperation.register(new UrlMemoryOperation());
         //MemoryOperation.register(new BinaryMemoryOperation());

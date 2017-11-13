@@ -47,12 +47,21 @@ public class WrapElement extends BaseWrapper<Element> implements ICloneableObjec
     }
 
     @Signature
+    public Elements select(String cssQuery) {
+        return getWrappedObject().select(cssQuery);
+    }
+
+    @Signature
+    public String nodeName() {
+        return getWrappedObject().nodeName();
+    }
+
+    @Signature
     public String outerHtml() {
         return getWrappedObject().outerHtml();
     }
 
     interface WrappedInterface {
-        String nodeName();
 
         String tagName();
         Element tagName(String tagName);
@@ -68,8 +77,6 @@ public class WrapElement extends BaseWrapper<Element> implements ICloneableObjec
 
         Element child(int index);
         Elements children();
-
-        Elements select(String cssQuery);
 
         Element appendElement(String tagName);
         Element prependElement(String tagName);
