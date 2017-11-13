@@ -107,8 +107,25 @@ public class PHttpServerRequest extends BaseObject {
     }
 
     @Signature
+    public void attribute(String name, Object value) {
+        request.setAttribute(name, value);
+    }
+
+    @Signature
     public String query() {
         return request.getQueryString();
+    }
+
+    @Signature
+    public String query(String name) {
+        request.getParameterMap();
+        MultiMap<String> queryParameters = request.getQueryParameters();
+
+        if (queryParameters != null) {
+            return queryParameters.getString(name);
+        } else {
+            return null;
+        }
     }
 
     @Signature
@@ -118,23 +135,29 @@ public class PHttpServerRequest extends BaseObject {
 
     @Signature
     public Memory queryParameters() {
+        request.getParameterMap();
+
         MultiMap<String> parameters = request.getQueryParameters();
 
-        ArrayMemory result = ArrayMemory.createHashed(parameters.size());
+        if (parameters != null) {
+            ArrayMemory result = ArrayMemory.createHashed(parameters.size());
 
-        for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
-            List<String> value = entry.getValue();
+            for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
+                List<String> value = entry.getValue();
 
-            if (value == null || value.isEmpty()) {
-                result.putAsKeyString(entry.getKey(), Memory.NULL);
-            } else if (value.size() == 1) {
-                result.putAsKeyString(entry.getKey(), StringMemory.valueOf(value.get(0)));
-            } else {
-                result.putAsKeyString(entry.getKey(), ArrayMemory.ofStringCollection(value));
+                if (value == null || value.isEmpty()) {
+                    result.putAsKeyString(entry.getKey(), Memory.NULL);
+                } else if (value.size() == 1) {
+                    result.putAsKeyString(entry.getKey(), StringMemory.valueOf(value.get(0)));
+                } else {
+                    result.putAsKeyString(entry.getKey(), ArrayMemory.ofStringCollection(value));
+                }
             }
-        }
 
-        return result.toConstant();
+            return result;
+        } else {
+            return new ArrayMemory().toConstant();
+        }
     }
 
     @Signature

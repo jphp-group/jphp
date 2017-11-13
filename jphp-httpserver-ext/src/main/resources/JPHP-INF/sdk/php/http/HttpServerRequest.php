@@ -70,16 +70,18 @@ class HttpServerRequest
 
     /**
      * @param string $name
+     * @param $value [optional]
      * @return mixed
      */
-    function attribute(string $name)
+    function attribute(string $name, $value)
     {
     }
 
     /**
+     * @param string $name [optional]
      * @return string
      */
-    function query(): string
+    function query(string $name): string
     {
     }
 

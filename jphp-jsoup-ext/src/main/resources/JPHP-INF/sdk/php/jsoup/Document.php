@@ -5,7 +5,7 @@ namespace php\jsoup;
  * Class Document
  * @package php\jsoup
  */
-abstract class Document
+abstract class Document extends Element
 {
     const __PACKAGE__ = 'jsoup';
 

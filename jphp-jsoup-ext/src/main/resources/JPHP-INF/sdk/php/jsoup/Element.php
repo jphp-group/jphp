@@ -10,7 +10,7 @@ abstract class Element
     const __PACKAGE__ = 'jsoup';
 
     /**
-     * @param string $html (optional)
+     * @param string $html [optional]
      * @return string
      */
     function html($html)
@@ -27,9 +27,10 @@ abstract class Element
     }
 
     /**
+     * @param $text [optional]
      * @return string
      */
-    function text()
+    function text($text)
     {
         return '';
     }
@@ -43,7 +44,7 @@ abstract class Element
     }
 
     /**
-     * @param string $tagName (optional)
+     * @param string $tagName [optional]
      * @return string
      */
     function tagName($tagName)
@@ -69,10 +70,18 @@ abstract class Element
 
     /**
      * @param $attributeKey
-     * @param $attributeValue (optional)
+     * @param $attributeValue [optional]
      * @return $this
      */
     function attr($attributeKey, $attributeValue)
+    {
+    }
+
+    /**
+     * @param string $value [optional]
+     * @return string
+     */
+    function val(string $value): string
     {
     }
 
@@ -118,6 +127,28 @@ abstract class Element
      * @return Elements
      */
     function select($cssQuery)
+    {
+    }
+
+    /**
+     * @param string $class
+     */
+    function addClass(string $class)
+    {
+    }
+
+    /**
+     * @param string $class
+     */
+    function removeClass(string $class)
+    {
+    }
+
+    /**
+     * @param string $class
+     * @return bool
+     */
+    function hasClass(string $class): bool
     {
     }
 }

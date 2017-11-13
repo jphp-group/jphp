@@ -17,7 +17,7 @@ import static php.runtime.annotation.Reflection.Name;
 @Abstract
 @Name("Document")
 @Namespace(JsoupExtension.NS)
-public class WrapDocument extends BaseWrapper<Document> {
+public class WrapDocument extends WrapElement {
     public interface WrappedInterface {
         String location();
 
@@ -28,11 +28,6 @@ public class WrapDocument extends BaseWrapper<Document> {
         void title(String title);
 
         Document normalise();
-
-        String outerHtml();
-
-        Element text(String text);
-        String nodeName();
 
         Element clone();
     }
