@@ -140,7 +140,6 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         Stream.initEnvironment(env);
     }
 
-
     @Override
     public void onShutdown(CompileScope scope, Environment env) {
         WrapTimer.cancelAll();

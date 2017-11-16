@@ -104,21 +104,25 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
     }
 
     @Signature
-    public static TimerTask after(String period, Invoker invoker) {
-        return setTimeout(invoker, parsePeriod(period));
+    public static TimerTask after(Environment env, String period, Invoker invoker) {
+        return setTimeout(env, invoker, parsePeriod(period));
     }
 
     @Signature
-    public static TimerTask every(String period, Invoker invoker) {
-        return setInterval(invoker, parsePeriod(period));
+    public static TimerTask every(Environment env, String period, Invoker invoker) {
+        return setInterval(env, invoker, parsePeriod(period));
     }
 
     @Signature
-    public static TimerTask setTimeout(final Invoker invoker, long millis) {
+    public static TimerTask setTimeout(Environment env, final Invoker invoker, long millis) {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                invoker.callAny(this);
+                try {
+                    invoker.callAny(this);
+                } catch (Exception e) {
+                    env.catchUncaught(e);
+                }
             }
         };
 
@@ -127,11 +131,15 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
     }
 
     @Signature
-    public static TimerTask setInterval(final Invoker invoker, long millis) {
+    public static TimerTask setInterval(Environment env, final Invoker invoker, long millis) {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                invoker.callAny(this);
+                try {
+                    invoker.callAny(this);
+                } catch (Exception e) {
+                    env.catchUncaught(e);
+                }
             }
         };
         
