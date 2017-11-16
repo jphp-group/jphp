@@ -7,6 +7,13 @@ import org.eclipse.jetty.server.session.DefaultSessionIdManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.*;
+import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
+import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Namespace;
@@ -22,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Name("HttpServer")
 @Namespace(HttpServerExtension.NS)
@@ -119,6 +127,26 @@ public class PHttpServer extends BaseObject {
     @Signature
     public void clearHandlers() {
         handlers.setHandlers(new Handler[0]);
+    }
+
+    @Signature
+    public void addWebSocket(Environment env, String path, ArrayMemory _handlers) {
+        WebSocketParam param = _handlers.toBean(env, WebSocketParam.class);
+
+        ContextHandler contextHandler = new ContextHandler(path);
+        contextHandler.setHandler(new WebSocketHandler() {
+            @Override
+            public void configure(WebSocketServletFactory factory) {
+                factory.setCreator(new WebSocketCreator() {
+                    @Override
+                    public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+                        return new WebSocket(env, param);
+                    }
+                });
+            }
+        });
+
+        handlers.addHandler(contextHandler);
     }
 
     @Signature
@@ -431,6 +459,100 @@ public class PHttpServer extends BaseObject {
                 invoker.callAny(new PHttpServerRequest(invoker.getEnvironment(), baseRequest), new PHttpServerResponse(invoker.getEnvironment(), response));
             } catch (Throwable e) {
                 Environment.catchThrowable(e, invoker.getEnvironment());
+            }
+        }
+    }
+
+    public static class WebSocketParam {
+        private Invoker onConnect;
+        private Invoker onClose;
+        private Invoker onError;
+        private Invoker onMessage;
+        private Invoker onBinaryMessage;
+
+        public Invoker getOnConnect() {
+            return onConnect;
+        }
+
+        public void setOnConnect(Invoker onConnect) {
+            this.onConnect = onConnect;
+        }
+
+        public Invoker getOnClose() {
+            return onClose;
+        }
+
+        public void setOnClose(Invoker onClose) {
+            this.onClose = onClose;
+        }
+
+        public Invoker getOnError() {
+            return onError;
+        }
+
+        public void setOnError(Invoker onError) {
+            this.onError = onError;
+        }
+
+        public Invoker getOnMessage() {
+            return onMessage;
+        }
+
+        public void setOnMessage(Invoker onMessage) {
+            this.onMessage = onMessage;
+        }
+
+        public Invoker getOnBinaryMessage() {
+            return onBinaryMessage;
+        }
+
+        public void setOnBinaryMessage(Invoker onBinaryMessage) {
+            this.onBinaryMessage = onBinaryMessage;
+        }
+    }
+
+    @org.eclipse.jetty.websocket.api.annotations.WebSocket
+    public static class WebSocket {
+        private final Environment env;
+        private final WebSocketParam param;
+
+        public WebSocket(Environment env, WebSocketParam param) {
+            this.env = env;
+            this.param = param;
+        }
+
+        @OnWebSocketConnect
+        public void onConnect(Session session) {
+            if (param.onConnect != null) {
+                param.onConnect.callAny(session);
+            }
+        }
+
+        @OnWebSocketClose
+        public void onClose(Session session, int statusCode, String reason) {
+            if (param.onClose != null) {
+                param.onClose.callAny(session, statusCode, reason);
+            }
+        }
+
+        @OnWebSocketError
+        public void onError(Session session, Throwable throwable) {
+            if (param.onError != null) {
+                param.onError.callAny(session, throwable);
+            }
+        }
+
+        @OnWebSocketMessage
+        public void onMessage(Session session, String text) {
+            if (param.onMessage != null) {
+                param.onMessage.callAny(session, text);
+            }
+        }
+
+        @OnWebSocketMessage
+        public void onBinaryMessage(Session session, InputStream stream) {
+            if (param.onBinaryMessage != null) {
+                param.onBinaryMessage.callAny(session, stream);
             }
         }
     }

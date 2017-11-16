@@ -475,6 +475,44 @@ ClassReader classReader;
         return setParent(parent, true);
     }
 
+    public ExtendsResult resetParent(ClassEntity parent, boolean updateParentMethods) {
+        ExtendsResult result = new ExtendsResult(parent);
+
+        if (this.parent == parent) {
+            return result;
+        }
+
+        this.parent = parent;
+        this.instanceOfList.clear();
+
+        if (parent != null) {
+            if (parent.useJavaLikeNames) {
+                this.useJavaLikeNames = true;
+            }
+
+            this.methodCounts = parent.methodCounts + this.methods.size();
+
+            this.instanceOfList.add(parent.getLowerName());
+            this.instanceOfList.addAll(parent.instanceOfList);
+            this.interfaces.putAll(parent.interfaces);
+
+            this.properties.putAll(parent.properties);
+            this.staticProperties.putAll(parent.staticProperties);
+
+            for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
+                if (!entry.getValue().isPrivate()) {
+                    this.constants.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+
+        if (updateParentMethods) {
+            result.methods = updateParentBody();
+        }
+
+        return result;
+    }
+
     public ExtendsResult setParent(ClassEntity parent, boolean updateParentMethods) {
         ExtendsResult result = new ExtendsResult(parent);
 
@@ -1284,7 +1322,7 @@ ClassReader classReader;
 
         ArrayMemory props = object.getProperties();
         if (props != null && accessFlag == 0) {
-            Memory tmp = props.getByScalar(entity == null ? property : entity.specificName);
+            Memory tmp = entity == null ? props.getByScalar(property) : entity.getValue(env, trace, object);
             if (tmp != null) {
                 return tmp.toBoolean() ? Memory.TRUE : Memory.NULL;
             } else
@@ -1333,19 +1371,22 @@ ClassReader classReader;
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
-        Memory tmp = props == null || accessFlag != 0
-                ? null
-                : props.getByScalar(entity == null ? property : entity.specificName);
+        Memory tmp = null;
 
-        if (tmp != null)
+        if (props != null && accessFlag == 0) {
+            tmp = entity == null ? props.getByScalar(property) : entity.getValue(env, trace, object);
+        }
+
+        if (tmp != null) {
             return tmp.isNull() ? tmp : Memory.TRUE;
+        }
 
         if (methodMagicIsset != null) {
             Memory result;
 
-            ClassEntity contex = env.getLastClassOnStack();
+            ClassEntity context = env.getLastClassOnStack();
 
-            if (contex != null && contex.getId() == methodMagicIsset.getClazz().getId())
+            if (context != null && context.getId() == methodMagicIsset.getClazz().getId())
                 if (env.peekCall(0).flags == FLAG_ISSET) {
                     return object.getProperties().getByScalar(property) != null ? Memory.TRUE : Memory.NULL;
                 }

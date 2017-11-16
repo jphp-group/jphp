@@ -115,6 +115,14 @@ class HttpServer
     }
 
     /**
+     * @param string $path
+     * @param array $handlers [onConnect, onClose, onError, onMessage, onBinaryMessage]
+     */
+    public function addWebSocket(string $path, array $handlers)
+    {
+    }
+
+    /**
      * @param callable $callback
      */
     public function addFilter(callable $callback)

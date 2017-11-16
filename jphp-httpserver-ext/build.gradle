@@ -17,4 +17,5 @@ dependencies {
 
     compile "org.eclipse.jetty:jetty-server:${jettyVersion}"
     compile "org.eclipse.jetty:jetty-security:${jettyVersion}"
+    compile "org.eclipse.jetty.websocket:websocket-server:${jettyVersion}"
 }

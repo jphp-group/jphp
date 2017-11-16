@@ -3,8 +3,11 @@ package org.develnext.jphp.ext.httpserver;
 import org.develnext.jphp.ext.httpserver.classes.*;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.common.WebSocketSession;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
+import php.runtime.memory.support.MemoryOperation;
 
 class NoLogging implements Logger {
     @Override public String getName() { return "no"; }
@@ -46,6 +49,9 @@ public class HttpServerExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
+        registerWrapperClass(scope, Session.class, PWebSocketSession.class);
+        MemoryOperation.registerWrapper(WebSocketSession.class, PWebSocketSession.class);
+
         registerClass(scope, PHttpServer.class);
         registerClass(scope, PHttpServerRequest.class);
         registerClass(scope, PHttpServerResponse.class);

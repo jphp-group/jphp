@@ -124,7 +124,19 @@ public class ModuleEntity extends Entity {
         return classes.get(name.toLowerCase());
     }
 
-    public FunctionEntity findFunction(int index){
+    public FunctionEntity findFunction(String name) {
+        name = name.toLowerCase();
+
+        for (FunctionEntity function : functions) {
+            if (function.getLowerName().equals(name)) {
+                return function;
+            }
+        }
+
+        return null;
+    }
+
+    public FunctionEntity findFunction(int index) {
         if (index >= 0 && index < functions.size())
             return functions.get(index);
         else

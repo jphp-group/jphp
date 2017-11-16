@@ -107,8 +107,6 @@ public class Environment {
 
     /**
      * Gets Environment for current thread context
-     *
-     * @return
      */
     @Deprecated
     public static Environment current() {
@@ -305,10 +303,7 @@ public class Environment {
                 finalizeObjects();
                 catchUncaught(e);
                 break;
-            } catch (BaseBaseException e) {
-                catchUncaught(e);
-                break;
-            } catch (ErrorException e) {
+            } catch (BaseBaseException | ErrorException e) {
                 catchUncaught(e);
                 break;
             } catch (Exception e) {
