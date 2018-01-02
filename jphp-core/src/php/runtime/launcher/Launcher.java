@@ -301,14 +301,21 @@ public class Launcher {
                 try {
                     bootstrap.includeNoThrow(environment);
                 } finally {
+                    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                        compileScope.triggerProgramShutdown(environment);
+
+                        if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
+                            try {
+                                environment.doFinal();
+                            } catch (Throwable throwable) {
+                                throw new LaunchException(throwable);
+                            }
+                        }
+                    }));
+
                     afterIncludeBootstrap();
 
                     environment.popCall();
-                    compileScope.triggerProgramShutdown(environment);
-
-                    if (StringMemory.valueOf(config.getProperty("env.doFinal", "1")).toBoolean()) {
-                        environment.doFinal();
-                    }
                 }
             } catch (IOException e) {
                 throw new LaunchException("Cannot find '" + file + "' resource for `bootstrap.file` option");
