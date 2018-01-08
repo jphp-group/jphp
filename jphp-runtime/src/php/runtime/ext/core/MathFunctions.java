@@ -64,7 +64,6 @@ public class MathFunctions extends FunctionsContainer {
             put("is_nan", getNative(Double.class, "isNaN", Double.TYPE));
             put("log10", getNative(Math.class, "log10", Double.TYPE));
             put("log1p", getNative(Math.class, "log1p", Double.TYPE));
-            put("log", getNative(Math.class, "log", Double.TYPE));
             put("sqrt", getNative(Math.class, "sqrt", Double.TYPE));
         }};
     }
@@ -81,6 +80,16 @@ public class MathFunctions extends FunctionsContainer {
             return SIN_CACHE[(int)value + MAX_SIN_NEG];
         else
             return Math.sin(value);
+    }
+
+    @Immutable
+    public static double log(double value) {
+        return Math.log(value);
+    }
+
+    @Immutable
+    public static double log(double value, double base) {
+        return Math.log(value) / Math.log(base);
     }
 
     @Immutable
