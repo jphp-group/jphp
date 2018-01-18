@@ -20,6 +20,7 @@ import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -191,8 +192,13 @@ public class InfoFunctions extends FunctionsContainer {
         return get_included_files(env);
     }
 
-    public static long getmypid(){
-        return Thread.currentThread().getId();
+    public static Memory getmypid() {
+        // Should return something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
+        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        final int index = jvmName.indexOf('@');
+
+        String pid = jvmName.substring(0, index);
+        return StringMemory.toLong(pid);
     }
 
     @Runtime.Immutable

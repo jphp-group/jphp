@@ -54,6 +54,14 @@ class HttpServerRequest
     }
 
     /**
+     * @param string $name
+     * @return array
+     */
+    function cookie(string $name): array
+    {
+    }
+
+    /**
      * @return array
      */
     function cookies(): array
