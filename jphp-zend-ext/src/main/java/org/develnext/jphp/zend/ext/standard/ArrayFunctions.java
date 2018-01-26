@@ -771,7 +771,11 @@ public class ArrayFunctions extends FunctionsContainer {
             return Memory.NULL;
     }
 
-    public static Memory array_search(Environment env, TraceInfo trace, Memory input, Memory needle, boolean strict) {
+    public static Memory array_search(Environment env, TraceInfo trace, Memory needle, Memory input) {
+        return array_search(env, trace, needle, input, false);
+    }
+
+    public static Memory array_search(Environment env, TraceInfo trace, Memory needle, Memory input, boolean strict) {
         if (expecting(env, trace, 1, input, ARRAY)) {
             ForeachIterator iterator = input.getNewIterator(env, false, false);
 
