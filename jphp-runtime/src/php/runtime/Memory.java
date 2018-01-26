@@ -827,6 +827,10 @@ abstract public class Memory implements Comparable<Memory> {
     ////
 
     public static Object unwrap(Environment env, Memory memory) {
+        return unwrap(env, memory, false);
+    }
+
+    public static Object unwrap(Environment env, Memory memory, boolean arrayToMap) {
         if (memory.isObject()) {
             IObject iObject = memory.toValue(ObjectMemory.class).value;
 
@@ -848,7 +852,11 @@ abstract public class Memory implements Comparable<Memory> {
                 case NULL:
                     return null;
                 case ARRAY:
-                    return memory.toValue(ArrayMemory.class).toMapOrList(env);
+                    if (arrayToMap) {
+                        return memory.toValue(ArrayMemory.class).toMapOrList(env);
+                    } else {
+                        return memory.toValue(ArrayMemory.class);
+                    }
             }
             return memory;
         }

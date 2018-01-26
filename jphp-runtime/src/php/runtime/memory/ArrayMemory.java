@@ -1658,7 +1658,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         ForeachIterator iterator = foreachIterator(false, false);
 
         while (iterator.next()) {
-            r.put(iterator.getKey().toString(), Memory.unwrap(env, iterator.getValue()));
+            r.put(iterator.getKey().toString(), Memory.unwrap(env, iterator.getValue(), true));
         }
 
         return r;
@@ -1670,7 +1670,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             ForeachIterator iterator = foreachIterator(false, false);
 
             while (iterator.next()) {
-                result.add(Memory.unwrap(env, iterator.getValue()));
+                result.add(Memory.unwrap(env, iterator.getValue(), true));
             }
 
             return result;

@@ -44,8 +44,8 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
                 );
             } else {
                 result.put(
-                        Memory.unwrap(env, iterator.getMemoryKey()),
-                        Memory.unwrap(env, iterator.getValue())
+                        Memory.unwrap(env, iterator.getMemoryKey(), true),
+                        Memory.unwrap(env, iterator.getValue(), true)
                 );
             }
         }

@@ -75,7 +75,7 @@ public class YamlProcessor extends WrapProcessor {
     @Signature
     public Memory format(Environment env, Memory... args) {
         try {
-            return StringMemory.valueOf(yaml.dump(Memory.unwrap(env, args[0])));
+            return StringMemory.valueOf(yaml.dump(Memory.unwrap(env, args[0], true)));
         } catch (YAMLException e) {
             env.exception(ProcessorException.class, e.getMessage());
             return Memory.NULL;
@@ -87,7 +87,7 @@ public class YamlProcessor extends WrapProcessor {
     public Memory formatTo(Environment env, Memory... args) {
         try {
             yaml.dump(
-                    Memory.unwrap(env, args[0]),
+                    Memory.unwrap(env, args[0], true),
                     new OutputStreamWriter(Stream.getOutputStream(env, args[0]), env.getDefaultCharset())
             );
 
