@@ -441,6 +441,39 @@ public class FileObject extends BaseObject {
         return pathMatcher.matches(aDefault.getPath(file.getPath())) ? Memory.TRUE : Memory.FALSE;
     }
 
+    @Signature(@Arg(value = "mode", optional = @Optional("r")))
+    public Memory open(Environment env, Memory... args) throws Throwable {
+        ClassEntity classEntity = env.fetchClass(FileStream.class);
+        return classEntity.newObject(env, env.trace(), true, StringMemory.valueOf(file.getPath()), args[0]);
+    }
+
+    @Signature({
+            @Arg("format"),
+            @Arg(value = "flags", optional = @Optional("0"))
+    })
+    public Memory parseAs(Environment env, Memory... args) throws Throwable {
+        FileStream fileStream = open(env, StringMemory.valueOf("r")).toObject(FileStream.class);
+        try {
+            return fileStream.parseAs(env, args);
+        } finally {
+            fileStream.close(env);
+        }
+    }
+
+    @Signature({
+            @Arg("value"),
+            @Arg("format"),
+            @Arg(value = "flags", optional = @Optional("0"))
+    })
+    public Memory formatAs(Environment env, Memory args) throws Throwable {
+        FileStream fileStream = open(env, StringMemory.valueOf("r+")).toObject(FileStream.class);
+        try {
+            return fileStream.writeFormatted(env, args);
+        } finally {
+            fileStream.close(env);
+        }
+    }
+
     @Signature
     public static Memory listRoots(Environment env, Memory... args) {
         ArrayMemory r = new ArrayMemory();

@@ -7,6 +7,7 @@ import php.runtime.env.handler.ProgramShutdownHandler;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.*;
 import php.runtime.ext.core.classes.*;
+import php.runtime.ext.core.classes.format.IniProcessor;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.lib.*;
 import php.runtime.ext.core.classes.lib.legacy.OldBinUtils;
@@ -132,12 +133,13 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope, WrapThreadPool.class, WrapFuture.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
-        registerClass(scope, WrapProcessor.class, WrapProcessor.ProcessorException.class, WrapProcess.class);
+        registerClass(scope, WrapProcessor.class, IniProcessor.class, WrapProcessor.ProcessorException.class, WrapProcess.class);
     }
 
     @Override
     public void onLoad(Environment env) {
         Stream.initEnvironment(env);
+        WrapProcessor.registerCode(env, "ini", IniProcessor.class);
     }
 
     @Override

@@ -2,6 +2,7 @@
 namespace php\io;
 
 use Iterator;
+use php\format\ProcessorException;
 
 /**
  * Class Stream
@@ -59,6 +60,43 @@ abstract class Stream
      * @return int
      */
     abstract public function write($value, $length = null);
+
+
+    /**
+     * Alias of readFormatted().
+     *
+     * @param string $format
+     * @param int $flags
+     * @return mixed
+     * @throws IOException
+     * @throws ProcessorException
+     */
+    public function parseAs(string $format, int $flags = 0)
+    {
+    }
+
+    /**
+     * @param string $format
+     * @param int $flags
+     * @return mixed
+     * @throws IOException
+     * @throws ProcessorException
+     */
+    public function readFormatted(string $format, int $flags = 0)
+    {
+    }
+
+    /**
+     * @param $value
+     * @param string $format
+     * @param int $flags
+     * @return mixed
+     * @throws ProcessorException
+     * @throws IOException
+     */
+    public function writeFormatted($value, string $format, int $flags = 0)
+    {
+    }
 
     /**
      * @return bool

@@ -848,7 +848,7 @@ abstract public class Memory implements Comparable<Memory> {
                 case NULL:
                     return null;
                 case ARRAY:
-                    return memory.toValue(ArrayMemory.class);
+                    return memory.toValue(ArrayMemory.class).toMapOrList(env);
             }
             return memory;
         }

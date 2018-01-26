@@ -6,9 +6,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection.Name;
-import php.runtime.annotation.Reflection.Nullable;
-import php.runtime.annotation.Reflection.Signature;
+import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.*;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.core.classes.stream.Stream;
@@ -43,8 +42,8 @@ public class WrapXmlProcessor extends WrapProcessor {
         super(env, clazz);
     }
 
-    @Signature
-    public void __construct(final Environment env) throws ParserConfigurationException, TransformerConfigurationException {
+    @Signature(@Arg(value = "flags", optional = @Optional("0")))
+    public Memory __construct(final Environment env, Memory... args) throws ParserConfigurationException, TransformerConfigurationException {
         transformerFactory = TransformerFactory.newInstance();
         transformer = transformerFactory.newTransformer();
 
@@ -77,6 +76,8 @@ public class WrapXmlProcessor extends WrapProcessor {
                 }
             }
         });
+
+        return Memory.NULL;
     }
 
     @Override

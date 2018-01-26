@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.Resource;
@@ -272,6 +273,33 @@ abstract public class Stream extends BaseObject implements Resource {
     public Memory __destruct(Environment env, Memory... args) throws IOException {
         close(env, args);
         return Memory.NULL;
+    }
+
+    @Signature({
+            @Arg("value"),
+            @Arg(value = "format", type = HintType.STRING),
+            @Arg(value = "flags", optional = @Optional("0"))
+    })
+    public Memory writeFormatted(Environment env, Memory... args) throws Throwable {
+        WrapProcessor processor = WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger());
+        return env.invokeMethod(processor, "formatTo", args[0], ObjectMemory.valueOf(this));
+    }
+
+    @Signature({
+            @Arg(value = "format", type = HintType.STRING),
+            @Arg(value = "flags", optional = @Optional("0"))
+    })
+    final public Memory parseAs(Environment env, Memory... args) throws Throwable {
+        return readFormatted(env, args);
+    }
+
+    @Signature({
+            @Arg(value = "format", type = HintType.STRING),
+            @Arg(value = "flags", optional = @Optional("0"))
+    })
+    public Memory readFormatted(Environment env, Memory... args) throws Throwable {
+        WrapProcessor processor = WrapProcessor.createByCode(env, args[0].toString(), args[1].toInteger());
+        return env.invokeMethod(processor, "parse", ObjectMemory.valueOf(this));
     }
 
     @Signature({

@@ -1652,6 +1652,33 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return r;
     }
 
+    public Map toMap(Environment env) {
+        Map<String, Object> r = new LinkedHashMap<>();
+
+        ForeachIterator iterator = foreachIterator(false, false);
+
+        while (iterator.next()) {
+            r.put(iterator.getKey().toString(), Memory.unwrap(env, iterator.getValue()));
+        }
+
+        return r;
+    }
+
+    public Object toMapOrList(Environment env) {
+        if (isList()) {
+            List<Object> result = new ArrayList<>();
+            ForeachIterator iterator = foreachIterator(false, false);
+
+            while (iterator.next()) {
+                result.add(Memory.unwrap(env, iterator.getValue()));
+            }
+
+            return result;
+        } else {
+            return toMap(env);
+        }
+    }
+
     public static ArrayMemory ofPair(String key, Memory value) {
         ArrayMemory r = new ArrayMemory();
         r.refOfIndex(key).assign(value.toImmutable());

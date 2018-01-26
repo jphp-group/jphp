@@ -11,8 +11,6 @@ use php\io\Stream;
  */
 class XmlProcessor extends Processor
 {
-    const __PACKAGE__ = 'std, xml';
-
     /**
      * @param DomDocument $value
      * @return string xml

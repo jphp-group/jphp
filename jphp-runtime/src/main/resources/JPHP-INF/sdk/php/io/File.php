@@ -1,6 +1,8 @@
 <?php
 namespace php\io;
 
+use php\format\ProcessorException;
+
 /**
  * Class File
  * @package php\io
@@ -231,6 +233,36 @@ class File
      * @throws IOException
      */
     public function findFiles(callable $filter = null) { return array(); }
+
+    /**
+     * @param string $flags
+     * @return Stream
+     */
+    public function open(string $flags = 'r'): Stream
+    {
+    }
+
+    /**
+     * @param string $format
+     * @param int $flags
+     * @return mixed
+     * @throws IOException
+     * @throws ProcessorException
+     */
+    public function parseAs(string $format, int $flags = 0)
+    {
+    }
+
+    /**
+     * @param mixed $value
+     * @param string $format
+     * @param int $flags
+     * @throws IOException
+     * @throws ProcessorException
+     */
+    public function formatTo($value, string $format, int $flags = 0)
+    {
+    }
 
     /**
      * @param string $prefix

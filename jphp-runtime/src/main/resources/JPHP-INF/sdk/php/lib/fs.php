@@ -1,6 +1,8 @@
 <?php
 namespace php\lib;
+use php\format\ProcessorException;
 use php\io\File;
+use php\io\IOException;
 use php\io\Stream;
 
 
@@ -427,6 +429,64 @@ class fs
      * @return string
      */
     static function get($source, $charset = null, $mode = 'r')
+    {
+    }
+
+    /**
+     * Read fully data from source, parse as format and return result.
+     * --RU--
+     * Читайет данные в переданном формате из источника и возвращает результат.
+     *
+     * @param $path
+     * @param string $format json, xml, yaml, etc.
+     * @param int $flags
+     * @return mixed
+     * @throws ProcessorException
+     * @throws IOException
+     */
+    static function parseAs($path, string $format, int $flags = 0)
+    {
+    }
+
+    /**
+     * Read fully data from source, parse as format by extensions and return result.
+     * --RU--
+     * Читайет данные формате на основе расширения пути из источника и возвращает результат.
+     *
+     * @param $path
+     * @param int $flags
+     * @return mixed
+     * @throws ProcessorException
+     * @throws IOException
+     */
+    static function parse($path, int $flags = 0)
+    {
+    }
+
+    /**
+     * Write formatted data to source (path).
+     * --RU--
+     * Записывает данные в нужном формате.
+     *
+     * @param $path
+     * @param mixed $value
+     * @param string $format
+     * @param int $flags
+     */
+    static function formatAs($path, $value, string $format, int $flags = 0)
+    {
+    }
+
+    /**
+     * Write formatted (based on path extension) data to source (path).
+     * --RU--
+     * Записывает данные в нужном формате на основе расширения.
+     *
+     * @param $path
+     * @param mixed $value
+     * @param int $flags
+     */
+    static function format($path, $value, int $flags = 0)
     {
     }
 }

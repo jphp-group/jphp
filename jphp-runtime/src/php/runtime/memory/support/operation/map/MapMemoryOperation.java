@@ -37,10 +37,17 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
         ForeachIterator iterator = arg.getNewIterator(env);
 
         while (iterator.next()) {
-            result.put(
-                    operations[0].convert(env, trace, iterator.getMemoryKey()),
-                    operations[1].convert(env, trace, iterator.getValue())
-            );
+            if (operations.length == 2) {
+                result.put(
+                        operations[0].convert(env, trace, iterator.getMemoryKey()),
+                        operations[1].convert(env, trace, iterator.getValue())
+                );
+            } else {
+                result.put(
+                        Memory.unwrap(env, iterator.getMemoryKey()),
+                        Memory.unwrap(env, iterator.getValue())
+                );
+            }
         }
 
         return result;
@@ -57,8 +64,15 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
         for (Object _entry : arg.entrySet()) {
             Map.Entry entry = (Map.Entry) _entry;
 
-            result.refOfIndex(operations[0].unconvert(env, trace, entry.getKey()))
-                    .assign(operations[1].unconvert(env, trace, entry.getValue()));
+            Memory key = operations.length > 0
+                    ? operations[0].unconvert(env, trace, entry.getKey())
+                    : Memory.wrap(env, entry.getKey());
+
+            Memory value = operations.length > 1
+                    ? operations[1].unconvert(env, trace, entry.getValue())
+                    : Memory.wrap(env, entry.getValue());
+
+            result.refOfIndex(key).assign(value);
         }
 
         return result.toConstant();

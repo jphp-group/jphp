@@ -1,6 +1,8 @@
 <?php
 namespace php\lib;
 
+use php\format\ProcessorException;
+
 /**
  * Class str
  * --RU--
@@ -443,6 +445,31 @@ class str
      * @return string
      */
     public static function upperFirst($string)
+    {
+    }
+
+    /**
+     * Parse text as json, xml, yaml, etc.
+     * @param string $string
+     * @param string $format like json, xml, yaml
+     * @param int $flags
+     * @return mixed
+     * @throws ProcessorException
+     */
+    public static function parseAs(string $string, string $format, $flags = 0)
+    {
+    }
+
+    /**
+     * Format value as xml, json, yml, etc.
+     *
+     * @param mixed $input
+     * @param string $format like json, xml, yaml
+     * @param int $flags
+     * @return string
+     * @throws ProcessorException
+     */
+    public static function formatAs($input, string $format, $flags = 0): string
     {
     }
 

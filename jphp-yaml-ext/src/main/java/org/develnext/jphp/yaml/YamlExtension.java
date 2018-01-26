@@ -1,30 +1,30 @@
-package org.develnext.jphp.json;
+package org.develnext.jphp.yaml;
 
-import org.develnext.jphp.json.classes.JsonProcessor;
+import org.develnext.jphp.yaml.classes.YamlProcessor;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.ext.support.Extension;
 
-public class JsonExtension extends Extension {
+public class YamlExtension extends Extension {
     @Override
     public Status getStatus() {
-        return Status.STABLE;
+        return Status.EXPERIMENTAL;
     }
 
     @Override
     public String[] getPackageNames() {
-        return new String[] { "std", "json" };
+        return new String[] { "std", "yaml" };
     }
 
     @Override
     public void onRegister(CompileScope scope) {
-        registerClass(scope, JsonSerializable.class);
-        registerClass(scope, JsonProcessor.class);
+        registerClass(scope, YamlProcessor.class);
     }
 
     @Override
     public void onLoad(Environment env) {
-        WrapProcessor.registerCode(env, "json", JsonProcessor.class);
+        WrapProcessor.registerCode(env, "yaml", YamlProcessor.class);
+        WrapProcessor.registerCode(env, "yml", YamlProcessor.class);
     }
 }

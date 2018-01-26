@@ -280,6 +280,57 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
+    public static Memory parse(Environment env, String input) throws Throwable {
+        return parseAs(env, input, ext(input), 0);
+    }
+
+    @Signature
+    public static Memory parse(Environment env, String input, int flags) throws Throwable {
+        return parseAs(env, input, ext(input), flags);
+    }
+
+    @Signature
+    public static Memory parseAs(Environment env, String input, String format) throws Throwable {
+        return parseAs(env, input, format, 0);
+    }
+
+    @Signature
+    public static Memory parseAs(Environment env, String input, String format, int flags) throws Throwable {
+        Stream stream = Stream.create(env, input, "r");
+        try {
+            return stream.parseAs(env, StringMemory.valueOf(format), LongMemory.valueOf(flags));
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
+    @Signature
+    public static Memory format(Environment env, String input, Memory value) throws Throwable {
+        return format(env, input, value, 0);
+    }
+
+    @Signature
+    public static Memory format(Environment env, String input, Memory value, int flags) throws Throwable {
+        return formatAs(env, input, value, ext(input), flags);
+    }
+
+    @Signature
+    public static Memory formatAs(Environment env, String input, Memory value, String format) throws Throwable {
+        return formatAs(env, input, value, format, 0);
+    }
+
+    @Signature
+    public static Memory formatAs(Environment env, String input, Memory value, String format, int flags) throws Throwable {
+        Stream stream = Stream.create(env, input, "w");
+        try {
+            return stream.writeFormatted(env, value, StringMemory.valueOf(format), LongMemory.valueOf(flags));
+        } finally {
+            env.invokeMethod(stream, "close");
+        }
+    }
+
+
+    @Signature
     public static Memory get(Environment env, String input) throws Throwable {
         return get(env, input, null, "r");
     }

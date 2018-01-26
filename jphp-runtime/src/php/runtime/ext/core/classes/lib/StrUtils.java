@@ -2,12 +2,15 @@ package php.runtime.ext.core.classes.lib;
 
 import php.runtime.Memory;
 import php.runtime.common.DigestUtils;
+import php.runtime.common.GrammarUtils;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.MathFunctions;
+import php.runtime.ext.core.classes.format.WrapProcessor;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
 import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ParameterEntity;
@@ -35,7 +38,9 @@ public class StrUtils extends BaseObject {
     }
 
     @Signature
-    private Memory __construct(Environment env, Memory... args) { return Memory.NULL; }
+    private Memory __construct(Environment env, Memory... args) {
+        return Memory.NULL;
+    }
 
     @FastMethod
     @Signature({
@@ -186,7 +191,7 @@ public class StrUtils extends BaseObject {
         } else {
             int cnt = args[1].toInteger();
             StringBuilder sb = new StringBuilder(cnt * s.length());
-            for(int i = 0; i < cnt; i++) {
+            for (int i = 0; i < cnt; i++) {
                 sb.append(s);
             }
             return new StringMemory(sb.toString());
@@ -321,7 +326,7 @@ public class StrUtils extends BaseObject {
             if (limit > 0 && limit < size)
                 size = limit;
 
-            for(Memory el : array){
+            for (Memory el : array) {
                 builder.append(el);
                 if (i != size - 1)
                     builder.append(separator);
@@ -564,6 +569,20 @@ public class StrUtils extends BaseObject {
         String s = args[0].toString();
 
         return s.contains(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature({@Arg("string"), @Arg("format"), @Arg(value = "flags", optional = @Optional("0"))})
+    public static Memory parseAs(Environment env, Memory... args) throws Throwable {
+        return env.invokeMethod(
+                WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger()), "parse", args[0]
+        );
+    }
+
+    @Signature({@Arg("memory"), @Arg("format"), @Arg(value = "flags", optional = @Optional("0"))})
+    public static Memory formatAs(Environment env, Memory... args) throws Throwable {
+        return env.invokeMethod(
+                WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger()), "format", args[0]
+        );
     }
 
     @Signature({@Arg("string")})
