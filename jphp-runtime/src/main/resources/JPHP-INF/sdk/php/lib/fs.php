@@ -435,7 +435,7 @@ class fs
     /**
      * Read fully data from source, parse as format and return result.
      * --RU--
-     * Читайет данные в переданном формате из источника и возвращает результат.
+     * Читает данные в переданном формате из источника и возвращает результат.
      *
      * @param $path
      * @param string $format json, xml, yaml, etc.
@@ -451,7 +451,7 @@ class fs
     /**
      * Read fully data from source, parse as format by extensions and return result.
      * --RU--
-     * Читайет данные формате на основе расширения пути из источника и возвращает результат.
+     * Читает данные в формате на основе расширения пути из источника и возвращает результат.
      *
      * @param $path
      * @param int $flags

@@ -449,9 +449,10 @@ class str
     }
 
     /**
-     * Parse text as json, xml, yaml, etc.
+     * Parse text as json, ini, yaml, etc.
+     *
      * @param string $string
-     * @param string $format like json, xml, yaml
+     * @param string $format like json, yaml
      * @param int $flags
      * @return mixed
      * @throws ProcessorException
@@ -461,10 +462,10 @@ class str
     }
 
     /**
-     * Format value as xml, json, yml, etc.
+     * Format value as ini, json, yml, etc.
      *
      * @param mixed $input
-     * @param string $format like json, xml, yaml
+     * @param string $format like json, yaml
      * @param int $flags
      * @return string
      * @throws ProcessorException
