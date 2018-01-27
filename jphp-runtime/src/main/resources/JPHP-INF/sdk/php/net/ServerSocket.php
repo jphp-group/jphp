@@ -104,4 +104,12 @@ class ServerSocket
     public static function findAvailableLocalPort()
     {
     }
+
+    /**
+     * @param int $port
+     * @return bool
+     */
+    public static function isAvailableLocalPort(int $port): bool
+    {
+    }
 }

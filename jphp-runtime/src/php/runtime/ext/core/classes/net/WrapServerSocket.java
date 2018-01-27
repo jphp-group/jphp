@@ -115,4 +115,15 @@ public class WrapServerSocket extends BaseObject {
             return Memory.FALSE;
         }
     }
+
+    @Signature(@Arg("port"))
+    public static Memory isAvailableLocalPort(Environment env, Memory... args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(args[0].toInteger());
+            serverSocket.close();
+            return Memory.TRUE;
+        } catch (IOException e) {
+            return Memory.FALSE;
+        }
+    }
 }
