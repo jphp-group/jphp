@@ -321,12 +321,16 @@ final public class WrapRegex extends BaseObject implements Iterator {
         Invoker invoker = Invoker.valueOf(env, null, args[0]);
         StringBuffer sb = new StringBuffer();
         ObjectMemory self = new ObjectMemory(this);
+
+        int i = 0;
+
         while (matcher.find()) {
-            Memory r = invoker.callNoThrow(self);
+            Memory r = invoker.callNoThrow(self, LongMemory.valueOf(i));
             if (r.toValue() == Memory.FALSE)
                 break;
 
             matcher.appendReplacement(sb, r.toString());
+            i++;
         }
         matcher.appendTail(sb);
         return StringMemory.valueOf(sb.toString());
