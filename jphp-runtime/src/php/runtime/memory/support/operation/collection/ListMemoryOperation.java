@@ -41,7 +41,11 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
         List result = new ArrayList();
 
         for (Memory el : arg.getNewIterator(env)) {
-            result.add(operations[0].convert(env, trace, el));
+            if (operations.length >= 1) {
+                result.add(operations[0].convert(env, trace, el));
+            } else {
+                result.add(Memory.unwrap(env, el, true));
+            }
         }
 
         return result;
@@ -56,7 +60,11 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
         ArrayMemory result = new ArrayMemory();
         for (Object el : arg) {
-            result.add(operations[0].unconvert(env, trace, el));
+            if (operations.length >= 1) {
+                result.add(operations[0].unconvert(env, trace, el));
+            } else {
+                result.add(Memory.wrap(env, el));
+            }
         }
 
         return result.toConstant();
