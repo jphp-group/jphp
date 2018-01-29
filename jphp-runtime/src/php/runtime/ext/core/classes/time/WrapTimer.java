@@ -114,6 +114,33 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
     }
 
     @Signature
+    public static TimerTask trigger(Environment env, Invoker trigger, Invoker invoker) {
+        return trigger(env, trigger, invoker, "16");
+    }
+
+    @Signature
+    public static TimerTask trigger(Environment env, Invoker trigger, Invoker invoker, String period) {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    if (trigger.callAny(this).toBoolean()) {
+                        this.cancel();
+                        invoker.callAny(this);
+                    }
+                } catch (Exception e) {
+                    env.catchUncaught(e);
+                }
+            }
+        };
+
+        long millis = parsePeriod(period);
+        timer.schedule(task, millis, millis);
+
+        return task;
+    }
+
+    @Signature
     public static TimerTask setTimeout(Environment env, final Invoker invoker, long millis) {
         TimerTask task = new TimerTask() {
             @Override
@@ -151,5 +178,7 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
     public static void cancelAll() {
         timer.cancel();
         timer.purge();
+
+        timer = new Timer("php\\time\\Timer");
     }
 }

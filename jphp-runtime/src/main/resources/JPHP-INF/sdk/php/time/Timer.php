@@ -46,6 +46,18 @@ class Timer
     }
 
     /**
+     * Create trigger timer which once call when trigger callback will return true.
+     *
+     * @param callable $trigger (): bool
+     * @param callable $callback
+     * @param int $checkPeriod time period of checking trigger (default 1/60 sec).
+     * @return Timer
+     */
+    static function trigger(callable $trigger, callable $callback, $checkPeriod = 16)
+    {
+    }
+
+    /**
      * Like in JS.
      * 
      * @param callable $taskCallback
