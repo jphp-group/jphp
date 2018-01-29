@@ -10,6 +10,8 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
+import php.runtime.ext.core.classes.lib.FsUtils;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.Extension;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -256,6 +258,13 @@ public class Launcher {
         }
 
         String file = config.getProperty("bootstrap.file", "res://JPHP-INF/.bootstrap.php");
+
+        if ("php".equals(FsUtils.ext(file))) {
+            if (Stream.exists(environment, StringMemory.valueOf(file.substring(0, file.length() - 4) + ".phb")).toBoolean()) {
+                file = file.substring(0, file.length() - 4) + ".phb";
+            }
+        }
+
         String classLoader = config.getProperty("env.classLoader", ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class));
 
         if (classLoader != null && !(classLoader.isEmpty())) {

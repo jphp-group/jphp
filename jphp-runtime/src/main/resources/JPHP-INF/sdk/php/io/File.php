@@ -265,6 +265,14 @@ class File
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getPath();
+    }
+
+    /**
      * @param string $prefix
      * @param string $suffix
      * @param null|File|string $directory
