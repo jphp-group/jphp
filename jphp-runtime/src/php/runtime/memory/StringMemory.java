@@ -62,7 +62,6 @@ public class StringMemory extends Memory {
         return value;
     }
 
-
     public static Memory toLong(String value){
         return toLong(value, false);
     }
@@ -103,10 +102,14 @@ public class StringMemory extends Memory {
     }
 
     public Memory toLongNumeric(){
-        return toNumeric(value, true, CONST_INT_0);
+        return toNumeric(toString(), true, CONST_INT_0);
     }
 
     public static Memory toNumeric(String value, boolean onlyInt, Memory def){
+        if (value == null) {
+            return def;
+        }
+
         int len = value.length();
         boolean real = false;
         int i = 0;
@@ -195,7 +198,7 @@ public class StringMemory extends Memory {
 
     @Override
     public Memory toNumeric(){
-        return toNumeric(value);
+        return toNumeric(toString());
     }
 
     @Override
@@ -342,7 +345,7 @@ public class StringMemory extends Memory {
             case STRING: return toString().equals(memory.toString());
             case OBJECT:
             case ARRAY: return false;
-            case BOOL: return memory.equal(this.value);
+            case BOOL: return memory.equal(this.toString());
             default: return equal(memory.toValue());
         }
     }
@@ -547,7 +550,7 @@ public class StringMemory extends Memory {
         }
 
         if (_index < toString().length() && _index >= 0)
-            return getChar(value.charAt(_index));
+            return getChar(toString().charAt(_index));
         else
             return CONST_EMPTY_STRING;
     }
@@ -625,12 +628,12 @@ public class StringMemory extends Memory {
 
         StringMemory that = (StringMemory) o;
 
-        return value != null ? value.equals(that.value) : that.value == null;
+        return toString() != null ? toString().equals(that.toString()) : that.toString() == null;
     }
 
     @Override
     public int hashCode() {
-        return value == null ? 0 : value.hashCode();
+        return toString() == null ? 0 : toString().hashCode();
     }
 
     protected static StringMemory getChar(char ch) {
