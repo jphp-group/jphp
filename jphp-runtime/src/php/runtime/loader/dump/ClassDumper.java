@@ -41,6 +41,14 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         DumpOutputStream printer = new DumpOutputStream(output);
 
+        DocumentComment docComment = entity.getDocComment();
+
+        if (docComment != null) {
+            printer.writeUTF(docComment.toString());
+        } else {
+            printer.writeUTF("");
+        }
+
         printer.writeBoolean(entity.isStatic());
 
         // type
@@ -142,6 +150,12 @@ public class ClassDumper extends Dumper<ClassEntity> {
             throw new RuntimeException(e);
         }
         entity.setId(env.scope.nextClassIndex());
+
+        String docComment = data.readUTF();
+
+        if (!docComment.isEmpty()) {
+            entity.setDocComment(new DocumentComment(docComment));
+        }
 
         entity.setStatic(data.readBoolean());
         entity.setType(data.readClassType());

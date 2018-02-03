@@ -4,6 +4,7 @@ import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
+import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.PropertyEntity;
 
 import java.io.IOException;
@@ -23,6 +24,14 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
     @Override
     public void save(PropertyEntity entity, OutputStream output) throws IOException {
         DumpOutputStream print = new DumpOutputStream(output);
+
+        DocumentComment docComment = entity.getDocComment();
+
+        if (docComment != null) {
+            print.writeUTF(docComment.toString());
+        } else {
+            print.writeUTF("");
+        }
 
         // static
         print.writeBoolean(entity.isStatic());
@@ -50,6 +59,12 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
     public PropertyEntity load(InputStream input) throws IOException {
         PropertyEntity property = new PropertyEntity(context);
         DumpInputStream data = new DumpInputStream(input);
+
+        String docComment = data.readUTF();
+
+        if (!docComment.isEmpty()) {
+            property.setDocComment(new DocumentComment(docComment));
+        }
 
         property.setStatic(data.readBoolean());
         property.setModifier(data.readModifier());
