@@ -117,7 +117,7 @@ public class JsonProcessor extends WrapProcessor {
 
         try {
             if (args[0].instanceOf(Stream.class)) {
-                r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0])), Memory.class);
+                r = gson.fromJson(new InputStreamReader(Stream.getInputStream(env, args[0]), env.getDefaultCharset()), Memory.class);
             } else {
                 r = gson.fromJson(args[0].toString(), Memory.class);
             }
