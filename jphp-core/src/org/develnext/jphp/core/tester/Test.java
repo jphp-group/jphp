@@ -3,6 +3,7 @@ package org.develnext.jphp.core.tester;
 import php.runtime.common.StringUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Test {
@@ -36,7 +37,7 @@ public class Test {
             _sections = new LinkedHashMap<String, String>();
             _sectionLines = new HashMap<String, Integer>();
 
-            Scanner reader = new Scanner(new FileReader(file));
+            Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
             String line;
             List<String> content = new ArrayList<String>();
             String section = null;

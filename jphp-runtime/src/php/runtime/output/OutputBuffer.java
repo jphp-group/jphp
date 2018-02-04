@@ -206,10 +206,12 @@ public class OutputBuffer {
                 byte[] data = result instanceof BinaryMemory
                         ? result.getBinaryBytes(environment.getDefaultCharset()) : result.toString().getBytes(environment.getDefaultCharset());
                 if (flush){
-                    if (output == null)
+                    if (output == null) {
                         parentOutput.write(data);
-                    else
+                    } else {
                         output.write(data);
+                    }
+
                     reset();
                     status = HANDLER_FLUSH;
                 }
@@ -220,10 +222,11 @@ public class OutputBuffer {
 
         if (flush){
             status |= HANDLER_FLUSH;
-            if (output == null)
+            if (output == null) {
                 parentOutput.write(buffer.toByteArray());
-            else
+            } else {
                 buffer.writeTo(output);
+            }
 
             reset();
         }

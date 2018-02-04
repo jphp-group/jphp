@@ -304,8 +304,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             ArrayGetEmptyExprToken el = new ArrayGetEmptyExprToken(last.getMeta());
             el.setParameters(((ArrayGetExprToken) last).getParameters());
             value.getTokens().set(value.getTokens().size() - 1, el);
-        } else
-            unexpectedToken(last);
+        } else {
+            // is only in < php 5.5 as unexcpected.
+            //unexpectedToken(last);
+        }
 
         EmptyExprToken result = (EmptyExprToken)current;
         value.updateAsmExpr(analyzer.getEnvironment(), analyzer.getContext());

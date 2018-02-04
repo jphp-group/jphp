@@ -18,10 +18,7 @@ import php.runtime.memory.helper.ShortcutMemory;
 import php.runtime.memory.support.*;
 import php.runtime.reflection.support.ReflectionUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -1475,7 +1472,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return map == null;
     }
 
-    public boolean isMap() { return map != null; }
+    public boolean isMap() {
+        return map != null;
+    }
 
     @Override
     public Memory toArray() {
@@ -1875,13 +1874,40 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public static <T> ArrayMemory ofBean(Environment env, TraceInfo trace, T anyObject) {
         Method[] methods = anyObject.getClass().getMethods();
+        Field[] fields = anyObject.getClass().getFields();
 
         ArrayMemory value = new ArrayMemory(true);
+
+        for (Field field : fields) {
+            int fieldModifiers = field.getModifiers();
+
+            if (Modifier.isPublic(fieldModifiers) && !Modifier.isStatic(fieldModifiers)) {
+                try {
+                    String key = field.getName();
+                    Object invoke = field.get(anyObject);
+
+                    MemoryOperation operation = MemoryOperation.get(field.getType(), field.getGenericType());
+
+                    if (operation == null) {
+                        if (isLikeBean(field.getType())) {
+                            value.put(key, ofNullableBean(env, invoke));
+                        }
+
+                        continue;
+                    }
+
+                    value.put(key, operation.unconvert(env, trace, invoke));
+                } catch (IllegalAccessException e) {
+                    throw new CriticalException(e);
+                } catch (Throwable throwable) {
+                    env.wrapThrow(throwable);
+                }
+            }
+        }
 
         for (Method method : methods) {
             String name = method.getName();
             String key = null;
-
 
             if (name.startsWith("get") && name.length() > 3 && method.getParameterTypes().length == 0) {
                 key = name.substring(3);
@@ -1974,6 +2000,22 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         while (iterator.next()) {
             String key = iterator.getStringKey();
+
+            try {
+                Field field = beanClass.getField(key);
+                int fieldModifiers = field.getModifiers();
+
+                if (Modifier.isPublic(fieldModifiers) && !Modifier.isStatic(fieldModifiers)) {
+                    MemoryOperation operation = MemoryOperation.get(field.getType(), field.getGenericType());
+                    field.set(instance, operation.convert(env, trace, iterator.getValue()));
+
+                    continue;
+                }
+            } catch (NoSuchFieldException e) {
+                // nop;
+            } catch (Throwable throwable) {
+                env.wrapThrow(throwable);
+            }
 
             String name = key.substring(0, 1).toUpperCase() + key.substring(1);
 

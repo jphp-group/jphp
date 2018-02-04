@@ -140,13 +140,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
         T entity   = null;
         try {
             entity = clazz.getConstructor(Context.class).newInstance(context);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         entity.setId(env.scope.nextClassIndex());

@@ -6,6 +6,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 public class Context {
+    public final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
     protected final Charset charset;
     protected final File file;
     protected String content;
@@ -30,7 +32,7 @@ public class Context {
     }
 
     public Context(InputStream input) {
-        this(input, null, Charset.defaultCharset());
+        this(input, null, DEFAULT_CHARSET);
     }
 
     public Context(File file, Charset charset) {
@@ -40,7 +42,7 @@ public class Context {
     }
 
     public Context(File file) {
-        this(file, Charset.defaultCharset());
+        this(file, DEFAULT_CHARSET);
     }
 
     public Context(String content){
@@ -50,7 +52,7 @@ public class Context {
     public Context(String content, File file){
         this.file = file;
         this.content = content;
-        this.charset = Charset.defaultCharset();
+        this.charset = DEFAULT_CHARSET;
     }
 
     public long getLastModified() {

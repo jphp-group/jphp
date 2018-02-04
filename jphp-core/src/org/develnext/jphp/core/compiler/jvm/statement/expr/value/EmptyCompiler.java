@@ -14,6 +14,7 @@ public class EmptyCompiler extends BaseExprCompiler<EmptyExprToken> {
     @Override
     public void write(EmptyExprToken token, boolean returnValue) {
         expr.writeExpression(token.getValue(), true, false);
+        expr.writePopBoxing();
         expr.writeSysStaticCall(OperatorUtils.class, "empty", Boolean.TYPE, Memory.class);
 
         if (!returnValue) {
