@@ -24,6 +24,11 @@ public class MiscStream extends Stream {
     protected InputStream inputStream;
     protected OutputStream outputStream;
 
+    public MiscStream(Environment env, MemoryStream memoryStream) {
+        super(env);
+        this.memoryStream = memoryStream;
+    }
+
     public MiscStream(Environment env, InputStream inputStream) {
         super(env);
         this.inputStream = inputStream;

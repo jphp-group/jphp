@@ -1933,6 +1933,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             if ("class".equals(key)) continue;
 
             try {
+                method.setAccessible(true);
                 Object invoke = method.invoke(anyObject);
                 MemoryOperation operation = MemoryOperation.get(method.getReturnType(), method.getGenericReturnType());
 
