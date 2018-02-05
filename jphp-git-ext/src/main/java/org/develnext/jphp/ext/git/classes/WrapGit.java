@@ -448,7 +448,7 @@ public class WrapGit extends BaseWrapper<Git> {
 
     @Signature
     public void add(String filePattern) throws GitAPIException {
-        add(filePattern);
+        add(filePattern, ArrayMemory.createHashed());
     }
 
     @Signature
