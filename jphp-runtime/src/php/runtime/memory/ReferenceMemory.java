@@ -13,7 +13,7 @@ public class ReferenceMemory extends Memory {
 
     protected ReferenceMemory(Type type, Memory value) {
         super(type);
-        this._value = value;
+        this._value = value == null ? NULL : value;
     }
 
     public ReferenceMemory(Memory value) {
@@ -39,7 +39,7 @@ public class ReferenceMemory extends Memory {
     }
 
     public Memory setValue(Memory value) {
-        return this._value = value;
+        return this._value = value == null ? NULL : value;
     }
 
     @Override

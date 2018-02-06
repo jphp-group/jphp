@@ -1315,7 +1315,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory newArray = new ArrayMemory();
 
             for (Memory value : values) {
-                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value));
+                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value).toImmutable());
                 arrayMemory.remove(value);
             }
 
