@@ -144,6 +144,6 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
 
     @Override
     public void onShutdown(CompileScope scope, Environment env) {
-        WrapTimer.cancelAll();
+        WrapTimer.shutdownAll();
     }
 }

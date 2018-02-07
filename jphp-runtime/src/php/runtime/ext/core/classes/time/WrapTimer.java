@@ -181,4 +181,9 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
 
         timer = new Timer("php\\time\\Timer");
     }
+
+    public static void shutdownAll() {
+        timer.cancel();
+        timer.purge();
+    }
 }

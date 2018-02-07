@@ -3,6 +3,8 @@ package php.runtime.ext.core.classes;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.CustomErrorException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ObjectMemory;
@@ -50,13 +52,11 @@ public class WrapThreadPool extends BaseObject {
         invoker.setTrace(env.trace());
         final Environment final_env = _env;
 
-        service.execute(new Runnable() {
-            @Override
-            public void run() {
-                Environment.addThreadSupport(final_env);
-                invoker.callNoThrow();
-            }
+        service.execute(() -> {
+            Environment.addThreadSupport(final_env);
+            invoker.callNoThrow();
         });
+
         return Memory.NULL;
     }
 
@@ -73,6 +73,32 @@ public class WrapThreadPool extends BaseObject {
         return service instanceof ScheduledExecutorService ? Memory.TRUE : Memory.FALSE;
     }
 
+    private Callable<Memory> makeCallable(Environment env, Invoker invoker) {
+        return () -> {
+            try {
+                Environment.addThreadSupport(env);
+
+                return invoker.call();
+            } catch (Exception throwable) {
+                if (throwable instanceof CriticalException) {
+                    throwable.printStackTrace();
+                }
+
+                if (throwable instanceof CustomErrorException) {
+                    CustomErrorException error = (CustomErrorException) throwable;
+                    env.error(error.getType(), error.getMessage());
+                } else {
+                    env.catchUncaught(throwable);
+                }
+
+                return Memory.NULL;
+            } catch (Throwable throwable) {
+                env.wrapThrow(throwable);
+                return Memory.NULL;
+            }
+        };
+    }
+
     @Signature({
             @Arg(value = "runnable", type = HintType.CALLABLE),
             @Arg(value = "env", typeClass = "php\\lang\\Environment", optional = @Optional("NULL"))
@@ -84,12 +110,7 @@ public class WrapThreadPool extends BaseObject {
 
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
 
-        Future<Memory> future = service.submit(new Callable<Memory>() {
-            @Override
-            public Memory call() throws Exception {
-                return invoker.callNoThrow();
-            }
-        });
+        Future<Memory> future = service.submit(makeCallable(env, invoker));
 
         return new ObjectMemory(new WrapFuture(env, future));
     }
@@ -106,13 +127,8 @@ public class WrapThreadPool extends BaseObject {
 
         final Invoker invoker = Invoker.valueOf(_env, null, args[0]);
 
-        ScheduledFuture<Memory> future = getScheduledExecutorService(env).schedule(new Callable<Memory>() {
-            @Override
-            public Memory call() throws Exception {
-                Environment.addThreadSupport(_env);
-                return invoker.callNoThrow();
-            }
-        }, args[1].toLong(), TimeUnit.MILLISECONDS);
+        ScheduledFuture<Memory> future = getScheduledExecutorService(env)
+                .schedule(makeCallable(env, invoker), args[1].toLong(), TimeUnit.MILLISECONDS);
 
         return new ObjectMemory(new WrapFuture(env, future));
     }
