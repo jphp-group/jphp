@@ -9,6 +9,7 @@ import php.runtime.lang.BaseException;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.IObject;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.TrueMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 
@@ -34,9 +35,19 @@ abstract public class WrapProcessor extends BaseObject {
     abstract public Memory formatTo(Environment env, Memory... args);
 
     @Signature({
+            @Arg("code")
+    })
+    public static Memory isRegistered(Environment env, Memory... args) {
+        String code = args[0].toString();
+        String className = env.getUserValue(ProcessorException.class.getName() + "#" + code, String.class);
+
+        return TrueMemory.valueOf(className != null);
+    }
+
+    @Signature({
             @Arg("code"), @Arg("processorClass")
     })
-    public static void register(Environment env, Memory... args) {
+    public static Memory register(Environment env, Memory... args) {
         String code = args[0].toString();
         String className = args[1].toString();
 
@@ -58,6 +69,7 @@ abstract public class WrapProcessor extends BaseObject {
         }
 
         env.setUserValue(WrapProcessor.class.getName() + "#" + args[1].toString(), classEntity.getName());
+        return Memory.NULL;
     }
 
     @Signature({@Arg("code")})

@@ -44,4 +44,12 @@ abstract class Processor
     public static function unregister(string $code): bool
     {
     }
+
+    /**
+     * @param string $code
+     * @return bool
+     */
+    public static function isRegistered(string $code): bool
+    {
+    }
 }
