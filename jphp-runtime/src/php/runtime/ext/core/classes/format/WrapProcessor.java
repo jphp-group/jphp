@@ -80,11 +80,17 @@ abstract public class WrapProcessor extends BaseObject {
             return Memory.FALSE;
         }
 
+        env.removeUserValue(WrapProcessor.class.getName() + "#" + protocol + ".flags");
         return env.removeUserValue(WrapProcessor.class.getName() + "#" + protocol) ? Memory.TRUE : Memory.FALSE;
     }
 
     public static void registerCode(Environment env, String protocol, Class<? extends WrapProcessor> clazz) {
+        registerCode(env, protocol, clazz, 0);
+    }
+
+    public static void registerCode(Environment env, String protocol, Class<? extends WrapProcessor> clazz, int flags) {
         env.setUserValue(ProcessorException.class.getName() + "#" + protocol, ReflectionUtils.getClassName(clazz));
+        env.setUserValue(ProcessorException.class.getName() + "#" + protocol + ".flags", flags);
     }
 
     public static WrapProcessor createByCode(Environment env, String code, int flags) throws Throwable {
@@ -93,6 +99,10 @@ abstract public class WrapProcessor extends BaseObject {
         }
 
         String className = env.getUserValue(ProcessorException.class.getName() + "#" + code, String.class);
+
+        if (flags == 0) {
+            flags = env.getUserValue(ProcessorException.class.getName() + "#" + code + ".flags", Integer.class);
+        }
 
         if (className == null) {
             throw new IllegalArgumentException(

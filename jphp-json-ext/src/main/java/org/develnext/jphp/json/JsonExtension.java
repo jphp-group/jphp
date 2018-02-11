@@ -25,6 +25,6 @@ public class JsonExtension extends Extension {
 
     @Override
     public void onLoad(Environment env) {
-        WrapProcessor.registerCode(env, "json", JsonProcessor.class);
+        WrapProcessor.registerCode(env, "json", JsonProcessor.class, JsonProcessor.DESERIALIZE_AS_ARRAYS);
     }
 }
