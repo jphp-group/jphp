@@ -27,10 +27,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
@@ -2855,12 +2852,12 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     public static String base64_encode(Environment env, Memory value) {
-        return DatatypeConverter.printBase64Binary(value.getBinaryBytes(env.getDefaultCharset()));
+        return Base64.getEncoder().encodeToString(value.getBinaryBytes(env.getDefaultCharset()));
     }
 
     public static Memory base64_decode(String value) {
         try {
-            return new BinaryMemory(DatatypeConverter.parseBase64Binary(value));
+            return new BinaryMemory(Base64.getDecoder().decode(value));
         } catch (IllegalArgumentException e) {
             return Memory.FALSE;
         }
