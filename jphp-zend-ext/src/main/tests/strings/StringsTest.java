@@ -52,4 +52,7 @@ public class StringsTest extends ZendJvmTestCase {
     public void testSha1File(){
         check("ext/strings/sha1_file_001.php");
     }
+
+    @Test
+    public void testBase64() { check("ext/strings/base64_001.php"); }
 }

@@ -21,6 +21,7 @@ var_dump($trimmed);
 $trimmed = trim($hello, 'HdWr');
 var_dump($trimmed);
 
+?>
 --EXPECT--
 string(32) "		These are a few words :) ...  "
 string(16) "	Example string
