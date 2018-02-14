@@ -19,31 +19,31 @@ class Flow implements Iterator
 
     /**
      * Create a new flow, you can also use ``of()`` method
-     * @param array|Iterator $collection
+     * @param iterable $collection
      */
-    public function __construct($collection) { }
+    public function __construct(iterable $collection) { }
 
     /**
      * Enables to save keys for the next operation
      * @return Flow
      */
-    public function withKeys() { return $this; }
+    public function withKeys(): Flow { return $this; }
 
     /**
-     * @param array|Traversable $keys
+     * @param iterable $keys
      * @param bool $ignoreCase
      * @return Flow
      */
-    public function onlyKeys($keys, $ignoreCase = false) { return new Flow([]); }
+    public function onlyKeys(iterable $keys, bool $ignoreCase = false): Flow { }
 
     /**
      * Appends a new collection to the current flow,
      * do not remember that you can pass a flow to this method
      *
-     * @param array|Iterator $collection
+     * @param iterable $collection
      * @return Flow
      */
-    public function append($collection) { return new Flow([]); }
+    public function append(iterable $collection): Flow { }
 
     /**
      * Finds elements by using the $filter callback,
@@ -52,7 +52,7 @@ class Flow implements Iterator
      * @param callable $filter
      * @return Flow
      */
-    public function find(callable $filter = null) { return new Flow([]); }
+    public function find(callable $filter = null): Flow { }
 
     /**
      * Finds the first element by using the $filter callback,
@@ -61,20 +61,20 @@ class Flow implements Iterator
      * @param callable $filter
      * @return mixed
      */
-    public function findOne(callable $filter = null) { return 0; }
+    public function findOne(callable $filter = null) { }
 
     /**
      * @param $value
      * @param bool $strict
      * @return int|null|string return null if not found, else - key of value
      */
-    public function findValue($value, $strict = false) { return ''; }
+    public function findValue($value, $strict = false) { }
 
     /**
      * @param callable $callback
      * @return Flow
      */
-    public function group(callable $callback) { return new Flow([]); }
+    public function group(callable $callback): Flow {  }
 
     /**
      * Iterates elements.
@@ -83,7 +83,7 @@ class Flow implements Iterator
      * @param callable $callback ($el[, $key]): bool
      * @return int - iteration count
      */
-    public function each(callable $callback) { return 0; }
+    public function each(callable $callback): int { }
 
     /**
      * Iterates elements as slices (that are passing as arrays to $callback).
@@ -94,7 +94,7 @@ class Flow implements Iterator
      * @param bool $withKeys
      * @return int - slice iteration count
      */
-    public function eachSlice($sliceSize, callable $callback, $withKeys = false) { return 0; }
+    public function eachSlice(int $sliceSize, callable $callback, bool $withKeys = false): int { }
 
     /**
      * Iterates elements and returns a new flow of the result
@@ -106,13 +106,13 @@ class Flow implements Iterator
      * @param callable $callback ($el[, $key])
      * @return Flow
      */
-    public function map(callable $callback) { return new Flow([]); }
+    public function map(callable $callback): Flow { }
 
     /**
      * Create a new flow by using the keys of the current flow
      * @return Flow
      */
-    public function keys() { return new Flow([]); }
+    public function keys(): Flow { }
 
     /**
      * Skips $n elements in the current collection
@@ -120,7 +120,7 @@ class Flow implements Iterator
      * @param int $n skip count
      * @return Flow
      */
-    public function skip($n) { return new Flow([]); }
+    public function skip(int $n): Flow { }
 
     /**
      * Limits collection with $count
@@ -128,7 +128,7 @@ class Flow implements Iterator
      * @param int $count count of limit
      * @return Flow
      */
-    public function limit($count) { return new Flow([]); }
+    public function limit($count): Flow { }
 
     /**
      * Iterates elements and gets a result of this operation
@@ -140,7 +140,52 @@ class Flow implements Iterator
      * @param callable $callback ($result, $el[, $key])
      * @return int
      */
-    public function reduce(callable $callback) { return 0; }
+    public function reduce(callable $callback): int { }
+
+    /**
+     * Get max of elements.
+     * @param callable|null $comparator
+     * @return mixed
+     */
+    public function max(callable $comparator = null) { }
+
+    /**
+     * Get min of elements.
+     * @param callable|null $comparator
+     * @return mixed
+     */
+    public function min(callable $comparator = null) { }
+
+    /**
+     * Get avg number of elements.
+     * @return int|float
+     */
+    public function avg() { }
+
+    /**
+     * Get median of elements.
+     * @param callable|null $comparator
+     * @return mixed
+     */
+    public function median(callable $comparator = null) { }
+
+    /**
+     * @param callable|null $comparator
+     * @return int|float
+     */
+    public function numMedian(callable $comparator = null) { }
+
+    /**
+     * Get sum of elements.
+     * @return int|float
+     */
+    public function sum() { }
+
+    /**
+     * Get concatenation of all elements.
+     * @return string
+     */
+    public function concat(): string { }
 
     /**
      * Sort the last result of the flow, also see: ``php\\lib\\items::sort()``
@@ -150,7 +195,7 @@ class Flow implements Iterator
      * @param callable $comparator ($o1, $o2) -> int, where -1 smaller, 0 equal, 1 greater
      * @return array
      */
-    public function sort(callable $comparator = null) { return []; }
+    public function sort(callable $comparator = null): array { }
 
     /**
      * The same method as ``sort()`` only based on keys insteadof values
@@ -160,16 +205,23 @@ class Flow implements Iterator
      * @param callable $comparator ($key1, $key2) -> int
      * @return array
      */
-    public function sortByKeys(callable $comparator = null) { return []; }
+    public function sortByKeys(callable $comparator = null): array { }
 
     /**
      * Convert elements to an array
      *
      * .. note:: use the ``withKeys()`` method to save keys
      *
+     * @param bool|null $withKeys if null it will use default value from withKeys() method.
      * @return array
      */
-    public function toArray() { return []; }
+    public function toArray(?bool $withKeys = null): array { }
+
+    /**
+     * Convert element to an array with keys.
+     * @return array
+     */
+    public function toMap(): array { }
 
     /**
      * Join elements to a string similar to ``implode()`` in PHP
@@ -177,17 +229,17 @@ class Flow implements Iterator
      * @param string $separator
      * @return string
      */
-    public function toString($separator) { return ''; }
+    public function toString(string $separator): string { }
 
     /**
      * @return int
      */
-    public function count() { return 0; }
+    public function count() { }
 
     /**
      * @return mixed
      */
-    public function current() { return 0; }
+    public function current() { }
 
     /**
      * @return void
@@ -217,15 +269,15 @@ class Flow implements Iterator
     /**
      * @return Flow
      */
-    public static function ofEmpty() { return new Flow([]); }
+    public static function ofEmpty(): Flow { }
 
     /**
      * Creates a new flow for an array of Iterator
      *
-     * @param array|Traversable $collection
+     * @param iterable $collection
      * @return Flow
      */
-    public static function of($collection) { return new Flow([]); }
+    public static function of(iterable $collection): Flow { }
 
     /**
      * Creates a new flow for a number range
@@ -235,7 +287,7 @@ class Flow implements Iterator
      * @param int $step
      * @return Flow
      */
-    public static function ofRange($from, $to, $step = 1) { return new Flow([]); }
+    public static function ofRange(int $from, int $to, int $step = 1): Flow { }
 
     /**
      * Creates a new flow for the string
@@ -244,7 +296,7 @@ class Flow implements Iterator
      * @param int $chunkSize how many characters to combine for one item ?
      * @return Flow
      */
-    public static function ofString($string, $chunkSize = 1) { return new Flow([]); }
+    public static function ofString(string $string, int $chunkSize = 1): Flow { }
 
     /**
      * Creates a new flow for the Stream object
@@ -253,5 +305,5 @@ class Flow implements Iterator
      * @param int $chunkSize size for ``Stream.read($size)`` method
      * @return Flow
      */
-    public static function ofStream(Stream $stream, $chunkSize = 1) { return new Flow([]); }
+    public static function ofStream(Stream $stream, int $chunkSize = 1): Flow { }
 }

@@ -5,12 +5,12 @@ use php\util\Flow;
 const JPHP_VERSION = 'x.x.x';
 
 /**
- * @param Traversable|array $iterator
+ * @param iterable $iterator
+ * @param iterable[] $others
  * @return Flow
  */
-function flow($iterator)
+function flow(iterable $iterator, iterable... $others): Flow
 {
-    return Flow::of($iterator);
 }
 
 /**

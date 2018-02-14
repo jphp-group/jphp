@@ -3,7 +3,6 @@ package php.runtime.memory;
 import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.common.Pair;
-import php.runtime.common.collections.map.LinkedMap;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
@@ -13,7 +12,6 @@ import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
-import php.runtime.memory.helper.ProxyReferenceMemory;
 import php.runtime.memory.helper.ShortcutMemory;
 import php.runtime.memory.support.*;
 import php.runtime.reflection.support.ReflectionUtils;
@@ -21,6 +19,8 @@ import php.runtime.reflection.support.ReflectionUtils;
 import java.lang.reflect.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected transient long lastLongIndex;
@@ -1272,6 +1272,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return getList().iterator();
         } else
             return (Iterator<ReferenceMemory>) map.entriesIterator();
+    }
+
+    public Stream<ReferenceMemory> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 
     public ForeachIterator foreachIterator(boolean getReferences, boolean withPrevious) {

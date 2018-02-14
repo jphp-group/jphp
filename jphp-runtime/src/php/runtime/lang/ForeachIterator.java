@@ -9,6 +9,8 @@ import php.runtime.memory.StringMemory;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 abstract public class ForeachIterator implements Iterable<Memory> {
     protected Object currentKey;
@@ -184,6 +186,10 @@ abstract public class ForeachIterator implements Iterable<Memory> {
 
     public void setTrace(TraceInfo trace) {
         this.trace = trace;
+    }
+
+    public Stream<Memory> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 
     @Override

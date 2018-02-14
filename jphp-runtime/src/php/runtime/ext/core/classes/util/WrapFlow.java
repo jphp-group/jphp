@@ -15,7 +15,9 @@ import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static php.runtime.annotation.Reflection.*;
 import static php.runtime.annotation.Runtime.FastMethod;
@@ -125,7 +127,7 @@ public class WrapFlow extends BaseObject implements Iterator {
     })
     public static Memory ofRange(Environment env, Memory... args) {
         final int from = args[0].toInteger();
-        final int to   = args[1].toInteger();
+        final int to = args[1].toInteger();
         final int step = args[2].toInteger() < 1 ? 1 : args[2].toInteger();
 
         return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
@@ -151,7 +153,7 @@ public class WrapFlow extends BaseObject implements Iterator {
                     if (currentKey == null)
                         currentKey = LongMemory.valueOf(0);
 
-                    currentKey = ((LongMemory)currentKey).inc();
+                    currentKey = ((LongMemory) currentKey).inc();
                     currentKeyMemory = null;
                     i += step;
                     return true;
@@ -201,7 +203,7 @@ public class WrapFlow extends BaseObject implements Iterator {
                 env.pushCall(stream, "read", LongMemory.valueOf(chunkSize));
                 try {
                     currentValue = stream.read(env, LongMemory.valueOf(chunkSize));
-                    currentKey = ((LongMemory)currentKey).inc();
+                    currentKey = ((LongMemory) currentKey).inc();
                 } catch (IOException e) {
                     env.catchUncaught(e);
                 } finally {
@@ -384,7 +386,7 @@ public class WrapFlow extends BaseObject implements Iterator {
         }
 
         init = true;
-        if (!worker.next(env)){
+        if (!worker.next(env)) {
             valid = false;
             return Memory.NULL;
         }
@@ -403,7 +405,18 @@ public class WrapFlow extends BaseObject implements Iterator {
     public Memory count(Environment env, Memory... args) {
         int cnt = 0;
         ForeachIterator iterator = getSelfIterator(env);
-        while (iterator.next()) cnt++;
+
+        Set<Object> keys = new HashSet<>();
+
+        while (iterator.next()) {
+            if (withKeys) {
+                if (keys.add(iterator.getKey())) {
+                    cnt++;
+                }
+            } else {
+                cnt++;
+            }
+        }
 
         return LongMemory.valueOf(cnt);
     }
@@ -418,15 +431,23 @@ public class WrapFlow extends BaseObject implements Iterator {
         return ItemsUtils.sortByKeys(env, new ObjectMemory(this), args[0], this.withKeys ? Memory.TRUE : Memory.FALSE);
     }
 
-    @Signature
+    @Signature(@Arg(value = "withKeys", optional = @Optional("null")))
+    public Memory toMap(Environment env, Memory... args) {
+        return toArray(env, Memory.TRUE);
+    }
+
+    @Signature(@Arg(value = "withKeys", optional = @Optional("null")))
     public Memory toArray(Environment env, Memory... args) {
+        boolean withKeys = args[0].isNull() ? this.withKeys : args[0].toBoolean();
+
         ForeachIterator iterator = getSelfIterator(env);
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
-            if (withKeys)
+            if (withKeys) {
                 r.put(iterator.getKey(), iterator.getValue());
-            else
+            } else {
                 r.add(iterator.getValue());
+            }
         }
 
         return r.toConstant();
@@ -448,6 +469,97 @@ public class WrapFlow extends BaseObject implements Iterator {
         }
 
         return sb;
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, nullable = true, optional = @Optional("null")))
+    public Memory max(Environment env, Memory... args) {
+        Invoker comparator = args[0].isNull() ? null : Invoker.create(env, args[0]);
+
+        return getSelfIterator(env)
+                .stream()
+                .reduce((one, two) -> {
+                    if (comparator == null) {
+                        return two.greater(one) ? two : one;
+                    } else {
+                        return comparator.callNoThrow(one, two).toLong() > 0 ? one : two;
+                    }
+                }).orElse(Memory.NULL);
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, nullable = true, optional = @Optional("null")))
+    public Memory min(Environment env, Memory... args) {
+        Invoker comparator = args[0].isNull() ? null : Invoker.create(env, args[0]);
+
+        return getSelfIterator(env)
+                .stream()
+                .reduce((one, two) -> {
+                    if (comparator == null) {
+                        return two.smaller(one) ? two : one;
+                    } else {
+                        return comparator.callNoThrow(one, two).toLong() > 0 ? two : one;
+                    }
+                }).orElse(Memory.NULL);
+    }
+
+    @Signature
+    public Memory sum(Environment env, Memory... args) {
+        return getSelfIterator(env)
+                .stream()
+                .reduce(Memory::plus).orElse(Memory.NULL);
+    }
+
+    @Signature
+    public Memory avg(Environment env, Memory... args) {
+        Memory result = Memory.CONST_INT_0;
+
+        int cnt = 0;
+        for (Memory memory : getSelfIterator(env)) {
+            result = result.plus(memory);
+            cnt++;
+        }
+
+        return result.div(LongMemory.valueOf(cnt));
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")))
+    public Memory numMedian(Environment env, Memory... args) {
+        List<Memory> list = sort(env, args[0])
+                .toValue(ArrayMemory.class)
+                .stream().collect(Collectors.toList());
+
+        if (list.isEmpty()) return Memory.NULL;
+
+        if (list.size() % 2 == 0) {
+            return list.get(list.size() / 2).plus(list.get(list.size() / 2 + 1)).div(Memory.CONST_INT_2).toNumeric();
+        } else {
+            return list.get(list.size() / 2).toNumeric();
+        }
+    }
+
+    @Signature(@Arg(value = "comparator", type = HintType.CALLABLE, optional = @Optional("null")))
+    public Memory median(Environment env, Memory... args) {
+        List<Memory> list = sort(env, args[0])
+                .toValue(ArrayMemory.class)
+                .stream().collect(Collectors.toList());
+
+        if (list.isEmpty()) return Memory.NULL;
+
+        if (list.size() % 2 == 0) {
+            return list.get(list.size() / 2);
+        } else {
+            return list.get(list.size() / 2);
+        }
+    }
+
+    @Signature
+    public Memory concat(Environment env, Memory... args) {
+        StringBuilder sb = new StringBuilder();
+
+        for (Memory memory : getSelfIterator(env)) {
+            sb.append(memory.toString());
+        }
+
+        return StringMemory.valueOf(sb.toString());
     }
 
     @Signature(@Arg(value = "callback", type = HintType.CALLABLE))
