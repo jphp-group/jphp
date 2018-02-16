@@ -71,7 +71,7 @@ abstract class Stream
      * @throws IOException
      * @throws ProcessorException
      */
-    public function parseAs(string $format, int $flags = 0)
+    public function parseAs(string $format, int $flags = -1)
     {
     }
 
@@ -82,7 +82,7 @@ abstract class Stream
      * @throws IOException
      * @throws ProcessorException
      */
-    public function readFormatted(string $format, int $flags = 0)
+    public function readFormatted(string $format, int $flags = -1)
     {
     }
 
@@ -94,7 +94,7 @@ abstract class Stream
      * @throws ProcessorException
      * @throws IOException
      */
-    public function writeFormatted($value, string $format, int $flags = 0)
+    public function writeFormatted($value, string $format, int $flags = -1)
     {
     }
 

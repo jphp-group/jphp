@@ -444,7 +444,7 @@ class fs
      * @throws ProcessorException
      * @throws IOException
      */
-    static function parseAs($path, string $format, int $flags = 0)
+    static function parseAs($path, string $format, int $flags = -1)
     {
     }
 
@@ -459,7 +459,7 @@ class fs
      * @throws ProcessorException
      * @throws IOException
      */
-    static function parse($path, int $flags = 0)
+    static function parse($path, int $flags = -1)
     {
     }
 
@@ -473,7 +473,7 @@ class fs
      * @param string $format
      * @param int $flags
      */
-    static function formatAs($path, $value, string $format, int $flags = 0)
+    static function formatAs($path, $value, string $format, int $flags = -1)
     {
     }
 
@@ -486,7 +486,7 @@ class fs
      * @param mixed $value
      * @param int $flags
      */
-    static function format($path, $value, int $flags = 0)
+    static function format($path, $value, int $flags = -1)
     {
     }
 }

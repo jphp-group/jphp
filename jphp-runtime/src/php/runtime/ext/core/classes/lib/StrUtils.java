@@ -571,14 +571,14 @@ public class StrUtils extends BaseObject {
         return s.contains(args[1].toString()) ? Memory.TRUE : Memory.FALSE;
     }
 
-    @Signature({@Arg("string"), @Arg("format"), @Arg(value = "flags", optional = @Optional("0"))})
+    @Signature({@Arg("string"), @Arg("format"), @Arg(value = "flags", optional = @Optional("-1"))})
     public static Memory parseAs(Environment env, Memory... args) throws Throwable {
         return env.invokeMethod(
                 WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger()), "parse", args[0]
         );
     }
 
-    @Signature({@Arg("memory"), @Arg("format"), @Arg(value = "flags", optional = @Optional("0"))})
+    @Signature({@Arg("memory"), @Arg("format"), @Arg(value = "flags", optional = @Optional("-1"))})
     public static Memory formatAs(Environment env, Memory... args) throws Throwable {
         return env.invokeMethod(
                 WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger()), "format", args[0]

@@ -100,7 +100,7 @@ abstract public class WrapProcessor extends BaseObject {
 
         String className = env.getUserValue(ProcessorException.class.getName() + "#" + code, String.class);
 
-        if (flags == 0) {
+        if (flags == -1) {
             flags = env.getUserValue(ProcessorException.class.getName() + "#" + code + ".flags", Integer.class);
         }
 

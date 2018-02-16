@@ -281,7 +281,7 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory parse(Environment env, String input) throws Throwable {
-        return parseAs(env, input, ext(input), 0);
+        return parseAs(env, input, ext(input), -1);
     }
 
     @Signature
@@ -291,7 +291,7 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory parseAs(Environment env, String input, String format) throws Throwable {
-        return parseAs(env, input, format, 0);
+        return parseAs(env, input, format, -1);
     }
 
     @Signature
@@ -306,7 +306,7 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory format(Environment env, String input, Memory value) throws Throwable {
-        return format(env, input, value, 0);
+        return format(env, input, value, -1);
     }
 
     @Signature
@@ -316,7 +316,7 @@ public class FsUtils extends BaseObject {
 
     @Signature
     public static Memory formatAs(Environment env, String input, Memory value, String format) throws Throwable {
-        return formatAs(env, input, value, format, 0);
+        return formatAs(env, input, value, format, -1);
     }
 
     @Signature

@@ -278,7 +278,7 @@ abstract public class Stream extends BaseObject implements Resource {
     @Signature({
             @Arg("value"),
             @Arg(value = "format", type = HintType.STRING),
-            @Arg(value = "flags", optional = @Optional("0"))
+            @Arg(value = "flags", optional = @Optional("-1"))
     })
     public Memory writeFormatted(Environment env, Memory... args) throws Throwable {
         WrapProcessor processor = WrapProcessor.createByCode(env, args[1].toString(), args[2].toInteger());
@@ -287,7 +287,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
     @Signature({
             @Arg(value = "format", type = HintType.STRING),
-            @Arg(value = "flags", optional = @Optional("0"))
+            @Arg(value = "flags", optional = @Optional("-1"))
     })
     final public Memory parseAs(Environment env, Memory... args) throws Throwable {
         return readFormatted(env, args);
@@ -295,7 +295,7 @@ abstract public class Stream extends BaseObject implements Resource {
 
     @Signature({
             @Arg(value = "format", type = HintType.STRING),
-            @Arg(value = "flags", optional = @Optional("0"))
+            @Arg(value = "flags", optional = @Optional("-1"))
     })
     public Memory readFormatted(Environment env, Memory... args) throws Throwable {
         WrapProcessor processor = WrapProcessor.createByCode(env, args[0].toString(), args[1].toInteger());

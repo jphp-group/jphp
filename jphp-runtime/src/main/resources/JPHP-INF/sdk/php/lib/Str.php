@@ -457,7 +457,7 @@ class str
      * @return mixed
      * @throws ProcessorException
      */
-    public static function parseAs(string $string, string $format, $flags = 0)
+    public static function parseAs(string $string, string $format, $flags = -1)
     {
     }
 
@@ -470,13 +470,13 @@ class str
      * @return string
      * @throws ProcessorException
      */
-    public static function formatAs($input, string $format, $flags = 0): string
+    public static function formatAs($input, string $format, $flags = -1): string
     {
     }
 
     /**
      * @param string $string
-     * @param ...$args
+     * @param array ...$args
      * @return string
      */
     public static function format($string, ...$args)
