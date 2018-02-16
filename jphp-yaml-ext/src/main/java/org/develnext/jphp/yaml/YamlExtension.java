@@ -9,7 +9,7 @@ import php.runtime.ext.support.Extension;
 public class YamlExtension extends Extension {
     @Override
     public Status getStatus() {
-        return Status.EXPERIMENTAL;
+        return Status.BETA;
     }
 
     @Override

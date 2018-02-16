@@ -39,7 +39,7 @@ public class HttpServerExtension extends Extension {
 
     @Override
     public Status getStatus() {
-        return Status.EXPERIMENTAL;
+        return Status.BETA;
     }
 
     @Override
