@@ -11,6 +11,7 @@ dependencies {
     compile project(':jphp-zend-ext')
     compile project(':jphp-yaml-ext')
     compile project(':jphp-xml-ext')
+    compile project(':jphp-graphic-ext')
     //compile project(':jphp-json-ext')
     //compile project(':jphp-jsoup-ext')
     //compile project(':jphp-gdx-ext')

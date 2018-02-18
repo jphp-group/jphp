@@ -214,6 +214,8 @@ public class ClassWrapper {
                     name = name.substring(5);
                 } else if (name.startsWith("get")) {
                     name = name.substring(3);
+                } else if (name.startsWith("is") && (method.getReturnType() == Boolean.TYPE || method.getReturnType() == Boolean.class)) {
+                    name = name.substring(2);
                 }
 
                 name = name.substring(0, 1).toLowerCase() + name.substring(1);

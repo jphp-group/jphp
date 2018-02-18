@@ -15,6 +15,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -126,6 +127,16 @@ public class PImageDraw extends BaseObject {
         }
 
         return Memory.FALSE;
+    }
+
+    @Signature
+    public void clipRect(double x, double y, double width, double height) {
+        gc.clip(new Rectangle2D.Double(x, y, width, height));
+    }
+
+    @Signature
+    public void clipEllipse(double x, double y, double width, double height) {
+        gc.clip(new Ellipse2D.Double(x, y, width, height));
     }
 
     @Signature

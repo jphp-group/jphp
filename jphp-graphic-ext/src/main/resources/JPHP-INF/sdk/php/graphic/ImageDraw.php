@@ -37,6 +37,26 @@ class ImageDraw
     }
 
     /**
+     * @param float $x
+     * @param float $y
+     * @param float $width
+     * @param float $height
+     */
+    public function clipRect(float $x, float $y, float $width, float $height)
+    {
+    }
+
+    /**
+     * @param float $x
+     * @param float $y
+     * @param float $width
+     * @param float $height
+     */
+    public function clipEllipse(float $x, float $y, float $width, float $height)
+    {
+    }
+
+    /**
      * @param int $x
      * @param int $y
      * @param Image $image
@@ -129,5 +149,18 @@ class ImageDraw
      */
     public function circle(int $x, int $y, int $radius, array $options = ['fill' => null, 'outline' => false])
     {
+    }
+
+    /**
+     * Disposes of this graphics context and releases
+     * any system resources that it is using.
+     */
+    public function dispose()
+    {
+    }
+
+    public function __destruct()
+    {
+        $this->dispose();
     }
 }

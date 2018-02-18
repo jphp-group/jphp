@@ -11,6 +11,7 @@ import php.runtime.lang.support.ICloneableObject;
 import php.runtime.reflection.ClassEntity;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -56,6 +57,16 @@ public class PImage extends BaseObject implements ICloneableObject<PImage> {
     }
 
     @Signature
+    public Color getPixel(int x, int y) {
+        return new Color(image.getRGB(x, y));
+    }
+
+    @Signature
+    public void setPixel(int x, int y, Color color) {
+        image.setRGB(x, y, color.getRGB());
+    }
+
+    @Signature
     public PImage rotate(double angle)
     {
         double sin = Math.abs(Math.sin(Math.toRadians(angle))),
@@ -98,6 +109,7 @@ public class PImage extends BaseObject implements ICloneableObject<PImage> {
 
     @Signature
     public boolean save(OutputStream outputStream, String format) throws IOException {
+        //final ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
         return ImageIO.write(image, format, outputStream);
     }
 

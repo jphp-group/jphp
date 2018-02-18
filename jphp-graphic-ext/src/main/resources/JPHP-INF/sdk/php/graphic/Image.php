@@ -42,6 +42,24 @@ class Image
     }
 
     /**
+     * @param int $x
+     * @param int $y
+     * @return Color
+     */
+    public function getPixel(int $x, int $y): Color
+    {
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @param Color $color
+     */
+    public function setPixel(int $x, int $y, Color $color)
+    {
+    }
+
+    /**
      * @param float $angle
      * @return Image $this
      */

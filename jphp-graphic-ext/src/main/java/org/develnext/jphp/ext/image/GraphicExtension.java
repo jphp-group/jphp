@@ -1,5 +1,6 @@
 package org.develnext.jphp.ext.image;
 
+import org.develnext.jphp.ext.image.bind.BufferedImageMemoryOperation;
 import org.develnext.jphp.ext.image.bind.ColorMemoryOperation;
 import org.develnext.jphp.ext.image.bind.DrawOptionsMemoryOperation;
 import org.develnext.jphp.ext.image.bind.FontMemoryOperation;
@@ -24,6 +25,7 @@ public class GraphicExtension extends Extension {
         MemoryOperation.register(new ColorMemoryOperation());
         MemoryOperation.register(new DrawOptionsMemoryOperation());
         MemoryOperation.register(new FontMemoryOperation());
+        MemoryOperation.register(new BufferedImageMemoryOperation());
 
         registerClass(scope, PImage.class);
         registerClass(scope, PImageDraw.class);
