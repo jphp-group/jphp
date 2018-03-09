@@ -6,6 +6,8 @@ namespace php\lib;
  *
  * Class num
  * @package sdk\php\lib
+ *
+ * @packages std, core
  */
 class num
 {

@@ -1,6 +1,17 @@
 def javaVersion    = '1.8';
 def projectVersion = '0.9.3';
 
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+    }
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'signing'
@@ -37,6 +48,7 @@ allprojects {
 
 configure(subprojects) {
     apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
