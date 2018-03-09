@@ -507,7 +507,13 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
         }
 
-        return ArrayMemory.of(env.peekCall(0).args);
+        Memory[] args = env.peekCall(0).args;
+
+        if (args == null) {
+            return new ArrayMemory().toConstant();
+        }
+
+        return ArrayMemory.of(args);
     }
 
     public static Memory func_num_args(Environment env, TraceInfo trace) {
@@ -515,7 +521,13 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
         }
 
-        return LongMemory.valueOf(env.peekCall(0).args.length);
+        Memory[] args = env.peekCall(0).args;
+
+        if (args == null) {
+            return Memory.CONST_INT_0;
+        }
+
+        return LongMemory.valueOf(args.length);
     }
 
     public static Memory func_get_arg(Environment env, TraceInfo trace, int argNum) {
@@ -526,6 +538,11 @@ public class LangFunctions extends FunctionsContainer {
             return Memory.FALSE;
 
         Memory[] args = env.peekCall(0).args;
+
+        if (args == null) {
+            return  Memory.FALSE;
+        }
+
         if (argNum < args.length)
             return args[argNum];
         else

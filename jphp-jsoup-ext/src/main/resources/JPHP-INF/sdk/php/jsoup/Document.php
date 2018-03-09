@@ -18,7 +18,7 @@ abstract class Document extends Element
     }
 
     /**
-     * @param string $value (optional)
+     * @param string $value [optional]
      * @return string
      */
     function title($value)
