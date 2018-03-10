@@ -133,6 +133,14 @@ abstract public class Generator<T extends Token> {
         }
     }
 
+    protected void checkUnexpectedStart(ListIterator<Token> iterator){
+        if (!iterator.hasPrevious()){
+            iterator.next();
+            Token current = iterator.previous();
+            unexpectedToken(current);
+        }
+    }
+
     protected Token makeSensitive(Token token) {
         if (token instanceof NameToken) {
             return token;
@@ -170,8 +178,22 @@ abstract public class Generator<T extends Token> {
     protected Token nextToken(ListIterator<Token> iterator){
         checkUnexpectedEnd(iterator);
         Token tk = iterator.next();
-        if (tk instanceof CommentToken)
+
+        if (tk instanceof CommentToken) {
             return nextToken(iterator);
+        }
+
+        return tk;
+    }
+
+    protected Token prevToken(ListIterator<Token> iterator) {
+        checkUnexpectedStart(iterator);
+        Token tk = iterator.previous();
+
+        if (tk instanceof CommentToken) {
+            return prevToken(iterator);
+        }
+
         return tk;
     }
 
@@ -181,6 +203,7 @@ abstract public class Generator<T extends Token> {
         if (result instanceof CommentToken) {
             return nextTokenAndPrev(iterator);
         }
+
         iterator.previous();
         return result;
     }

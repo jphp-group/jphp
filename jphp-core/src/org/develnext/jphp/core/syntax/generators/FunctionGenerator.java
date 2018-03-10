@@ -155,7 +155,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         return argument;
     }
 
-    protected void processArguments(FunctionStmtToken result, ListIterator<Token> iterator){
+    protected void processArguments(FunctionStmtToken result, ListIterator<Token> iterator) {
         checkUnexpectedEnd(iterator);
         List<ArgumentStmtToken> arguments = new ArrayList<ArgumentStmtToken>();
         while (iterator.hasNext()){

@@ -9,6 +9,7 @@ import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.ExprGenerator;
 import org.develnext.jphp.core.syntax.generators.FunctionGenerator;
 import org.develnext.jphp.core.syntax.generators.Generator;
+import org.develnext.jphp.core.syntax.generators.LambdaGenerator;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.BreakToken;
@@ -60,7 +61,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
-    protected Token processClosure(Token current, Token next, ListIterator<Token> iterator){
+    protected Token processLambda(Token current, ListIterator<Token> iterator, Separator separator, BraceExprToken.Kind braceKind) {
+        LambdaStmtToken token = analyzer.generator(LambdaGenerator.class).getToken(current, iterator, separator, braceKind);
+
+        ClosureStmtToken closureStmtToken = new ClosureStmtToken(current.getMeta());
+        closureStmtToken.setFunction(token.getFunction());
+        closureStmtToken.setOwnerClass(analyzer.getClazz());
+        analyzer.registerClosure(closureStmtToken);
+
+        return closureStmtToken;
+    }
+
+    protected Token processClosure(Token current, Token next, ListIterator<Token> iterator) {
         FunctionStmtToken functionStmtToken = analyzer.generator(FunctionGenerator.class).getToken(
             current, iterator, true
         );
@@ -1320,7 +1332,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                                   Callback<Boolean, Token> breakCallback) {
         isRef = false;
 
-        List<Token> tokens = new ArrayList<Token>();
+        List<Token> tokens = new ArrayList<>();
         Token previous = null;
         Token next = iterator.hasNext() ? iterator.next() : null;
         if (next != null)
@@ -1434,8 +1446,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (separator == Separator.ARRAY_BLOCK
                     && braceOpened == 0 && isClosedBrace(current, BLOCK)){
                 break;
-            } else if (current instanceof FunctionStmtToken){
+            } else if (current instanceof FunctionStmtToken) {
                 current = processClosure(current, next, iterator);
+                tokens.add(current);
+            } else if (current instanceof LambdaStmtToken) {
+                current = processLambda(current, iterator, separator, closedBraceKind);
                 tokens.add(current);
             } else if (current instanceof ListExprToken && isOpenedBrace(next, SIMPLE)){
                 current = processList(current, iterator, null, closedBraceKind, braceOpened);

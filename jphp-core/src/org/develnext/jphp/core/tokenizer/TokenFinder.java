@@ -62,6 +62,7 @@ public class TokenFinder {
         put("->", DynamicAccessExprToken.class);
         put("::", StaticAccessExprToken.class);
         put("=>", KeyValueExprToken.class);
+        put("fn", LambdaStmtToken.class);
 
         put("+=", AssignPlusExprToken.class);
         put("-=", AssignMinusExprToken.class);
