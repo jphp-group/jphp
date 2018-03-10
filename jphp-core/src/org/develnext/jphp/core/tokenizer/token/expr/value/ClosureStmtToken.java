@@ -8,6 +8,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
 
 public class ClosureStmtToken extends ValueExprToken {
     protected FunctionStmtToken function;
+    protected FunctionStmtToken parentFunction;
     protected ClassStmtToken ownerClass;
     protected int id;
 
@@ -37,5 +38,13 @@ public class ClosureStmtToken extends ValueExprToken {
 
     public void setOwnerClass(ClassStmtToken ownerClass) {
         this.ownerClass = ownerClass;
+    }
+
+    public FunctionStmtToken getParentFunction() {
+        return parentFunction;
+    }
+
+    public void setParentFunction(FunctionStmtToken parentFunction) {
+        this.parentFunction = parentFunction;
     }
 }

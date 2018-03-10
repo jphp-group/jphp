@@ -67,6 +67,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         ClosureStmtToken closureStmtToken = new ClosureStmtToken(current.getMeta());
         closureStmtToken.setFunction(token.getFunction());
         closureStmtToken.setOwnerClass(analyzer.getClazz());
+        closureStmtToken.setParentFunction(token.getParentFunction());
         analyzer.registerClosure(closureStmtToken);
 
         return closureStmtToken;

@@ -64,6 +64,8 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
             iterator.previous();
 
             FunctionStmtToken func = new FunctionStmtToken(current.getMeta());
+            func.setUses(new ArrayList<>());
+            func.setAutoUses(true);
             analyzer.pushClosure(func);
             analyzer.addScope(true);
 
@@ -88,16 +90,29 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
             }
 
             Set<VariableExprToken> variables = analyzer.getScope().getVariables();
+            if (analyzer.getFunction() != null) {
+                for (ArgumentStmtToken token : analyzer.getFunction().getArguments()) {
+                    variables.add(token.getName());
+                }
+            }
+
+            FunctionStmtToken peekClosure = analyzer.peekClosure();
+            if (peekClosure != null && peekClosure.getUses() != null) {
+                for (ArgumentStmtToken token : peekClosure.getUses()) {
+                    variables.add(token.getName());
+                }
+            }
+
             Set<VariableExprToken> local = func.getLocal();
             Set<VariableExprToken> arguments = new HashSet<>();
-            List<ArgumentStmtToken> uses = new ArrayList<>();
+            List<ArgumentStmtToken> uses = func.getUses();
 
             for (ArgumentStmtToken argument : func.getArguments()) {
                 arguments.add(argument.getName());
             }
 
             for (VariableExprToken l : local) {
-                if (!arguments.contains(l) && variables.contains(l) && !l.equals(FunctionStmtToken.thisVariable)) {
+                if (!arguments.contains(l) && !l.equals(FunctionStmtToken.thisVariable)) {
                     ArgumentStmtToken use = new ArgumentStmtToken(l.getMeta());
                     use.setName(l);
                     use.setReference(false);
@@ -107,6 +122,10 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
                     }
 
                     uses.add(use);
+
+                    if (peekClosure != null && peekClosure.isAutoUses() && peekClosure.getUses() != null) {
+                        peekClosure.getUses().add(use);
+                    }
                 }
             }
 
@@ -118,6 +137,8 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
             iterator.next();
 
             lambda.setFunction(func);
+            lambda.setParentFunction(peekClosure);
+
             return lambda;
         }
 

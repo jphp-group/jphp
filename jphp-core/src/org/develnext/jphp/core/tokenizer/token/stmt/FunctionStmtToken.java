@@ -40,6 +40,7 @@ public class FunctionStmtToken extends StmtToken {
     protected boolean varsExists;
     protected boolean thisExists;
     protected boolean staticExists;
+    protected boolean autoUses = false;
 
     public static final VariableExprToken thisVariable = VariableExprToken.valueOf("this");
     protected int id;
@@ -60,6 +61,14 @@ public class FunctionStmtToken extends StmtToken {
 
         this.staticLocal = new HashSet<VariableExprToken>();
         this.variables = new LinkedHashMap<String, VariableStats>();
+    }
+
+    public boolean isAutoUses() {
+        return autoUses;
+    }
+
+    public void setAutoUses(boolean autoUses) {
+        this.autoUses = autoUses;
     }
 
     public Set<VariableExprToken> getStaticLocal() {
