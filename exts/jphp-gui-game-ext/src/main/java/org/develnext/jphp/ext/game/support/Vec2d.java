@@ -1,0 +1,228 @@
+package org.develnext.jphp.ext.game.support;
+
+import java.io.Serializable;
+
+public class Vec2d implements Serializable {
+    public static final Vec2d ZERO = new Vec2d(0, 0);
+
+    public static final float EPSILON = 1.1920928955078125E-7f;
+
+    private static final long serialVersionUID = 1L;
+
+    public double x, y;
+
+    public Vec2d() {
+        this(0, 0);
+    }
+
+    public Vec2d(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Vec2d(Vec2d toCopy) {
+        this(toCopy.x, toCopy.y);
+    }
+
+    public final void setZero() {
+        x = 0.0f;
+        y = 0.0f;
+    }
+
+    public final Vec2d set(float x, float y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    public final Vec2d set(Vec2d v) {
+        this.x = v.x;
+        this.y = v.y;
+        return this;
+    }
+
+    public final Vec2d add(Vec2d v) {
+        return new Vec2d(x + v.x, y + v.y);
+    }
+
+    public final Vec2d sub(Vec2d v) {
+        return new Vec2d(x - v.x, y - v.y);
+    }
+
+    public final Vec2d mul(float a) {
+        return new Vec2d(x * a, y * a);
+    }
+
+    public final Vec2d negate() {
+        return new Vec2d(-x, -y);
+    }
+
+    public final Vec2d negateLocal() {
+        x = -x;
+        y = -y;
+        return this;
+    }
+
+    public final Vec2d addLocal(Vec2d v) {
+        x += v.x;
+        y += v.y;
+        return this;
+    }
+
+    public final Vec2d addLocal(float x, float y) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
+
+    public final Vec2d subLocal(Vec2d v) {
+        x -= v.x;
+        y -= v.y;
+        return this;
+    }
+
+    public final Vec2d mulLocal(float a) {
+        x *= a;
+        y *= a;
+        return this;
+    }
+
+    public final Vec2d skew() {
+        return new Vec2d(-y, x);
+    }
+
+    public final void skew(Vec2d out) {
+        out.x = -y;
+        out.y = x;
+    }
+
+    public final double length() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public final double lengthSquared() {
+        return (x * x + y * y);
+    }
+
+    public final double normalize() {
+        double length = length();
+        if (length < EPSILON) {
+            return 0f;
+        }
+
+        double invLength = 1.0f / length;
+        x *= invLength;
+        y *= invLength;
+        return length;
+    }
+
+    public final boolean isValid() {
+        return !Double.isNaN(x) && !Double.isInfinite(x) && !Double.isNaN(y) && !Double.isInfinite(y);
+    }
+
+    public final Vec2d abs() {
+        return new Vec2d(Math.abs(x), Math.abs(y));
+    }
+
+    public final void absLocal() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+    }
+
+    @Override
+    public final String toString() {
+        return "(" + x + "," + y + ")";
+    }
+
+    public final static Vec2d abs(Vec2d a) {
+        return new Vec2d(Math.abs(a.x), Math.abs(a.y));
+    }
+
+    public final static void absToOut(Vec2d a, Vec2d out) {
+        out.x = Math.abs(a.x);
+        out.y = Math.abs(a.y);
+    }
+
+    public final static double dot(Vec2d a, Vec2d b) {
+        return a.x * b.x + a.y * b.y;
+    }
+
+    public final static double cross(Vec2d a, Vec2d b) {
+        return a.x * b.y - a.y * b.x;
+    }
+
+    public final static Vec2d cross(Vec2d a, double s) {
+        return new Vec2d(s * a.y, -s * a.x);
+    }
+
+    public final static void crossToOut(Vec2d a, double s, Vec2d out) {
+        final double tempy = -s * a.x;
+        out.x = s * a.y;
+        out.y = tempy;
+    }
+
+    public final static void crossToOutUnsafe(Vec2d a, float s, Vec2d out) {
+        assert (out != a);
+        out.x = s * a.y;
+        out.y = -s * a.x;
+    }
+
+    public final static Vec2d cross(float s, Vec2d a) {
+        return new Vec2d(-s * a.y, s * a.x);
+    }
+
+    public final static void crossToOut(float s, Vec2d a, Vec2d out) {
+        final double tempY = s * a.x;
+        out.x = -s * a.y;
+        out.y = tempY;
+    }
+
+    public final static void crossToOutUnsafe(float s, Vec2d a, Vec2d out) {
+        assert (out != a);
+        out.x = -s * a.y;
+        out.y = s * a.x;
+    }
+
+    public final static void negateToOut(Vec2d a, Vec2d out) {
+        out.x = -a.x;
+        out.y = -a.y;
+    }
+
+    public final static Vec2d min(Vec2d a, Vec2d b) {
+        return new Vec2d(a.x < b.x ? a.x : b.x, a.y < b.y ? a.y : b.y);
+    }
+
+    public final static Vec2d max(Vec2d a, Vec2d b) {
+        return new Vec2d(a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y);
+    }
+
+    public final static void minToOut(Vec2d a, Vec2d b, Vec2d out) {
+        out.x = a.x < b.x ? a.x : b.x;
+        out.y = a.y < b.y ? a.y : b.y;
+    }
+
+    public final static void maxToOut(Vec2d a, Vec2d b, Vec2d out) {
+        out.x = a.x > b.x ? a.x : b.x;
+        out.y = a.y > b.y ? a.y : b.y;
+    }
+
+    @Override
+    public int hashCode() { // automatically generated by Eclipse
+        final int prime = 31;
+        long result = 1;
+        result = prime * result + Double.doubleToLongBits(x);
+        result = prime * result + Double.doubleToLongBits(y);
+        return (int) result;
+    }
+
+    @Override
+    public boolean equals(Object obj) { // automatically generated by Eclipse
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Vec2d other = (Vec2d) obj;
+        if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) return false;
+        if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y)) return false;
+        return true;
+    }
+}

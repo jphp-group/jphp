@@ -1,0 +1,9 @@
+
+dependencies {
+    provided project(":jphp-runtime")
+    compile 'org.dyn4j:dyn4j:3.2.1'
+
+    provided (project(":exts/jphp-gui-ext")) {
+        transitive = false
+    }
+}

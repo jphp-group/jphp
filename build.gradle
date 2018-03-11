@@ -68,12 +68,24 @@ configure(subprojects) {
 
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
-    if (it.name.startsWith("exts/")) {
+    def extDir = "exts/";
+
+    if (it.name.startsWith(extDir)) {
         def pr = it
 
         install {
             repositories.mavenInstaller {
-                pom.artifactId = pr.name.substring(5)
+                pom.artifactId = pr.name.substring(extDir.length())
+            }
+        }
+
+        def installer = install.repositories.mavenInstaller
+
+        [installer]*.pom*.whenConfigured {pom ->
+            pom.dependencies.each { dep ->
+                if (dep.artifactId.startsWith(extDir)) {
+                    dep.artifactId = dep.artifactId.substring(extDir.length())
+                }
             }
         }
     }

@@ -1,0 +1,4 @@
+dependencies {
+    provided project(":jphp-runtime")
+    provided project(":exts/jphp-gui-ext")
+}
