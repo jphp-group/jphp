@@ -1,7 +1,4 @@
 dependencies {
     provided project(":jphp-runtime")
-
     provided project(":jphp-core")
-    compile project(":exts/jphp-xml-ext")
-    compile project(":exts/jphp-graphic-ext")
 }
