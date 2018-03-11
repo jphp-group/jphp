@@ -2,12 +2,12 @@
 
 include 'jphp-runtime',
         'jphp-core',
-        'jphp-gen-api',
         'jphp-scripting',
 
         'jphp-debugger',
 
-        'sandbox', 'bench'
+        'sandbox',
+        'bench'
 
 
 file("$rootDir.path/exts").listFiles().each { file ->
