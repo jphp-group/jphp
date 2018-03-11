@@ -1,20 +1,19 @@
 
+
 include 'jphp-runtime',
         'jphp-core',
-        'jphp-zend-ext',
-        'jphp-json-ext',
-        'jphp-xml-ext',
-        'jphp-yaml-ext',
-        'jphp-jsoup-ext',
-        'jphp-graphic-ext',
-        'jphp-mail-ext',
-        'jphp-git-ext',
-        'jphp-sql-ext',
-        'jphp-httpserver-ext',
-        'jphp-crypto-ext',
         'jphp-gen-api',
         'jphp-scripting',
 
         'jphp-debugger',
 
         'sandbox', 'bench'
+
+
+file("$rootDir.path/exts").listFiles().each { file ->
+    if (file.directory && file.name.startsWith("jphp-") && file.name.endsWith("-ext")) {
+        println "include 'exts/$file.name'"
+
+        include "exts/$file.name"
+    }
+}

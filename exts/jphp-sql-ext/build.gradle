@@ -1,0 +1,11 @@
+apply plugin: 'maven'
+
+dependencies {
+    provided project(':jphp-runtime')
+    compile 'com.zaxxer:HikariCP-java6:2.3.7'
+
+    testCompile 'org.xerial:sqlite-jdbc:3.8.7'
+    testCompile 'junit:junit:4.+'
+    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':jphp-core').sourceSets.test.output
+}

@@ -1,7 +1,0 @@
-apply plugin: 'maven'
-
-dependencies {
-    provided project(':jphp-runtime')
-
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.7.0.201704051617-r'
-}

@@ -1,0 +1,13 @@
+
+dependencies {
+    provided project(':jphp-runtime')
+
+    /*compile group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-bmp', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-icns', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-tga', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-hdr', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-ico', version: '3.0.2'*/
+}

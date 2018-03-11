@@ -1,1 +1,1 @@
-<?use php\lib\arr;$fruits = array("d"=>"lemon", "a"=>"orange", "b"=>"banana", "c"=>"apple");$fruits = arr::sortByKeys($fruits, function ($a, $b) { return $a <=> $b; }, true);foreach ($fruits as $key => $value) {    var_dump($key, $value);}
+<?php

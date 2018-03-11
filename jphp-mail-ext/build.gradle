@@ -1,7 +1,0 @@
-apply plugin: 'maven'
-
-dependencies {
-    compile project(':jphp-runtime')
-
-    compile 'org.apache.commons:commons-email:1.3.3'
-}

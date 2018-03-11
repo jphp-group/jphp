@@ -1,0 +1,10 @@
+
+def jettyVersion = '9.4.3.v20170317'
+
+dependencies {
+    provided project(':jphp-runtime')
+
+    compile "org.eclipse.jetty:jetty-server:${jettyVersion}"
+    compile "org.eclipse.jetty:jetty-security:${jettyVersion}"
+    compile "org.eclipse.jetty.websocket:websocket-server:${jettyVersion}"
+}

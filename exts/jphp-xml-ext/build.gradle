@@ -1,0 +1,5 @@
+apply plugin: 'maven'
+
+dependencies {
+    provided project(':jphp-runtime')
+}
