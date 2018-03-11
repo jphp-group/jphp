@@ -4,5 +4,6 @@ dependencies {
 
     compile group: 'org.zeroturnaround', name: 'zt-zip', version: '1.11'
 
+    testCompile project(':jphp-core')
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }

@@ -4,8 +4,9 @@ sourceSets {
 
 dependencies {
     provided project(':jphp-core')
-    provided project(':exts/jphp-json-ext')
+    compile project(':exts/jphp-json-ext')
 
     testCompile 'junit:junit:4.+'
+    testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }
