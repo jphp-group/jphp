@@ -4,6 +4,9 @@ namespace php\graphic;
 /**
  * Class Color
  * @package php\graphic
+ *
+ *
+ * @packages graphic
  */
 class Color
 {

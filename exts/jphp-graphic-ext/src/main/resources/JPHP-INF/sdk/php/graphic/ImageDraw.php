@@ -4,6 +4,8 @@ namespace php\graphic;
 /**
  * Class ImageDraw
  * @package php\image
+ *
+ * @packages graphic
  */
 class ImageDraw
 {

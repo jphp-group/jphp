@@ -6,6 +6,9 @@ use php\io\Stream;
 /**
  * Class Image
  * @package php\image
+ *
+ *
+ * @packages graphic
  */
 class Image
 {

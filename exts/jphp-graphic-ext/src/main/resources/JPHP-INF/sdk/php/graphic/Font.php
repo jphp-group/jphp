@@ -4,6 +4,8 @@ namespace php\graphic;
 /**
  * Class Font
  * @package php\graphic
+ *
+ * @packages graphic
  */
 class Font
 {
