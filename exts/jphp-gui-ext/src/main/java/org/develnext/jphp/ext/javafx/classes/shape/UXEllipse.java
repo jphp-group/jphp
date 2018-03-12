@@ -49,7 +49,6 @@ public class UXEllipse extends UXShape<Ellipse> {
         getWrappedObject().setRadiusY(v / 2);
     }
 
-
     @Override
     public void setX(double v) {
         super.setX(v + getWrappedObject().getRadiusX());

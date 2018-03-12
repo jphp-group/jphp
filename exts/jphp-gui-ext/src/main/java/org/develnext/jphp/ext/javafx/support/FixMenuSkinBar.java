@@ -1,4 +1,4 @@
-package org.develnext.jphp.ext.javafx.support;
+/*package org.develnext.jphp.ext.javafx.support;
 
 import com.sun.javafx.scene.control.skin.*;
 import javafx.beans.InvalidationListener;
@@ -29,4 +29,4 @@ public class FixMenuSkinBar extends com.sun.javafx.scene.control.skin.MenuBarSki
             // nop
         }
     }
-}
+}*/

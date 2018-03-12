@@ -15,10 +15,10 @@ import java.util.Collections;
 import java.util.List;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.Styleable;
-import javafx.css.StyleableProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -26,8 +26,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeType;
-
-import com.sun.javafx.css.converters.PaintConverter;
 
 /**
  * Marks a Tab-Position
@@ -127,7 +125,7 @@ public final class TabOutlineMarker extends Group {
 		getChildren().setAll(pl);
 	}
 
-	private final ObjectProperty<Paint> fill = new SimpleStyleableObjectProperty<>(FILL, this, "fill", Color.ORANGE); //$NON-NLS-1$
+	private final ObjectProperty<Paint> fill = new SimpleObjectProperty<>(this, "fill", Color.ORANGE); //$NON-NLS-1$
 
 	/**
 	 * The fill property
@@ -170,26 +168,10 @@ public final class TabOutlineMarker extends Group {
 		return fillProperty().get();
 	}
 
-	private static final CssMetaData<TabOutlineMarker, Paint> FILL = new CssMetaData<TabOutlineMarker, Paint>("-fx-fill", PaintConverter.getInstance(), Color.ORANGE) { //$NON-NLS-1$
-
-		@Override
-		public boolean isSettable(TabOutlineMarker node) {
-			return !node.fillProperty().isBound();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public StyleableProperty<Paint> getStyleableProperty(TabOutlineMarker node) {
-			return (StyleableProperty<Paint>) node.fillProperty();
-		}
-
-	};
-
 	private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
 	static {
 		final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<CssMetaData<? extends Styleable, ?>>(Group.getClassCssMetaData());
-		styleables.add(FILL);
 		STYLEABLES = Collections.unmodifiableList(styleables);
 	}
 

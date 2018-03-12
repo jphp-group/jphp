@@ -37,6 +37,7 @@ allprojects {
 
     configurations {
         provided
+        java9
     }
 
     sourceSets {
@@ -57,6 +58,12 @@ configure(subprojects) {
 
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
+
+    jar {
+        manifest.attributes(
+                'Multi-Release': 'true'
+        )
+    }
 
     sourceSets {
         main.java.srcDirs = ['src/main/java']

@@ -2,11 +2,9 @@ package org.develnext.jphp.ext.javafx.classes.data;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.SnapshotResult;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.image.WritableImage;
 import javafx.util.Callback;
 
@@ -27,11 +25,6 @@ public abstract class MetaNode extends Label {
 
     @Override
     public final boolean contains(double localX, double localY) {
-        return false;
-    }
-
-    @Override
-    protected final boolean containsBounds(double localX, double localY) {
         return false;
     }
 

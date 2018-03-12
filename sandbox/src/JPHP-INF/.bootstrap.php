@@ -1,1 +1,1 @@
-<?php
+<?phpuse php\gui\UXApplication;use php\gui\UXDialog;UXApplication::runLater(function () {    UXDialog::showAndWait('Hi!');});

@@ -4,7 +4,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import org.develnext.jphp.ext.javafx.JavaFXExtension;
-import org.develnext.jphp.ext.javafx.support.FixMenuSkinBar;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Property;
 import php.runtime.annotation.Reflection.Signature;
@@ -22,9 +21,9 @@ public class UXMenuBar extends UXControl {
         super(env, wrappedObject);
 
         if ( !JavaFXExtension.isJigsaw() ) {
-            if (!(getWrappedObject().getSkin() instanceof FixMenuSkinBar)) {
+            /*if (!(getWrappedObject().getSkin() instanceof FixMenuSkinBar)) {
                 getWrappedObject().setSkin(new FixMenuSkinBar(getWrappedObject()));
-            }
+            }*/
         }
     }
 
@@ -40,6 +39,6 @@ public class UXMenuBar extends UXControl {
     @Signature
     public void __construct() {
         __wrappedObject = new MenuBar();
-        getWrappedObject().setSkin(new FixMenuSkinBar(getWrappedObject()));
+        //getWrappedObject().setSkin(new FixMenuSkinBar(getWrappedObject()));
     }
 }

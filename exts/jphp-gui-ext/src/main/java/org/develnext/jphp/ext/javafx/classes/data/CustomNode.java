@@ -1,7 +1,5 @@
 package org.develnext.jphp.ext.javafx.classes.data;
 
-import com.sun.javafx.beans.IDProperty;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +12,8 @@ public class CustomNode extends MetaNode implements Map<String, String> {
 
     public CustomNode() {
         super();
-        IDProperty idProp = this.getClass().getAnnotation(IDProperty.class);
 
-        this.idKey = idProp != null ? idProp.value() : "id";
+        this.idKey = "id";
         map = new HashMap<>();
     }
 

@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.sun.javafx.scene.control.skin.TabPaneSkin;
 import javafx.collections.ListChangeListener;
 import javafx.css.StyleOrigin;
 import javafx.css.StyleableProperty;
@@ -36,7 +37,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-import com.sun.javafx.scene.control.skin.TabPaneSkin;
 import org.develnext.jphp.ext.javafx.support.control.tabpane.DndTabPaneFactory;
 import org.develnext.jphp.ext.javafx.support.control.tabpane.DndTabPaneFactory.DropType;
 import org.develnext.jphp.ext.javafx.support.control.tabpane.DndTabPaneFactory.DroppedData;
