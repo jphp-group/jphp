@@ -79,10 +79,10 @@ class arr
      * Example: items::toList(['x' => 10, 20], 30, ['x' => 50, 60]) -> [10, 20, 30, 50, 60]
      *
      * @param $collection
-     * @param ...
+     * @param array $others
      * @return array
      */
-    public static function toList($collection)
+    public static function toList($collection, ...$others): array
     {
         return [];
     }
@@ -92,10 +92,10 @@ class arr
      * --RU--
      * Возвращает все ключи коллекции
      *
-     * @param array|Iterator $collection
+     * @param iterable $collection
      * @return array
      */
-    public static function keys($collection)
+    public static function keys(iterable $collection): array
     {
         return [];
     }

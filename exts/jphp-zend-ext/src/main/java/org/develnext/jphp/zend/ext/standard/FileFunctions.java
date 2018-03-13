@@ -1,9 +1,12 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import php.runtime.Information;
 import php.runtime.Memory;
+import php.runtime.common.Constants;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.ext.core.classes.lib.ItemsUtils;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.core.classes.stream.WrapIOException;
 import php.runtime.ext.support.compile.FunctionsContainer;
@@ -11,10 +14,7 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.memory.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.util.*;
 
@@ -378,7 +378,7 @@ public class FileFunctions extends FunctionsContainer {
         try {
             int attribute = (int) Files.getAttribute(file, "unix:gid");
             return LongMemory.valueOf(attribute);
-        } catch (IOException|SecurityException e) {
+        } catch (IOException | SecurityException e) {
             env.warning(trace, e.getMessage());
             return Memory.FALSE;
         } catch (UnsupportedOperationException e) {
@@ -392,7 +392,7 @@ public class FileFunctions extends FunctionsContainer {
         try {
             int attribute = (int) Files.getAttribute(file, "unix:uid");
             return LongMemory.valueOf(attribute);
-        } catch (IOException|SecurityException e) {
+        } catch (IOException | SecurityException e) {
             env.warning(trace, e.getMessage());
             return Memory.FALSE;
         } catch (UnsupportedOperationException e) {
@@ -406,7 +406,7 @@ public class FileFunctions extends FunctionsContainer {
         try {
             int attribute = (int) Files.getAttribute(file, "unix:mode");
             return LongMemory.valueOf(attribute);
-        } catch (IOException|SecurityException e) {
+        } catch (IOException | SecurityException e) {
             env.warning(trace, e.getMessage());
             return Memory.FALSE;
         } catch (UnsupportedOperationException e) {
@@ -800,7 +800,9 @@ public class FileFunctions extends FunctionsContainer {
         switch (order) {
             case FileConstants.SCANDIR_SORT_DESCENDING:
                 Arrays.sort(list, Collections.reverseOrder());
-                for (String s : list) { r.add(s); }
+                for (String s : list) {
+                    r.add(s);
+                }
                 r.add("..");
                 r.add(".");
                 break;
@@ -809,14 +811,18 @@ public class FileFunctions extends FunctionsContainer {
                 r.add(".");
                 r.add("..");
                 Arrays.sort(list);
-                for (String s : list) { r.add(s); }
+                for (String s : list) {
+                    r.add(s);
+                }
 
                 break;
 
             default:
                 r.add(".");
                 r.add("..");
-                for (String s : list) { r.add(s); }
+                for (String s : list) {
+                    r.add(s);
+                }
 
                 break;
         }
@@ -827,5 +833,80 @@ public class FileFunctions extends FunctionsContainer {
 
     public static Memory scandir(String path) {
         return scandir(path, FileConstants.SCANDIR_SORT_ASCENDING);
+    }
+
+    public static Memory glob(Environment env, String path) {
+        return glob(env, path, 0);
+    }
+
+    private static boolean globMatches(PathMatcher matcher, String rule, File file) {
+        if (matcher.matches(file.toPath())) {
+            return true;
+        }
+
+        switch (rule) {
+            case "*":
+            case "*.*":
+                return true;
+        }
+
+        return false;
+    }
+
+    public static Memory glob(Environment env, String path, int flags) {
+        boolean onlyDirs = (flags & FileConstants.GLOB_ONLYDIR) == FileConstants.GLOB_ONLYDIR;
+        boolean err = (flags & FileConstants.GLOB_ERR) == FileConstants.GLOB_ERR;
+        boolean noSort = (flags & FileConstants.GLOB_NOSORT) == FileConstants.GLOB_NOSORT;
+        boolean noCheck = (flags & FileConstants.GLOB_NOCHECK) == FileConstants.GLOB_NOCHECK;
+        boolean noEscape = (flags & FileConstants.GLOB_NOESCAPE) == FileConstants.GLOB_NOESCAPE;
+
+        ArrayMemory result = new ArrayMemory();
+
+        boolean inCurrentDir = false;
+
+        File file = new File(path);
+        if (!path.endsWith("/") && !path.endsWith(Constants.DIRECTORY_SEPARATOR)) {
+            if (file.getParentFile() == null) {
+                file = new File("./");
+                path = "./" + path;
+                inCurrentDir = true;
+            } else {
+                file = file.getParentFile();
+            }
+        }
+
+        final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + path);
+
+        ArrayMemory finalResult = result;
+
+        File[] files = file.listFiles();
+
+        if (files != null) {
+            for (File one : files) {
+                if (globMatches(matcher, path, one)) {
+                    if (onlyDirs && !one.isDirectory()) {
+                        continue;
+                    }
+
+                    String onePath = one.getPath();
+                    if (inCurrentDir) {
+                        onePath = onePath.substring(file.getPath().length() + 1);
+                    }
+
+                    finalResult.add(StringMemory.valueOf(onePath));
+                }
+            }
+        }
+
+        if (result.size() == 0 && noCheck) {
+            result.add(path);
+            //return StringMemory.valueOf(path);
+        }
+
+        if (!noSort) {
+            result = ItemsUtils.sort(env, result, Memory.NULL, Memory.FALSE).toValue(ArrayMemory.class);
+        }
+
+        return result;
     }
 }

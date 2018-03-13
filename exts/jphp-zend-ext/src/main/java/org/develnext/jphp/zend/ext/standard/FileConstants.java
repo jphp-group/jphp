@@ -21,4 +21,12 @@ public class FileConstants extends ConstantsContainer {
     public final static int SCANDIR_SORT_ASCENDING = 0;
     public final static int SCANDIR_SORT_DESCENDING = 1;
     public final static int SCANDIR_SORT_NONE = 2;
+
+    public final static int GLOB_MARK = 2;
+    public final static int GLOB_NOSORT = 4;
+    public final static int GLOB_NOCHECK = 16;
+    public final static int GLOB_NOESCAPE = 64;
+    public final static int GLOB_BRACE = 1024;
+    public final static int GLOB_ONLYDIR = 8192;
+    public final static int GLOB_ERR = 1;
 }
