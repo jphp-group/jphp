@@ -1,0 +1,8 @@
+
+id: jphp
+name: JPHP Project
+
+modules:
+  - jphp-core
+  - jphp-runtime
+  - exts/jphp-*-ext

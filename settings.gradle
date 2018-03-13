@@ -5,6 +5,7 @@ include 'jphp-runtime',
         'jphp-scripting',
 
         'jphp-debugger',
+        'packager',
 
         'sandbox',
         'bench'

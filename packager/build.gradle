@@ -1,0 +1,26 @@
+apply plugin: 'maven'
+
+sourceSets {
+    main.java.srcDirs = ['src']
+    main.resources.srcDirs = ['src-php']
+}
+
+dependencies {
+    compile project(':jphp-runtime')
+    compile project(':exts/jphp-yaml-ext')
+}
+
+shadowJar {
+    archiveName = 'packager-all.jar'
+}
+
+task dist(dependsOn: 'shadowJar') {
+    doLast {
+        println "Copy $shadowJar.archiveName to build/dist"
+
+        copy {
+            from "$buildDir.path/libs/$shadowJar.archiveName"
+            into "$buildDir.path/dist/"
+        }
+    }
+}
