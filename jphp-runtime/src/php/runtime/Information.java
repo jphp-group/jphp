@@ -11,7 +11,7 @@ final public class Information {
 
     public static final String NAME = "JPHP";
     public static final String CORE_VERSION = "0.9.0";
-    public static final String LIKE_PHP_VERSION = "5.6.99";
+    public static final String LIKE_PHP_VERSION = "7.1.99";
     public static final String LIKE_ZEND_VERSION = "2.2";
 
     public static final String COPYRIGHT = "2013 - 3013, develnext.org, Dmitriy Zayceff aka Dim-S";

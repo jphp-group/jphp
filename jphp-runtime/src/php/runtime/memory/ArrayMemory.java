@@ -519,6 +519,26 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return result.getB();
     }
 
+    public ReferenceMemory put(Object key, String value) {
+        return put(key, StringMemory.valueOf(value));
+    }
+
+    public ReferenceMemory put(Object key, long value) {
+        return put(key, LongMemory.valueOf(value));
+    }
+
+    public ReferenceMemory put(Object key, boolean value) {
+        return put(key, TrueMemory.valueOf(value));
+    }
+
+    public ReferenceMemory put(Object key, double value) {
+        return put(key, DoubleMemory.valueOf(value));
+    }
+
+    public ReferenceMemory put(Object key, IObject value) {
+        return put(key, ObjectMemory.valueOf(value));
+    }
+
     public ReferenceMemory put(Object key, Memory value) {
         if (key instanceof LongMemory) {
             ReferenceMemory mem = new ReferenceMemory(value);
