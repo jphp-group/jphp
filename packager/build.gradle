@@ -6,8 +6,11 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':jphp-runtime')
+    compile project(':jphp-core')
     compile project(':exts/jphp-yaml-ext')
+    compile project(':exts/jphp-zip-ext')
+    compile project(':exts/jphp-json-ext')
+    compile project(':exts/jphp-zend-ext')
 }
 
 shadowJar {
@@ -16,11 +19,20 @@ shadowJar {
 
 task dist(dependsOn: 'shadowJar') {
     doLast {
-        println "Copy $shadowJar.archiveName to build/dist"
-
         copy {
             from "$buildDir.path/libs/$shadowJar.archiveName"
+            from "$projectDir.path/scripts/"
+
             into "$buildDir.path/dist/"
+        }
+    }
+}
+
+task distAndRun(dependsOn: 'dist') {
+    doLast {
+        exec {
+            workingDir "$buildDir.path/dist/"
+            commandLine 'cmd', '/c', 'jppm.bat', System.getProperty("args")
         }
     }
 }

@@ -1,1 +1,1 @@
-<?phpuse php\gui\UXApplication;use php\gui\UXDialog;UXApplication::runLater(function () {    UXDialog::showAndWait('Hi!');});
+<?php\php\lib\fs::formatAs('simple.yml', ['x' => 20], 'yaml');

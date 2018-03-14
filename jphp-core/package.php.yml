@@ -1,9 +1,0 @@
-
-name: JPHP Compiler
-
-jars:
-  - jphp-core
-  - asm-all
-
-deps:
-  jphp-runtime: $version

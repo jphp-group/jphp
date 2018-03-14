@@ -88,7 +88,7 @@ public class YamlProcessor extends WrapProcessor {
         try {
             yaml.dump(
                     Memory.unwrap(env, args[0], true),
-                    new OutputStreamWriter(Stream.getOutputStream(env, args[0]), env.getDefaultCharset())
+                    new OutputStreamWriter(Stream.getOutputStream(env, args[1]), env.getDefaultCharset())
             );
 
             return Memory.NULL;

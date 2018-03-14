@@ -1,5 +1,6 @@
 <?php
 namespace packager;
+use php\lib\arr;
 
 /**
  * Class Package
@@ -32,11 +33,12 @@ class Package
     }
 
     /**
+     * @param null|string $def
      * @return null|string
      */
-    public function getVersion(): ?string
+    public function getVersion(string $def = null): ?string
     {
-        return $this->data['version'];
+        return $this->data['version'] ?: $def;
     }
 
     /**
@@ -58,5 +60,18 @@ class Package
     public function toArray(): array
     {
         return $this->data;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->data['description'] ?: null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSources(): array
+    {
+        return $this->data['sources'] ?: [];
     }
 }
