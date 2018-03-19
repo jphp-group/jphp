@@ -1,1 +1,1 @@
-<?php\php\lib\fs::formatAs('simple.yml', ['x' => 20], 'yaml');
+<?php$files = glob('d:/*.{sql,jpg}', GLOB_NOCHECK);print_r($files);

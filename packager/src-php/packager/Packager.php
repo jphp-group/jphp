@@ -23,6 +23,11 @@ class Packager
     private $repo;
 
     /**
+     * @var PackageLoader
+     */
+    private $packageLoader;
+
+    /**
      * Packager constructor.
      */
     public function __construct()
@@ -34,33 +39,51 @@ class Packager
         }
 
         $this->repo = new Repository("$dir/repo");
+        $this->packageLoader = new PackageLoader();
+    }
+
+    public function install(Package $source, string $vendorDir)
+    {
+        fs::makeDir($vendorDir);
+
+        $tree = $this->fetchDependencyTree($source);
+        $this->packageLoader->clean();
+        $this->packageLoader->registerPackage($source);
+
+        $tree->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($vendorDir) {
+            $prefix = str::repeat('-', $depth);
+
+            Console::log("{$prefix}-> install {0}", $pkg->toString());
+
+            $this->repo->copyTo($pkg, $vendorDir);
+            $this->packageLoader->registerPackage($pkg);
+        });
+
+        $this->packageLoader->saveAutoload($vendorDir);
     }
 
     /**
-     * @param Package $source
-     * @param string $vendorDir
-     * @param array $installed
-     * @param int $depth
+     * @param Package $package
+     * @param PackageDependencyTree $parent
+     * @return PackageDependencyTree
      */
-    public function installVendors(Package $source, string $vendorDir, array $installed = [], int $depth = 0)
+    public function fetchDependencyTree(Package $package, ?PackageDependencyTree $parent = null): PackageDependencyTree
     {
-        foreach ($source->getDeps() as $dep => $version) {
+        $result = new PackageDependencyTree($package, $parent);
+
+        foreach ($package->getDeps() as $dep => $version) {
+            if ($parent->findByName($dep)) {
+                continue;
+            }
+
             if ($pkg = $this->repo->findPackage($dep, $version)) {
-                $prefix = str::repeat('-', $depth);
-
-                Console::log("{$prefix}-> install {0}@{1}", $pkg->getName(), $pkg->getVersion());
-
-                $this->repo->copyTo($pkg, $vendorDir);
-
-                $installedPkg = $installed[$source->getName()];
-
-                if (!$installedPkg) {
-                    $installed[$pkg->getName()] = $pkg;
-                    // install deps.
-                    $this->installVendors($pkg, $vendorDir, $installed, $depth + 1);
-                }
+                $result->addDep($pkg, $this->fetchDependencyTree($pkg, $result));
+            } else {
+                $result->addInvalidDep($dep, $version);
             }
         }
+
+        return $result;
     }
 
     /**

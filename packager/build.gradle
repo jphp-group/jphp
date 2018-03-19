@@ -10,11 +10,12 @@ dependencies {
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-zip-ext')
     compile project(':exts/jphp-json-ext')
-    compile project(':exts/jphp-zend-ext')
 }
 
 shadowJar {
     archiveName = 'packager-all.jar'
+
+    mergeServiceFiles()
 }
 
 task dist(dependsOn: 'shadowJar') {

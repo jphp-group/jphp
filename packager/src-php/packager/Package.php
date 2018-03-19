@@ -1,5 +1,6 @@
 <?php
 namespace packager;
+
 use php\lib\arr;
 
 /**
@@ -70,8 +71,13 @@ class Package
     /**
      * @return array
      */
-    public function getSources(): array
+    public function getLoaders(): array
     {
-        return $this->data['sources'] ?: [];
+        return $this->data['loaders'] ?: [];
+    }
+
+    public function toString(): string
+    {
+        return $this->getName() . "@" . $this->getVersion('last');
     }
 }

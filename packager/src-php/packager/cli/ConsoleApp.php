@@ -110,7 +110,7 @@ class ConsoleApp
     {
         Console::log("Installing vendors ...");
 
-        $this->packager->installVendors($this->getPackage(), "./vendor");
+        $this->packager->install($this->getPackage(), "./vendor");
 
         Console::log("Done.");
     }
