@@ -49,6 +49,7 @@ allprojects {
 
 configure(subprojects) {
     apply plugin: 'java'
+    apply from: "$rootDir/jppm.gradle"
 
     if (it.name.endsWith("-ext")) {
         apply plugin: 'maven'
@@ -58,12 +59,6 @@ configure(subprojects) {
 
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
-
-    jar {
-        manifest.attributes(
-                'Multi-Release': 'true'
-        )
-    }
 
     sourceSets {
         main.java.srcDirs = ['src/main/java']
@@ -76,6 +71,16 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
     def extDir = "exts/";
+
+    if (it.name.startsWith("jphp-") || it.name.startsWith("exts/jphp-")) {
+        task jppmDist(dependsOn: 'jar') {
+            doLast { jppmDist(project) }
+        }
+
+        task jppmInstall(dependsOn: 'jppmDist') {
+            doLast { jppmInstall(project) }
+        }
+    }
 
     if (it.name.startsWith(extDir)) {
         def pr = it

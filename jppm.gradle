@@ -1,0 +1,82 @@
+
+def jppmDist(Project project) {
+    def jarsDir = file(project.buildDir.path + "/jppm/dist/jars")
+    def sdkDir = file(project.buildDir.path + "/jppm/dist/sdk")
+    def packageFile = file(project.buildDir.path + "/jppm/dist/package.php.yml")
+
+    def version = project.ext.hasProperty('jppmVersion') ? project.ext.jppmVersion : project.version
+
+    copy {
+        from project.configurations.compile
+        from project.jar.archivePath
+        into jarsDir
+    }
+
+    copy {
+        from project.projectDir.path + "/src/main/resources/JPHP-INF/sdk"
+        into sdkDir
+    }
+
+    if (packageFile.isFile()) {
+        packageFile.delete()
+    }
+
+    packageFile.parentFile.mkdirs()
+
+    if (!packageFile.isFile()) {
+        packageFile.createNewFile()
+    }
+
+    def name = project.name
+    if (name.startsWith("exts/")) {
+        name = name.substring(5)
+    }
+
+    def text = "name: '$name'\nversion: $version\n"
+    def jars = []
+
+    def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency)
+
+    if (!deps.empty) {
+        text += "deps:\n"
+        deps.each {
+            text += "  ${file(it.name).name}: $version\n"
+
+            delete "$jarsDir/${file(it.name).name}-${version}.jar"
+        }
+    }
+
+    //text += "\ndeps:\n" + deps.join(": $project.version\n") + "\n";
+
+    jarsDir.listFiles().each { file ->
+        if (file.name.endsWith(".jar")) {
+            jars.add(file.name)
+        }
+    }
+
+    if (!jars.empty) {
+        text += "\njars: ['" + jars.join("', '") + "']\n"
+    }
+
+    packageFile.text = text;
+}
+
+def jppmInstall(project) {
+    def repoDir = System.getProperty("user.home") + "/.jppm/repo"
+    def name = file(project.name).name;
+    def version = project.ext.hasProperty('jppmVersion') ? project.ext.jppmVersion : project.version
+
+    delete "$repoDir/$name/$version"
+
+    copy {
+        from file(project.buildDir.path + "/jppm/dist/")
+        into "$repoDir/$name/$version"
+    }
+
+    println("Install jppm package to: $repoDir/$name/$version")
+}
+
+ext {
+    jppmDist = this.&jppmDist
+    jppmInstall = this.&jppmInstall
+}

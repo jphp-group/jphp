@@ -1,0 +1,10 @@
+
+version: %version%
+name: jphp-core
+
+jars:
+  - jphp-core.jar
+  - asm-all.jar
+
+deps:
+  jphp-runtime: %version%

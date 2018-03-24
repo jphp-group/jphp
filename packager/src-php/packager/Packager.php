@@ -71,15 +71,17 @@ class Packager
     {
         $result = new PackageDependencyTree($package, $parent);
 
-        foreach ($package->getDeps() as $dep => $version) {
-            if ($parent->findByName($dep)) {
-                continue;
-            }
+        foreach ([$package->getDeps(), $package->getDevDeps()] as $deps) {
+            foreach ($deps as $dep => $version) {
+                if ($parent && $parent->findByName($dep)) {
+                    continue;
+                }
 
-            if ($pkg = $this->repo->findPackage($dep, $version)) {
-                $result->addDep($pkg, $this->fetchDependencyTree($pkg, $result));
-            } else {
-                $result->addInvalidDep($dep, $version);
+                if ($pkg = $this->repo->findPackage($dep, $version)) {
+                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, $result));
+                } else {
+                    $result->addInvalidDep($dep, $version);
+                }
             }
         }
 

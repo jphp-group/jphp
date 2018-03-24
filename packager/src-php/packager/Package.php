@@ -43,6 +43,14 @@ class Package
     }
 
     /**
+     * @return null|string
+     */
+    public function getMain(): ?string
+    {
+        return $this->data['main'];
+    }
+
+    /**
      * @return array
      */
     public function getJars(): array
@@ -56,6 +64,14 @@ class Package
     public function getDeps(): array
     {
         return $this->data['deps'] ?: [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getDevDeps(): array
+    {
+        return $this->data['devDeps'] ?: [];
     }
 
     public function toArray(): array
