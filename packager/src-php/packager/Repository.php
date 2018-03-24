@@ -1,6 +1,7 @@
 <?php
 namespace packager;
 use php\compress\ZipFile;
+use php\io\File;
 use php\io\IOException;
 use php\io\Stream;
 use php\lib\arr;

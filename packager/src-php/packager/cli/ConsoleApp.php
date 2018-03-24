@@ -1,8 +1,13 @@
 <?php
 namespace packager\cli;
+use packager\Java;
 use packager\Package;
 use packager\Packager;
+use packager\Repository;
+use packager\Vendor;
+use php\io\File;
 use php\io\Stream;
+use php\lang\Thread;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
@@ -110,9 +115,78 @@ class ConsoleApp
     {
         Console::log("Installing vendors ...");
 
-        $this->packager->install($this->getPackage(), "./vendor");
+        $this->packager->install($this->getPackage(), new Vendor("./vendor"));
 
         Console::log("Done.");
+    }
+
+    function handleRun(array $args)
+    {
+        $launcher = $this->getPackage()->getAny('launcher');
+
+        $vendor = new Vendor("./vendor");
+        $classPaths = flow(fs::parseAs("{$vendor->getDir()}/classPaths.json", 'json')[''])
+            ->map(function ($cp) use ($vendor) { return "{$vendor->getDir()}/$cp"; })
+            ->toArray();
+
+        if ($jars = $this->getPackage()->getJars()) {
+            foreach ($jars as $jar) {
+                $classPaths[] = fs::abs("./jars/$jar");
+            }
+        }
+
+        if ($sources = $this->getPackage()->getSources()) {
+            foreach ($sources as $src) {
+                $classPaths[] = fs::abs("./$src");
+            }
+        }
+
+        $args = [
+            '-cp', str::join($classPaths, File::PATH_SEPARATOR),
+        ];
+
+        if ($launcher['trace']) {
+            $args[] = '-Djphp.trace=true';
+        }
+
+        $args[] = '-Dfile.encoding=' . ($launcher['encoding'] ?: 'UTF-8');
+
+        if ($launcher['bootstrap']) {
+            $args[] = '-Dbootstrap.file=res://' . $launcher['bootstrap'];
+        }
+
+        if (is_array($launcher['jvmArgs'])) {
+            $args = flow($args, $launcher['jvmArgs'])->toArray();
+        }
+
+        $args[] = $launcher['mainClass'] ?: 'php.runtime.launcher.Launcher';
+
+        if (is_array($launcher['args'])) {
+            $args = flow($args, $launcher['args'])->toArray();
+        }
+
+        $process = Java::exec($args);
+
+        $process = $process->start();
+
+        $input = $process->getInput();
+        $err = $process->getError();
+
+        (new Thread(function () use ($input) {
+            $stdout = Stream::of('php://stdout');
+
+            while ($ch = $input->read(1)) {
+                $stdout->write($ch);
+            }
+        }))->start();
+
+        (new Thread(function () use ($err, $process) {
+            $stdout = Stream::of('php://stderr');
+
+            while ($ch = $err->read(1)) {
+                $stdout->write($ch);
+            }
+        }))->start();
     }
 
     function handleInit(array $args)

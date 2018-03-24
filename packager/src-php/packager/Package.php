@@ -87,9 +87,19 @@ class Package
     /**
      * @return array
      */
-    public function getLoaders(): array
+    public function getSources(): array
     {
-        return $this->data['loaders'] ?: [];
+        return $this->data['sources'] ?: [];
+    }
+
+    /**
+     * @param string $key
+     * @param null $def
+     * @return mixed|null
+     */
+    public function getAny(string $key, $def = null)
+    {
+        return $this->data[$key] ?? $def;
     }
 
     public function toString(): string

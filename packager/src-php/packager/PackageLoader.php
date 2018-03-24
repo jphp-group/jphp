@@ -9,48 +9,51 @@ use php\lib\fs;
  */
 class PackageLoader
 {
-    private $sources = [];
+    private $classPaths = [];
 
     /**
      *
      */
     public function clean()
     {
-        $this->sources = [];
+        $this->classPaths = [];
     }
 
     /**
      * @param Package $package
+     * @param Vendor $vendor
+     * @param string $scope
      */
-    public function registerPackage(Package $package)
+    public function registerPackage(Package $package, ?Vendor $vendor = null, string $scope = '')
     {
-        $loaders = $package->getLoaders();
-
-        foreach ($loaders as $type => $rules) {
-            foreach ($rules as $prefix => $dirs) {
-                $this->addLoader([$prefix => $dirs], $type);
+        foreach ($package->getSources() as $src) {
+            if ($src[0] !== '/') {
+                $this->classPaths[$scope][] = $vendor === null ? "../$src" : $vendor->getRelativeFile($package, $src);
             }
+        }
+
+        foreach ($package->getJars() as $jar) {
+            $this->classPaths[$scope][] = $vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($package, "jars/$jar");
         }
     }
 
     /**
-     * @param $rule
-     * @param string $type
+     * @return array
      */
-    public function addLoader(array $rule, string $type = 'std')
+    public function getClassPaths(): array
     {
-        foreach ($rule as $ns => $dirs) {
-            if (!is_array($dirs)) {
-                $dirs = [$dirs];
-            }
-
-            $this->sources[] = ['ns' => $ns, 'dirs' => $dirs, 'type' => $type];
-        }
+        return $this->classPaths;
     }
 
-    public function saveAutoload(string $vendorDir)
+    /**
+     * @param Vendor $vendor
+     */
+    public function save(Vendor $vendor)
     {
-        fs::copy('res://packager/loaders/autoload.php', "$vendorDir/autoload.php");
-        fs::formatAs("$vendorDir/autoload.json", $this->sources, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
+        fs::formatAs(
+            "{$vendor->getDir()}/classPaths.json", $this->getClassPaths(),
+            'json',
+            JsonProcessor::SERIALIZE_PRETTY_PRINT
+        );
     }
 }

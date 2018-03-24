@@ -1,4 +1,5 @@
 <?php
+
 namespace packager;
 
 use packager\cli\Console;
@@ -42,46 +43,50 @@ class Packager
         $this->packageLoader = new PackageLoader();
     }
 
-    public function install(Package $source, string $vendorDir)
+    public function install(Package $source, Vendor $vendor)
     {
-        fs::makeDir($vendorDir);
+        fs::makeDir($vendor->getDir());
 
         $tree = $this->fetchDependencyTree($source);
+        $devTree = $this->fetchDependencyTree($source, 'dev');
+
         $this->packageLoader->clean();
-        $this->packageLoader->registerPackage($source);
 
-        $tree->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($vendorDir) {
-            $prefix = str::repeat('-', $depth);
+        foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
+            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($vendor, $scope) {
+                $prefix = str::repeat('-', $depth);
 
-            Console::log("{$prefix}-> install {0}", $pkg->toString());
+                Console::log("{$prefix}-> install {0}", $pkg->toString());
 
-            $this->repo->copyTo($pkg, $vendorDir);
-            $this->packageLoader->registerPackage($pkg);
-        });
+                $this->repo->copyTo($pkg, $vendor->getDir());
+                $this->packageLoader->registerPackage($pkg, $vendor, $scope);
+            });
+        }
 
-        $this->packageLoader->saveAutoload($vendorDir);
+        $this->packageLoader->save($vendor);
     }
 
     /**
      * @param Package $package
+     * @param string $scope '' or 'dev'
      * @param PackageDependencyTree $parent
      * @return PackageDependencyTree
      */
-    public function fetchDependencyTree(Package $package, ?PackageDependencyTree $parent = null): PackageDependencyTree
+    public function fetchDependencyTree(Package $package, string $scope = '', ?PackageDependencyTree $parent = null): PackageDependencyTree
     {
         $result = new PackageDependencyTree($package, $parent);
 
-        foreach ([$package->getDeps(), $package->getDevDeps()] as $deps) {
-            foreach ($deps as $dep => $version) {
-                if ($parent && $parent->findByName($dep)) {
-                    continue;
-                }
+        $deps = ['' => $package->getDeps(), 'dev' => $package->getDevDeps()];
 
-                if ($pkg = $this->repo->findPackage($dep, $version)) {
-                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, $result));
-                } else {
-                    $result->addInvalidDep($dep, $version);
-                }
+        foreach ($deps[$scope] as $dep => $version) {
+            if ($parent && $parent->findByName($dep)) {
+                continue;
+            }
+
+            if ($pkg = $this->repo->findPackage($dep, $version)) {
+                $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
+            } else {
+                $result->addInvalidDep($dep, $version);
             }
         }
 

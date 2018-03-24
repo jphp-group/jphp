@@ -257,7 +257,7 @@ public class Launcher {
             Startup.trace("Startup time = " + t + "ms");
         }
 
-        String file = config.getProperty("bootstrap.file", "res://JPHP-INF/.bootstrap.php");
+        String file = config.getProperty("bootstrap.file", System.getProperty("bootstrap.file", "res://JPHP-INF/.bootstrap.php"));
 
         if ("php".equals(FsUtils.ext(file))) {
             if (Stream.exists(environment, StringMemory.valueOf(file.substring(0, file.length() - 4) + ".phb")).toBoolean()) {
