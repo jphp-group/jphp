@@ -43,7 +43,23 @@ class Packager
         $this->packageLoader = new PackageLoader();
     }
 
-    public function install(Package $source, Vendor $vendor)
+    /**
+     * @param Package $package
+     * @return Plugin[]
+     */
+    public function loadPlugins(Package $package): array
+    {
+        $result = [];
+
+        foreach ($package->getPlugins() as $plugin) {
+            $class = "plugins\\$plugin\\{$plugin}Plugin";
+            $result[$plugin] = new $class($package);
+        }
+
+        return $result;
+    }
+
+    public function install(Package $source, Vendor $vendor, bool $forceUpdate = false)
     {
         fs::makeDir($vendor->getDir());
 
@@ -53,12 +69,15 @@ class Packager
         $this->packageLoader->clean();
 
         foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
-            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($vendor, $scope) {
+            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope) {
                 $prefix = str::repeat('-', $depth);
 
-                Console::log("{$prefix}-> install {0}", $pkg->toString());
+                if ($forceUpdate || !$vendor->alreadyInstalled($pkg)) {
+                    Console::log("{$prefix}-> install {0}", $pkg->toString());
 
-                $this->repo->copyTo($pkg, $vendor->getDir());
+                    $this->repo->copyTo($pkg, $vendor->getDir());
+                }
+
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
             });
         }

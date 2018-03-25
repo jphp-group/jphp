@@ -115,15 +115,7 @@ class Repository
      */
     public function readPackage($source): Package
     {
-        $stream = $source instanceof Stream ? $source : Stream::of($source, 'r');
-
-        try {
-            $data = $stream->parseAs('yaml');
-
-            return new Package($data);
-        } finally {
-            $stream->close();
-        }
+        return Package::readPackage($source);
     }
 
     /**

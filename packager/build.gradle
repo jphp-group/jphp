@@ -26,6 +26,11 @@ task dist(dependsOn: 'shadowJar') {
 
             into "$buildDir.path/dist/"
         }
+
+        copy {
+            from "$projectDir.path/plugins/"
+            into "$buildDir.path/dist/plugins"
+        }
     }
 }
 

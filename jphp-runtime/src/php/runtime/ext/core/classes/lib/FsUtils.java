@@ -186,6 +186,11 @@ public class FsUtils extends BaseObject {
     }
 
     @Signature
+    public static String relativize(String path, String base) {
+        return new File(base).toURI().relativize(new File(path).toURI()).getPath();
+    }
+
+    @Signature
     public static long size(String path) {
         return new File(path).length();
     }

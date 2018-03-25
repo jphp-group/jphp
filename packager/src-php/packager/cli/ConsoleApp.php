@@ -22,6 +22,11 @@ class ConsoleApp
     private $flags = [];
 
     /**
+     * @var callable[]
+     */
+    private $commands = [];
+
+    /**
      * @var Packager
      */
     private $packager;
@@ -52,6 +57,11 @@ class ConsoleApp
             Console::log("args = " . var_export($args, true));
         }
 
+        $plugins = $this->packager->loadPlugins($this->getPackage());
+        foreach ($plugins as $plugin) {
+            $plugin->beforeConsole($this);
+        }
+
         switch ($command) {
             case "-v":
             case "--version":
@@ -68,8 +78,13 @@ class ConsoleApp
                     $method(flow($args)->skip(2)->toArray());
                     break;
                 } else {
-                    $stderr->write("[Packager]: Command '$command' not found. Try to run 'help' via 'jppm help'.");
-                    exit(-1);
+                    if ($handler = $this->commands[$command]) {
+                        $handler(flow($args)->skip(2)->toArray());
+                        break;
+                    } else {
+                        $stderr->write("[Packager]: Command '$command' not found. Try to run 'help' via 'jppm tasks'.");
+                        exit(-1);
+                    }
                 }
         }
     }
@@ -97,96 +112,36 @@ class ConsoleApp
         return $this->packager->getRepo()->readPackage("$dir/" . Package::FILENAME);
     }
 
-    function handleHelp(array $args)
+    function addCommand(string $name, callable $handle)
     {
-        Console::log("Available commands:");
-        Console::log("- init // create new package.php.yml");
-        Console::log("- add [package-name] [-g] // add dep to your package and install it");
-        Console::log("- remove [package-name] [-g] // remove dep from your package and uninstall it");
-        Console::log("- info [package-name] // show information about package");
+        $this->commands[$name] = $handle;
     }
 
-    function handleAdd(array $args)
+    function handleTasks(array $args)
     {
-        $packageName = $args[0];
+        Console::log("Available tasks:");
+
+        Console::log("- init // init package");
+        Console::log("- install // install deps");
+        Console::log("- tasks // show all tasks");
+
+        Console::log("");
+
+        foreach ($this->commands as $command => $handler) {
+            Console::log("- $command");
+        }
     }
 
     function handleInstall(array $args)
     {
-        Console::log("Installing vendors ...");
-
-        $this->packager->install($this->getPackage(), new Vendor("./vendor"));
-
-        Console::log("Done.");
-    }
-
-    function handleRun(array $args)
-    {
-        $launcher = $this->getPackage()->getAny('launcher');
-
         $vendor = new Vendor("./vendor");
-        $classPaths = flow(fs::parseAs("{$vendor->getDir()}/classPaths.json", 'json')[''])
-            ->map(function ($cp) use ($vendor) { return "{$vendor->getDir()}/$cp"; })
-            ->toArray();
 
-        if ($jars = $this->getPackage()->getJars()) {
-            foreach ($jars as $jar) {
-                $classPaths[] = fs::abs("./jars/$jar");
-            }
+        if ($this->isFlag('clean')) {
+            $vendor->clean();
+            Console::log("The vendor dir has been cleared.");
         }
 
-        if ($sources = $this->getPackage()->getSources()) {
-            foreach ($sources as $src) {
-                $classPaths[] = fs::abs("./$src");
-            }
-        }
-
-        $args = [
-            '-cp', str::join($classPaths, File::PATH_SEPARATOR),
-        ];
-
-        if ($launcher['trace']) {
-            $args[] = '-Djphp.trace=true';
-        }
-
-        $args[] = '-Dfile.encoding=' . ($launcher['encoding'] ?: 'UTF-8');
-
-        if ($launcher['bootstrap']) {
-            $args[] = '-Dbootstrap.file=res://' . $launcher['bootstrap'];
-        }
-
-        if (is_array($launcher['jvmArgs'])) {
-            $args = flow($args, $launcher['jvmArgs'])->toArray();
-        }
-
-        $args[] = $launcher['mainClass'] ?: 'php.runtime.launcher.Launcher';
-
-        if (is_array($launcher['args'])) {
-            $args = flow($args, $launcher['args'])->toArray();
-        }
-
-        $process = Java::exec($args);
-
-        $process = $process->start();
-
-        $input = $process->getInput();
-        $err = $process->getError();
-
-        (new Thread(function () use ($input) {
-            $stdout = Stream::of('php://stdout');
-
-            while ($ch = $input->read(1)) {
-                $stdout->write($ch);
-            }
-        }))->start();
-
-        (new Thread(function () use ($err, $process) {
-            $stdout = Stream::of('php://stderr');
-
-            while ($ch = $err->read(1)) {
-                $stdout->write($ch);
-            }
-        }))->start();
+        $this->packager->install($this->getPackage(), $vendor, $this->isFlag('f', 'force'));
     }
 
     function handleInit(array $args)

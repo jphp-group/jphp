@@ -126,4 +126,14 @@ public class WrapProcess extends BaseObject {
             getProcess().destroy();
         }
     }
+
+    @Signature
+    public boolean isAlive() {
+        return getProcess().isAlive();
+    }
+
+    @Signature
+    public int waitFor() throws InterruptedException {
+        return getProcess().waitFor();
+    }
 }

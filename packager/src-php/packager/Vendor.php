@@ -3,6 +3,8 @@ namespace packager;
 
 
 use php\io\File;
+use php\io\IOException;
+use php\lib\fs;
 
 class Vendor
 {
@@ -46,5 +48,35 @@ class Vendor
     public function getRelativeFile(Package $package, string $path): string
     {
         return "{$package->getName()}/$path";
+    }
+
+    /**
+     * @param Package $package
+     * @return bool
+     */
+    public function alreadyInstalled(Package $package): bool
+    {
+        try {
+            $file = $this->getFile($package, Package::FILENAME);
+
+            if (!$file->isFile()) {
+                return false;
+            }
+
+            $installedPackage = Package::readPackage($file);
+
+            if ($package->getVersion() === $installedPackage->getVersion()) {
+                return true;
+            }
+
+            return false;
+        } catch (IOException $e) {
+            return false;
+        }
+    }
+
+    public function clean()
+    {
+        fs::clean($this->getDir());
     }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace packager;
 
+use php\io\IOException;
+use php\io\Stream;
 use php\lib\arr;
 
 /**
@@ -93,6 +95,14 @@ class Package
     }
 
     /**
+     * @return array
+     */
+    public function getPlugins(): array
+    {
+        return $this->data['plugins'] ?: [];
+    }
+
+    /**
      * @param string $key
      * @param null $def
      * @return mixed|null
@@ -105,5 +115,25 @@ class Package
     public function toString(): string
     {
         return $this->getName() . "@" . $this->getVersion('last');
+    }
+
+
+    /**
+     * @param string|Stream $source
+     * @return Package
+     *
+     * @throws IOException
+     */
+    static public function readPackage($source): Package
+    {
+        $stream = $source instanceof Stream ? $source : Stream::of($source, 'r');
+
+        try {
+            $data = $stream->parseAs('yaml');
+
+            return new Package($data);
+        } finally {
+            $stream->close();
+        }
     }
 }

@@ -95,6 +95,15 @@ class fs
     }
 
     /**
+     * @param string $path
+     * @param string $basePath
+     * @return string
+     */
+    static function relativize(string $path, string $basePath): string
+    {
+    }
+
+    /**
      * Returns extension of path.
      * --RU--
      * Возвращает расширение пути или файла без точки.
