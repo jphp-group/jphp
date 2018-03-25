@@ -4,6 +4,7 @@ use packager\Java;
 use packager\Package;
 use packager\Packager;
 use packager\Repository;
+use packager\server\Server;
 use packager\Vendor;
 use php\io\File;
 use php\io\Stream;
@@ -117,6 +118,12 @@ class ConsoleApp
         $this->commands[$name] = $handle;
     }
 
+    function handleServer(array $args)
+    {
+        $server = new Server($this->packager->getRepo());
+        $server->run();
+    }
+
     function handleTasks(array $args)
     {
         Console::log("Available tasks:");
@@ -124,6 +131,7 @@ class ConsoleApp
         Console::log("- init // init package");
         Console::log("- install // install deps");
         Console::log("- tasks // show all tasks");
+        Console::log("- server // run jppm server on 6333 port");
 
         Console::log("");
 

@@ -119,6 +119,31 @@ class Repository
     }
 
     /**
+     * @param Package $package
+     * @return ZipFile
+     */
+    public function archivePackage(Package $package): ?ZipFile
+    {
+        $path = "$this->dir/{$package->getName()}/{$package->getVersion()}";
+
+        if (fs::isDir($path)) {
+            $zipFile = new ZipFile("$path.zip", false);
+
+            if (fs::isFile($zipFile->getPath())) {
+                return $zipFile;
+            } else {
+                $zipFile = new ZipFile("$path.zip", true);
+            }
+
+            $zipFile->addDirectory($path);
+
+            return $zipFile;
+        }
+
+        return null;
+    }
+
+    /**
      * Install package from its directory.
      * @param string $directory
      */

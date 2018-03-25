@@ -10,6 +10,7 @@ dependencies {
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-zip-ext')
     compile project(':exts/jphp-json-ext')
+    compile project(':exts/jphp-httpserver-ext')
 }
 
 shadowJar {
