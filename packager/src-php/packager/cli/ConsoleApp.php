@@ -7,6 +7,7 @@ use packager\Repository;
 use packager\server\Server;
 use packager\Vendor;
 use php\io\File;
+use php\io\IOException;
 use php\io\Stream;
 use php\lang\Thread;
 use php\lib\arr;
@@ -58,14 +59,15 @@ class ConsoleApp
             Console::log("args = " . var_export($args, true));
         }
 
-        $plugins = $this->packager->loadPlugins($this->getPackage());
-        foreach ($plugins as $plugin) {
-            $plugin->beforeConsole($this);
+        if ($this->getPackage()) {
+            $plugins = $this->packager->loadPlugins($this->getPackage());
+            foreach ($plugins as $plugin) {
+                $plugin->beforeConsole($this);
+            }
         }
 
         switch ($command) {
-            case "-v":
-            case "--version":
+            case "version":
                 Console::log('JPHP Packager Welcome');
                 Console::log("- Version {0}", Packager::VERSION);
                 Console::log("- JPHP Version {0}", JPHP_VERSION);
@@ -107,10 +109,14 @@ class ConsoleApp
         exit($status);
     }
 
-    function getPackage(): Package
+    function getPackage(): ?Package
     {
-        $dir = fs::abs("./");
-        return $this->packager->getRepo()->readPackage("$dir/" . Package::FILENAME);
+        try {
+            $dir = fs::abs("./");
+            return $this->packager->getRepo()->readPackage("$dir/" . Package::FILENAME);
+        } catch (IOException $e) {
+            return null;
+        }
     }
 
     function addCommand(string $name, callable $handle)
