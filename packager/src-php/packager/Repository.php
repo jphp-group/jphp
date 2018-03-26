@@ -1,6 +1,9 @@
 <?php
 namespace packager;
+use packager\cli\Console;
+use packager\server\Server;
 use php\compress\ZipFile;
+use php\format\ProcessorException;
 use php\io\File;
 use php\io\IOException;
 use php\io\Stream;
@@ -21,12 +24,27 @@ class Repository
     private $dir;
 
     /**
+     * @var array
+     */
+    private $externals = [];
+
+    /**
      * Repository constructor.
      * @param string $directory
      */
     public function __construct(string $directory)
     {
         $this->dir = $directory;
+        $this->addExternal('http://jppm.develnext.org');
+        $this->addExternal('http://localhost:' . Server::PORT);
+    }
+
+    /**
+     * @param string $server
+     */
+    public function addExternal(string $server)
+    {
+        $this->externals[$server] = $server;
     }
 
     /**
@@ -48,6 +66,40 @@ class Repository
 
     /**
      * @param string $name
+     * @param array $versions
+     * @return array
+     */
+    public function refreshPackageFromExternal(string $name, array $versions = []): array
+    {
+        foreach ($this->externals as $external) {
+            try {
+                $externalVersions = fs::parseAs("$external/repo/$name/find", "json");
+
+                foreach ($externalVersions as $version) {
+                    if (!$versions[$version]) {
+                        Console::log("download package {0}@{1} from '$external'", $name, $version);
+
+                        $copied = fs::copy(
+                            "$external/repo/$name?version=$version&download=1", "$this->dir/$name/$version.zip"
+                        );
+
+                        if ($copied > 0) {
+                            if ($this->installFromArchive("$this->dir/$name/$version.zip")) {
+                                $versions[$version] = $version;
+                            }
+                        }
+                    }
+                }
+            } catch (ProcessorException|IOException $e) {
+                Console::log("Failed to get external ({0}): {1}", $external, $e->getMessage());
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * @param string $name
      * @param string $versionPattern
      * @return null|Package
      */
@@ -56,6 +108,9 @@ class Repository
         $versions = $this->getPackageVersions($name);
         arr::sort($versions);
         $versions = arr::reverse($versions);
+        $versions = arr::combine($versions, $versions);
+
+        $versions = $this->refreshPackageFromExternal($name, $versions);
 
         $versionPattern = str::replace($versionPattern, '.', '\\.');
         $versionPattern = str::replace($versionPattern, '-', '\\-');
@@ -120,22 +175,21 @@ class Repository
 
     /**
      * @param Package $package
-     * @return ZipFile
+     * @return null|File
      */
-    public function archivePackage(Package $package): ?ZipFile
+    public function archivePackage(Package $package): ?File
     {
         $path = "$this->dir/{$package->getName()}/{$package->getVersion()}";
 
         if (fs::isDir($path)) {
-            $zipFile = new ZipFile("$path.zip", false);
+            $zipFile = new File("$path.zip");
 
             if (fs::isFile($zipFile->getPath())) {
                 return $zipFile;
             } else {
-                $zipFile = new ZipFile("$path.zip", true);
+                $zip = new ZipFile("$path.zip", true);
+                $zip->addDirectory($path);
             }
-
-            $zipFile->addDirectory($path);
 
             return $zipFile;
         }
@@ -176,7 +230,7 @@ class Repository
      * Install package from zip archive.
      * @param string $zipFile
      */
-    public function installFromArchive(string $zipFile)
+    public function installFromArchive(string $zipFile): bool
     {
         $zip = new ZipFile($zipFile);
         /** @var Package $package */
@@ -199,6 +253,9 @@ class Repository
 
             fs::makeDir($dir);
             $zip->unpack($dir);
+            return true;
         }
+
+        return false;
     }
 }

@@ -32,45 +32,63 @@ class Server
     function run()
     {
         $server = new HttpServer(self::PORT, '0.0.0.0');
-        $server->get('/', function (HttpServerRequest $req, HttpServerResponse $res) {
-            $res->contentType("application/json");
-            $res->body('{"status": "OK"}');
-        });
-
-        $server->get('/repo/{name}/find', function (HttpServerRequest $req, HttpServerResponse $res) {
-            $versions = $this->repository->getPackageVersions($req->attribute('name'));
-            $res->contentType("application/json");
-            $res->body(str::formatAs($versions, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT));
-        });
-
-        $server->get('/repo/{name}', function (HttpServerRequest $req, HttpServerResponse $res) {
-            try {
-                $package = $this->repository->getPackage($req->attribute('name'), $req->query('version'));
-            } catch (IOException $e) {
-                $package = null;
-            }
-
-            $res->contentType("application/json");
-
-            if ($package == null) {
-                $res->status(404);
-                $res->body('{"status": "NotFound"}');
-            } else {
-                if ((bool) $req->query('download')) {
-                    $zipFile = $this->repository->archivePackage($package);
-
-                    $handler = new HttpDownloadFileHandler(
-                        $zipFile->getPath(), "{$package->getName()}-{$package->getVersion()}.zip", "application/zip"
-                    );
-                    $handler($req, $res);
-                    return;
-                }
-
-                $res->body(str::formatAs($package->toArray(), "json", JsonProcessor::SERIALIZE_PRETTY_PRINT));
-            }
-        });
+        $server->get('/', [$this, 'handleIndex']);
+        $server->post('/repo/upload', [$this, 'handleUpload']);
+        $server->get('/repo/{name}/find', [$this, 'handleFind']);
+        $server->get('/repo/{name}', [$this, 'handleGet']);
 
         Console::log("Run jppm server at port: " . self::PORT);
         $server->run();
+    }
+
+    function handleFind(HttpServerRequest $req, HttpServerResponse $res)
+    {
+        Console::log("Find package {0}, ip: {1}", $req->attribute('name'), $req->remoteAddress());
+
+        $versions = $this->repository->getPackageVersions($req->attribute('name'));
+        $res->contentType("application/json");
+        $res->body(str::formatAs($versions, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT));
+    }
+
+    function handleIndex(HttpServerRequest $req, HttpServerResponse $res)
+    {
+        $res->contentType("application/json");
+        $res->body('{"status": "OK"}');
+    }
+
+    function handleGet(HttpServerRequest $req, HttpServerResponse $res)
+    {
+        try {
+            $package = $this->repository->getPackage($req->attribute('name'), $req->query('version'));
+        } catch (IOException $e) {
+            $package = null;
+        }
+
+        $res->contentType("application/json");
+
+        if ($package == null) {
+            $res->status(404);
+            $res->body('{"status": "NotFound"}');
+        } else {
+            if ((bool) $req->query('download')) {
+                Console::log("Download package {0}@{1}, ip: {2}", $package->getName(), $package->getVersion(), $req->remoteAddress());
+
+                $zipFile = $this->repository->archivePackage($package);
+
+                $handler = new HttpDownloadFileHandler(
+                    $zipFile->getPath(), "{$package->getName()}-{$package->getVersion()}.zip", "application/zip"
+                );
+                $handler($req, $res);
+                return;
+            }
+
+            Console::log("Get package {0}@{1}, ip: {2}", $package->getName(), $package->getVersion(), $req->remoteAddress());
+            $res->body(str::formatAs($package->toArray(), "json", JsonProcessor::SERIALIZE_PRETTY_PRINT));
+        }
+    }
+
+    function handleUpload(HttpServerRequest $req, HttpServerResponse $res)
+    {
+
     }
 }
