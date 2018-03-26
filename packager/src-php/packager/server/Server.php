@@ -9,6 +9,7 @@ use php\http\HttpServer;
 use php\http\HttpServerRequest;
 use php\http\HttpServerResponse;
 use php\io\IOException;
+use php\io\Stream;
 use php\lib\str;
 
 /**
@@ -31,13 +32,16 @@ class Server
 
     function run()
     {
+        Stream::putContents("jppm-server.pid", getmypid());
+
         $server = new HttpServer(self::PORT, '0.0.0.0');
         $server->get('/', [$this, 'handleIndex']);
         $server->post('/repo/upload', [$this, 'handleUpload']);
         $server->get('/repo/{name}/find', [$this, 'handleFind']);
         $server->get('/repo/{name}', [$this, 'handleGet']);
 
-        Console::log("Run jppm server at port: " . self::PORT);
+        Console::log("Run jppm server at port: {0}, PID: {1}",  self::PORT, getmypid());
+        Console::log(" --> use command 'kill -9 {0}' to stop server.", getmypid());
         $server->run();
     }
 
