@@ -24,4 +24,9 @@ public class SemVersionTest extends SemverJvmTestCase {
     public void testSatisfies() {
         check("semver/semver_satisfies.php");
     }
+
+    @Test
+    public void testSnapshots() {
+        check("semver/semver_snapshots.php");
+    }
 }
