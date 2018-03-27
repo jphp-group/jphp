@@ -1,6 +1,8 @@
 <?php
 namespace packager;
 use packager\cli\Console;
+use packager\repository\ExternalRepository;
+use packager\repository\GithubRepository;
 use packager\server\Server;
 use php\compress\ZipFile;
 use php\format\JsonProcessor;
@@ -11,7 +13,9 @@ use php\io\Stream;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use php\time\Time;
 use php\util\Regex;
+use semver\SemVersion;
 
 /**
  * Class Repository
@@ -25,9 +29,14 @@ class Repository
     private $dir;
 
     /**
-     * @var array
+     * @var ExternalRepository[]
      */
     private $externals = [];
+
+    /**
+     * @var array
+     */
+    private $cache = [];
 
     /**
      * Repository constructor.
@@ -36,24 +45,63 @@ class Repository
     public function __construct(string $directory)
     {
         $this->dir = $directory;
-        //$this->addExternal('http://jppm.develnext.org');
-        $this->addExternal('https://github.com/dim-s/jppm-repo');
-        //$this->addExternal('http://localhost:' . Server::PORT);
+        try {
+            $this->cache = fs::parseAs("$directory/cache.json", "json");
+        } catch (IOException | ProcessorException $e) {
+            $this->cache = [];
+        }
+
+        $this->addExternalRepo(new GithubRepository('https://github.com/dim-s/jppm-repo'));
     }
 
     /**
-     * @param string $server
+     *
      */
-    public function addExternal(string $server)
+    protected function saveCache()
     {
-        $this->externals[$server] = $server;
+        try {
+            fs::formatAs("$this->dir/cache.json", $this->cache, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
+        } catch (IOException $e) {
+            // nop.
+        }
+    }
+
+    protected function getVersionsFromExternal(ExternalRepository $repository, string $pkgName): array
+    {
+        $cache = $this->cache['external'][$repository->getSource()][$pkgName];
+
+        if ($cache !== null && is_array($cache['versions']) && $cache['time'] > Time::millis() - 1000 * 60 * 10) {
+            return $cache['versions'];
+        }
+
+        Console::log("-> get versions of package {0}, source: {1}", $pkgName, $repository->getSource());
+
+        $cache = [
+            'versions' => $repository->getVersions($pkgName),
+            'time' => Time::millis()
+        ];
+
+        $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
+
+        $this->saveCache();
+
+        return (array) $cache['versions'];
+    }
+
+    /**
+     * @param ExternalRepository $repository
+     */
+    public function addExternalRepo(ExternalRepository $repository)
+    {
+        $this->externals[$repository->getSource()] = $repository;
     }
 
     /**
      * @param string $name
+     * @param bool $onlyLocal
      * @return array
      */
-    public function getPackageVersions(string $name): array
+    public function getPackageVersions(string $name, bool $onlyLocal = true): array
     {
         $dir = "$this->dir/$name/";
 
@@ -63,54 +111,15 @@ class Repository
             $version = fs::name($version);
         }
 
-        return $versions;
-    }
+        $versions = arr::combine($versions, $versions);
 
-    /**
-     * @param string $name
-     * @param array $versions
-     * @return array
-     */
-    public function refreshPackageFromExternal(string $name, array $versions = []): array
-    {
-        foreach ($this->externals as $external) {
-            try {
-                if (str::startsWith($external, 'https://github.com/')) {
-                    $path = str::sub($external, 19);
-
-                    $externalVersions = fs::parseAs("https://raw.githubusercontent.com/$path/master/$name/versions.json", "json");
-                } else {
-                    $externalVersions = fs::parseAs("$external/repo/$name/find", "json");
-                }
-
-                foreach ($externalVersions as $version) {
+        if (!$onlyLocal) {
+            foreach ($this->externals as $external) {
+                foreach ($this->getVersionsFromExternal($external, $name) as $version) {
                     if (!$versions[$version]) {
-                        Console::log("download package {0}@{1} from '$external'", $name, $version);
-
-                        $zipFile = "$this->dir/$name/$version.zip";
-                        fs::ensureParent($zipFile);
-
-                        if (str::startsWith($external, 'https://github.com/')) {
-                            $copied = fs::copy(
-                                "$external/raw/master/$name/$version.zip", $zipFile
-                            );
-                        } else {
-                            $copied = fs::copy(
-                                "$external/repo/$name?version=$version&download=1", $zipFile
-                            );
-                        }
-
-                        if ($copied > 0) {
-                            if ($this->installFromArchive($zipFile)) {
-                                $versions[$version] = $version;
-                            }
-
-                            fs::delete($zipFile);
-                        }
+                        $versions[$version] = $external;
                     }
                 }
-            } catch (ProcessorException|IOException $e) {
-                Console::log("Failed to get external ({0}): {1}", $external, $e->getMessage());
             }
         }
 
@@ -124,24 +133,36 @@ class Repository
      */
     public function findPackage(string $name, string $versionPattern): ?Package
     {
-        $versions = $this->getPackageVersions($name);
-        arr::sort($versions);
-        $versions = arr::reverse($versions);
-        $versions = arr::combine($versions, $versions);
+        $versions = $this->getPackageVersions($name, false);
 
-        $versions = $this->refreshPackageFromExternal($name, $versions);
+        $foundVersions = [];
 
-        $versionPattern = str::replace($versionPattern, '.', '\\.');
-        $versionPattern = str::replace($versionPattern, '-', '\\-');
-        $versionPattern = str::replace($versionPattern, '_', '\\_');
-        $versionPattern = str::replace($versionPattern, '*', '[a-z0-9\.\-\_]+');
+        foreach ($versions as $version => $source) {
+            $semVer = new SemVersion($version);
 
-        $pattern = new Regex("^" . $versionPattern . "$", 'i');
-
-        foreach ($versions as $version) {
-            if ($pattern->with($version)->matches()) {
-                return $this->getPackage($name, $version);
+            if ($version === $versionPattern || $semVer->satisfies($versionPattern)) {
+                $foundVersions[$version] = $source;
             }
+        }
+
+        $foundVersions = arr::sortByKeys($foundVersions, function ($a, $b) { return new SemVersion($a) <=> new SemVersion($b); }, true);
+        $foundVersion = arr::lastKey($foundVersions);
+        $foundVersionSource = arr::last($foundVersions);
+
+        if ($foundVersion) {
+            if ($foundVersionSource instanceof ExternalRepository) {
+                Console::log("-> download package {0}@{1} from '{$foundVersionSource->getSource()}'", $name, $foundVersion);
+
+                $zipFile = "$this->dir/$name/$foundVersion.zip";
+                fs::ensureParent($zipFile);
+
+                if ($foundVersionSource->downloadTo($name, $foundVersion, $zipFile)) {
+                    $this->installFromArchive($zipFile);
+                    fs::delete($zipFile);
+                }
+            }
+
+            return $this->getPackage($name, "$foundVersion");
         }
 
         return null;
@@ -278,39 +299,50 @@ class Repository
         return false;
     }
 
-    public function indexAll()
+    public function indexAll(string $destDir = null)
     {
         $modules = fs::scan($this->dir, ['excludeFiles' => true], 1);
 
-        $gitIgnore = [];
-
         $name = function ($el) { return fs::name($el); };
+
+        if ($destDir === null) {
+            $destDir = $this->dir;
+        }
+
+        fs::makeDir($destDir);
 
         foreach ($modules as $module) {
             Console::log("Update Index of module ({0})", fs::name($module));
 
+            $index = [];
             $module = fs::name($module);
 
             $versions = fs::scan("$this->dir/$module", ['excludeFiles' => true], 1);
 
             foreach ($versions as $version) {
-                $zipFile = "$version.zip";
-                fs::delete($zipFile);
+                $zipFile = "$destDir/$module/" . fs::name($version) . ".zip";
 
-                $gitIgnore[] = "/$module/" . fs::name($version) . "/";
+                fs::delete($zipFile);
+                fs::ensureParent($zipFile);
 
                 $zip = new ZipFile($zipFile, true);
                 $zip->addDirectory($version);
+
+                $index[fs::name($version)] = [
+                    'size'   => fs::size($zipFile),
+                    'sha1'   => fs::hash($zipFile, 'SHA-1'),
+                    'crc32'  => (new File($zipFile))->crc32()
+                ];
             }
 
             fs::formatAs(
-                "$this->dir/$module/versions.json",
-                flow($versions)->map($name)->toArray(),
+                "$destDir/$module/versions.json",
+                $index,
                 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT
             );
         }
 
-        fs::formatAs("$this->dir/modules.json", flow($modules)->map($name)->toArray(), 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
-        Stream::putContents("$this->dir/.gitignore", "/*/*/");
+        fs::formatAs("$destDir/modules.json", flow($modules)->map($name)->toArray(), 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
+        Stream::putContents("$destDir/.gitignore", "/*/*/");
     }
 }

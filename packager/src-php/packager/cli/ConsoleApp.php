@@ -124,9 +124,19 @@ class ConsoleApp
         $this->commands[$name] = $handle;
     }
 
-    function handleIndex(array $args)
+    function handleRepo(array $args)
     {
-        $this->packager->getRepo()->indexAll();
+        $stderr = Stream::of("php://stderr");
+
+        switch ($args[0]) {
+            case "index":
+                $this->packager->getRepo()->indexAll($args[1] ?: null);
+                break;
+
+            default:
+                $stderr->write("[Packager]: Command 'repo $args[0]' not found. Try to run 'help' via 'jppm tasks'.");
+                exit(-1);
+        }
     }
 
     function handleServer(array $args)
