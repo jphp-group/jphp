@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -49,8 +50,20 @@ public class WrapGit extends BaseWrapper<Git> {
     }
 
     @Signature
-    public void __construct(File directory) throws IOException {
-        __wrappedObject = Git.open(directory, FS.DETECTED);
+    public void __construct(File directory) throws IOException, GitAPIException {
+        __construct(directory, true);
+    }
+
+    @Signature
+    public void __construct(File directory, boolean create) throws IOException, GitAPIException {
+        try {
+            __wrappedObject = Git.open(directory, FS.DETECTED);
+        } catch (RepositoryNotFoundException e) {
+            if (create) {
+                Git.init().setBare(false).setDirectory(directory).call();
+                __wrappedObject = Git.open(directory, FS.DETECTED);
+            }
+        }
     }
 
     @Signature
@@ -553,6 +566,11 @@ public class WrapGit extends BaseWrapper<Git> {
 
         FetchResult call = command.call();
         return GitUtils.valueOf(call);
+    }
+
+    @Signature
+    public Memory pull(String remote) throws GitAPIException {
+        return pull(remote, ArrayMemory.createHashed());
     }
 
     @Signature
