@@ -29,7 +29,7 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
 
     @Signature
     public void __construct(String version) {
-        Version.valueOf(version);
+        value = Version.valueOf(version);
     }
 
     @Signature
@@ -50,6 +50,11 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
     @Signature
     public String getBuildString() {
         return getValue().getBuildMetadata();
+    }
+
+    @Signature
+    public String getPreReleaseString() {
+        return getValue().getPreReleaseVersion();
     }
 
     @Signature

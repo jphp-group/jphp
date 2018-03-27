@@ -39,6 +39,13 @@ class SemVersion
     /**
      * @return string
      */
+    public function getPreReleaseString(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
     public function getBuildString(): string
     {
     }
