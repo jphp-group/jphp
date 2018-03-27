@@ -124,6 +124,11 @@ class ConsoleApp
         $this->commands[$name] = $handle;
     }
 
+    function handleIndex(array $args)
+    {
+        $this->packager->getRepo()->indexAll();
+    }
+
     function handleServer(array $args)
     {
         $server = new Server($this->packager->getRepo());

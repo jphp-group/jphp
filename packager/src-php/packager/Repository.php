@@ -3,6 +3,7 @@ namespace packager;
 use packager\cli\Console;
 use packager\server\Server;
 use php\compress\ZipFile;
+use php\format\JsonProcessor;
 use php\format\ProcessorException;
 use php\io\File;
 use php\io\IOException;
@@ -35,8 +36,9 @@ class Repository
     public function __construct(string $directory)
     {
         $this->dir = $directory;
-        $this->addExternal('http://jppm.develnext.org');
-        $this->addExternal('http://localhost:' . Server::PORT);
+        //$this->addExternal('http://jppm.develnext.org');
+        $this->addExternal('https://github.com/dim-s/jppm-repo');
+        //$this->addExternal('http://localhost:' . Server::PORT);
     }
 
     /**
@@ -73,20 +75,37 @@ class Repository
     {
         foreach ($this->externals as $external) {
             try {
-                $externalVersions = fs::parseAs("$external/repo/$name/find", "json");
+                if (str::startsWith($external, 'https://github.com/')) {
+                    $path = str::sub($external, 19);
+
+                    $externalVersions = fs::parseAs("https://raw.githubusercontent.com/$path/master/$name/versions.json", "json");
+                } else {
+                    $externalVersions = fs::parseAs("$external/repo/$name/find", "json");
+                }
 
                 foreach ($externalVersions as $version) {
                     if (!$versions[$version]) {
                         Console::log("download package {0}@{1} from '$external'", $name, $version);
 
-                        $copied = fs::copy(
-                            "$external/repo/$name?version=$version&download=1", "$this->dir/$name/$version.zip"
-                        );
+                        $zipFile = "$this->dir/$name/$version.zip";
+                        fs::ensureParent($zipFile);
+
+                        if (str::startsWith($external, 'https://github.com/')) {
+                            $copied = fs::copy(
+                                "$external/raw/master/$name/$version.zip", $zipFile
+                            );
+                        } else {
+                            $copied = fs::copy(
+                                "$external/repo/$name?version=$version&download=1", $zipFile
+                            );
+                        }
 
                         if ($copied > 0) {
-                            if ($this->installFromArchive("$this->dir/$name/$version.zip")) {
+                            if ($this->installFromArchive($zipFile)) {
                                 $versions[$version] = $version;
                             }
+
+                            fs::delete($zipFile);
                         }
                     }
                 }
@@ -257,5 +276,41 @@ class Repository
         }
 
         return false;
+    }
+
+    public function indexAll()
+    {
+        $modules = fs::scan($this->dir, ['excludeFiles' => true], 1);
+
+        $gitIgnore = [];
+
+        $name = function ($el) { return fs::name($el); };
+
+        foreach ($modules as $module) {
+            Console::log("Update Index of module ({0})", fs::name($module));
+
+            $module = fs::name($module);
+
+            $versions = fs::scan("$this->dir/$module", ['excludeFiles' => true], 1);
+
+            foreach ($versions as $version) {
+                $zipFile = "$version.zip";
+                fs::delete($zipFile);
+
+                $gitIgnore[] = "/$module/" . fs::name($version) . "/";
+
+                $zip = new ZipFile($zipFile, true);
+                $zip->addDirectory($version);
+            }
+
+            fs::formatAs(
+                "$this->dir/$module/versions.json",
+                flow($versions)->map($name)->toArray(),
+                'json', JsonProcessor::SERIALIZE_PRETTY_PRINT
+            );
+        }
+
+        fs::formatAs("$this->dir/modules.json", flow($modules)->map($name)->toArray(), 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
+        Stream::putContents("$this->dir/.gitignore", "/*/*/");
     }
 }

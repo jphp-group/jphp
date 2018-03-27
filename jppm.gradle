@@ -67,6 +67,7 @@ def jppmInstall(project) {
     def version = project.ext.hasProperty('jppmVersion') ? project.ext.jppmVersion : project.version
 
     delete "$repoDir/$name/$version"
+    delete "$repoDir/$name/${version}.zip"
 
     copy {
         from file(project.buildDir.path + "/jppm/dist/")
@@ -74,6 +75,8 @@ def jppmInstall(project) {
     }
 
     println("Install jppm package to: $repoDir/$name/$version")
+
+    return "$repoDir/$name/$version"
 }
 
 ext {

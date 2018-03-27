@@ -368,7 +368,7 @@ class fs
      * @param callable|array $filter (File $file, $depth): mixed|null
      * @param int $maxDepth if 0 then unlimited.
      * @param bool $subIsFirst
-     * @return array[]
+     * @return array
      */
     static function scan($path, $filter = null, $maxDepth = 0, $subIsFirst = false)
     {
