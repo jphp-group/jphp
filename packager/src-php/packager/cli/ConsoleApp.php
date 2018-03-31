@@ -199,7 +199,7 @@ class ConsoleApp
             $data['description'] = $description;
         }
 
-        $package = new Package($data);
+        $package = new Package($data, []);
         $this->packager->writePackage($package, $dir);
 
         Console::log("Success, {0} has been created.", Package::FILENAME);

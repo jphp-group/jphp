@@ -1,0 +1,6 @@
+
+dependencies {
+    provided project(':jphp-runtime')
+
+    provided group: 'com.badlogicgames.gdx', name: 'gdx', version: '1.9.8'
+}

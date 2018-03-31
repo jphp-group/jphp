@@ -19,12 +19,39 @@ class Package
     private $data = [];
 
     /**
+     * @var array
+     */
+    private $info = [];
+
+    /**
      * Package constructor.
      * @param array $data
+     * @param array $info
      */
-    public function __construct(array $data)
+    public function __construct(array $data, array $info = [])
     {
         $this->data = $data;
+        $this->info = $info;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->info['size'];
+    }
+
+    public function getCrc32(): ?int
+    {
+        return $this->info['crc32'];
+    }
+
+    public function getSha1(): ?string
+    {
+        return $this->info['sha1'];
+    }
+
+    public function getInfo(): array
+    {
+        return $this->info;
     }
 
     /**
@@ -120,20 +147,28 @@ class Package
 
     /**
      * @param string|Stream $source
+     * @param array $info
      * @return Package
-     *
-     * @throws IOException
      */
-    static public function readPackage($source): Package
+    static public function readPackage($source, array $info = []): Package
     {
         $stream = $source instanceof Stream ? $source : Stream::of($source, 'r');
 
         try {
             $data = $stream->parseAs('yaml');
 
-            return new Package($data);
+            return new Package($data, $info);
         } finally {
             $stream->close();
         }
+    }
+
+    /**
+     * @param Package $package
+     * @return bool
+     */
+    public function isIdentical(Package $package)
+    {
+        return ($this->info == $package->info);
     }
 }

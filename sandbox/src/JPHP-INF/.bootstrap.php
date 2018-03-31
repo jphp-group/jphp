@@ -1,1 +1,1 @@
-<?php$files = glob('d:/*.{sql,jpg}', GLOB_NOCHECK);print_r($files);
+<?phpuse gdx\GdxGame;use gdx\LwjglApplication;$game = new GdxGame();$game->on('create', function () {});$game->on('resize', function (int $w, int $h) {});LwjglApplication::run($game, [    'title' => 'Game',    'width' => 800,    'height' => 600]);

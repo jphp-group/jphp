@@ -51,7 +51,8 @@ class Repository
             $this->cache = [];
         }
 
-        $this->addExternalRepo(new GithubRepository('https://github.com/dim-s/jppm-repo'));
+        $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/jphp-repo'));
+        $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/central-repo'));
     }
 
     /**
@@ -66,6 +67,11 @@ class Repository
         }
     }
 
+    /**
+     * @param ExternalRepository $repository
+     * @param string $pkgName
+     * @return array
+     */
     protected function getVersionsFromExternal(ExternalRepository $repository, string $pkgName): array
     {
         $cache = $this->cache['external'][$repository->getSource()][$pkgName];
@@ -76,16 +82,56 @@ class Repository
 
         Console::log("-> get versions of package {0}, source: {1}", $pkgName, $repository->getSource());
 
-        $cache = [
-            'versions' => $repository->getVersions($pkgName),
-            'time' => Time::millis()
-        ];
+        try {
+            $cache = [
+                'versions' => $repository->getVersions($pkgName),
+                'time' => Time::millis()
+            ];
 
-        $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
+            $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
 
-        $this->saveCache();
+            $this->saveCache();
 
-        return (array) $cache['versions'];
+            return (array)$cache['versions'];
+        } catch (IOException|ProcessorException $e) {
+            $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
+            $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+
+            $this->saveCache();
+
+            return [];
+            // nop.
+        }
+    }
+
+    /**
+     * @param ExternalRepository $repository
+     * @param string $pkgName
+     * @param string $version
+     * @return array
+     */
+    protected function getVersionInfoFromExternal(ExternalRepository $repository, string $pkgName, string $version): ?array
+    {
+        $versions = $this->getVersionsFromExternal($repository, $pkgName);
+        $result = $versions[$version];
+
+        $result['repo'] = $repository->getSource();
+
+        return $result;
+    }
+
+    /**
+     * @param string $pkgName
+     * @param string $version
+     * @return array|null
+     */
+    protected function getVersionInfo(string $pkgName, string $version): ?array
+    {
+        if (fs::isFile($file = "$this->dir/$pkgName/$version.json")) {
+            return fs::parse($file);
+        }
+
+        return null;
     }
 
     /**
@@ -115,9 +161,20 @@ class Repository
 
         if (!$onlyLocal) {
             foreach ($this->externals as $external) {
-                foreach ($this->getVersionsFromExternal($external, $name) as $version) {
+                foreach ($this->getVersionsFromExternal($external, $name) as $version => $info) {
                     if (!$versions[$version]) {
                         $versions[$version] = $external;
+                    } else {
+                        $externalInfo = $this->getVersionInfoFromExternal($external, $name, $version);
+                        $localInfo = $this->getVersionInfo($name, $version);
+
+                        if ($externalInfo != null && $localInfo != null) {
+                            if ($externalInfo['size'] !== $localInfo['size']
+                                || $externalInfo['crc32'] !== $localInfo['crc32']
+                                || $externalInfo['sha1'] !== $localInfo['sha1']) {
+                                $versions[$version] = $external;
+                            }
+                        }
                     }
                 }
             }
@@ -129,10 +186,21 @@ class Repository
     /**
      * @param string $name
      * @param string $versionPattern
+     * @param null|PackageLock $lock
      * @return null|Package
      */
-    public function findPackage(string $name, string $versionPattern): ?Package
+    public function findPackage(string $name, string $versionPattern, ?PackageLock $lock = null): ?Package
     {
+        if ($lock) {
+            $lockVersion = $lock->findVersion($name);
+
+            if ($lockVersion) {
+                if ($lockVersion === $versionPattern || (new SemVersion($lockVersion))->satisfies($versionPattern)) {
+                    $versionPattern = $lockVersion;
+                }
+            }
+        }
+
         $versions = $this->getPackageVersions($name, false);
 
         $foundVersions = [];
@@ -151,18 +219,23 @@ class Repository
 
         if ($foundVersion) {
             if ($foundVersionSource instanceof ExternalRepository) {
+                $foundVersionInfo = $this->getVersionInfoFromExternal($foundVersionSource, $name, $foundVersion);
+
                 Console::log("-> download package {0}@{1} from '{$foundVersionSource->getSource()}'", $name, $foundVersion);
 
+                $indexFile = "$this->dir/$name/$foundVersion.json";
                 $zipFile = "$this->dir/$name/$foundVersion.zip";
                 fs::ensureParent($zipFile);
 
                 if ($foundVersionSource->downloadTo($name, $foundVersion, $zipFile)) {
                     $this->installFromArchive($zipFile);
                     fs::delete($zipFile);
+                    fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
                 }
             }
 
-            return $this->getPackage($name, "$foundVersion");
+            $pkg = $this->getPackage($name, "$foundVersion");
+            return $pkg;
         }
 
         return null;
@@ -176,7 +249,9 @@ class Repository
     public function getPackage(string $name, string $version): ?Package
     {
         $file = "$this->dir/$name/$version/" . Package::FILENAME;
-        return $this->readPackage($file);
+        $infoFile = "$this->dir/$name/$version.json";
+
+        return $this->readPackage($file, fs::isFile($infoFile) ? fs::parse($infoFile) : []);
     }
 
     /**
@@ -204,13 +279,12 @@ class Repository
 
     /**
      * @param string|Stream $source
+     * @param array $info
      * @return Package
-     *
-     * @throws IOException
      */
-    public function readPackage($source): Package
+    public function readPackage($source, array $info = []): Package
     {
-        return Package::readPackage($source);
+        return Package::readPackage($source, $info);
     }
 
     /**
@@ -269,6 +343,7 @@ class Repository
     /**
      * Install package from zip archive.
      * @param string $zipFile
+     * @return bool
      */
     public function installFromArchive(string $zipFile): bool
     {
@@ -277,8 +352,12 @@ class Repository
         $package = null;
 
         if ($zip->has(Package::FILENAME)) {
-            $zip->read(Package::FILENAME, function (array $stat, Stream $stream) use (&$package) {
-                $package = $this->readPackage($stream);
+            $zip->read(Package::FILENAME, function (array $stat, Stream $stream) use (&$package, $zipFile) {
+                $package = $this->readPackage($stream, [
+                    'size' => fs::size($zipFile),
+                    'sha1' => fs::hash($zipFile, 'sha1'),
+                    'crc32' => (new File($zipFile))->crc32()
+                ]);
             });
 
             $dir = "$this->dir/{$package->getName()}/{$package->getVersion('last')}";
@@ -323,7 +402,9 @@ class Repository
                 $zipFile = "$destDir/$module/" . fs::name($version) . ".zip";
 
                 fs::delete($zipFile);
-                fs::ensureParent($zipFile);
+                if (!fs::ensureParent($zipFile)) {
+                    throw new \Exception("Failed to create directory: " . fs::parent($zipFile));
+                }
 
                 $zip = new ZipFile($zipFile, true);
                 $zip->addDirectory($version);

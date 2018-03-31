@@ -52,9 +52,10 @@ class Vendor
 
     /**
      * @param Package $package
+     * @param null|PackageLock $lock
      * @return bool
      */
-    public function alreadyInstalled(Package $package): bool
+    public function alreadyInstalled(Package $package, ?PackageLock $lock): bool
     {
         try {
             $file = $this->getFile($package, Package::FILENAME);
@@ -63,7 +64,11 @@ class Vendor
                 return false;
             }
 
-            $installedPackage = Package::readPackage($file);
+            $installedPackage = Package::readPackage($file, $lock->findVersionInfo($package->getName()));
+
+            if (!$installedPackage->isIdentical($package)) {
+                return false;
+            }
 
             if ($package->getVersion() === $installedPackage->getVersion()) {
                 return true;

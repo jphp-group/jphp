@@ -29,6 +29,11 @@ class Packager
     private $packageLoader;
 
     /**
+     * @var PackageLock
+     */
+    private $packageLock;
+
+    /**
      * Packager constructor.
      */
     public function __construct()
@@ -41,6 +46,7 @@ class Packager
 
         $this->repo = new Repository("$dir/repo");
         $this->packageLoader = new PackageLoader();
+        $this->packageLock = new PackageLock();
     }
 
     /**
@@ -66,23 +72,26 @@ class Packager
         $tree = $this->fetchDependencyTree($source);
         $devTree = $this->fetchDependencyTree($source, 'dev');
 
+        $this->packageLock->load($vendor->getDir() . "/../");
         $this->packageLoader->clean();
 
         foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
             $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope) {
                 $prefix = str::repeat('-', $depth);
 
-                if ($forceUpdate || !$vendor->alreadyInstalled($pkg)) {
+                if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
                     Console::log("{$prefix}-> install {0}", $pkg->toString());
 
                     $this->repo->copyTo($pkg, $vendor->getDir());
                 }
 
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
+                $this->packageLock->addPackage($pkg);
             });
         }
 
         $this->packageLoader->save($vendor);
+        $this->packageLock->save($vendor->getDir() . "/../");
     }
 
     /**
@@ -102,7 +111,7 @@ class Packager
                 continue;
             }
 
-            if ($pkg = $this->repo->findPackage($dep, $version)) {
+            if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
                 $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
             } else {
                 $result->addInvalidDep($dep, $version);
