@@ -2,6 +2,7 @@ package php.runtime.wrap;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Name;
 import php.runtime.common.HintType;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
@@ -344,7 +345,11 @@ public class ClassWrapper {
     }
 
     protected MethodEntity onWrapWrapCompileMethod(ClassEntity classEntity, Method method, Method interfaceMethod, boolean skipConflicts) {
-        MethodEntity _entity = classEntity.findMethod(method.getName().toLowerCase());
+        Name nameAnn = interfaceMethod.getAnnotation(Name.class);
+
+        String name = nameAnn == null ? method.getName() : nameAnn.value();
+
+        MethodEntity _entity = classEntity.findMethod(name.toLowerCase());
 
         WrapCompileMethodEntity entity;
         if (_entity instanceof WrapCompileMethodEntity) {
@@ -354,8 +359,18 @@ public class ClassWrapper {
         }
 
         entity.addMethod(method, skipConflicts);
+
+        if (nameAnn != null) {
+            entity.setName(nameAnn.value());
+        }
+
         if (_entity == null) {
             entity.setClazz(classEntity);
+
+            if (nameAnn != null) {
+                entity.setName(nameAnn.value());
+            }
+
             classEntity.addMethod(entity, null);
         }
 

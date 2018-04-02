@@ -139,8 +139,9 @@ public class MiscStream extends Stream {
             }
 
             return new BinaryMemory(tmp.toByteArray());
+        } else {
+            throw new IOException("Cannot read from output stream");
         }
-        return Memory.NULL;
     }
 
     @Signature

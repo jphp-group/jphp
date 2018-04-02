@@ -9,12 +9,8 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':exts/jphp-zend-ext')
-    compile project(':exts/jphp-yaml-ext')
-    compile project(':exts/jphp-xml-ext')
-    compile project(':exts/jphp-graphic-ext')
-    compile project(':exts/jphp-gdx-ext')
-    compile project(':exts/jphp-gdx-desktop-ext')
-    compile project(':exts/jphp-ssh-ext')
+    compile project(':exts/jphp-compress-ext')
+    compile project(':exts/jphp-zip-ext')
     //compile project(':jphp-json-ext')
     //compile project(':jphp-jsoup-ext')
     //compile project(':jphp-gdx-ext')
@@ -23,7 +19,7 @@ dependencies {
     //compile project(':jphp-orientdb-ext')
     //compile project(':jphp-webserver-ext')
 
-    compile project(':jphp-debugger')
+    //compile project(':jphp-debugger')
 
     compile 'org.xerial:sqlite-jdbc:3.8.7'
 }

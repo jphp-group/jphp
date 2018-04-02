@@ -11,6 +11,16 @@ def readExtIdFromConsole() {
     }
 }
 
+def createBuildGradle(File dir, List dependencies) {
+    def buildGradleText = file("$rootProject.rootDir.path/exts/ext-template/build.gradle").text
+    def deps = dependencies.join("\n")
+
+    buildGradleText = buildGradleText.replace("\$dependencies\$", deps)
+
+    dir.mkdirs()
+    file("$dir/build.gradle").text = buildGradleText
+}
+
 def createJPHPExtension(Project project) {
     def extId = this.readExtIdFromConsole();
     println()
@@ -21,20 +31,37 @@ def createJPHPExtension(Project project) {
     def extNs = extId.toString().toLowerCase()
     def extPackage = "org.develnext.jphp.ext.$extNs"
     def extClass = extId.toString().substring(0, 1).toUpperCase() + extId.toString().substring(1) + "Extension"
+    def extTestClass = extNs.substring(0, 1).toUpperCase() + extNs.substring(1) + "JvmTestCase"
     def extClassDir = file("$extDir.path/src/main/java/org/develnext/jphp/ext/$extNs/")
 
     def javaExtClass = file("$project.rootDir.path/exts/ext-template/ExampleExtension.java").text
-    javaExtClass = javaExtClass.replace("\$package\$", extPackage).replace("\$ns\$", extNs).replace("\$className\$", extClass);
+    javaExtClass = javaExtClass
+            .replace("\$package\$", extPackage)
+            .replace("\$ns\$", extNs)
+            .replace("\$className\$", extClass);
+
+    def testExtClass = file("$project.rootDir.path/exts/ext-template/ExampleJvmTestCase.java").text
+    testExtClass = testExtClass
+            .replace("\$ns\$", extNs)
+            .replace("\$className\$", extTestClass)
+            .replace("\$extClassName\$", extClass);
 
     if (extDir.exists()) {
         System.err.println("[ERROR] Extension './exts/jphp-$extId-ext' already exists!")
         System.exit(-1)
     }
 
+    this.createBuildGradle(extDir, ['provided project(":jphp-runtime")']);
+
     copy {
         from "$project.rootDir.path/exts/ext-template/dir"
         into extDir
     }
+
+    file("$extDir/src/main/tests/resources/" + extPackage.replace('.', '/') + "/classes").mkdirs()
+    file("$extDir/src/main/tests/resources/" + extPackage.replace('.', '/') + "/${extTestClass}.java").createNewFile()
+    file("$extDir/src/main/tests/resources/" + extPackage.replace('.', '/') + "/${extTestClass}.java") << testExtClass
+    file("$extDir/src/main/tests/resources/$extNs").mkdirs()
 
     extClassDir.mkdirs()
     file("$extDir.path/src/main/resources/JPHP-INF/sdk/$extNs/").mkdirs()
