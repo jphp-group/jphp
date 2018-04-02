@@ -36,6 +36,30 @@ task dist(dependsOn: 'shadowJar') {
     }
 }
 
+task installDist(dependsOn: 'dist') {
+    doLast {
+        def installDist = file(System.getProperty('user.home') + '/.jppm/dist')
+        installDist.mkdirs()
+
+        copy {
+            from "$buildDir.path/dist/plugins/"
+            into "$installDist.path/plugins"
+        }
+
+        copy {
+            from "$buildDir.path/dist/jppm"
+            from "$buildDir.path/dist/jppm.bat"
+            from "$buildDir.path/dist/packager-all.jar"
+
+            into installDist
+        }
+    }
+}
+
+install {
+    dependsOn installDist
+}
+
 task distAndRun(dependsOn: 'dist') {
     doLast {
         exec {

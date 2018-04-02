@@ -70,7 +70,7 @@ public class MiscStream extends Stream {
 
     @Signature({@Arg("value"), @Arg(value = "length", optional = @Optional("NULL"))})
     public Memory write(Environment env, Memory... args) throws IOException {
-        int len = args[1].toInteger();
+            int len = args[1].toInteger();
         byte[] bytes = args[0].getBinaryBytes(env.getDefaultCharset());
 
         eof = false;

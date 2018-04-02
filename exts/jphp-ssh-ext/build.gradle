@@ -1,0 +1,10 @@
+dependencies {
+    provided project(":jphp-runtime")
+
+    compile group: 'com.jcraft', name: 'jsch', version: '0.1.54'
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':jphp-core')
+    testCompile project(':jphp-core').sourceSets.test.output
+}

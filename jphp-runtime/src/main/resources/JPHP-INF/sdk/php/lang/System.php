@@ -1,5 +1,6 @@
 <?php
 namespace php\lang;
+use php\io\Stream;
 
 /**
  * Class System
@@ -57,6 +58,27 @@ final class System
      * @param array $properties
      */
     public static function setProperties(array $properties)
+    {
+    }
+
+    /**
+     * @return Stream
+     */
+    public static function in(): Stream
+    {
+    }
+
+    /**
+     * @return Stream
+     */
+    public static function out(): Stream
+    {
+    }
+
+    /**
+     * @return Stream
+     */
+    public static function err(): Stream
     {
     }
 }

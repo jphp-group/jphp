@@ -1,6 +1,8 @@
 def javaVersion    = '1.8';
 def projectVersion = '0.9.3';
 
+apply from: "$rootDir/exts/ext-template.gradle"
+
 buildscript {
     repositories {
         maven {
@@ -9,6 +11,12 @@ buildscript {
     }
     dependencies {
         classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+    }
+}
+
+task genExtension() {
+    doLast {
+        createJPHPExtension(rootProject)
     }
 }
 
@@ -51,7 +59,7 @@ configure(subprojects) {
     apply plugin: 'java'
     apply from: "$rootDir/jppm.gradle"
 
-    if (it.name.endsWith("-ext")) {
+    if (it.name.endsWith("-ext") || it.name.startsWith("jphp-")) {
         apply plugin: 'maven'
     }
 
@@ -77,7 +85,7 @@ configure(subprojects) {
             doLast { jppmDist(project) }
         }
 
-        task jppmInstall(dependsOn: 'jppmDist') {
+        task jppmInstall(dependsOn: ['install', 'jppmDist']) {
             doLast { jppmInstall(project) }
         }
     }

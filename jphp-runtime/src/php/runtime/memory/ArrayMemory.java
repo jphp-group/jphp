@@ -2086,9 +2086,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public <T> T toBean(Environment env, TraceInfo trace, Class<T> beanClass) {
         try {
-            Constructor<T> constructor = beanClass.getConstructor();
+            T instance;
 
-            T instance = constructor.newInstance();
+            try {
+                Constructor<T> beanClassConstructor = beanClass.getConstructor(ArrayMemory.class);
+                instance = beanClassConstructor.newInstance(this);
+            } catch (NoSuchMethodException e) {
+                Constructor<T> constructor = beanClass.getConstructor();
+                instance = constructor.newInstance();
+            }
 
             return toBean(env, trace, instance);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {

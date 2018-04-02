@@ -17,10 +17,7 @@ import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 public class CompileMethodEntity extends MethodEntity {
@@ -81,19 +78,39 @@ public class CompileMethodEntity extends MethodEntity {
         Annotation[][] annotations   = method.getParameterAnnotations();
 
         int i = 0;
-        for (Class<?> el : method.getParameterTypes()) {
-            if (el == Environment.class || el == TraceInfo.class) {
+        for (Parameter el : method.getParameters()) {
+            Class<?> elType = el.getType();
+
+            if (elType == Environment.class || elType == TraceInfo.class) {
                 continue;
             }
 
             ParameterEntity param = new ParameterEntity(context);
-            param.setName("arg" + i);
+            param.setName(el.isNamePresent() ? el.getName() : "arg" + i);
             param.setTrace(TraceInfo.UNKNOWN);
 
             Annotation[] argAnnotations = annotations[i];
 
             if (ReflectionUtils.getAnnotation(argAnnotations, Reflection.Nullable.class) != null) {
                 param.setNullable(true);
+            }
+
+            Reflection.Arg arg = ReflectionUtils.getAnnotation(argAnnotations, Reflection.Arg.class);
+            if (arg !=  null) {
+                if (!arg.value().isEmpty()) {
+                    param.setName(arg.value());
+                }
+
+                param.setType(arg.type());
+                param.setReference(arg.reference());
+
+                if (arg.nativeType() != IObject.class) {
+                    param.setTypeNativeClass(arg.nativeType());
+                }
+
+                if (!arg.typeClass().isEmpty()) {
+                    param.setTypeClass(arg.typeClass());
+                }
             }
 
             parameters[i++] = param;

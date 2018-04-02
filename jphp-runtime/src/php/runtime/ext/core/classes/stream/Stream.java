@@ -125,6 +125,11 @@ abstract public class Stream extends BaseObject implements Resource {
         }
     }
 
+    @Signature
+    final public Memory readAll(Environment env, Memory... args) throws Throwable {
+        return env.invokeMethod(this, "readFully");
+    }
+
     public static Stream create(Environment env, String path, String mode) throws Throwable {
         return of(env, StringMemory.valueOf(path), StringMemory.valueOf(mode)).toObject(Stream.class);
     }

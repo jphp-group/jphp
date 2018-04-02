@@ -1,0 +1,48 @@
+
+def readExtIdFromConsole() {
+    ant.input(message: 'Enter ID of extension (e.g. gui, ssh, sql, etc.): ', addproperty: 'jphpExtID');
+
+    def extId = ant.jphpExtID
+
+    if (extId == null || extId.trim().isEmpty()) {
+        return readExtIdFromConsole();
+    } else {
+        return extId;
+    }
+}
+
+def createJPHPExtension(Project project) {
+    def extId = this.readExtIdFromConsole();
+    println()
+    println("Start generate JPHP extension ...")
+    println("--> Extension ID: $extId");
+
+    def extDir = file("$project.rootDir.path/exts/jphp-$extId-ext")
+    def extNs = extId.toString().toLowerCase()
+    def extPackage = "org.develnext.jphp.ext.$extNs"
+    def extClass = extId.toString().substring(0, 1).toUpperCase() + extId.toString().substring(1) + "Extension"
+    def extClassDir = file("$extDir.path/src/main/java/org/develnext/jphp/ext/$extNs/")
+
+    def javaExtClass = file("$project.rootDir.path/exts/ext-template/ExampleExtension.java").text
+    javaExtClass = javaExtClass.replace("\$package\$", extPackage).replace("\$ns\$", extNs).replace("\$className\$", extClass);
+
+    if (extDir.exists()) {
+        System.err.println("[ERROR] Extension './exts/jphp-$extId-ext' already exists!")
+        System.exit(-1)
+    }
+
+    copy {
+        from "$project.rootDir.path/exts/ext-template/dir"
+        into extDir
+    }
+
+    extClassDir.mkdirs()
+    file("$extDir.path/src/main/resources/JPHP-INF/sdk/$extNs/").mkdirs()
+    file("$extDir.path/src/main/resources/META-INF/services/php.runtime.ext.support.Extension") << extPackage + "." + extClass
+    file("$extClassDir/${extClass}.java").createNewFile()
+    file("$extClassDir/${extClass}.java") << javaExtClass
+}
+
+ext {
+    createJPHPExtension = this.&createJPHPExtension
+}

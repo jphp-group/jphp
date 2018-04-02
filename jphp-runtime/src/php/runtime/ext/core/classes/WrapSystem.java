@@ -2,10 +2,13 @@ package php.runtime.ext.core.classes;
 
 import php.runtime.Memory;
 import php.runtime.env.Environment;
+import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Properties;
 
@@ -61,5 +64,20 @@ final public class WrapSystem extends BaseObject {
     public static Memory gc(Environment env, Memory... args) {
         System.gc();
         return Memory.NULL;
+    }
+
+    @Signature
+    public static InputStream in() {
+        return System.in;
+    }
+
+    @Signature
+    public static OutputStream err() {
+        return System.err;
+    }
+
+    @Signature
+    public static OutputStream out() {
+        return System.out;
     }
 }

@@ -54,6 +54,17 @@ abstract class Stream
     abstract public function readFully();
 
     /**
+     * Alias of readFully().
+     *
+     * @throws IOException
+     * @return mixed
+     */
+    final public function readAll()
+    {
+        return $this->readFully();
+    }
+
+    /**
      * @param string $value
      * @param null|int $length
      * @throws IOException

@@ -21,7 +21,7 @@ public class MemoryMiscStream extends MiscStream {
         super.__construct(env, new StringMemory("memory"), args[1]);
 
         if (args[0].isNotNull()) {
-            write(env, args[0]);
+            write(env, args[0], Memory.NULL);
             seek(env, Memory.CONST_INT_0);
         }
 

@@ -52,6 +52,10 @@ public class ArrayMemoryOperation extends MemoryOperation {
     @Override
     @SuppressWarnings("unchecked")
     public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
+        if (arg == null) {
+            return Memory.NULL;
+        }
+
         ArrayMemory r = new ArrayMemory();
         for (Object el : (Object[]) arg) {
             r.add(operation.unconvert(env, trace, el));

@@ -1,0 +1,17 @@
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+
+dependencies {
+    provided project(':jphp-runtime')
+    compile project(':exts/jphp-gdx-ext')
+
+    compile group: 'com.badlogicgames.gdx', name: 'gdx-platform', version: '1.9.8'
+
+    compile group: 'com.badlogicgames.gdx', name: 'gdx-backend-lwjgl', version: '1.9.8'
+    compile "com.badlogicgames.gdx:gdx-platform:1.9.8:natives-desktop"
+}

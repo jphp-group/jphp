@@ -14,6 +14,7 @@ dependencies {
     compile project(':exts/jphp-graphic-ext')
     compile project(':exts/jphp-gdx-ext')
     compile project(':exts/jphp-gdx-desktop-ext')
+    compile project(':exts/jphp-ssh-ext')
     //compile project(':jphp-json-ext')
     //compile project(':jphp-jsoup-ext')
     //compile project(':jphp-gdx-ext')
