@@ -130,8 +130,7 @@ public class StandaloneCompiler {
                 try {
                     compiler.compileJar(jarFile, destinationDirectory, StandaloneLauncher.class.getName());
                 } finally {
-                    FsUtils.clean(env, destinationDirectory.getPath());
-                    FsUtils.delete(destinationDirectory.getPath());
+                    FsUtils.delete(env, destinationDirectory.getPath());
                 }
             }
 

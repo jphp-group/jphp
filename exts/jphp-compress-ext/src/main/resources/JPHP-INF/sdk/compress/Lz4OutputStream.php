@@ -10,14 +10,13 @@ use php\io\Stream;
  * @package compress
  * @packages compress
  */
-class GzipInputStream extends MiscStream
+class Lz4OutputStream extends MiscStream
 {
     /**
-     * GzipOutStream constructor.
      * @param Stream|File|string $input
-     * @param bool $decompressConcatenated
+     * @param bool $framed
      */
-    public function __construct($input, bool $decompressConcatenated = false)
+    public function __construct($input, bool $framed = false)
     {
     }
 }

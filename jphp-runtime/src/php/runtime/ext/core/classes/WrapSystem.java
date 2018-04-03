@@ -80,4 +80,34 @@ final public class WrapSystem extends BaseObject {
     public static OutputStream out() {
         return System.out;
     }
+
+    @Signature
+    public static String tempDirectory() {
+        return System.getProperty("java.io.tmpdir");
+    }
+
+    @Signature
+    public static String userHome() {
+        return System.getProperty("user.home");
+    }
+
+    @Signature
+    public static String userDirectory() {
+        return System.getProperty("user.dir");
+    }
+
+    @Signature
+    public static String userName() {
+        return System.getProperty("user.name");
+    }
+
+    @Signature
+    public static String osName() {
+        return System.getProperty("os.name");
+    }
+
+    @Signature
+    public static String osVersion() {
+        return System.getProperty("os.name");
+    }
 }

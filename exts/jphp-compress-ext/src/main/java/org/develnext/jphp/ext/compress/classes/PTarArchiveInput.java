@@ -2,6 +2,8 @@ package org.develnext.jphp.ext.compress.classes;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarConstants;
 import org.develnext.jphp.ext.compress.CompressExtension;
@@ -40,6 +42,7 @@ public class PTarArchiveInput extends PArchiveInput<TarArchiveInputStream> {
 
     @Override
     public PArchiveEntry nextEntry(Environment env) throws IOException {
-        return new PTarArchiveEntry(env, getWrappedObject().getNextTarEntry());
+        TarArchiveEntry entry = getWrappedObject().getNextTarEntry();
+        return entry == null ? null : new PTarArchiveEntry(env, entry);
     }
 }

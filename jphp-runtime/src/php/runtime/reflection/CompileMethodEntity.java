@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.common.Callback;
 import php.runtime.common.CallbackW;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -14,6 +15,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
+import php.runtime.memory.support.MemoryUtils;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -77,11 +79,12 @@ public class CompileMethodEntity extends MethodEntity {
         ParameterEntity[] parameters = new ParameterEntity[method.getParameterTypes().length];
         Annotation[][] annotations   = method.getParameterAnnotations();
 
-        int i = 0;
+        int i = 0, k = 0;
         for (Parameter el : method.getParameters()) {
             Class<?> elType = el.getType();
 
             if (elType == Environment.class || elType == TraceInfo.class) {
+                k++;
                 continue;
             }
 
@@ -89,14 +92,14 @@ public class CompileMethodEntity extends MethodEntity {
             param.setName(el.isNamePresent() ? el.getName() : "arg" + i);
             param.setTrace(TraceInfo.UNKNOWN);
 
-            Annotation[] argAnnotations = annotations[i];
+            Annotation[] argAnnotations = annotations[k];
 
             if (ReflectionUtils.getAnnotation(argAnnotations, Reflection.Nullable.class) != null) {
                 param.setNullable(true);
             }
 
             Reflection.Arg arg = ReflectionUtils.getAnnotation(argAnnotations, Reflection.Arg.class);
-            if (arg !=  null) {
+            if (arg != null) {
                 if (!arg.value().isEmpty()) {
                     param.setName(arg.value());
                 }
@@ -111,9 +114,21 @@ public class CompileMethodEntity extends MethodEntity {
                 if (!arg.typeClass().isEmpty()) {
                     param.setTypeClass(arg.typeClass());
                 }
+
+                if (arg.optional().exists()
+                        || !arg.optional().value().isEmpty()
+                        || (arg.type() != HintType.STRING && !arg.optional().value().isEmpty())){
+                    param.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
+                }
+            }
+
+            Reflection.Optional optAnn = ReflectionUtils.getAnnotation(argAnnotations, Reflection.Optional.class);
+            if (optAnn != null) {
+                param.setDefaultValue(MemoryUtils.valueOf(optAnn.value(), optAnn.type()));
             }
 
             parameters[i++] = param;
+            k++;
         }
 
         if (i < parameters.length) {
@@ -334,50 +349,53 @@ public class CompileMethodEntity extends MethodEntity {
                 argumentOperations = new MemoryOperation[parameterTypes.length];
 
                 MemoryOperation op;
-                for (int i = 0; i < argumentOperations.length; i++) {
+
+                for (int i = 0, k = 0; i < argumentOperations.length; i++) {
                     Class<?> parameterType = parameterTypes[i];
-                    Type genericTypes = method.getGenericParameterTypes()[i];
 
-                    op = MemoryOperation.get(parameterType, genericTypes);
+                        Type genericTypes = method.getGenericParameterTypes()[i];
 
-                    argumentOperations[i] = op;
+                        op = MemoryOperation.get(parameterType, genericTypes);
 
-                    if (op != null) {
-                        if (i <= parameters.length - 1) {
-                            op.applyTypeHinting(parameters[i]);
-                        }
-                    } else {
-                        if (parameterType == Environment.class) {
-                            argumentOperations[i] = new InjectMemoryOperation() {
-                                @Override
-                                public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                                    return env;
-                                }
-                            };
-                        } else if (parameterType == TraceInfo.class) {
-                            argumentOperations[i] = new InjectMemoryOperation() {
-                                @Override
-                                public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                                    return trace;
-                                }
-                            };
-                        } else {
-                            if (unknownTypeFetcher != null) {
-                                op = unknownTypeFetcher.call(parameterType, genericTypes);
-                                argumentOperations[i] = op;
+                        argumentOperations[i] = op;
 
-                                if (op != null) {
-                                    if (i <= parameters.length - 1) {
-                                        op.applyTypeHinting(parameters[i]);
-                                    }
-
-                                    continue;
-                                }
+                        if (op != null) {
+                            if (k <= parameters.length - 1) {
+                                op.applyTypeHinting(parameters[k]);
                             }
+                            k++;
+                        } else {
+                            if (parameterType == Environment.class) {
+                                argumentOperations[i] = new InjectMemoryOperation() {
+                                    @Override
+                                    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+                                        return env;
+                                    }
+                                };
+                            } else if (parameterType == TraceInfo.class) {
+                                argumentOperations[i] = new InjectMemoryOperation() {
+                                    @Override
+                                    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+                                        return trace;
+                                    }
+                                };
+                            } else {
+                                if (unknownTypeFetcher != null) {
+                                    op = unknownTypeFetcher.call(parameterType, genericTypes);
+                                    argumentOperations[i] = op;
 
-                            throw new CriticalException("Unsupported type for binding - " + parameterType);
+                                    if (op != null) {
+                                        if (k <= parameters.length - 1) {
+                                            op.applyTypeHinting(parameters[k]);
+                                        }
+                                        k++;
+                                        continue;
+                                    }
+                                }
+
+                                throw new CriticalException("Unsupported type for binding - " + parameterType);
+                            }
                         }
-                    }
                 }
             }
         }

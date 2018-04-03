@@ -81,4 +81,46 @@ final class System
     public static function err(): Stream
     {
     }
+
+    /**
+     * @return string
+     */
+    public static function tempDirectory(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public static function userDirectory(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public static function userHome(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public static function userName(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public static function osName(): string
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public static function osVersion(): string
+    {
+    }
 }

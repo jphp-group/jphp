@@ -23,11 +23,7 @@ import php.runtime.reflection.ClassEntity;
 @Namespace(CompressExtension.NS)
 abstract public class PArchiveOutput<T extends ArchiveOutputStream> extends BaseWrapper<T> {
     interface WrappedInterface {
-        void finish();
-        @Name("closeEntry") void closeArchiveEntry();
-        @Name("putEntry") void putArchiveEntry(ArchiveEntry entry);
         boolean canWriteEntryData(ArchiveEntry entry);
-
         long getBytesWritten();
     }
 
@@ -45,5 +41,20 @@ abstract public class PArchiveOutput<T extends ArchiveOutputStream> extends Base
     @Signature
     public OutputStream stream() {
         return getWrappedObject();
+    }
+
+    @Signature
+    public void putEntry(PArchiveEntry entry) throws IOException {
+        getWrappedObject().putArchiveEntry(entry.getWrappedObject());
+    }
+
+    @Signature
+    public void closeEntry() throws IOException {
+        getWrappedObject().closeArchiveEntry();
+    }
+
+    @Signature
+    public void finish() throws IOException {
+        getWrappedObject().finish();
     }
 }

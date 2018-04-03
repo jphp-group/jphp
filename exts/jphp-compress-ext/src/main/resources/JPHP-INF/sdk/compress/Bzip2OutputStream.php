@@ -10,14 +10,14 @@ use php\io\Stream;
  * @package compress
  * @packages compress
  */
-class GzipInputStream extends MiscStream
+class Bzip2OutputStream extends MiscStream
 {
     /**
      * GzipOutStream constructor.
-     * @param Stream|File|string $input
-     * @param bool $decompressConcatenated
+     * @param Stream|File|string $output
+     * @param int $blockSize
      */
-    public function __construct($input, bool $decompressConcatenated = false)
+    public function __construct($output, int $blockSize = 9)
     {
     }
 }

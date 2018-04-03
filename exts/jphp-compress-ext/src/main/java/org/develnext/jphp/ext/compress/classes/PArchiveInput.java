@@ -33,6 +33,11 @@ abstract public class PArchiveInput<T extends ArchiveInputStream> extends BaseWr
     @Signature
     abstract public PArchiveEntry nextEntry(Environment env) throws IOException;
 
+    @Override
+    public T getWrappedObject() {
+        return super.getWrappedObject();
+    }
+
     @Signature
     public InputStream stream() {
         return getWrappedObject();

@@ -25,13 +25,9 @@ import php.runtime.reflection.ClassEntity;
 
 @Name("GzipOutputStream")
 @Namespace(CompressExtension.NS)
-public class PGzipOutputStream extends Stream {
-    private int position;
-    private boolean eof;
-    private GzipCompressorOutputStream outputStream;
-
+public class PGzipOutputStream extends MiscStream {
     public PGzipOutputStream(Environment env, GzipCompressorOutputStream outputStream) {
-        super(env);
+        super(env, outputStream);
         this.outputStream = outputStream;
     }
 
@@ -54,50 +50,5 @@ public class PGzipOutputStream extends Stream {
                     outputStream, parameters.toValue(ArrayMemory.class).toBean(env, GzipParameters.class)
             );
         }
-    }
-
-    @Override
-    @Signature
-    public Memory write(Environment env, Memory... args) throws IOException {
-        int len = args[1].toInteger();
-        byte[] bytes = args[0].getBinaryBytes(env.getDefaultCharset());
-        len = len == 0 || len > bytes.length ? bytes.length : len;
-
-        outputStream.write(bytes, 0, len);
-        this.position += len;
-
-        return LongMemory.valueOf(len);
-    }
-
-    @Override
-    public Memory read(Environment env, Memory... args) throws IOException {
-        throw new IOException("Cannot read from output stream");
-    }
-
-    @Override
-    public Memory readFully(Environment env, Memory... args) throws IOException {
-        throw new IOException("Cannot read from output stream");
-    }
-
-    @Override
-    public Memory eof(Environment env, Memory... args) {
-        return Memory.FALSE;
-    }
-
-    @Override
-    public Memory seek(Environment env, Memory... args) throws IOException {
-        env.exception(WrapIOException.class, "Cannot seek in output stream");
-        return Memory.NULL;
-    }
-
-    @Override
-    public Memory getPosition(Environment env, Memory... args) {
-        return Memory.NULL;
-    }
-
-    @Override
-    public Memory close(Environment env, Memory... args) throws IOException {
-        outputStream.close();
-        return Memory.NULL;
     }
 }

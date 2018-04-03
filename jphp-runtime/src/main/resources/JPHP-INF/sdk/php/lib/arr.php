@@ -92,7 +92,7 @@ class arr
      * --RU--
      * Возвращает все ключи коллекции
      *
-     * @param iterable $collection
+     * @param iterable|array $collection
      * @return array
      */
     public static function keys(iterable $collection): array

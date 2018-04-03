@@ -496,8 +496,23 @@ ClassReader classReader;
             this.instanceOfList.addAll(parent.instanceOfList);
             this.interfaces.putAll(parent.interfaces);
 
-            this.properties.putAll(parent.properties);
             this.staticProperties.putAll(parent.staticProperties);
+
+            for (Map.Entry<String, PropertyEntity> entry : parent.properties.entrySet()) {
+                PropertyEntity childEntity = this.properties.get(entry.getKey());
+
+                if (childEntity == null) {
+                    this.properties.put(entry.getKey(), entry.getValue());
+                } else {
+                    if (childEntity.setter == null) {
+                        childEntity.setter = entry.getValue().setter;
+                    }
+
+                    if (childEntity.getter == null) {
+                        childEntity.getter = entry.getValue().getter;
+                    }
+                }
+            }
 
             for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
                 if (!entry.getValue().isPrivate()) {
@@ -532,8 +547,23 @@ ClassReader classReader;
             this.instanceOfList.addAll(parent.instanceOfList);
             this.interfaces.putAll(parent.interfaces);
 
-            this.properties.putAll(parent.properties);
             this.staticProperties.putAll(parent.staticProperties);
+
+            for (Map.Entry<String, PropertyEntity> entry : parent.properties.entrySet()) {
+                PropertyEntity childEntity = this.properties.get(entry.getKey());
+
+                if (childEntity == null) {
+                    this.properties.put(entry.getKey(), entry.getValue());
+                } else {
+                    if (childEntity.setter == null) {
+                        childEntity.setter = entry.getValue().setter;
+                    }
+
+                    if (childEntity.getter == null) {
+                        childEntity.getter = entry.getValue().getter;
+                    }
+                }
+            }
 
             for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
                 if (!entry.getValue().isPrivate()) {

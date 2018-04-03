@@ -10,7 +10,7 @@ use php\io\Stream;
  * @package compress
  * @packages compress
  */
-class GzipInputStream extends MiscStream
+class Bzip2InputStream extends MiscStream
 {
     /**
      * GzipOutStream constructor.

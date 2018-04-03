@@ -5,6 +5,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.MemoryOperation;
+import php.runtime.reflection.ParameterEntity;
 
 public class StringMemoryOperation extends MemoryOperation<String> {
     @Override

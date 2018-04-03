@@ -17,12 +17,19 @@ import php.runtime.reflection.ClassEntity;
 @Name("ArchiveEntry")
 @Namespace(CompressExtension.NS)
 abstract public class PArchiveEntry<T extends ArchiveEntry> extends BaseWrapper<T> {
+
+
     public PArchiveEntry(Environment env, T wrappedObject) {
         super(env, wrappedObject);
     }
 
     public PArchiveEntry(Environment env, ClassEntity clazz) {
         super(env, clazz);
+    }
+
+    @Override
+    public T getWrappedObject() {
+        return super.getWrappedObject();
     }
 
     @Signature
@@ -35,16 +42,10 @@ abstract public class PArchiveEntry<T extends ArchiveEntry> extends BaseWrapper<
         return getWrappedObject().getName();
     }
 
-    @Setter
-    abstract public void setName(String name);
-
     @Getter
     public long getSize() {
         return getWrappedObject().getSize();
     }
-
-    @Setter
-    abstract public void setSize(long size);
 
     @Getter
     public Date getLastModifiedDate() {

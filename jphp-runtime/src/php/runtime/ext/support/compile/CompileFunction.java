@@ -2,6 +2,7 @@ package php.runtime.ext.support.compile;
 
 
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Runtime;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -9,6 +10,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.support.MemoryUtils;
+import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -73,9 +75,11 @@ public class CompileFunction {
     public Method addMethod(java.lang.reflect.Method method, boolean asImmutable){
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
 
-        if (method.isVarArgs()){
-            if (methodVarArgs != null)
+        if (method.isVarArgs()) {
+            if (methodVarArgs != null) {
                 throw new IllegalArgumentException("Cannot add two var-args methods");
+            }
+
             methodVarArgs = new Method(method, 0, asImmutable);
             int count = 0;
             Class<?>[] types = method.getParameterTypes();
@@ -87,12 +91,26 @@ public class CompileFunction {
                     continue;
 
                 boolean ignore = false;
-                for (Annotation el : paramAnnotations[i]){
+
+                Annotation[] argAnnotations = paramAnnotations[i];
+
+                for (Annotation el : argAnnotations){
                     if (el.annotationType().equals(Runtime.GetLocals.class)) {
                         if (type != ArrayMemory.class)
                             throw new RuntimeException("@Runtime.GetLocals: param type must be ArrayMemory");
                         ignore = true;
                         break;
+                    }
+                }
+
+                if (!ignore && ReflectionUtils.getAnnotation(argAnnotations, Reflection.Optional.class) != null) {
+                    ignore = true;
+                }
+
+                if (!ignore) {
+                    Reflection.Arg argAnn = ReflectionUtils.getAnnotation(argAnnotations, Reflection.Arg.class);
+                    if (argAnn != null && argAnn.optional().exists()) {
+                        ignore = true;
                     }
                 }
 
@@ -109,7 +127,7 @@ public class CompileFunction {
         }
 
         Class<?>[] types = method.getParameterTypes();
-        int count = 0;
+        int count = 0, argCount = 0;
 
         for(int i = 0; i < types.length; i++){
             Class<?> type = types[i];
@@ -117,7 +135,9 @@ public class CompileFunction {
                 continue;
 
             boolean ignore = false;
-            for (Annotation el : paramAnnotations[i]){
+            Annotation[] argAnnotations = paramAnnotations[i];
+
+            for (Annotation el : argAnnotations){
                 if (el.annotationType().equals(Runtime.GetLocals.class)) {
                     if (type != ArrayMemory.class)
                         throw new RuntimeException("@Runtime.GetLocals: param type must be ArrayMemory");
@@ -126,13 +146,29 @@ public class CompileFunction {
                 }
             }
 
+            if (!ignore) argCount++;
+
+            if (!ignore && ReflectionUtils.getAnnotation(argAnnotations, Reflection.Optional.class) != null) {
+                ignore = true;
+            }
+
+            if (!ignore) {
+                Reflection.Arg argAnn = ReflectionUtils.getAnnotation(argAnnotations, Reflection.Arg.class);
+                if (argAnn != null && argAnn.optional().exists()) {
+                    ignore = true;
+                }
+            }
+
             if (!ignore) count++;
         }
 
-        if (count < minArgs)
+        if (count < minArgs) {
             minArgs = count;
-        if (count > maxArgs)
+        }
+
+        if (count > maxArgs) {
             maxArgs = count;
+        }
 
         if (count >= methods.length){
             Method[] newMethods = new Method[Math.max(methods.length * 2, count + 1)];
@@ -143,7 +179,7 @@ public class CompileFunction {
         if (methods[count] != null)
             throw new IllegalArgumentException("Method " + name + " with " + count + " args already exists");
 
-        return methods[count] = createMethod(method, count, asImmutable);
+        return methods[count] = createMethod(method, argCount, asImmutable);
     }
 
     @Override

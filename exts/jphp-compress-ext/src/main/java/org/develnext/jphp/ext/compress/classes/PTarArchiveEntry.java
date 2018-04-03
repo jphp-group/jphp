@@ -12,6 +12,8 @@ import php.runtime.annotation.Reflection.Property;
 import php.runtime.annotation.Reflection.Setter;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
+import php.runtime.lang.support.ICloneableObject;
 import php.runtime.reflection.ClassEntity;
 
 @Name("TarArchiveEntry")
@@ -63,8 +65,13 @@ public class PTarArchiveEntry extends PArchiveEntry<TarArchiveEntry> {
 
     @Signature
     public void __construct(String name) {
+        __construct(name, 0);
+    }
+
+    @Signature
+    public void __construct(String name, long size) {
         __wrappedObject = new TarArchiveEntry(name);
-        getWrappedObject().clearExtraPaxHeaders();
+        getWrappedObject().setSize(size);
     }
 
     @Signature
@@ -77,13 +84,11 @@ public class PTarArchiveEntry extends PArchiveEntry<TarArchiveEntry> {
         return new PTarArchiveEntry(env, new TarArchiveEntry(file, fileName));
     }
 
-    @Override
     @Setter
     public void setName(String name) {
         getWrappedObject().setName(name);
     }
 
-    @Override
     @Setter
     public void setSize(long size) {
         getWrappedObject().setSize(size);

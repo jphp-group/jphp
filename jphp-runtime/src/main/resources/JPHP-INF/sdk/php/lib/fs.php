@@ -244,7 +244,7 @@ class fs
      * @param $path
      * @return bool
      */
-    static function makeDir($path)
+    static function makeDir(string $path)
     {
     }
 
@@ -263,7 +263,7 @@ class fs
     /**
      * Deletes file or empty directory.
      * --RU--
-     * Удаляет файл или пустую папку.
+     * Удаляет файл или папку (с очисткой).
      *
      * @param $path
      * @return bool
@@ -318,7 +318,7 @@ class fs
      * @param callable|array $filter (File $file, $depth) optional, must return true to delete the file.
      * @return array [success => [], error => [], skip = []]
      */
-    static function clean($path, $filter = null)
+    static function clean(string $path, $filter = null): array
     {
     }
 
@@ -370,7 +370,19 @@ class fs
      * @param bool $subIsFirst
      * @return array
      */
-    static function scan($path, $filter = null, $maxDepth = 0, $subIsFirst = false)
+    static function scan(string $path, $filter = null, int $maxDepth = 0, bool $subIsFirst = false): array
+    {
+    }
+
+    /**
+     * Calculates crc32 sum of file or stream, returns null if it's failed.
+     * --RU--
+     * Возвращает crc32 сумму файла или потока (stream), null если неудача!
+     *
+     * @param string|Stream $source
+     * @return int|null
+     */
+    static function crc32($source): ?int
     {
     }
 
@@ -382,9 +394,9 @@ class fs
      * @param string|Stream $source
      * @param string $algo MD5, MD2, SHA-1, SHA-256, SHA-512
      * @param callable $onProgress ($sum, $readBytes)
-     * @return string
+     * @return string|null
      */
-    static function hash($source, $algo = 'MD5', callable $onProgress = null)
+    static function hash($source, $algo = 'MD5', callable $onProgress = null): ?string
     {
     }
 

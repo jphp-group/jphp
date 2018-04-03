@@ -170,6 +170,10 @@ abstract public class Memory implements Comparable<Memory> {
     @SuppressWarnings("unchecked")
     public <T extends IObject> T toObject(Class<T> clazz) {
         try {
+            if (this == NULL) {
+                return null;
+            }
+
             return clazz.cast( toValue(ObjectMemory.class).value );
         } catch (ClassCastException e) {
             if (!(this instanceof ObjectMemory)) {

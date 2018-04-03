@@ -1644,6 +1644,14 @@ public class Environment {
         return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace(), args);
     }
 
+    public void assignProperty(IObject object, String property, Memory value) throws Throwable {
+        ObjectInvokeHelper.assignProperty(ObjectMemory.valueOf(object), value, property, this, trace(), null, 0);
+    }
+
+    public void assignProperty(Memory object, String property, Memory value) throws Throwable {
+        ObjectInvokeHelper.assignProperty(object, value, property, this, trace(), null, 0);
+    }
+
     public String getLateStatic() {
         CallStackItem item = peekCall(0);
         if (item == null || item.clazz == null)

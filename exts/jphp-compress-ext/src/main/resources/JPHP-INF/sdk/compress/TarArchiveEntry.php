@@ -149,8 +149,9 @@ class TarArchiveEntry extends ArchiveEntry
     /**
      * TarArchiveEntry constructor.
      * @param string $name
+     * @param int $size
      */
-    function __construct(string $name)
+    function __construct(string $name, int $size = 0)
     {
     }
 
