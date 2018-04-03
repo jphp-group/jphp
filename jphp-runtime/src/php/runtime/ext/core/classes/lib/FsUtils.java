@@ -709,11 +709,11 @@ public class FsUtils extends BaseObject {
                               @Nullable Memory filter, int maxDepth, boolean filesIsFirst)  {
         final ArrayMemory result = new ArrayMemory();
 
-        if (filter.isArray()) {
+        if (filter != null && filter.isArray()) {
             filter = scanFilter(env, filter.toValue(ArrayMemory.class));
         }
 
-        final Invoker progress = Invoker.create(env, filter);
+        final Invoker progress = filter != null ? Invoker.create(env, filter) : null;
 
         scan(path, new ScanProgressHandler(filesIsFirst) {
             @Override

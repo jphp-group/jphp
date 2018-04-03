@@ -1,10 +1,12 @@
 <?php
 namespace packager;
+use compress\GzipInputStream;
+use compress\GzipOutputStream;
+use compress\TarArchive;
+use compress\TarArchiveEntry;
 use packager\cli\Console;
 use packager\repository\ExternalRepository;
 use packager\repository\GithubRepository;
-use packager\server\Server;
-use php\compress\ZipFile;
 use php\format\JsonProcessor;
 use php\format\ProcessorException;
 use php\io\File;
@@ -14,7 +16,6 @@ use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use php\time\Time;
-use php\util\Regex;
 use semver\SemVersion;
 
 /**
@@ -224,12 +225,12 @@ class Repository
                 Console::log("-> download package {0}@{1} from '{$foundVersionSource->getSource()}'", $name, $foundVersion);
 
                 $indexFile = "$this->dir/$name/$foundVersion.json";
-                $zipFile = "$this->dir/$name/$foundVersion.zip";
-                fs::ensureParent($zipFile);
+                $archFile = "$this->dir/$name/$foundVersion.tar.gz";
+                fs::ensureParent($archFile);
 
-                if ($foundVersionSource->downloadTo($name, $foundVersion, $zipFile)) {
-                    $this->installFromArchive($zipFile);
-                    fs::delete($zipFile);
+                if ($foundVersionSource->downloadTo($name, $foundVersion, $archFile)) {
+                    $this->installFromArchive($archFile);
+                    fs::delete($archFile);
                     fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
                 }
             }
@@ -296,16 +297,25 @@ class Repository
         $path = "$this->dir/{$package->getName()}/{$package->getVersion()}";
 
         if (fs::isDir($path)) {
-            $zipFile = new File("$path.zip");
+            $archFile = new File("$path.tar.gz");
 
-            if (fs::isFile($zipFile->getPath())) {
-                return $zipFile;
+            if (fs::isFile($archFile->getPath())) {
+                return $archFile;
             } else {
-                $zip = new ZipFile("$path.zip", true);
-                $zip->addDirectory($path);
+                $arch = new TarArchive(new GzipOutputStream("$path.tar.gz", ['compressLevel' => 9]));
+                $arch->open();
+
+                foreach (fs::scan($path) as $file) {
+                    if (fs::isFile($file)) {
+                        $name = fs::relativize($file, $path);
+                        $arch->addFile($file, $name);
+                    }
+                }
+
+                $arch->close();
             }
 
-            return $zipFile;
+            return $archFile;
         }
 
         return null;
@@ -341,39 +351,51 @@ class Repository
     }
 
     /**
-     * Install package from zip archive.
-     * @param string $zipFile
+     * Install package from tar.gz archive.
+     * @param string $archFile
      * @return bool
      */
-    public function installFromArchive(string $zipFile): bool
+    public function installFromArchive(string $archFile): bool
     {
-        $zip = new ZipFile($zipFile);
+        $arch = new TarArchive(new GzipInputStream($archFile));
+
         /** @var Package $package */
         $package = null;
 
-        if ($zip->has(Package::FILENAME)) {
-            $zip->read(Package::FILENAME, function (array $stat, Stream $stream) use (&$package, $zipFile) {
+            $entry = $arch->read(Package::FILENAME, function ($stat, Stream $stream) use (&$package, $archFile) {
                 $package = $this->readPackage($stream, [
-                    'size' => fs::size($zipFile),
-                    'sha1' => fs::hash($zipFile, 'sha1'),
-                    'crc32' => (new File($zipFile))->crc32()
+                    'size' => fs::size($archFile),
+                    'sha1' => fs::hash($archFile, 'SHA-1'),
+                    'crc32' => fs::crc32($archFile)
                 ]);
             });
 
-            $dir = "$this->dir/{$package->getName()}/{$package->getVersion('last')}";
+            if ($entry) {
+                $dir = "$this->dir/{$package->getName()}/{$package->getVersion('last')}";
 
-            if (fs::isDir($dir)) {
-                fs::clean($dir);
+                if (fs::isDir($dir)) {
+                    fs::clean($dir);
+                }
+
+                if (fs::exists($dir)) {
+                    fs::delete($dir);
+                }
+
+                fs::makeDir($dir);
+
+                $arch = new TarArchive(new GzipInputStream($archFile));
+                $arch->readAll(function (TarArchiveEntry $entry, ?Stream $stream) use ($dir) {
+                    if ($entry->isDirectory()) {
+                        fs::makeDir("$dir/$entry->name");
+                    } else {
+                        fs::ensureParent("$dir/$entry->name");
+                        fs::copy($stream, "$dir/$entry->name");
+                    }
+                });
+
+                return true;
             }
 
-            if (fs::exists($dir)) {
-                fs::delete($dir);
-            }
-
-            fs::makeDir($dir);
-            $zip->unpack($dir);
-            return true;
-        }
 
         return false;
     }
@@ -399,20 +421,27 @@ class Repository
             $versions = fs::scan("$this->dir/$module", ['excludeFiles' => true], 1);
 
             foreach ($versions as $version) {
-                $zipFile = "$destDir/$module/" . fs::name($version) . ".zip";
+                $archFile = "$destDir/$module/" . fs::name($version) . ".tar.gz";
 
-                fs::delete($zipFile);
-                if (!fs::ensureParent($zipFile)) {
-                    throw new \Exception("Failed to create directory: " . fs::parent($zipFile));
+                fs::delete($archFile);
+                if (!fs::ensureParent($archFile)) {
+                    throw new \Exception("Failed to create directory: " . fs::parent($archFile));
                 }
 
-                $zip = new ZipFile($zipFile, true);
-                $zip->addDirectory($version);
+                $arch = new TarArchive(new GzipOutputStream($archFile, ['compressLevel' => 9]));
+                $arch->open();
+                foreach (fs::scan($version) as $file) {
+                    if (fs::isFile($file)) {
+                        $mName = fs::relativize($file, $version);
+                        $arch->addFile($file, $mName);
+                    }
+                }
+                $arch->close();
 
                 $index[fs::name($version)] = [
-                    'size'   => fs::size($zipFile),
-                    'sha1'   => fs::hash($zipFile, 'SHA-1'),
-                    'crc32'  => (new File($zipFile))->crc32()
+                    'size'   => fs::size($archFile),
+                    'sha1'   => fs::hash($archFile, 'SHA-1'),
+                    'crc32'  => fs::crc32($archFile)
                 ];
             }
 

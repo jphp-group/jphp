@@ -32,7 +32,7 @@ class GithubRepository extends ExternalRepository
     public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool
     {
         $copied = fs::copy(
-            "{$this->getSource()}/raw/master/$pkgName/$pkgVersion.zip", $toFile
+            "{$this->getSource()}/raw/master/$pkgName/$pkgVersion.tar.gz", $toFile
         );
 
         return $copied > 0;

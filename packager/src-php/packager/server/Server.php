@@ -80,7 +80,7 @@ class Server
                 $zipFile = $this->repository->archivePackage($package);
 
                 $handler = new HttpDownloadFileHandler(
-                    $zipFile->getPath(), "{$package->getName()}-{$package->getVersion()}.zip", "application/zip"
+                    $zipFile->getPath(), "{$package->getName()}-{$package->getVersion()}.tar.gz", "application/gzip"
                 );
                 $handler($req, $res);
                 return;
