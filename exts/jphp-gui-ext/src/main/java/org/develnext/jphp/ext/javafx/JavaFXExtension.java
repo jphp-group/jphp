@@ -60,7 +60,6 @@ import org.develnext.jphp.ext.javafx.support.ImageViewEx;
 import org.develnext.jphp.ext.javafx.support.KeyboardManager;
 import org.develnext.jphp.ext.javafx.support.control.*;
 import org.develnext.jphp.ext.javafx.support.control.PaginationEx;
-import org.develnext.jphp.ext.javafx.support.control.tabpane.DndTabPane;
 import org.develnext.jphp.ext.javafx.support.effect.EffectPipeline;
 import org.develnext.jphp.ext.javafx.support.event.*;
 import org.develnext.jphp.ext.javafx.support.tray.notification.TrayNotification;
@@ -173,7 +172,6 @@ public class JavaFXExtension extends Extension {
         registerWrapperClass(scope, DraggableTab.class, UXDraggableTab.class);
         registerWrapperClass(scope, TabPane.class, UXTabPane.class);
         MemoryOperation.registerWrapper(TabPaneEx.class, UXTabPane.class);
-        MemoryOperation.registerWrapper(DndTabPane.class, UXTabPane.class);
         registerWrapperClass(scope, ScrollPane.class, UXScrollPane.class);
         registerWrapperClass(scope, TitledPane.class, UXTitledPane.class);
         registerWrapperClass(scope, SplitPane.class, UXSplitPane.class);
