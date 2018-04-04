@@ -1,7 +1,6 @@
 package org.develnext.jphp.ext.compress.classes;
 
 import java.io.File;
-import java.util.Date;
 import java.util.Map;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.develnext.jphp.ext.compress.CompressExtension;
@@ -12,8 +11,6 @@ import php.runtime.annotation.Reflection.Property;
 import php.runtime.annotation.Reflection.Setter;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
-import php.runtime.lang.support.ICloneableObject;
 import php.runtime.reflection.ClassEntity;
 
 @Name("TarArchiveEntry")

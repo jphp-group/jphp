@@ -45,12 +45,13 @@ allprojects {
 
     configurations {
         provided
+        jppmCompile
         java9
     }
 
     sourceSets {
         main {
-            compileClasspath += configurations.provided
+            compileClasspath += configurations.provided + configurations.jppmCompile
         }
     }
 }

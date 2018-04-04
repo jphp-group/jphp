@@ -35,7 +35,7 @@ def jppmDist(Project project) {
     def text = "name: '$name'\nversion: $version\n"
     def jars = []
 
-    def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency)
+    def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency) + project.configurations.jppmCompile.getAllDependencies().withType(ProjectDependency)
 
     if (!deps.empty) {
         text += "deps:\n"
@@ -67,7 +67,7 @@ def jppmInstall(project) {
     def version = project.ext.hasProperty('jppmVersion') ? project.ext.jppmVersion : project.version
 
     delete "$repoDir/$name/$version"
-    delete "$repoDir/$name/${version}.zip"
+    delete "$repoDir/$name/${version}.tar.gz"
 
     copy {
         from file(project.buildDir.path + "/jppm/dist/")

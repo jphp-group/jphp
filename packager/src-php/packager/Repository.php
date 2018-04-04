@@ -305,7 +305,7 @@ class Repository
                 $arch = new TarArchive(new GzipOutputStream("$path.tar.gz", ['compressLevel' => 9]));
                 $arch->open();
 
-                foreach (fs::scan($path) as $file) {
+                foreach (arr::sort(fs::scan($path)) as $file) {
                     if (fs::isFile($file)) {
                         $name = fs::relativize($file, $path);
                         $arch->addFile($file, $name);
@@ -400,7 +400,12 @@ class Repository
         return false;
     }
 
-    public function indexAll(string $destDir = null)
+    public function index(string $module, string $destDir = null)
+    {
+        $this->indexAll($destDir, [$module]);
+    }
+
+    public function indexAll(string $destDir = null, array $onlyModules = [])
     {
         $modules = fs::scan($this->dir, ['excludeFiles' => true], 1);
 
@@ -413,6 +418,10 @@ class Repository
         fs::makeDir($destDir);
 
         foreach ($modules as $module) {
+            if ($onlyModules && !arr::has($onlyModules, fs::name($module))) {
+                continue;
+            }
+
             Console::log("Update Index of module ({0})", fs::name($module));
 
             $index = [];
@@ -430,7 +439,7 @@ class Repository
 
                 $arch = new TarArchive(new GzipOutputStream($archFile, ['compressLevel' => 9]));
                 $arch->open();
-                foreach (fs::scan($version) as $file) {
+                foreach (arr::sort(fs::scan($version)) as $file) {
                     if (fs::isFile($file)) {
                         $mName = fs::relativize($file, $version);
                         $arch->addFile($file, $mName);

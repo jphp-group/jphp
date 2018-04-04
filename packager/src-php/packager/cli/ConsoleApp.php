@@ -133,6 +133,15 @@ class ConsoleApp
                 $this->packager->getRepo()->indexAll($args[1] ?: null);
                 break;
 
+            case "index:one":
+                if (!$args[1]) {
+                    $stderr->write("[Packager]: jppm repo index <module> [<destDir>], module is not passed.");
+                    exit(-1);
+                }
+
+                $this->packager->getRepo()->index($args[1],$args[2] ?: null);
+                break;
+
             default:
                 $stderr->write("[Packager]: Command 'repo $args[0]' not found. Try to run 'help' via 'jppm tasks'.");
                 exit(-1);

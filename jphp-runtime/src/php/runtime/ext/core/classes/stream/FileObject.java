@@ -9,6 +9,8 @@ import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.support.ICloneableObject;
+import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
@@ -27,7 +29,7 @@ import java.util.zip.CRC32;
 import static php.runtime.annotation.Reflection.*;
 
 @Name("php\\io\\File")
-public class FileObject extends BaseObject {
+public class FileObject extends BaseObject implements IComparableObject<FileObject> {
     public final static String PATH_SEPARATOR = File.pathSeparator;
     public final static String DIRECTORY_SEPARATOR = File.separator;
     public final static boolean PATH_NAME_CASE_INSENSITIVE = Constants.PATH_NAME_CASE_INSENSITIVE;
@@ -498,5 +500,35 @@ public class FileObject extends BaseObject {
             return arg.toObject(FileObject.class).getFile();
         else
             return new File(arg.toString());
+    }
+
+    @Override
+    public boolean __equal(FileObject iObject) {
+        return getFile().equals(iObject.getFile());
+    }
+
+    @Override
+    public boolean __identical(FileObject iObject) {
+        return iObject == this;
+    }
+
+    @Override
+    public boolean __greater(FileObject iObject) {
+        return getFile().getPath().compareTo(iObject.getFile().getPath()) > 0;
+    }
+
+    @Override
+    public boolean __greaterEq(FileObject iObject) {
+        return __equal(iObject) || getFile().getPath().compareTo(iObject.getFile().getPath()) > 0;
+    }
+
+    @Override
+    public boolean __smaller(FileObject iObject) {
+        return getFile().getPath().compareTo(iObject.getFile().getPath()) < 0;
+    }
+
+    @Override
+    public boolean __smallerEq(FileObject iObject) {
+        return __equal(iObject) || getFile().getPath().compareTo(iObject.getFile().getPath()) < 0;
     }
 }
