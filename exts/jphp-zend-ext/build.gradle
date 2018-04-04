@@ -7,6 +7,7 @@ dependencies {
     jppmCompile project(':exts/jphp-json-ext')
 
     testCompile 'junit:junit:4.+'
+    testCompile project(':exts/jphp-json-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }
