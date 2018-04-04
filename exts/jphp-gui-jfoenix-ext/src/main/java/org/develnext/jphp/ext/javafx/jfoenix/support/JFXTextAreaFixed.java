@@ -10,9 +10,4 @@ public class JFXTextAreaFixed extends JFXTextArea {
     public JFXTextAreaFixed(String text) {
         super(text);
     }
-
-    @Override
-    protected Skin<?> createDefaultSkin() {
-        return new JFXTextAreaSkin(this);
-    }
 }
