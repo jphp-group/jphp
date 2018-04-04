@@ -39,14 +39,9 @@ class Package
         return $this->info['size'];
     }
 
-    public function getCrc32(): ?int
+    public function getHash(): ?string
     {
-        return $this->info['crc32'];
-    }
-
-    public function getSha1(): ?string
-    {
-        return $this->info['sha1'];
+        return $this->info['sha256'];
     }
 
     public function getInfo(): array

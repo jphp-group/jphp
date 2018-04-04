@@ -170,9 +170,7 @@ class Repository
                         $localInfo = $this->getVersionInfo($name, $version);
 
                         if ($externalInfo != null && $localInfo != null) {
-                            if ($externalInfo['size'] !== $localInfo['size']
-                                || $externalInfo['crc32'] !== $localInfo['crc32']
-                                || $externalInfo['sha1'] !== $localInfo['sha1']) {
+                            if ($externalInfo['size'] !== $localInfo['size'] || $externalInfo['sha256'] !== $localInfo['sha256']) {
                                 $versions[$version] = $external;
                             }
                         }
@@ -363,11 +361,7 @@ class Repository
         $package = null;
 
             $entry = $arch->read(Package::FILENAME, function ($stat, Stream $stream) use (&$package, $archFile) {
-                $package = $this->readPackage($stream, [
-                    'size' => fs::size($archFile),
-                    'sha1' => fs::hash($archFile, 'SHA-1'),
-                    'crc32' => fs::crc32($archFile)
-                ]);
+                $package = $this->readPackage($stream);
             });
 
             if ($entry) {
@@ -424,12 +418,44 @@ class Repository
 
             Console::log("Update Index of module ({0})", fs::name($module));
 
-            $index = [];
             $module = fs::name($module);
+
+            $index = [];
+            if (fs::isFile("$destDir/$module/versions.json")) {
+                try {
+                    $index = fs::parse("$destDir/$module/versions.json");
+                } catch (ProcessorException $e) {
+                    $index = [];
+                }
+            }
 
             $versions = fs::scan("$this->dir/$module", ['excludeFiles' => true], 1);
 
             foreach ($versions as $version) {
+                $size = 0; $hash = '';
+
+                foreach (arr::sort(fs::scan($version)) as $file) {
+                    if (fs::isFile($file)) {
+                        $size += fs::size($file);
+                        $hash .= fs::hash($file, 'SHA-256');
+                    }
+                }
+
+                $hash = str::hash($hash, 'SHA-256');
+
+                $oldModuleIndex = $index[fs::name($version)];
+
+                if ($oldModuleIndex['size'] === $size && $oldModuleIndex['sha256'] === $hash) {
+                    Console::log(" -> Skip version: {0}, size = {1}, hash = {2}", fs::name($version), $size, $hash);
+                    continue;
+                } else {
+                    if ($oldModuleIndex) {
+                        Console::log(" -> Update version: {0}, size = {1}, hash = {2}", fs::name($version), $size, $hash);
+                    } else {
+                        Console::log(" -> Add version: {0}, size = {1}, hash = {2}", fs::name($version), $size, $hash);
+                    }
+                }
+
                 $archFile = "$destDir/$module/" . fs::name($version) . ".tar.gz";
 
                 fs::delete($archFile);
@@ -448,9 +474,8 @@ class Repository
                 $arch->close();
 
                 $index[fs::name($version)] = [
-                    'size'   => fs::size($archFile),
-                    'sha1'   => fs::hash($archFile, 'SHA-1'),
-                    'crc32'  => fs::crc32($archFile)
+                    'size'   => $size,
+                    'sha256'   => $hash,
                 ];
             }
 
