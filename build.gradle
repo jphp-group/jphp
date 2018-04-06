@@ -53,6 +53,10 @@ allprojects {
         main {
             compileClasspath += configurations.provided + configurations.jppmCompile
         }
+
+        test {
+            compileClasspath += configurations.provided + configurations.jppmCompile
+        }
     }
 }
 

@@ -10,7 +10,6 @@ import org.develnext.jphp.ext.javafx.JavaFXExtension;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 import org.develnext.jphp.ext.javafx.support.JavaFxUtils;
 import org.develnext.jphp.ext.javafx.support.UserData;
-import org.develnext.jphp.ext.javafx.support.control.tabpane.DndTabPane;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.*;
@@ -102,26 +101,6 @@ public class UXTab extends BaseWrapper<Tab> {
     @Signature
     public Memory data(Environment env, String name, Memory value) {
         return JavaFxUtils.data(env, getWrappedObject(), name, value);
-    }
-
-    @Setter
-    public void setDraggable(boolean value) {
-        TabPane tabPane = getWrappedObject().getTabPane();
-
-        if (tabPane instanceof DndTabPane) {
-            ((DndTabPane) tabPane).setDraggableTab(getWrappedObject(), value);
-        }
-    }
-
-    @Getter
-    public boolean getDraggable() {
-        TabPane tabPane = getWrappedObject().getTabPane();
-
-        if (tabPane instanceof DndTabPane) {
-            return ((DndTabPane) tabPane).isDraggableTab(getWrappedObject());
-        }
-
-        return false;
     }
 
     @Signature

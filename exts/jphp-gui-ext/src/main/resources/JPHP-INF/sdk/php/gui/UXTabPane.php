@@ -35,13 +35,6 @@ class UXTabPane extends UXControl
     public $side = 'TOP';
 
     /**
-     * @return UXPane
-     */
-    public static function createDefaultDnDPane()
-    {
-    }
-
-    /**
      * @param UXTab $tab
      */
     public function selectTab(UXTab $tab) { }

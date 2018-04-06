@@ -10,6 +10,29 @@ Supported archive formats:
 4. BZ2 (*.bz2)
 5. Lz4 (framed & block).
 
+### Classes:
+
+- namespace: `compress`.
+- classes:
+  - `Archive` - abstract archive class.
+    - `TarArchive` - class for working with tar archives.
+    - `ZipArchive` - class for working with zip archives.
+  - `ArchiveEntry` - abstract entry of archive.
+    - `TarArchiveEntry` - entry of tar archives.
+    - `ZipArchiveEntry` - entry of zip archives.
+  - `ArchiveInput` - abstract basic class for reading archive.
+    - `TarArchiveInput` - basic class for reading tar files.
+    - `ZipArchiveInput` - basic class for reading zip files.
+  - `ArchiveOutput` - abstract basic class for writing archive.
+    - `TarArchiveOutput` - basic class for writing tar files.
+    - `ZipArchiveOutput` - basic class for writing zip files.
+  - `Bzip2InputStream` - stream class for bz2 un-compressing.
+  - `Bzip2OutputStream` - stream class for bz2 compressing.
+  - `GzipInputStream` - stream class for gz un-compressing.
+  - `GzipOutputStream` - stream class for gz compressing.
+  - `Lz4InputStream` - stream class for lz4 un-compressing.
+  - `Lz4OutputStream` - stream class for lz4 compressing.
+
 ### How to use?
 
 1. Read tar.gz archive:
