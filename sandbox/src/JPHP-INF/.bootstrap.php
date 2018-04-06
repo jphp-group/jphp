@@ -1,1 +1,1 @@
-<?phpuse compress\GzipOutputStream;use compress\TarArchiveOutput;use php\compress\ZipFile;use php\lib\fs;$zip = new ZipFile("debug.zip", true);$zip->add('develnext.sql', 'D:/develnext.sql', 8);$out = new TarArchiveOutput(new GzipOutputStream('debug.tar.gz', ['filename' => 'debug.tar', 'compressLevel' => 9]));$entry = $out->createEntry('D:/develnext.sql', 'develnext.sql');$out->putEntry($entry);fs::copy('D:/develnext.sql', $out->stream());$out->closeEntry();$out->finish();
+<?php
