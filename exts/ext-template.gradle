@@ -58,7 +58,7 @@ def createJPHPExtension(Project project) {
         into extDir
     }
 
-    file("$extDir/src/main/tests/resources/" + extPackage.replace('.', '/') + "/classes").mkdirs()
+    file("$extDir/src/main/tests/" + extPackage.replace('.', '/') + "/classes").mkdirs()
     file("$extDir/src/main/tests/" + extPackage.replace('.', '/') + "/${extTestClass}.java").createNewFile()
     file("$extDir/src/main/tests/" + extPackage.replace('.', '/') + "/${extTestClass}.java") << testExtClass
     file("$extDir/src/main/tests/resources/$extNs").mkdirs()
