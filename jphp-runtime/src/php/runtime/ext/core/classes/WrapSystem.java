@@ -9,6 +9,8 @@ import php.runtime.reflection.ClassEntity;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -79,6 +81,55 @@ final public class WrapSystem extends BaseObject {
     @Signature
     public static OutputStream out() {
         return System.out;
+    }
+
+    @Signature
+    public static void setIn(Environment env, @Arg(typeClass = "php\\io\\Stream", nullable = true) Memory stream) {
+        if (stream.isNull()) {
+            System.setIn(null);
+        } else {
+            System.setIn(Stream.getInputStream(env, stream));
+        }
+    }
+
+    @Signature
+    public static void setOut(Environment env, @Arg(typeClass = "php\\io\\Stream", nullable = true) Memory stream)
+            throws UnsupportedEncodingException {
+        setOut(env, stream, Memory.NULL);
+    }
+
+    @Signature
+    public static void setOut(Environment env, @Arg(typeClass = "php\\io\\Stream", nullable = true) Memory stream, Memory encoding)
+            throws UnsupportedEncodingException {
+        if (stream.isNull()) {
+            System.setOut(null);
+        } else {
+            if (encoding.isNotNull()) {
+                System.setOut(new PrintStream(Stream.getOutputStream(env, stream), true, encoding.toString()));
+            } else {
+                System.setOut(new PrintStream(Stream.getOutputStream(env, stream), true));
+            }
+        }
+    }
+
+    @Signature
+    public static void setErr(Environment env, @Arg(typeClass = "php\\io\\Stream", nullable = true) Memory stream)
+            throws UnsupportedEncodingException {
+        setOut(env, stream, Memory.NULL);
+    }
+
+    @Signature
+    public static void setErr(Environment env, @Arg(typeClass = "php\\io\\Stream", nullable = true) Memory stream, Memory encoding)
+            throws UnsupportedEncodingException {
+        if (stream.isNull()) {
+            System.setErr(null);
+        } else {
+            if (encoding.isNotNull()) {
+                System.setErr(new PrintStream(Stream.getOutputStream(env, stream), true, encoding.toString()));
+            } else {
+                System.setErr(new PrintStream(Stream.getOutputStream(env, stream), true));
+            }
+        }
     }
 
     @Signature

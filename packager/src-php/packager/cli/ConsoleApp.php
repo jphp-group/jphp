@@ -1,6 +1,7 @@
 <?php
 namespace packager\cli;
-use packager\Java;
+use packager\Event;
+use packager\JavaExec;
 use packager\Package;
 use packager\Packager;
 use packager\Repository;
@@ -60,9 +61,12 @@ class ConsoleApp
         }
 
         if ($this->getPackage()) {
-            $plugins = $this->packager->loadPlugins($this->getPackage());
-            foreach ($plugins as $plugin) {
-                $plugin->beforeConsole($this);
+            $scripts = $this->packager->loadScripts($this->getPackage());
+
+            foreach ($scripts as $bin => $handler) {
+                $this->addCommand($bin, function ($args) use ($handler) {
+                    $handler(new Event($this->packager, $this->getPackage(), $args));
+                }, "script " . (is_string($handler) ? $handler : ''));
             }
         }
 
@@ -81,7 +85,7 @@ class ConsoleApp
                     $method(flow($args)->skip(2)->toArray());
                     break;
                 } else {
-                    if ($handler = $this->commands[$command]) {
+                    if ($handler = $this->commands[$command]['handler']) {
                         $handler(flow($args)->skip(2)->toArray());
                         break;
                     } else {
@@ -119,9 +123,9 @@ class ConsoleApp
         }
     }
 
-    function addCommand(string $name, callable $handle)
+    function addCommand(string $name, callable $handle, string $description = '')
     {
-        $this->commands[$name] = $handle;
+        $this->commands[$name] = ['handler' => $handle, 'description' => $description];
     }
 
     function handleRepo(array $args)
@@ -165,8 +169,14 @@ class ConsoleApp
 
         Console::log("");
 
-        foreach ($this->commands as $command => $handler) {
-            Console::log("- $command");
+        foreach ($this->commands as $command => $one) {
+            ['handler' => $handler, 'description' => $desc] = $one;
+
+            if ($desc) {
+                Console::log("- $command // $desc");
+            } else {
+                Console::log("- $command");
+            }
         }
     }
 

@@ -9,6 +9,7 @@ dependencies {
     compile project(':jphp-core')
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-compress-ext')
+    compile project(':exts/jphp-zip-ext')
     compile project(':exts/jphp-json-ext')
     compile project(':exts/jphp-httpserver-ext')
     compile project(':exts/jphp-semver-ext')
@@ -30,8 +31,8 @@ task dist(dependsOn: 'shadowJar') {
         }
 
         copy {
-            from "$projectDir.path/plugins/"
-            into "$buildDir.path/dist/plugins"
+            from "$projectDir.path/buildSrc/"
+            into "$buildDir.path/dist/buildSrc"
         }
     }
 }
@@ -42,8 +43,8 @@ task installDist(dependsOn: 'dist') {
         installDist.mkdirs()
 
         copy {
-            from "$buildDir.path/dist/plugins/"
-            into "$installDist.path/plugins"
+            from "$buildDir.path/dist/buildSrc/"
+            into "$installDist.path/buildSrc"
         }
 
         copy {

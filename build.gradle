@@ -75,7 +75,7 @@ configure(subprojects) {
 
     sourceSets {
         main.java.srcDirs = ['src/main/java']
-        main.resources.srcDirs = ['src/main/resources']
+        main.resources.srcDirs = ['src/main/resources', 'src-php']
 
         test.java.srcDirs = ["src/main/tests"]
         test.resources.srcDirs = ["src/main/tests"]
@@ -84,8 +84,9 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
     def extDir = "exts/";
+    def jppmExtDir = "packager-exts/";
 
-    if (it.name.startsWith("jphp-") || it.name.startsWith("exts/jphp-")) {
+    if (it.name.startsWith("jphp-") || it.name.startsWith("exts/jphp-") || it.name.startsWith("packager-exts/")) {
         task jppmDist(dependsOn: 'jar') {
             doLast { jppmDist(project) }
         }
@@ -95,12 +96,18 @@ configure(subprojects) {
         }
     }
 
-    if (it.name.startsWith(extDir)) {
+    if (it.name.startsWith(extDir) || it.name.startsWith(jppmExtDir)) {
         def pr = it
 
         install {
             repositories.mavenInstaller {
-                pom.artifactId = pr.name.substring(extDir.length())
+                if (pom.artifactId.startsWith(extDir)) {
+                    pom.artifactId = pr.name.substring(extDir.length())
+                }
+
+                if (pom.artifactId.startsWith(jppmExtDir)) {
+                    pom.artifactId = pr.name.substring(jppmExtDir.length())
+                }
             }
         }
 
@@ -110,6 +117,10 @@ configure(subprojects) {
             pom.dependencies.each { dep ->
                 if (dep.artifactId.startsWith(extDir)) {
                     dep.artifactId = dep.artifactId.substring(extDir.length())
+                }
+
+                if (dep.artifactId.startsWith(jppmExtDir)) {
+                    dep.artifactId = dep.artifactId.substring(jppmExtDir.length())
                 }
             }
         }

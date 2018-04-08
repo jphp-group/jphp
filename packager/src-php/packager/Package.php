@@ -119,9 +119,9 @@ class Package
     /**
      * @return array
      */
-    public function getPlugins(): array
+    public function getScripts(): array
     {
-        return $this->data['plugins'] ?: [];
+        return $this->getAny('scripts', []);
     }
 
     /**

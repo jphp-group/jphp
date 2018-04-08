@@ -51,6 +51,22 @@ class Vendor
     }
 
     /**
+     * @param string $name
+     * @return Package
+     */
+    public function getPackage(string $name): Package
+    {
+        $file = new File("$this->dir/{$name}/", Package::FILENAME);
+
+        if (!$file->isFile()) {
+            return null;
+        }
+
+        $installedPackage = Package::readPackage($file);
+        return $installedPackage;
+    }
+
+    /**
      * @param Package $package
      * @param null|PackageLock $lock
      * @return bool

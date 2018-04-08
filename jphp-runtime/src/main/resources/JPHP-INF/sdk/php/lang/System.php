@@ -83,6 +83,32 @@ final class System
     }
 
     /**
+     * Set stdin stream.
+     * @param null|Stream $in
+     */
+    public static function setIn(?Stream $in)
+    {
+    }
+
+    /**
+     * Set stdout stream.
+     * @param null|Stream $out
+     * @param string|null $encoding
+     */
+    public static function setOut(?Stream $out, string $encoding = null)
+    {
+    }
+
+    /**
+     * Set stderr stream.
+     * @param null|Stream $err
+     * @param string|null $encoding
+     */
+    public static function setErr(?Stream $err, string $encoding = null)
+    {
+    }
+
+    /**
      * @return string
      */
     public static function tempDirectory(): string

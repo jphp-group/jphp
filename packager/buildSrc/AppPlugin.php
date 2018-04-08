@@ -1,56 +1,25 @@
 <?php
-namespace plugins\app;
 
-use packager\cli\Console;
-use packager\cli\ConsoleApp;
-use packager\Java;
-use packager\Packager;
-use packager\Plugin;
-use packager\Vendor;
+use compress\ZipArchive;
+use packager\{
+    cli\Console, Event, JavaExec, Packager, Vendor
+};
 use php\compress\ZipFile;
-use php\io\File;
-use php\io\Stream;
-use php\lang\Thread;
+use php\lang\{System, Thread};
+use php\io\{
+    File, Stream
+};
 use php\lib\fs;
 use php\lib\str;
+use php\time\Time;
 
-class AppPlugin extends Plugin
+# JPHP App Plugin.
+
+class AppPlugin
 {
-    public function beforeConsole(ConsoleApp $consoleApp)
+    static function clean(Event $event)
     {
-        $consoleApp->addCommand('app:run', function ($args) use ($consoleApp) {
-            $this->handleRun($consoleApp, $args);
-        });
-
-        $consoleApp->addCommand('app:build', function ($args) use ($consoleApp) {
-            $this->handleBuild($consoleApp, $args);
-        });
-    }
-
-    public function fetchClassPaths(Vendor $vendor): array
-    {
-        $classPaths = flow(fs::parseAs("{$vendor->getDir()}/classPaths.json", 'json')[''])
-            ->map(function ($cp) use ($vendor) { return "{$vendor->getDir()}/$cp"; })
-            ->toArray();
-
-        if ($jars = $this->package->getJars()) {
-            foreach ($jars as $jar) {
-                $classPaths[] = fs::abs("./jars/$jar");
-            }
-        }
-
-        if ($sources = $this->package->getSources()) {
-            foreach ($sources as $src) {
-                $classPaths[] = fs::abs("./$src");
-            }
-        }
-
-        return $classPaths;
-    }
-
-    public function handleBuild(ConsoleApp $consoleApp, array $args)
-    {
-        $consoleApp->handleInstall([]);
+        Console::log("Clean '{0}' directory.", fs::abs('./build'));
 
         if (fs::isDir("./build")) {
             fs::clean("./build");
@@ -60,26 +29,38 @@ class AppPlugin extends Plugin
                 exit(-1);
             }
         }
+    }
+
+    static function build(Event $event)
+    {
+        $time = Time::millis();
+        Console::log("Start building application ...");
+
+        static::clean($event);
 
         $vendor = new Vendor("./vendor");
-        $launcher = $this->package->getAny('app')['launcher'] ?: [];
-        $build = $this->package->getAny('app')['build'] ?: [];
+        $launcher = $event->package()->getAny('app') ?: [];
+        $build = $event->package()->getAny('app')['build'] ?: [];
 
-        $classPaths = $this->fetchClassPaths($vendor);
+        $exec = new JavaExec();
 
-        $buildFileName = "{$this->package->getName()}-{$this->package->getVersion('last')}.jar";
+        $exec->addVendorClassPath($vendor);
+        $exec->addPackageClassPath($event->package());
+
+        $buildFileName = "{$event->package()->getName()}-{$event->package()->getVersion('last')}.jar";
 
         if ($build['fileName']) {
             $buildFileName = $build['fileName'];
         }
 
-        $zip = new ZipFile("./build/$buildFileName", true);
+        $zip = new ZipArchive("./build/$buildFileName");
+        $zip->open();
 
         fs::makeDir("./build/app");
 
         $metaInfServices = [];
 
-        foreach ($classPaths as $classPath) {
+        foreach ($exec->getClassPaths() as $classPath) {
             if (fs::isDir($classPath)) {
                 Console::log("-> add dir: $classPath");
 
@@ -149,45 +130,60 @@ class AppPlugin extends Plugin
             Stream::putContents("./build/app/$name", str::join($lines, "\n"));
         }
 
-        $zip->addDirectory("./build/app");
+        fs::scan("./build/app", function (File $file) use ($zip) {
+            if ($file->isFile()) {
+                $zip->addFile($file, fs::relativize($file, "./build/app"));
+            }
+        });
+
+        $zip->close();
+
+        $time = Time::millis() - $time;
+
+        Console::log("\n-----");
+        Console::log("Building time: {0} sec.", round($time / 1000, 2));
+        Console::log("Building is SUCCESSFUL. :)");
     }
 
-    public function handleRun(ConsoleApp $consoleApp, array $args)
+    static function run(Event $event)
     {
-        $consoleApp->handleInstall([]);
+        $exec = new JavaExec();
 
-        $launcher = $this->package->getAny('app')['launcher'] ?: [];
+        $launcher = $event->package()->getAny('app') ?: [];
+
+        $metrics = $launcher['metrics'];
 
         $vendor = new Vendor("./vendor");
-        $classPaths = $this->fetchClassPaths($vendor);
+        $exec->addVendorClassPath($vendor);
+        $exec->addPackageClassPath($event->package());
 
-        $args = [
-            '-cp', str::join($classPaths, File::PATH_SEPARATOR),
-        ];
+        $sysArgs = [];
 
         if ($launcher['trace']) {
-            $args[] = '-Djphp.trace=true';
+            $sysArgs['jphp.trace'] = 'true';
         }
 
-        $args[] = '-Dfile.encoding=' . ($launcher['encoding'] ?: 'UTF-8');
+        $sysArgs['file.encoding'] = $launcher['encoding'] ?: 'UTF-8';
 
         if ($launcher['bootstrap']) {
-            $args[] = '-Dbootstrap.file=res://' . $launcher['bootstrap'];
+            $sysArgs['bootstrap.file'] = 'res://' . $launcher['bootstrap'];
         }
 
         if (is_array($launcher['jvmArgs'])) {
-            $args = flow($args, $launcher['jvmArgs'])->toArray();
+            $exec->setJvmArgs($launcher['jvmArgs']);
         }
 
-        $args[] = $launcher['mainClass'] ?: 'php.runtime.launcher.Launcher';
+        $exec->setSystemProperties($sysArgs);
+        $exec->setMainClass($launcher['mainClass'] ?: 'php.runtime.launcher.Launcher');
 
-        if (is_array($launcher['args'])) {
-            $args = flow($args, $launcher['args'])->toArray();
-        }
+        $process = $exec->run($launcher['args'] ?: []);
 
-        $process = Java::exec($args);
-
+        $time = Time::millis();
         $process = $process->start();
+
+        /*System::setIn($process->getInput());
+        System::setOut($process->getOutput());
+        System::setErr($process->getError());*/
 
         $input = $process->getInput();
         $err = $process->getError();
@@ -210,7 +206,14 @@ class AppPlugin extends Plugin
         $errThread->start();
 
         $status = $process->waitFor();
+
+        $time = Time::millis() - $time;
         usleep(100000);
+
+        if ($metrics) {
+            Console::log("\n--> Execute time: {0} sec.", round($time / 1000, 2));
+        }
+
         exit($status);
     }
 }

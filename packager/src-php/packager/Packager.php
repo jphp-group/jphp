@@ -51,18 +51,23 @@ class Packager
 
     /**
      * @param Package $package
-     * @return Plugin[]
+     * @return array
      */
-    public function loadPlugins(Package $package): array
+    public function loadScripts(Package $package): array
     {
-        $result = [];
+        $buildSrcDir = "./buildSrc/";
 
-        foreach ($package->getPlugins() as $plugin) {
-            $class = "plugins\\$plugin\\{$plugin}Plugin";
-            $result[$plugin] = new $class($package);
-        }
+        spl_autoload_register(function ($className) use ($buildSrcDir) {
+            $fileName = str::replace($className, "\\", "/");
 
-        return $result;
+            $fileName = "$buildSrcDir/$fileName.php";
+
+            if (fs::isFile($fileName)) {
+                require $fileName;
+            }
+        });
+
+        return $package->getScripts();
     }
 
     public function install(Package $source, Vendor $vendor, bool $forceUpdate = false)
