@@ -64,7 +64,7 @@ case "`uname`" in
     ;;
 esac
 
-CLASSPATH=$APP_HOME/packager-all.jar
+CLASSPATH=$APP_HOME/packager-all.jar:$APP_HOME/buildSrc
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then

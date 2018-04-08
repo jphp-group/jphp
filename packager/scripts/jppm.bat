@@ -63,7 +63,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\packager-all.jar
+set CLASSPATH=%APP_HOME%\packager-all.jar;%APP_HOME%\buildSrc
 
 @rem Execute jppm
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" php.runtime.launcher.Launcher %CMD_LINE_ARGS%
