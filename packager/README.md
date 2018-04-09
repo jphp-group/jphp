@@ -19,7 +19,10 @@ On Windows:
 gradlew packager:install
 ```
 
-- Add the jppm bin path to your system properties.
+- Add the jppm bin path to your system properties:
+On Linux use `$HOME/.jppm/dist` for bin path.
+On Windows use `%UserProfile%\.jppm\dist` for bin path.
+
 - Restart your console!
 
 After all of this the `jppm` commend will available in your console.
@@ -31,6 +34,15 @@ Run and select options:
 ```
 jppm init
 ```
+
+- If you choose `add AppPlugin (yes)` so you can run the created package as jphp application, use `app:run`:
+
+```
+jppm app:run
+```
+
+It will println `Hello World` in your console.
+
 
 ### 3. How to run and build JPHP apps?
 
