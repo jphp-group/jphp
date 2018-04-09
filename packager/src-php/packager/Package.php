@@ -119,9 +119,9 @@ class Package
     /**
      * @return array
      */
-    public function getScripts(): array
+    public function getTasks(): array
     {
-        return $this->getAny('scripts', []);
+        return $this->getAny('tasks', []);
     }
 
     /**

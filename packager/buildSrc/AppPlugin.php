@@ -1,10 +1,11 @@
 <?php
 
 use compress\ZipArchive;
+use compress\ZipArchiveEntry;
 use packager\{
     cli\Console, Event, JavaExec, Packager, Vendor
 };
-use php\compress\ZipFile;
+
 use php\lang\{System, Thread};
 use php\io\{
     File, Stream
@@ -15,22 +16,33 @@ use php\time\Time;
 
 # JPHP App Plugin.
 
+/**
+ * Class AppPlugin
+ *
+ * @jppm-task-prefix app
+ *
+ * @jppm-task clean
+ * @jppm-task build
+ * @jppm-task run
+ */
 class AppPlugin
 {
+    /**
+     * @jppm-description Clean build directory.
+     *
+     * @param Event $event
+     */
     static function clean(Event $event)
     {
-        Console::log("Clean '{0}' directory.", fs::abs('./build'));
-
-        if (fs::isDir("./build")) {
-            fs::clean("./build");
-        } else {
-            if (!fs::makeDir("./build")) {
-                Console::log("Failed to create build dir: ./build/");
-                exit(-1);
-            }
-        }
+        Tasks::cleanDir("./build");
     }
 
+    /**
+     * @jppm-description Build app to executable jar file (with all dependencies).
+     *
+     * @jppm-depends-on install
+     * @param Event $event
+     */
     static function build(Event $event)
     {
         $time = Time::millis();
@@ -80,27 +92,25 @@ class AppPlugin
             } else if (fs::ext($classPath) === 'jar') {
                 Console::log("-> add jar: $classPath");
 
-                $jar = new ZipFile($classPath, false);
-                $jar->readAll(function (array $stat, Stream $stream) use (&$metaInfServices) {
-                    $name = $stat['name'];
+                $jar = new ZipArchive($classPath);
+                $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices) {
+                    $name = $stat->name;
 
-                    if ($stat['directory']) {
+                    if ($stat->isDirectory()) {
                         return;
                     }
 
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
                     } else {
-                        //$file = "./build/app/{$name}";
+                        $file = "./build/app/{$name}";
 
                         //Console::log("--> add jar file: $name");
 
-                        //fs::ensureParent($file);
-                        //fs::copy($stream, $file);
+                        fs::ensureParent($file);
+                        fs::copy($stream, $file);
                     }
                 });
-
-                $jar->unpack("./build/app");
             }
         }
 
@@ -140,11 +150,19 @@ class AppPlugin
 
         $time = Time::millis() - $time;
 
+        Console::log("\n   Use 'java -jar \"./build/$buildFileName\"' to run the result app.");
+
         Console::log("\n-----");
         Console::log("Building time: {0} sec.", round($time / 1000, 2));
         Console::log("Building is SUCCESSFUL. :)");
     }
 
+    /**
+     * @jppm-description Run app.
+     *
+     * @param Event $event
+     * @jppm-depends-on install
+     */
     static function run(Event $event)
     {
         $exec = new JavaExec();
@@ -179,36 +197,10 @@ class AppPlugin
         $process = $exec->run($launcher['args'] ?: []);
 
         $time = Time::millis();
-        $process = $process->start();
 
-        /*System::setIn($process->getInput());
-        System::setOut($process->getOutput());
-        System::setErr($process->getError());*/
-
-        $input = $process->getInput();
-        $err = $process->getError();
-
-        (new Thread(function () use ($input, $process) {
-            $stdout = Stream::of('php://stdout');
-
-            while (($ch = $input->read(1)) !== null) {
-                $stdout->write($ch);
-            }
-        }))->start();
-
-        $errThread = (new Thread(function () use ($err, $process) {
-            $stdout = Stream::of('php://stderr');
-
-            while (($ch = $err->read(1)) !== null) {
-                $stdout->write($ch);
-            }
-        }));
-        $errThread->start();
-
-        $status = $process->waitFor();
+        $status = $process->inheritIO()->startAndWait()->getExitValue();
 
         $time = Time::millis() - $time;
-        usleep(100000);
 
         if ($metrics) {
             Console::log("\n--> Execute time: {0} sec.", round($time / 1000, 2));

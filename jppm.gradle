@@ -17,6 +17,11 @@ def jppmDist(Project project) {
         into sdkDir
     }
 
+    copy {
+        from project.projectDir.path + "/README.md"
+        into project.buildDir.path + "/jppm/dist/"
+    }
+
     if (packageFile.isFile()) {
         packageFile.delete()
     }

@@ -53,7 +53,7 @@ class Packager
      * @param Package $package
      * @return array
      */
-    public function loadScripts(Package $package): array
+    public function loadTasks(Package $package): array
     {
         $buildSrcDir = "./buildSrc/";
 
@@ -67,7 +67,7 @@ class Packager
             }
         });
 
-        return $package->getScripts();
+        return $package->getTasks();
     }
 
     public function install(Package $source, Vendor $vendor, bool $forceUpdate = false)

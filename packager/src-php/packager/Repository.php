@@ -306,6 +306,10 @@ class Repository
                 foreach (arr::sort(fs::scan($path)) as $file) {
                     if (fs::isFile($file)) {
                         $name = fs::relativize($file, $path);
+                        if ($name === "README.md") {
+                            continue;
+                        }
+
                         $arch->addFile($file, $name);
                     }
                 }
@@ -436,8 +440,15 @@ class Repository
 
                 foreach (arr::sort(fs::scan($version)) as $file) {
                     if (fs::isFile($file)) {
-                        $size += fs::size($file);
-                        $hash .= fs::hash($file, 'SHA-256');
+                        $mName = fs::relativize($file, $version);
+
+                        if ($mName === "README.md") {
+                            fs::makeDir("$destDir/$module/");
+                            fs::copy($file, "$destDir/$module/" . fs::name($version) . ".md");
+                        } else {
+                            $size += fs::size($file);
+                            $hash .= fs::hash($file, 'SHA-256');
+                        }
                     }
                 }
 
@@ -468,6 +479,11 @@ class Repository
                 foreach (arr::sort(fs::scan($version)) as $file) {
                     if (fs::isFile($file)) {
                         $mName = fs::relativize($file, $version);
+
+                        if ($mName === 'README.md') {
+                            continue;
+                        }
+
                         $arch->addFile($file, $mName);
                     }
                 }

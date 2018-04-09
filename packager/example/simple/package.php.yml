@@ -2,15 +2,13 @@
 name: Mock-example
 version: 1.0.0
 
+plugins:
+  - AppPlugin
+
 deps:
   jphp-core: 0.9.*
 
 sources: ['src'] # php src directory.
-
-scripts:
-  app:run: 'AppPlugin::run' # Run application
-  app:build: 'AppPlugin::build' # Build application to portable jar (all in one file).
-  app:clean: 'AppPlugin::clean' # Clean build directory.
 
 # config for AppPlugin.
 app:

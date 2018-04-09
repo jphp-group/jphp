@@ -1,5 +1,6 @@
 <?php
 namespace packager\cli;
+use packager\Annotations;
 use packager\Event;
 use packager\JavaExec;
 use packager\Package;
@@ -10,10 +11,13 @@ use packager\Vendor;
 use php\io\File;
 use php\io\IOException;
 use php\io\Stream;
+use php\lang\Invoker;
+use php\lang\System;
 use php\lang\Thread;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use Tasks;
 
 /**
  * Class ConsoleApp
@@ -33,6 +37,8 @@ class ConsoleApp
      * @var Packager
      */
     private $packager;
+
+    private $taskUpDate = [];
 
     function main(array $args)
     {
@@ -61,16 +67,39 @@ class ConsoleApp
         }
 
         if ($this->getPackage()) {
-            $scripts = $this->packager->loadScripts($this->getPackage());
+            $this->loadPlugins();
+            $scripts = $this->packager->loadTasks($this->getPackage());
 
             foreach ($scripts as $bin => $handler) {
-                $this->addCommand($bin, function ($args) use ($handler) {
-                    $handler(new Event($this->packager, $this->getPackage(), $args));
-                }, "script " . (is_string($handler) ? $handler : ''));
+                $invoker = Invoker::of($handler);
+
+                $description = Annotations::get(
+                    'jppm-description',
+                    $invoker->getDescription(),
+                    "script " . (is_string($handler) ? $handler : '')
+                );
+
+                $dependsOn = Annotations::get('jppm-depends-on', $invoker->getDescription(), []);
+
+                $this->addCommand($bin, function ($args) use ($invoker, $handler) {
+                    $invoker->call(new Event($this->packager, $this->getPackage(), $args));
+                }, $description, $dependsOn);
             }
         }
 
-        switch ($command) {
+        $this->invokeTask($command, flow($args)->skip(2)->toArray());
+    }
+
+    function invokeTask(string $task, array $args)
+    {
+        if ($this->taskUpDate[$task]) {
+            Console::log("\r[$task] Skip (up-to-date)");
+            return;
+        }
+
+        $this->taskUpDate[$task] = true;
+
+        switch ($task) {
             case "version":
                 Console::log('JPHP Packager Welcome');
                 Console::log("- Version {0}", Packager::VERSION);
@@ -78,21 +107,68 @@ class ConsoleApp
                 break;
 
             default:
-                $command = str::replace($command,"-", "_");
+                $task = str::replace($task,"-", "_");
 
-                if (method_exists($this, "handle$command")) {
-                    $method = [$this, "handle$command"];
-                    $method(flow($args)->skip(2)->toArray());
+                if (method_exists($this, "handle$task")) {
+                    Console::log("-> {0}", $task);
+
+                    $method = [$this, "handle$task"];
+                    $method($args);
                     break;
                 } else {
-                    if ($handler = $this->commands[$command]['handler']) {
-                        $handler(flow($args)->skip(2)->toArray());
+                    $command = $this->commands[$task];
+
+                    if ($handler = $command['handler']) {
+                        foreach ($command['dependsOn'] as $one) {
+                            $this->invokeTask($one, $args);
+                        }
+
+                        Console::log("-> {0}", $task);
+
+                        $handler($args);
                         break;
                     } else {
-                        $stderr->write("[Packager]: Command '$command' not found. Try to run 'help' via 'jppm tasks'.");
+                        Console::error("Task '$task' not found. Try to run 'help' via 'jppm tasks'.");
                         exit(-1);
                     }
                 }
+        }
+    }
+
+    protected function loadPlugin($plugin)
+    {
+        if (class_exists($plugin)) {
+            $class = new \ReflectionClass($plugin);
+            $prefix = Annotations::getOfClass('jppm-task-prefix', $class, "");
+            $tasks = Annotations::getOfClass('jppm-task', $class, []);
+
+            foreach ($tasks as $task) {
+                if (method_exists($plugin, $task)) {
+                    $handler = new \ReflectionMethod($plugin, $task);
+
+                    $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
+                    $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
+
+                    $this->addCommand($prefix ?  "$prefix:$task" : $task, function ($args) use ($handler) {
+                        $handler->invokeArgs(null, [new Event($this->packager, $this->getPackage(), $args)]);
+                    }, $description, $dependsOn);
+                } else {
+                    Console::warn("Cannot add task '{0}', method not found in '{1}'", $task, $plugin);
+                }
+            }
+        } else {
+            Console::error("Incorrect plugin '{0}', class not found.", $plugin);
+        }
+    }
+
+    protected function loadPlugins()
+    {
+        if ($this->getPackage()) {
+            $plugins = $this->getPackage()->getAny('plugins', []);
+
+            foreach ($plugins as $key => $plugin) {
+                $this->loadPlugin($plugin);
+            }
         }
     }
 
@@ -123,9 +199,9 @@ class ConsoleApp
         }
     }
 
-    function addCommand(string $name, callable $handle, string $description = '')
+    function addCommand(string $name, callable $handle, string $description = '', array $dependsOn = [])
     {
-        $this->commands[$name] = ['handler' => $handle, 'description' => $description];
+        $this->commands[$name] = ['handler' => $handle, 'description' => $description, 'dependsOn' => $dependsOn];
     }
 
     function handleRepo(array $args)
@@ -205,9 +281,11 @@ class ConsoleApp
         $name = fs::name(fs::parent($dir . "/foo"));
         $version = "1.0.0";
 
-        $name = Console::read("question name ($name):", $name);
-        $version = Console::read("question version ($version):", $version);
-        $description = Console::read("question description:", '');
+        $name = Console::read("Enter name ($name):", $name);
+        $version = Console::read("Enter version ($version):", $version);
+        $description = Console::read("Enter description:", '');
+
+        $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
 
         $data = [
             'name' => $name,
@@ -218,11 +296,28 @@ class ConsoleApp
             $data['description'] = $description;
         }
 
+        if ($addAppPlugin) {
+            $data['deps']['jphp-core'] = '*';
+            $data['deps']['jphp-zend-ext'] = '*';
+
+            $data['plugins'] = ['AppPlugin'];
+            $data['app'] = [
+                'bootstrap' => 'index.php',
+                'encoding' => 'UTF-8',
+                'metrics' => false,
+                'trace' => false
+            ];
+
+            $data['sources'] = ['src'];
+
+            Tasks::createDir("$dir/src");
+            Tasks::createFile("$dir/src/index.php", "<?php \r\necho 'Hello World';\r\n");
+        }
+
         $package = new Package($data, []);
         $this->packager->writePackage($package, $dir);
 
         Console::log("Success, {0} has been created.", Package::FILENAME);
-
         Console::log("Done.");
     }
 }

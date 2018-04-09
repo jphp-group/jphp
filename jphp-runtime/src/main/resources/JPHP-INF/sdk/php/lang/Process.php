@@ -36,7 +36,7 @@ class Process
      * @return Process
      * @throws IllegalStateException
      */
-    public function startAndWait() { return new Process([]); }
+    public function startAndWait(): Process { }
 
     /**
      * Returns the exit value for the subprocess.

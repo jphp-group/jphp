@@ -33,10 +33,10 @@ class Invoker
      * --RU--
      * Вызвать текущий callback
      *
-     * @param ...
+     * @param array $args
      * @return int|mixed
      */
-    public function call() { return 0; }
+    public function call(...$args) { return 0; }
 
     /**
      * Alias of call() method
