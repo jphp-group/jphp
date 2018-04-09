@@ -7,11 +7,14 @@ use packager\server\Server;
 use packager\Vendor;
 use php\io\Stream;
 use php\lib\fs;
+use php\lib\str;
 
 /**
  * @jppm-task server
  * @jppm-task repo
  * @jppm-task install
+ * @jppm-task add
+ * @jppm-task remove
  * @jppm-task init
  * @jppm-task tasks
  */
@@ -25,9 +28,7 @@ class DefaultPlugin
     {
         global $app;
 
-        Console::log("Available tasks:");
-
-        Console::log("- init // init package");
+        Console::log("\nAvailable tasks:");
 
         Console::log("");
 
@@ -35,11 +36,13 @@ class DefaultPlugin
             ['handler' => $handler, 'description' => $desc] = $one;
 
             if ($desc) {
-                Console::log("- $command // $desc");
+                Console::log(" -> $command - $desc");
             } else {
-                Console::log("- $command");
+                Console::log(" -> $command");
             }
         }
+
+        Console::log("");
     }
 
     /**
@@ -109,7 +112,7 @@ class DefaultPlugin
     }
 
     /**
-     * @jppm-description  install dependencies or one.
+     * @jppm-description install dependencies or one.
      * @param Event $event
      */
     function install(Event $event)
@@ -124,6 +127,72 @@ class DefaultPlugin
         }
 
         $event->packager()->install($event->package(), $vendor, $app->isFlag('f', 'force'));
+    }
+
+    /**
+     * @jppm-description add and install new dependencies to package.php.yml
+     * @param Event $event
+     */
+    function add(Event $event)
+    {
+        $package = $event->package()->toArray();
+
+        $modified = false;
+
+        foreach ($event->args() as $arg) {
+            [$dep, $version] = str::split($arg, '@');
+
+            if ($package['deps'][$dep]) {
+                Console::log("-> skip adding '{0}', already added.", $arg);
+            } else {
+                $pkg = $event->packager()->getRepo()->findPackage($dep, $version ?: '*');
+
+                if ($pkg) {
+                    $package['deps'][$dep] = $version ?: '*';
+                    $modified = true;
+
+                    Console::log("-> add '{0}' dependency, lock version = {1}", $arg, $pkg->getVersion($version));
+                } else {
+                    Console::error("Failed to add '{0}', is not found in repositories", $arg);
+                    exit(-1);
+                }
+            }
+        }
+
+        if ($modified) {
+            $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
+
+            Tasks::run('install');
+        }
+    }
+
+    /**
+     * @jppm-description remove and uninstall dependencies from package.php.yml
+     * @param Event $event
+     */
+    function remove(Event $event)
+    {
+        $package = $event->package()->toArray();
+
+        $modified = false;
+
+        foreach ($event->args() as $arg) {
+            [$dep, ] = str::split($arg, '@');
+
+            if ($version = $package['deps'][$dep]) {
+                Console::log("-> remove '{0}' dependency, version = {1}", $arg, $version ?: 'last');
+                unset($package['deps'][$dep]);
+                $modified = true;
+            } else {
+                Console::error("Failed to remove '{0}' dependency, is not found in {1}", $arg, Package::FILENAME);
+                exit(-1);
+            }
+        }
+
+        if ($modified) {
+            $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
+            Tasks::run('install');
+        }
     }
 
     /**
