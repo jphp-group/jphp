@@ -4,6 +4,8 @@
 JPPM is a packager manager for jphp like `npm` (js) or `composer` (php). 
 JPPM will help you to build and run jphp applications.
 
+**important**: JPPM and JPHP requires Java 8 or 9+.
+
 ### 0. How to install jppm?
 
 - Go to `https://github.com/jphp-compiler/jphp/releases` and find the last version of jppm.
