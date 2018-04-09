@@ -77,7 +77,7 @@ plugins:
   - AppPlugin # include app plugin
   
 # ...
-`` `
+```
 
 - Теперь команды `app:run`,` app:build`, `app:clean` будут доступны.
 - Добавьте зависимость компилятора jphp к вашему `package.php.yml`:
