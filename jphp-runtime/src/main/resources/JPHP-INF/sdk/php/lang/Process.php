@@ -85,6 +85,89 @@ class Process
      */
     public function getError() { return Stream::of(''); }
 
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function inheritIO(): Process
+    {
+    }
+
+    /**
+     * @param $file
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectOutputToFile($file): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectOutputToInherit(): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectOutputToPipe(): Process
+    {
+    }
+
+    /**
+     * @param $file
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectErrorToFile($file): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectErrorToInherit(): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectErrorToPipe(): Process
+    {
+    }
+
+    /**
+     * @param $file
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectInputFromFile($file): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectInputFromInherit(): Process
+    {
+    }
+
+    /**
+     * @return Process
+     * @throws IllegalArgumentException
+     */
+    public function redirectInputFromPipe(): Process
+    {
+    }
+
 
     /**
      * Tests whether the subprocess represented by this {@code Process} is
