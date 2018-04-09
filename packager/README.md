@@ -25,7 +25,7 @@ gradlew packager:install
 
 - Restart your console!
 
-After all of this the `jppm` commend will available in your console.
+After all of this the `jppm` command will available in your console.
 
 ### 2. How to create project (package)?
 
@@ -41,7 +41,7 @@ jppm init
 jppm app:run
 ```
 
-It will println `Hello World` in your console.
+It will println `Hello World` in your console. The php source of the package see in `src/index.php`.
 
 
 ### 3. How to run and build JPHP apps?
