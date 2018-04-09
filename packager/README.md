@@ -25,7 +25,13 @@ gradlew packager:install
 
 - Restart your console!
 
-After all of this the `jppm` command will available in your console.
+After all of this the `jppm` command will available in your console. Try to get version of jppm:
+
+```
+jppm version
+```
+
+It should print a version information about jphp.
 
 ### 2. How to create project (package)?
 
