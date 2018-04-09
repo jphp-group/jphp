@@ -1,10 +1,10 @@
 ## JPPM
-> ** Менеджер пакетов JPHP **
+> **Менеджер пакетов JPHP**
 
 JPPM - это менеджер пакетов для jphp, например `npm` (js) или` composer` (php).
 JPPM поможет вам создавать и запускать приложения jphp.
 
-> ** ВАЖНО **: JPPM и JPHP требуют Java 8 или 9+. Загрузите здесь: https://java.com/download/.
+> **ВАЖНО**: JPPM и JPHP требуют Java 8 или 9+. Загрузите здесь: https://java.com/download/.
 
 ### 0. Как установить jppm?
 
@@ -29,9 +29,9 @@ JPPM поможет вам создавать и запускать прилож
 ```
 
 В Windows:
-`` `
+```
 gradlew packager:install
-`` `
+```
 
 - Добавьте путь bin jppm к вашим системным свойствам:
   - В Linux используйте `$HOME/.jppm/dist` для пути к bin.
