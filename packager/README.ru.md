@@ -1,7 +1,7 @@
 ## JPPM
 > **Менеджер пакетов JPHP**
 
-JPPM - это менеджер пакетов для jphp, например `npm` (js) или` composer` (php).
+JPPM - это менеджер пакетов для jphp похожий на `npm` (js) или` composer` (php).
 JPPM поможет вам создавать и запускать приложения jphp.
 
 > **ВАЖНО**: JPPM и JPHP требуют Java 8 или 9+. Загрузите здесь: https://java.com/download/.
