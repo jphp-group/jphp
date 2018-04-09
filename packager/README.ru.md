@@ -34,8 +34,8 @@ gradlew packager:install
 ```
 
 - Добавьте путь bin jppm к вашим системным свойствам:
-  - В Linux используйте `$HOME/.jppm/dist` для пути к bin.
-  - В Windows используйте `%UserProfile%\.jppm\dist` для пути к bin.
+  - В Linux используйте `$HOME/.jppm/dist` для пути к bin.
+  - В Windows используйте `%UserProfile%\.jppm\dist` для пути к bin.
 
 - Перезагрузите консоль!
 
