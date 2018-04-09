@@ -1,5 +1,8 @@
 <?php
+
 namespace packager\cli;
+
+use DefaultPlugin;
 use packager\Annotations;
 use packager\Event;
 use packager\JavaExec;
@@ -66,6 +69,8 @@ class ConsoleApp
             Console::log("args = " . var_export($args, true));
         }
 
+        $this->loadPlugin(DefaultPlugin::class);
+
         if ($this->getPackage()) {
             $this->loadPlugins();
             $scripts = $this->packager->loadTasks($this->getPackage());
@@ -107,30 +112,20 @@ class ConsoleApp
                 break;
 
             default:
-                $task = str::replace($task,"-", "_");
+                $command = $this->commands[$task];
 
-                if (method_exists($this, "handle$task")) {
+                if ($handler = $command['handler']) {
+                    foreach ($command['dependsOn'] as $one) {
+                        $this->invokeTask($one, $args);
+                    }
+
                     Console::log("-> {0}", $task);
 
-                    $method = [$this, "handle$task"];
-                    $method($args);
+                    $handler($args);
                     break;
                 } else {
-                    $command = $this->commands[$task];
-
-                    if ($handler = $command['handler']) {
-                        foreach ($command['dependsOn'] as $one) {
-                            $this->invokeTask($one, $args);
-                        }
-
-                        Console::log("-> {0}", $task);
-
-                        $handler($args);
-                        break;
-                    } else {
-                        Console::error("Task '$task' not found. Try to run 'help' via 'jppm tasks'.");
-                        exit(-1);
-                    }
+                    Console::error("Task '{0}' not found. Try to run 'help' via 'jppm tasks'.", $task);
+                    exit(-1);
                 }
         }
     }
@@ -149,7 +144,7 @@ class ConsoleApp
                     $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
                     $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
 
-                    $this->addCommand($prefix ?  "$prefix:$task" : $task, function ($args) use ($handler) {
+                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args) use ($handler) {
                         $handler->invokeArgs(null, [new Event($this->packager, $this->getPackage(), $args)]);
                     }, $description, $dependsOn);
                 } else {
@@ -189,6 +184,14 @@ class ConsoleApp
         exit($status);
     }
 
+    /**
+     * @return callable[]
+     */
+    public function getCommands(): array
+    {
+        return $this->commands;
+    }
+
     function getPackage(): ?Package
     {
         try {
@@ -202,122 +205,5 @@ class ConsoleApp
     function addCommand(string $name, callable $handle, string $description = '', array $dependsOn = [])
     {
         $this->commands[$name] = ['handler' => $handle, 'description' => $description, 'dependsOn' => $dependsOn];
-    }
-
-    function handleRepo(array $args)
-    {
-        $stderr = Stream::of("php://stderr");
-
-        switch ($args[0]) {
-            case "index":
-                $this->packager->getRepo()->indexAll($args[1] ?: null);
-                break;
-
-            case "index:one":
-                if (!$args[1]) {
-                    $stderr->write("[Packager]: jppm repo index <module> [<destDir>], module is not passed.");
-                    exit(-1);
-                }
-
-                $this->packager->getRepo()->index($args[1],$args[2] ?: null);
-                break;
-
-            default:
-                $stderr->write("[Packager]: Command 'repo $args[0]' not found. Try to run 'help' via 'jppm tasks'.");
-                exit(-1);
-        }
-    }
-
-    function handleServer(array $args)
-    {
-        $server = new Server($this->packager->getRepo());
-        $server->run();
-    }
-
-    function handleTasks(array $args)
-    {
-        Console::log("Available tasks:");
-
-        Console::log("- init // init package");
-        Console::log("- install // install deps");
-        Console::log("- tasks // show all tasks");
-        Console::log("- server // run jppm server on 6333 port");
-
-        Console::log("");
-
-        foreach ($this->commands as $command => $one) {
-            ['handler' => $handler, 'description' => $desc] = $one;
-
-            if ($desc) {
-                Console::log("- $command // $desc");
-            } else {
-                Console::log("- $command");
-            }
-        }
-    }
-
-    function handleInstall(array $args)
-    {
-        $vendor = new Vendor("./vendor");
-
-        if ($this->isFlag('clean')) {
-            $vendor->clean();
-            Console::log("The vendor dir has been cleared.");
-        }
-
-        $this->packager->install($this->getPackage(), $vendor, $this->isFlag('f', 'force'));
-    }
-
-    function handleInit(array $args)
-    {
-        $dir = fs::abs("./");
-
-        if (fs::exists($dir . '/' . Package::FILENAME)) {
-            $this->fail("Failed to init, package '" . ($dir . Package::FILENAME) . "' already exists!");
-        }
-
-        Console::log("Init new package in dir '$dir'':");
-
-        $name = fs::name(fs::parent($dir . "/foo"));
-        $version = "1.0.0";
-
-        $name = Console::read("Enter name ($name):", $name);
-        $version = Console::read("Enter version ($version):", $version);
-        $description = Console::read("Enter description:", '');
-
-        $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
-
-        $data = [
-            'name' => $name,
-            'version' => $version,
-        ];
-
-        if ($description) {
-            $data['description'] = $description;
-        }
-
-        if ($addAppPlugin) {
-            $data['deps']['jphp-core'] = '*';
-            $data['deps']['jphp-zend-ext'] = '*';
-
-            $data['plugins'] = ['AppPlugin'];
-            $data['app'] = [
-                'bootstrap' => 'index.php',
-                'encoding' => 'UTF-8',
-                'metrics' => false,
-                'trace' => false
-            ];
-
-            $data['sources'] = ['src'];
-
-            Tasks::createDir("$dir/src");
-            Tasks::createFile("$dir/src/index.php", "<?php \r\necho 'Hello World';\r\n");
-        }
-
-        $package = new Package($data, []);
-        $this->packager->writePackage($package, $dir);
-
-        Console::log("Success, {0} has been created.", Package::FILENAME);
-        Console::log("Done.");
     }
 }

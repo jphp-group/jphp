@@ -28,7 +28,7 @@ class Event
      * @param Package $package
      * @param array $args
      */
-    public function __construct(Packager $packager, Package $package, array $args)
+    public function __construct(Packager $packager, ?Package $package, array $args)
     {
         $this->packager = $packager;
         $this->package = $package;
@@ -46,7 +46,7 @@ class Event
     /**
      * @return Package
      */
-    public function package(): Package
+    public function package(): ?Package
     {
         return $this->package;
     }
