@@ -271,6 +271,7 @@ class Repository
             if (fs::isDir($filename)) {
                 fs::makeDir("$vendorDir/{$package->getName()}/$relName");
             } else {
+                fs::makeDir("$vendorDir/{$package->getName()}/");
                 fs::copy($filename, "$vendorDir/{$package->getName()}/$relName", null, 1024 * 256);
             }
         });
