@@ -54,6 +54,8 @@ task installDist(dependsOn: 'dist') {
 
             into installDist
         }
+
+        file("$installDist/jppm").setExecutable(true)
     }
 }
 
