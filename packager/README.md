@@ -20,8 +20,8 @@ gradlew packager:install
 ```
 
 - Add the jppm bin path to your system properties:
-On Linux use `$HOME/.jppm/dist` for bin path.
-On Windows use `%UserProfile%\.jppm\dist` for bin path.
+  - On Linux use `$HOME/.jppm/dist` for bin path.
+  - On Windows use `%UserProfile%\.jppm\dist` for bin path.
 
 - Restart your console!
 
