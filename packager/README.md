@@ -4,8 +4,20 @@
 JPPM is a packager manager for jphp like `npm` (js) or `composer` (php). 
 JPPM will help you to build and run jphp applications.
 
-### 1. How to install jppm?
+### 0. How to install jppm?
 
+- Go to `https://github.com/jphp-compiler/jphp/releases` and find the last version of jppm.
+- Download `tar.gz` or `zip` (only windows) archive and unpack it to `path/to/jppm`.
+- Add the jppm bin path `path/to/jppm` to your system properties.
+- Restart your console!
+
+After all of this the `jppm` command will available in your console. Try to get version of jppm:
+
+```
+jppm version
+```
+
+### 1. How to build and install jppm from sources?
 - Clone the jphp repository from `https://github.com/jphp-compiler/jphp.git`.
 - Open repo directory in your console and run:
 
