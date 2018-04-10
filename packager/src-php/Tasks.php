@@ -28,6 +28,7 @@ class Tasks
         Console::log("-> create new file '{0}'", $path);
 
         try {
+            fs::ensureParent($path);
             Stream::putContents($path, $content);
             return true;
         } catch (IOException $e) {

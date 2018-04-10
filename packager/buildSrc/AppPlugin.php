@@ -66,6 +66,8 @@ class AppPlugin
         }
 
         Tasks::createDir("./build/");
+        Tasks::createFile("./build/$buildFileName");
+
         $zip = new ZipArchive("./build/$buildFileName");
         $zip->open();
 
