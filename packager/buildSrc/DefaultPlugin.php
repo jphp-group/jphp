@@ -117,16 +117,18 @@ class DefaultPlugin
      */
     function install(Event $event)
     {
-        global $app;
+        if ($event->package()) {
+            global $app;
 
-        $vendor = new Vendor("./vendor");
+            $vendor = new Vendor("./vendor");
 
-        if ($app->isFlag('clean')) {
-            $vendor->clean();
-            Console::log("The vendor dir has been cleared.");
+            if ($app->isFlag('clean')) {
+                $vendor->clean();
+                Console::log("The vendor dir has been cleared.");
+            }
+
+            $event->packager()->install($event->package(), $vendor, $app->isFlag('f', 'force'));
         }
-
-        $event->packager()->install($event->package(), $vendor, $app->isFlag('f', 'force'));
     }
 
     /**
@@ -135,34 +137,36 @@ class DefaultPlugin
      */
     function add(Event $event)
     {
-        $package = $event->package()->toArray();
+        if ($event->package()) {
+            $package = $event->package()->toArray();
 
-        $modified = false;
+            $modified = false;
 
-        foreach ($event->args() as $arg) {
-            [$dep, $version] = str::split($arg, '@');
+            foreach ($event->args() as $arg) {
+                [$dep, $version] = str::split($arg, '@');
 
-            if ($package['deps'][$dep]) {
-                Console::log("-> skip adding '{0}', already added.", $arg);
-            } else {
-                $pkg = $event->packager()->getRepo()->findPackage($dep, $version ?: '*');
-
-                if ($pkg) {
-                    $package['deps'][$dep] = $version ?: '*';
-                    $modified = true;
-
-                    Console::log("-> add '{0}' dependency, lock version = {1}", $arg, $pkg->getVersion($version));
+                if ($package['deps'][$dep]) {
+                    Console::log("-> skip adding '{0}', already added.", $arg);
                 } else {
-                    Console::error("Failed to add '{0}', is not found in repositories", $arg);
-                    exit(-1);
+                    $pkg = $event->packager()->getRepo()->findPackage($dep, $version ?: '*');
+
+                    if ($pkg) {
+                        $package['deps'][$dep] = $version ?: '*';
+                        $modified = true;
+
+                        Console::log("-> add '{0}' dependency, lock version = {1}", $arg, $pkg->getVersion($version));
+                    } else {
+                        Console::error("Failed to add '{0}', is not found in repositories", $arg);
+                        exit(-1);
+                    }
                 }
             }
-        }
 
-        if ($modified) {
-            $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
+            if ($modified) {
+                $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
 
-            Tasks::run('install');
+                Tasks::run('install');
+            }
         }
     }
 
@@ -172,26 +176,28 @@ class DefaultPlugin
      */
     function remove(Event $event)
     {
-        $package = $event->package()->toArray();
+        if ($event->package()) {
+            $package = $event->package()->toArray();
 
-        $modified = false;
+            $modified = false;
 
-        foreach ($event->args() as $arg) {
-            [$dep, ] = str::split($arg, '@');
+            foreach ($event->args() as $arg) {
+                [$dep,] = str::split($arg, '@');
 
-            if ($version = $package['deps'][$dep]) {
-                Console::log("-> remove '{0}' dependency, version = {1}", $arg, $version ?: 'last');
-                unset($package['deps'][$dep]);
-                $modified = true;
-            } else {
-                Console::error("Failed to remove '{0}' dependency, is not found in {1}", $arg, Package::FILENAME);
-                exit(-1);
+                if ($version = $package['deps'][$dep]) {
+                    Console::log("-> remove '{0}' dependency, version = {1}", $arg, $version ?: 'last');
+                    unset($package['deps'][$dep]);
+                    $modified = true;
+                } else {
+                    Console::error("Failed to remove '{0}' dependency, is not found in {1}", $arg, Package::FILENAME);
+                    exit(-1);
+                }
             }
-        }
 
-        if ($modified) {
-            $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
-            Tasks::run('install');
+            if ($modified) {
+                $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
+                Tasks::run('install');
+            }
         }
     }
 

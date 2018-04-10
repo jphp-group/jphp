@@ -21,6 +21,7 @@ use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use Tasks;
+use text\TextWord;
 
 /**
  * Class ConsoleApp
@@ -124,7 +125,26 @@ class ConsoleApp
                     $handler($args);
                     break;
                 } else {
+                    $means = [];
+
+                    foreach ($this->commands as $name => $info) {
+                        $name = new TextWord($name);
+
+                        if ($name->jaroWinklerDistance($task) > 0.85) {
+                            $means[] = "$name";
+                        }
+                    }
+
                     Console::error("Task '{0}' not found. Try to run 'jppm tasks' to show all available tasks.", $task);
+
+
+                    if ($means) {
+                        Console::log("\n   The most similar command is:\n");
+                        foreach ($means as $mean) {
+                            Console::log("     - {0}", $mean);
+                        }
+                    }
+
                     exit(-1);
                 }
         }
