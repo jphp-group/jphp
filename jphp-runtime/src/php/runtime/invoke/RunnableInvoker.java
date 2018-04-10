@@ -11,7 +11,7 @@ import php.runtime.reflection.ParameterEntity;
 public class RunnableInvoker extends Invoker {
     private final Callback<Memory, Memory[]> runnable;
 
-    private RunnableInvoker(Environment env, Callback<Memory, Memory[]> runnable) {
+    public RunnableInvoker(Environment env, Callback<Memory, Memory[]> runnable) {
         super(env, env.trace());
         this.runnable = runnable;
     }
@@ -45,7 +45,7 @@ public class RunnableInvoker extends Invoker {
         return 0;
     }
 
-    public static Memory make(Environment env, Callback<Memory, Memory[]> runnable) {
+    public static Memory create(Environment env, Callback<Memory, Memory[]> runnable) {
         RunnableInvoker invoker = new RunnableInvoker(env, runnable);
         WrapInvoker wrapInvoker = new WrapInvoker(env, invoker);
 

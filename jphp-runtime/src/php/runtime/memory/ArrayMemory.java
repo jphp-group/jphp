@@ -1862,6 +1862,33 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return result;
     }
 
+    public static ArrayMemory ofAny(Environment env, Object... args) {
+        if (args != null && args.length > 0) {
+            Memory[] passed = new Memory[args.length];
+
+            for (int i = 0; i < passed.length; i++) {
+                if (args[i] == null) {
+                    passed[i] = Memory.NULL;
+                    continue;
+                }
+
+                MemoryOperation operation = MemoryOperation.get(
+                        args[i].getClass(), args[i].getClass().getGenericSuperclass()
+                );
+
+                if (operation == null) {
+                    throw new CriticalException("Unsupported bind type - " + args[i].getClass().toString());
+                }
+
+                passed[i] = operation.unconvertNoThow(env, env.trace(), args[i]);
+            }
+
+            return of(passed);
+        } else {
+            return new ArrayMemory();
+        }
+    }
+
     public static ArrayMemory ofCollection(Collection<Memory> list) {
         ArrayMemory result = new ArrayMemory();
 

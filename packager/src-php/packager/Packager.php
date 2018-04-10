@@ -16,7 +16,7 @@ use php\lib\str;
  */
 class Packager
 {
-    const VERSION = "0.0.1";
+    const VERSION = "0.1.1";
 
     /**
      * @var Repository

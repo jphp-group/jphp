@@ -3,8 +3,10 @@ package php.runtime.lang;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.memory.*;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.ClassEntity;
 
 @Reflection.Ignore
@@ -50,5 +52,42 @@ public interface IObject {
 
     default void removeProp(String name) {
         getProperties().removeByScalar(name);
+    }
+
+    default Memory callMethod(Environment env, String name, Memory... args) {
+        try {
+            return env.invokeMethod(this, name, args);
+        } catch (Throwable throwable) {
+            env.forwardThrow(throwable);
+            return Memory.NULL;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    default Memory callMethodAny(Environment env, String name, Object... args) {
+        if (args != null && args.length > 0) {
+            Memory[] passed = new Memory[args.length];
+
+            for (int i = 0; i < passed.length; i++) {
+                if (args[i] == null) {
+                    passed[i] = Memory.NULL;
+                    continue;
+                }
+
+                MemoryOperation operation = MemoryOperation.get(
+                        args[i].getClass(), args[i].getClass().getGenericSuperclass()
+                );
+
+                if (operation == null) {
+                    throw new CriticalException("Unsupported bind type - " + args[i].getClass().toString());
+                }
+
+                passed[i] = operation.unconvertNoThow(env, env.trace(), args[i]);
+            }
+
+            return callMethod(env, name, passed);
+        } else {
+            return callMethod(env, name);
+        }
     }
 }

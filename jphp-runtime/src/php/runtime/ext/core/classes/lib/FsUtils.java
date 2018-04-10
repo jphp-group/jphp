@@ -604,7 +604,7 @@ public class FsUtils extends BaseObject {
     private static Memory scanFilter(final Environment env, final ArrayMemory props) {
         final FilterProperties filterProperties = props.toBean(env, FilterProperties.class);
 
-        return RunnableInvoker.make(env, new Callback<Memory, Memory[]>() {
+        return RunnableInvoker.create(env, new Callback<Memory, Memory[]>() {
             @Override
             public Memory call(Memory[] args) {
                 if (args == null || args.length == 0) {

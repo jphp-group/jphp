@@ -444,8 +444,14 @@ class Repository
                         $mName = fs::relativize($file, $version);
 
                         if ($mName === "README.md") {
-                            fs::makeDir("$destDir/$module/");
-                            fs::copy($file, "$destDir/$module/" . fs::name($version) . ".md");
+                            $str = "$destDir/$module/" . fs::name($version) . ".md";
+
+                            if (!fs::ensureParent($str)) {
+                                Console::warn("Failed to index file {0}", $str);
+                                continue;
+                            }
+
+                            fs::copy($file, $str);
                         } else {
                             $size += fs::size($file);
                             $hash .= fs::hash($file, 'SHA-256');
@@ -471,7 +477,7 @@ class Repository
                 $archFile = "$destDir/$module/" . fs::name($version) . ".tar.gz";
 
                 fs::delete($archFile);
-                if (!fs::ensureParent($archFile)) {
+                if (!fs::isDir(fs::parent($archFile)) && !fs::ensureParent($archFile)) {
                     throw new \Exception("Failed to create directory: " . fs::parent($archFile));
                 }
 

@@ -52,7 +52,7 @@ public class PZipFile extends BaseObject {
             if (create) {
                 ZipUtil.packEntries(new File[0], file);
             } else {
-                throw new FileNotFoundException(file.getPath() + " not found, use ZipFile::create() to make zip archive.");
+                throw new FileNotFoundException(file.getPath() + " not found, use ZipFile::create() to create zip archive.");
             }
         }
 

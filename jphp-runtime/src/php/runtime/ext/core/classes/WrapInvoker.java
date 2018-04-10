@@ -28,6 +28,11 @@ public class WrapInvoker extends BaseObject {
         this.invoker = invoker;
     }
 
+    public WrapInvoker(Environment env, Memory arg) {
+        super(env);
+        this.invoker = Invoker.create(env, arg);
+    }
+
     public WrapInvoker(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }

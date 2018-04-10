@@ -130,7 +130,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope, WrapSocket.class, WrapServerSocket.class);
         registerJavaException(scope, WrapSocketException.class, SocketException.class);
 
-        registerClass(scope, WrapThreadPool.class, WrapFuture.class);
+        registerClass(scope, WrapThreadPool.class, WrapFuture.class, WrapPromise.class);
         registerJavaException(scope, WrapJavaExceptions.TimeoutException.class, TimeoutException.class);
 
         registerClass(scope, WrapProcessor.class, IniProcessor.class, WrapProcessor.ProcessorException.class, WrapProcess.class);
