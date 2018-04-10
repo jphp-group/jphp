@@ -1,0 +1,3 @@
+
+scripts/jppm text eol=lf
+scripts/jppm.bat text eol=crlf

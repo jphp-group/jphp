@@ -55,7 +55,14 @@ task installDist(dependsOn: 'dist') {
             into installDist
         }
 
+        def osName = System.getProperty("os.name").toLowerCase()
         file("$installDist/jppm").setExecutable(true)
+
+        if (osName.contains("linux") || osName.contains("unix")) {
+            exec {
+                commandLine "ln", "-sfn", "$installDist/jppm", "/usr/bin/jppm"
+            }
+        }
     }
 }
 

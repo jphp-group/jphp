@@ -101,7 +101,7 @@ class DefaultPlugin
             $data['sources'] = ['src'];
 
             Tasks::createDir("$dir/src");
-            Tasks::createFile("$dir/src/index.php", "<?php \r\necho 'Hello World';\r\n");
+            Tasks::createFile("$dir/src/index.php", "<?php \r\necho \"Hello World\\n\";\r\n");
         }
 
         $package = new Package($data, []);
