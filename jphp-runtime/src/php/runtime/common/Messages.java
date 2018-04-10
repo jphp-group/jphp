@@ -55,8 +55,8 @@ final public class Messages {
     public final static Item ERR_INVALID_METHOD_SIGNATURE = new Item("Declaration of %s must be compatible with %s");
     public final static Item ERR_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY = new Item("Interface function %s cannot contain body");
     public final static Item ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD = new Item("Access type for interface method %s must be omitted");
-    public final static Item ERR_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot create non static method %s static in class %s");
-    public final static Item ERR_CANNOT_MAKE_STATIC_TO_NON_STATIC = new Item("Cannot create static method %s non static in class %s");
+    public final static Item ERR_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot make non static method %s static in class %s");
+    public final static Item ERR_CANNOT_MAKE_STATIC_TO_NON_STATIC = new Item("Cannot make static method %s non static in class %s");
     public final static Item ERR_CLASS_MAY_NOT_INHERIT_FINAL_CLASS = new Item("Class %s may not inherit from final class (%s)");
     public final static Item ERR_CANNOT_OVERRIDE_FINAL_METHOD = new Item("Cannot override final method %s with %s");
     public final static Item ERR_NON_ABSTRACT_METHOD_MUST_CONTAIN_BODY = new Item("Non-abstract method %s must contain body");
