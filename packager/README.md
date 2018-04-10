@@ -23,7 +23,7 @@ jppm version
 - Clone the jphp repository from `https://github.com/jphp-compiler/jphp.git`.
 - Open repo directory in your console and run:
 
-On Linux (also add link of jppm to `/usr/bin/jppm`, use `sudo` if needed):
+On Linux (it will create link of jppm to `/usr/bin/jppm`, use `sudo` if needed):
 ```
 sudo ./gradlew packager:install --no-daemon
 ```
