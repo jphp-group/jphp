@@ -7,9 +7,9 @@ sourceSets {
 
 dependencies {
     compile project(':jphp-core')
+    compile project(':exts/jphp-zend-ext')
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-compress-ext')
-    compile project(':exts/jphp-zip-ext')
     compile project(':exts/jphp-json-ext')
     compile project(':exts/jphp-httpserver-ext')
     compile project(':exts/jphp-semver-ext')
@@ -36,6 +36,34 @@ task dist(dependsOn: 'shadowJar') {
         }
     }
 }
+
+
+task distArch(type: Tar, dependsOn: ['clean', 'dist', 'distArchZip']) {
+    from("$buildDir.path/dist") {
+        exclude('jppm')
+    }
+
+    from("$buildDir.path/dist") {
+        include('jppm')
+
+        fileMode = 0755
+    }
+
+    baseName = "jppm-dist"
+    destinationDir = buildDir
+    extension = 'tar.gz'
+
+    compression = Compression.GZIP
+}
+
+task distArchZip(type: Zip, dependsOn: 'dist') {
+    from("$buildDir.path/dist")
+
+    baseName = "jppm-dist"
+    destinationDir = buildDir
+    extension = 'zip'
+}
+
 
 task installDist(dependsOn: 'dist') {
     doLast {
@@ -68,13 +96,4 @@ task installDist(dependsOn: 'dist') {
 
 install {
     dependsOn installDist
-}
-
-task distAndRun(dependsOn: 'dist') {
-    doLast {
-        exec {
-            workingDir "$buildDir.path/dist/"
-            commandLine 'cmd', '/c', 'jppm.bat', System.getProperty("args")
-        }
-    }
 }
