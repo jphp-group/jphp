@@ -19,6 +19,6 @@ public class IntegerMemoryOperation extends MemoryOperation<Integer> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Integer arg) throws Throwable {
-        return LongMemory.valueOf(arg);
+        return arg == null ? Memory.NULL : LongMemory.valueOf(arg);
     }
 }

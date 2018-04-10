@@ -19,6 +19,6 @@ public class DoubleMemoryOperation extends MemoryOperation<Double> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Double arg) throws Throwable {
-        return DoubleMemory.valueOf(arg);
+        return arg == null ? Memory.NULL : DoubleMemory.valueOf(arg);
     }
 }

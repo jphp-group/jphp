@@ -19,6 +19,6 @@ public class BooleanMemoryOperation extends MemoryOperation<Boolean> {
 
     @Override
     public Memory unconvert(Environment env, TraceInfo trace, Boolean arg) throws Throwable {
-        return TrueMemory.valueOf(arg);
+        return arg == null ? Memory.NULL : TrueMemory.valueOf(arg);
     }
 }

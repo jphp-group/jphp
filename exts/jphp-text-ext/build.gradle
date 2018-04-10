@@ -1,0 +1,12 @@
+dependencies {
+    provided project(":jphp-runtime")
+
+    // dependencies ....
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.3'
+    // -----------------
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':jphp-core')
+    testCompile project(':jphp-core').sourceSets.test.output
+}

@@ -24,6 +24,10 @@ public class DoubleMemory extends Memory {
     }
 
     public static Memory valueOf(Number number) {
+        if (number == null) {
+            return NULL;
+        }
+        
         return number instanceof Double || number instanceof Float
                 ? new DoubleMemory(number.doubleValue())
                 : LongMemory.valueOf(number.longValue());
