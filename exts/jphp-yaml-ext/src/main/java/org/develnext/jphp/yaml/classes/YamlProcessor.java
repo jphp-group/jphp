@@ -47,6 +47,8 @@ public class YamlProcessor extends WrapProcessor {
         int flags = args[0].toInteger();
 
         options.setPrettyFlow((flags & SERIALIZE_PRETTY_FLOW) == SERIALIZE_PRETTY_FLOW);
+        options.setDefaultFlowStyle((flags & SERIALIZE_PRETTY_FLOW) == SERIALIZE_PRETTY_FLOW ? DumperOptions.FlowStyle.BLOCK : DumperOptions.FlowStyle.AUTO);
+
         options.setCanonical((flags & SERIALIZE_CANONICAL) == SERIALIZE_CANONICAL);
         options.setExplicitStart((flags & SERIALIZE_EXPLICIT_START) == SERIALIZE_EXPLICIT_START);
         options.setExplicitEnd((flags & SERIALIZE_EXPLICIT_END) == SERIALIZE_EXPLICIT_END);

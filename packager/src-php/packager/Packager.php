@@ -152,7 +152,7 @@ class Packager
     {
         $file = $directory . "/" . Package::FILENAME;
 
-        fs::formatAs($file, $package->toArray(), 'yaml', YamlProcessor::SERIALIZE_PRETTY_FLOW);
+        fs::formatAs($file, $package->toArray(), 'yaml', YamlProcessor::SERIALIZE_PRETTY_FLOW | YamlProcessor::SERIALIZE_NOT_SPLIT_LINES);
     }
 
     /**
