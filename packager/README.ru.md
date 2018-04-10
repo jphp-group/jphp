@@ -23,19 +23,17 @@ jppm version
 - Клонировать репозиторий jphp из `https://github.com/jphp-compiler/jphp.git`.
 - Откройте каталог репозитория в консоли и запустите:
 
-В Linux:
+В Linux (добавляет symlink команду jppm `/usr/bin/jppm`, используйте `sudo` если не хватает прав):
 ```
-./gradlew packager:install
+sudo ./gradlew packager:install --no-daemon
 ```
 
 В Windows:
 ```
-gradlew packager:install
+gradlew packager:install --no-daemon
 ```
 
-- Добавьте путь bin jppm к вашим системным свойствам:
-  - В Linux используйте команду `sudo ln -s $HOME/.jppm/dist/jppm /usr/bin/jppm`.
-  - В Windows пропишите путь `%UserProfile%\.jppm\dist` в PATH переменной пользователя.
+- [Если Windows] Пропишите путь `%UserProfile%\.jppm\dist` в PATH переменной пользователя.
 
 - Перезагрузите консоль!
 

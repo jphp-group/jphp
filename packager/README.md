@@ -23,19 +23,17 @@ jppm version
 - Clone the jphp repository from `https://github.com/jphp-compiler/jphp.git`.
 - Open repo directory in your console and run:
 
-On Linux:
+On Linux (also add link of jppm to `/usr/bin/jppm`, use `sudo` if needed):
 ```
-./gradlew packager:install
+sudo ./gradlew packager:install --no-daemon
 ```
 
 On Windows:
 ```
-gradlew packager:install
+gradlew packager:install --no-daemon
 ```
 
-- Add the jppm bin path to your system properties:
-  - On Linux use `sudo ln -s $HOME/.jppm/dist/jppm /usr/bin/jppm` to add jppm command.
-  - On Windows use `%UserProfile%\.jppm\dist` for bin path.
+- [Only if Windows] Add the jppm bin path to your system properties, use `%UserProfile%\.jppm\dist` for bin path.
 
 - Restart your console!
 
