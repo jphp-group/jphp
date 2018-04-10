@@ -84,14 +84,19 @@ class Packager
             $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope) {
                 $prefix = str::repeat('-', $depth);
 
-                if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
-                    Console::log("{$prefix}-> install {0}", $pkg->toString());
+                switch ($pkg->getType()) {
+                    case "std":
+                        if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
+                            Console::log("{$prefix}-> install {0}", $pkg->toString());
 
-                    $this->repo->copyTo($pkg, $vendor->getDir());
+                            $this->repo->copyTo($pkg, $vendor->getDir());
+                        }
+
+                        $this->packageLock->addPackage($pkg);
+                        break;
                 }
 
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
-                $this->packageLock->addPackage($pkg);
             });
         }
 
@@ -116,10 +121,23 @@ class Packager
                 continue;
             }
 
-            if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
-                $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
-            } else {
-                $result->addInvalidDep($dep, $version);
+            if (str::startsWith($version, "./")) {
+                if (fs::isFile("$version/" . Package::FILENAME)) {
+                    $pkg = $this->repo->readPackage("$version/" . Package::FILENAME, [
+                        'type' => 'dir',
+                        'src' => $version
+                    ]);
+
+                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
+                } else {
+                    $result->addInvalidDep($dep, $version);
+                }
+            }  else {
+                if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
+                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
+                } else {
+                    $result->addInvalidDep($dep, $version);
+                }
             }
         }
 

@@ -71,7 +71,7 @@ class AppPlugin
         $zip = new ZipArchive("./build/$buildFileName");
         $zip->open();
 
-        fs::makeDir("./build/app");
+        Tasks::createDir("./build/app");
 
         $metaInfServices = [];
 
@@ -117,18 +117,20 @@ class AppPlugin
             }
         }
 
-        fs::clean("./build/app/JPHP-INF/sdk");
-        fs::delete("./build/app/JPHP-INF/sdk");
+        Tasks::cleanDir("./build/app/JPHP-INF/sdk");
+        Tasks::deleteFile("./build/app/JPHP-INF/sdk");
         fs::delete("./build/app/META-INF/manifest.mf");
         fs::delete("./build/app/META-INF/Manifest.mf");
         fs::delete("./build/app/META-INF/MANIFEST.MF");
 
-        fs::makeDir("./build/app/JPHP-INF/");
-        fs::makeDir("./build/app/META-INF/");
+        Tasks::createDir("./build/app/JPHP-INF/");
+        Tasks::createDir("./build/app/META-INF/");
 
         fs::formatAs("./build/app/JPHP-INF/launcher.conf", [
             'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
         ], 'ini');
+
+        Tasks::createFile("./build/app/META-INF/MANIFEST.MF");
 
         Stream::putContents("./build/app/META-INF/MANIFEST.MF", str::join([
             "Manifest-Version: 1.0",

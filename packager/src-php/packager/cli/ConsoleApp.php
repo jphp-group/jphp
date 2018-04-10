@@ -130,7 +130,7 @@ class ConsoleApp
                     foreach ($this->commands as $name => $info) {
                         $name = new TextWord($name);
 
-                        if ($name->jaroWinklerDistance($task) > 0.85) {
+                        if ($name->jaroWinklerDistance($task) > 0.9) {
                             $means[] = "$name";
                         }
                     }

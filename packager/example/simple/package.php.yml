@@ -1,18 +1,16 @@
-
 name: Mock-example
 version: 1.0.0
-
-plugins:
-  - AppPlugin
-
-deps:
-  jphp-core: 0.9.*
-
-sources: ['src'] # php src directory.
-
-# config for AppPlugin.
-app:
-  metrics: true # show execution time when app:run
-  trace: true # show jphp trace info.
-  bootstrap: bootstrap.php # bootstrap file when run application.
-  encoding: UTF-8 # default string & file encoding in application.
+plugins: [
+  AppPlugin]
+deps: {
+  jphp-core: 0.9.*,
+  test2: '*'
+}
+sources: [
+  src]
+app: {
+  metrics: true,
+  trace: true,
+  bootstrap: bootstrap.php,
+  encoding: UTF-8
+}

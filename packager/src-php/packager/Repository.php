@@ -250,6 +250,10 @@ class Repository
         $file = "$this->dir/$name/$version/" . Package::FILENAME;
         $infoFile = "$this->dir/$name/$version.json";
 
+        if (!fs::isFile($file)) {
+            return null;
+        }
+
         return $this->readPackage($file, fs::isFile($infoFile) ? fs::parse($infoFile) : []);
     }
 
@@ -512,4 +516,16 @@ class Repository
         fs::formatAs("$destDir/modules.json", flow($modules)->map($name)->toArray(), 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
         Stream::putContents("$destDir/.gitignore", "/*/*/");
     }
+
+    /**
+     * Delete package from repo.
+     *
+     * @param Package $oldPkg
+     * @return bool
+     */
+    public function delete(Package $oldPkg)
+    {
+        return fs::delete("$this->dir/{$oldPkg->getName()}/{$oldPkg->getVersion()}");
+    }
+
 }

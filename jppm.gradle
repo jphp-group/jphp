@@ -33,6 +33,7 @@ def jppmDist(Project project) {
     }
 
     def name = project.name
+
     if (name.startsWith("exts/")) {
         name = name.substring(5)
     }
@@ -44,8 +45,11 @@ def jppmDist(Project project) {
 
     if (!deps.empty) {
         text += "deps:\n"
+        def ver = version.toString().split("\\-")[0];
+        ver = ver.split("\\+")[0];
+
         deps.each {
-            text += "  ${file(it.name).name}: $version\n"
+            text += "  ${file(it.name).name}: '>=$ver'\n"
 
             delete "$jarsDir/${file(it.name).name}-${version}.jar"
         }

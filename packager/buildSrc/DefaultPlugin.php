@@ -17,6 +17,8 @@ use php\lib\str;
  * @jppm-task remove
  * @jppm-task init
  * @jppm-task tasks
+ * @jppm-task publish
+ * @jppm-task unpublish
  */
 class DefaultPlugin
 {
@@ -109,6 +111,54 @@ class DefaultPlugin
 
         Console::log("Success, {0} has been created.", Package::FILENAME);
         Console::log("Done.");
+    }
+
+    /**
+     * @jppm-description publish to local repository.
+     * @param Event $event
+     */
+    function publish(Event $event)
+    {
+        $pkg = $event->package();
+        if ($pkg) {
+            if ($oldPkg = $event->packager()->getRepo()->getPackage($pkg->getName(), $pkg->getVersion())) {
+                if (!Console::readYesNo("Package {$pkg->getName()}@{$pkg->getVersion()} already published, re-publish it?")) {
+                    Console::log("... canceled.");
+                    return;
+                }
+            }
+
+            Console::log(" -> publishing, wait ...");
+
+            $event->packager()->getRepo()->installFromDir("./");
+
+            Console::log("");
+            Console::log("  Use '{0}: \"{1}\"' to add this package as dependency.", $pkg->getName(), $pkg->getVersion());
+            Console::log("");
+
+            Console::log("Package {0}@{1} was published successfully.", $pkg->getName(), $pkg->getVersion());
+
+        }
+    }
+
+    /**
+     * @jppm-description un-publish from local repository.
+     * @param Event $event
+     */
+    function unpublish(Event $event)
+    {
+        $pkg = $event->package();
+
+        if ($pkg) {
+            if ($oldPkg = $event->packager()->getRepo()->getPackage($pkg->getName(), $pkg->getVersion())) {
+                Console::log(" -> un-publishing, wait ...");
+
+                $event->packager()->getRepo()->delete($oldPkg);
+                Console::log("Package {0}@{1} was un-published successfully.", $pkg->getName(), $pkg->getVersion());
+            } else {
+                Console::log("Package {0}@{1} is not published!", $pkg->getName(), $pkg->getVersion());
+            }
+        }
     }
 
     /**

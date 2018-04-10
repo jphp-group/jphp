@@ -44,6 +44,14 @@ class Package
         return $this->info['sha256'];
     }
 
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->info['type'] ?: 'std';
+    }
+
     public function getInfo(): array
     {
         return $this->info;

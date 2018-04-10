@@ -26,14 +26,16 @@ class PackageLoader
      */
     public function registerPackage(Package $package, ?Vendor $vendor = null, string $scope = '')
     {
+        $dir = $package->getInfo()['dir'];
+
         foreach ($package->getSources() as $src) {
             if ($src[0] !== '/') {
-                $this->classPaths[$scope][] = $vendor === null ? "../$src" : $vendor->getRelativeFile($package, $src);
+                $this->classPaths[$scope][] = "$dir/" . ($vendor === null ? "../$src" : $vendor->getRelativeFile($package, $src));
             }
         }
 
         foreach ($package->getJars() as $jar) {
-            $this->classPaths[$scope][] = $vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($package, "jars/$jar");
+            $this->classPaths[$scope][] = "$dir/" . ($vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($package, "jars/$jar"));
         }
     }
 
