@@ -124,7 +124,7 @@ class ConsoleApp
                     $handler($args);
                     break;
                 } else {
-                    Console::error("Task '{0}' not found. Try to run 'help' via 'jppm tasks'.", $task);
+                    Console::error("Task '{0}' not found. Try to run 'jppm tasks' to show all available tasks.", $task);
                     exit(-1);
                 }
         }
