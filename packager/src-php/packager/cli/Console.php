@@ -49,6 +49,10 @@ class Console
         $stream = Stream::of('php://stdout', 'w');
         $stream->write($message . " ");
 
+        if ($default) {
+            $stream->write("(default = $default) ");
+        }
+
         $stdin = new Scanner(Stream::of('php://stdin', 'r'));
         if ($stdin->hasNextLine()) {
             $line = $stdin->nextLine();

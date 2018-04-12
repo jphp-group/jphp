@@ -25,6 +25,8 @@ abstract class ExternalRepository
         return $this->source;
     }
 
+    abstract public function isFit(): bool;
+
     abstract public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool;
     abstract public function getVersions(string $pkgName): array;
 }

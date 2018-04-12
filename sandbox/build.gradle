@@ -10,7 +10,7 @@ dependencies {
     compile project(':jphp-core')
     compile project(':exts/jphp-zend-ext')
     compile project(':exts/jphp-compress-ext')
-    compile project(':exts/jphp-zip-ext')
+    compile project(':exts/jphp-semver-ext')
     //compile project(':jphp-json-ext')
     //compile project(':jphp-jsoup-ext')
     //compile project(':jphp-gdx-ext')

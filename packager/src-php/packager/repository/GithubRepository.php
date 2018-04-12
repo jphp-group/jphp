@@ -3,6 +3,7 @@ namespace packager\repository;
 
 
 use php\lib\fs;
+use php\lib\str;
 use php\net\URL;
 
 class GithubRepository extends ExternalRepository
@@ -17,6 +18,12 @@ class GithubRepository extends ExternalRepository
         parent::__construct($source);
 
         $this->sourceUrl = new URL($source);
+    }
+
+    public function isFit(): bool
+    {
+        return str::startsWith($this->getSource(), 'https://github.com/')
+            || str::startsWith($this->getSource(), 'http://github.com/');
     }
 
     public function getVersions(string $pkgName): array

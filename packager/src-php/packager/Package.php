@@ -66,6 +66,14 @@ class Package
     }
 
     /**
+     * @return string
+     */
+    public function getNameWithVersion(): string
+    {
+        return $this->getName() . '@' . $this->getVersion('last');
+    }
+
+    /**
      * @param null|string $def
      * @return null|string
      */
@@ -80,6 +88,14 @@ class Package
     public function getMain(): ?string
     {
         return $this->data['main'];
+    }
+
+    /**
+     * @return array
+     */
+    public function getRepos(): array
+    {
+        return $this->data['repos'] ?: [];
     }
 
     /**

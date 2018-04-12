@@ -1,1 +1,1 @@
-<?phpuse php\concurrent\Promise;use php\lang\Thread;$promise = new Promise(function ($resolve) {    $th = new Thread(function () use ($resolve) {        sleep(2);        $resolve(true);    });    $th->start();});$promise->then(function () {    var_dump("done.");})->catch(function (Throwable $e) {    var_dump($e);});
+<?php$semver = new \semver\SemVersion('0.9.3-SNAPSHOT');var_dump($semver->satisfies(""));

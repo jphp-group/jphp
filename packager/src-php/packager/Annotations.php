@@ -37,6 +37,10 @@ class Annotations
             }
         } while (true);
 
+        if ($var && is_array($default) && !is_array($var)) {
+            return [$var];
+        }
+
         return $var;
     }
 

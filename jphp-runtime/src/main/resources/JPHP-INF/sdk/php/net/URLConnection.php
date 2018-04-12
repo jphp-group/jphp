@@ -225,8 +225,9 @@ class URLConnection
 
     /**
      * @param string $name
+     * @return string
      */
-    public static function guessContentTypeFromName($name)
+    public static function guessContentTypeFromName($name): string
     {
     }
 

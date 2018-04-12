@@ -1,11 +1,18 @@
 <?php
 
+use compress\GzipOutputStream;
+use compress\TarArchive;
+use compress\TarArchiveEntry;
 use packager\cli\Console;
 use packager\Event;
 use packager\Package;
+use packager\PackageDependencyTree;
+use packager\Repository;
 use packager\server\Server;
 use packager\Vendor;
-use php\io\Stream;
+use php\format\JsonProcessor;
+use php\io\File;
+use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 
@@ -15,10 +22,12 @@ use php\lib\str;
  * @jppm-task install
  * @jppm-task add
  * @jppm-task remove
+ * @jppm-task deps
  * @jppm-task init
  * @jppm-task tasks
  * @jppm-task publish
  * @jppm-task unpublish
+ * @jppm-task pack
  */
 class DefaultPlugin
 {
@@ -88,6 +97,8 @@ class DefaultPlugin
             $data['description'] = $description;
         }
 
+        $data['repos'] = ['jphp', 'central'];
+
         if ($addAppPlugin) {
             $data['deps']['jphp-core'] = '*';
             $data['deps']['jphp-zend-ext'] = '*';
@@ -137,7 +148,6 @@ class DefaultPlugin
             Console::log("");
 
             Console::log("Package {0}@{1} was published successfully.", $pkg->getName(), $pkg->getVersion());
-
         }
     }
 
@@ -187,6 +197,36 @@ class DefaultPlugin
      */
     function add(Event $event)
     {
+        global $app;
+
+        $repo = $event->packager()->getRepo();
+
+        if ($app->isFlag('g', 'global')) {
+            Console::log("-> global mode is enabled.");
+
+            foreach ($event->args() as $arg) {
+                [$dep, $version] = str::split($arg, '@');
+
+                if ($version === '') {
+                    $version = '*';
+                }
+
+                $pkg = $repo->findPackage($dep, $version);
+                if ($pkg) {
+                    if ($pkg->getInfo()['new']) {
+                        Console::log("-> add '{0}@{1}'.", $pkg->getName(), $pkg->getVersion($version));
+                    } else {
+                        Console::log("-> skip adding '{0}@{1}', already added.", $pkg->getName(), $pkg->getVersion($version));
+                    }
+                } else {
+                    Console::error("Failed to add '{0}', is not found in repositories", $arg);
+                    exit(-1);
+                }
+            }
+
+            return;
+        }
+
         if ($event->package()) {
             $package = $event->package()->toArray();
 
@@ -198,7 +238,7 @@ class DefaultPlugin
                 if ($package['deps'][$dep]) {
                     Console::log("-> skip adding '{0}', already added.", $arg);
                 } else {
-                    $pkg = $event->packager()->getRepo()->findPackage($dep, $version ?: '*');
+                    $pkg = $repo->findPackage($dep, $version ?: '*');
 
                     if ($pkg) {
                         $package['deps'][$dep] = $version ?: '*';
@@ -226,6 +266,48 @@ class DefaultPlugin
      */
     function remove(Event $event)
     {
+        global $app;
+
+        $repo = $event->packager()->getRepo();
+
+        if ($app->isFlag('g', 'global')) {
+            Console::log("-> global mode is enabled.");
+
+            foreach ($event->args() as $arg) {
+                [$dep, $version] = str::split($arg, '@');
+
+                if ($version) {
+                    if (!$repo->getPackage($dep, $version)) {
+                        Console::error("Failed to remove '{0}@{1}', is not added.", $dep, $version);
+                        exit(-1);
+                    }
+
+                    if ($repo->delete(new Package(['name' => $dep, 'version' => $version]))) {
+                        Console::log("-> remove '{0}@{1}'", $dep, $version);
+                    } else {
+                        Console::error("Failed to remove '{0}@{1}', cannot delete directory.", $dep, $version);
+                        exit(-1);
+                    }
+                } else {
+                    $result = $repo->deleteByName($dep, function (Package $pkg, bool $success) {
+                        if ($success) {
+                            Console::log("-> remove '{0}'", $pkg->getNameWithVersion());
+                        } else {
+                            Console::error("Failed to remove '{0}', cannot delete directory.", $pkg->getNameWithVersion());
+                            exit(-1);
+                        }
+                    });
+
+                    if (!$result) {
+                        Console::error("Failed to remove '{0}', is not added.", $arg);
+                        exit(-1);
+                    }
+                }
+            }
+
+            return;
+        }
+
         if ($event->package()) {
             $package = $event->package()->toArray();
 
@@ -248,6 +330,73 @@ class DefaultPlugin
                 $event->packager()->writePackage(new Package($package, $event->package()->getInfo()), "./");
                 Tasks::run('install');
             }
+        }
+    }
+
+    /**
+     * @jppm-description show all dependencies of project.
+     * @param Event $event
+     */
+    function deps(Event $event)
+    {
+        $tree = $event->packager()->fetchDependencyTree($event->package(), '');
+        $devTree = $event->packager()->fetchDependencyTree($event->package(), 'dev');
+
+        foreach (['' => $tree, 'dev' => $devTree] as $name => $one) {
+            if ($name) {
+                Console::log("\n'{0}' dependencies:\n", $name);
+            }
+
+            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) {
+                $prefix = str::repeat('-', $depth);
+
+                Console::log("{0}- {1}@{2}", $prefix, $pkg->getName(), $pkg->getVersion());
+            });
+        }
+    }
+
+    /**
+     * @jppm-description create a tarball from a package
+     * @param Event $event
+     */
+    function pack(Event $event)
+    {
+        if ($pkg = $event->package()) {
+            Tasks::run('install');
+
+            $file = File::createTemp("{$pkg->getName()}-{$pkg->getVersion()}", ".tar.gz");
+            Tasks::createFile($file);
+
+            $localFile = "./{$pkg->getName()}-{$pkg->getVersion()}.tar.gz";
+            $localVerFile = "./{$pkg->getName()}-{$pkg->getVersion()}.json";
+
+            Tasks::deleteFile($localFile);
+            Tasks::deleteFile($localVerFile);
+
+            $path = "./";
+            $info = Repository::calcPackageInfo($path);
+
+            $arch = new TarArchive(new GzipOutputStream($file));
+            $arch->open();
+
+            foreach (arr::sort(fs::scan($path)) as $one) {
+                if (fs::isFile($one)) {
+                    $name = fs::relativize($one, $path);
+                    if ($name === "README.md") {
+                        continue;
+                    }
+
+                    $arch->addFile($one, $name);
+                }
+            }
+
+            $arch->close();
+
+            fs::formatAs($localVerFile, $info, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
+            fs::copy($file, $localFile);
+            Tasks::deleteFile($file, true);
+
+            Console::log(fs::abs($localFile));
         }
     }
 

@@ -9,6 +9,7 @@ use php\io\Stream;
 use php\lang\System;
 use php\lib\fs;
 use php\lib\str;
+use Tasks;
 
 /**
  * Class Packager
@@ -80,8 +81,11 @@ class Packager
         $this->packageLock->load($vendor->getDir() . "/../");
         $this->packageLoader->clean();
 
+        $usedPackages = [];
+
         foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
-            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope) {
+            $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope, &$usedPackages) {
+                $usedPackages[$pkg->getName()] = true;
                 $prefix = str::repeat('-', $depth);
 
                 switch ($pkg->getType()) {
@@ -98,6 +102,13 @@ class Packager
 
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
             });
+        }
+
+        foreach (fs::scan($vendor->getDir(), ['excludeFiles' => true], 1) as $pkgName) {
+            if (!$usedPackages[fs::name($pkgName)]) {
+                Console::log("-> remove unnecessary package '{0}' from vendor directory.", fs::name($pkgName));
+                Tasks::deleteFile($pkgName);
+            }
         }
 
         $this->packageLoader->save($vendor);

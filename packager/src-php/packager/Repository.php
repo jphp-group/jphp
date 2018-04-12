@@ -7,6 +7,8 @@ use compress\TarArchiveEntry;
 use packager\cli\Console;
 use packager\repository\ExternalRepository;
 use packager\repository\GithubRepository;
+use packager\repository\LocalDirRepository;
+use packager\repository\ServerRepository;
 use php\format\JsonProcessor;
 use php\format\ProcessorException;
 use php\io\File;
@@ -52,8 +54,8 @@ class Repository
             $this->cache = [];
         }
 
-        $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/jphp-repo'));
-        $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/central-repo'));
+        $this->addExternalRepoByString("jphp");
+        $this->addExternalRepoByString("central");
     }
 
     /**
@@ -137,10 +139,38 @@ class Repository
 
     /**
      * @param ExternalRepository $repository
+     * @return ExternalRepository
      */
     public function addExternalRepo(ExternalRepository $repository)
     {
         $this->externals[$repository->getSource()] = $repository;
+        return $repository;
+    }
+
+    /**
+     * @param string $repo
+     * @return ExternalRepository
+     */
+    public function addExternalRepoByString(string $repo)
+    {
+        if ($repo === "jphp") {
+            return $this->addExternalRepo(new GithubRepository("https://github.com/jphp-compiler/jphp-repo"));
+        }
+
+        if ($repo === "central") {
+            return $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/central-repo'));
+        }
+
+        foreach ([GithubRepository::class, LocalDirRepository::class, ServerRepository::class] as $class) {
+            /** @var ExternalRepository $r */
+            $r = new $class($repo);
+            if ($r->isFit()) {
+                return $this->addExternalRepo($r);
+            }
+        }
+
+        Console::warn("Failed to use the '{0}' repository, it can not be recognized.", $repo);
+        return null;
     }
 
     /**
@@ -207,8 +237,18 @@ class Repository
         foreach ($versions as $version => $source) {
             $semVer = new SemVersion($version);
 
-            if ($version === $versionPattern || $semVer->satisfies($versionPattern)) {
+            if ($version === $versionPattern) {
                 $foundVersions[$version] = $source;
+                continue;
+            }
+
+            try {
+                if ($semVer->satisfies($versionPattern === '' ? '*' : $versionPattern)) {
+                    $foundVersions[$version] = $source;
+                }
+            } catch (\Exception $e) {
+                unset($foundVersions[$version]);
+                Console::warn("Invalid version '{0}', pattern is '{1}', {2}, ignored.", $version, $versionPattern, $e->getMessage());
             }
         }
 
@@ -217,6 +257,7 @@ class Repository
         $foundVersionSource = arr::last($foundVersions);
 
         if ($foundVersion) {
+
             if ($foundVersionSource instanceof ExternalRepository) {
                 $foundVersionInfo = $this->getVersionInfoFromExternal($foundVersionSource, $name, $foundVersion);
 
@@ -233,7 +274,10 @@ class Repository
                 }
             }
 
-            $pkg = $this->getPackage($name, "$foundVersion");
+            $pkg = $this->getPackage($name, "$foundVersion", [
+                'new' => $foundVersionSource instanceof ExternalRepository
+            ]);
+
             return $pkg;
         }
 
@@ -243,9 +287,10 @@ class Repository
     /**
      * @param string $name
      * @param string $version
-     * @return Package
+     * @param array $info
+     * @return null|Package
      */
-    public function getPackage(string $name, string $version): ?Package
+    public function getPackage(string $name, string $version, array $info = []): ?Package
     {
         $file = "$this->dir/$name/$version/" . Package::FILENAME;
         $infoFile = "$this->dir/$name/$version.json";
@@ -254,7 +299,9 @@ class Repository
             return null;
         }
 
-        return $this->readPackage($file, fs::isFile($infoFile) ? fs::parse($infoFile) : []);
+        $oInfo = fs::isFile($infoFile) ? fs::parse($infoFile) : [];
+
+        return $this->readPackage($file, flow($oInfo, $info)->toMap());
     }
 
     /**
@@ -528,4 +575,55 @@ class Repository
         return fs::delete("$this->dir/{$oldPkg->getName()}/{$oldPkg->getVersion()}");
     }
 
+    /**
+     * @param string $name
+     * @param callable $callback
+     * @return array
+     */
+    public function deleteByName(string $name, callable $callback = null): array
+    {
+        $result = [];
+
+        foreach (fs::scan("$this->dir/$name/", ['excludeFiles' => true], 1) as $version) {
+            $pkg = $this->getPackage($name, fs::name($version));
+            $success = $this->delete($pkg);
+            $result[] = $pkg;
+
+            $callback($pkg, $success);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Calc info of pkg directory.
+     *
+     * @param string $packageDir
+     * @return array
+     */
+    public static function calcPackageInfo(string $packageDir)
+    {
+        $size = 0;
+        $hash = '';
+        
+        foreach (arr::sort(fs::scan($packageDir)) as $file) {
+            if (fs::isFile($file)) {
+                $mName = fs::relativize($file, $packageDir);
+
+                if ($mName === "README.md") {
+                    continue;
+                } else {
+                    $size += fs::size($file);
+                    $hash .= fs::hash($file, 'SHA-256');
+                }
+            }
+        }
+
+        $hash = str::hash($hash, 'SHA-256');
+
+        return [
+            'size' => $size,
+            'sha256' => $hash
+        ];
+    }
 }

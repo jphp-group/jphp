@@ -20,6 +20,7 @@ use php\lang\Thread;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use php\time\Timer;
 use Tasks;
 use text\TextWord;
 
@@ -73,6 +74,10 @@ class ConsoleApp
         $this->loadPlugin(DefaultPlugin::class);
 
         if ($this->getPackage()) {
+            foreach ($this->getPackage()->getRepos() as $repo) {
+                $this->packager->getRepo()->addExternalRepoByString($repo);
+            }
+
             $this->loadPlugins();
             $scripts = $this->packager->loadTasks($this->getPackage());
 
@@ -94,6 +99,7 @@ class ConsoleApp
         }
 
         $this->invokeTask($command, flow($args)->skip(2)->toArray());
+        Timer::cancelAll();
     }
 
     function invokeTask(string $task, array $args)
