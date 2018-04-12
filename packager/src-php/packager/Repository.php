@@ -599,9 +599,11 @@ class Repository
      * Calc info of pkg directory.
      *
      * @param string $packageDir
+     * @param Ignore|null $ignore
      * @return array
+     * @internal param array $ignores
      */
-    public static function calcPackageInfo(string $packageDir)
+    public static function calcPackageInfo(string $packageDir, Ignore $ignore = null)
     {
         $size = 0;
         $hash = '';
@@ -610,12 +612,10 @@ class Repository
             if (fs::isFile($file)) {
                 $mName = fs::relativize($file, $packageDir);
 
-                if ($mName === "README.md") {
-                    continue;
-                } else {
-                    $size += fs::size($file);
-                    $hash .= fs::hash($file, 'SHA-256');
-                }
+                if ($ignore->test($mName)) continue;
+
+                $size += fs::size($file);
+                $hash .= fs::hash($file, 'SHA-256');
             }
         }
 

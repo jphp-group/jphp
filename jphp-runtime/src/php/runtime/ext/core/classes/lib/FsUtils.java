@@ -19,6 +19,9 @@ import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.*;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -790,6 +793,12 @@ public class FsUtils extends BaseObject {
     @Signature
     public static boolean move(String path, String newPath) {
         return new File(path).renameTo(new File(newPath));
+    }
+
+    @Signature
+    public static boolean match(String path, String pattern) {
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(pattern);
+        return pathMatcher.matches(Paths.get(path));
     }
 
     public abstract static class ScanProgressHandler {

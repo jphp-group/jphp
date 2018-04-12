@@ -87,6 +87,13 @@ class Timer
     }
 
     /**
+     * Shutdown all timers and timer system!
+     */
+    static function shutdownAll()
+    {
+    }
+
+    /**
      * Converts a string period to amount of millis.
      * 
      * '' - millis

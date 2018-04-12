@@ -28,11 +28,20 @@ use php\time\Time;
 class AppPlugin
 {
     /**
+     * AppPlugin constructor.
+     */
+    public function __construct(Event $event)
+    {
+        $event->packager()->getIgnore()->addRule('/build/**');
+    }
+
+
+    /**
      * @jppm-description Clean build directory.
      *
      * @param Event $event
      */
-    static function clean(Event $event)
+    function clean(Event $event)
     {
         Tasks::cleanDir("./build");
     }
@@ -40,15 +49,15 @@ class AppPlugin
     /**
      * @jppm-description Build app to executable jar file (with all dependencies).
      *
+     * @jppm-depends-on app:clean
      * @jppm-depends-on install
      * @param Event $event
      */
-    static function build(Event $event)
+    function build(Event $event)
     {
         $time = Time::millis();
-        Console::log("Start building application ...");
 
-        static::clean($event);
+        Console::log("Start building application ...");
 
         $vendor = new Vendor("./vendor");
         $launcher = $event->package()->getAny('app') ?: [];
@@ -168,7 +177,7 @@ class AppPlugin
      * @param Event $event
      * @jppm-depends-on install
      */
-    static function run(Event $event)
+    function run(Event $event)
     {
         $exec = new JavaExec();
 

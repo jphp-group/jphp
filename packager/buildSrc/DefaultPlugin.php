@@ -5,6 +5,7 @@ use compress\TarArchive;
 use compress\TarArchiveEntry;
 use packager\cli\Console;
 use packager\Event;
+use packager\Ignore;
 use packager\Package;
 use packager\PackageDependencyTree;
 use packager\Repository;
@@ -12,6 +13,7 @@ use packager\server\Server;
 use packager\Vendor;
 use php\format\JsonProcessor;
 use php\io\File;
+use php\lang\System;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
@@ -28,6 +30,7 @@ use php\lib\str;
  * @jppm-task publish
  * @jppm-task unpublish
  * @jppm-task pack
+ * @jppm-task explore
  */
 class DefaultPlugin
 {
@@ -364,6 +367,8 @@ class DefaultPlugin
         if ($pkg = $event->package()) {
             Tasks::run('install');
 
+            $ignore = $event->packager()->getIgnore();
+
             $file = File::createTemp("{$pkg->getName()}-{$pkg->getVersion()}", ".tar.gz");
             Tasks::createFile($file);
 
@@ -374,7 +379,7 @@ class DefaultPlugin
             Tasks::deleteFile($localVerFile);
 
             $path = "./";
-            $info = Repository::calcPackageInfo($path);
+            $info = Repository::calcPackageInfo($path, $ignore);
 
             $arch = new TarArchive(new GzipOutputStream($file));
             $arch->open();
@@ -382,11 +387,13 @@ class DefaultPlugin
             foreach (arr::sort(fs::scan($path)) as $one) {
                 if (fs::isFile($one)) {
                     $name = fs::relativize($one, $path);
-                    if ($name === "README.md") {
+
+                    if ($ignore->test($name)) {
                         continue;
                     }
 
-                    $arch->addFile($one, $name);
+                    Console::log("-- pack file '{0}'", $name);
+                    $arch->addFile($one, $name, null, 1024 * 64);
                 }
             }
 
@@ -397,6 +404,28 @@ class DefaultPlugin
             Tasks::deleteFile($file, true);
 
             Console::log(fs::abs($localFile));
+        }
+    }
+
+    /**
+     * @jppm-description open current directory in os dir explorer.
+     */
+    function explore()
+    {
+        $file = fs::abs("./");
+
+        Console::log("Open folder in your OS explorer ...");
+
+        $osName = str::lower(System::osName());
+
+        if (str::contains($osName, 'win')) {
+            $output = `explorer /select,$file`;
+        } elseif (str::contains($osName, 'mac')) {
+            $output = `open $file`;
+        } else {
+            `gnome-open $file`;
+            `kde-open $file`;
+            `xdg-open $file`;
         }
     }
 

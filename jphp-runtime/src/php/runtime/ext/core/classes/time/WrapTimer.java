@@ -47,6 +47,15 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
         return getWrappedObject().scheduledExecutionTime();
     }
 
+    private synchronized static Timer timer() {
+        if (timer != null) {
+            return timer;
+        }
+
+        timer = new Timer("php\\time\\Timer");
+        return timer;
+    }
+
     @Signature
     public static long parsePeriod(String period) {
         if (period == null || period.trim().isEmpty()) {
@@ -135,7 +144,7 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
         };
 
         long millis = parsePeriod(period);
-        timer.schedule(task, millis, millis);
+        timer().schedule(task, millis, millis);
 
         return task;
     }
@@ -153,7 +162,7 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
             }
         };
 
-        timer.schedule(task, millis);
+        timer().schedule(task, millis);
         return task;
     }
 
@@ -170,20 +179,21 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
             }
         };
         
-        timer.schedule(task, millis, millis);
+        timer().schedule(task, millis, millis);
         return task;
     }
 
     @Signature
     public static void cancelAll() {
-        timer.cancel();
-        timer.purge();
+        timer().cancel();
+        timer().purge();
 
         timer = new Timer("php\\time\\Timer");
     }
 
+    @Signature
     public static void shutdownAll() {
-        timer.cancel();
-        timer.purge();
+        timer().cancel();
+        timer().purge();
     }
 }

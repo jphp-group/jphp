@@ -510,4 +510,15 @@ class fs
     static function format($path, $value, int $flags = -1)
     {
     }
+
+    /**
+     * Tells if given path matches this matcher's pattern.
+     *
+     * @param string $path
+     * @param string $fsPattern
+     * @return bool
+     */
+    static function match(string $path, string $fsPattern): bool
+    {
+    }
 }

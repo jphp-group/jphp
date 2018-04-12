@@ -74,11 +74,12 @@ class ConsoleApp
         $this->loadPlugin(DefaultPlugin::class);
 
         if ($this->getPackage()) {
+            $this->loadPlugins();
+
             foreach ($this->getPackage()->getRepos() as $repo) {
                 $this->packager->getRepo()->addExternalRepoByString($repo);
             }
 
-            $this->loadPlugins();
             $scripts = $this->packager->loadTasks($this->getPackage());
 
             foreach ($scripts as $bin => $handler) {
@@ -99,7 +100,7 @@ class ConsoleApp
         }
 
         $this->invokeTask($command, flow($args)->skip(2)->toArray());
-        Timer::cancelAll();
+        Timer::shutdownAll();
     }
 
     function invokeTask(string $task, array $args)
@@ -158,20 +159,35 @@ class ConsoleApp
 
     protected function loadPlugin($plugin)
     {
+        if (class_exists("{$plugin}Plugin")) {
+            $plugin = "{$plugin}Plugin";
+        }
+
         if (class_exists($plugin)) {
             $class = new \ReflectionClass($plugin);
             $prefix = Annotations::getOfClass('jppm-task-prefix', $class, "");
             $tasks = Annotations::getOfClass('jppm-task', $class, []);
 
+            $pluginObject = null;
+
             foreach ($tasks as $task) {
                 if (method_exists($plugin, $task)) {
+                    $context = null;
                     $handler = new \ReflectionMethod($plugin, $task);
+
+                    if (!$handler->isStatic()) {
+                        if (!$pluginObject) {
+                            $pluginObject = new $plugin(new Event($this->packager, $this->getPackage(), []));
+                        }
+
+                        $context = $pluginObject;
+                    }
 
                     $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
                     $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
 
-                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args) use ($handler) {
-                        $handler->invokeArgs(null, [new Event($this->packager, $this->getPackage(), $args)]);
+                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args) use ($handler, $context) {
+                        $handler->invokeArgs($context, [new Event($this->packager, $this->getPackage(), $args)]);
                     }, $description, $dependsOn);
                 } else {
                     Console::warn("Cannot add task '{0}', method not found in '{1}'", $task, $plugin);

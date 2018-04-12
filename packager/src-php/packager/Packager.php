@@ -25,6 +25,11 @@ class Packager
     private $repo;
 
     /**
+     * @var Ignore
+     */
+    private $ignore;
+
+    /**
      * @var PackageLoader
      */
     private $packageLoader;
@@ -46,8 +51,21 @@ class Packager
         }
 
         $this->repo = new Repository("$dir/repo");
+        $this->ignore = Ignore::ofFile("./.jppmignore");
+        $this->ignore->setBase('/')
+            ->addRule('/vendor/**')
+            ->addRule('/package-lock.php.yml');
+
         $this->packageLoader = new PackageLoader();
         $this->packageLock = new PackageLock();
+    }
+
+    /**
+     * @return Ignore
+     */
+    public function getIgnore(): Ignore
+    {
+        return $this->ignore;
     }
 
     /**

@@ -23,10 +23,25 @@ use php\net\URL;
 class GitHubPlugin
 {
     /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * GitHubPlugin constructor.
+     * @param Event $event
+     */
+    public function __construct(Event $event)
+    {
+        $this->config = $this->readConfig();
+        $event->packager()->getIgnore()->addRule('/package.github.yml');
+    }
+
+    /**
      * @param bool $requiredAuth
      * @return HttpClient
      */
-    public static function github(bool $requiredAuth = true): HttpClient
+    public function github(bool $requiredAuth = true): HttpClient
     {
         $client = new HttpClient("https://api.github.com");
         $client->headers['Accept'] = 'application/vnd.github.v3+json';
@@ -34,7 +49,7 @@ class GitHubPlugin
         $client->responseType = 'JSON';
 
         if ($requiredAuth) {
-            $client->headers['Authorization'] = self::readConfig()['auth'];
+            $client->headers['Authorization'] = $this->config['auth'];
 
             if (!$client->headers['Authorization']) {
                 Tasks::run("github:login");
@@ -47,7 +62,7 @@ class GitHubPlugin
     /**
      * @return array
      */
-    public static function readConfig(): array
+    protected function readConfig(): array
     {
         try {
             $file = "./package.github.yml";
@@ -63,12 +78,12 @@ class GitHubPlugin
         }
     }
 
-    public static function writeConfig(array $data)
+    protected function writeConfig()
     {
         try {
             $file = "./package.github.yml";
 
-            fs::format($file, $data);
+            fs::format($file, $this->config);
         } catch (ProcessorException|IOException $e) {
             Console::error("Failed to save package.gitlab.yaml, reason = '{0}'", $e->getMessage());
             exit(-1);
@@ -79,19 +94,25 @@ class GitHubPlugin
      * @jppm-description create and upload release of current package.
      * @param Event $event
      */
-    public static function publish(Event $event)
+    public function publish(Event $event)
     {
         Tasks::run('pack');
 
         $pkg = $event->package();
         if ($pkg) {
-            $github = static::github();
+            $github = $this->github();
 
             $address = new URL(static::readConfig()['address']);
+
+            $draft = Console::readYesNo('Publish as draft release?');
+            $prerelease = Console::readYesNo('Publish as pre-release?');
 
             $response = $github->post('/repos' . $address->getPath() . '/releases', [
                 'tag_name' => $event->package()->getVersion(),
                 'name' => $event->package()->getName(),
+                'body' => Console::read("Enter description of release:", $pkg->getDescription()),
+                'draft' => $draft,
+                'prerelease' => $prerelease
             ]);
 
             if ($response->statusCode() === 201) {
@@ -123,16 +144,14 @@ class GitHubPlugin
                 Console::error("Failed to create release of current package, {0}.", $response->statusMessage());
             }
         }
-
-        exit();
     }
 
     /**
      * @jppm-description show data of logged user on github.
      */
-    public static function user()
+    public function user()
     {
-        $github = static::github();
+        $github = $this->github();
         $response = $github->get('/user');
 
         Console::log("User Info:");
@@ -146,20 +165,19 @@ class GitHubPlugin
         Console::log(" location: {0}", $info['location'] ?: '?');
         Console::log("followers: {0}", $info['followers'] ?: 0);
         Console::log("--------------------------------");
-
-        exit();
     }
 
     /**
      * @jppm-description set github repo address and log in.
      * @param Event $event
      */
-    public static function login(Event $event)
+    public function login(Event $event)
     {
-        $config = static::readConfig();
+        $config = $this->config;
 
         $address = Console::read('Repo address:', $config['address']);
 
+        $address = str::trim($address);
         if (!str::startsWith($address, 'https://github.com/') && !str::startsWith($address, 'http://github.com/')) {
             Console::error("Address {0} is invalid, enter full http link of your gitlab repository", $address);
             exit(-1);
@@ -173,15 +191,15 @@ class GitHubPlugin
             exit(-1);
         }
 
-        $login = Console::read('GitHub Login:', $config['login']);
-        $password = Console::read('GitHub Password:');
+        $login = str::trim(Console::read('GitHub Login:', $config['login']));
+        $password = str::trim(Console::read('GitHub Password:'));
 
-        $config = [
-            'address' => $address, 'login' => $login, 'auth' => 'Basic ' . base64_encode("$login:$password")
-        ];
+        $this->config['address'] = $address;
+        $this->config['login'] = $login;
+        $this->config['auth'] = 'Basic ' . base64_encode("$login:$password");
 
         $github = self::github(false);
-        $github->headers['Authorization'] = $config['auth'];
+        $github->headers['Authorization'] = $this->config['auth'];
         $response = $github->get('/user');
 
         if ($response->isSuccess()) {
@@ -192,8 +210,7 @@ class GitHubPlugin
             Console::log("--------------------------------");
 
             Console::log("You have successfully logged in, auth data saved to package.github.yml.");
-            self::writeConfig($config);
-            exit();
+            self::writeConfig();
         } else {
             Console::log("Failed to log in, reason is '{0}'", $response->statusMessage());
             exit(-1);
