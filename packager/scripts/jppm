@@ -161,8 +161,19 @@ save () {
 }
 APP_ARGS=$(save "$@")
 
+if [ -d "$APP_HOME/update" ]; then
+    APP_UPDATE_FILES="$APP_HOME/update/*"
+
+    echo "Update jphp, waiting ..."
+
+    cp -r $APP_UPDATE_FILES "$APP_HOME/"
+
+    rm -rf "$APP_HOME/update"
+fi
+
+
 # Collect all arguments for the java command, following the shell quoting and substitution rules
-eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" php.runtime.launcher.Launcher "$APP_ARGS"
+eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS -classpath "\"$CLASSPATH\"" php.runtime.launcher.Launcher "$APP_ARGS"
 
 # by default we should be in the correct project dir, but when run from Finder on Mac, the cwd is wrong
 if [ "$(uname)" = "Darwin" ] && [ "$HOME" = "$PWD" ]; then

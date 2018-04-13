@@ -4,6 +4,8 @@ namespace packager;
 use php\io\IOException;
 use php\io\Stream;
 use php\lib\arr;
+use php\lib\str;
+use php\util\Regex;
 
 /**
  * Class Package
@@ -31,7 +33,32 @@ class Package
     public function __construct(array $data, array $info = [])
     {
         $this->data = $data;
+        $this->data = $this->prepareData($data);
+
         $this->info = $info;
+    }
+
+    protected function prepareData(array $data): array
+    {
+        $result = [];
+
+        $pattern = new Regex('\\%([0-9a-z\\-\\_\\.\\:]+)\\%', 'i');
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $result[$key] = $this->prepareData($value);
+            } else {
+                $r = $pattern->with($value);
+
+                $result[$key] = $r->replaceWithCallback(function (Regex $r) {
+                    [$var, $def] = str::split($r->group(1), ':');
+
+                    return $this->getAny($var, $def);
+                });
+            }
+        }
+
+        return $result;
     }
 
     public function getSize(): ?int
@@ -155,7 +182,18 @@ class Package
      */
     public function getAny(string $key, $def = null)
     {
-        return $this->data[$key] ?? $def;
+        $keys = str::split($key, '.');
+        $result = $this->data;
+
+        foreach ($keys as $key) {
+            if (isset($result[$key])) {
+                $result = $result[$key];
+            } else {
+                return $def;
+            }
+        }
+
+        return $result;
     }
 
     public function toString(): string

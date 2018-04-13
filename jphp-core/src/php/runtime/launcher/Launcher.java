@@ -296,9 +296,11 @@ public class Launcher {
                 ArrayMemory argv = ArrayMemory.ofStrings(this.args);
 
                 String path = URLDecoder.decode(
-                        Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),
+                        Launcher.class.getProtectionDomain().getCodeSource().getLocation().getFile(),
                         "UTF-8"
                 );
+
+                path = new File(path).getAbsolutePath();
 
                 argv.unshift(StringMemory.valueOf(path));
 

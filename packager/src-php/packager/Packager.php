@@ -17,7 +17,7 @@ use Tasks;
  */
 class Packager
 {
-    const VERSION = "0.1.1";
+    private $version;
 
     /**
      * @var Repository
@@ -44,6 +44,17 @@ class Packager
      */
     public function __construct()
     {
+        global $argv;
+
+        $home = $argv[0];
+        if (fs::isFile($home)) {
+            $home = fs::parent($home);
+        }
+
+        System::setProperty("jppm.home", $home);
+
+        $this->version = fs::parse("$home/package.php.yml")['version'];
+
         $dir = System::getProperty('user.home') . '/.jppm';
 
         if (!fs::isDir($dir)) {
@@ -58,6 +69,14 @@ class Packager
 
         $this->packageLoader = new PackageLoader();
         $this->packageLock = new PackageLock();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 
     /**

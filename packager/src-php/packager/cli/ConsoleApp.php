@@ -117,7 +117,7 @@ class ConsoleApp
         switch ($task) {
             case "version":
                 Console::log('JPHP Packager Welcome');
-                Console::log("- Version {0}", Packager::VERSION);
+                Console::log("- Version {0}", $this->packager->getVersion());
                 Console::log("- JPHP Version {0}", JPHP_VERSION);
                 break;
 
@@ -173,6 +173,10 @@ class ConsoleApp
             $pluginObject = null;
 
             foreach ($tasks as $task) {
+                [$task, $taskName] = str::split($task, ' as ');
+                $task = str::trim($task);
+                $taskName = str::trim($taskName ?? $task);
+
                 if (method_exists($plugin, $task)) {
                     $context = null;
                     $handler = new \ReflectionMethod($plugin, $task);
@@ -188,13 +192,13 @@ class ConsoleApp
                     $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
                     $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
 
-                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args, $flags = []) use ($handler, $context) {
+                    $this->addCommand($prefix ? "$prefix:$taskName" : $taskName, function ($args, $flags = []) use ($handler, $context) {
                         $flags = flow($this->flags, $flags)->toMap();
 
                         $handler->invokeArgs($context, [new Event($this->packager, $this->getPackage(), $args, $flags)]);
                     }, $description, $dependsOn);
                 } else {
-                    Console::warn("Cannot add task '{0}', method not found in '{1}'", $task, $plugin);
+                    Console::warn("Cannot add task '{0}', method '{1}' not found in '{2}'", $taskName, $task, $plugin);
                 }
             }
         } else {

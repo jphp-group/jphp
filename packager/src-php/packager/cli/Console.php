@@ -40,7 +40,7 @@ class Console
 
     public static function readYesNo(string $message, bool $default = false): bool
     {
-        $result = str::lower(static::read("$message (Y/n)", $default ? "y" : "n"));
+        $result = str::lower(static::read("$message (Y/n)", $default ? "yes" : "no"));
 
         if (arr::has(['yes', 'y'], $result)) return true;
         if (arr::has(['no', 'n'], $result)) return false;

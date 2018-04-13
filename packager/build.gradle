@@ -25,10 +25,19 @@ shadowJar {
 
 task dist(dependsOn: 'shadowJar') {
     doLast {
+        delete "$buildDir.path/dist/jppm-*.tar.gz"
+        delete "$buildDir.path/dist/jppm-*.json"
+
         copy {
             from "$buildDir.path/libs/$shadowJar.archiveName"
             from "$projectDir.path/scripts/"
 
+            into "$buildDir.path/dist/"
+        }
+
+        copy {
+            from "$projectDir.path/package.php.yml"
+            from "$projectDir.path/package.github.yml"
             into "$buildDir.path/dist/"
         }
 
@@ -66,6 +75,17 @@ task distArchZip(type: Zip, dependsOn: 'dist') {
     extension = 'zip'
 }
 
+task publish(type: Exec, dependsOn: 'dist') {
+    def osName = System.getProperty("os.name").toLowerCase()
+    workingDir "$buildDir.path/dist"
+
+    if (osName.contains("win")) {
+        commandLine "cmd", "/c", "jppm.bat", "github:publish", "-f", "-y"
+    } else {
+        commandLine "sh", "jppm", "github:publish", "-f", "-y"
+    }
+}
+
 
 task installDist(dependsOn: 'dist') {
     doLast {
@@ -81,6 +101,7 @@ task installDist(dependsOn: 'dist') {
             from "$buildDir.path/dist/jppm"
             from "$buildDir.path/dist/jppm.bat"
             from "$buildDir.path/dist/packager-all.jar"
+            from "$buildDir.path/dist/package.php.yml"
 
             into installDist
         }

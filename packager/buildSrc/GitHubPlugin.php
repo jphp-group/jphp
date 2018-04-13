@@ -33,12 +33,46 @@ class GitHubPlugin
     protected $config;
 
     /**
+     * @var string
+     */
+    protected $tagPrefix = '';
+
+    /**
+     * @var string
+     */
+    protected $defaultTitle;
+
+    /**
+     * @var string
+     */
+    protected $defaultDescription;
+
+    /**
+     * @var string
+     */
+    protected $defaultRepo;
+
+    /**
+     * @var string
+     */
+    protected $defaultLogin;
+
+    /**
      * GitHubPlugin constructor.
      * @param Event $event
      */
     public function __construct(Event $event)
     {
-        $this->config = $this->readConfig();
+        $github = $event->package()->getAny('github');
+
+        $this->tagPrefix = $github['tag-prefix'] ?? '';
+        $this->defaultTitle = $github['title'] ?? null;
+        $this->defaultDescription = $github['description'] ?? null;
+        $this->defaultRepo = $github['address'] ?? null;
+        $this->defaultLogin = $github['login'] ?? null;
+
+        $this->readConfig();
+
         $event->packager()->getIgnore()->addRule('/package.github.yml');
     }
 
@@ -188,11 +222,15 @@ class GitHubPlugin
         try {
             $file = "./package.github.yml";
 
-            if (!fs::isFile($file)) {
-                return [];
+            $config = [];
+            if (fs::isFile($file)) {
+                $config = fs::parse($file);
             }
 
-            return fs::parse($file);
+            $config['address'] = $this->defaultRepo ?? $config['address'];
+            $config['login'] = $this->defaultLogin ?? $config['login'];
+
+            return $this->config = $config;
         } catch (ProcessorException|IOException $e) {
             Console::error("Failed to read package.gitlab.yaml, reason = '{0}'", $e->getMessage());
             exit(-1);
@@ -228,7 +266,7 @@ class GitHubPlugin
         }
 
         if ($pkg) {
-            $release = $this->getRelease($pkg->getVersion());
+            $release = $this->getRelease($this->tagPrefix . $pkg->getVersion());
             $this->printRelease($release);
         }
     }
@@ -244,7 +282,7 @@ class GitHubPlugin
         $pkg = $event->package();
 
         if ($pkg) {
-            $release = $this->getRelease($pkg->getVersion());
+            $release = $this->getRelease($this->tagPrefix . $pkg->getVersion());
 
             if ($release) {
                 $this->printRelease($release);
@@ -266,19 +304,19 @@ class GitHubPlugin
             $github = $this->github();
             $address = new URL($this->config['address']);
 
-            $defaultName = (new TextWord($pkg->getName() . ' ' . $pkg->getVersion()))->capitalizeFully() . "";
+            $defaultName = (new TextWord(str::replace($pkg->getName(), '-', ' ') . ' ' . $pkg->getVersion()))->capitalizeFully() . "";
             $defaultDescription = $pkg->getDescription();
 
             $data = [
-                'tag_name' => $pkg->getVersion(),
-                'name' => $defaultName,
-                'body' => $defaultDescription
+                'tag_name' => $this->tagPrefix . $pkg->getVersion(),
+                'name' => $this->defaultTitle ?? $defaultName,
+                'body' => $this->defaultDescription ?? $defaultDescription
             ];
 
             if (!$event->isFlag('y', 'yes')) {
                 $data = flow($data, [
-                    'name' => Console::read("Enter title of release:", $defaultName),
-                    'body' => Console::read("Enter description of release:", $defaultDescription),
+                    'name' => $this->defaultTitle ?? Console::read("Enter title of release:", $defaultName),
+                    'body' => $this->defaultDescription ?? Console::read("Enter description of release:", $defaultDescription),
                     'draft' => $draft = Console::readYesNo('Publish as draft release?'),
                     'prerelease' => $prerelease = Console::readYesNo('Publish as pre-release?')
                 ])->toMap();
@@ -311,7 +349,7 @@ class GitHubPlugin
         $pkg = $event->package();
 
         if ($pkg) {
-            $release = $this->getRelease($pkg->getVersion());
+            $release = $this->getRelease($this->tagPrefix . $pkg->getVersion());
 
             if (!$release) {
                 Console::log("Package {0} is not published on {1}", $pkg->getNameWithVersion(), $this->config['address']);

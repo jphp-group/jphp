@@ -1,22 +1,29 @@
 <?php
 
+use compress\GzipInputStream;
 use compress\GzipOutputStream;
 use compress\TarArchive;
 use compress\TarArchiveEntry;
+use httpclient\HttpClient;
+use httpclient\HttpRequest;
 use packager\cli\Console;
 use packager\Event;
 use packager\Ignore;
 use packager\Package;
 use packager\PackageDependencyTree;
+use packager\Packager;
 use packager\Repository;
 use packager\server\Server;
 use packager\Vendor;
 use php\format\JsonProcessor;
 use php\io\File;
+use php\io\Stream;
 use php\lang\System;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use php\net\URL;
+use semver\SemVersion;
 
 /**
  * @jppm-task server
@@ -32,6 +39,7 @@ use php\lib\str;
  * @jppm-task unpublish
  * @jppm-task pack
  * @jppm-task explore
+ * @jppm-task selfUpdate as self-update
  */
 class DefaultPlugin
 {
@@ -413,20 +421,36 @@ class DefaultPlugin
 
     /**
      * @jppm-description open current directory in os dir explorer.
+     * @param Event $event
      */
-    function explore()
+    function explore(Event $event)
     {
         $file = fs::abs("./");
 
-        Console::log("Open folder in your OS explorer ...");
+        if ($event->arg(0)) {
+            $vendor = new Vendor($file . "/vendor/");
+            $file = fs::abs($vendor->getFile(new Package(['name' => $event->arg(0)]), '/package.php.yml'));
+        } else {
+            $file = "$file/package.php.yml";
+        }
+
+        if (!fs::exists($file)) {
+            Console::error("Failed to open '{0}' folder, it doesn't exist.", $file);
+            exit(-1);
+        }
+
+        $file = fs::normalize($file);
+        Console::log("Open '{0}' in your OS explorer ...", $file);
 
         $osName = str::lower(System::osName());
 
         if (str::contains($osName, 'win')) {
             $output = `explorer /select,$file`;
         } elseif (str::contains($osName, 'mac')) {
+            $file = fs::parent($file);
             $output = `open $file`;
         } else {
+            $file = fs::parent($file);
             `gnome-open $file`;
             `kde-open $file`;
             `xdg-open $file`;
@@ -480,6 +504,110 @@ class DefaultPlugin
             default:
                 Console::error("Command 'repo {0}' not found. Try to run 'help' via 'jppm tasks'.", $args[0]);
                 exit(-1);
+        }
+    }
+
+    /**
+     * @jppm-description update jppm distributive.
+     * @param Event $event
+     */
+    function selfUpdate(Event $event)
+    {
+        $sourceUrl = new URL("https://github.com/jphp-compiler/jphp-repo");
+
+        $client = new HttpClient("https://api.github.com/repos{$sourceUrl->getPath()}");
+
+        $client->responseType = 'JSON';
+        $client->requestType = 'JSON';
+        $client->headers['Accept'] = 'application/vnd.github.v3+json';
+
+        $res = $client->get('/releases');
+
+        if ($res->isSuccess()) {
+            $releases = [];
+
+            foreach ($res->body() as $release) {
+                if (str::startsWith($release['tag_name'], 'jppm-')) {
+                    $releases[] = $release;
+                }
+            }
+
+            $variants = [];
+            foreach ($releases as $release) {
+                foreach ($release['assets'] as $asset) {
+                    if ($asset['content_type'] === 'application/json') {
+                        $info = fs::parseAs($asset['browser_download_url'], 'json');
+                        $downloadUrl = null;
+
+                        foreach ($release['assets'] as $sub) {
+                            if ($sub['content_type'] === 'application/gzip') {
+                                $downloadUrl = $sub['browser_download_url'];
+                            }
+                        }
+
+                        if ($downloadUrl) {
+                            $variants[$info['version']] = flow($info, ['url' => $downloadUrl])->toMap();
+                            $variants[$info['version']]['version'] = new SemVersion($info['version']);
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            $variants = flow($variants)
+                ->withKeys()
+                ->sort(function ($a, $b) { return $a['version'] <=> $b['version']; });
+
+            $variant = arr::last($variants);
+
+            if ($variant['version'] > new SemVersion($event->packager()->getVersion())) {
+                if (!$event->isFlag('y', 'yes')) {
+                    $yes = Console::readYesNo(
+                        "JPPM can be updated from {$event->packager()->getVersion()} to {$variant['version']}.\n Do you want to update?",
+                        true
+                    );
+
+                    if (!$yes) {
+                        Console::log("   ... canceled.");
+                        exit;
+                    }
+                }
+
+                Console::log("-> update jppm from {0} to {1} version ...", $event->packager()->getVersion(), $variant['version']);
+
+                $tempFile = File::createTemp($variant['name'], '.tar.gz');
+                Tasks::createFile($tempFile);
+                $tempFile->deleteOnExit();
+
+                Console::print("-> download {0} .", $variant['url']);
+
+                fs::copy($variant['url'], $tempFile, function () {
+                    Console::print(".");
+                }, 1024 * 256);
+                Console::log(" done.");
+
+                Console::log("-> install new version");
+
+                $home = System::getProperty("jppm.home") . "/update";
+
+                Tasks::createDir($home);
+                Tasks::cleanDir($home);
+
+                $arch = new TarArchive(new GzipInputStream($tempFile));
+                $arch->readAll(function (TarArchiveEntry $entry, Stream $stream) use ($home) {
+                    Console::log("-> unpack '{0}'", $entry->name);
+                    if ($entry->isFile()) {
+                        fs::ensureParent("$home/{$entry->name}");
+                        fs::copy($stream, "$home/{$entry->name}");
+                    } else {
+                        Tasks::createDir("$home/{$entry->name}");
+                    }
+                });
+
+            } else {
+                Console::log("\n   JPPM already updated to last version ({0}).", $event->packager()->getVersion());
+            }
         }
     }
 }

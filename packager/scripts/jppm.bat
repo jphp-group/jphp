@@ -60,13 +60,16 @@ if "x%~1" == "x" goto execute
 
 set CMD_LINE_ARGS=%*
 
+goto execute
+
 :execute
 @rem Setup the command line
 
 set CLASSPATH=%APP_HOME%\packager-all.jar;%APP_HOME%\buildSrc
 
+echo %CMD_LINE_ARGS%
 @rem Execute jppm
-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" php.runtime.launcher.Launcher %CMD_LINE_ARGS%
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% -cp "%CLASSPATH%" php.runtime.launcher.Launcher %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

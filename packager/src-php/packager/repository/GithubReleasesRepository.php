@@ -36,7 +36,7 @@ class GithubReleasesRepository extends ExternalRepository
             $this->client = new HttpClient("https://api.github.com/repos{$this->sourceUrl->getPath()}");
             $this->client->handlers = [
                 function (HttpRequest $request) {
-                    Console::log("-> {0} request '{1}'", $request->method(), $request->url());
+                    //Console::log("-> {0} request '{1}'", $request->method(), $request->url());
                 }
             ];
 

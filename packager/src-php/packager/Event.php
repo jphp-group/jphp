@@ -67,6 +67,15 @@ class Event
     }
 
     /**
+     * @param int $num
+     * @return mixed
+     */
+    public function arg(int $num)
+    {
+        return $this->args()[$num];
+    }
+
+    /**
      * @return array
      */
     public function flags(): array

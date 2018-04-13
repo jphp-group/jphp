@@ -1,0 +1,14 @@
+name: jppm
+version: 0.1.2
+
+repos:
+- jphp
+- central
+
+plugins:
+- GitHub
+
+github:
+  tag-prefix: 'jppm-'
+  title: 'jppm %version%'
+  description: 'JPHP Package Manager v%version%'
