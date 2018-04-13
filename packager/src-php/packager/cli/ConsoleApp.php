@@ -99,16 +99,18 @@ class ConsoleApp
             }
         }
 
-        $this->invokeTask($command, flow($args)->skip(2)->toArray());
+        $this->invokeTask($command, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
         Timer::shutdownAll();
     }
 
-    function invokeTask(string $task, array $args)
+    function invokeTask(string $task, array $args, ...$flags)
     {
-        if ($this->taskUpDate[$task]) {
+        if ($this->taskUpDate[$task . '#' . str::join($flags, ',')]) {
             Console::log("\r[$task] Skip (up-to-date)");
             return;
         }
+
+        $flags = arr::combine($flags, $flags);
 
         $this->taskUpDate[$task] = true;
 
@@ -127,9 +129,9 @@ class ConsoleApp
                         $this->invokeTask($one, $args);
                     }
 
-                    Console::log("-> {0}", $task);
+                    Console::log("-> {0} {1}", $task, ($flags ? '-' : '') . flow($flags)->keys()->toString(' -'));
 
-                    $handler($args);
+                    $handler($args, $flags);
                     break;
                 } else {
                     $means = [];
@@ -186,8 +188,10 @@ class ConsoleApp
                     $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
                     $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
 
-                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args) use ($handler, $context) {
-                        $handler->invokeArgs($context, [new Event($this->packager, $this->getPackage(), $args)]);
+                    $this->addCommand($prefix ? "$prefix:$task" : $task, function ($args, $flags = []) use ($handler, $context) {
+                        $flags = flow($this->flags, $flags)->toMap();
+
+                        $handler->invokeArgs($context, [new Event($this->packager, $this->getPackage(), $args, $flags)]);
                     }, $description, $dependsOn);
                 } else {
                     Console::warn("Cannot add task '{0}', method not found in '{1}'", $task, $plugin);

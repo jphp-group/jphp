@@ -6,6 +6,7 @@ use compress\TarArchive;
 use compress\TarArchiveEntry;
 use packager\cli\Console;
 use packager\repository\ExternalRepository;
+use packager\repository\GithubReleasesRepository;
 use packager\repository\GithubRepository;
 use packager\repository\LocalDirRepository;
 use packager\repository\ServerRepository;
@@ -18,6 +19,7 @@ use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use php\time\Time;
+use php\time\Timer;
 use semver\SemVersion;
 
 /**
@@ -73,14 +75,17 @@ class Repository
     /**
      * @param ExternalRepository $repository
      * @param string $pkgName
+     * @param bool $cached
      * @return array
      */
-    protected function getVersionsFromExternal(ExternalRepository $repository, string $pkgName): array
+    protected function getVersionsFromExternal(ExternalRepository $repository, string $pkgName, bool $cached = true): array
     {
         $cache = $this->cache['external'][$repository->getSource()][$pkgName];
 
-        if ($cache !== null && is_array($cache['versions']) && $cache['time'] > Time::millis() - 1000 * 60 * 10) {
-            return $cache['versions'];
+        if ($cached && $repository->isNeedCache()) {
+            if ($cache !== null && is_array($cache['versions']) && $cache['time'] > Time::millis() - Timer::parsePeriod($repository->getCacheTime())) {
+                return $cache['versions'];
+            }
         }
 
         Console::log("-> get versions of package {0}, source: {1}", $pkgName, $repository->getSource());
@@ -91,14 +96,18 @@ class Repository
                 'time' => Time::millis()
             ];
 
-            $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
+            if ($repository->isNeedCache()) {
+                $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
 
-            $this->saveCache();
+                $this->saveCache();
+            }
 
-            return (array)$cache['versions'];
+            return (array) $cache['versions'];
         } catch (IOException|ProcessorException $e) {
-            $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
-            $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+            if ($repository->isNeedCache()) {
+                $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
+                $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+            }
 
             $this->saveCache();
 
@@ -161,7 +170,14 @@ class Repository
             return $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/central-repo'));
         }
 
-        foreach ([GithubRepository::class, LocalDirRepository::class, ServerRepository::class] as $class) {
+        $classes = [
+            GithubReleasesRepository::class,
+            GithubRepository::class,
+            LocalDirRepository::class,
+            ServerRepository::class
+        ];
+
+        foreach ($classes as $class) {
             /** @var ExternalRepository $r */
             $r = new $class($repo);
             if ($r->isFit()) {
@@ -176,9 +192,10 @@ class Repository
     /**
      * @param string $name
      * @param bool $onlyLocal
+     * @param bool $cached
      * @return array
      */
-    public function getPackageVersions(string $name, bool $onlyLocal = true): array
+    public function getPackageVersions(string $name, bool $onlyLocal = true, bool $cached = true): array
     {
         $dir = "$this->dir/$name/";
 
@@ -192,7 +209,7 @@ class Repository
 
         if (!$onlyLocal) {
             foreach ($this->externals as $external) {
-                foreach ($this->getVersionsFromExternal($external, $name) as $version => $info) {
+                foreach ($this->getVersionsFromExternal($external, $name, $cached) as $version => $info) {
                     if (!$versions[$version]) {
                         $versions[$version] = $external;
                     } else {
@@ -216,9 +233,10 @@ class Repository
      * @param string $name
      * @param string $versionPattern
      * @param null|PackageLock $lock
+     * @param bool $cached
      * @return null|Package
      */
-    public function findPackage(string $name, string $versionPattern, ?PackageLock $lock = null): ?Package
+    public function findPackage(string $name, string $versionPattern, ?PackageLock $lock = null, bool $cached = true): ?Package
     {
         if ($lock) {
             $lockVersion = $lock->findVersion($name);
@@ -230,7 +248,7 @@ class Repository
             }
         }
 
-        $versions = $this->getPackageVersions($name, false);
+        $versions = $this->getPackageVersions($name, false, $cached);
 
         $foundVersions = [];
 
@@ -625,5 +643,14 @@ class Repository
             'size' => $size,
             'sha256' => $hash
         ];
+    }
+
+    /**
+     *
+     */
+    public function cleanCache()
+    {
+        $this->cache = [];
+        $this->saveCache();
     }
 }

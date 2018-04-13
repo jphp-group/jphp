@@ -12,6 +12,13 @@ class Console
 {
     public static function log($message, ...$args)
     {
+        static::print($message, ...$args);
+
+        System::out()->write("\n");
+    }
+
+    public static function print($message, ...$args)
+    {
         $stream = System::out();
 
         foreach ($args as $i => $arg) {
@@ -19,7 +26,6 @@ class Console
         }
 
         $stream->write($message);
-        $stream->write("\n");
     }
 
     public static function warn($message, ...$args)

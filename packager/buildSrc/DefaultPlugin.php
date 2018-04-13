@@ -22,6 +22,7 @@ use php\lib\str;
  * @jppm-task server
  * @jppm-task repo
  * @jppm-task install
+ * @jppm-task update
  * @jppm-task add
  * @jppm-task remove
  * @jppm-task deps
@@ -106,7 +107,8 @@ class DefaultPlugin
             $data['deps']['jphp-core'] = '*';
             $data['deps']['jphp-zend-ext'] = '*';
 
-            $data['plugins'] = ['AppPlugin'];
+            $data['plugins'] = ['App'];
+
             $data['app'] = [
                 'bootstrap' => 'index.php',
                 'encoding' => 'UTF-8',
@@ -380,6 +382,8 @@ class DefaultPlugin
 
             $path = "./";
             $info = Repository::calcPackageInfo($path, $ignore);
+            $info['name'] = $pkg->getName();
+            $info['version'] = $pkg->getVersion();
 
             $arch = new TarArchive(new GzipOutputStream($file));
             $arch->open();
@@ -437,6 +441,18 @@ class DefaultPlugin
     {
         $server = new Server($event->packager()->getRepo());
         $server->run();
+    }
+
+    /**
+     * @jppm-description clean repo cache and install dependencies.
+     * @param Event $event
+     */
+    function update(Event $event)
+    {
+        Tasks::deleteFile("./package-lock.php.yml");
+
+        $event->packager()->getRepo()->cleanCache();
+        Tasks::run('install', [], ...$event->flags());
     }
 
     /**

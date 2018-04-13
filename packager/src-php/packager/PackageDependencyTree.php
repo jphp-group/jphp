@@ -59,6 +59,14 @@ class PackageDependencyTree
     }
 
     /**
+     * @return array
+     */
+    public function getInvalidDeps(): array
+    {
+        return $this->invalidDeps;
+    }
+
+    /**
      * @param callable $handler
      * @param int $depth
      */

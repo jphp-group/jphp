@@ -25,6 +25,19 @@ abstract class ExternalRepository
         return $this->source;
     }
 
+    /**
+     * @return bool
+     */
+    public function isNeedCache(): bool
+    {
+        return true;
+    }
+
+    public function getCacheTime(): string
+    {
+        return '15m';
+    }
+
     abstract public function isFit(): bool;
 
     abstract public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool;

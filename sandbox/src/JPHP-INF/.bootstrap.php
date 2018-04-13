@@ -1,1 +1,1 @@
-<?phpvar_dump(\php\lib\fs::match('/build/fff.md', 'glob:/build/**'));
+<?php$s =new \semver\SemVersion('0.9.3+SNAPSHOT');var_dump($s->satisfies('>=0.9.3'));

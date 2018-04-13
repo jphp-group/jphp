@@ -2,6 +2,7 @@
 namespace packager\repository;
 
 
+use php\lang\IllegalArgumentException;
 use php\lib\fs;
 use php\lib\str;
 use php\net\URL;
@@ -17,7 +18,11 @@ class GithubRepository extends ExternalRepository
     {
         parent::__construct($source);
 
-        $this->sourceUrl = new URL($source);
+        try {
+            $this->sourceUrl = new URL($source);
+        } catch (IllegalArgumentException $e) {
+            // ...
+        }
     }
 
     public function isFit(): bool

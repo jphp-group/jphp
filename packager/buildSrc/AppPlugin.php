@@ -92,13 +92,17 @@ class AppPlugin
                     $name = fs::relativize($filename, $classPath);
                     $file = "./build/app/$name";
 
-                    Console::log("--> add file: $name");
+                    Console::log("--> add file: {$classPath}{$name}");
 
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines(fs::get($filename)))->toArray();
                     } else {
-                        fs::ensureParent($file);
-                        fs::copy($filename, $file);
+                        if (fs::isDir($filename)) {
+                            fs::makeDir($file);
+                        } else {
+                            fs::ensureParent($file);
+                            fs::copy($filename, $file);
+                        }
                     }
                 });
             } else if (fs::ext($classPath) === 'jar') {

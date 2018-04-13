@@ -102,24 +102,25 @@ class Packager
         $usedPackages = [];
 
         foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
+            /** @var PackageDependencyTree $one */
             $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope, &$usedPackages) {
                 $usedPackages[$pkg->getName()] = true;
                 $prefix = str::repeat('-', $depth);
 
-                switch ($pkg->getType()) {
-                    case "std":
-                        if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
-                            Console::log("{$prefix}-> install {0}", $pkg->toString());
+                if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
+                    Console::log("{$prefix}-> install {0}", $pkg->toString());
 
-                            $this->repo->copyTo($pkg, $vendor->getDir());
-                        }
-
-                        $this->packageLock->addPackage($pkg);
-                        break;
+                    $this->repo->copyTo($pkg, $vendor->getDir());
                 }
+
+                $this->packageLock->addPackage($pkg);
 
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
             });
+
+            foreach ($one->getInvalidDeps() as $name => $version) {
+                Console::warn("-> failed to install {0}@{1}, cannot find in repositories.", $name, $version);
+            }
         }
 
         foreach (fs::scan($vendor->getDir(), ['excludeFiles' => true], 1) as $pkgName) {
@@ -149,24 +150,11 @@ class Packager
             if ($parent && $parent->findByName($dep)) {
                 continue;
             }
-
-            if (str::startsWith($version, "./")) {
-                if (fs::isFile("$version/" . Package::FILENAME)) {
-                    $pkg = $this->repo->readPackage("$version/" . Package::FILENAME, [
-                        'type' => 'dir',
-                        'src' => $version
-                    ]);
-
-                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
-                } else {
-                    $result->addInvalidDep($dep, $version);
-                }
-            }  else {
-                if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
-                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
-                } else {
-                    $result->addInvalidDep($dep, $version);
-                }
+            if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
+                $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
+            } else {
+                $parent->addInvalidDep($dep, $version);
+                $result->addInvalidDep($dep, $version);
             }
         }
 

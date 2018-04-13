@@ -23,16 +23,23 @@ class Event
     private $args;
 
     /**
+     * @var array
+     */
+    private $flags = [];
+
+    /**
      * Event constructor.
      * @param Packager $packager
      * @param Package $package
      * @param array $args
+     * @param array $flags
      */
-    public function __construct(Packager $packager, ?Package $package, array $args)
+    public function __construct(Packager $packager, ?Package $package, array $args, array $flags = [])
     {
         $this->packager = $packager;
         $this->package = $package;
         $this->args = $args;
+        $this->flags = $flags;
     }
 
     /**
@@ -57,5 +64,26 @@ class Event
     public function args(): array
     {
         return $this->args;
+    }
+
+    /**
+     * @return array
+     */
+    public function flags(): array
+    {
+        return flow($this->flags)->keys()->toArray();
+    }
+
+    /**
+     * @param array ...$names
+     * @return bool
+     */
+    function isFlag(...$names): bool
+    {
+        foreach ($names as $name) {
+            if ($this->flags[$name]) return true;
+        }
+
+        return false;
     }
 }

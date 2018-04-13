@@ -38,7 +38,9 @@ def jppmDist(Project project) {
         name = name.substring(5)
     }
 
-    def text = "name: '$name'\nversion: $version\n"
+    def jppmVersion = version.toString().replace("-SNAPSHOT", "+SNAPSHOT");
+
+    def text = "name: '$name'\nversion: $jppmVersion\n"
     def jars = []
 
     def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency) + project.configurations.jppmCompile.getAllDependencies().withType(ProjectDependency)
@@ -74,6 +76,8 @@ def jppmInstall(project) {
     def repoDir = System.getProperty("user.home") + "/.jppm/repo"
     def name = file(project.name).name;
     def version = project.ext.hasProperty('jppmVersion') ? project.ext.jppmVersion : project.version
+
+    version = version.toString().replace("-SNAPSHOT", "+SNAPSHOT");
 
     delete "$repoDir/$name/$version"
     delete "$repoDir/$name/${version}.tar.gz"

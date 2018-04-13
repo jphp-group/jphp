@@ -3,6 +3,7 @@
 use packager\cli\Console;
 use php\io\IOException;
 use php\io\Stream;
+use php\lib\arr;
 use php\lib\fs;
 
 class Tasks
@@ -10,11 +11,13 @@ class Tasks
     /**
      * @param string $name
      * @param array $args
+     * @param array $flags
      */
-    static function run(string $name, array $args = [])
+    static function run(string $name, array $args = [], ...$flags)
     {
         global $app;
-        $app->invokeTask($name, $args);
+
+        $app->invokeTask($name, $args, ...arr::combine($flags, $flags));
     }
 
     /**

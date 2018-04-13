@@ -1,16 +1,22 @@
-name: Mock-example
+name: simple
 version: 1.0.0
-plugins: [
-  AppPlugin]
-deps: {
-  jphp-core: 0.9.*,
-  test2: '*'
-}
-sources: [
-  src]
-app: {
-  metrics: true,
-  trace: true,
-  bootstrap: bootstrap.php,
+repos:
+- jphp
+- central
+- https://github.com/jphp-compiler/jphp-repo/releases # repo with hello-world.
+
+deps:
+  jphp-core: '*'
+  jphp-zend-ext: '*'
+  hello-world: '*'
+
+plugins:
+- App
+
+app:
+  bootstrap: index.php
   encoding: UTF-8
-}
+  metrics: false
+  trace: false
+sources:
+- src
