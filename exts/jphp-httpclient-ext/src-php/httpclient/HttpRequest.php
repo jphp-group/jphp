@@ -1,6 +1,8 @@
 <?php
 namespace httpclient;
 
+use php\lib\str;
+
 /**
  * Class HttpRequest
  * @package httpclient
@@ -30,7 +32,7 @@ class HttpRequest
     /**
      * @var mixed
      */
-    private $data = null;
+    private $body = null;
 
     /**
      * @var array
@@ -61,13 +63,15 @@ class HttpRequest
      * HttpRequest constructor.
      * @param string $method
      * @param string $url
-     * @param mixed $data
+     * @param array $headers
+     * @param null $body
      */
-    public function __construct(string $method, string $url, $data = null)
+    public function __construct(string $method, string $url, array $headers = [], $body = null)
     {
         $this->method($method);
         $this->url($url);
-        $this->data($data);
+        $this->headers($headers);
+        $this->body($body);
     }
 
     /**
@@ -113,12 +117,12 @@ class HttpRequest
      * @param null|mixed $data
      * @return mixed
      */
-    function data($data = null)
+    function body($data = null)
     {
         if (func_num_args() === 0) {
-            return $this->data;
+            return $this->body;
         } else {
-            $this->data = $data;
+            $this->body = $data;
         }
     }
 
@@ -136,7 +140,7 @@ class HttpRequest
     }
 
     /**
-     * NONE, XML, JSON, TEXT, URLENCODE, MULTIPART
+     * NONE, XML, JSON, TEXT, URLENCODE, MULTIPART, STREAM
      * @param null|string $type
      * @return string
      */
@@ -198,6 +202,12 @@ class HttpRequest
         if (func_num_args() === 0) {
             return $this->headers['Content-Type'];
         } else {
+            if (str::startsWith($contentType, 'application/json')) {
+                $this->responseType('JSON');
+            } else if (str::startsWith($contentType, 'text/xml')) {
+                $this->responseType('XML');
+            }
+
             $this->headers['Content-Type'] = $contentType;
         }
     }

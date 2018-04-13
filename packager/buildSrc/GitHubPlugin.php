@@ -5,11 +5,13 @@ use httpclient\HttpRequest;
 use packager\cli\Console;
 use packager\Event;
 use php\format\ProcessorException;
+use php\format\YamlProcessor;
 use php\io\IOException;
 use php\io\Stream;
 use php\lib\fs;
 use php\lib\str;
 use php\net\URL;
+use text\TextWord;
 
 /**
  * Class GitHubPlugin
@@ -19,6 +21,8 @@ use php\net\URL;
  * @jppm-task login
  * @jppm-task user
  * @jppm-task publish
+ * @jppm-task unpublish
+ * @jppm-task status
  */
 class GitHubPlugin
 {
@@ -47,6 +51,11 @@ class GitHubPlugin
         $client->headers['Accept'] = 'application/vnd.github.v3+json';
         $client->requestType = 'JSON';
         $client->responseType = 'JSON';
+        $client->handlers = [
+            function (HttpRequest $request) {
+                //Console::log("-> {0} {1}", $request->method(), $request->url());
+            }
+        ];
 
         if ($requiredAuth) {
             $client->headers['Authorization'] = $this->config['auth'];
@@ -57,6 +66,62 @@ class GitHubPlugin
         }
 
         return $client;
+    }
+
+    /**
+     * @param $id
+     */
+    private function deleteRelease($id)
+    {
+        $address = new URL($this->config['address']);
+
+        $github = $this->github(true);
+        $response = $github->delete("/repos{$address->getPath()}/releases/$id");
+
+        if (!$response->isSuccess()) {
+            Console::log("Failed to delete release with id = {0}, {1}", $id, $response->statusMessage());
+            exit(-1);
+        }
+    }
+
+    /**
+     * @param string $tag
+     * @return array|null
+     */
+    private function getRelease(string $tag): ?array
+    {
+        $address = new URL($this->config['address']);
+
+        $github = $this->github(true);
+        $response = $github->get("/repos{$address->getPath()}/releases/tags/$tag");
+
+        if ($response->isSuccess()) {
+            return $response->body();
+        } elseif ($response->isNotFound()) {
+            return null;
+        } else {
+            Console::error("Failed to get release from {0}, {1}", $this->config['address'], $response->statusMessage());
+            exit(-1);
+        }
+    }
+
+    private function printRelease(?array $release)
+    {
+        Console::log("Release Info:");
+        Console::log("--------------------------------");
+
+        if ($release) {
+            Console::log("      tag: {0}", $release['tag_name']);
+            Console::log("       id: {0}", $release['id']);
+            Console::log("     name: {0}", $release['name']);
+            Console::log("published: {0}", $release['published_at']);
+            Console::log("   author: {0} ({1})", $release['author']['login'], $release['author']['url']);
+            Console::log("      url: {0}", $release['html_url']);
+        } else {
+            Console::log("\n   Release not found.\n");
+        }
+
+        Console::log("--------------------------------");
     }
 
     /**
@@ -83,10 +148,32 @@ class GitHubPlugin
         try {
             $file = "./package.github.yml";
 
-            fs::format($file, $this->config);
+            fs::format($file, $this->config, YamlProcessor::SERIALIZE_PRETTY_FLOW);
         } catch (ProcessorException|IOException $e) {
             Console::error("Failed to save package.gitlab.yaml, reason = '{0}'", $e->getMessage());
             exit(-1);
+        }
+    }
+
+    /**
+     * @jppm-description show status of package on github!
+     * @param Event $event
+     */
+    public function status(Event $event)
+    {
+        $pkg = $event->package();
+
+        Console::log("-> Repository of package: {0}", $this->config['address'] ?: '*empty*');
+
+        if ($this->config['auth'] && $this->config['login']) {
+            Console::log("-> Logged as {0}.", $this->config['login']);
+        } else {
+            Console::log("-> Not logged.");
+        }
+
+        if ($pkg) {
+            $release = $this->getRelease($pkg->getVersion());
+            $this->printRelease($release);
         }
     }
 
@@ -96,23 +183,38 @@ class GitHubPlugin
      */
     public function publish(Event $event)
     {
-        Tasks::run('pack');
+        global $app;
 
         $pkg = $event->package();
         if ($pkg) {
+            $release = $this->getRelease($pkg->getVersion());
+
+            if ($release) {
+                $this->printRelease($release);
+
+                if ($app->isFlag('f', 'force')) {
+                    Tasks::run('github:unpublish', ['yes']);
+                } else {
+                    Console::error("Package {0} already has released on {1}.", $pkg->getNameWithVersion(), $this->config['address']);
+
+                    Console::log("\n    Use 'github:unpublish' task for delete this release.");
+                    exit(-1);
+                }
+            }
+
+            Tasks::run('pack');
+
             $github = $this->github();
 
-            $address = new URL(static::readConfig()['address']);
+            $address = new URL($this->config['address']);
 
-            $draft = Console::readYesNo('Publish as draft release?');
-            $prerelease = Console::readYesNo('Publish as pre-release?');
 
             $response = $github->post('/repos' . $address->getPath() . '/releases', [
-                'tag_name' => $event->package()->getVersion(),
-                'name' => $event->package()->getName(),
+                'tag_name' => $pkg->getVersion(),
+                'name' => Console::read("Enter title of release:", (new TextWord($pkg->getName() . ' ' . $pkg->getVersion()))->capitalizeFully() . ""),
                 'body' => Console::read("Enter description of release:", $pkg->getDescription()),
-                'draft' => $draft,
-                'prerelease' => $prerelease
+                'draft' => $draft = Console::readYesNo('Publish as draft release?'),
+                'prerelease' => $prerelease = Console::readYesNo('Publish as pre-release?')
             ]);
 
             if ($response->statusCode() === 201) {
@@ -125,10 +227,10 @@ class GitHubPlugin
                 );
 
                 $request->absoluteUrl(true);
-                $request->type('RAW');
+                $request->type('STREAM');
                 $request->responseType('JSON');
                 $request->contentType('application/gzip');
-                $request->data(Stream::of("./{$pkg->getName()}-{$pkg->getVersion()}.tar.gz"));
+                $request->body(Stream::of("./{$pkg->getName()}-{$pkg->getVersion()}.tar.gz"));
 
                 Console::log("Release of current package has successfuly created.");
 
@@ -147,6 +249,31 @@ class GitHubPlugin
     }
 
     /**
+     * @param Event $event
+     */
+    public function unpublish(Event $event)
+    {
+        global $app;
+        $pkg = $event->package();
+        if ($pkg) {
+            $release = $this->getRelease($pkg->getVersion());
+
+            if (!$release) {
+                Console::log("Package {0} is not published on {1}", $pkg->getNameWithVersion(), $this->config['address']);
+            } else {
+                if ($app->isFlag('y', 'yes')
+                    || Console::readYesNo("Are you sure to un-publish release {$pkg->getNameWithVersion()}?")) {
+                    $this->deleteRelease($release['id']);
+                    Console::log("Package {0} has successfully un-published.", $pkg->getNameWithVersion());
+                } else {
+                    Console::log("... canceled.");
+                    exit();
+                }
+            }
+        }
+    }
+
+    /**
      * @jppm-description show data of logged user on github.
      */
     public function user()
@@ -154,17 +281,23 @@ class GitHubPlugin
         $github = $this->github();
         $response = $github->get('/user');
 
-        Console::log("User Info:");
-        Console::log("--------------------------------");
+        if ($response->isSuccess()) {
+            Console::log("User Info:");
+            Console::log("--------------------------------");
 
-        $info = $response->body();
-        Console::log("       id: {0}", $info['id']);
-        Console::log("    login: {0}", $info['login']);
-        Console::log("     name: {0}", $info['name']);
-        Console::log("    email: {0}", $info['email']);
-        Console::log(" location: {0}", $info['location'] ?: '?');
-        Console::log("followers: {0}", $info['followers'] ?: 0);
-        Console::log("--------------------------------");
+            $info = $response->body();
+
+            Console::log("       id: {0}", $info['id']);
+            Console::log("    login: {0}", $info['login']);
+            Console::log("     name: {0}", $info['name']);
+            Console::log("    email: {0}", $info['email']);
+            Console::log(" location: {0}", $info['location'] ?: '?');
+            Console::log("followers: {0}", $info['followers'] ?: 0);
+            Console::log("     repo: {0}", $this->config['address']);
+            Console::log("--------------------------------");
+        } else {
+            Console::log("User is not logged.");
+        }
     }
 
     /**
@@ -191,10 +324,19 @@ class GitHubPlugin
             exit(-1);
         }
 
+        $this->config['address'] = $address;
+
+        if ($config['auth']) {
+            if (!Console::readYesNo('Do you want to re-login to github.com?')) {
+                Console::log("Address of repo has changed, all data saved to package.github.yml.");
+                self::writeConfig();
+                exit();
+            }
+        }
+
         $login = str::trim(Console::read('GitHub Login:', $config['login']));
         $password = str::trim(Console::read('GitHub Password:'));
 
-        $this->config['address'] = $address;
         $this->config['login'] = $login;
         $this->config['auth'] = 'Basic ' . base64_encode("$login:$password");
 

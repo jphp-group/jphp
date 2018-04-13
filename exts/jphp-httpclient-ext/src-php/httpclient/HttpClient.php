@@ -18,6 +18,7 @@ use php\lib\reflect;
 use php\lib\str;
 use php\net\Proxy;
 use php\net\SocketException;
+use php\net\URL;
 use php\net\URLConnection;
 use php\time\Timer;
 use php\xml\DomDocument;
@@ -25,22 +26,6 @@ use php\xml\XmlProcessor;
 
 /**
  * Class HttpClient
- *
- * @property string $baseUrl
- * @property string $userAgent
- * @property string $referrer
- * @property bool $followRedirects
- * @property string $connectTimeout
- * @property string $readTimeout
- * @property string $proxyType
- * @property string $proxy
- * @property string $requestType
- * @property string $responseType
- * @property array $data
- * @property array $cookies
- * @property array $headers
- * @property string $encoding
- * @property callable|null $bodyParser
  */
 class HttpClient
 {
@@ -49,65 +34,65 @@ class HttpClient
     /**
      * @var string
      */
-    private $baseUrl;
+    public $baseUrl;
 
     /**
      * @var string
      */
-    private $userAgent = 'JPHP Http Client';
+    public $userAgent = 'JPHP Http Client';
 
     /**
      * @var string
      */
-    private $referrer = '';
+    public $referrer = '';
 
     /**
      * @var bool
      */
-    private $followRedirects = true;
+    public $followRedirects = true;
 
     /**
      * @var string
      */
-    private $connectTimeout = '15s';
+    public $connectTimeout = '15s';
 
     /**
      * @var string
      */
-    private $readTimeout = '0';
+    public $readTimeout = '0';
 
     /**
      * HTTP, SOCKS,
      * @var string
      */
-    private $proxyType = 'HTTP';
+    public $proxyType = 'HTTP';
 
     /**
      * @var string
      */
-    private $proxy;
+    public $proxy;
 
     /**
-     * URLENCODE, MULTIPART, JSON, TEXT, XML
+     * URLENCODE, MULTIPART, JSON, TEXT, XML, RAW
      * @var string
      */
-    private $requestType = 'URLENCODE';
+    public $requestType = 'URLENCODE';
 
     /**
      * JSON, TEXT, XML, JSOUP
      * @var string
      */
-    private $responseType = 'TEXT';
+    public $responseType = 'TEXT';
 
     /**
-     * @var array
+     * @var array|mixed
      */
-    private $data = [];
+    public $body = null;
 
     /**
      * @var string
      */
-    private $encoding = 'UTF-8';
+    public $encoding = 'UTF-8';
 
     /**
      * @var array
@@ -122,7 +107,12 @@ class HttpClient
     /**
      * @var null|callable
      */
-    private $bodyParser = null;
+    public $bodyParser = null;
+
+    /**
+     * @var callable[]
+     */
+    public $handlers = [];
 
     /**
      * @var string
@@ -154,103 +144,143 @@ class HttpClient
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param array $args
      * @return HttpResponse
      */
-    public function get(string $url, $data = null): HttpResponse
+    public function get(string $url, array $args = []): HttpResponse
     {
-        return $this->execute('GET', $url, $data);
+        return $this->execute('GET', $url, $args);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return HttpResponse
      */
-    public function post(string $url, $data = null): HttpResponse
+    public function post(string $url, $body = null): HttpResponse
     {
-        return $this->execute('POST', $url, $data);
+        return $this->execute('POST', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return HttpResponse
      */
-    public function put(string $url, $data = null): HttpResponse
+    public function put(string $url, $body = null): HttpResponse
     {
-        return $this->execute('PUT', $url, $data);
+        return $this->execute('PUT', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return HttpResponse
      */
-    public function patch(string $url, $data = null): HttpResponse
+    public function patch(string $url, $body = null): HttpResponse
     {
-        return $this->execute('PATCH', $url, $data);
+        return $this->execute('PATCH', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param array $args
      * @return HttpResponse
      */
-    public function delete(string $url, $data = null): HttpResponse
+    public function delete(string $url, array $args = []): HttpResponse
     {
-        return $this->execute('DELETE', $url, $data);
+        return $this->execute('DELETE', $url, $args);
+    }
+
+    /**
+     * @param string $url
+     * @param array $args
+     * @return HttpResponse
+     */
+    public function options(string $url, array $args = []): HttpResponse
+    {
+        return $this->execute('OPTIONS', $url, $args);
+    }
+
+    /**
+     * @param string $url
+     * @param array $args
+     * @return HttpResponse
+     */
+    public function head(string $url, array $args = []): HttpResponse
+    {
+        return $this->execute('HEAD', $url, $args);
     }
 
     /**
      * @non-getters
      * @param string $url
-     * @param mixed $data
+     * @param array $args
      * @return Promise
      */
-    public function getAsync(string $url, $data = null): Promise
+    public function getAsync(string $url, array $args = []): Promise
     {
-        return $this->executeAsync('GET', $url, $data);
+        return $this->executeAsync('GET', $url, $args);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return Promise
      */
-    public function postAsync(string $url, $data = null): Promise
+    public function postAsync(string $url, $body = null): Promise
     {
-        return $this->executeAsync('POST', $url, $data);
+        return $this->executeAsync('POST', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return Promise
      */
-    public function putAsync(string $url, $data = null): Promise
+    public function putAsync(string $url, $body = null): Promise
     {
-        return $this->executeAsync('PUT', $url, $data);
+        return $this->executeAsync('PUT', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param mixed $body
      * @return Promise
      */
-    public function patchAsync(string $url, $data = null): Promise
+    public function patchAsync(string $url, $body = null): Promise
     {
-        return $this->executeAsync('PATCH', $url, $data);
+        return $this->executeAsync('PATCH', $url, $body);
     }
 
     /**
      * @param string $url
-     * @param mixed $data
+     * @param array $args
      * @return Promise
      */
-    public function deleteAsync(string $url, $data = null): Promise
+    public function deleteAsync(string $url, array $args = []): Promise
     {
-        return $this->executeAsync('DELETE', $url, $data);
+        return $this->executeAsync('DELETE', $url, $args);
+    }
+
+    /**
+     * @param string $url
+     * @param array $args
+     * @return Promise
+     */
+    public function optionsAsync(string $url, array $args = []): Promise
+    {
+        return $this->executeAsync('OPTIONS', $url, $args);
+    }
+
+    /**
+     * @param string $url
+     * @param array $args
+     * @return Promise
+     */
+    public function headAsync(string $url, array $args = []): Promise
+    {
+        return $this->executeAsync('HEAD', $url, $args);
     }
 
     /**
@@ -282,12 +312,13 @@ class HttpClient
     /**
      * @param string $method
      * @param string $url
-     * @param array|mixed $data
+     * @param null $body
      * @return Promise
+     * @internal param array|mixed $data
      */
-    public function executeAsync(string $method, string $url, $data = null): Promise
+    public function executeAsync(string $method, string $url, $body = null): Promise
     {
-        return $this->sendAsync(new HttpRequest($method, $url, $data));
+        return $this->sendAsync(new HttpRequest($method, $url, [], $body));
     }
 
     /**
@@ -296,14 +327,22 @@ class HttpClient
      */
     public function send(HttpRequest $request): HttpResponse
     {
+        /**
+         * handlers...
+         */
+        $originRequest = $request;
+        $request = clone $request;
+
         /** @var URLConnection $connect */
         $connect = null;
         $body = null;
 
         $existsBody = false;
         $url = $request->url();
-        $data = $request->data();
+        $data = $request->body();
         $method = $request->method();
+
+        $request->cookies(flow($this->cookies, $request->cookies())->toMap());
 
         switch ($request->method()) {
             case 'PUT':
@@ -313,7 +352,7 @@ class HttpClient
                 break;
 
             default:
-                $data = flow((array)$this->data)->append((array) $data)->toMap();
+                $data = flow((array)$this->body)->append((array) $data)->toMap();
 
                 if ($data) {
                     $url .= "?" . $this->formatUrlencode($data);
@@ -331,6 +370,7 @@ class HttpClient
 
         if (!$request->absoluteUrl()) {
             $url = "{$this->baseUrl}{$url}";
+            $request->url($url);
         }
 
         $connect = URLConnection::create($url, $proxy);
@@ -358,13 +398,13 @@ class HttpClient
 
                 case 'JSON':
                     $headers['Content-Type'] = "application/json; charset=UTF-8";
-                    $data = flow((array)$this->data)->append((array)$data)->withKeys()->toArray();
+                    $data = flow((array)$this->body)->append((array)$data)->withKeys()->toArray();
                     $body = (new JsonProcessor())->format($data);
                     break;
 
                 case 'TEXT':
                     $headers['Content-Type'] = "text/html; charset=$this->encoding";
-                    $body = $data !== null ? "$data" : "$this->data";
+                    $body = $data !== null ? "$data" : "$this->body";
                     break;
 
                 case 'XML':
@@ -375,14 +415,14 @@ class HttpClient
                         $data = $xml->format($data);
                     }
 
-                    $body = $data !== null ? "$data" : "$this->data";
+                    $body = $data !== null ? "$data" : "$this->body";
                     break;
 
                 case 'URLENCODE':
                     $headers['Cache-Control'] = 'no-cache';
                     $headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-                    $data = flow((array)$this->data)->append((array)$data)->withKeys()->toArray();
+                    $data = flow((array)$this->body)->append((array)$data)->withKeys()->toArray();
 
                     $body = $this->formatUrlencode($data);
                     break;
@@ -391,10 +431,11 @@ class HttpClient
                     $headers['Cache-Control'] = 'no-cache';
                     $headers['Content-Type'] = 'multipart/form-data; boundary=' . $this->_boundary;
 
-                    $data = flow((array)$this->data)->append((array)$data)->withKeys()->toArray();
+                    $data = flow((array)$this->body)->append((array)$data)->withKeys()->toArray();
                     $body = $this->formatMultipart($data);
                     break;
 
+                case 'STREAM':
                 case 'RAW':
                     if ($data instanceof Stream) {
                         $body = $data;
@@ -406,9 +447,10 @@ class HttpClient
             }
         }
 
+
         $cookie = [];
-        foreach (flow($this->cookies, $request->cookies())->toMap() as $name => $value) {
-            $value = urlencode($value);
+        foreach ($request->cookies() as $name => $value) {
+            $value = URL::encode($value, $this->encoding);
             $cookie[] = "$name=$value";
         }
 
@@ -416,23 +458,29 @@ class HttpClient
             $connect->setRequestProperty('Cookie', str::join($cookie, '; '));
         }
 
-        foreach (flow($headers, $this->headers, $request->headers())->toMap() as $name => $value) {
+        $request->headers(flow($headers, $this->headers, $request->headers())->toMap());
+        foreach ($request->headers() as $name => $value) {
             $connect->setRequestProperty($name, $value);
         }
 
-        echo ("Request {$method} -> {$url}"), "\n";
+        foreach ((array) $this->handlers as $handler) {
+            if (is_callable($handler)) {
+                $handler($request, $originRequest);
+            }
+        }
+
         return $this->connect($request, $url, $connect, $body);
     }
 
     /**
-     * @param string $url
      * @param string $method
-     * @param array|mixed $data
+     * @param string $url
+     * @param mixed $body
      * @return HttpResponse
      */
-    public function execute(string $method, string $url, $data = null): HttpResponse
+    public function execute(string $method, string $url, $body = null): HttpResponse
     {
-        return $this->send(new HttpRequest($method, $url, $data));
+        return $this->send(new HttpRequest($method, $url, [], $body));
     }
 
     protected function connect(HttpRequest $request, $fullUrl, URLConnection $connection, $body): HttpResponse
@@ -622,252 +670,5 @@ class HttpClient
         $out->seek(0);
 
         return $out;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getBaseUrl(): string
-    {
-        return $this->baseUrl;
-    }
-
-    /**
-     * @param string $baseUrl
-     */
-    protected function setBaseUrl(string $baseUrl)
-    {
-        $this->baseUrl = $baseUrl;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getUserAgent(): string
-    {
-        return $this->userAgent;
-    }
-
-    /**
-     * @param string $userAgent
-     */
-    protected function setUserAgent(string $userAgent)
-    {
-        $this->userAgent = $userAgent;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getReferrer(): string
-    {
-        return $this->referrer;
-    }
-
-    /**
-     * @param string $referrer
-     */
-    protected function setReferrer(string $referrer)
-    {
-        $this->referrer = $referrer;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isFollowRedirects(): bool
-    {
-        return $this->followRedirects;
-    }
-
-    /**
-     * @param bool $followRedirects
-     */
-    protected function setFollowRedirects(bool $followRedirects)
-    {
-        $this->followRedirects = $followRedirects;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getConnectTimeout(): string
-    {
-        return $this->connectTimeout;
-    }
-
-    /**
-     * @param string $connectTimeout
-     */
-    protected function setConnectTimeout(string $connectTimeout)
-    {
-        $this->connectTimeout = $connectTimeout;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getReadTimeout(): string
-    {
-        return $this->readTimeout;
-    }
-
-    /**
-     * @param string $readTimeout
-     */
-    protected function setReadTimeout(string $readTimeout)
-    {
-        $this->readTimeout = $readTimeout;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getProxyType(): string
-    {
-        return $this->proxyType;
-    }
-
-    /**
-     * @param string $proxyType
-     */
-    protected function setProxyType(string $proxyType)
-    {
-        $this->proxyType = $proxyType;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getProxy(): string
-    {
-        return $this->proxy;
-    }
-
-    /**
-     * @param string $proxy
-     */
-    protected function setProxy(string $proxy)
-    {
-        $this->proxy = $proxy;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getRequestType(): string
-    {
-        return $this->requestType;
-    }
-
-    /**
-     * @param string $requestType
-     */
-    protected function setRequestType(string $requestType)
-    {
-        $this->requestType = $requestType;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getResponseType(): string
-    {
-        return $this->responseType;
-    }
-
-    /**
-     * @param string $responseType
-     */
-    protected function setResponseType(string $responseType)
-    {
-        $this->responseType = $responseType;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getData(): array
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param array $data
-     */
-    protected function setData(array $data)
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getEncoding(): string
-    {
-        return $this->encoding;
-    }
-
-    /**
-     * @param string $encoding
-     */
-    protected function setEncoding(string $encoding)
-    {
-        $this->encoding = $encoding;
-    }
-
-    /**
-     * @return callable|null
-     */
-    protected function getBodyParser()
-    {
-        return $this->bodyParser;
-    }
-
-    /**
-     * @param callable|null $bodyParser
-     */
-    protected function setBodyParser($bodyParser)
-    {
-        $this->bodyParser = $bodyParser;
-    }
-
-    /**
-     * @param string $name
-     * @return bool|mixed
-     * @throws \Error
-     */
-    public function __get(string $name)
-    {
-        $method = "get$name";
-
-        if (method_exists($this, $method)) {
-            return $this->{$method}();
-        }
-
-        $method = "is$name";
-
-        if (method_exists($this, $method)) {
-            return (bool) $this->{$method}();
-        }
-
-        throw new \Error("Property '$name' is not exists in class " . reflect::typeOf($this));
-    }
-    /**
-     * @param string $name
-     * @param $value
-     * @return bool|mixed
-     * @throws \Error
-     */
-    public function __set(string $name, $value)
-    {
-        $method = "set$name";
-
-        if (method_exists($this, $method)) {
-            $closure = Closure::fromCallable([$this, $method]);
-            return $closure($value);
-        }
-
-        throw new \Error("Property '$name' is not exists in class " . reflect::typeOf($this) . " or readonly");
     }
 }
