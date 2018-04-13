@@ -25,8 +25,14 @@ shadowJar {
 
 task dist(dependsOn: 'shadowJar') {
     doLast {
-        delete "$buildDir.path/dist/jppm-*.tar.gz"
-        delete "$buildDir.path/dist/jppm-*.json"
+        delete "$buildDir.path/dist/update"
+        delete "$buildDir.path/dist/vendor"
+
+        delete fileTree("$buildDir.path/dist/") {
+            include 'jppm-*.tar.gz'
+            include 'jppm-*.json'
+            include 'update/'
+        }
 
         copy {
             from "$buildDir.path/libs/$shadowJar.archiveName"
