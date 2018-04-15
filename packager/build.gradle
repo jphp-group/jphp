@@ -1,5 +1,15 @@
 apply plugin: 'maven'
 
+def jppmVersion = version.toString()
+
+file("$projectDir.path/package.php.yml").readLines().each { line ->
+    if (line.startsWith("version:")) {
+        jppmVersion = line.replace("version:", "").trim()
+    }
+}
+
+version = jppmVersion
+
 sourceSets {
     main.java.srcDirs = ['src']
     main.resources.srcDirs = ['src-php']
@@ -31,7 +41,6 @@ task dist(dependsOn: 'shadowJar') {
         delete fileTree("$buildDir.path/dist/") {
             include 'jppm-*.tar.gz'
             include 'jppm-*.json'
-            include 'update/'
         }
 
         copy {
@@ -81,7 +90,39 @@ task distArchZip(type: Zip, dependsOn: 'dist') {
     extension = 'zip'
 }
 
-task publish(type: Exec, dependsOn: 'dist') {
+def buildISS = { issFile ->
+    def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
+
+    if (!file(innoSetupBin).isFile()) {
+        throw new GradleException("Failed to find inno setup 5 dir, $innoSetupBin, please set 'innoSetupDir' property.")
+    }
+
+    if (System.properties['os.name'].toLowerCase().contains('linux')) {
+        exec {
+            commandLine 'wine', innoSetupBin, '/Qp', issFile
+        }
+    } else {
+        exec {
+            commandLine innoSetupBin, '/Qp', issFile
+        }
+    }
+}
+
+task distSetupExe(dependsOn: 'dist') {
+    doLast {
+        copy {
+            from "$projectDir.path/installer/innosetup.iss"
+            into "$buildDir.path/"
+        }
+
+        def issText = file("$buildDir.path/innosetup.iss").text.replace("{{version}}", jppmVersion);
+        file("$buildDir.path/innosetup.iss").text = issText
+
+        buildISS("$buildDir.path/innosetup.iss")
+    }
+}
+
+task publish(type: Exec, dependsOn: ['dist']) {
     def osName = System.getProperty("os.name").toLowerCase()
     workingDir "$buildDir.path/dist"
 
@@ -90,6 +131,12 @@ task publish(type: Exec, dependsOn: 'dist') {
     } else {
         commandLine "sh", "jppm", "github:publish", "-f", "-y"
     }
+}
+
+def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
+
+if (file(innoSetupBin).isFile()) {
+    publish.dependsOn = ['dist', 'distSetupExe']
 }
 
 
@@ -119,6 +166,11 @@ task installDist(dependsOn: 'dist') {
             exec {
                 commandLine "ln", "-sfn", "$installDist/jppm", "/usr/bin"
             }
+        } else if (osName.contains("windows")) {
+            /*exec {
+                commandLine "powershell", "-command", "Start-Process jppm-setpath.bat -Verb runas"
+                workingDir installDist
+            }*/
         }
     }
 }

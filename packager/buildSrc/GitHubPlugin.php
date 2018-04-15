@@ -48,6 +48,11 @@ class GitHubPlugin
     protected $defaultDescription;
 
     /**
+     * @var array
+     */
+    protected $additionalAssets = [];
+
+    /**
      * @var string
      */
     protected $defaultRepo;
@@ -70,6 +75,7 @@ class GitHubPlugin
         $this->defaultDescription = $github['description'] ?? null;
         $this->defaultRepo = $github['address'] ?? null;
         $this->defaultLogin = $github['login'] ?? null;
+        $this->additionalAssets = $github['assets'] ?? [];
 
         $this->readConfig();
 
@@ -331,6 +337,17 @@ class GitHubPlugin
 
                 $this->uploadFileForRelease($body['upload_url'], "./{$pkg->getName()}-{$pkg->getVersion()}.tar.gz", 'application/gzip');
                 $this->uploadFileForRelease($body['upload_url'], "./{$pkg->getName()}-{$pkg->getVersion()}.json", 'application/json');
+
+                foreach ($this->additionalAssets as $asset) {
+                    if (!fs::isFile($asset['file'])) {
+                        if ($asset['ifExists']) {
+                            Console::log("-> skip uploading, file '{0}' doesn't exist", $asset['file']);
+                            continue;
+                        }
+                    }
+
+                    $this->uploadFileForRelease($body['upload_url'], $asset['file'], $asset['contentType']);
+                }
 
                 $this->printRelease($this->getRelease($data['tag_name']));
             } else {
