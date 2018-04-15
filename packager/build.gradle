@@ -151,13 +151,15 @@ task publish(type: Exec, dependsOn: ['dist']) {
     }
 }
 
+try {
+    def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
 
-def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
-
-if (file(innoSetupBin).isFile()) {
-    publish.dependsOn = ['dist', 'distSetupExe']
+    if (file(innoSetupBin).isFile()) {
+        publish.dependsOn = ['dist', 'distSetupExe']
+    }
+} catch (URISyntaxException e) {
+    // nop.
 }
-
 
 
 task installDist(dependsOn: 'dist') {
