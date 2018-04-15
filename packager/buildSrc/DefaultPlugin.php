@@ -635,7 +635,8 @@ class DefaultPlugin
             "mkdir -p \"$home\"",
             "cp -rvp \"$home-update/.\" \"$home\" ",
 
-            "rm -rf \"$home-update\""
+            "rm -rf \"$home-update\"",
+            "chmod +x \"$home/jppm\""
         ];
 
 
