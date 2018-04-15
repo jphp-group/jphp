@@ -639,8 +639,7 @@ class DefaultPlugin
 
             "chmod +x \"$home/jppm\"",
             "rm -f /usr/bin/jppm",
-            "rm -f /usr/local/bin/jppm",
-            "ln -sfn \"$home/jppm\" /usr/local/bin"
+            "ln -sfn \"$home/jppm\" /usr/bin"
         ];
 
 
