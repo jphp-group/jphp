@@ -640,7 +640,7 @@ class DefaultPlugin
 
 
         $shUpdaterFile = File::createTemp("jppm-updater", ".sh");
-        Tasks::createFile($shUpdaterFile, str::join($sh, "\r"));
+        Tasks::createFile($shUpdaterFile, str::join($sh, "\n"));
         $shUpdaterFile->setExecutable(true);
 
         $process = new Process(
