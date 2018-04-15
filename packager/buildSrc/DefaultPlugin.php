@@ -633,7 +633,7 @@ class DefaultPlugin
             "rm -rfv \"$home/\"",
 
             "mkdir -p \"$home\"",
-            "cp -rv \"$home-update/.\" \"$home\" ",
+            "cp -rvp \"$home-update/.\" \"$home\" ",
 
             "rm -rf \"$home-update\""
         ];
@@ -644,7 +644,7 @@ class DefaultPlugin
         $shUpdaterFile->setExecutable(true);
 
         $process = new Process(
-            [str::replace(fs::abs($shUpdaterFile), '\\', '/')]
+            ['sh', str::replace(fs::abs($shUpdaterFile), '\\', '/')]
         );
 
         Console::log("Starting 'sh {0}' ...", str::replace(fs::abs($shUpdaterFile), '\\', '/'));
