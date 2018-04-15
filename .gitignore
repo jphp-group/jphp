@@ -24,5 +24,4 @@ out/
 /.gradle/
 build/
 
-gradle.properties
 secret.asc

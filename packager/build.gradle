@@ -151,11 +151,13 @@ task publish(type: Exec, dependsOn: ['dist']) {
     }
 }
 
+
 def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
 
 if (file(innoSetupBin).isFile()) {
     publish.dependsOn = ['dist', 'distSetupExe']
 }
+
 
 
 task installDist(dependsOn: 'dist') {
