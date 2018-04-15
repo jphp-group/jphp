@@ -6,6 +6,17 @@ JPPM will help you to build and run jphp applications.
 
 > **IMPORTANT**: JPPM and JPHP requires Java 8 or 9+. Download here: https://java.com/download/.
 
+### 0. How to install jppm?
+**For Windows Users**
+- Download the installer (\*.exe) of the last jppm version here: https://github.com/jphp-compiler/jphp-repo/releases
+- Run the downloaded installer (`jppm-setup-{version}.exe`).
+
+That's all! Try to check jppm in console.
+
+```
+jppm version
+```
+
 ### 1. How to build and install jppm from sources?
 - Clone the jphp repository from `https://github.com/jphp-compiler/jphp.git`.
 - Open repo directory in your console and run:
