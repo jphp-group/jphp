@@ -187,7 +187,7 @@ class Repository
     public function addExternalRepoByString(string $repo)
     {
         if ($repo === "jphp") {
-            $this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp/releases"));
+            $this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp-repo/releases"));
             return $this->addExternalRepo(new GithubRepository("https://github.com/jphp-compiler/jphp-repo"));
         }
 

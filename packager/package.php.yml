@@ -1,5 +1,5 @@
 name: jppm
-version: 0.1.7
+version: 0.1.8
 
 repos:
 - jphp
@@ -9,9 +9,9 @@ plugins:
 - GitHub
 
 github:
-  address: https://github.com/jphp-compiler/jphp-repo
-  tag-prefix: 'jppm-'
-  title: 'jppm %version%'
+  address: https://github.com/jphp-compiler/jphp
+  tag-prefix: '%name%-'
+  title: '%name% %version%'
   description: |
     > JPHP Package Manager v%version%
 

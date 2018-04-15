@@ -513,7 +513,7 @@ class DefaultPlugin
      */
     function selfUpdate(Event $event)
     {
-        $sourceUrl = new URL("https://github.com/jphp-compiler/jphp-repo");
+        $sourceUrl = new URL("https://github.com/jphp-compiler/jphp");
 
         $client = new HttpClient("https://api.github.com/repos{$sourceUrl->getPath()}");
 
