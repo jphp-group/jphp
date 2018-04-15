@@ -147,7 +147,7 @@ class AppPlugin
 
         Stream::putContents("./build/app/META-INF/MANIFEST.MF", str::join([
             "Manifest-Version: 1.0",
-            "Created-By: jppm (JPHP Packager " . Packager::VERSION . ")",
+            "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
             "Main-Class: " . ($launcher['mainClass'] ?: 'php.runtime.launcher.Launcher'),
             "",
             "",

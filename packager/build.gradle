@@ -1,7 +1,7 @@
 apply plugin: 'maven'
 
 def jppmVersion = version.toString()
-def jppmRepoAddress = 'https://github.com/jphp-compiler/jphp-repo'
+def jppmRepoAddress = 'https://github.com/jphp-compiler/jphp'
 
 file("$projectDir.path/package.php.yml").readLines().each { line ->
     if (line.startsWith("version:")) {
