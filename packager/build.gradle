@@ -116,8 +116,11 @@ task installDist(dependsOn: 'dist') {
         file("$installDist/jppm").setExecutable(true)
 
         if (osName.contains("linux") || osName.contains("unix")) {
+            file("/usr/bin/jppm").delete()
+            file("/usr/bin/jppm").deleteOnExit()
+
             exec {
-                commandLine "ln", "-sfn", "$installDist/jppm", "/usr/bin/jppm"
+                commandLine "ln", "-sfn", "$installDist/jppm", "/usr/local/bin"
             }
         }
     }

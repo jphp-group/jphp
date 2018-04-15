@@ -636,7 +636,11 @@ class DefaultPlugin
             "cp -rvp \"$home-update/.\" \"$home\" ",
 
             "rm -rf \"$home-update\"",
-            "chmod +x \"$home/jppm\""
+
+            "chmod +x \"$home/jppm\"",
+            "rm -f /usr/bin/jppm",
+            "rm -f /usr/local/bin/jppm",
+            "ln -sfn \"$home/jppm\" /usr/local/bin"
         ];
 
 
