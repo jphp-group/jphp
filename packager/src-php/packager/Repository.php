@@ -17,6 +17,7 @@ use php\io\IOException;
 use php\io\Stream;
 use php\lib\arr;
 use php\lib\fs;
+use php\lib\reflect;
 use php\lib\str;
 use php\time\Time;
 use php\time\Timer;
@@ -44,6 +45,11 @@ class Repository
     private $cache = [];
 
     /**
+     * @var array
+     */
+    private $sessionCache = [];
+
+    /**
      * Repository constructor.
      * @param string $directory
      */
@@ -66,6 +72,8 @@ class Repository
     protected function saveCache()
     {
         try {
+            Console::debug("Repository.SaveCache file={0}", "$this->dir/cache.json");
+
             fs::formatAs("$this->dir/cache.json", $this->cache, 'json', JsonProcessor::SERIALIZE_PRETTY_PRINT);
         } catch (IOException $e) {
             // nop.
@@ -80,12 +88,19 @@ class Repository
      */
     protected function getVersionsFromExternal(ExternalRepository $repository, string $pkgName, bool $cached = true): array
     {
+        Console::debug("Repository.GetVersionsFromExternal repo={0} pkg={1} cached={2}", $repository->getSource(), $pkgName, $cached ? 'yes' : 'no');
+
         $cache = $this->cache['external'][$repository->getSource()][$pkgName];
 
         if ($cached && $repository->isNeedCache()) {
             if ($cache !== null && is_array($cache['versions']) && $cache['time'] > Time::millis() - Timer::parsePeriod($repository->getCacheTime())) {
                 return $cache['versions'];
             }
+        }
+
+        $cache = $this->sessionCache['external'][$repository->getSource()][$pkgName];
+        if ($cache !== null && is_array($cache['versions'])) {
+            return $cache['versions'];
         }
 
         Console::log("-> get versions of package {0}, source: {1}", $pkgName, $repository->getSource());
@@ -96,6 +111,8 @@ class Repository
                 'time' => Time::millis()
             ];
 
+            $this->sessionCache['external'][$repository->getSource()][$pkgName] = $cache;
+
             if ($repository->isNeedCache()) {
                 $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
 
@@ -104,6 +121,9 @@ class Repository
 
             return (array) $cache['versions'];
         } catch (IOException|ProcessorException $e) {
+            $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
+            $this->sessionCache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+
             if ($repository->isNeedCache()) {
                 $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
                 $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
@@ -139,6 +159,8 @@ class Repository
      */
     protected function getVersionInfo(string $pkgName, string $version): ?array
     {
+        Console::debug("Repository.GetVersionInfo pkg={0}@{1}", $pkgName, $version);
+
         if (fs::isFile($file = "$this->dir/$pkgName/$version.json")) {
             return fs::parse($file);
         }
@@ -152,6 +174,8 @@ class Repository
      */
     public function addExternalRepo(ExternalRepository $repository)
     {
+        Console::debug("Repository.AddExternalRepo repo='{0}' type='{1}'", $repository->getSource(), reflect::typeOf($repository));
+
         $this->externals[$repository->getSource()] = $repository;
         return $repository;
     }
@@ -163,6 +187,7 @@ class Repository
     public function addExternalRepoByString(string $repo)
     {
         if ($repo === "jphp") {
+            $this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp/releases"));
             return $this->addExternalRepo(new GithubRepository("https://github.com/jphp-compiler/jphp-repo"));
         }
 
@@ -197,6 +222,8 @@ class Repository
      */
     public function getPackageVersions(string $name, bool $onlyLocal = true, bool $cached = true): array
     {
+        Console::debug("Repository.GetPackageVersions pkg={0} onlyLocal={1} cached={2}", $name, $onlyLocal ? 'yes':'no', $cached ? 'yes':'no');
+
         $dir = "$this->dir/$name/";
 
         $versions = fs::scan($dir, ['excludeFiles' => true], 1);
@@ -238,6 +265,8 @@ class Repository
      */
     public function findPackage(string $name, string $versionPattern, ?PackageLock $lock = null, bool $cached = true): ?Package
     {
+        Console::debug("Repository.FindPackage pkg={0}@{1} lock={2} cached={3}", $name, $versionPattern, $lock ? 'exists' : 'none', $cached ? 'yes' : 'no');
+
         if ($lock) {
             $lockVersion = $lock->findVersion($name);
 

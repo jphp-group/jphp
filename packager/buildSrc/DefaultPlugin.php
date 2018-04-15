@@ -5,6 +5,7 @@ use compress\GzipOutputStream;
 use compress\TarArchive;
 use compress\TarArchiveEntry;
 use httpclient\HttpClient;
+use httpclient\HttpRequest;
 use packager\cli\Console;
 use packager\Event;
 use packager\Package;
@@ -472,6 +473,7 @@ class DefaultPlugin
     function update(Event $event)
     {
         Tasks::deleteFile("./package-lock.php.yml");
+        Tasks::cleanDir("./vendor");
 
         $event->packager()->getRepo()->cleanCache();
         Tasks::run('install', [], ...$event->flags());
@@ -518,8 +520,11 @@ class DefaultPlugin
         $client->responseType = 'JSON';
         $client->requestType = 'JSON';
         $client->headers['Accept'] = 'application/vnd.github.v3+json';
+        $client->headers['rel'] = 'last';
 
-        $res = $client->get('/releases');
+        $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 100]);
+
+        $res = $client->send($request);
 
         if ($res->isSuccess()) {
             $releases = [];

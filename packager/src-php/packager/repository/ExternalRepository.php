@@ -35,7 +35,7 @@ abstract class ExternalRepository
 
     public function getCacheTime(): string
     {
-        return '15m';
+        return '1h';
     }
 
     abstract public function isFit(): bool;

@@ -1,6 +1,7 @@
 apply plugin: 'maven'
 
 def jppmVersion = version.toString()
+def jppmRepoAddress = 'https://github.com/jphp-compiler/jphp-repo'
 
 file("$projectDir.path/package.php.yml").readLines().each { line ->
     if (line.startsWith("version:")) {
@@ -21,6 +22,7 @@ dependencies {
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-compress-ext')
     compile project(':exts/jphp-json-ext')
+    compile project(':exts/jphp-jsoup-ext')
     compile project(':exts/jphp-httpserver-ext')
     compile project(':exts/jphp-semver-ext')
     compile project(':exts/jphp-text-ext')
@@ -123,6 +125,22 @@ task distSetupExe(dependsOn: 'dist') {
 }
 
 task publish(type: Exec, dependsOn: ['dist']) {
+    doFirst {
+        def sh = [
+            '#!/usr/bin/env sh',
+            'cd ~',
+            "wget -O jppm-${jppmVersion}.tar.gz $jppmRepoAddress/releases/download/jppm-$jppmVersion/jppm-${jppmVersion}.tar.gz",
+            "mkdir -p /opt/jppm-$jppmVersion && tar -xzf ~/jppm-${jppmVersion}.tar.gz -C /opt/jppm-$jppmVersion/",
+            "sudo ln -sfn /opt/jppm-${jppmVersion}/jppm /usr/local/bin/jppm && chmod +x /opt/jppm-${jppmVersion}/jppm",
+            "echo \"----------------------------------------------\"",
+            "echo \"JPPM $jppmVersion has been installed.\"",
+            "echo \"-> try 'jppm version' to check it.\"",
+            "echo \"-> try 'jppm init' to start new project.\"",
+        ];
+
+        file("$buildDir/jppm-setup-${jppmVersion}.sh").text = sh.join("\n")
+    }
+
     def osName = System.getProperty("os.name").toLowerCase()
     workingDir "$buildDir.path/dist"
 

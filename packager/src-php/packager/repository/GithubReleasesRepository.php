@@ -5,6 +5,9 @@ namespace packager\repository;
 use httpclient\HttpClient;
 use httpclient\HttpRequest;
 use packager\cli\Console;
+use php\format\ProcessorException;
+use php\io\IOException;
+use php\jsoup\Jsoup;
 use php\lang\IllegalArgumentException;
 use php\lib\fs;
 use php\lib\str;
@@ -36,7 +39,7 @@ class GithubReleasesRepository extends ExternalRepository
             $this->client = new HttpClient("https://api.github.com/repos{$this->sourceUrl->getPath()}");
             $this->client->handlers = [
                 function (HttpRequest $request) {
-                    //Console::log("-> {0} request '{1}'", $request->method(), $request->url());
+                    Console::debug("--> [httpclient] {0} '{1}'", $request->method(), $request->url());
                 }
             ];
 
@@ -55,24 +58,59 @@ class GithubReleasesRepository extends ExternalRepository
             && str::endsWith($this->getSource(), '/releases');
     }
 
+    protected function fetchVersionInfo($release): ?array
+    {
+        $doc = Jsoup::parseText($release['body']);
+
+        foreach ($doc->select('details') as $spoiler) {
+            if (str::endsWith($spoiler->select('summary')->text(), '.json')) {
+                $json = $spoiler->select('pre')->text();
+
+                if ($json) {
+                    return str::parseAs($json, 'json');
+                }
+            }
+        }
+
+        foreach ($release['assets'] as $asset) {
+            if ($asset['content_type'] === 'application/json') {
+                return fs::parseAs($asset['browser_download_url'], 'json');
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array
+     */
+    protected function fetchReleases(): array
+    {
+        $releases = $this->cache;
+
+        if (!$releases) {
+            $request = new HttpRequest('GET', '', ['rel' => 'last'], ['per_page' => 500]);
+
+            $response = $this->client->send($request);
+
+            if ($response->isSuccess()) {
+                $releases = $this->cache = $response->body();
+            } else {
+                Console::warn("-> failed to fetch release, {1}", $response->statusMessage());
+                return [];
+            }
+        }
+
+        return $releases;
+    }
+
     /**
      * @param string $pkgName
      * @return array
      */
     public function getVersions(string $pkgName): array
     {
-        $releases = $this->cache;
-
-        if (!isset($releases)) {
-            $response = $this->client->get('');
-
-            if ($response->isSuccess()) {
-                $releases = $this->cache = $response->body();
-            } else {
-                return [];
-            }
-        }
-
+        $releases = $this->fetchReleases();
         $result = [];
 
         foreach ($releases as $release) {
@@ -80,12 +118,9 @@ class GithubReleasesRepository extends ExternalRepository
                 continue;
             }
 
-            $versionInfo = null;
-            foreach ($release['assets'] as $asset) {
-                if ($asset['content_type'] === 'application/json') {
-                    $versionInfo = fs::parseAs($asset['browser_download_url'], 'json');
-                }
-            }
+            Console::debug("GithubReleasesRepo.GetVersions.release '{0}'", $release['tag_name']);
+
+            $versionInfo = $this->fetchVersionInfo($release);
 
             if ($versionInfo && $versionInfo['name'] === $pkgName) {
                 $result[$versionInfo['version']] = flow($versionInfo)->onlyKeys(['size', 'sha256'])->toMap();
@@ -98,31 +133,24 @@ class GithubReleasesRepository extends ExternalRepository
 
     public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool
     {
-        $response = $this->client->get('');
+        $releases = $this->fetchReleases();
 
-        if ($response->isSuccess()) {
-            foreach ($response->body() as $release) {
+        if ($releases) {
+            foreach ($releases as $release) {
                 if ($release['draft'] || $release['prerelease']) {
                     continue;
                 }
 
-                $versionInfo = null;
-                foreach ($release['assets'] as $asset) {
-                    if ($asset['content_type'] === 'application/json') {
-                        $versionInfo = fs::parseAs($asset['browser_download_url'], 'json');
+                $versionInfo = $this->fetchVersionInfo($release);
 
-                        if ($versionInfo && $versionInfo['name'] === $pkgName && $versionInfo['version'] === $pkgVersion) {
-                            foreach ($release['assets'] as $sub) {
-                                if ($sub['content_type'] === 'application/gzip') {
-                                    return fs::copy($sub['browser_download_url'], $toFile, null, 1024 * 128) > 0;
-                                }
-                            }
-
-                            break;
+                if ($versionInfo && $versionInfo['name'] === $pkgName && $versionInfo['version'] === $pkgVersion) {
+                    foreach ($release['assets'] as $sub) {
+                        if ($sub['content_type'] === 'application/gzip') {
+                            return fs::copy($sub['browser_download_url'], $toFile, null, 1024 * 128) > 0;
                         }
-
-                        break;
                     }
+
+                    break;
                 }
             }
         }

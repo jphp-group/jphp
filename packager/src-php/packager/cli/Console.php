@@ -28,6 +28,14 @@ class Console
         $stream->write($message);
     }
 
+    public static function debug($message, ...$args)
+    {
+        global $app;
+        if ($app->isDebug()) {
+            static::log("[DEBUG] $message", ...$args);
+        }
+    }
+
     public static function warn($message, ...$args)
     {
         static::log("[WARNING] $message", ...$args);

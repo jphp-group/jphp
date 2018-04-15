@@ -172,7 +172,10 @@ class Packager
             if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
                 $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
             } else {
-                $parent->addInvalidDep($dep, $version);
+                if ($parent) {
+                    $parent->addInvalidDep($dep, $version);
+                }
+
                 $result->addInvalidDep($dep, $version);
             }
         }

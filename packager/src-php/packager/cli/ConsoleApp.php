@@ -68,6 +68,7 @@ class ConsoleApp
         $command = $args[1];
 
         if ($this->isFlag('debug')) {
+            $this->debug = true;
             Console::log("args = " . var_export($args, true));
         }
 
@@ -103,6 +104,14 @@ class ConsoleApp
         Timer::shutdownAll();
     }
 
+    /**
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->debug;
+    }
+
     function invokeTask(string $task, array $args, ...$flags)
     {
         if ($this->taskUpDate[$task . '#' . str::join($flags, ',')]) {
@@ -117,8 +126,9 @@ class ConsoleApp
         switch ($task) {
             case "version":
                 Console::log('JPHP Packager Welcome');
-                Console::log("- Version {0}", $this->packager->getVersion());
-                Console::log("- JPHP Version {0}", JPHP_VERSION);
+                Console::log("-> version: {0}", $this->packager->getVersion());
+                Console::log("-> jphp version: {0}", JPHP_VERSION);
+                Console::log("-> home dir: {0}", System::getProperty("jppm.home"));
                 break;
 
             default:

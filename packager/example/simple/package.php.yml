@@ -17,6 +17,7 @@ app:
   bootstrap: index.php
   encoding: UTF-8
   metrics: false
-  trace: false
+  trace: true
+
 sources:
 - src

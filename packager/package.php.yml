@@ -1,5 +1,5 @@
 name: jppm
-version: 0.1.5
+version: 0.1.7
 
 repos:
 - jphp
@@ -9,8 +9,23 @@ plugins:
 - GitHub
 
 github:
+  address: https://github.com/jphp-compiler/jphp-repo
   tag-prefix: 'jppm-'
   title: 'jppm %version%'
-  description: 'JPHP Package Manager v%version%'
+  description: |
+    > JPHP Package Manager v%version%
+
+    **Downloads**
+    + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
+    + For Linux: [JPPM Linux Distributive](%github.address%/releases/download/jppm-%version%/jppm-%version%.tar.gz)
+
+    **How To Install**
+    + For Windows: Run jppm-setup-%version%.exe and that's is all!
+    + For Linux:
+    ```bash
+    wget -O - %github.address%/releases/download/jppm-%version%/jppm-setup-%version%.sh | bash
+    ```
+
   assets:
     - {file: '../jppm-setup-%version%.exe', contentType: 'application/octet-stream', ifExists: true}
+    - {file: '../jppm-setup-%version%.sh', contentType: 'application/octet-stream'}

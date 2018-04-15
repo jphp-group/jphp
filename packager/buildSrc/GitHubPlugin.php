@@ -313,6 +313,10 @@ class GitHubPlugin
             $defaultName = (new TextWord(str::replace($pkg->getName(), '-', ' ') . ' ' . $pkg->getVersion()))->capitalizeFully() . "";
             $defaultDescription = $pkg->getDescription();
 
+            $bodyJsonInfo = "<details><summary>{$pkg->getName()}-{$pkg->getVersion()}.json</summary><pre>"
+                . fs::get("./{$pkg->getName()}-{$pkg->getVersion()}.json") .
+            "</pre></details>";
+            
             $data = [
                 'tag_name' => $this->tagPrefix . $pkg->getVersion(),
                 'name' => $this->defaultTitle ?? $defaultName,
@@ -328,6 +332,7 @@ class GitHubPlugin
                 ])->toMap();
             }
 
+            $data['body'] .= "\n$bodyJsonInfo";
             $response = $github->post('/repos' . $address->getPath() . '/releases', $data);
 
             if ($response->statusCode() === 201) {
