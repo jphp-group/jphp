@@ -161,17 +161,6 @@ save () {
 }
 APP_ARGS=$(save "$@")
 
-if [ -d "$APP_HOME/update" ]; then
-    APP_UPDATE_FILES="$APP_HOME/update/*"
-
-    echo "Update jphp, waiting ..."
-
-    cp -r $APP_UPDATE_FILES "$APP_HOME/"
-
-    rm -rf "$APP_HOME/update"
-fi
-
-
 # Collect all arguments for the java command, following the shell quoting and substitution rules
 eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS -classpath "\"$CLASSPATH\"" php.runtime.launcher.Launcher "$APP_ARGS"
 

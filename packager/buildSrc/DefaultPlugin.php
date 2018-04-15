@@ -5,19 +5,17 @@ use compress\GzipOutputStream;
 use compress\TarArchive;
 use compress\TarArchiveEntry;
 use httpclient\HttpClient;
-use httpclient\HttpRequest;
 use packager\cli\Console;
 use packager\Event;
-use packager\Ignore;
 use packager\Package;
 use packager\PackageDependencyTree;
-use packager\Packager;
 use packager\Repository;
 use packager\server\Server;
 use packager\Vendor;
 use php\format\JsonProcessor;
 use php\io\File;
 use php\io\Stream;
+use php\lang\Process;
 use php\lang\System;
 use php\lib\arr;
 use php\lib\fs;
@@ -589,7 +587,7 @@ class DefaultPlugin
 
                 Console::log("-> install new version");
 
-                $home = System::getProperty("jppm.home") . "/update";
+                $home = System::getProperty("jppm.home") . "-update";
 
                 Tasks::createDir($home);
                 Tasks::cleanDir($home);
@@ -605,9 +603,90 @@ class DefaultPlugin
                     }
                 });
 
+                Console::log("-> self update via external script starting ...");
+
+                if (!fs::isDir($home)) {
+                    Console::error("Failed to create update, directory '{0}' is not found", "$home-update");
+                    exit(-1);
+                }
+
+                if (str::contains(str::lower(System::osName()), "window")) {
+                    $this->runWinUpdater();
+                } else {
+                    $this->runUnixUpdater();
+                }
+
             } else {
                 Console::log("\n   JPPM already updated to last version ({0}).", $event->packager()->getVersion());
             }
         }
+    }
+
+    protected function runUnixUpdater()
+    {
+        $home = str::replace(fs::abs(System::getProperty("jppm.home")), "\\", "/");
+
+        $sh = [
+            "#!/usr/bin/env sh",
+            "",
+            "sleep 1",
+            "rm -rfv \"$home/\"",
+
+            "mkdir -p \"$home\"",
+            "cp -rv \"$home-update/.\" \"$home\" ",
+
+            "rm -rf \"$home-update\""
+        ];
+
+
+        $shUpdaterFile = File::createTemp("jppm-updater", ".sh");
+        Tasks::createFile($shUpdaterFile, str::join($sh, "\r"));
+        $shUpdaterFile->setExecutable(true);
+
+        $process = new Process(
+            [str::replace(fs::abs($shUpdaterFile), '\\', '/')]
+        );
+
+        Console::log("Starting 'sh {0}' ...", str::replace(fs::abs($shUpdaterFile), '\\', '/'));
+
+        Console::log("\n   Use 'jppm version' to check that the new version is installed successfully.\n");
+        $process->start();
+
+        exit(0);
+    }
+
+    protected function runWinUpdater()
+    {
+        $home = fs::abs(System::getProperty("jppm.home"));
+
+        $bat = [
+            "ping 127.0.0.1 -n 1 > nul",
+            "set JPPM_HOME=$home",
+            "set JPPM_UPDATE_HOME=$home-update",
+
+            "del /f /s /q \"%JPPM_HOME%\" 1>nul",
+
+            "if not exist \"%JPPM_HOME%\" mkdir \"%JPPM_HOME%\"",
+            "xcopy \"%JPPM_UPDATE_HOME%\" \"%JPPM_HOME%\" /s /h /e /k /f /c",
+
+            "del /f /s /q \"%JPPM_UPDATE_HOME%\" 1>nul",
+            "rmdir /s /q \"%JPPM_UPDATE_HOME%\"",
+            "exit"
+        ];
+
+        $batUpdaterFile = File::createTemp("jppm-updater", ".cmd");
+
+        Tasks::createFile($batUpdaterFile, str::join($bat,"\r\n"));
+
+        $process = new Process(
+            ['cmd', '/c', 'start', 'call', fs::abs($batUpdaterFile)]
+        );
+
+        Console::log("Starting {0} ...", fs::abs($batUpdaterFile));
+
+        Console::log("\n   Use 'jppm version' to check that the new version is installed successfully.\n");
+        $process->start();
+
+        exit(0);
     }
 }
