@@ -201,6 +201,13 @@ class Package
         return $this->getName() . "@" . $this->getVersion('last');
     }
 
+    /**
+     * @return array
+     */
+    public function getProjects(): array
+    {
+        return $this->getAny('projects', []);
+    }
 
     /**
      * @param string|Stream $source

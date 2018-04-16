@@ -520,21 +520,36 @@ class DefaultPlugin
         $client->responseType = 'JSON';
         $client->requestType = 'JSON';
         $client->headers['Accept'] = 'application/vnd.github.v3+json';
-        $client->headers['rel'] = 'last';
 
-        $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 100]);
+        $releases = flow();
+        $page = 1;
 
-        $res = $client->send($request);
+        do {
+            $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 500, 'page' => $page]);
+            $res = $client->send($request);
 
-        if ($res->isSuccess()) {
-            $releases = [];
+            if ($res->isSuccess()) {
+                if ($res->body()) {
+                    $releases->append($res->body());
+                    $page++;
+                    continue;
+                } else {
+                    $releases = $releases
+                        ->find(function ($release) {
+                            return str::startsWith($release['tag_name'], 'jppm-');
+                        })
+                        ->toArray();
 
-            foreach ($res->body() as $release) {
-                if (str::startsWith($release['tag_name'], 'jppm-')) {
-                    $releases[] = $release;
+                    break;
                 }
+            } else {
+                Console::error("Failed to get information about jppm versions, {0} {1}", $res->statusCode(), $res->statusMessage());
+                exit(-1);
             }
+        } while (true);
 
+
+        if ($releases) {
             $variants = [];
             foreach ($releases as $release) {
                 foreach ($release['assets'] as $asset) {

@@ -950,8 +950,9 @@ public class LangFunctions extends FunctionsContainer {
         return Memory.FALSE;
     }
 
-    public static Memory flow(Environment env, Memory result, Memory... others) {
-        WrapFlow flow = WrapFlow.of(env, result).toObject(WrapFlow.class);
+
+    public static Memory flow(Environment env, Memory... others) {
+        WrapFlow flow = WrapFlow.of(env, new ArrayMemory()).toObject(WrapFlow.class);
 
         if (others != null) {
             for (Memory other : others) {

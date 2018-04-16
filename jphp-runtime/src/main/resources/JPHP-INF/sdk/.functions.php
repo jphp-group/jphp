@@ -5,11 +5,10 @@ use php\util\Flow;
 const JPHP_VERSION = 'x.x.x';
 
 /**
- * @param iterable $iterator
  * @param iterable[] $others
  * @return Flow
  */
-function flow(iterable $iterator, iterable... $others): Flow
+function flow(iterable... $others): Flow
 {
 }
 

@@ -89,16 +89,32 @@ class GithubReleasesRepository extends ExternalRepository
         $releases = $this->cache;
 
         if (!$releases) {
-            $request = new HttpRequest('GET', '', ['rel' => 'last'], ['per_page' => 500]);
+            $releases = flow([]);
 
-            $response = $this->client->send($request);
+            $page = 1;
+            do {
+                $request = new HttpRequest('GET', '', ['rel' => 'last'], ['per_page' => 100, 'page' => $page]);
 
-            if ($response->isSuccess()) {
-                $releases = $this->cache = $response->body();
-            } else {
-                Console::warn("-> failed to fetch release, {1}", $response->statusMessage());
-                return [];
-            }
+                $response = $this->client->send($request);
+
+                if ($response->isSuccess()) {
+
+                    if ($response->body()) {
+                        $releases->append($response->body());
+
+                        if (sizeof($response->body()) < 100) {
+                            return $this->cache = $releases->toArray();
+                        }
+
+                        $page++;
+                    } else {
+                        return $this->cache = $releases->toArray();
+                    }
+                } else {
+                    Console::warn("-> failed to fetch release, {0}", $response->statusMessage());
+                    return $releases->toArray();
+                }
+            } while (true);
         }
 
         return $releases;

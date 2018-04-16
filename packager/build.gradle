@@ -27,6 +27,7 @@ dependencies {
     compile project(':exts/jphp-semver-ext')
     compile project(':exts/jphp-text-ext')
     compile project(':exts/jphp-httpclient-ext')
+    compile project(':exts/jphp-git-ext')
 }
 
 shadowJar {
