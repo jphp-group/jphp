@@ -117,6 +117,28 @@ class ThreadPool
     }
 
     /**
+     * Returns the approximate number of threads that are actively
+     * executing tasks.
+     *
+     * @return int
+     */
+    public function getActiveCount(): ?int
+    {
+    }
+
+    /**
+     * Returns the approximate total number of tasks that have ever been
+     * scheduled for execution. Because the states of tasks and
+     * threads may change dynamically during computation, the returned
+     * value is only an approximation.
+     *
+     * @return int|null
+     */
+    public function getTaskCount(): ?int
+    {
+    }
+
+    /**
      * @param int $coreSize the number of threads to keep in the pool, even if they are idle
      * @param int $maxSize the maximum number of threads to allow in the pool
      * @param int $keepAliveTime in millis

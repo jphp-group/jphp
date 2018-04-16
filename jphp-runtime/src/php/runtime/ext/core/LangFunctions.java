@@ -956,7 +956,9 @@ public class LangFunctions extends FunctionsContainer {
 
         if (others != null) {
             for (Memory other : others) {
-                flow = flow.append(env, other).toObject(WrapFlow.class);
+                if (other.isTraversable()) {
+                    flow = flow.append(env, other).toObject(WrapFlow.class);
+                }
             }
         }
 

@@ -5,13 +5,17 @@ use compress\GzipOutputStream;
 use compress\TarArchive;
 use git\Git;
 use packager\cli\Console;
+use packager\Package;
+use php\io\File;
 use php\io\IOException;
+use php\io\Stream;
 use php\lang\IllegalArgumentException;
 use php\lang\System;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use php\net\URL;
+use php\time\Time;
 use php\util\Regex;
 use semver\SemVersion;
 
@@ -27,6 +31,11 @@ class GitRepository extends ExternalRepository
      * @var Git
      */
     protected $git;
+
+    /**
+     * @var string
+     */
+    protected $localDir = null;
 
     public function __construct($source)
     {
@@ -73,12 +82,44 @@ class GitRepository extends ExternalRepository
      */
     public function getLocalDirectory(): string
     {
+        if ($this->localDir) {
+            return $this->localDir;
+        }
+
         $home = System::getProperty("jppm.home") . "/../download/git";
 
         $source = new URL($this->getNormalSource());
 
-        $dir = "$home/{$source->getHost()}/{$source->getPath()}";
-        return $dir;
+        $suffix = "";
+
+        do {
+            $dir = "$home/{$source->getHost()}/{$source->getPath()}" . ($suffix ? ".$suffix" : "");
+
+            if (fs::isFile("$dir.lock")) {
+                $lockTime = (int)fs::get("$dir.lock");
+
+                if (Time::millis() > $lockTime + 60 * 1000 * 2) {
+                    break;
+                } else {
+                    $suffix++;
+                    continue;
+                }
+            }
+
+            break;
+        } while (true);
+
+        try {
+            $file = new File("$dir.lock");
+            $file->deleteOnExit();
+
+            fs::ensureParent($file);
+            Stream::putContents($file, Time::millis());
+        } catch (IOException $e) {
+            // nop.
+        }
+
+        return $this->localDir = $dir;
     }
 
     /**
@@ -211,7 +252,7 @@ class GitRepository extends ExternalRepository
         $git->clean(['force' => true]);
         $ref = 'jppm-' . $pkgVersion;
 
-        if ($git->findRef($ref)) {
+        if ($git->getBranch() !== $ref && $git->findRef($ref)) {
             $git->branchDelete([$ref], true);
         }
 
@@ -219,6 +260,18 @@ class GitRepository extends ExternalRepository
 
         $git->checkout(['startPoint' => $ref, 'name' => $ref]);
         $git->merge([$pkgVersion], ['commit' => 'false']);
+
+        try {
+            $realPkg = Package::readPackage("$dir/" . Package::FILENAME);
+        } catch (IOException $e) {
+            Console::error("Package '{0}' hasn't 'package.php.yml' file.", $pkgName);
+            return false;
+        }
+
+        if ($realPkg->getName() !== $pkgName) {
+            Console::error("Invalid package name '{0}', real name is '{1}'", $pkgName, $realPkg->getName());
+            return false;
+        }
 
         fs::clean($toDir);
 

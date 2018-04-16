@@ -7,6 +7,7 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.reflection.ClassEntity;
 
@@ -153,6 +154,24 @@ public class WrapThreadPool extends BaseObject {
     @Signature
     public Memory isTerminated(Environment env, Memory... args){
         return service.isTerminated() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getActiveCount(Environment env, Memory... args) {
+        if (service instanceof ThreadPoolExecutor) {
+            return LongMemory.valueOf(((ThreadPoolExecutor) service).getActiveCount());
+        }
+
+        return Memory.NULL;
+    }
+
+    @Signature
+    public Memory getTaskCount(Environment env, Memory... args) {
+        if (service instanceof ThreadPoolExecutor) {
+            return LongMemory.valueOf(((ThreadPoolExecutor) service).getTaskCount());
+        }
+
+        return Memory.NULL;
     }
 
     @Signature(@Arg("timeout"))

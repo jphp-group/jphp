@@ -33,21 +33,48 @@ class Ignore
     }
 
     /**
-     * @param string $file
+     * @param string $dir
+     * @param string $prefix
+     * @param int $depth
      * @return Ignore
      */
-    public static function ofFile(string $file)
+    public static function ofDir(string $dir, string $prefix = '', int $depth = 0): Ignore
+    {
+        $ignore = Ignore::ofFile("$dir/.jppmignore", $prefix);
+
+        /*if ($depth < 3) {
+            $dirs = fs::scan($dir, ['excludeFiles' => true]);
+
+            foreach ($dirs as $sub) {
+                $name = fs::name($sub);
+
+                $subIgnore = Ignore::ofDir("$dir/$name", $prefix ? "$prefix/$name/" : '', $depth + 1);
+                if ($subIgnore) {
+                    $ignore->addIgnore($subIgnore);
+                }
+            }
+        }*/
+
+        return $ignore;
+    }
+
+    /**
+     * @param string $file
+     * @param string $prefix
+     * @return Ignore
+     */
+    public static function ofFile(string $file, string $prefix = ''): Ignore
     {
         $rules = [];
 
         try {
             $stream = Stream::of($file);
-            $stream->eachLine(function ($line) use (&$rules) {
+            $stream->eachLine(function ($line) use (&$rules, $prefix) {
                 $line = str::trim($line);
 
                 if ($line[0] === '#') return;
 
-                $rules[] = $line;
+                $rules[] = $prefix . $line;
             });
             $stream->close();
         } catch (IOException $e) {

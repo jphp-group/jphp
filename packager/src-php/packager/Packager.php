@@ -7,8 +7,11 @@ use php\format\YamlProcessor;
 use php\io\IOException;
 use php\io\Stream;
 use php\lang\System;
+use php\lang\ThreadPool;
 use php\lib\fs;
 use php\lib\str;
+use php\time\Time;
+use php\time\Timer;
 use Tasks;
 
 /**
@@ -62,7 +65,7 @@ class Packager
         }
 
         $this->repo = new Repository("$dir/repo");
-        $this->ignore = Ignore::ofFile("./.jppmignore");
+        $this->ignore = Ignore::ofDir("./");
         $this->ignore->setBase('/')
             ->addRule('/vendor/**')
             ->addRule('/package-lock.php.yml');
@@ -112,8 +115,16 @@ class Packager
     {
         fs::makeDir($vendor->getDir());
 
-        $tree = $this->fetchDependencyTree($source);
-        $devTree = $this->fetchDependencyTree($source, 'dev');
+        $thPool = ThreadPool::create(4, 8);
+
+        $tree = $this->fetchDependencyTree($source, '', null, $thPool);
+        $devTree = $this->fetchDependencyTree($source, 'dev', null, $thPool);
+
+        while ($thPool->getActiveCount() > 0) {
+            Timer::sleep('0.1s');
+        }
+
+        $thPool->shutdown();
 
         $this->packageLock->load($vendor->getDir() . "/../");
         $this->packageLoader->clean();
@@ -157,9 +168,10 @@ class Packager
      * @param Package $package
      * @param string $scope '' or 'dev'
      * @param PackageDependencyTree $parent
+     * @param null|ThreadPool $threadPool
      * @return PackageDependencyTree
      */
-    public function fetchDependencyTree(Package $package, string $scope = '', ?PackageDependencyTree $parent = null): PackageDependencyTree
+    public function fetchDependencyTree(Package $package, string $scope = '', ?PackageDependencyTree $parent = null, ?ThreadPool $threadPool = null): PackageDependencyTree
     {
         $result = new PackageDependencyTree($package, $parent);
 
@@ -169,14 +181,23 @@ class Packager
             if ($parent && $parent->findByName($dep)) {
                 continue;
             }
-            if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
-                $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
-            } else {
-                if ($parent) {
-                    $parent->addInvalidDep($dep, $version);
-                }
 
-                $result->addInvalidDep($dep, $version);
+            $handler = function () use ($dep, $version, $result, $parent, $threadPool) {
+                if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
+                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result, $threadPool));
+                } else {
+                    if ($parent) {
+                        $parent->addInvalidDep($dep, $version);
+                    }
+
+                    $result->addInvalidDep($dep, $version);
+                }
+            };
+
+            if ($threadPool) {
+                $threadPool->execute($handler);
+            } else {
+                $handler();
             }
         }
 

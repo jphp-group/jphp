@@ -22,8 +22,6 @@ dependencies {
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-compress-ext')
     compile project(':exts/jphp-json-ext')
-    compile project(':exts/jphp-jsoup-ext')
-    compile project(':exts/jphp-httpserver-ext')
     compile project(':exts/jphp-semver-ext')
     compile project(':exts/jphp-text-ext')
     compile project(':exts/jphp-httpclient-ext')

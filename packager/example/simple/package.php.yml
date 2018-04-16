@@ -1,13 +1,9 @@
 name: simple
 version: 1.0.0
-repos:
-- jphp
-- central
-- https://github.com/jphp-compiler/jphp-repo/releases # repo with hello-world.
 
 deps:
   jphp-core: '*'
-  jppm-helloworld: github.com/jphp-compiler/jppm-helloworld
+  jppm-helloworld: github.com/jphp-compiler/jppm-helloworld#dev
 
 plugins:
 - App

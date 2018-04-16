@@ -25,6 +25,7 @@ use php\lib\reflect;
 use php\lib\str;
 use php\time\Time;
 use php\time\Timer;
+use php\util\SharedValue;
 use semver\SemVersion;
 
 /**
@@ -53,21 +54,30 @@ class Repository
      */
     private $sessionCache = [];
 
+
+    private $lock;
+
     /**
      * Repository constructor.
      * @param string $directory
      */
     public function __construct(string $directory)
     {
+        $this->lock = new SharedValue();
+
         $this->dir = $directory;
-        try {
-            $this->cache = fs::parseAs("$directory/cache.json", "json");
-        } catch (IOException | ProcessorException $e) {
-            $this->cache = [];
+
+        if (fs::isFile("$directory/cache.json")) {
+            try {
+                $this->cache = fs::parseAs("$directory/cache.json", "json");
+            } catch (IOException | ProcessorException $e) {
+                Console::warn("Failed to load repo cache, {0}", $e->getMessage());
+                $this->cache = [];
+            }
         }
 
         $this->addExternalRepoByString("jphp");
-        $this->addExternalRepoByString("central");
+        //$this->addExternalRepoByString("central");
     }
 
     /**
@@ -110,30 +120,36 @@ class Repository
         Console::log("-> get versions of package {0}, source: {1}", $pkgName, $repository->getSource());
 
         try {
-            $cache = [
-                'versions' => $repository->getVersions($pkgName),
-                'time' => Time::millis()
-            ];
+            $versions = $repository->getVersions($pkgName);
 
-            $this->sessionCache['external'][$repository->getSource()][$pkgName] = $cache;
+            $this->lock->synchronize(function () use ($repository, $pkgName, $versions) {
+                $cache = [
+                    'versions' => $versions,
+                    'time' => Time::millis()
+                ];
 
-            if ($repository->isNeedCache()) {
-                $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
+                $this->sessionCache['external'][$repository->getSource()][$pkgName] = $cache;
 
-                $this->saveCache();
-            }
+                if ($repository->isNeedCache()) {
+                    $this->cache['external'][$repository->getSource()][$pkgName] = $cache;
+
+                    $this->saveCache();
+                }
+            });
 
             return (array)$cache['versions'];
         } catch (IOException|ProcessorException $e) {
-            $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
-            $this->sessionCache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+            $this->lock->synchronize(function () use ($repository, $pkgName) {
+                $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
+                $this->sessionCache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
 
-            if ($repository->isNeedCache()) {
-                $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
-                $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
-            }
+                if ($repository->isNeedCache()) {
+                    $this->cache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
+                    $this->cache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
+                }
 
-            $this->saveCache();
+                $this->saveCache();
+            });
 
             return [];
             // nop.
@@ -151,7 +167,9 @@ class Repository
         $versions = $this->getVersionsFromExternal($repository, $pkgName);
         $result = $versions[$version];
 
-        $result['repo'] = $repository->getSource();
+        if ($result) {
+            $result['repo'] = $repository->getSource();
+        }
 
         return $result;
     }
@@ -248,8 +266,14 @@ class Repository
                         $localInfo = $this->getVersionInfo($name, $version);
 
                         if ($externalInfo != null && $localInfo != null) {
-                            if ($externalInfo['size'] !== $localInfo['size'] || $externalInfo['sha256'] !== $localInfo['sha256']) {
-                                $versions[$version] = $external;
+                            if (isset($externalInfo['hash'])) {
+                                if ($externalInfo['hash'] !== $localInfo['hash']) {
+                                    $versions[$version] = $external;
+                                }
+                            } else {
+                                if ($externalInfo['size'] !== $localInfo['size'] || $externalInfo['sha256'] !== $localInfo['sha256']) {
+                                    $versions[$version] = $external;
+                                }
                             }
                         }
                     }
@@ -284,14 +308,14 @@ class Repository
             }
         }
 
-        $versions = $this->getPackageVersions($name, false, $cached);
-
         $repo = new GitRepository($versionPattern);
 
         $foundVersion = $foundVersionSource = null;
         $complex = false;
 
         if ($repo->isFit()) {
+            $versions = $this->getPackageVersions($name, true, $cached);
+
             $versionPattern = $repo->getHash();
             $complex = true;
 
@@ -299,14 +323,19 @@ class Repository
                 $versions[$versionPattern] = $repo;
             } else {
                 $oldInfo = $this->getVersionInfo($name, $versionPattern);
-                $newInfo = $cached ?
-                    $this->getVersionInfoFromExternal($repo, $name, $versionPattern)
-                    : $repo->getVersions($name)[$versionPattern];
 
-                if ($oldInfo != $newInfo) {
+                $newInfo = $cached ? $this->getVersionInfoFromExternal($repo, $name, $versionPattern) : null;
+
+                if (!$newInfo) {
+                    $newInfo = $repo->getVersions($name)[$versionPattern];
+                }
+
+                if ($oldInfo['hash'] !== $newInfo['hash']) {
                     $versions[$versionPattern] = $repo;
                 }
             }
+        } else {
+            $versions = $this->getPackageVersions($name, false, $cached);
         }
 
         if (!$foundVersion) {
@@ -377,8 +406,7 @@ class Repository
      * @param array $info
      * @return null|Package
      */
-    public
-    function getPackage(string $name, string $version, array $info = []): ?Package
+    public function getPackage(string $name, string $version, array $info = []): ?Package
     {
         $file = "$this->dir/$name/$version/" . Package::FILENAME;
         $infoFile = "$this->dir/$name/$version.json";
@@ -473,6 +501,8 @@ class Repository
 
         if (fs::isFile($file)) {
             $package = $this->readPackage($file);
+            $ignore = Ignore::ofDir($directory);
+
             $destDir = fs::normalize("$this->dir/{$package->getName()}/{$package->getRealVersion()}");
 
             fs::clean($destDir);
@@ -480,12 +510,17 @@ class Repository
 
             $directory = fs::normalize($directory);
 
-            fs::scan($directory, function ($filename) use ($destDir, $directory) {
-                $relName = str::sub($filename, str::length($directory) + 1);
+            fs::scan($directory, function ($filename) use ($destDir, $directory, $ignore) {
+                $relName = fs::relativize($filename, $directory);
+
+                if ($ignore->test($relName)) {
+                    return;
+                }
 
                 if (fs::isDir($filename)) {
                     fs::makeDir("$destDir/$relName");
                 } else {
+                    fs::ensureParent("$destDir/$relName");
                     fs::copy($filename, "$destDir/$relName", null, 1024 * 256);
                 }
             });

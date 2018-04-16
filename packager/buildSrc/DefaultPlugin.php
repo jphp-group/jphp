@@ -25,7 +25,7 @@ use php\net\URL;
 use semver\SemVersion;
 
 /**
- * @jppm-task server
+ * //jppm-task server
  * @jppm-task repo
  * @jppm-task install
  * @jppm-task update

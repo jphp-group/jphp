@@ -2,5 +2,6 @@
 dependencies {
     provided project(':jphp-runtime')
 
+    compile "org.slf4j:slf4j-simple:1.7.2"
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.7.0.201704051617-r'
 }

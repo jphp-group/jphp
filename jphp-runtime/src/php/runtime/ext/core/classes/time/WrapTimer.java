@@ -47,6 +47,11 @@ public class WrapTimer extends BaseWrapper<TimerTask> {
         return getWrappedObject().scheduledExecutionTime();
     }
 
+    @Signature
+    public static void sleep(String period) throws InterruptedException {
+        Thread.sleep(parsePeriod(period));
+    }
+
     private synchronized static Timer timer() {
         if (timer != null) {
             return timer;

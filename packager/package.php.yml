@@ -1,9 +1,5 @@
 name: jppm
-version: 0.1.8
-
-repos:
-- jphp
-- central
+version: 0.1.10
 
 plugins:
 - GitHub
@@ -14,6 +10,9 @@ github:
   title: '%name% %version%'
   description: |
     > JPHP Package Manager v%version%
+
+    **What's new**
+    + Improve performance of `install` task.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

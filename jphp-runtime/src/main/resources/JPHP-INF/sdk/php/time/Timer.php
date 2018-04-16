@@ -78,6 +78,13 @@ class Timer
     {
     }
 
+    /**
+     * Sleep period time.
+     * @param string $period
+     */
+    static function sleep(string $period)
+    {
+    }
 
     /**
      * Call all timer tasks which scheduled.
