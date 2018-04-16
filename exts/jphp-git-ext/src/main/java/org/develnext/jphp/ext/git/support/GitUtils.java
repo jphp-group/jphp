@@ -14,6 +14,7 @@ import org.eclipse.jgit.transport.OperationResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
 import php.runtime.Memory;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -179,6 +180,13 @@ public class GitUtils {
         memory.refOfIndex("mirror").assign(value.isMirror());
         memory.refOfIndex("timeout").assign(value.getTimeout());
         memory.refOfIndex("tagOpt").assign(value.getTagOpt().name());
+        ArrayMemory uris = ArrayMemory.createListed(value.getURIs().size());
+
+        for (URIish urIish : value.getURIs()) {
+            uris.add(urIish.toPrivateString());
+        }
+
+        memory.refOfIndex("uris").assign(uris);
 
         return memory;
     }

@@ -16,10 +16,11 @@ class Git
     /**
      * Git constructor.
      * @param string $directory
+     * @param bool $createIfNotExists
      *
      * @throws IOException
      */
-    function __construct($directory)
+    function __construct($directory, bool $createIfNotExists = true)
     {
     }
 

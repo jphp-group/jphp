@@ -112,6 +112,14 @@ class Package
     /**
      * @return null|string
      */
+    public function getRealVersion(): ?string
+    {
+        return $this->info['realVersion'] ?? $this->getVersion();
+    }
+
+    /**
+     * @return null|string
+     */
     public function getMain(): ?string
     {
         return $this->data['main'];

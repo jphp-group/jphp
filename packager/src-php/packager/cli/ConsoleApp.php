@@ -47,61 +47,62 @@ class ConsoleApp
 
     function main(array $args)
     {
-        $stderr = Stream::of("php://stderr");
+        try {
+            $this->packager = new Packager();
 
-        $this->packager = new Packager();
+            $args = flow($args)->find(function ($arg) {
+                if (str::startsWith($arg, "--")) {
+                    $this->flags[str::sub($arg, 2)] = true;
+                    return false;
+                }
 
-        $args = flow($args)->find(function ($arg) {
-            if (str::startsWith($arg, "--")) {
-                $this->flags[str::sub($arg, 2)] = true;
-                return false;
+                if (str::startsWith($arg, "-")) {
+                    $this->flags[str::sub($arg, 1)] = true;
+                    return false;
+                }
+
+                return true;
+            })->toArray();
+
+            $command = $args[1];
+
+            if ($this->isFlag('debug')) {
+                $this->debug = true;
+                Console::log("args = " . var_export($args, true));
             }
 
-            if (str::startsWith($arg, "-")) {
-                $this->flags[str::sub($arg, 1)] = true;
-                return false;
+            $this->loadPlugin(DefaultPlugin::class);
+
+            if ($this->getPackage()) {
+                $this->loadPlugins();
+
+                foreach ($this->getPackage()->getRepos() as $repo) {
+                    $this->packager->getRepo()->addExternalRepoByString($repo);
+                }
+
+                $scripts = $this->packager->loadTasks($this->getPackage());
+
+                foreach ($scripts as $bin => $handler) {
+                    $invoker = Invoker::of($handler);
+
+                    $description = Annotations::get(
+                        'jppm-description',
+                        $invoker->getDescription(),
+                        "script " . (is_string($handler) ? $handler : '')
+                    );
+
+                    $dependsOn = Annotations::get('jppm-depends-on', $invoker->getDescription(), []);
+
+                    $this->addCommand($bin, function ($args) use ($invoker, $handler) {
+                        $invoker->call(new Event($this->packager, $this->getPackage(), $args));
+                    }, $description, $dependsOn);
+                }
             }
 
-            return true;
-        })->toArray();
-
-        $command = $args[1];
-
-        if ($this->isFlag('debug')) {
-            $this->debug = true;
-            Console::log("args = " . var_export($args, true));
+            $this->invokeTask($command, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
+        } finally {
+            Timer::shutdownAll();
         }
-
-        $this->loadPlugin(DefaultPlugin::class);
-
-        if ($this->getPackage()) {
-            $this->loadPlugins();
-
-            foreach ($this->getPackage()->getRepos() as $repo) {
-                $this->packager->getRepo()->addExternalRepoByString($repo);
-            }
-
-            $scripts = $this->packager->loadTasks($this->getPackage());
-
-            foreach ($scripts as $bin => $handler) {
-                $invoker = Invoker::of($handler);
-
-                $description = Annotations::get(
-                    'jppm-description',
-                    $invoker->getDescription(),
-                    "script " . (is_string($handler) ? $handler : '')
-                );
-
-                $dependsOn = Annotations::get('jppm-depends-on', $invoker->getDescription(), []);
-
-                $this->addCommand($bin, function ($args) use ($invoker, $handler) {
-                    $invoker->call(new Event($this->packager, $this->getPackage(), $args));
-                }, $description, $dependsOn);
-            }
-        }
-
-        $this->invokeTask($command, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
-        Timer::shutdownAll();
     }
 
     /**

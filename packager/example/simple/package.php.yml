@@ -7,8 +7,7 @@ repos:
 
 deps:
   jphp-core: '*'
-  jphp-zend-ext: '*'
-  hello-world: '*'
+  jppm-helloworld: github.com/jphp-compiler/jppm-helloworld
 
 plugins:
 - App

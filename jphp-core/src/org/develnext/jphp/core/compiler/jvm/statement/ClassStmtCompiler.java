@@ -422,7 +422,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 }
                 entity.addConstant(constantEntity).check(compiler.getEnvironment());
             } else {
-                if (ValueExprToken.isConstable(el.value.getSingle(), false)) {
+                if (ValueExprToken.isConstable(el.value.getSingle(), true)) {
                     dynamicConstants.add(el);
                     entity.addConstant(constantEntity).check(compiler.getEnvironment());
                 } else {

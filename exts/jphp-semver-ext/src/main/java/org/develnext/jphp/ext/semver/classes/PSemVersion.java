@@ -1,5 +1,7 @@
 package org.develnext.jphp.ext.semver.classes;
 
+import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import org.develnext.jphp.ext.semver.SemverExtension;
 import php.runtime.annotation.Reflection;
@@ -29,7 +31,11 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
 
     @Signature
     public void __construct(String version) {
-        value = Version.valueOf(version);
+        try {
+            value = Version.valueOf(version);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     @Signature

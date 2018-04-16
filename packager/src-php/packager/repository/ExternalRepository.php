@@ -42,4 +42,10 @@ abstract class ExternalRepository
 
     abstract public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool;
     abstract public function getVersions(string $pkgName): array;
+
+
+    public function downloadToDirectory(string $pkgName, string $pkgVersion, string $toDir): bool
+    {
+        return false;
+    }
 }

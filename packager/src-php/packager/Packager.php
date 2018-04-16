@@ -127,7 +127,7 @@ class Packager
                 $prefix = str::repeat('-', $depth);
 
                 if ($forceUpdate || !$vendor->alreadyInstalled($pkg, $this->packageLock)) {
-                    Console::log("{$prefix}-> install {0}", $pkg->toString());
+                    Console::log("{$prefix}-> install {0}@{1}", $pkg->getName(), $pkg->getRealVersion());
 
                     $this->repo->copyTo($pkg, $vendor->getDir());
                 }

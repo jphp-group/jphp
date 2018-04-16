@@ -1,5 +1,7 @@
 <?php
+
 namespace packager;
+
 use compress\GzipInputStream;
 use compress\GzipOutputStream;
 use compress\TarArchive;
@@ -8,6 +10,7 @@ use packager\cli\Console;
 use packager\repository\ExternalRepository;
 use packager\repository\GithubReleasesRepository;
 use packager\repository\GithubRepository;
+use packager\repository\GitRepository;
 use packager\repository\LocalDirRepository;
 use packager\repository\ServerRepository;
 use php\format\JsonProcessor;
@@ -15,6 +18,7 @@ use php\format\ProcessorException;
 use php\io\File;
 use php\io\IOException;
 use php\io\Stream;
+use php\lang\IllegalArgumentException;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\reflect;
@@ -119,7 +123,7 @@ class Repository
                 $this->saveCache();
             }
 
-            return (array) $cache['versions'];
+            return (array)$cache['versions'];
         } catch (IOException|ProcessorException $e) {
             $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
             $this->sessionCache['external'][$repository->getSource()][$pkgName]['time'] = Time::millis();
@@ -222,7 +226,7 @@ class Repository
      */
     public function getPackageVersions(string $name, bool $onlyLocal = true, bool $cached = true): array
     {
-        Console::debug("Repository.GetPackageVersions pkg={0} onlyLocal={1} cached={2}", $name, $onlyLocal ? 'yes':'no', $cached ? 'yes':'no');
+        Console::debug("Repository.GetPackageVersions pkg={0} onlyLocal={1} cached={2}", $name, $onlyLocal ? 'yes' : 'no', $cached ? 'yes' : 'no');
 
         $dir = "$this->dir/$name/";
 
@@ -265,7 +269,10 @@ class Repository
      */
     public function findPackage(string $name, string $versionPattern, ?PackageLock $lock = null, bool $cached = true): ?Package
     {
-        Console::debug("Repository.FindPackage pkg={0}@{1} lock={2} cached={3}", $name, $versionPattern, $lock ? 'exists' : 'none', $cached ? 'yes' : 'no');
+        Console::debug(
+            "Repository.FindPackage pkg={0}@{1} lock={2} cached={3}",
+            $name, $versionPattern, $lock ? 'exists' : 'none', $cached ? 'yes' : 'no'
+        );
 
         if ($lock) {
             $lockVersion = $lock->findVersion($name);
@@ -279,32 +286,64 @@ class Repository
 
         $versions = $this->getPackageVersions($name, false, $cached);
 
-        $foundVersions = [];
+        $repo = new GitRepository($versionPattern);
 
-        foreach ($versions as $version => $source) {
-            $semVer = new SemVersion($version);
+        $foundVersion = $foundVersionSource = null;
+        $complex = false;
 
-            if ($version === $versionPattern) {
-                $foundVersions[$version] = $source;
-                continue;
-            }
+        if ($repo->isFit()) {
+            $versionPattern = $repo->getHash();
+            $complex = true;
 
-            try {
-                if ($semVer->satisfies($versionPattern === '' ? '*' : $versionPattern)) {
-                    $foundVersions[$version] = $source;
+            if (!$versions[$versionPattern]) {
+                $versions[$versionPattern] = $repo;
+            } else {
+                $oldInfo = $this->getVersionInfo($name, $versionPattern);
+                $newInfo = $cached ?
+                    $this->getVersionInfoFromExternal($repo, $name, $versionPattern)
+                    : $repo->getVersions($name)[$versionPattern];
+
+                if ($oldInfo != $newInfo) {
+                    $versions[$versionPattern] = $repo;
                 }
-            } catch (\Exception $e) {
-                unset($foundVersions[$version]);
-                Console::warn("Invalid version '{0}', pattern is '{1}', {2}, ignored.", $version, $versionPattern, $e->getMessage());
             }
         }
 
-        $foundVersions = arr::sortByKeys($foundVersions, function ($a, $b) { return new SemVersion($a) <=> new SemVersion($b); }, true);
-        $foundVersion = arr::lastKey($foundVersions);
-        $foundVersionSource = arr::last($foundVersions);
+        if (!$foundVersion) {
+            $foundVersions = [];
+
+            foreach ($versions as $version => $source) {
+                if ($version === $versionPattern) {
+                    $foundVersions[$version] = $source;
+                    continue;
+                }
+
+                try {
+                    try {
+                        $semVer = new SemVersion($version);
+                    } catch (IllegalArgumentException $e) {
+                        continue;
+                    }
+
+                    if ($semVer->satisfies($versionPattern === '' ? '*' : $versionPattern)) {
+                        $foundVersions[$version] = $source;
+                    }
+                } catch (\Exception $e) {
+                    if (!$complex) {
+                        unset($foundVersions[$version]);
+                        Console::warn("Invalid version '{0}@{1}', pattern is '{2}', {3}, ignored.", $name, $version, $versionPattern, $e->getMessage());
+                    }
+                }
+            }
+
+            $foundVersions = arr::sortByKeys($foundVersions, function ($a, $b) {
+                return new SemVersion($a) <=> new SemVersion($b);
+            }, true);
+            $foundVersion = arr::lastKey($foundVersions);
+            $foundVersionSource = arr::last($foundVersions);
+        }
 
         if ($foundVersion) {
-
             if ($foundVersionSource instanceof ExternalRepository) {
                 $foundVersionInfo = $this->getVersionInfoFromExternal($foundVersionSource, $name, $foundVersion);
 
@@ -312,18 +351,19 @@ class Repository
 
                 $indexFile = "$this->dir/$name/$foundVersion.json";
                 $archFile = "$this->dir/$name/$foundVersion.tar.gz";
+                $dirFile = "$this->dir/$name/$foundVersion";
                 fs::ensureParent($archFile);
 
                 if ($foundVersionSource->downloadTo($name, $foundVersion, $archFile)) {
                     $this->installFromArchive($archFile);
                     fs::delete($archFile);
                     fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
+                } else if ($foundVersionSource->downloadToDirectory($name, $foundVersion, $dirFile)) {
+                    fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
                 }
             }
 
-            $pkg = $this->getPackage($name, "$foundVersion", [
-                'new' => $foundVersionSource instanceof ExternalRepository
-            ]);
+            $pkg = $this->getPackage($name, "$foundVersion");
 
             return $pkg;
         }
@@ -337,7 +377,8 @@ class Repository
      * @param array $info
      * @return null|Package
      */
-    public function getPackage(string $name, string $version, array $info = []): ?Package
+    public
+    function getPackage(string $name, string $version, array $info = []): ?Package
     {
         $file = "$this->dir/$name/$version/" . Package::FILENAME;
         $infoFile = "$this->dir/$name/$version.json";
@@ -358,8 +399,8 @@ class Repository
     public function copyTo(Package $package, string $vendorDir)
     {
         fs::makeDir($vendorDir);
-
-        $dir = fs::normalize("$this->dir/{$package->getName()}/{$package->getVersion('last')}/");
+        
+        $dir = fs::normalize("$this->dir/{$package->getName()}/{$package->getRealVersion()}/");
 
         fs::clean("$vendorDir/{$package->getName()}");
 
@@ -391,7 +432,7 @@ class Repository
      */
     public function archivePackage(Package $package): ?File
     {
-        $path = "$this->dir/{$package->getName()}/{$package->getVersion()}";
+        $path = "$this->dir/{$package->getName()}/{$package->getRealVersion()}";
 
         if (fs::isDir($path)) {
             $archFile = new File("$path.tar.gz");
@@ -432,7 +473,7 @@ class Repository
 
         if (fs::isFile($file)) {
             $package = $this->readPackage($file);
-            $destDir = fs::normalize("$this->dir/{$package->getName()}/{$package->getVersion('last')}");
+            $destDir = fs::normalize("$this->dir/{$package->getName()}/{$package->getRealVersion()}");
 
             fs::clean($destDir);
             fs::makeDir($destDir);
@@ -463,35 +504,35 @@ class Repository
         /** @var Package $package */
         $package = null;
 
-            $entry = $arch->read(Package::FILENAME, function ($stat, Stream $stream) use (&$package, $archFile) {
-                $package = $this->readPackage($stream);
+        $entry = $arch->read(Package::FILENAME, function ($stat, Stream $stream) use (&$package, $archFile) {
+            $package = $this->readPackage($stream);
+        });
+
+        if ($entry) {
+            $dir = "$this->dir/{$package->getName()}/{$package->getRealVersion()}";
+
+            if (fs::isDir($dir)) {
+                fs::clean($dir);
+            }
+
+            if (fs::exists($dir)) {
+                fs::delete($dir);
+            }
+
+            fs::makeDir($dir);
+
+            $arch = new TarArchive(new GzipInputStream($archFile));
+            $arch->readAll(function (TarArchiveEntry $entry, ?Stream $stream) use ($dir) {
+                if ($entry->isDirectory()) {
+                    fs::makeDir("$dir/$entry->name");
+                } else {
+                    fs::ensureParent("$dir/$entry->name");
+                    fs::copy($stream, "$dir/$entry->name");
+                }
             });
 
-            if ($entry) {
-                $dir = "$this->dir/{$package->getName()}/{$package->getVersion('last')}";
-
-                if (fs::isDir($dir)) {
-                    fs::clean($dir);
-                }
-
-                if (fs::exists($dir)) {
-                    fs::delete($dir);
-                }
-
-                fs::makeDir($dir);
-
-                $arch = new TarArchive(new GzipInputStream($archFile));
-                $arch->readAll(function (TarArchiveEntry $entry, ?Stream $stream) use ($dir) {
-                    if ($entry->isDirectory()) {
-                        fs::makeDir("$dir/$entry->name");
-                    } else {
-                        fs::ensureParent("$dir/$entry->name");
-                        fs::copy($stream, "$dir/$entry->name");
-                    }
-                });
-
-                return true;
-            }
+            return true;
+        }
 
 
         return false;
@@ -506,7 +547,9 @@ class Repository
     {
         $modules = fs::scan($this->dir, ['excludeFiles' => true], 1);
 
-        $name = function ($el) { return fs::name($el); };
+        $name = function ($el) {
+            return fs::name($el);
+        };
 
         if ($destDir === null) {
             $destDir = $this->dir;
@@ -535,7 +578,8 @@ class Repository
             $versions = fs::scan("$this->dir/$module", ['excludeFiles' => true], 1);
 
             foreach ($versions as $version) {
-                $size = 0; $hash = '';
+                $size = 0;
+                $hash = '';
 
                 foreach (arr::sort(fs::scan($version)) as $file) {
                     if (fs::isFile($file)) {
@@ -595,8 +639,8 @@ class Repository
                 $arch->close();
 
                 $index[fs::name($version)] = [
-                    'size'   => $size,
-                    'sha256'   => $hash,
+                    'size' => $size,
+                    'sha256' => $hash,
                 ];
             }
 
@@ -619,7 +663,7 @@ class Repository
      */
     public function delete(Package $oldPkg)
     {
-        return fs::delete("$this->dir/{$oldPkg->getName()}/{$oldPkg->getVersion()}");
+        return fs::delete("$this->dir/{$oldPkg->getName()}/{$oldPkg->getRealVersion()}");
     }
 
     /**
@@ -650,11 +694,12 @@ class Repository
      * @return array
      * @internal param array $ignores
      */
-    public static function calcPackageInfo(string $packageDir, Ignore $ignore = null)
+    public
+    static function calcPackageInfo(string $packageDir, Ignore $ignore = null)
     {
         $size = 0;
         $hash = '';
-        
+
         foreach (arr::sort(fs::scan($packageDir)) as $file) {
             if (fs::isFile($file)) {
                 $mName = fs::relativize($file, $packageDir);
@@ -677,7 +722,8 @@ class Repository
     /**
      *
      */
-    public function cleanCache()
+    public
+    function cleanCache()
     {
         $this->cache = [];
         $this->saveCache();
