@@ -2,6 +2,9 @@
 namespace packager\repository;
 
 
+use httpclient\HttpClient;
+use httpclient\HttpRequest;
+use packager\cli\Console;
 use php\lang\IllegalArgumentException;
 use php\lib\fs;
 use php\lib\str;
@@ -33,12 +36,21 @@ class GithubRepository extends ExternalRepository
 
     public function getVersions(string $pkgName): array
     {
-        $versions = fs::parseAs(
-            "https://raw.githubusercontent.com{$this->sourceUrl->getPath()}/master/$pkgName/versions.json",
-            "json"
-        );
+        $client = new HttpClient();
 
-        return $versions;
+        $request = new HttpRequest(
+            'GET', "https://raw.githubusercontent.com{$this->sourceUrl->getPath()}/master/$pkgName/versions.json"
+        );
+        $request->responseType('JSON');
+
+        $res = $client->send($request);
+
+        if ($res->isSuccess()) {
+            return $res->body();
+        } else {
+            Console::warn("Failed to get version of '{0}' from '{1}', {2}", $pkgName, $this->getSource(), $res->statusMessage());
+            return [];
+        }
     }
 
     public function downloadTo(string $pkgName, string $pkgVersion, string $toFile): bool

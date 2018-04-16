@@ -137,7 +137,7 @@ class Repository
                 }
             });
 
-            return (array)$cache['versions'];
+            return (array) $versions;
         } catch (IOException|ProcessorException $e) {
             $this->lock->synchronize(function () use ($repository, $pkgName) {
                 $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
@@ -209,7 +209,7 @@ class Repository
     public function addExternalRepoByString(string $repo)
     {
         if ($repo === "jphp") {
-            $this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp-repo/releases"));
+            //$this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp-repo/releases"));
             return $this->addExternalRepo(new GithubRepository("https://github.com/jphp-compiler/jphp-repo"));
         }
 
