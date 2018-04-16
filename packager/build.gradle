@@ -128,15 +128,15 @@ task distSetupExe(dependsOn: 'dist') {
 task publish(type: Exec, dependsOn: ['dist']) {
     doFirst {
         def sh = [
-            '#!/usr/bin/env sh',
-            'cd ~',
-            "wget -O jppm-${jppmVersion}.tar.gz $jppmRepoAddress/releases/download/jppm-$jppmVersion/jppm-${jppmVersion}.tar.gz",
-            "mkdir -p /opt/jppm-$jppmVersion && tar -xzf ~/jppm-${jppmVersion}.tar.gz -C /opt/jppm-$jppmVersion/",
-            "sudo ln -sfn /opt/jppm-${jppmVersion}/jppm /usr/local/bin/jppm && chmod +x /opt/jppm-${jppmVersion}/jppm",
-            "echo \"----------------------------------------------\"",
-            "echo \"JPPM $jppmVersion has been installed.\"",
-            "echo \"-> try 'jppm version' to check it.\"",
-            "echo \"-> try 'jppm init' to start new project.\"",
+                '#!/usr/bin/env sh',
+                'cd ~',
+                "wget -O jppm-${jppmVersion}.tar.gz $jppmRepoAddress/releases/download/jppm-$jppmVersion/jppm-${jppmVersion}.tar.gz",
+                "mkdir -p /opt/jppm-$jppmVersion && tar -xzf ~/jppm-${jppmVersion}.tar.gz -C /opt/jppm-$jppmVersion/",
+                "sudo ln -sfn /opt/jppm-${jppmVersion}/jppm /usr/local/bin/jppm && chmod +x /opt/jppm-${jppmVersion}/jppm",
+                "echo \"----------------------------------------------\"",
+                "echo \"JPPM $jppmVersion has been installed.\"",
+                "echo \"-> try 'jppm version' to check it.\"",
+                "echo \"-> try 'jppm init' to start new project.\"",
         ];
 
         file("$buildDir/jppm-setup-${jppmVersion}.sh").text = sh.join("\n")
@@ -152,14 +152,10 @@ task publish(type: Exec, dependsOn: ['dist']) {
     }
 }
 
-try {
-    def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
+def innoSetupBin = "$innoSetupDir/ISCC.exe".replace("\\", "/")
 
-    if (file(innoSetupBin).isFile()) {
-        publish.dependsOn = ['dist', 'distSetupExe']
-    }
-} catch (URISyntaxException e) {
-    // nop.
+if (new File(innoSetupBin).isFile()) {
+    publish.dependsOn = ['dist', 'distSetupExe']
 }
 
 
