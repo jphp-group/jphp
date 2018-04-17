@@ -4,9 +4,17 @@ Error case: class constant as an array
 <?php
   class myclass
   {
-      const myConst = array();
+      const myConst = array(1, 2, 3);
   }
+
+  var_dump(myclass::myConst);
 ?>
 --EXPECTF--
-
-Fatal error: Expecting constant value for myclass::myConst in %s on line 4, position %d
+array(3) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+}
