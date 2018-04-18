@@ -30,6 +30,10 @@ class Ignore
     public function __construct(array $rules)
     {
         $this->rules = $rules;
+
+        $this->setBase('/');
+        $this->addRule('/vendor/**')
+            ->addRule('/package-lock.php.yml');
     }
 
     /**

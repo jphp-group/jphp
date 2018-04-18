@@ -46,7 +46,7 @@ class GithubReleasesRepository extends ExternalRepository
             $this->client->responseType = 'JSON';
             $this->client->requestType = 'JSON';
             $this->client->headers['Accept'] = 'application/vnd.github.v3+json';
-        } catch (IllegalArgumentException $e) {
+        } catch (IllegalArgumentException|IOException $e) {
             // ...
         }
     }

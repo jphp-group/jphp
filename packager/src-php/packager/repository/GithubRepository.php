@@ -5,6 +5,7 @@ namespace packager\repository;
 use httpclient\HttpClient;
 use httpclient\HttpRequest;
 use packager\cli\Console;
+use php\io\IOException;
 use php\lang\IllegalArgumentException;
 use php\lib\fs;
 use php\lib\str;
@@ -23,7 +24,7 @@ class GithubRepository extends ExternalRepository
 
         try {
             $this->sourceUrl = new URL($source);
-        } catch (IllegalArgumentException $e) {
+        } catch (IllegalArgumentException|IOException $e) {
             // ...
         }
     }

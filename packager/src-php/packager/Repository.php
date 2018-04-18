@@ -13,6 +13,7 @@ use packager\repository\GithubRepository;
 use packager\repository\GitRepository;
 use packager\repository\LocalDirRepository;
 use packager\repository\ServerRepository;
+use packager\repository\SingleExternalRepository;
 use php\format\JsonProcessor;
 use php\format\ProcessorException;
 use php\io\File;
@@ -34,6 +35,8 @@ use semver\SemVersion;
  */
 class Repository
 {
+    private static $externalRepoClasses = [];
+
     /**
      * @var string
      */
@@ -217,17 +220,12 @@ class Repository
             return $this->addExternalRepo(new GithubRepository('https://github.com/jphp-compiler/central-repo'));
         }
 
-        $classes = [
-            GithubReleasesRepository::class,
-            GithubRepository::class,
-            LocalDirRepository::class,
-            ServerRepository::class
-        ];
+        $classes = Repository::getExternalRepoClasses();
 
         foreach ($classes as $class) {
             /** @var ExternalRepository $r */
             $r = new $class($repo);
-            if ($r->isFit()) {
+            if ($r instanceof ExternalRepository && !($r instanceof SingleExternalRepository) && $r->isFit()) {
                 return $this->addExternalRepo($r);
             }
         }
@@ -308,33 +306,42 @@ class Repository
             }
         }
 
-        $repo = new GitRepository($versionPattern);
-
         $foundVersion = $foundVersionSource = null;
         $complex = false;
+        $found = false;
 
-        if ($repo->isFit()) {
-            $versions = $this->getPackageVersions($name, true, $cached);
+        $versions = [];
 
-            $versionPattern = $repo->getHash();
-            $complex = true;
+        foreach (static::$externalRepoClasses as $externalRepoClass) {
+            $repo = new $externalRepoClass($versionPattern);
 
-            if (!$versions[$versionPattern]) {
-                $versions[$versionPattern] = $repo;
-            } else {
-                $oldInfo = $this->getVersionInfo($name, $versionPattern);
+            if ($repo instanceof SingleExternalRepository && $repo->isFit()) {
+                $found = true;
+                $versions = $this->getPackageVersions($name, true, $cached);
 
-                $newInfo = $cached ? $this->getVersionInfoFromExternal($repo, $name, $versionPattern) : null;
+                $versionPattern = $repo->getHash();
+                $complex = true;
 
-                if (!$newInfo) {
-                    $newInfo = $repo->getVersions($name)[$versionPattern];
-                }
-
-                if ($oldInfo['hash'] !== $newInfo['hash']) {
+                if (!$versions[$versionPattern]) {
                     $versions[$versionPattern] = $repo;
+                } else {
+                    $oldInfo = $this->getVersionInfo($name, $versionPattern);
+
+                    $newInfo = $cached ? $this->getVersionInfoFromExternal($repo, $name, $versionPattern) : null;
+
+                    if (!$newInfo) {
+                        $newInfo = $repo->getVersions($name)[$versionPattern];
+                    }
+
+                    if ($oldInfo['hash'] !== $newInfo['hash']) {
+                        $versions[$versionPattern] = $repo;
+                    }
                 }
+                break;
             }
-        } else {
+        }
+
+        if (!$found) {
             $versions = $this->getPackageVersions($name, false, $cached);
         }
 
@@ -726,11 +733,10 @@ class Repository
      *
      * @param string $packageDir
      * @param Ignore|null $ignore
+     * @param string $algorithm
      * @return array
-     * @internal param array $ignores
      */
-    public
-    static function calcPackageInfo(string $packageDir, Ignore $ignore = null)
+    public static function calcPackageInfo(string $packageDir, Ignore $ignore = null, string $algorithm = 'SHA-256')
     {
         $size = 0;
         $hash = '';
@@ -742,23 +748,41 @@ class Repository
                 if ($ignore->test($mName)) continue;
 
                 $size += fs::size($file);
-                $hash .= fs::hash($file, 'SHA-256');
+                $hash .= fs::hash($file, $algorithm);
             }
         }
 
-        $hash = str::hash($hash, 'SHA-256');
+        $hash = str::hash($hash, $algorithm);
+
+        $key = str::lower($algorithm);
+        $key = str::replace($key, '-', '');
 
         return [
             'size' => $size,
-            'sha256' => $hash
+            $key => $hash
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getExternalRepoClasses(): array
+    {
+        return self::$externalRepoClasses;
+    }
+
+    /**
+     * @param string $class
+     */
+    public static function registerExternalRepositoryClass(string $class)
+    {
+        static::$externalRepoClasses[$class] = $class;
     }
 
     /**
      *
      */
-    public
-    function cleanCache()
+    public function cleanCache()
     {
         $this->cache = [];
         $this->saveCache();

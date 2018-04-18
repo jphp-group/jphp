@@ -9,6 +9,11 @@ use packager\JavaExec;
 use packager\Package;
 use packager\Packager;
 use packager\Repository;
+use packager\repository\GithubReleasesRepository;
+use packager\repository\GithubRepository;
+use packager\repository\GitRepository;
+use packager\repository\LocalDirRepository;
+use packager\repository\ServerRepository;
 use packager\server\Server;
 use packager\Vendor;
 use php\io\File;
@@ -48,6 +53,13 @@ class ConsoleApp
     function main(array $args)
     {
         try {
+            Repository::registerExternalRepositoryClass(GitRepository::class);
+            Repository::registerExternalRepositoryClass(LocalDirRepository::class);
+
+            Repository::registerExternalRepositoryClass(GithubRepository::class);
+            Repository::registerExternalRepositoryClass(GithubReleasesRepository::class);
+            Repository::registerExternalRepositoryClass(ServerRepository::class);
+
             $this->packager = new Packager();
 
             $args = flow($args)->find(function ($arg) {

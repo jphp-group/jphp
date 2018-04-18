@@ -66,9 +66,6 @@ class Packager
 
         $this->repo = new Repository("$dir/repo");
         $this->ignore = Ignore::ofDir("./");
-        $this->ignore->setBase('/')
-            ->addRule('/vendor/**')
-            ->addRule('/package-lock.php.yml');
 
         $this->packageLoader = new PackageLoader();
         $this->packageLock = new PackageLock();

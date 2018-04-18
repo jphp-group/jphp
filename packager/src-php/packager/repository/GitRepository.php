@@ -5,6 +5,7 @@ use compress\GzipOutputStream;
 use compress\TarArchive;
 use git\Git;
 use packager\cli\Console;
+use packager\Ignore;
 use packager\Package;
 use php\io\File;
 use php\io\IOException;
@@ -23,7 +24,7 @@ use semver\SemVersion;
  * Class GitRepository
  * @package packager\repository
  */
-class GitRepository extends ExternalRepository
+class GitRepository extends SingleExternalRepository
 {
     private const PREFIXES = ['git://', 'git+http://', 'git+https://', 'git+ssh://', 'git+file://'];
 
@@ -275,10 +276,12 @@ class GitRepository extends ExternalRepository
 
         fs::clean($toDir);
 
-        fs::scan($dir, function ($filename) use ($dir, $toDir) {
+        $ignore = Ignore::ofDir($dir);
+
+        fs::scan($dir, function ($filename) use ($dir, $toDir, $ignore) {
             $name = fs::relativize($filename, $dir);
 
-            if (fs::isFile($filename) && !str::startsWith($name, '.git/')) {
+            if (fs::isFile($filename) && !$ignore->test($name) && !str::startsWith($name, '.git/')) {
                 fs::ensureParent("$toDir/$name");
                 fs::copy($filename, "$toDir/$name", null, 1024 * 256);
             }

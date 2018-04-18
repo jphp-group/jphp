@@ -525,7 +525,7 @@ class DefaultPlugin
         $page = 1;
 
         do {
-            $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 500, 'page' => $page]);
+            $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 100, 'page' => $page]);
             $res = $client->send($request);
 
             if ($res->isSuccess()) {
@@ -639,6 +639,9 @@ class DefaultPlugin
             } else {
                 Console::log("\n   JPPM already updated to last version ({0}).", $event->packager()->getVersion());
             }
+        } else {
+            Console::error("Failed to get information about the last versions of jppm!");
+            exit(-1);
         }
     }
 
