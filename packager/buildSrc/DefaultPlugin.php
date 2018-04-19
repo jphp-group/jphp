@@ -16,6 +16,7 @@ use packager\Vendor;
 use php\format\JsonProcessor;
 use php\io\File;
 use php\io\Stream;
+use php\jsoup\Jsoup;
 use php\lang\Process;
 use php\lang\System;
 use php\lib\arr;
@@ -513,24 +514,51 @@ class DefaultPlugin
      */
     function selfUpdate(Event $event)
     {
+        $fetchVersionInfo = function ($release): ?array
+        {
+            $doc = Jsoup::parseText($release['body']);
+
+            foreach ($doc->select('details') as $spoiler) {
+                if (str::endsWith($spoiler->select('summary')->text(), '.json')) {
+                    $json = $spoiler->select('pre')->text();
+
+                    if ($json) {
+                        return str::parseAs($json, 'json');
+                    }
+                }
+            }
+
+            foreach ($release['assets'] as $asset) {
+                if ($asset['content_type'] === 'application/json') {
+                    return fs::parseAs($asset['browser_download_url'], 'json');
+                }
+            }
+
+            return null;
+        };
+
         $sourceUrl = new URL("https://github.com/jphp-compiler/jphp");
 
         $client = new HttpClient("https://api.github.com/repos{$sourceUrl->getPath()}");
 
-        $client->responseType = 'JSON';
-        $client->requestType = 'JSON';
         $client->headers['Accept'] = 'application/vnd.github.v3+json';
+        $client->handlers = [function (HttpRequest $request) {
+            Console::debug("-> {0} {1}", $request->method(), $request->url());
+        }];
 
         $releases = flow();
         $page = 1;
 
         do {
-            $request = new HttpRequest('GET', '/releases', ['rel' => 'last'], ['per_page' => 100, 'page' => $page]);
+            $request = new HttpRequest('GET', '/releases', [], ['per_page' => 100, 'page' => $page]);
+            $request->responseType('JSON');
+            $request->type('JSON');
+
             $res = $client->send($request);
 
             if ($res->isSuccess()) {
                 if ($res->body()) {
-                    $releases->append($res->body());
+                    $releases = $releases->append($res->body());
                     $page++;
                     continue;
                 } else {
@@ -552,23 +580,20 @@ class DefaultPlugin
         if ($releases) {
             $variants = [];
             foreach ($releases as $release) {
-                foreach ($release['assets'] as $asset) {
-                    if ($asset['content_type'] === 'application/json') {
-                        $info = fs::parseAs($asset['browser_download_url'], 'json');
-                        $downloadUrl = null;
+                $info = $fetchVersionInfo($release);
 
-                        foreach ($release['assets'] as $sub) {
-                            if ($sub['content_type'] === 'application/gzip') {
-                                $downloadUrl = $sub['browser_download_url'];
-                            }
+                if ($info) {
+                    $downloadUrl = null;
+
+                    foreach ($release['assets'] as $sub) {
+                        if ($sub['content_type'] === 'application/gzip') {
+                            $downloadUrl = $sub['browser_download_url'];
                         }
+                    }
 
-                        if ($downloadUrl) {
-                            $variants[$info['version']] = flow($info, ['url' => $downloadUrl])->toMap();
-                            $variants[$info['version']]['version'] = new SemVersion($info['version']);
-                        }
-
-                        break;
+                    if ($downloadUrl) {
+                        $variants[$info['version']] = flow($info, ['url' => $downloadUrl])->toMap();
+                        $variants[$info['version']]['version'] = new SemVersion($info['version']);
                     }
                 }
             }
@@ -694,7 +719,7 @@ class DefaultPlugin
             "del /f /s /q \"%JPPM_HOME%\" 1>nul",
 
             "if not exist \"%JPPM_HOME%\" mkdir \"%JPPM_HOME%\"",
-            "xcopy \"%JPPM_UPDATE_HOME%\" \"%JPPM_HOME%\" /s /h /e /k /f /c",
+            "xcopy \"%JPPM_UPDATE_HOME%\" \"%JPPM_HOME%\" /s /h /e /k /f /c /y",
 
             "del /f /s /q \"%JPPM_UPDATE_HOME%\" 1>nul",
             "rmdir /s /q \"%JPPM_UPDATE_HOME%\"",
