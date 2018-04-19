@@ -13,7 +13,7 @@ try {
 
     var_dump($col->count());
 
-    $doc = $col->insertOne(['x' => 1, 'y' => 2]);
+    $doc = $col->insertOne(['x' => 100, 'y' => 200]);
     var_dump(reflect::typeOf($doc['_id']));
 
     var_dump($col->count());
