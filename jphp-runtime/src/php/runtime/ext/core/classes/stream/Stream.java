@@ -179,7 +179,7 @@ abstract public class Stream extends BaseObject implements Resource {
             }
 
             return Memory.TRUE;
-        } catch (WrapIOException e) {
+        } catch (WrapIOException|IOException e) {
             return Memory.FALSE;
         } finally {
             if (stream != null) {

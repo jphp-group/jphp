@@ -1,1 +1,1 @@
-<?php$s =new \semver\SemVersion('0.9.3+SNAPSHOT');var_dump($s->satisfies('>=0.9.3'));
+<?phpuse php\lib\fs;function get($uid){    $donates = fs::parse('donates.json');    var_dump($uid);    var_dump($donates);    if ($donates[$uid]) {        return $donates[$uid];    }    return 'user';}echo get("206608447");

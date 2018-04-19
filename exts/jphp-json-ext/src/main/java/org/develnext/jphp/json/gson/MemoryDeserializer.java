@@ -4,10 +4,7 @@ import com.google.gson.*;
 import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.StdClass;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.DoubleMemory;
-import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
@@ -61,8 +58,10 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
             return Memory.NULL;
         } else if (json.isJsonArray()) {
             ArrayMemory array = new ArrayMemory();
-            for(JsonElement el : json.getAsJsonArray())
+            for(JsonElement el : json.getAsJsonArray()) {
                 array.add(convert(el, depth + 1).toImmutable());
+            }
+
             return array.toConstant();
         } else if (json.isJsonObject()) {
             JsonObject jsonObject = json.getAsJsonObject();
@@ -71,8 +70,16 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
 
             for(Map.Entry<String, JsonElement> el : jsonObject.entrySet()){
                 String key = el.getKey();
-                if (!key.startsWith("\0"))
-                    array.put(key, convert(el.getValue(), depth + 1).toImmutable());
+
+                if (!key.startsWith("\0")) {
+                    Memory longKey = StringMemory.toLong(key);
+
+                    if (longKey == null) {
+                        array.put(key, convert(el.getValue(), depth + 1).toImmutable());
+                    } else {
+                        array.put(longKey, convert(el.getValue(), depth + 1).toImmutable());
+                    }
+                }
             }
 
             return assoc ? array : new ObjectMemory(stdClass);

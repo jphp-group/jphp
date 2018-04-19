@@ -206,8 +206,8 @@ public class CompileScope {
         registerLazyClass(extension, IteratorAggregate.class);
         registerLazyClass(extension, Serializable.class);
 
-        registerExtension(new JavaExtension());
         registerExtension(new NetExtension());
+        registerExtension(new JavaExtension());
         registerExtension(extension);
     }
 

@@ -109,7 +109,7 @@ class DefaultPlugin
             $data['description'] = $description;
         }
 
-        $data['repos'] = ['jphp', 'central'];
+        $data['repos'] = ['jphp'];
 
         if ($addAppPlugin) {
             $data['deps']['jphp-core'] = '*';

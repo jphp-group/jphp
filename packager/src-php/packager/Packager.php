@@ -183,7 +183,7 @@ class Packager
 
             $handler = function () use ($dep, $version, $result, $parent, $threadPool) {
                 if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
-                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result, $threadPool));
+                    $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
                 } else {
                     if ($parent) {
                         $parent->addInvalidDep($dep, $version);

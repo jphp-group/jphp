@@ -10,25 +10,12 @@ import php.runtime.memory.*;
 import php.runtime.memory.helper.UndefinedMemory;
 
 public class JsonExtension extends Extension {
-
     public final static GsonBuilder DEFAULT_GSON_BUILDER;
     public final static GsonBuilder DEFAULT_GSON_BUILDER_FOR_DECODE;
 
     @Override
     public String getName() {
         return "json";
-    }
-
-    @Override
-    public String[] getRequiredExtensions() {
-        return new String[]{
-                org.develnext.jphp.json.JsonExtension.class.getName()
-        };
-    }
-
-    @Override
-    public String getVersion() {
-        return "~";
     }
 
     @Override

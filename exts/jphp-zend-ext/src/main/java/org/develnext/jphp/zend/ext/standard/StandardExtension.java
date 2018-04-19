@@ -1,5 +1,7 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import org.develnext.jphp.zend.ext.json.JsonConstants;
+import org.develnext.jphp.zend.ext.json.JsonFunctions;
 import php.runtime.Startup;
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
@@ -17,10 +19,12 @@ public class StandardExtension extends Extension {
         registerConstants(new StringConstants());
         registerConstants(new ArrayConstants());
         registerConstants(new FileConstants());
+        registerConstants(new JsonConstants());
 
         registerFunctions(new LangFunctions());
         registerFunctions(new StringFunctions());
         registerFunctions(new ArrayFunctions());
         registerFunctions(new FileFunctions());
+        registerFunctions(new JsonFunctions());
     }
 }

@@ -10,7 +10,7 @@ import php.runtime.ext.support.Extension;
 public class ZendExtension extends Extension {
     @Override
     public String[] getRequiredExtensions() {
-        return new String[]{
+        return new String[] {
                 StandardExtension.class.getName(),
                 BCMathExtension.class.getName(),
                 CTypeExtension.class.getName(),
