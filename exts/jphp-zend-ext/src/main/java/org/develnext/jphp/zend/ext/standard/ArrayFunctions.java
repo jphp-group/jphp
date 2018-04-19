@@ -9,6 +9,7 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.RecursiveException;
 import php.runtime.ext.core.MathFunctions;
+import php.runtime.ext.core.classes.lib.ItemsUtils;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.ForeachIterator;
@@ -66,7 +67,8 @@ public class ArrayFunctions extends FunctionsContainer {
         if (expectingReference(env, trace, array, "reset")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
                 ArrayMemory memory = array.toValue(ArrayMemory.class);
-                return memory.resetCurrentIterator().toImmutable();
+                memory.reset();
+                return ItemsUtils.first(env, array);
             }
         }
         return Memory.FALSE;
@@ -141,8 +143,9 @@ public class ArrayFunctions extends FunctionsContainer {
     public static Memory each(Environment env, TraceInfo trace, @Reference Memory array) {
         if (expectingReference(env, trace, array, "each")) {
             if (expecting(env, trace, 1, array, ARRAY)) {
+                boolean hasCurrentIterator = array.toValue(ArrayMemory.class).hasCurrentIterator();
                 ForeachIterator iterator = array.toValue(ArrayMemory.class).getCurrentIterator();
-                if (iterator.next()) {
+                if (!hasCurrentIterator || iterator.next()) {
                     Memory value = iterator.getValue().toImmutable();
                     Memory key = iterator.getMemoryKey();
 

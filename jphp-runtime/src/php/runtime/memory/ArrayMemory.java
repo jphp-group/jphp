@@ -1472,7 +1472,11 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return foreachIterator;
     }
 
-    protected void reset() {
+    public boolean hasCurrentIterator() {
+        return  (foreachIterator != null);
+    }
+
+    public void reset() {
         foreachIterator = null;
     }
 
