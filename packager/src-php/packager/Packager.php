@@ -112,16 +112,18 @@ class Packager
     {
         fs::makeDir($vendor->getDir());
 
-        $thPool = ThreadPool::create(4, 8);
+        $thPool = null; //ThreadPool::create(4, 8);
 
         $tree = $this->fetchDependencyTree($source, '', null, $thPool);
         $devTree = $this->fetchDependencyTree($source, 'dev', null, $thPool);
 
-        while ($thPool->getActiveCount() > 0) {
-            Timer::sleep('0.1s');
-        }
+        if ($thPool instanceof ThreadPool) {
+            while ($thPool->getActiveCount() > 0) {
+                Timer::sleep('0.1s');
+            }
 
-        $thPool->shutdown();
+            $thPool->shutdown();
+        }
 
         $this->packageLock->load($vendor->getDir() . "/../");
         $this->packageLoader->clean();

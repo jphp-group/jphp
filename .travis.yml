@@ -4,6 +4,9 @@ jdk:
   - oraclejdk9
   - oraclejdk8
 
+services:
+  - mongodb
+
 env:
   -
   - JPHP_TEST_COMPILED=1

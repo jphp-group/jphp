@@ -1,11 +1,30 @@
 <?php
 namespace packager\repository;
 
+use httpclient\HttpClient;
 use php\lib\fs;
 use php\lib\str;
 
+/**
+ * Class ServerRepository
+ * @package packager\repository
+ */
 class ServerRepository extends ExternalRepository
 {
+    /**
+     * @var HttpClient
+     */
+    protected $client;
+
+    public function __construct($source)
+    {
+        parent::__construct($source);
+
+        $this->client = new HttpClient($source);
+        $this->client->responseType = 'JSON';
+        $this->client->requestType = 'JSON';
+    }
+
     /**
      * @return bool
      */
