@@ -1464,6 +1464,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ForeachIterator getCurrentIterator() {
         if (foreachIterator == null) {
             foreachIterator = foreachIterator(false, true);
+
+            foreachIterator.next();
+            //foreachIterator.prev();
         }
 
         return foreachIterator;
@@ -1477,12 +1480,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         reset();
 
         ForeachIterator iterator = getCurrentIterator();
-        if (size == 0)
+        if (size == 0) {
             return FALSE;
-        else {
-            iterator.next();
+        } else {
             Memory tmp = iterator.getValue();
-            iterator.prev();
             return tmp;
         }
     }
