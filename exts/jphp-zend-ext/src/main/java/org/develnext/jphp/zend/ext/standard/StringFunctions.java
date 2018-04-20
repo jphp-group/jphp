@@ -1562,11 +1562,13 @@ public class StringFunctions extends FunctionsContainer {
                 if (done >= width || i == length) {
                     if (done <= width) {
                         sb.append(str.substring(start, i));
-                    } else if (done > width && prevSpacePos == 0) {
-                        sb.append(str.substring(start, i));
                     } else {
-                        sb.append(str.substring(start, prevSpacePos));
-                        i = prevSpacePos;
+                        if (prevSpacePos >= start) {
+                            sb.append(str.substring(start, i));
+                        } else {
+                            sb.append(str.substring(start, prevSpacePos));
+                            i = prevSpacePos;
+                        }
                     }
                     start = i + 1;
                     if (i != length) {
