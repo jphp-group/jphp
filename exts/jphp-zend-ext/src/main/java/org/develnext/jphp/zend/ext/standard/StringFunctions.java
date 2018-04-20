@@ -1558,23 +1558,26 @@ public class StringFunctions extends FunctionsContainer {
         for (int i = 0; i < length + 1; i++) {
             char ch = i == length ? ' ' : str.charAt(i);
 
-            if (Character.isSpaceChar(ch)
-                    || (cut && wordLength + 1 >= width)) {
+            if (Character.isSpaceChar(ch) || (cut && wordLength + 1 >= width)) {
                 if (done >= width || i == length) {
                     if (done <= width) {
+                        sb.append(str.substring(start, i));
+                    } else if (done > width && prevSpacePos == 0) {
                         sb.append(str.substring(start, i));
                     } else {
                         sb.append(str.substring(start, prevSpacePos));
                         i = prevSpacePos;
                     }
                     start = i + 1;
-                    if (i != length)
+                    if (i != length) {
                         sb.append(_break);
+                    }
 
                     done = 0;
                     continue;
-                } else
+                } else {
                     prevSpacePos = i;
+                }
 
                 wordLength = 0;
             }
