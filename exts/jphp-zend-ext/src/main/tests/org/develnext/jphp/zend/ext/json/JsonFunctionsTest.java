@@ -22,6 +22,7 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     protected CompileScope newScope() {
         CompileScope scope = super.newScope();
         scope.registerExtension(new JsonExtension());
+        scope.registerExtension(new org.develnext.jphp.json.JsonExtension());
         return scope;
     }
 

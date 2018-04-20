@@ -1564,7 +1564,14 @@ public class StringFunctions extends FunctionsContainer {
                         sb.append(str.substring(start, i));
                     } else {
                         if (prevSpacePos >= start) {
-                            sb.append(str.substring(start, i));
+                            if (cut && done > width) {
+                                sb.append(str.substring(start, start + width));
+                                i -= done - width;
+                                prevSpacePos = i;
+                            } else {
+                                sb.append(str.substring(start, i));
+                                prevSpacePos = i;
+                            }
                         } else {
                             sb.append(str.substring(start, prevSpacePos));
                             i = prevSpacePos;
