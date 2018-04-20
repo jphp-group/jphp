@@ -5,6 +5,12 @@
 
 ### How to use?
 
+0. **See sdk of the main classes**:
+- [HttpServer.php](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/src/main/resources/JPHP-INF/sdk/php/http/HttpServer.php).
+- [HttpServerRequest.php](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/src/main/resources/JPHP-INF/sdk/php/http/HttpServerRequest.php)
+- [HttpServerResponse.php](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/src/main/resources/JPHP-INF/sdk/php/http/HttpServerResponse.php)
+
+
 1. **Run server with hello world page**.
 ```php
 use php\http\{HttpServer, HttpServerRequest, HttpServerResponse};
