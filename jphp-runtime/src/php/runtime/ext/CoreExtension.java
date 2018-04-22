@@ -1,6 +1,5 @@
 package php.runtime.ext;
 
-import php.runtime.Startup;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.env.handler.ProgramShutdownHandler;
@@ -94,7 +93,8 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
                 SharedUtils.SharedStack.class, SharedUtils.SharedQueue.class, SharedUtils.SharedMap.class,
                 SharedUtils.class, SharedUtils.SharedThreadLocal.class,
 
-                WrapPackageLoader.class, WrapClassLoader.class, WrapClassLoader.WrapLauncherClassLoader.class,
+                WrapPackageLoader.class, WrapPackageLoader.WrapLauncherPackageLoader.class,
+                WrapClassLoader.class, WrapClassLoader.WrapLauncherClassLoader.class,
 
                 WrapLocale.class, WrapScanner.class, WrapFlow.class, WrapConfiguration.class, WrapRegex.class
         );

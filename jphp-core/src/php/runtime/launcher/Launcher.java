@@ -10,6 +10,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
+import php.runtime.ext.core.classes.WrapPackageLoader;
 import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.Extension;
@@ -266,6 +267,7 @@ public class Launcher {
         }
 
         String classLoader = config.getProperty("env.classLoader", ReflectionUtils.getClassName(WrapClassLoader.WrapLauncherClassLoader.class));
+        String pkgLoader = config.getProperty("env.packageLoader", ReflectionUtils.getClassName(WrapPackageLoader.WrapLauncherPackageLoader.class));
 
         if (classLoader != null && !(classLoader.isEmpty())) {
             ClassEntity classLoaderEntity = environment.fetchClass(classLoader);
@@ -276,6 +278,17 @@ public class Launcher {
 
             WrapClassLoader loader = classLoaderEntity.newObject(environment, TraceInfo.UNKNOWN, true);
             environment.invokeMethod(loader, "register", Memory.TRUE);
+        }
+
+        if (pkgLoader != null && !(pkgLoader.isEmpty())) {
+            ClassEntity pkgLoaderEntity = environment.fetchClass(pkgLoader);
+
+            if (pkgLoaderEntity == null) {
+                throw new LaunchException("Package loader class is not found: " + pkgLoader);
+            }
+
+            WrapPackageLoader loader = pkgLoaderEntity.newObject(environment, TraceInfo.UNKNOWN, true);
+            environment.invokeMethod(loader, "register");
         }
 
         if (file != null && !file.isEmpty()) {

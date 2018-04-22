@@ -185,10 +185,17 @@ class DefaultPlugin
         $pkg = $event->package();
         if ($pkg) {
             if ($oldPkg = $event->packager()->getRepo()->getPackage($pkg->getName(), $pkg->getVersion())) {
-                if (!Console::readYesNo("Package {$pkg->getName()}@{$pkg->getVersion()} already published, re-publish it?")) {
-                    Console::log("... canceled.");
-                    return;
+
+                if (!$event->isFlag('y', 'yes')) {
+                    if (!Console::readYesNo("Package {$pkg->getName()}@{$pkg->getVersion()} already published, re-publish it?")) {
+                        Console::log("... canceled.");
+                        return;
+                    }
+
                 }
+
+                Console::log("-> un-publishing old package, wait ...");
+                $event->packager()->getRepo()->delete($oldPkg);
             }
 
             Console::log(" -> publishing, wait ...");

@@ -525,7 +525,7 @@ class Repository
                 }
 
                 if (fs::isDir($filename)) {
-                    fs::makeDir("$destDir/$relName");
+                    // skip.
                 } else {
                     fs::ensureParent("$destDir/$relName");
                     fs::copy($filename, "$destDir/$relName", null, 1024 * 256);

@@ -266,7 +266,7 @@ class Package
      */
     public function fetchIgnore(): Ignore
     {
-        $ignore = new Ignore($this->getAny('config.ignore'));
+        $ignore = new Ignore((array) $this->getAny('config.ignore', []));
 
         $ignore->setBase('/');
         $ignore->addRule("/" . self::LOCK_FILENAME);
