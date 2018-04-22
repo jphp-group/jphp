@@ -29,63 +29,9 @@ class Ignore
      */
     public function __construct(array $rules)
     {
-        $this->rules = $rules;
-
-        $this->setBase('/');
-        $this->addRule('/vendor/**')
-            ->addRule('/package-lock.php.yml');
-    }
-
-    /**
-     * @param string $dir
-     * @param string $prefix
-     * @param int $depth
-     * @return Ignore
-     */
-    public static function ofDir(string $dir, string $prefix = '', int $depth = 0): Ignore
-    {
-        $ignore = Ignore::ofFile("$dir/.jppmignore", $prefix);
-
-        /*if ($depth < 3) {
-            $dirs = fs::scan($dir, ['excludeFiles' => true]);
-
-            foreach ($dirs as $sub) {
-                $name = fs::name($sub);
-
-                $subIgnore = Ignore::ofDir("$dir/$name", $prefix ? "$prefix/$name/" : '', $depth + 1);
-                if ($subIgnore) {
-                    $ignore->addIgnore($subIgnore);
-                }
-            }
-        }*/
-
-        return $ignore;
-    }
-
-    /**
-     * @param string $file
-     * @param string $prefix
-     * @return Ignore
-     */
-    public static function ofFile(string $file, string $prefix = ''): Ignore
-    {
-        $rules = [];
-
-        try {
-            $stream = Stream::of($file);
-            $stream->eachLine(function ($line) use (&$rules, $prefix) {
-                $line = str::trim($line);
-
-                if ($line[0] === '#') return;
-
-                $rules[] = $prefix . $line;
-            });
-            $stream->close();
-        } catch (IOException $e) {
-            return new Ignore([]);
+        foreach ($rules as $rule) {
+            $this->addRule($rule);
         }
-
-        return new Ignore($rules);
     }
 
     /**
@@ -94,6 +40,10 @@ class Ignore
      */
     public function addRule(string $rule)
     {
+        if (str::startsWith($rule, "./")) {
+            $rule = str::sub($rule, 1);
+        }
+
         $this->rules[] = $rule;
         return $this;
     }

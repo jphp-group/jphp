@@ -4,6 +4,7 @@ use compress\GzipInputStream;
 use compress\GzipOutputStream;
 use compress\TarArchive;
 use compress\TarArchiveEntry;
+use compress\ZipArchive;
 use httpclient\HttpClient;
 use httpclient\HttpRequest;
 use packager\cli\Console;
@@ -40,6 +41,10 @@ use semver\SemVersion;
  * @jppm-task pack
  * @jppm-task explore
  * @jppm-task selfUpdate as self-update
+ *
+ * @jppm-task clean
+ * @jppm-task build
+ * @jppm-task start
  */
 class DefaultPlugin
 {
@@ -138,6 +143,40 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-depends-on true
+     *
+     * @jppm-need-package true
+     * @jppm-description clean the project.
+     * @param Event $event
+     */
+    function clean(Event $event)
+    {
+    }
+
+    /**
+     * @jppm-need-depends-on true
+     *
+     * @jppm-need-package true
+     * @jppm-description build the project.
+     * @param Event $event
+     */
+    function build(Event $event)
+    {
+    }
+
+    /**
+     * @jppm-need-depends-on true
+     *
+     * @jppm-need-package true
+     * @jppm-description start the project.
+     * @param Event $event
+     */
+    function start(Event $event)
+    {
+    }
+
+    /**
+     * @jppm-need-package true
      * @jppm-description publish to local repository.
      * @param Event $event
      */
@@ -165,6 +204,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description un-publish from local repository.
      * @param Event $event
      */
@@ -185,6 +225,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description install dependencies or one.
      * @param Event $event
      */
@@ -192,8 +233,7 @@ class DefaultPlugin
     {
         if ($event->package()) {
             global $app;
-
-            $vendor = new Vendor("./vendor");
+            $vendor = new Vendor($event->package()->getAny('config.vendor-dir', './vendor'));
 
             if ($app->isFlag('clean')) {
                 $vendor->clean();
@@ -205,6 +245,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description add and install new dependencies to package.php.yml
      * @param Event $event
      */
@@ -274,6 +315,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description remove and uninstall dependencies from package.php.yml
      * @param Event $event
      */
@@ -347,6 +389,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description show all dependencies of project.
      * @param Event $event
      */
@@ -369,6 +412,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description create a tarball from a package
      * @param Event $event
      */
@@ -377,23 +421,32 @@ class DefaultPlugin
         if ($pkg = $event->package()) {
             Tasks::run('install');
 
-            $ignore = $event->packager()->getIgnore();
+            $archDir = $pkg->getAny('config.archive-dir', './');
 
-            $file = File::createTemp("{$pkg->getName()}-{$pkg->getVersion()}", ".tar.gz");
+            $ignore = $event->package()->fetchIgnore();
+
+            switch ($pkg->getAny('config.archive-format', 'tar')) {
+                case 'zip':
+                    $ext = "zip"; break;
+                default:
+                    $ext = "tar.gz"; break;
+            }
+
+            $file = File::createTemp("{$pkg->getName()}-{$pkg->getVersion()}", ".$ext");
             Tasks::createFile($file);
 
-            $localFile = "./{$pkg->getName()}-{$pkg->getVersion()}.tar.gz";
-            $localVerFile = "./{$pkg->getName()}-{$pkg->getVersion()}.json";
+            $localFile = "$archDir{$pkg->getName()}-{$pkg->getVersion()}.$ext";
+            $localVerFile = "$archDir{$pkg->getName()}-{$pkg->getVersion()}.json";
 
             Tasks::deleteFile($localFile);
             Tasks::deleteFile($localVerFile);
 
             $path = "./";
-            $info = Repository::calcPackageInfo($path, $ignore);
+            $info = Repository::calcPackageInfo($path);
             $info['name'] = $pkg->getName();
             $info['version'] = $pkg->getVersion();
 
-            $arch = new TarArchive(new GzipOutputStream($file));
+            $arch = $pkg->getAny('config.archive-format', 'tar') == 'zip' ? new ZipArchive($file) : new TarArchive(new GzipOutputStream($file));
             $arch->open();
 
             foreach (arr::sort(fs::scan($path)) as $one) {
@@ -420,6 +473,7 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description open current directory in os dir explorer.
      * @param Event $event
      */
@@ -427,8 +481,8 @@ class DefaultPlugin
     {
         $file = fs::abs("./");
 
-        if ($event->arg(0)) {
-            $vendor = new Vendor($file . "/vendor/");
+        if ($event->arg(0) && $event->package()) {
+            $vendor = new Vendor($event->package()->getAny('config.vendor-dir', './vendor'));
             $file = fs::abs($vendor->getFile(new Package(['name' => $event->arg(0)]), '/package.php.yml'));
         } else {
             $file = "$file/package.php.yml";
@@ -468,13 +522,14 @@ class DefaultPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description clean repo cache and install dependencies.
      * @param Event $event
      */
     function update(Event $event)
     {
         Tasks::deleteFile("./package-lock.php.yml");
-        Tasks::cleanDir("./vendor");
+        Tasks::cleanDir($event->package()->getAny('config.vendor-dir', './vendor'));
 
         $event->packager()->getRepo()->cleanCache();
         Tasks::run('install', [], ...$event->flags());

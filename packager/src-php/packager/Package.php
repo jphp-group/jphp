@@ -14,6 +14,7 @@ use php\util\Regex;
 class Package
 {
     const FILENAME = "package.php.yml";
+    const LOCK_FILENAME = "package-lock.php.yml";
 
     /**
      * @var array
@@ -242,5 +243,37 @@ class Package
     public function isIdentical(Package $package)
     {
         return ($this->info == $package->info);
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigVendorPath(): string
+    {
+        return $this->getAny('config.vendor-dir', './vendor');
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigBuildPath(): string
+    {
+        return $this->getAny('config.build-dir', './build');
+    }
+
+    /**
+     * @return Ignore
+     */
+    public function fetchIgnore(): Ignore
+    {
+        $ignore = new Ignore($this->getAny('config.ignore'));
+
+        $ignore->setBase('/');
+        $ignore->addRule("/" . self::LOCK_FILENAME);
+
+        $ignore->addRule($this->getConfigBuildPath() . "/**");
+        $ignore->addRule($this->getConfigVendorPath() . "/**");
+
+        return $ignore;
     }
 }

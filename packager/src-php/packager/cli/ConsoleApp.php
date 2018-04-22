@@ -103,9 +103,16 @@ class ConsoleApp
                         "script " . (is_string($handler) ? $handler : '')
                     );
 
+                    $needPackage = Annotations::get('jppm-need-package', $invoker->getDescription());
+
                     $dependsOn = Annotations::get('jppm-depends-on', $invoker->getDescription(), []);
 
-                    $this->addCommand($bin, function ($args) use ($invoker, $handler) {
+                    $this->addCommand($bin, function ($args) use ($invoker, $handler, $needPackage, $bin, $needPackage) {
+                        if ($needPackage && !$this->getPackage()) {
+                            Console::error("'{0}' task needs a package.php.yml", $bin);
+                            exit(-1);
+                        }
+
                         $invoker->call(new Event($this->packager, $this->getPackage(), $args));
                     }, $description, $dependsOn);
                 }
@@ -214,12 +221,35 @@ class ConsoleApp
 
                     $description = Annotations::getOfMethod('jppm-description', $handler, "$plugin::$task");
                     $dependsOn = Annotations::getOfMethod('jppm-depends-on', $handler, []);
+                    $dependencyOf = Annotations::getOfMethod('jppm-dependency-of', $handler, []);
 
-                    $this->addCommand($prefix ? "$prefix:$taskName" : $taskName, function ($args, $flags = []) use ($handler, $context) {
+
+                    $needPackage = Annotations::getOfMethod('jppm-need-package', $handler);
+                    $needDependsOn = Annotations::getOfMethod('jppm-need-depends-on', $handler);
+
+                    $taskName = $prefix ? "$prefix:$taskName" : $taskName;
+
+                    $this->addCommand($taskName, function ($args, $flags = []) use ($handler, $context, $taskName, $needPackage, $needDependsOn) {
+                        if ($needPackage && !$this->getPackage()) {
+                            Console::error("'{0}' task needs a package.php.yml", $taskName);
+                            exit(-1);
+                        }
+
+                        if ($needDependsOn && !$this->commands[$taskName]['dependsOn']) {
+                            Console::error("'{0}' task cannot be executed, there are no suitable dependency tasks.", $taskName);
+                            exit(-1);
+                        }
+
                         $flags = flow($this->flags, $flags)->toMap();
 
                         $handler->invokeArgs($context, [new Event($this->packager, $this->getPackage(), $args, $flags)]);
                     }, $description, $dependsOn);
+
+                    foreach ($dependencyOf as $dependency) {
+                        if ($this->commands[$dependency]) {
+                            $this->commands[$dependency]['dependsOn'][] = $taskName;
+                        }
+                    }
                 } else {
                     Console::warn("Cannot add task '{0}', method '{1}' not found in '{2}'", $taskName, $task, $plugin);
                 }
@@ -234,7 +264,7 @@ class ConsoleApp
         if ($this->getPackage()) {
             $plugins = $this->getPackage()->getAny('plugins', []);
 
-            foreach ($plugins as $key => $plugin) {
+            foreach ((array) $plugins as $key => $plugin) {
                 $this->loadPlugin($plugin);
             }
         }

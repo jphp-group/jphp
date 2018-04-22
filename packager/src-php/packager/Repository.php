@@ -140,7 +140,7 @@ class Repository
                 }
             });
 
-            return (array) $versions;
+            return (array)$versions;
         } catch (IOException|ProcessorException $e) {
             $this->lock->synchronize(function () use ($repository, $pkgName) {
                 $this->sessionCache['external'][$repository->getSource()][$pkgName]['versions'] = $this->cache['external'][$repository->getSource()][$pkgName]['versions'] ?: [];
@@ -434,7 +434,7 @@ class Repository
     public function copyTo(Package $package, string $vendorDir)
     {
         fs::makeDir($vendorDir);
-        
+
         $dir = fs::normalize("$this->dir/{$package->getName()}/{$package->getRealVersion()}/");
 
         fs::clean("$vendorDir/{$package->getName()}");
@@ -508,7 +508,7 @@ class Repository
 
         if (fs::isFile($file)) {
             $package = $this->readPackage($file);
-            $ignore = Ignore::ofDir($directory);
+            $ignore = $package->fetchIgnore();
 
             $destDir = fs::normalize("$this->dir/{$package->getName()}/{$package->getRealVersion()}");
 
@@ -732,14 +732,17 @@ class Repository
      * Calc info of pkg directory.
      *
      * @param string $packageDir
-     * @param Ignore|null $ignore
      * @param string $algorithm
      * @return array
      */
-    public static function calcPackageInfo(string $packageDir, Ignore $ignore = null, string $algorithm = 'SHA-256')
+    public static function calcPackageInfo(string $packageDir, string $algorithm = 'SHA-256')
     {
         $size = 0;
         $hash = '';
+
+        $pkg = Package::readPackage("$packageDir/" . Package::FILENAME);
+
+        $ignore = $pkg->fetchIgnore();
 
         foreach (arr::sort(fs::scan($packageDir)) as $file) {
             if (fs::isFile($file)) {

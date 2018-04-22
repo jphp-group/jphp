@@ -76,7 +76,7 @@ class LocalDirRepository extends SingleExternalRepository
 
         fs::clean($toDir);
 
-        $ignore = Ignore::ofDir($dir);
+        $ignore = $realPkg->fetchIgnore();
 
         fs::scan($dir, function ($filename) use ($dir, $toDir, $ignore) {
             $name = fs::relativize($filename, $dir);
@@ -100,7 +100,7 @@ class LocalDirRepository extends SingleExternalRepository
             $source = $this->getNormalSource();
 
             $info = Repository::calcPackageInfo(
-                $source, Ignore::ofDir($source), 'sha-1'
+                $source, 'sha-1'
             );
 
             return [

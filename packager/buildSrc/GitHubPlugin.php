@@ -78,8 +78,6 @@ class GitHubPlugin
         $this->additionalAssets = $github['assets'] ?? [];
 
         $this->readConfig();
-
-        $event->packager()->getIgnore()->addRule('/package.github.yml');
     }
 
     public function requireAuth()

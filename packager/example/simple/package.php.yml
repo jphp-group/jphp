@@ -9,10 +9,20 @@ plugins:
 - App
 
 app:
+  disable-launcher: true
   bootstrap: index.php
   encoding: UTF-8
   metrics: false
-  trace: true
+  trace: false
 
 sources:
 - src
+
+config:
+  build-dir: ./build-new
+  vendor-dir: ./vendor-jppm
+  archive-dir: ./../
+  archive-format: zip
+
+  ignore:
+    - '/vendor/**'

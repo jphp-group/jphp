@@ -28,26 +28,24 @@ use php\time\Time;
 class AppPlugin
 {
     /**
-     * AppPlugin constructor.
-     */
-    public function __construct(Event $event)
-    {
-        $event->packager()->getIgnore()->addRule('/build/**');
-    }
-
-
-    /**
+     * @jppm-dependency-of clean
+     *
+     * @jppm-need-package true
      * @jppm-description Clean build directory.
      *
      * @param Event $event
      */
     function clean(Event $event)
     {
-        Tasks::cleanDir("./build");
+        Tasks::cleanDir($event->package()->getConfigBuildPath());
     }
 
     /**
      * @jppm-description Build app to executable jar file (with all dependencies).
+     *
+     * @jppm-dependency-of build
+     *
+     * @jppm-need-package true
      *
      * @jppm-depends-on app:clean
      * @jppm-depends-on install
@@ -57,9 +55,9 @@ class AppPlugin
     {
         $time = Time::millis();
 
-        Console::log("Start building application ...");
+        //Console::log("Start building application ...");
 
-        $vendor = new Vendor("./vendor");
+        $vendor = new Vendor($event->package()->getConfigVendorPath());
         $launcher = $event->package()->getAny('app') ?: [];
         $build = $event->package()->getAny('app')['build'] ?: [];
 
@@ -74,13 +72,15 @@ class AppPlugin
             $buildFileName = $build['fileName'];
         }
 
-        Tasks::createDir("./build/");
-        Tasks::createFile("./build/$buildFileName");
+        $buildDir = $event->package()->getConfigBuildPath();
 
-        $zip = new ZipArchive("./build/$buildFileName");
+        Tasks::createDir("$buildDir");
+        Tasks::createFile("$buildDir/$buildFileName");
+
+        $zip = new ZipArchive("$buildDir/$buildFileName");
         $zip->open();
 
-        Tasks::createDir("./build/app");
+        Tasks::createDir("$buildDir/app");
 
         $metaInfServices = [];
 
@@ -88,9 +88,9 @@ class AppPlugin
             if (fs::isDir($classPath)) {
                 Console::log("-> add dir: $classPath");
 
-                fs::scan($classPath, function ($filename) use ($zip, $classPath, &$metaInfServices) {
+                fs::scan($classPath, function ($filename) use ($zip, $classPath, &$metaInfServices, $buildDir) {
                     $name = fs::relativize($filename, $classPath);
-                    $file = "./build/app/$name";
+                    $file = "$buildDir/app/$name";
 
                     Console::log("--> add file: {$classPath}{$name}");
 
@@ -109,7 +109,7 @@ class AppPlugin
                 Console::log("-> add jar: $classPath");
 
                 $jar = new ZipArchive($classPath);
-                $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices) {
+                $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices, $buildDir) {
                     $name = $stat->name;
 
                     if ($stat->isDirectory()) {
@@ -119,7 +119,7 @@ class AppPlugin
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
                     } else {
-                        $file = "./build/app/{$name}";
+                        $file = "$buildDir/app/{$name}";
 
                         //Console::log("--> add jar file: $name");
 
@@ -130,37 +130,44 @@ class AppPlugin
             }
         }
 
-        Tasks::cleanDir("./build/app/JPHP-INF/sdk");
-        Tasks::deleteFile("./build/app/JPHP-INF/sdk");
-        fs::delete("./build/app/META-INF/manifest.mf");
-        fs::delete("./build/app/META-INF/Manifest.mf");
-        fs::delete("./build/app/META-INF/MANIFEST.MF");
+        Tasks::cleanDir("$buildDir/app/JPHP-INF/sdk");
+        Tasks::deleteFile("$buildDir/app/JPHP-INF/sdk");
 
-        Tasks::createDir("./build/app/JPHP-INF/");
-        Tasks::createDir("./build/app/META-INF/");
+        fs::delete("$buildDir/app/META-INF/manifest.mf");
+        fs::delete("$buildDir/app/META-INF/Manifest.mf");
+        fs::delete("$buildDir/app/META-INF/MANIFEST.MF");
 
-        fs::formatAs("./build/app/JPHP-INF/launcher.conf", [
-            'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
-        ], 'ini');
+        if (!$launcher['disable-launcher']) {
+            Console::log("-> create jphp app launcher");
 
-        Tasks::createFile("./build/app/META-INF/MANIFEST.MF");
+            Tasks::createDir("$buildDir/app/JPHP-INF/");
+            Tasks::createDir("$buildDir/app/META-INF/");
 
-        Stream::putContents("./build/app/META-INF/MANIFEST.MF", str::join([
-            "Manifest-Version: 1.0",
-            "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
-            "Main-Class: " . ($launcher['mainClass'] ?: 'php.runtime.launcher.Launcher'),
-            "",
-            "",
-        ], "\r\n"));
+            fs::formatAs("$buildDir/app/JPHP-INF/launcher.conf", [
+                'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
+            ], 'ini');
 
-        foreach ($metaInfServices as $name => $lines) {
-            fs::ensureParent("./build/app/$name");
-            Stream::putContents("./build/app/$name", str::join($lines, "\n"));
+            Tasks::createFile("$buildDir/app/META-INF/MANIFEST.MF");
+
+            Stream::putContents("$buildDir/app/META-INF/MANIFEST.MF", str::join([
+                "Manifest-Version: 1.0",
+                "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
+                "Main-Class: " . ($launcher['mainClass'] ?? 'php.runtime.launcher.Launcher'),
+                "",
+                "",
+            ], "\r\n"));
+        } else {
+            Console::log("-> jphp app launcher is disable.");
         }
 
-        fs::scan("./build/app", function (File $file) use ($zip) {
+        foreach ($metaInfServices as $name => $lines) {
+            fs::ensureParent("$buildDir/app/$name");
+            Stream::putContents("$buildDir/app/$name", str::join($lines, "\n"));
+        }
+
+        fs::scan("$buildDir/app", function (File $file) use ($zip, $buildDir) {
             if ($file->isFile()) {
-                $zip->addFile($file, fs::relativize($file, "./build/app"));
+                $zip->addFile($file, fs::relativize($file, "$buildDir/app"));
             }
         });
 
@@ -168,7 +175,9 @@ class AppPlugin
 
         $time = Time::millis() - $time;
 
-        Console::log("\n   Use 'java -jar \"./build/$buildFileName\"' to run the result app.");
+        if (!$launcher['disable-launcher']) {
+            Console::log("\n   Use 'java -jar \"$buildDir/$buildFileName\"' to run the result app.");
+        }
 
         Console::log("\n-----");
         Console::log("Building time: {0} sec.", round($time / 1000, 2));
@@ -176,7 +185,10 @@ class AppPlugin
     }
 
     /**
+     * @jppm-need-package true
      * @jppm-description Run app.
+     *
+     * @jppm-dependency-of start
      *
      * @param Event $event
      * @jppm-depends-on install
@@ -189,7 +201,7 @@ class AppPlugin
 
         $metrics = $launcher['metrics'];
 
-        $vendor = new Vendor("./vendor");
+        $vendor = new Vendor($event->package()->getConfigVendorPath());
         $exec->addVendorClassPath($vendor);
         $exec->addPackageClassPath($event->package());
 

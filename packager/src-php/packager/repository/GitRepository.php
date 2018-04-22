@@ -276,7 +276,7 @@ class GitRepository extends SingleExternalRepository
 
         fs::clean($toDir);
 
-        $ignore = Ignore::ofDir($dir);
+        $ignore = $realPkg->fetchIgnore();
 
         fs::scan($dir, function ($filename) use ($dir, $toDir, $ignore) {
             $name = fs::relativize($filename, $dir);

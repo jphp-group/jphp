@@ -65,7 +65,6 @@ class Packager
         }
 
         $this->repo = new Repository("$dir/repo");
-        $this->ignore = Ignore::ofDir("./");
 
         $this->packageLoader = new PackageLoader();
         $this->packageLock = new PackageLock();
@@ -77,14 +76,6 @@ class Packager
     public function getVersion()
     {
         return $this->version;
-    }
-
-    /**
-     * @return Ignore
-     */
-    public function getIgnore(): Ignore
-    {
-        return $this->ignore;
     }
 
     /**
