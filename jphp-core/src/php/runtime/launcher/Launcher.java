@@ -320,6 +320,28 @@ public class Launcher {
                 environment.getGlobals().put("argv", argv);
                 environment.getGlobals().put("argc", LongMemory.valueOf(argv.size()));
 
+                String[] includes = StringUtils.split(config.getProperty("bootstrap.files", System.getProperty("bootstrap.files", "")),'|');
+
+                if (includes.length > 0) {
+                    for (String include : includes) {
+                        if (include.trim().isEmpty()) continue;
+
+                        if ("php".equals(FsUtils.ext(include))) {
+                            if (Stream.exists(environment, StringMemory.valueOf(include.substring(0, include.length() - 4) + ".phb")).toBoolean()) {
+                                include = include.substring(0, include.length() - 4) + ".phb";
+                            }
+                        }
+
+                        ModuleEntity fetchModule = environment.getModuleManager().fetchModule(include);
+
+                        if (fetchModule == null) {
+                            throw new LaunchException("Cannot include file " + include + ", it's not found.");
+                        }
+
+                        fetchModule.includeNoThrow(environment);
+                    }
+                }
+
                 CallStackItem stackItem = new CallStackItem(bootstrap.getTrace());
                 environment.pushCall(stackItem);
                 try {
