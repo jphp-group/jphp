@@ -1,6 +1,7 @@
 <?php
 namespace packager;
 use php\format\JsonProcessor;
+use php\lib\arr;
 use php\lib\fs;
 
 /**
@@ -10,6 +11,8 @@ use php\lib\fs;
 class PackageLoader
 {
     private $classPaths = [];
+
+    private $includes = [];
 
     /**
      *
@@ -37,6 +40,10 @@ class PackageLoader
         foreach ($package->getJars() as $jar) {
             $this->classPaths[$scope][] = "$dir/" . ($vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($package, "jars/$jar"));
         }
+
+        foreach ((array)$package->getIncludes() as $include) {
+            $this->includes[$include] = $include;
+        }
     }
 
     /**
@@ -53,7 +60,11 @@ class PackageLoader
     public function save(Vendor $vendor)
     {
         fs::formatAs(
-            "{$vendor->getDir()}/classPaths.json", $this->getClassPaths(),
+            "{$vendor->getDir()}/paths.json",
+                [
+                    'classPaths' => $this->getClassPaths(),
+                    'includes' => arr::values($this->includes)
+                ],
             'json',
             JsonProcessor::SERIALIZE_PRETTY_PRINT
         );

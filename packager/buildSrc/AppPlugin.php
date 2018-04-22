@@ -10,6 +10,7 @@ use php\lang\{System, Thread};
 use php\io\{
     File, Stream
 };
+use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use php\time\Time;
@@ -143,7 +144,16 @@ class AppPlugin
             Tasks::createDir("$buildDir/app/JPHP-INF/");
             Tasks::createDir("$buildDir/app/META-INF/");
 
+            $includes = (array) $vendor->fetchPaths()['includes'];
+
+            $includes = flow($includes, $event->package()->getIncludes())->toArray();
+
+            if ($includes && !$launcher['bootstrap']) {
+                $launcher['bootstrap'] = arr::pop($includes);
+            }
+
             fs::formatAs("$buildDir/app/JPHP-INF/launcher.conf", [
+                'bootstrap.files' => flow($includes)->map(function ($one) { return "res://$one"; })->toString('|'),
                 'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
             ], 'ini');
 
@@ -212,6 +222,16 @@ class AppPlugin
         }
 
         $sysArgs['file.encoding'] = $launcher['encoding'] ?: 'UTF-8';
+
+        $includes = flow($vendor->fetchPaths()['includes'], $event->package()->getIncludes())->toArray();
+
+        if (!$launcher['bootstrap'] && $includes) {
+            $launcher['bootstrap'] = arr::pop($includes);
+        }
+
+        if ($includes) {
+            $sysArgs['bootstrap.files'] = flow($includes)->map(function ($one) { return "res://$one"; })->toString('|');
+        }
 
         if ($launcher['bootstrap']) {
             $sysArgs['bootstrap.file'] = 'res://' . $launcher['bootstrap'];

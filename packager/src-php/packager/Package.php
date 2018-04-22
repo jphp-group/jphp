@@ -179,6 +179,14 @@ class Package
     /**
      * @return array
      */
+    public function getIncludes(): array
+    {
+        return $this->getAny('includes', []);
+    }
+
+    /**
+     * @return array
+     */
     public function getTasks(): array
     {
         return $this->getAny('tasks', []);

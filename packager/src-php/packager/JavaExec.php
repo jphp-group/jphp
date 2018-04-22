@@ -215,7 +215,7 @@ class JavaExec
      */
     public function addVendorClassPath(Vendor $vendor, string $profile = ''): JavaExec
     {
-        $classPaths = flow(fs::parseAs("{$vendor->getDir()}/classPaths.json", 'json')[$profile])
+        $classPaths = flow($vendor->fetchPaths()['classPaths'][$profile])
             ->map(function ($cp) use ($vendor) { return "{$vendor->getDir()}/$cp"; })
             ->toArray();
 

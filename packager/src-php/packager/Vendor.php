@@ -100,4 +100,9 @@ class Vendor
     {
         fs::clean($this->getDir());
     }
+
+    public function fetchPaths(): array
+    {
+        return (array) fs::parseAs("{$this->getDir()}/paths.json", 'json');
+    }
 }
