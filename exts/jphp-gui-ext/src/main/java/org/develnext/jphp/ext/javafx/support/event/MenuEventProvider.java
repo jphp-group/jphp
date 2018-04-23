@@ -5,8 +5,8 @@ import javafx.scene.control.Menu;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class MenuEventProvider extends EventProvider<Menu> {
-    public MenuEventProvider() {
-        setHandler("showing", new Handler() {
+    public Handler showingHandler() {
+        return new Handler() {
             @Override
             public void set(Menu target, EventHandler eventHandler) {
                 target.setOnShowing(eventHandler);
@@ -16,9 +16,11 @@ public class MenuEventProvider extends EventProvider<Menu> {
             public EventHandler get(Menu target) {
                 return target.getOnShowing();
             }
-        });
+        };
+    }
 
-        setHandler("show", new Handler() {
+    public Handler showHandler() {
+        return new Handler() {
             @Override
             public void set(Menu target, EventHandler eventHandler) {
                 target.setOnShown(eventHandler);
@@ -28,9 +30,11 @@ public class MenuEventProvider extends EventProvider<Menu> {
             public EventHandler get(Menu target) {
                 return target.getOnShown();
             }
-        });
+        };
+    }
 
-        setHandler("hiding", new Handler() {
+    public Handler hidingHandler() {
+        return new Handler() {
             @Override
             public void set(Menu target, EventHandler eventHandler) {
                 target.setOnHiding(eventHandler);
@@ -40,9 +44,11 @@ public class MenuEventProvider extends EventProvider<Menu> {
             public EventHandler get(Menu target) {
                 return target.getOnHiding();
             }
-        });
+        };
+    }
 
-        setHandler("hide", new Handler() {
+    public Handler hideHandler() {
+        return new Handler() {
             @Override
             public void set(Menu target, EventHandler eventHandler) {
                 target.setOnHidden(eventHandler);
@@ -52,7 +58,7 @@ public class MenuEventProvider extends EventProvider<Menu> {
             public EventHandler get(Menu target) {
                 return target.getOnHidden();
             }
-        });
+        };
     }
 
     @Override

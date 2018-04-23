@@ -1,15 +1,12 @@
 package org.develnext.jphp.ext.javafx.support.event;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.web.WebEngine;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class WebEngineEventProvider extends EventProvider<WebEngine> {
-    public WebEngineEventProvider() {
-        setHandler("error", new Handler() {
+    public Handler errorHandler() {
+        return new Handler() {
             @Override
             public void set(WebEngine target, EventHandler eventHandler) {
                 target.setOnError(eventHandler);
@@ -19,9 +16,11 @@ public class WebEngineEventProvider extends EventProvider<WebEngine> {
             public EventHandler get(WebEngine target) {
                 return target.getOnError();
             }
-        });
+        };
+    }
 
-        setHandler("alert", new Handler() {
+    public Handler alertHandler() {
+        return new Handler() {
             @Override
             public void set(WebEngine target, EventHandler eventHandler) {
                 target.setOnAlert(eventHandler);
@@ -31,9 +30,11 @@ public class WebEngineEventProvider extends EventProvider<WebEngine> {
             public EventHandler get(WebEngine target) {
                 return target.getOnAlert();
             }
-        });
+        };
+    }
 
-        setHandler("resize", new Handler() {
+    public Handler resizeHandler() {
+        return new Handler() {
             @Override
             public void set(WebEngine target, EventHandler eventHandler) {
                 target.setOnResized(eventHandler);
@@ -43,9 +44,11 @@ public class WebEngineEventProvider extends EventProvider<WebEngine> {
             public EventHandler get(WebEngine target) {
                 return target.getOnResized();
             }
-        });
+        };
+    }
 
-        setHandler("statusChanged", new Handler() {
+    public Handler statuschangedHandler() {
+        return new Handler() {
             @Override
             public void set(WebEngine target, EventHandler eventHandler) {
                 target.setOnStatusChanged(eventHandler);
@@ -55,9 +58,11 @@ public class WebEngineEventProvider extends EventProvider<WebEngine> {
             public EventHandler get(WebEngine target) {
                 return target.getOnStatusChanged();
             }
-        });
+        };
+    }
 
-        setHandler("visibilityChanged", new Handler() {
+    public Handler visibilitychangedHandler() {
+        return new Handler() {
             @Override
             public void set(WebEngine target, EventHandler eventHandler) {
                 target.setOnVisibilityChanged(eventHandler);
@@ -67,7 +72,7 @@ public class WebEngineEventProvider extends EventProvider<WebEngine> {
             public EventHandler get(WebEngine target) {
                 return target.getOnVisibilityChanged();
             }
-        });
+        };
     }
 
     @Override

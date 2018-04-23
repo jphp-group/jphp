@@ -5,8 +5,8 @@ import javafx.scene.control.ComboBoxBase;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
-    public ComboBoxBaseEventProvider() {
-        setHandler("show", new Handler() {
+    public Handler showHandler() {
+        return new Handler() {
             @Override
             public void set(ComboBoxBase target, EventHandler eventHandler) {
                 target.setOnShown(eventHandler);
@@ -16,9 +16,11 @@ public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
             public EventHandler get(ComboBoxBase target) {
                 return target.getOnShown();
             }
-        });
+        };
+    }
 
-        setHandler("showing", new Handler() {
+    public Handler showingHandler() {
+        return new Handler() {
             @Override
             public void set(ComboBoxBase target, EventHandler eventHandler) {
                 target.setOnShowing(eventHandler);
@@ -28,9 +30,11 @@ public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
             public EventHandler get(ComboBoxBase target) {
                 return target.getOnShowing();
             }
-        });
+        };
+    }
 
-        setHandler("hide", new Handler() {
+    public Handler hideHandler() {
+        return new Handler() {
             @Override
             public void set(ComboBoxBase target, EventHandler eventHandler) {
                 target.setOnHidden(eventHandler);
@@ -40,9 +44,11 @@ public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
             public EventHandler get(ComboBoxBase target) {
                 return target.getOnHidden();
             }
-        });
+        };
+    }
 
-        setHandler("hiding", new Handler() {
+    public Handler hidingHandler() {
+        return new Handler() {
             @Override
             public void set(ComboBoxBase target, EventHandler eventHandler) {
                 target.setOnHiding(eventHandler);
@@ -52,9 +58,11 @@ public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
             public EventHandler get(ComboBoxBase target) {
                 return target.getOnHiding();
             }
-        });
+        };
+    }
 
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(ComboBoxBase target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -64,7 +72,7 @@ public class ComboBoxBaseEventProvider extends EventProvider<ComboBoxBase> {
             public EventHandler get(ComboBoxBase target) {
                 return target.getOnAction();
             }
-        });
+        };
     }
 
     @Override

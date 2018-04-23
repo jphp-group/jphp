@@ -355,7 +355,7 @@ public class CompileScope {
         extensions.put(extension.getName().toLowerCase(), extension);
 
         if (Startup.isTracing()) {
-            Startup.traceWithTime("Register extension '" + extension.getName() + "'", t);
+            Startup.traceWithTime("Register extension '" + extension.getName() + "', classes = " + extension.getClasses().size(), t);
         }
     }
 

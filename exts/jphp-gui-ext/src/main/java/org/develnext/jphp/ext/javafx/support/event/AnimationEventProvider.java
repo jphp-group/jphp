@@ -5,8 +5,8 @@ import javafx.event.EventHandler;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class AnimationEventProvider extends EventProvider<Animation> {
-    public AnimationEventProvider() {
-        setHandler("finish", new Handler() {
+    public Handler finishHandler() {
+        return new Handler() {
             @Override
             public void set(Animation target, EventHandler eventHandler) {
                 target.setOnFinished(eventHandler);
@@ -16,7 +16,7 @@ public class AnimationEventProvider extends EventProvider<Animation> {
             public EventHandler get(Animation target) {
                 return target.getOnFinished();
             }
-        });
+        };
     }
 
     @Override

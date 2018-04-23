@@ -22,9 +22,9 @@ abstract public class Extension {
         Extension getExtension();
     }
 
-    protected final Map<String, CompileConstant> constants = new LinkedHashMap<>();
-    protected final Map<String, CompileFunctionSpec> functions = new LinkedHashMap<>();
-    protected final Map<String, Class<?>> classes = new LinkedHashMap<>();
+    protected final Map<String, CompileConstant> constants = new LinkedHashMap<>(300);
+    protected final Map<String, CompileFunctionSpec> functions = new LinkedHashMap<>(300);
+    protected final Map<String, Class<?>> classes = new LinkedHashMap<>(300);
 
     public String getName() {
         return getClass().getName();

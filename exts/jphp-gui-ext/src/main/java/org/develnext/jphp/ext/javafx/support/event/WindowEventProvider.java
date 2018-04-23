@@ -5,9 +5,8 @@ import javafx.stage.Window;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class WindowEventProvider extends EventProvider<Window> {
-
-    public WindowEventProvider() {
-        setHandler("showing", new Handler() {
+    public Handler showingHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.setOnShowing(eventHandler);
@@ -17,9 +16,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getOnShowing();
             }
-        });
+        };
+    }
 
-        setHandler("show", new Handler() {
+    public Handler showHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.setOnShown(eventHandler);
@@ -29,9 +30,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getOnShown();
             }
-        });
+        };
+    }
 
-        setHandler("hiding", new Handler() {
+    public Handler hidingHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.setOnHiding(eventHandler);
@@ -41,9 +44,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getOnHiding();
             }
-        });
+        };
+    }
 
-        setHandler("hide", new Handler() {
+    public Handler hideHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.setOnHidden(eventHandler);
@@ -53,9 +58,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getOnHidden();
             }
-        });
+        };
+    }
 
-        setHandler("close", new Handler() {
+    public Handler closeHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.setOnCloseRequest(eventHandler);
@@ -65,9 +72,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getOnCloseRequest();
             }
-        });
+        };
+    }
 
-        setHandler("keyPress", new Handler() {
+    public Handler keypressHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.getScene().setOnKeyTyped(eventHandler);
@@ -77,9 +86,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getScene().getOnKeyTyped();
             }
-        });
+        };
+    }
 
-        setHandler("keyDown", new Handler() {
+    public Handler keydownHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.getScene().setOnKeyPressed(eventHandler);
@@ -89,9 +100,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getScene().getOnKeyPressed();
             }
-        });
+        };
+    }
 
-        setHandler("keyUp", new Handler() {
+    public Handler keyupHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.getScene().setOnKeyReleased(eventHandler);
@@ -101,9 +114,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getScene().getOnKeyReleased();
             }
-        });
+        };
+    }
 
-        setHandler("globalMouseMove", new Handler() {
+    public Handler globalmousemoveHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.getScene().setOnMouseMoved(eventHandler);
@@ -113,9 +128,11 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getScene().getOnMouseMoved();
             }
-        });
+        };
+    }
 
-        setHandler("scroll", new Handler() {
+    public Handler scrollHandler() {
+        return new Handler() {
             @Override
             public void set(Window target, EventHandler eventHandler) {
                 target.getScene().setOnScroll(eventHandler);
@@ -125,7 +142,7 @@ public class WindowEventProvider extends EventProvider<Window> {
             public EventHandler get(Window target) {
                 return target.getScene().getOnScroll();
             }
-        });
+        };
     }
 
     @Override

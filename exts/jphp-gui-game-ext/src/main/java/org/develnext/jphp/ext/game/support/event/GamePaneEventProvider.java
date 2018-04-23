@@ -5,8 +5,8 @@ import org.develnext.jphp.ext.game.support.GamePane;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class GamePaneEventProvider extends EventProvider<GamePane> {
-    public GamePaneEventProvider() {
-        setHandler("scrollScene", new Handler() {
+    public Handler scrollsceneHandler() {
+        return new Handler() {
             @Override
             public void set(GamePane target, EventHandler eventHandler) {
                 target.setOnScrollScene(eventHandler);
@@ -16,7 +16,7 @@ public class GamePaneEventProvider extends EventProvider<GamePane> {
             public EventHandler get(GamePane target) {
                 return target.getOnScrollScene();
             }
-        });
+        };
     }
 
     @Override

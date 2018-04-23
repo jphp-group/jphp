@@ -8,8 +8,8 @@ import org.develnext.jphp.ext.javafx.support.JavaFxUtils;
 import org.develnext.jphp.ext.javafx.support.UserData;
 
 public class MenuButtonEventProvider extends EventProvider<MenuButton> {
-    public MenuButtonEventProvider() {
-        setHandler("showing", new Handler() {
+    public Handler showingHandler() {
+        return new Handler() {
             @Override
             public void set(MenuButton target, EventHandler eventHandler) {
                 target.addEventHandler(MenuButton.ON_SHOWING, eventHandler);
@@ -20,9 +20,11 @@ public class MenuButtonEventProvider extends EventProvider<MenuButton> {
             public EventHandler get(MenuButton target) {
                 return JavaFxUtils.loadEventHandler(target, "showing");
             }
-        });
+        };
+    }
 
-        setHandler("show", new Handler() {
+    public Handler showHandler() {
+        return new Handler() {
             @Override
             public void set(MenuButton target, EventHandler eventHandler) {
                 target.addEventHandler(MenuButton.ON_SHOWN, eventHandler);
@@ -33,9 +35,11 @@ public class MenuButtonEventProvider extends EventProvider<MenuButton> {
             public EventHandler get(MenuButton target) {
                 return JavaFxUtils.loadEventHandler(target, "show");
             }
-        });
+        };
+    }
 
-        setHandler("hiding", new Handler() {
+    public Handler hidingHandler() {
+        return new Handler() {
             @Override
             public void set(MenuButton target, EventHandler eventHandler) {
                 target.addEventHandler(MenuButton.ON_HIDING, eventHandler);
@@ -46,9 +50,11 @@ public class MenuButtonEventProvider extends EventProvider<MenuButton> {
             public EventHandler get(MenuButton target) {
                 return JavaFxUtils.loadEventHandler(target, "hiding");
             }
-        });
+        };
+    }
 
-        setHandler("hide", new Handler() {
+    public Handler hideHandler() {
+        return new Handler() {
             @Override
             public void set(MenuButton target, EventHandler eventHandler) {
                 target.addEventHandler(MenuButton.ON_HIDDEN, eventHandler);
@@ -59,7 +65,7 @@ public class MenuButtonEventProvider extends EventProvider<MenuButton> {
             public EventHandler get(MenuButton target) {
                 return JavaFxUtils.loadEventHandler(target, "hide");
             }
-        });
+        };
     }
 
     @Override

@@ -5,8 +5,8 @@ import javafx.scene.control.Tab;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class TabEventProvider extends EventProvider<Tab> {
-    public TabEventProvider() {
-        setHandler("close", new Handler() {
+    public Handler closeHandler() {
+        return new Handler() {
             @Override
             public void set(Tab target, EventHandler eventHandler) {
                 target.setOnClosed(eventHandler);
@@ -16,9 +16,11 @@ public class TabEventProvider extends EventProvider<Tab> {
             public EventHandler get(Tab target) {
                 return target.getOnClosed();
             }
-        });
+        };
+    }
 
-        setHandler("closeRequest", new Handler() {
+    public Handler closerequestHandler() {
+        return new Handler() {
             @Override
             public void set(Tab target, EventHandler eventHandler) {
                 target.setOnCloseRequest(eventHandler);
@@ -28,9 +30,11 @@ public class TabEventProvider extends EventProvider<Tab> {
             public EventHandler get(Tab target) {
                 return target.getOnCloseRequest();
             }
-        });
+        };
+    }
 
-        setHandler("change", new Handler() {
+    public Handler changeHandler() {
+        return new Handler() {
             @Override
             public void set(Tab target, EventHandler eventHandler) {
                 target.setOnSelectionChanged(eventHandler);
@@ -40,7 +44,7 @@ public class TabEventProvider extends EventProvider<Tab> {
             public EventHandler get(Tab target) {
                 return target.getOnSelectionChanged();
             }
-        });
+        };
     }
 
     @Override

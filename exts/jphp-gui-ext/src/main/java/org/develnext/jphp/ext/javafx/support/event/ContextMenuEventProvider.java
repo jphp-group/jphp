@@ -5,8 +5,8 @@ import javafx.scene.control.ContextMenu;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class ContextMenuEventProvider extends EventProvider<ContextMenu> {
-    public ContextMenuEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(ContextMenu target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -16,7 +16,7 @@ public class ContextMenuEventProvider extends EventProvider<ContextMenu> {
             public EventHandler get(ContextMenu target) {
                 return target.getOnAction();
             }
-        });
+        };
     }
 
     @Override

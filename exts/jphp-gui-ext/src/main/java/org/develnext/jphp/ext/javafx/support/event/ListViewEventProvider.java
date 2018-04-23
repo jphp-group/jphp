@@ -5,8 +5,8 @@ import org.develnext.jphp.ext.javafx.support.EventProvider;
 import org.develnext.jphp.ext.javafx.support.control.ListViewEx;
 
 public class ListViewEventProvider extends EventProvider<ListViewEx> {
-    public ListViewEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(ListViewEx target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -16,7 +16,7 @@ public class ListViewEventProvider extends EventProvider<ListViewEx> {
             public EventHandler get(ListViewEx target) {
                 return target.getOnAction();
             }
-        });
+        };
     }
 
     @Override

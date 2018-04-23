@@ -5,8 +5,8 @@ import javafx.scene.control.ButtonBase;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class ButtonBaseEventProvider extends EventProvider<ButtonBase> {
-    public ButtonBaseEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(ButtonBase target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -16,7 +16,7 @@ public class ButtonBaseEventProvider extends EventProvider<ButtonBase> {
             public EventHandler get(ButtonBase target) {
                 return target.getOnAction();
             }
-        });
+        };
     }
 
     @Override

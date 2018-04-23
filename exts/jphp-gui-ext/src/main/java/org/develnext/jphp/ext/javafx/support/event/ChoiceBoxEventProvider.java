@@ -8,8 +8,8 @@ import org.develnext.jphp.ext.javafx.classes.UXChoiceBox;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class ChoiceBoxEventProvider extends EventProvider<ChoiceBox> {
-    public ChoiceBoxEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(ChoiceBox target, final EventHandler eventHandler) {
                 ChangeListener<Number> listener = new ChangeListener<Number>() {
@@ -32,7 +32,7 @@ public class ChoiceBoxEventProvider extends EventProvider<ChoiceBox> {
             public EventHandler get(ChoiceBox target) {
                 return null;
             }
-        });
+        };
     }
 
     @Override

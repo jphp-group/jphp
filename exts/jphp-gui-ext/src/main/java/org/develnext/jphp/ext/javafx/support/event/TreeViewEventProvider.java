@@ -5,8 +5,8 @@ import javafx.scene.control.TreeView;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class TreeViewEventProvider extends EventProvider<TreeView> {
-    public TreeViewEventProvider() {
-        setHandler("scrollTo", new Handler() {
+    public Handler scrolltoHandler() {
+        return new Handler() {
             @Override
             public void set(TreeView target, EventHandler eventHandler) {
                 target.setOnScrollTo(eventHandler);
@@ -16,9 +16,11 @@ public class TreeViewEventProvider extends EventProvider<TreeView> {
             public EventHandler get(TreeView target) {
                 return target.getOnScrollTo();
             }
-        });
+        };
+    }
 
-        setHandler("editStart", new Handler() {
+    public Handler editstartHandler() {
+        return new Handler() {
             @Override
             public void set(TreeView target, EventHandler eventHandler) {
                 target.setOnEditStart(eventHandler);
@@ -28,9 +30,11 @@ public class TreeViewEventProvider extends EventProvider<TreeView> {
             public EventHandler get(TreeView target) {
                 return target.getOnEditStart();
             }
-        });
+        };
+    }
 
-        setHandler("editCommit", new Handler() {
+    public Handler editcommitHandler() {
+        return new Handler() {
             @Override
             public void set(TreeView target, EventHandler eventHandler) {
                 target.setOnEditCommit(eventHandler);
@@ -40,9 +44,11 @@ public class TreeViewEventProvider extends EventProvider<TreeView> {
             public EventHandler get(TreeView target) {
                 return target.getOnEditCommit();
             }
-        });
+        };
+    }
 
-        setHandler("editCancel", new Handler() {
+    public Handler editcancelHandler() {
+        return new Handler() {
             @Override
             public void set(TreeView target, EventHandler eventHandler) {
                 target.setOnEditCancel(eventHandler);
@@ -52,7 +58,7 @@ public class TreeViewEventProvider extends EventProvider<TreeView> {
             public EventHandler get(TreeView target) {
                 return target.getOnEditCancel();
             }
-        });
+        };
     }
 
     @Override

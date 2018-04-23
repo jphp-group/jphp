@@ -5,8 +5,8 @@ import org.develnext.jphp.ext.javafx.support.EventProvider;
 import org.develnext.jphp.ext.javafx.support.control.TabPaneEx;
 
 public class TabPaneEventProvider extends EventProvider<TabPaneEx> {
-    public TabPaneEventProvider() {
-        setHandler("close", new Handler() {
+    public Handler closeHandler() {
+        return new Handler() {
             @Override
             public void set(TabPaneEx target, EventHandler eventHandler) {
                 target.setOnCloseTab(eventHandler);
@@ -16,9 +16,11 @@ public class TabPaneEventProvider extends EventProvider<TabPaneEx> {
             public EventHandler get(TabPaneEx target) {
                 return target.getOnCloseTab();
             }
-        });
+        };
+    }
 
-        setHandler("closeRequest", new Handler() {
+    public Handler closerequestHandler() {
+        return new Handler() {
             @Override
             public void set(TabPaneEx target, EventHandler eventHandler) {
                 target.setOnCloseRequestTab(eventHandler);
@@ -28,9 +30,11 @@ public class TabPaneEventProvider extends EventProvider<TabPaneEx> {
             public EventHandler get(TabPaneEx target) {
                 return target.getOnCloseRequestTab();
             }
-        });
+        };
+    }
 
-        setHandler("change", new Handler() {
+    public Handler changeHandler() {
+        return new Handler() {
             @Override
             public void set(TabPaneEx target, EventHandler eventHandler) {
                 target.setOnSelectionChange(eventHandler);
@@ -40,7 +44,7 @@ public class TabPaneEventProvider extends EventProvider<TabPaneEx> {
             public EventHandler get(TabPaneEx target) {
                 return target.getOnSelectionChange();
             }
-        });
+        };
     }
 
     @Override

@@ -5,8 +5,8 @@ import javafx.scene.control.MenuItem;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class MenuItemEventProvider extends EventProvider<MenuItem> {
-    public MenuItemEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(MenuItem target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -16,9 +16,11 @@ public class MenuItemEventProvider extends EventProvider<MenuItem> {
             public EventHandler get(MenuItem target) {
                 return target.getOnAction();
             }
-        });
+        };
+    }
 
-        setHandler("menuValidation", new Handler() {
+    public Handler menuvalidationHandler() {
+        return new Handler() {
             @Override
             public void set(MenuItem target, EventHandler eventHandler) {
                 target.setOnMenuValidation(eventHandler);
@@ -28,7 +30,7 @@ public class MenuItemEventProvider extends EventProvider<MenuItem> {
             public EventHandler get(MenuItem target) {
                 return target.getOnMenuValidation();
             }
-        });
+        };
     }
 
     @Override

@@ -93,6 +93,7 @@ abstract public class EventProvider<T> {
         }
     }
 
+    @Deprecated
     protected void setHandler(String event, Handler handler) {
         handlers.put(event, handler);
     }

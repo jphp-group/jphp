@@ -6,8 +6,8 @@ import org.develnext.jphp.ext.javafx.support.control.ListViewEx;
 import org.develnext.jphp.ext.javafx.support.control.RadioGroupPane;
 
 public class RadioGroupPaneEventProvider extends EventProvider<RadioGroupPane> {
-    public RadioGroupPaneEventProvider() {
-        setHandler("action", new Handler() {
+    public Handler actionHandler() {
+        return new Handler() {
             @Override
             public void set(RadioGroupPane target, EventHandler eventHandler) {
                 target.setOnAction(eventHandler);
@@ -17,7 +17,7 @@ public class RadioGroupPaneEventProvider extends EventProvider<RadioGroupPane> {
             public EventHandler get(RadioGroupPane target) {
                 return target.getOnAction();
             }
-        });
+        };
     }
 
     @Override
