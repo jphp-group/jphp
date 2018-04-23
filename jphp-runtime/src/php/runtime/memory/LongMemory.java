@@ -102,17 +102,17 @@ public class LongMemory extends Memory {
 
     @Override
     public Memory inc() {
-        return new LongMemory(value + 1);
+        return LongMemory.valueOf(value + 1);
     }
 
     @Override
     public Memory dec() {
-        return new LongMemory(value - 1);
+        return LongMemory.valueOf(value - 1);
     }
 
     @Override
     public Memory negative() {
-        return new LongMemory(- value);
+        return LongMemory.valueOf(- value);
     }
 
     @Override
@@ -243,6 +243,11 @@ public class LongMemory extends Memory {
     }
 
     @Override
+    public boolean smaller(long value) {
+        return this.value < value;
+    }
+
+    @Override
     public boolean smallerEq(Memory memory) {
         switch (memory.type){
             case DOUBLE: return value <= ((DoubleMemory)memory).value;
@@ -298,5 +303,65 @@ public class LongMemory extends Memory {
     @Override
     public byte[] getBinaryBytes(Charset charset) {
         return MemoryStringUtils.getBinaryBytes(this);
+    }
+
+    @Override
+    public boolean isNull() {
+        return false;
+    }
+
+    @Override
+    public boolean isNotNull() {
+        return true;
+    }
+
+    @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
+    public Memory toValue() {
+        return this;
+    }
+
+    @Override
+    public Memory toImmutable() {
+        return this;
+    }
+
+    @Override
+    public boolean isUndefined() {
+        return false;
+    }
+
+    @Override
+    public boolean isString() {
+        return false;
+    }
+
+    @Override
+    public boolean isTraversable() {
+        return false;
+    }
+
+    @Override
+    public boolean isReference() {
+        return false;
+    }
+
+    @Override
+    public boolean isObject() {
+        return false;
+    }
+
+    @Override
+    public boolean isClosure() {
+        return false;
+    }
+
+    @Override
+    public boolean isNumber() {
+        return true;
     }
 }

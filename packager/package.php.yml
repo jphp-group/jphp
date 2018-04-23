@@ -1,5 +1,5 @@
 name: jppm
-version: 0.1.14
+version: 0.1.15
 
 plugins:
 - GitHub
@@ -12,10 +12,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Add default build, start and clean tasks.
-    + Change ignore mechanism.
-    + Add `disable-launcher` option to app plugin.
-    + Fix bugs.
+    + New `includes` section for auto-include source files.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
@@ -34,4 +31,4 @@ github:
 
 
 config:
-  ignore: ['/package.github.yml']
+  ignore: ['/package.github.yml', '/example/**', '/installer/**']

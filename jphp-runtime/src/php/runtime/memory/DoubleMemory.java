@@ -337,4 +337,59 @@ public class DoubleMemory extends Memory {
     public byte[] getBinaryBytes(Charset charset) {
         return MemoryStringUtils.getBinaryBytes(this);
     }
+
+    @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
+    public Memory toValue() {
+        return this;
+    }
+
+    @Override
+    public Memory toImmutable() {
+        return this;
+    }
+
+    @Override
+    public boolean isNull() {
+        return false;
+    }
+
+    @Override
+    public boolean isUndefined() {
+        return false;
+    }
+
+    @Override
+    public boolean isString() {
+        return false;
+    }
+
+    @Override
+    public boolean isTraversable() {
+        return false;
+    }
+
+    @Override
+    public boolean isReference() {
+        return false;
+    }
+
+    @Override
+    public boolean isObject() {
+        return false;
+    }
+
+    @Override
+    public boolean isClosure() {
+        return false;
+    }
+
+    @Override
+    public boolean isNumber() {
+        return true;
+    }
 }

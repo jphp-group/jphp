@@ -1276,4 +1276,39 @@ public class ObjectMemory extends Memory {
 
         return value != null ? value.equals(that.value) : that.value == null;
     }
+
+    @Override
+    public Memory toValue() {
+        return this;
+    }
+
+    @Override
+    public Memory toImmutable() {
+        return this;
+    }
+
+    @Override
+    public boolean isNull() {
+        return false;
+    }
+
+    @Override
+    public boolean isUndefined() {
+        return false;
+    }
+
+    @Override
+    public boolean isString() {
+        return false;
+    }
+
+    @Override
+    public boolean isReference() {
+        return false;
+    }
+
+    @Override
+    public boolean isNumber() {
+        return false;
+    }
 }

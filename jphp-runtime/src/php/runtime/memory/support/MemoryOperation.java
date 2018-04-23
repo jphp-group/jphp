@@ -32,11 +32,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract public class MemoryOperation<T> {
-    protected final static Map<Class<?>, Class<? extends BaseWrapper>> wrappers = new HashMap<Class<?>, Class<? extends BaseWrapper>>();
-    protected final static Map<Class<? extends BaseWrapper>, Class<?>> wrappersOut = new HashMap<Class<? extends BaseWrapper>, Class<?>>();
+    protected final static Map<Class<?>, Class<? extends BaseWrapper>> wrappers = new HashMap<>(1000);
+    protected final static Map<Class<? extends BaseWrapper>, Class<?>> wrappersOut = new HashMap<>(1000);
 
-    protected final static Map<Class<?>, MemoryOperation> operations = new HashMap<Class<?>, MemoryOperation>();
-    protected final static Map<ParametrizedClass, MemoryOperation> genericOperations = new HashMap<ParametrizedClass, MemoryOperation>();
+    protected final static Map<Class<?>, MemoryOperation> operations = new HashMap<>(500);
+    protected final static Map<ParametrizedClass, MemoryOperation> genericOperations = new HashMap<>(500);
 
     abstract public Class<?>[] getOperationClasses();
 
