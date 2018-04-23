@@ -123,13 +123,13 @@ class DefaultPlugin
             $data['plugins'] = ['App'];
 
             $data['app'] = [
-                'bootstrap' => 'index.php',
                 'encoding' => 'UTF-8',
                 'metrics' => false,
                 'trace' => false
             ];
 
             $data['sources'] = ['src'];
+            $data['includes'] = ['index.php'];
 
             Tasks::createDir("$dir/src");
             Tasks::createFile("$dir/src/index.php", "<?php \r\necho \"Hello World\\n\";\r\n");
