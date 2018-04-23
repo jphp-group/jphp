@@ -8,7 +8,7 @@ JPPM will help you to build and run jphp applications.
 
 ### 0. How to install jppm?
 **For Windows Users**
-- Download the installer (\*.exe) of the last jppm version here: https://github.com/jphp-compiler/jphp-repo/releases
+- Download the installer (\*.exe) of the last jppm version here: https://github.com/jphp-compiler/jphp/releases
 - Run the downloaded installer (`jppm-setup-{version}.exe`).
 
 That's all! Try to check jppm in console.
