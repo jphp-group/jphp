@@ -5,9 +5,8 @@ import javafx.scene.Node;
 import org.develnext.jphp.ext.javafx.support.EventProvider;
 
 public class NodeEventProvider extends EventProvider<Node> {
-    public NodeEventProvider() {
-        // Mouse Events
-        setHandler("click", new Handler() {
+    public Handler clickHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseClicked(eventHandler);
@@ -17,9 +16,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseClicked();
             }
-        });
+        };
+    }
 
-        setHandler("mouseMove", new Handler() {
+    public Handler mousemoveHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseMoved(eventHandler);
@@ -29,9 +30,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseMoved();
             }
-        });
+        };
+    }
 
-        setHandler("mouseEnter", new Handler() {
+    public Handler mouseenterHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseEntered(eventHandler);
@@ -41,9 +44,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseEntered();
             }
-        });
+        };
+    }
 
-        setHandler("mouseExit", new Handler() {
+    public Handler mouseexitHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseExited(eventHandler);
@@ -53,9 +58,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseExited();
             }
-        });
+        };
+    }
 
-        setHandler("mouseDown", new Handler() {
+    public Handler mousedownHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMousePressed(eventHandler);
@@ -65,9 +72,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMousePressed();
             }
-        });
+        };
+    }
 
-        setHandler("mouseUp", new Handler() {
+    public Handler mouseupHandler() {
+        return  new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseReleased(eventHandler);
@@ -77,9 +86,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseReleased();
             }
-        });
+        };
+    }
 
-        setHandler("mouseDrag", new Handler() {
+    public Handler mousedragHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseDragged(eventHandler);
@@ -89,9 +100,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseDragged();
             }
-        });
+        };
+    }
 
-        setHandler("mouseDragOver", new Handler() {
+    public Handler mousedragoverHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseDragOver(eventHandler);
@@ -101,9 +114,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseDragOver();
             }
-        });
+        };
+    }
 
-        setHandler("mouseDragRelease", new Handler() {
+    public Handler mousedragreleaseHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnMouseDragReleased(eventHandler);
@@ -113,11 +128,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnMouseDragReleased();
             }
-        });
+        };
+    }
 
-        // Drag Events
-
-        setHandler("dragDetect", new Handler() {
+    public Handler dragdetectHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragDetected(eventHandler);
@@ -127,9 +142,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragDetected();
             }
-        });
+        };
+    }
 
-        setHandler("dragOver", new Handler() {
+    public Handler dragoverHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragOver(eventHandler);
@@ -139,9 +156,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragOver();
             }
-        });
+        };
+    }
 
-        setHandler("dragDone", new Handler() {
+    public Handler dragdoneHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragDone(eventHandler);
@@ -151,9 +170,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragDone();
             }
-        });
+        };
+    }
 
-        setHandler("dragEnter", new Handler() {
+    public Handler dragenterHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragEntered(eventHandler);
@@ -163,9 +184,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragEntered();
             }
-        });
+        };
+    }
 
-        setHandler("dragExit", new Handler() {
+    public Handler dragexitHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragExited(eventHandler);
@@ -175,9 +198,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragExited();
             }
-        });
+        };
+    }
 
-        setHandler("dragDrop", new Handler() {
+    public Handler dragdropHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnDragDropped(eventHandler);
@@ -187,11 +212,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnDragDropped();
             }
-        });
+        };
+    }
 
-        // Scroll Events
-
-        setHandler("scroll", new Handler() {
+    public Handler scrollHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnScroll(eventHandler);
@@ -201,9 +226,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnScroll();
             }
-        });
+        };
+    }
 
-        setHandler("scrollStart", new Handler() {
+    public Handler scrollstartHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnScrollStarted(eventHandler);
@@ -213,9 +240,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnScrollStarted();
             }
-        });
+        };
+    }
 
-        setHandler("scrollFinish", new Handler() {
+    public Handler scrollfinishHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnScrollFinished(eventHandler);
@@ -225,11 +254,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnScrollFinished();
             }
-        });
+        };
+    }
 
-        // Key Events
-
-        setHandler("keyPress", new Handler() {
+    public Handler keypressHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnKeyTyped(eventHandler);
@@ -239,9 +268,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnKeyTyped();
             }
-        });
+        };
+    }
 
-        setHandler("keyDown", new Handler() {
+    public Handler keydownHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnKeyPressed(eventHandler);
@@ -251,9 +282,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnKeyPressed();
             }
-        });
+        };
+    }
 
-        setHandler("keyUp", new Handler() {
+    public Handler keyupHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnKeyReleased(eventHandler);
@@ -263,10 +296,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnKeyReleased();
             }
-        });
+        };
+    }
 
-        // Touch Events
-        setHandler("touchDown", new Handler() {
+    public Handler touchdownHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnTouchPressed(eventHandler);
@@ -276,9 +310,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnTouchPressed();
             }
-        });
+        };
+    }
 
-        setHandler("touchMove", new Handler() {
+    public Handler touchmoveHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnTouchMoved(eventHandler);
@@ -288,9 +324,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnTouchMoved();
             }
-        });
+        };
+    }
 
-        setHandler("touchUp", new Handler() {
+    public Handler touchupHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnTouchReleased(eventHandler);
@@ -300,10 +338,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnTouchReleased();
             }
-        });
+        };
+    }
 
-        // Swipe Events
-        setHandler("swipeDown", new Handler() {
+    public Handler swipedownHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnSwipeDown(eventHandler);
@@ -313,9 +352,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnSwipeDown();
             }
-        });
+        };
+    }
 
-        setHandler("swipeUp", new Handler() {
+    public Handler swipeupHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnSwipeUp(eventHandler);
@@ -325,9 +366,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnSwipeUp();
             }
-        });
+        };
+    }
 
-        setHandler("swipeLeft", new Handler() {
+    public Handler swipeleftHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnSwipeLeft(eventHandler);
@@ -337,9 +380,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnSwipeLeft();
             }
-        });
+        };
+    }
 
-        setHandler("swipeRight", new Handler() {
+    public Handler swiperightHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnSwipeRight(eventHandler);
@@ -349,10 +394,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnSwipeRight();
             }
-        });
+        };
+    }
 
-        // Rotate
-        setHandler("rotate", new Handler() {
+    public Handler rotateHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnRotate(eventHandler);
@@ -362,9 +408,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnRotate();
             }
-        });
+        };
+    }
 
-        setHandler("rotateStart", new Handler() {
+    public Handler rotatestartHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnRotationStarted(eventHandler);
@@ -374,9 +422,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnRotationStarted();
             }
-        });
+        };
+    }
 
-        setHandler("rotateFinish", new Handler() {
+    public Handler rotatefinishHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnRotationFinished(eventHandler);
@@ -386,10 +436,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnRotationFinished();
             }
-        });
+        };
+    }
 
-        // Zoom
-        setHandler("zoom", new Handler() {
+    public Handler zoomHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnZoom(eventHandler);
@@ -399,9 +450,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnZoom();
             }
-        });
+        };
+    }
 
-        setHandler("zoomStart", new Handler() {
+    public Handler zoomstartHandler() {
+        return new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnZoomStarted(eventHandler);
@@ -411,9 +464,11 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnZoomStarted();
             }
-        });
+        };
+    }
 
-        setHandler("zoomFinish", new Handler() {
+    public Handler zoomfinishHandler() {
+        return  new Handler() {
             @Override
             public void set(Node target, EventHandler eventHandler) {
                 target.setOnZoomFinished(eventHandler);
@@ -423,7 +478,7 @@ public class NodeEventProvider extends EventProvider<Node> {
             public EventHandler get(Node target) {
                 return target.getOnZoomFinished();
             }
-        });
+        };
     }
 
     @Override
