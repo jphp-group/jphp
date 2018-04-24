@@ -1,0 +1,12 @@
+dependencies {
+    provided project(":jphp-runtime")
+
+    // dependencies ....
+    compile 'com.vladsch.flexmark:flexmark-all:0.32.18'
+    // -----------------
+
+    testCompile 'junit:junit:4.+'
+    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':jphp-core')
+    testCompile project(':jphp-core').sourceSets.test.output
+}
