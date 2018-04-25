@@ -55,8 +55,7 @@ Check it, open [http://localhost:8888/hello/YourName](http://localhost:8888/hell
 
 ---
 
-3
-. **Show client data**.
+3. **Show client data**.
 ```php
 use php\http\{HttpServer, HttpServerRequest, HttpServerResponse};
 
@@ -85,7 +84,7 @@ Check it, open [http://localhost:8888/client-data](http://localhost:8888/hello-w
 
 ---
 
-1. **Run server with hello world page**.
+4. **Query parameters**.
 ```php
 use php\http\{HttpServer, HttpServerRequest, HttpServerResponse};
 
@@ -94,8 +93,6 @@ $server = new HttpServer(8888, '127.0.0.1'); // port & host.
 
 // add route with method + path + handler.
 $server->route('GET', '/demo-get', function (HttpServerRequest $req, HttpServerResponse $res) {
-    $res->contentType('text/html');
-    $text = $req->attribute('text');
     $res->contentType('text/html');
     $name=$req->queryParameters()['name']; //get GET parameter "name"
     $res->body("You name: $name"); //Show get parameter "name"
