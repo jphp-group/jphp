@@ -101,7 +101,7 @@ $server->route('GET', '/demo-get', function (HttpServerRequest $req, HttpServerR
 // run server.
 $server->run();
 ```
-Check it, open [http://localhost:8888/hello-world](http://localhost:8888/hello-world) in your browser.
+Check it, open [http://localhost:8888/demo-get?name=Mike](http://localhost:8888/demo-get?name=Mike) in your browser.
 
 ---
 
