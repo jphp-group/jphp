@@ -1,15 +1,19 @@
 package php.runtime.ext.core.classes;
 
+import java.util.Collection;
 import php.runtime.Memory;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.HintType;
 import php.runtime.env.*;
 import php.runtime.ext.core.classes.stream.Stream;
+import php.runtime.ext.core.reflection.ReflectionClass;
+import php.runtime.ext.core.reflection.ReflectionFunction;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ConstantEntity;
 import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
@@ -121,6 +125,45 @@ public class WrapModule extends BaseObject {
         for (ClosureEntity entity : module.getClosures()) {
             entity.setData(null);
         }
+    }
+
+    @Signature
+    public Memory getClasses(Environment env) {
+        Collection<ClassEntity> classes = module.getClasses();
+
+        ArrayMemory result = new ArrayMemory();
+        for (ClassEntity aClass : classes) {
+            ReflectionClass rf = new ReflectionClass(env);
+            rf.setEntity(aClass);
+
+            result.put(aClass.getName(), rf);
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
+    public Memory getFunctions(Environment env) {
+        Collection<FunctionEntity> functions = module.getFunctions();
+
+        ArrayMemory result = new ArrayMemory();
+        for (FunctionEntity func : functions) {
+            result.put(func.getName(), new ReflectionFunction(env, func));
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
+    public Memory getConstants(Environment env) {
+        Collection<ConstantEntity> constants = module.getConstants();
+
+        ArrayMemory result = new ArrayMemory();
+        for (ConstantEntity constant : constants) {
+            result.put(constant.getName(), constant.getValue(env));
+        }
+
+        return result.toConstant();
     }
 
     @Signature({

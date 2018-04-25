@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ListMemoryOperation extends GenericMemoryOperation<List> {
+public class ListMemoryOperation extends GenericMemoryOperation<Collection> {
     public ListMemoryOperation(Type... genericTypes) {
         super(genericTypes);
 
@@ -53,7 +53,7 @@ public class ListMemoryOperation extends GenericMemoryOperation<List> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Memory unconvert(Environment env, TraceInfo trace, List arg) throws Throwable {
+    public Memory unconvert(Environment env, TraceInfo trace, Collection arg) throws Throwable {
         if (arg == null) {
             return Memory.NULL;
         }

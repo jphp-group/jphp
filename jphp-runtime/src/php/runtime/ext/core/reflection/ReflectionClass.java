@@ -27,7 +27,7 @@ public class ReflectionClass extends Reflection {
 
     protected ClassEntity entity;
 
-    protected ReflectionClass(Environment env) {
+    public ReflectionClass(Environment env) {
         super(env);
     }
 

@@ -67,6 +67,8 @@ abstract public class AbstractSourceRecord<T extends Token> extends BaseObject {
 
     @Getter
     public String getNamespace() {
+        if (getName() == null) return null;
+
         String[] tmp = StringUtils.split(getName(), Information.NAMESPACE_SEP_CHAR);
 
         if (tmp.length > 1) {
@@ -90,6 +92,8 @@ abstract public class AbstractSourceRecord<T extends Token> extends BaseObject {
 
     @Getter
     public String getShortName() {
+        if (getName() == null) return null;
+
         String[] tmp = StringUtils.split(getName(), Information.NAMESPACE_SEP_CHAR);
 
         if (tmp.length > 0) {

@@ -1,6 +1,7 @@
 <?php
 namespace packager;
 
+use php\lib\str;
 use php\util\Regex;
 use ReflectionClass;
 use ReflectionFunctionAbstract;
@@ -13,6 +14,38 @@ class Annotations
 {
     private function __construct()
     {
+    }
+
+    public static function getContent(string $comment, string $lang = null): string
+    {
+        $content = str::trim((new Regex('^\\@.*', Regex::DOTALL | Regex::MULTILINE | Regex::UNIX_LINES, $comment))->replaceGroup(0, ''));
+
+        if (!$lang) return $content;
+
+        $lang = str::lower($lang);
+        $c_lang = 'def';
+
+        $result = [];
+        foreach (str::lines($content) as $line) {
+            if (str::startsWith($line, '--') && str::endsWith($line, '--')) {
+                $c_lang = str::lower(str::sub($line, 2, str::length($line) - 2));
+                continue;
+            }
+
+            $result[$c_lang][] = $line;
+        }
+
+        if (!$result[$lang]) {
+            foreach ($result as $value) {
+                if ($value) {
+                    return str::join((array)$value, "\n");
+                }
+            }
+
+            return "";
+        } else {
+            return str::join((array)$result[$lang], "\n");
+        }
     }
 
     /**
@@ -73,7 +106,7 @@ class Annotations
             return [$result];
         }
 
-        return $result ?: $default;
+        return $result ?? $default;
     }
 
     /**

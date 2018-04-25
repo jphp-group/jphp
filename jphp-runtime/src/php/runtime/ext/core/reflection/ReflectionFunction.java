@@ -32,6 +32,11 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
     protected FunctionEntity functionEntity;
     protected ArrayMemory cachedParameters;
 
+    public ReflectionFunction(Environment env, FunctionEntity functionEntity) {
+        super(env);
+        this.functionEntity = functionEntity;
+    }
+
     public ReflectionFunction(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }

@@ -3,9 +3,11 @@ package org.develnext.jphp.parser.classes;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import org.develnext.jphp.parser.ParserExtension;
+import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Namespace;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
+import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.Collection;
@@ -30,6 +32,36 @@ public class ModuleRecord extends AbstractSourceRecord {
     }
 
     @Signature
+    public Memory getClasses() {
+        ArrayMemory result = ArrayMemory.createHashed();
+
+        for (NamespaceRecord record : namespaces.values()) {
+            Collection<ClassRecord> classes = record.getClasses();
+
+            for (ClassRecord aClass : classes) {
+                result.put(aClass.getName(), aClass);
+            }
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
+    public Memory getFunctions() {
+        ArrayMemory result = ArrayMemory.createHashed();
+
+        for (NamespaceRecord record : namespaces.values()) {
+            Collection<MethodRecord> functions = record.getFunctions();
+
+            for (MethodRecord function : functions) {
+                result.put(function.getName(), function);
+            }
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature
     public ClassRecord findClass(String name) {
         for (NamespaceRecord record : namespaces.values()) {
             ClassRecord classRecord = record.getClass(name);
@@ -40,6 +72,11 @@ public class ModuleRecord extends AbstractSourceRecord {
         }
 
         return null;
+    }
+
+    @Signature
+    public MethodRecord findFunction(String name) {
+        return findMethod(name);
     }
 
     @Signature
@@ -87,8 +124,18 @@ public class ModuleRecord extends AbstractSourceRecord {
         classRecord.setName(token.getFulledName());
         classRecord.setIsAbstract(token.isAbstract());
 
+        if (token.getExtend() != null) {
+            ClassRecord parent = new ClassRecord(env);
+            parent.setName(token.getExtend().getName().getName());
+            classRecord.setParent(parent);
+        }
+
         for (MethodStmtToken methodStmtToken : token.getMethods()) {
             synchronize(env, methodStmtToken, classRecord, tokenizer);
+        }
+
+        for (ClassVarStmtToken varStmtToken : token.getProperties()) {
+            synchronize(env, varStmtToken, classRecord, tokenizer);
         }
 
         namespaceRecord.addClass(classRecord);
@@ -112,6 +159,21 @@ public class ModuleRecord extends AbstractSourceRecord {
         namespace.addFunction(methodRecord);
     }
 
+    public void synchronize(Environment env, ClassVarStmtToken varStmtToken, ClassRecord classRecord, Tokenizer tokenizer) {
+        PropertyRecord classVar = classRecord.getClassVar(varStmtToken.getVariable().getName());
+
+        if (classVar == null) {
+            classVar = new PropertyRecord(env);
+            classVar.setToken(varStmtToken);
+        }
+
+        classVar.setName(varStmtToken.getVariable().getName());
+        classVar.setComment(varStmtToken.getDocComment().getComment());
+        classVar.setStatic(varStmtToken.isStatic());
+
+        classRecord.addClassVar(classVar);
+    }
+
     public void synchronize(Environment env, MethodStmtToken token, ClassRecord classRecord, Tokenizer tokenizer) {
         MethodRecord methodRecord = classRecord.getMethod(token.getName().getName());
 
@@ -122,6 +184,9 @@ public class ModuleRecord extends AbstractSourceRecord {
 
         methodRecord.setName(token.getName().getName());
         methodRecord.setComment(token.getDocComment().getComment());
+        methodRecord.setStatic(token.isStatic());
+        methodRecord.setAbstract(token.isAbstract());
+        methodRecord.setFinal(token.isFinal());
 
         classRecord.addMethod(methodRecord);
     }

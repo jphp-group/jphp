@@ -1,5 +1,6 @@
 package org.develnext.jphp.parser.classes;
 
+import java.util.LinkedHashMap;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.parser.ParserExtension;
 import php.runtime.annotation.Reflection.*;
@@ -18,8 +19,9 @@ public class ClassRecord extends AbstractSourceRecord<ClassStmtToken> {
     protected ClassRecord parent;
     protected boolean shortParentName = false;
 
-    protected Map<String, ClassRecord> interfaces;
-    protected Map<String, MethodRecord> methodRecords;
+    protected Map<String, ClassRecord> interfaces = new LinkedHashMap<>();
+    protected Map<String, MethodRecord> methodRecords = new LinkedHashMap<>();
+    protected Map<String, PropertyRecord> propertyRecords = new LinkedHashMap<>();
 
     protected Type type = Type.CLASS;
 
@@ -110,13 +112,32 @@ public class ClassRecord extends AbstractSourceRecord<ClassStmtToken> {
     }
 
     @Signature
+    @Name("addProperty")
+    public void addClassVar(PropertyRecord record) {
+        record.setClassRecord(this);
+        propertyRecords.put(record.getName(), record);
+    }
+
+    @Signature
     public boolean hasMethod(String name) {
+        return methodRecords.containsKey(name.toLowerCase());
+    }
+
+    @Signature
+    @Name("hasProperty")
+    public boolean hasClassVar(String name) {
         return methodRecords.containsKey(name.toLowerCase());
     }
 
     @Signature
     public MethodRecord getMethod(String name) {
         return methodRecords.get(name);
+    }
+
+    @Signature
+    @Name("getProperty")
+    public PropertyRecord getClassVar(String name) {
+        return propertyRecords.get(name);
     }
 
     @Signature
@@ -128,6 +149,12 @@ public class ClassRecord extends AbstractSourceRecord<ClassStmtToken> {
     @Signature
     public Collection<MethodRecord> getMethods() {
         return methodRecords.values();
+    }
+
+    @Signature
+    @Name("getProperties")
+    public Collection<PropertyRecord> getClassVars() {
+        return propertyRecords.values();
     }
 
     @Override

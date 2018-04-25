@@ -27,4 +27,11 @@ class SourceFile
     public function isReadOnly()
     {
     }
+
+    /**
+     * @param SourceManager $manager
+     */
+    public function update(SourceManager $manager)
+    {
+    }
 }

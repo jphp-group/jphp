@@ -28,6 +28,11 @@ class ClassRecord extends AbstractSourceRecord
     public $shortParentName = false;
 
     /**
+     * @var bool
+     */
+    public $abstract = false;
+
+    /**
      * @param ClassRecord $record
      */
     public function addInterface(ClassRecord $record)
@@ -42,12 +47,21 @@ class ClassRecord extends AbstractSourceRecord
     }
 
     /**
+     * @param PropertyRecord $property
+     */
+    public function addProperty(PropertyRecord $property)
+    {
+    }
+
+    /**
      * @param $name
      * @return MethodRecord
      */
     public function getMethod($name)
     {
     }
+
+    public function getProperty(string $name): PropertyRecord {}
 
     /**
      * @param $name
@@ -60,6 +74,13 @@ class ClassRecord extends AbstractSourceRecord
      * @return MethodRecord[]
      */
     public function getMethods()
+    {
+    }
+
+    /**
+     * @return PropertyRecord[]
+     */
+    public function getProperties(): array
     {
     }
 }

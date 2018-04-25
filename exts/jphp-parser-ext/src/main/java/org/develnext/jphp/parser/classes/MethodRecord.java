@@ -13,6 +13,9 @@ public class MethodRecord extends AbstractSourceRecord<FunctionStmtToken> {
     protected NamespaceRecord namespaceRecord;
     protected ClassRecord classRecord;
     protected BodyRecord body;
+    protected boolean isStatic;
+    protected boolean isFinal;
+    protected boolean isAbstract;
 
     public MethodRecord(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -48,5 +51,35 @@ public class MethodRecord extends AbstractSourceRecord<FunctionStmtToken> {
 
     public void setNamespaceRecord(NamespaceRecord namespaceRecord) {
         this.namespaceRecord = namespaceRecord;
+    }
+
+    @Getter
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    @Setter
+    public void setStatic(boolean aStatic) {
+        isStatic = aStatic;
+    }
+
+    @Getter
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    @Setter
+    public void setFinal(boolean aFinal) {
+        isFinal = aFinal;
+    }
+
+    @Getter
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+
+    @Setter
+    public void setAbstract(boolean anAbstract) {
+        isAbstract = anAbstract;
     }
 }

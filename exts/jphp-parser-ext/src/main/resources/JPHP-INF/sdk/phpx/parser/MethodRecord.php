@@ -16,4 +16,19 @@ class MethodRecord extends AbstractSourceRecord
      * @var NamespaceRecord
      */
     public $classRecord;
+
+    /**
+     * @var bool
+     */
+    public $static = false;
+
+    /**
+     * @var bool
+     */
+    public $final = false;
+
+    /**
+     * @var bool
+     */
+    public $abstract = false;
 }

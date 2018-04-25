@@ -4,6 +4,9 @@ import java.util.TimeZone;
 import java.util.Date;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.ext.core.LangFunctions;
+import php.runtime.ext.core.classes.time.WrapTime;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
@@ -54,4 +57,13 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory gettimeofday(){
         return gettimeofday(false);
     }
+
+    /*public static Memory date(Environment env, String format) {
+    	return date(env, format, LangFunctions.time().toLong());
+	}
+
+    public static Memory date(Environment env, String format, long time) {
+		WrapTime wrapTime = new WrapTime(env, new Date(time * 1000));
+		return wrapTime.toString(env, StringMemory.valueOf(format), Memory.NULL);
+	}*/
 }

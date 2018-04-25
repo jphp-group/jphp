@@ -7,6 +7,7 @@ deps:
 
 plugins:
 - App
+- Doc
 
 app:
   disable-launcher: true
@@ -17,6 +18,9 @@ app:
 
 sources:
 - src
+
+doc:
+  langs: {en: English, ru: Русский}
 
 config:
   build-dir: ./build-new

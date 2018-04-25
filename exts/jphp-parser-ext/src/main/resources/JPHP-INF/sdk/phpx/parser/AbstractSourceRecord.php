@@ -29,6 +29,11 @@ abstract class AbstractSourceRecord
     public $namespace;
 
     /**
+     * @var string
+     */
+    public $comment;
+
+    /**
      * Remove all data.
      */
     public function clear() {}

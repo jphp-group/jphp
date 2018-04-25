@@ -46,6 +46,23 @@ class Module
     public function cleanData() {}
 
     /**
+     * @return \ReflectionClass[]
+     */
+    public function getClasses(): array
+    {
+    }
+
+    /**
+     * @return \ReflectionFunction
+     */
+    public function getFunctions(): array {}
+
+    /**
+     * @return array
+     */
+    public function getConstants(): array {}
+
+    /**
      * @param string $name
      * @param array $classes
      */
