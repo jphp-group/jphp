@@ -120,7 +120,7 @@ public class ModuleRecord extends AbstractSourceRecord {
             classRecord.setToken(token);
         }
 
-        classRecord.setComment(token.getDocComment().getComment());
+        classRecord.setComment(token.getDocComment() == null ? null : token.getDocComment().getComment());
         classRecord.setName(token.getFulledName());
         classRecord.setIsAbstract(token.isAbstract());
 
@@ -168,7 +168,7 @@ public class ModuleRecord extends AbstractSourceRecord {
         }
 
         classVar.setName(varStmtToken.getVariable().getName());
-        classVar.setComment(varStmtToken.getDocComment().getComment());
+        classVar.setComment(varStmtToken.getDocComment() == null ? null : varStmtToken.getDocComment().getComment());
         classVar.setStatic(varStmtToken.isStatic());
 
         classRecord.addClassVar(classVar);
@@ -183,7 +183,7 @@ public class ModuleRecord extends AbstractSourceRecord {
         }
 
         methodRecord.setName(token.getName().getName());
-        methodRecord.setComment(token.getDocComment().getComment());
+        methodRecord.setComment(token.getDocComment() == null ? null : token.getDocComment().getComment());
         methodRecord.setStatic(token.isStatic());
         methodRecord.setAbstract(token.isAbstract());
         methodRecord.setFinal(token.isFinal());

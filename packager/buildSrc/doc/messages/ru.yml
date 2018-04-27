@@ -1,0 +1,17 @@
+
+common.class: класс
+common.function: функция
+common.final: final
+common.asbtract: abstract
+common.package: пакет
+
+class.description.title: Описание
+class.classes.title: Классы
+class.method.title: Методы
+class.static-method.title: Статичные Методы
+class.properties.title: Свойства
+class.see-parent-class: См. также в родительском классе
+class.property.readonly: Только для чтения
+
+index.install.title: Установка
+index.api.title: АПИ

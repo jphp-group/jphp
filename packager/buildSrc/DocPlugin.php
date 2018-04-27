@@ -36,11 +36,30 @@ class DocPlugin
     private $dir;
     private $sourceFiles = [];
 
+    /**
+     * @var array
+     */
+    private $excludeClasses = [];
+    private $excludeFunctions = [];
+
+    private $languages = [];
+
+    /**
+     * @var array
+     */
+    private $stubDirs = [];
+
     public function __construct(Event $event)
     {
         $this->langs = $event->package()->getAny('doc.langs', ['en' => 'English']);
         $this->urlPrefix = $event->package()->getAny('doc.url-prefix', 'api-docs/');
         $this->dir = $event->package()->getAny('doc.dir', './api-docs');
+
+        $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);
+
+        $this->excludeClasses = $event->package()->getAny('doc.exclude-classes', []);
+        $this->excludeFunctions = $event->package()->getAny('doc.exclude-functions', []);
+
         $this->defLang = arr::firstKey($this->langs);
     }
 
@@ -68,7 +87,7 @@ class DocPlugin
     {
         $env = new Environment(null, Environment::HOT_RELOAD);
 
-        $sources = $event->package()->getSources() + ["./sdk"];
+        $sources = $event->package()->getSources() + $this->stubDirs;
 
         $docDir = $this->dir;
 
@@ -90,10 +109,14 @@ class DocPlugin
                     $classes = $sourceFile->moduleRecord->getClasses();
 
                     flow($classes)->each(function (ClassRecord $cls) use ($docIndex, $event, $docDir) {
-                        $docIndex->addClass($cls);
+                        if (!arr::has($this->excludeClasses, $cls->name)) {
+                            $docIndex->addClass($cls);
+                        }
                     });
 
                     flow($classes)->each(function (ClassRecord $cls) use ($docDir, $docIndex, $suffix, $lang, $uniqueId, $originSource) {
+                        if (arr::has($this->excludeClasses, $cls->name)) return;
+
                         $docClass = new DocClass($docIndex, $cls, $lang);
                         $docClass->setFile("$originSource/$uniqueId");
                         $docClass->setSrcFile($uniqueId);

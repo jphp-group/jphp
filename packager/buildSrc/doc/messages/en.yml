@@ -1,0 +1,20 @@
+
+common.class: class
+common.function: function
+common.final: final
+common.asbtract: abstract
+common.package: package
+
+class.description.title: Description
+class.classes.title: Classes
+class.method.title: Methods
+class.static-method.title: Static Methods
+class.properties.title: Properties
+class.see-parent-class: Also the parent class
+class.property.readonly: Read Only
+
+common.class: class
+
+index.install.title: Install
+index.api.title: API
+index.api.title: API

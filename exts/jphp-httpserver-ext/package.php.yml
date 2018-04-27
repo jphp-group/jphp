@@ -1,0 +1,10 @@
+
+name: jphp-httpserver-ext
+version: 0.9.3
+
+plugins:
+- Doc
+
+doc:
+  stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
+  languages: {en: English, ru: Русский}

@@ -1,5 +1,6 @@
 package org.develnext.jphp.parser.classes;
 
+import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.parser.ParserExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Getter;
@@ -10,7 +11,7 @@ import php.runtime.lang.BaseObject;
 import php.runtime.reflection.ClassEntity;
 
 @Namespace(ParserExtension.NS)
-public class PropertyRecord extends AbstractSourceRecord {
+public class PropertyRecord extends AbstractSourceRecord<ClassVarStmtToken> {
     private String name;
     protected ClassRecord classRecord;
     protected boolean isStatic;
