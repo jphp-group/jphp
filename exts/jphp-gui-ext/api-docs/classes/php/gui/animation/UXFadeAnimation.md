@@ -1,0 +1,37 @@
+# UXFadeAnimation
+
+- **class** `UXFadeAnimation` (`php\gui\animation\UXFadeAnimation`) **extends** [`UXAnimation`](api-docs/classes/php/gui/animation/UXAnimation.md)
+- **package** `gui`
+- **source** [`php/gui/animation/UXFadeAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXFadeAnimation.php)
+
+**Description**
+
+Class UXFadeAnimation
+
+---
+
+#### Properties
+
+- `->`[`fromValue`](#prop-fromvalue) : `double`
+- `->`[`toValue`](#prop-tovalue) : `double`
+- `->`[`byValue`](#prop-byvalue) : `double`
+- `->`[`duration`](#prop-duration) : `int millis`
+- `->`[`node`](#prop-node) : `UXNode`
+
+---
+
+#### Methods
+
+- `->`[`__construct()`](#method-__construct)
+
+---
+# Methods
+
+<a name="method-__construct"></a>
+
+### __construct()
+```php
+__construct(int $duration, php\gui\UXNode $node): void
+```
+
+---

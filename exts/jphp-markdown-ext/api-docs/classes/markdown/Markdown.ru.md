@@ -1,0 +1,37 @@
+# Markdown
+
+- **класс** `Markdown` (`markdown\Markdown`)
+- **исходники** [`markdown/Markdown.php`](./src/main/resources/JPHP-INF/sdk/markdown/Markdown.php)
+
+**Описание**
+
+Class Markdown
+
+---
+
+#### Методы
+
+- `->`[`__construct()`](#method-__construct) - _Markdown constructor._
+- `->`[`render()`](#method-render)
+
+---
+# Методы
+
+<a name="method-__construct"></a>
+
+### __construct()
+```php
+__construct( $options): void
+```
+Markdown constructor.
+
+---
+
+<a name="method-render"></a>
+
+### render()
+```php
+render(string $content): string
+```
+
+---
