@@ -1,6 +1,6 @@
 # UXTilePane
 
-- **class** `UXTilePane` (`php\gui\layout\UXTilePane`) **extends** [`UXPane`](api-docs/classes/php/gui/layout/UXPane.md)
+- **class** `UXTilePane` (`php\gui\layout\UXTilePane`) **extends** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 - **package** `gui`
 - **source** [`php/gui/layout/UXTilePane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXTilePane.php)
 

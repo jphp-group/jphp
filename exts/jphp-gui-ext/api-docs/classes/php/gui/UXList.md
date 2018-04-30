@@ -72,7 +72,7 @@ isNotEmpty(): bool
 
 ### indexOf()
 ```php
-indexOf( $object): int
+indexOf(mixed $object): int
 ```
 
 ---
@@ -81,7 +81,7 @@ indexOf( $object): int
 
 ### has()
 ```php
-has( $object): bool
+has(mixed $object): bool
 ```
 
 ---
@@ -126,7 +126,7 @@ addAll(iterable $objects): void
 
 ### set()
 ```php
-set(int $index,  $object): void
+set(int $index, mixed $object): void
 ```
 
 ---
@@ -250,7 +250,7 @@ count(): void
 
 ### offsetExists()
 ```php
-offsetExists( $offset): void
+offsetExists(mixed $offset): void
 ```
 {@inheritdoc}
 
@@ -260,7 +260,7 @@ offsetExists( $offset): void
 
 ### offsetGet()
 ```php
-offsetGet( $offset): void
+offsetGet(mixed $offset): void
 ```
 {@inheritdoc}
 
@@ -270,7 +270,7 @@ offsetGet( $offset): void
 
 ### offsetSet()
 ```php
-offsetSet( $offset,  $value): void
+offsetSet(mixed $offset, mixed $value): void
 ```
 {@inheritdoc}
 
@@ -280,7 +280,7 @@ offsetSet( $offset,  $value): void
 
 ### offsetUnset()
 ```php
-offsetUnset( $offset): void
+offsetUnset(mixed $offset): void
 ```
 {@inheritdoc}
 
@@ -311,5 +311,3 @@ toArray(): array
 __clone(): void
 ```
 Available to clone.
-
----

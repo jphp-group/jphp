@@ -35,6 +35,16 @@ Class Image
 - `->`[`__clone()`](#method-__clone) - _Clonable._
 
 ---
+# Static Methods
+
+<a name="method-open"></a>
+
+### open()
+```php
+Image::open(string|Stream $source): php\graphic\Image
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -87,7 +97,7 @@ resize(int $width, int $height): php\graphic\Image
 
 ### save()
 ```php
-save( $dest, string $format): bool
+save(mixed $dest, string $format): bool
 ```
 
 ---
@@ -99,5 +109,3 @@ save( $dest, string $format): bool
 __clone(): void
 ```
 Clonable.
-
----

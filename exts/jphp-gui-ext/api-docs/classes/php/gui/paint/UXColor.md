@@ -42,6 +42,25 @@ Class UXColor
 - `->`[`getWebValue()`](#method-getwebvalue)
 
 ---
+# Static Methods
+
+<a name="method-of"></a>
+
+### of()
+```php
+UXColor::of(string $colorString): UXColor
+```
+
+---
+
+<a name="method-rgb"></a>
+
+### rgb()
+```php
+UXColor::rgb(int $r, int $g, int $b, double $opacity): UXColor
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -113,5 +132,3 @@ getRGB(): int
 ```php
 getWebValue(): string
 ```
-
----

@@ -1,6 +1,6 @@
 # ZipArchiveEntry
 
-- **класс** `ZipArchiveEntry` (`compress\ZipArchiveEntry`) **унаследован от** [`ArchiveEntry`](api-docs/classes/compress/ArchiveEntry.ru.md)
+- **класс** `ZipArchiveEntry` (`compress\ZipArchiveEntry`) **унаследован от** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 - **пакет** `compress`
 - **исходники** [`compress/ZipArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveEntry.php)
 
@@ -31,6 +31,16 @@ Class TarArchiveEntry
 - `->`[`__construct()`](#method-__construct) - _TarArchiveEntry constructor._
 
 ---
+# Статичные Методы
+
+<a name="method-offile"></a>
+
+### ofFile()
+```php
+ZipArchiveEntry::ofFile(File|string $file, string $fileName): compress\ZipArchiveEntry
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -40,5 +50,3 @@ Class TarArchiveEntry
 __construct(string $name, int $size): void
 ```
 TarArchiveEntry constructor.
-
----

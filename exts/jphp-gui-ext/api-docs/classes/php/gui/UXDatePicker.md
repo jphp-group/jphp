@@ -1,6 +1,6 @@
 # UXDatePicker
 
-- **class** `UXDatePicker` (`php\gui\UXDatePicker`) **extends** [`UXComboBoxBase`](api-docs/classes/php/gui/UXComboBoxBase.md)
+- **class** `UXDatePicker` (`php\gui\UXDatePicker`) **extends** [`UXComboBoxBase`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXComboBoxBase.md)
 - **package** `gui`
 - **source** [`php/gui/UXDatePicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDatePicker.php)
 

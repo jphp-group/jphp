@@ -30,5 +30,3 @@ __construct(string $algorithm, int $keySize): void
 ```php
 newKeys(): Key[]
 ```
-
----

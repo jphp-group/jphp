@@ -151,5 +151,3 @@ addEntry(compress\ArchiveEntry $entry, string|Stream|File|null $source, callable
 ```php
 addEmptyEntry(compress\ArchiveEntry $entry): void
 ```
-
----

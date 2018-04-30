@@ -30,5 +30,3 @@ Class UXEllipse
 __construct(double[] $points): void
 ```
 UXPolygon constructor.
-
----

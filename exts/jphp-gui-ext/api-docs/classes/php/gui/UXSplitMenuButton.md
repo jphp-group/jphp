@@ -1,5 +1,5 @@
 # UXSplitMenuButton
 
-- **class** `UXSplitMenuButton` (`php\gui\UXSplitMenuButton`) **extends** [`UXMenuButton`](api-docs/classes/php/gui/UXMenuButton.md)
+- **class** `UXSplitMenuButton` (`php\gui\UXSplitMenuButton`) **extends** [`UXMenuButton`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXMenuButton.md)
 - **package** `gui`
 - **source** [`php/gui/UXSplitMenuButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSplitMenuButton.php)

@@ -1,6 +1,6 @@
 # UXSplitPane
 
-- **class** `UXSplitPane` (`php\gui\UXSplitPane`) **extends** [`UXControl`](api-docs/classes/php/gui/UXControl.md)
+- **class** `UXSplitPane` (`php\gui\UXSplitPane`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXSplitPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSplitPane.php)
 
@@ -30,6 +30,16 @@ Class UXSplitPane
 - `->`[`setDividerPosition()`](#method-setdividerposition)
 
 ---
+# Static Methods
+
+<a name="method-setresizewithparent"></a>
+
+### setResizeWithParent()
+```php
+UXSplitPane::setResizeWithParent(php\gui\UXNode $node, bool $value): void
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -47,5 +57,3 @@ __construct(UXNode[] $items): void
 ```php
 setDividerPosition(int $index, double $position): void
 ```
-
----

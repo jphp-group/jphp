@@ -34,6 +34,16 @@ Class Color
 - `->`[`toHexString()`](#method-tohexstring)
 
 ---
+# Статичные Методы
+
+<a name="method-ofrgb"></a>
+
+### ofRGB()
+```php
+Color::ofRGB(int $r, int $g, int $b, float $alpha): php\graphic\Color
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -70,5 +80,3 @@ darker(): php\graphic\Color
 ```php
 toHexString(): string
 ```
-
----

@@ -42,5 +42,3 @@ toFront(): void
 ```php
 toBack(): void
 ```
-
----

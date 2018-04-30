@@ -1,6 +1,6 @@
 # UXSlider
 
-- **class** `UXSlider` (`php\gui\UXSlider`) **extends** [`UXControl`](api-docs/classes/php/gui/UXControl.md)
+- **class** `UXSlider` (`php\gui\UXSlider`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXSlider.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSlider.php)
 

@@ -1,6 +1,6 @@
 # UXFadeAnimation
 
-- **class** `UXFadeAnimation` (`php\gui\animation\UXFadeAnimation`) **extends** [`UXAnimation`](api-docs/classes/php/gui/animation/UXAnimation.md)
+- **class** `UXFadeAnimation` (`php\gui\animation\UXFadeAnimation`) **extends** [`UXAnimation`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 - **package** `gui`
 - **source** [`php/gui/animation/UXFadeAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXFadeAnimation.php)
 
@@ -33,5 +33,3 @@ Class UXFadeAnimation
 ```php
 __construct(int $duration, php\gui\UXNode $node): void
 ```
-
----

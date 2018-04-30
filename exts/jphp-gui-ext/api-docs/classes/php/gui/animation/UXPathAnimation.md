@@ -1,6 +1,6 @@
 # UXPathAnimation
 
-- **class** `UXPathAnimation` (`php\gui\animation\UXPathAnimation`) **extends** [`UXAnimation`](api-docs/classes/php/gui/animation/UXAnimation.md)
+- **class** `UXPathAnimation` (`php\gui\animation\UXPathAnimation`) **extends** [`UXAnimation`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 - **package** `gui`
 - **source** [`php/gui/animation/UXPathAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXPathAnimation.php)
 
@@ -63,5 +63,3 @@ addLineTo(double $x, double $y): $this
 ```php
 clearPath(): void
 ```
-
----

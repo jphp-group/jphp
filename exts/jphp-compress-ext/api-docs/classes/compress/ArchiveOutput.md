@@ -72,7 +72,7 @@ not supported (yet).
 
 ### createEntry()
 ```php
-createEntry( $file, string $entryName): ArchiveEntry
+createEntry(mixed $file, string $entryName): ArchiveEntry
 ```
 Create an archive entry using the inputFile and entryName provided.
 
@@ -96,5 +96,3 @@ Additional data can be written, if the format supports it.
 getBytesWritten(): int
 ```
 Returns the current number of bytes written to this stream.
-
----

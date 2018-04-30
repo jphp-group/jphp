@@ -65,7 +65,7 @@ add(php\gui\effect\UXEffect $effect): void
 
 ### insert()
 ```php
-insert( $index, php\gui\effect\UXEffect $effect): void
+insert(mixed $index, php\gui\effect\UXEffect $effect): void
 ```
 
 ---
@@ -191,7 +191,7 @@ count(): void
 
 ### offsetExists()
 ```php
-offsetExists( $offset): void
+offsetExists(mixed $offset): void
 ```
 
 ---
@@ -200,7 +200,7 @@ offsetExists( $offset): void
 
 ### offsetGet()
 ```php
-offsetGet( $offset): void
+offsetGet(mixed $offset): void
 ```
 
 ---
@@ -209,7 +209,7 @@ offsetGet( $offset): void
 
 ### offsetSet()
 ```php
-offsetSet( $offset,  $value): void
+offsetSet(mixed $offset, mixed $value): void
 ```
 
 ---
@@ -218,7 +218,5 @@ offsetSet( $offset,  $value): void
 
 ### offsetUnset()
 ```php
-offsetUnset( $offset): void
+offsetUnset(mixed $offset): void
 ```
-
----

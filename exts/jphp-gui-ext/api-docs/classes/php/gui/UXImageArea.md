@@ -1,6 +1,6 @@
 # UXImageArea
 
-- **class** `UXImageArea` (`php\gui\UXImageArea`) **extends** [`UXCanvas`](api-docs/classes/php/gui/UXCanvas.md)
+- **class** `UXImageArea` (`php\gui\UXImageArea`) **extends** [`UXCanvas`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.md)
 - **package** `gui`
 - **source** [`php/gui/UXImageArea.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXImageArea.php)
 
@@ -44,5 +44,3 @@ Class UXImageArea
 ```php
 __construct(php\gui\UXImage $image): void
 ```
-
----

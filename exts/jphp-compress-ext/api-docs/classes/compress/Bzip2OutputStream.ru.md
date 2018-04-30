@@ -21,5 +21,3 @@
 __construct(Stream|File|string $output, int $blockSize): void
 ```
 GzipOutStream constructor.
-
----

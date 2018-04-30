@@ -71,5 +71,3 @@ trigger(string $event, php\gui\UXEvent $e): void
 data(string $name, mixed $value): mixed
 ```
 Getter and Setter for object data
-
----

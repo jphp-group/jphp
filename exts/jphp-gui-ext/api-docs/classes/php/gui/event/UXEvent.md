@@ -30,6 +30,16 @@ Class Event
 - `->`[`consume()`](#method-consume) - _..._
 
 ---
+# Static Methods
+
+<a name="method-makemock"></a>
+
+### makeMock()
+```php
+UXEvent::makeMock(mixed $sender): UXEvent
+```
+
+---
 # Methods
 
 <a name="method-copyfor"></a>
@@ -57,5 +67,3 @@ isConsumed(): bool
 consume(): void
 ```
 ...
-
----

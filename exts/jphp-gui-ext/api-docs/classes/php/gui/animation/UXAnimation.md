@@ -118,5 +118,3 @@ off(string $event, string $group): void
 ```php
 trigger(string $event, php\gui\animation\UXEvent $e): void
 ```
-
----

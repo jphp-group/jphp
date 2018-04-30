@@ -21,6 +21,25 @@ Class Mouse
 - `->`[`__construct()`](#method-__construct)
 
 ---
+# Статичные Методы
+
+<a name="method-x"></a>
+
+### x()
+```php
+Mouse::x(): int
+```
+
+---
+
+<a name="method-y"></a>
+
+### y()
+```php
+Mouse::y(): int
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -29,5 +48,3 @@ Class Mouse
 ```php
 __construct(): void
 ```
-
----

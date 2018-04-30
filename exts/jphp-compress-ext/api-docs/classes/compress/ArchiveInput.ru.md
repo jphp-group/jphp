@@ -40,5 +40,3 @@ nextEntry(): ArchiveEntry
 ```php
 canReadEntryData(compress\ArchiveEntry $entry): bool
 ```
-
----

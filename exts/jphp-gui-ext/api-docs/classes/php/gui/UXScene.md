@@ -62,5 +62,3 @@ clearStylesheets(): void
 ```php
 getStylesheets(): string[]
 ```
-
----

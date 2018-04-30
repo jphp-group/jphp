@@ -32,5 +32,3 @@ Class UXChoiceBox
 update(): void
 ```
 ...
-
----

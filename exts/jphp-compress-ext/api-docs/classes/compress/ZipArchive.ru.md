@@ -1,6 +1,6 @@
 # ZipArchive
 
-- **класс** `ZipArchive` (`compress\ZipArchive`) **унаследован от** [`Archive`](api-docs/classes/compress/Archive.ru.md)
+- **класс** `ZipArchive` (`compress\ZipArchive`) **унаследован от** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/Archive.ru.md)
 - **пакет** `compress`
 - **исходники** [`compress/ZipArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchive.php)
 
@@ -70,5 +70,3 @@ readAll(callable $callback): ZipArchiveEntry[]
 ```php
 read(string $path, callable $callback): ZipArchiveEntry
 ```
-
----

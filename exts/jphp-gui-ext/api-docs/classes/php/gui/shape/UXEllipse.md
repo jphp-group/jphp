@@ -31,5 +31,3 @@ Class UXEllipse
 __construct(float $radiusX, float $radiusY): void
 ```
 UXEllipse constructor.
-
----

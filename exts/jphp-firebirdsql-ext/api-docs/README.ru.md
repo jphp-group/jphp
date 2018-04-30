@@ -3,7 +3,7 @@
 ---
 
 ## jphp-firebirdsql-ext
-> версия 1.0.0, создано с помощью JPPM v0.1.15
+> версия 1.0.0, создано с помощью JPPM v0.1.16
 
 Library for working with FireBird SQL database.
 

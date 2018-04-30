@@ -1,6 +1,6 @@
 # UXLabeled
 
-- **class** `UXLabeled` (`php\gui\UXLabeled`) **extends** [`UXControl`](api-docs/classes/php/gui/UXControl.md)
+- **class** `UXLabeled` (`php\gui\UXLabeled`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXLabeled.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLabeled.php)
 

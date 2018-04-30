@@ -20,5 +20,3 @@
 ```php
 __construct(Stream|File|string $input, bool $framed): void
 ```
-
----

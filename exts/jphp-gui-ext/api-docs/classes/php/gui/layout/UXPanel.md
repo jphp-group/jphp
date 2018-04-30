@@ -1,6 +1,6 @@
 # UXPanel
 
-- **class** `UXPanel` (`php\gui\layout\UXPanel`) **extends** [`UXAnchorPane`](api-docs/classes/php/gui/layout/UXAnchorPane.md)
+- **class** `UXPanel` (`php\gui\layout\UXPanel`) **extends** [`UXAnchorPane`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/layout/UXAnchorPane.md)
 - **package** `gui`
 - **source** [`php/gui/layout/UXPanel.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXPanel.php)
 

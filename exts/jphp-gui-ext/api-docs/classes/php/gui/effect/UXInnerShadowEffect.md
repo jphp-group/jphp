@@ -1,6 +1,6 @@
 # UXInnerShadowEffect
 
-- **class** `UXInnerShadowEffect` (`php\gui\effect\UXInnerShadowEffect`) **extends** [`UXEffect`](api-docs/classes/php/gui/effect/UXEffect.md)
+- **class** `UXInnerShadowEffect` (`php\gui\effect\UXInnerShadowEffect`) **extends** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 - **package** `gui`
 - **source** [`php/gui/effect/UXInnerShadowEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXInnerShadowEffect.php)
 
@@ -36,5 +36,3 @@ Class UXInnerShadowEffect
 ```php
 __construct(double $radius, UXColor|string $color, double $offsetX, double $offsetY): void
 ```
-
----

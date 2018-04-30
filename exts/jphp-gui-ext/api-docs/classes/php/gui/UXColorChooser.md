@@ -23,5 +23,3 @@ Class UXColorChooser
 ```php
 show(): void
 ```
-
----

@@ -1,6 +1,6 @@
 # UXMouseEvent
 
-- **class** `UXMouseEvent` (`php\gui\event\UXMouseEvent`) **extends** [`UXEvent`](api-docs/classes/php/gui/event/UXEvent.md)
+- **class** `UXMouseEvent` (`php\gui\event\UXMouseEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
 - **source** [`php/gui/event/UXMouseEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXMouseEvent.php)
 
@@ -41,5 +41,3 @@ Class UXMouseEvent
 isDoubleClick(): bool
 ```
 Returns true if clickCount >= 2.
-
----

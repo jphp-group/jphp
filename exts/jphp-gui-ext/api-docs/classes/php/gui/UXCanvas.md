@@ -55,5 +55,3 @@ Save image of canvas to file or stream in passed format, by default png.
 ```php
 writeImageAsync(string $format, Stream|File|string $output, php\gui\paint\UXColor $transparentColor, callable $callback): void
 ```
-
----

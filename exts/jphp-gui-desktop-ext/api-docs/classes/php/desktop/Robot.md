@@ -111,5 +111,3 @@ keyPress(string $keyCombination): void
 screenshot(array $bounds, php\gui\UXScreen $screen): UXImage
 ```
 Make screen shot of screen (primary if null passed).
-
----

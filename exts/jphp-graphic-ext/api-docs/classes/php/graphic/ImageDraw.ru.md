@@ -165,5 +165,3 @@ any system resources that it is using.
 ```php
 __destruct(): void
 ```
-
----

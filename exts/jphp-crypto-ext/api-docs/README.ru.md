@@ -3,7 +3,7 @@
 ---
 
 ## jphp-crypto-ext
-> версия 1.0.0, создано с помощью JPPM v0.1.15
+> версия 1.0.0, создано с помощью JPPM v0.1.16
 
 Crypto Library.
 
@@ -14,6 +14,6 @@ jppm add jphp-crypto-ext@1.0.0
 
 ### АПИ
 **Классы**
-- [`php\crypto\Cipher`](api-docs/classes/php/crypto/Cipher.ru.md)- _Class Cipher_
-- [`php\crypto\Key`](api-docs/classes/php/crypto/Key.ru.md)- _Class CryptoKey_
-- [`php\crypto\KeyPairGenerator`](api-docs/classes/php/crypto/KeyPairGenerator.ru.md)
+- [`php\crypto\Cipher`](https://github.com/jphp-compiler/jphp/blob/master/jphp-crypto-ext/api-docs/classes/php/crypto/Cipher.ru.md)- _Class Cipher_
+- [`php\crypto\Key`](https://github.com/jphp-compiler/jphp/blob/master/jphp-crypto-ext/api-docs/classes/php/crypto/Key.ru.md)- _Class CryptoKey_
+- [`php\crypto\KeyPairGenerator`](https://github.com/jphp-compiler/jphp/blob/master/jphp-crypto-ext/api-docs/classes/php/crypto/KeyPairGenerator.ru.md)

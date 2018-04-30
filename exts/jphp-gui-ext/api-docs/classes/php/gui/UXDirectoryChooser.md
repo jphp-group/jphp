@@ -40,5 +40,3 @@ execute(): File
 ```php
 showDialog(php\gui\UXWindow $window): File
 ```
-
----

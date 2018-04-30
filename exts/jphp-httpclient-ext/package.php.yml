@@ -10,6 +10,7 @@ sources:
 - src-php
 
 doc:
+  url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/%name%/api-docs/'
   stub-dirs: ['./src-php']
   langs: {en: English, ru: Русский}
 

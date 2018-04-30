@@ -31,6 +31,25 @@ Class UXMedia
 - `->`[`__construct()`](#method-__construct)
 
 ---
+# Static Methods
+
+<a name="method-createfromresource"></a>
+
+### createFromResource()
+```php
+UXMedia::createFromResource(string $path): UXMedia
+```
+
+---
+
+<a name="method-createfromurl"></a>
+
+### createFromUrl()
+```php
+UXMedia::createFromUrl(mixed $url): string
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -39,5 +58,3 @@ Class UXMedia
 ```php
 __construct(string $source): void
 ```
-
----

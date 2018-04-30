@@ -1,6 +1,6 @@
 # TarArchive
 
-- **class** `TarArchive` (`compress\TarArchive`) **extends** [`Archive`](api-docs/classes/compress/Archive.md)
+- **class** `TarArchive` (`compress\TarArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/Archive.md)
 - **package** `compress`
 - **source** [`compress/TarArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchive.php)
 
@@ -73,5 +73,3 @@ readAll(callable $callback): TarArchiveEntry[]
 ```php
 read(string $path, callable $callback): TarArchiveEntry
 ```
-
----

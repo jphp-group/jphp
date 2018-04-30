@@ -36,7 +36,7 @@ Class UXAlert
 
 ### __construct()
 ```php
-__construct( $alertType): void
+__construct(mixed $alertType): void
 ```
 
 ---
@@ -76,5 +76,3 @@ hide(): void
 ```php
 showAndWait(): mixed
 ```
-
----

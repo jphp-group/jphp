@@ -38,6 +38,26 @@ Class Font
 - `->`[`asWithSize()`](#method-aswithsize)
 
 ---
+# Статичные Методы
+
+<a name="method-allfonts"></a>
+
+### allFonts()
+```php
+Font::allFonts(): Font[]
+```
+
+---
+
+<a name="method-register"></a>
+
+### register()
+```php
+Font::register(php\graphic\Font $font): bool
+```
+Registers a created Font in this GraphicsEnvironment.
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -83,5 +103,3 @@ asBold(): php\graphic\Font
 ```php
 asWithSize(float $size): php\graphic\Font
 ```
-
----

@@ -1,6 +1,6 @@
 # ZipArchiveInput
 
-- **class** `ZipArchiveInput` (`compress\ZipArchiveInput`) **extends** [`ArchiveInput`](api-docs/classes/compress/ArchiveInput.md)
+- **class** `ZipArchiveInput` (`compress\ZipArchiveInput`) **extends** [`ArchiveInput`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveInput.md)
 - **package** `compress`
 - **source** [`compress/ZipArchiveInput.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveInput.php)
 
@@ -31,5 +31,3 @@ TarArchiveOutput constructor.
 ```php
 nextEntry(): ZipArchiveEntry
 ```
-
----

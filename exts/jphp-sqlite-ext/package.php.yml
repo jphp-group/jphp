@@ -4,12 +4,13 @@ version: 1.0.0
 description: Library for working with SQLite database.
 
 deps:
-  jphp-sql-ext: '>=%version%'
+  jphp-sql-ext: '>=1.0.0'
 
 plugins:
 - Doc
 
 doc:
+  url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/%name%/api-docs/'
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 

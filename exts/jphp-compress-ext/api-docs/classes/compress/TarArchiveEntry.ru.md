@@ -1,6 +1,6 @@
 # TarArchiveEntry
 
-- **класс** `TarArchiveEntry` (`compress\TarArchiveEntry`) **унаследован от** [`ArchiveEntry`](api-docs/classes/compress/ArchiveEntry.ru.md)
+- **класс** `TarArchiveEntry` (`compress\TarArchiveEntry`) **унаследован от** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 - **пакет** `compress`
 - **исходники** [`compress/TarArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveEntry.php)
 
@@ -55,6 +55,16 @@ Class TarArchiveEntry
 - `->`[`clearExtraPaxHeaders()`](#method-clearextrapaxheaders)
 - `->`[`getExtraPaxHeader()`](#method-getextrapaxheader)
 - `->`[`getExtraPaxHeaders()`](#method-getextrapaxheaders)
+
+---
+# Статичные Методы
+
+<a name="method-offile"></a>
+
+### ofFile()
+```php
+TarArchiveEntry::ofFile(File|string $file, string $fileName): compress\TarArchiveEntry
+```
 
 ---
 # Методы
@@ -255,5 +265,3 @@ getExtraPaxHeader(string $name): string
 ```php
 getExtraPaxHeaders(): array
 ```
-
----

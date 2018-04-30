@@ -31,5 +31,3 @@ Class ArchiveEntry
 ```php
 isDirectory(): bool
 ```
-
----

@@ -63,5 +63,3 @@ showSaveDialog(php\gui\UXWindow $window): File
 ```php
 showOpenMultipleDialog(php\gui\UXWindow $window): File[]
 ```
-
----

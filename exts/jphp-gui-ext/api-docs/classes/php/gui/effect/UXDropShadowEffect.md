@@ -37,5 +37,3 @@ Class UXDropShadowEffect
 ```php
 __construct(double $radius, UXColor|string $color, double $offsetX, double $offsetY): void
 ```
-
----

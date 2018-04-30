@@ -21,5 +21,3 @@
 __construct(Stream|File|string $input, bool $decompressConcatenated): void
 ```
 GzipOutStream constructor.
-
----

@@ -54,5 +54,3 @@ getFormat(): string
 ```php
 getEncoded(): string
 ```
-
----

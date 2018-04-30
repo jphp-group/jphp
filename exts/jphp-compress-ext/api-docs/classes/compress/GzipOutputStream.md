@@ -24,5 +24,3 @@ Class GzipOutStream
 __construct(Stream|File|string $output, array $parameters): void
 ```
 GzipOutStream constructor.
-
----

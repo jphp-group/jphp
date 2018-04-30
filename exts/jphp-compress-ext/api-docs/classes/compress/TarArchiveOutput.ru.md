@@ -1,6 +1,6 @@
 # TarArchiveOutput
 
-- **класс** `TarArchiveOutput` (`compress\TarArchiveOutput`) **унаследован от** [`ArchiveOutput`](api-docs/classes/compress/ArchiveOutput.ru.md)
+- **класс** `TarArchiveOutput` (`compress\TarArchiveOutput`) **унаследован от** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.ru.md)
 - **пакет** `compress`
 - **исходники** [`compress/TarArchiveOutput.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveOutput.php)
 
@@ -32,7 +32,5 @@ TarArchiveOutput constructor.
 
 ### createEntry()
 ```php
-createEntry( $file, string $entryName): TarArchiveEntry
+createEntry(mixed $file, string $entryName): TarArchiveEntry
 ```
-
----

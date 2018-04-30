@@ -83,5 +83,3 @@ set(string $name, string $value): void
 ```php
 toArray(): array
 ```
-
----

@@ -1,6 +1,6 @@
 # UXGaussianBlurEffect
 
-- **class** `UXGaussianBlurEffect` (`php\gui\effect\UXGaussianBlurEffect`) **extends** [`UXEffect`](api-docs/classes/php/gui/effect/UXEffect.md)
+- **class** `UXGaussianBlurEffect` (`php\gui\effect\UXGaussianBlurEffect`) **extends** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 - **package** `gui`
 - **source** [`php/gui/effect/UXGaussianBlurEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXGaussianBlurEffect.php)
 
@@ -29,5 +29,3 @@ Class UXGaussianBlurEffect
 ```php
 __construct(double $radius): void
 ```
-
----

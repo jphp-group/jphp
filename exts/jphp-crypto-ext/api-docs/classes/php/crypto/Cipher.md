@@ -44,5 +44,3 @@ encode(string $data, php\crypto\Key $key): string
 ```php
 decode(string $data, php\crypto\Key $key): string
 ```
-
----

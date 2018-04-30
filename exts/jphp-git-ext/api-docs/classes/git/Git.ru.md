@@ -626,5 +626,3 @@ stashRef => int
 stashList(): array
 ```
 Stash list git command.
-
----

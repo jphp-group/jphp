@@ -1,6 +1,6 @@
 # TarArchiveInput
 
-- **class** `TarArchiveInput` (`compress\TarArchiveInput`) **extends** [`ArchiveInput`](api-docs/classes/compress/ArchiveInput.md)
+- **class** `TarArchiveInput` (`compress\TarArchiveInput`) **extends** [`ArchiveInput`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveInput.md)
 - **package** `compress`
 - **source** [`compress/TarArchiveInput.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveInput.php)
 
@@ -31,5 +31,3 @@ TarArchiveOutput constructor.
 ```php
 nextEntry(): TarArchiveEntry
 ```
-
----
