@@ -33,7 +33,7 @@ __construct(int $flags): void
 
 ### format()
 ```php
-format( $value): void
+format(mixed $value): void
 ```
 
 ---
@@ -42,7 +42,7 @@ format( $value): void
 
 ### formatTo()
 ```php
-formatTo( $value, php\io\Stream $output): void
+formatTo(mixed $value, php\io\Stream $output): void
 ```
 
 ---
@@ -51,7 +51,5 @@ formatTo( $value, php\io\Stream $output): void
 
 ### parse()
 ```php
-parse( $source): void
+parse(mixed $source): void
 ```
-
----

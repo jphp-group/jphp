@@ -23,5 +23,3 @@ Class UXButton
 ```php
 __construct(string $text, php\gui\UXNode $graphic): void
 ```
-
----

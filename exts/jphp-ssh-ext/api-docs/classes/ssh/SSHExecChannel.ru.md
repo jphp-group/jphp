@@ -1,6 +1,6 @@
 # SSHExecChannel
 
-- **класс** `SSHExecChannel` (`ssh\SSHExecChannel`) **унаследован от** [`SSHChannel`](api-docs/classes/ssh/SSHChannel.ru.md)
+- **класс** `SSHExecChannel` (`ssh\SSHExecChannel`) **унаследован от** [`SSHChannel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 - **пакет** `ssh`
 - **исходники** [`ssh/SSHExecChannel.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHExecChannel.php)
 
@@ -43,5 +43,3 @@ getErrorStream(): php\io\Stream
 ```php
 setErrorStream(php\io\Stream $stream, bool $dontClose): void
 ```
-
----

@@ -53,5 +53,3 @@ edit(string $file): void
 ```php
 getCursorPosition(): array
 ```
-
----

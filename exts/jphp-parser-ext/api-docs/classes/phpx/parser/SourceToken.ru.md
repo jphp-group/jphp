@@ -73,5 +73,3 @@ isOperatorToken(): bool
 ```php
 getMeta(): array
 ```
-
----

@@ -83,5 +83,3 @@ get(string $column): mixed|Stream|Time
 ```php
 toArray(bool $assoc): array
 ```
-
----

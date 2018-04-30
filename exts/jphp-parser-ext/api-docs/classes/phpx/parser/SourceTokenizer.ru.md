@@ -23,6 +23,16 @@ Class SourceTokenizer
 - `->`[`close()`](#method-close)
 
 ---
+# Статичные Методы
+
+<a name="method-parseall"></a>
+
+### parseAll()
+```php
+SourceTokenizer::parseAll(mixed $string): SourceToken[]
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -58,5 +68,3 @@ fetchAll(): SourceToken[]
 ```php
 close(): void
 ```
-
----

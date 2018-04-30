@@ -1,6 +1,6 @@
 # UXParent
 
-- **класс** `UXParent` (`php\gui\UXParent`) **унаследован от** [`UXNode`](api-docs/classes/php/gui/UXNode.ru.md)
+- **класс** `UXParent` (`php\gui\UXParent`) **унаследован от** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXParent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXParent.php)
 
@@ -62,5 +62,3 @@ findNode(callable $filter): void
 ```php
 findFocusedNode(): UXNode|null
 ```
-
----

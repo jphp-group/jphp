@@ -208,5 +208,3 @@ method is not used, no authentication will be performed.
 clearAuthentication(): void
 ```
 Disable authorization.
-
----

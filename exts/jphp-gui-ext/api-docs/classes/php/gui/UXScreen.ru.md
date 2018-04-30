@@ -22,3 +22,22 @@ Class UXScreen
 
 - `UXScreen ::`[`getPrimary()`](#method-getprimary)
 - `UXScreen ::`[`getScreens()`](#method-getscreens)
+
+---
+# Статичные Методы
+
+<a name="method-getprimary"></a>
+
+### getPrimary()
+```php
+UXScreen::getPrimary(): UXScreen
+```
+
+---
+
+<a name="method-getscreens"></a>
+
+### getScreens()
+```php
+UXScreen::getScreens(): UXScreen[]
+```

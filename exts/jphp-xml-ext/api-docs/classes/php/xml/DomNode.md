@@ -362,5 +362,3 @@ insertBefore(php\xml\DomNode $newNode, php\xml\DomNode $refNode): $this
 ```php
 toModel(): array
 ```
-
----

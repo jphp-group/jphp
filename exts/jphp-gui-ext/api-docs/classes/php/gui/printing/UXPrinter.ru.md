@@ -29,6 +29,25 @@
 - `->`[`printWithDialog()`](#method-printwithdialog)
 
 ---
+# Статичные Методы
+
+<a name="method-getdefault"></a>
+
+### getDefault()
+```php
+UXPrinter::getDefault(): UXPrinter
+```
+
+---
+
+<a name="method-getall"></a>
+
+### getAll()
+```php
+UXPrinter::getAll(): UXPrinter[]
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -64,5 +83,3 @@ print(php\gui\UXNode $node): bool
 ```php
 printWithDialog(php\gui\UXWindow $ownerWindow, php\gui\UXNode $node): bool
 ```
-
----

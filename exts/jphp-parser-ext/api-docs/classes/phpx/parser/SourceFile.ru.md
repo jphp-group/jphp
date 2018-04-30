@@ -48,5 +48,3 @@ isReadOnly(): bool
 ```php
 update(phpx\parser\SourceManager $manager): void
 ```
-
----

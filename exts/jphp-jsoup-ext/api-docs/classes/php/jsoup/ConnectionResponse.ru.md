@@ -105,5 +105,3 @@ Get the response content type (e.g. "text/html");
 ```php
 parse(): Document
 ```
-
----

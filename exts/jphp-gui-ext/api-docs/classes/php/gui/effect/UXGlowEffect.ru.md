@@ -1,6 +1,6 @@
 # UXGlowEffect
 
-- **класс** `UXGlowEffect` (`php\gui\effect\UXGlowEffect`) **унаследован от** [`UXEffect`](api-docs/classes/php/gui/effect/UXEffect.ru.md)
+- **класс** `UXGlowEffect` (`php\gui\effect\UXGlowEffect`) **унаследован от** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/effect/UXGlowEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXGlowEffect.php)
 
@@ -29,5 +29,3 @@ Class UXGlowEffect
 ```php
 __construct(double $level): void
 ```
-
----

@@ -173,5 +173,3 @@ Open exec channel.
 sftp(): ssh\SSHSftpChannel
 ```
 Open SFTP channel.
-
----

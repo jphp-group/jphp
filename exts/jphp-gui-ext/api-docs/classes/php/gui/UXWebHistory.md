@@ -70,5 +70,3 @@ getEntries(): array
 ```php
 observer(string $property): UXValue
 ```
-
----

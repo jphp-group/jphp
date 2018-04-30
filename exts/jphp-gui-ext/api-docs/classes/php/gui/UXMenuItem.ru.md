@@ -41,6 +41,16 @@ Class UXMenuItem
 - `->`[`isSeparator()`](#method-isseparator)
 
 ---
+# Статичные Методы
+
+<a name="method-createseparator"></a>
+
+### createSeparator()
+```php
+UXMenuItem::createSeparator(): UXMenuItem
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -85,5 +95,3 @@ trigger(string $event, php\gui\event\UXEvent $e): void
 ```php
 isSeparator(): bool
 ```
-
----

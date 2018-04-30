@@ -246,7 +246,7 @@ execute(string $method, string $url, mixed $body): httpclient\HttpResponse
 
 ### connect()
 ```php
-connect(httpclient\HttpRequest $request,  $fullUrl, php\net\URLConnection $connection,  $body): httpclient\HttpResponse
+connect(httpclient\HttpRequest $request, mixed $fullUrl, php\net\URLConnection $connection, mixed $body): httpclient\HttpResponse
 ```
 
 ---
@@ -264,7 +264,5 @@ formatUrlencode(array $data, string $prefix): string
 
 ### formatMultipart()
 ```php
-formatMultipart(array $data,  $prefix): void
+formatMultipart(array $data, mixed $prefix): void
 ```
-
----

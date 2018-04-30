@@ -41,5 +41,3 @@ Class UXDragEvent
 ```php
 acceptTransferModes(array $modes): void
 ```
-
----

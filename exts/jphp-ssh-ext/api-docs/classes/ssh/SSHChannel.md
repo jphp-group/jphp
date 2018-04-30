@@ -140,5 +140,3 @@ getOutputStream(): php\io\Stream
 ```php
 setOutputStream([ php\io\Stream $stream, bool $dontClose): void
 ```
-
----

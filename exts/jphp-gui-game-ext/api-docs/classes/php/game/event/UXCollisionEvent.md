@@ -34,5 +34,3 @@ Class UXCollisionEvent
 __construct(php\game\event\UXCollisionEvent $parent, mixed $sender, mixed $target): void
 ```
 UXCollisionEvent constructor.
-
----

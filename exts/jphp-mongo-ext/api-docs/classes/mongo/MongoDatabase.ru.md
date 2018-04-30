@@ -32,5 +32,3 @@ __construct(): void
 ```php
 collection(string $name): mongo\MongoCollection
 ```
-
----

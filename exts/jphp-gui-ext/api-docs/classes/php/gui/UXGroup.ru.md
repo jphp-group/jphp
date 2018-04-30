@@ -24,5 +24,3 @@ Class UXGroup
 __construct(array $children): void
 ```
 UXGroup constructor.
-
----

@@ -1,6 +1,6 @@
 # UXScrollEvent
 
-- **класс** `UXScrollEvent` (`php\gui\event\UXScrollEvent`) **унаследован от** [`UXEvent`](api-docs/classes/php/gui/event/UXEvent.ru.md)
+- **класс** `UXScrollEvent` (`php\gui\event\UXScrollEvent`) **унаследован от** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/event/UXScrollEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXScrollEvent.php)
 
@@ -62,5 +62,3 @@ isInertia(): bool
 ```
 Indicates if this event represents an inertia of an already finished
 gesture.
-
----

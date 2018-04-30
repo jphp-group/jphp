@@ -30,5 +30,3 @@ Class UXKeyFrame
 ```php
 __construct(int $time, callable $onFinished, null|string $name): void
 ```
-
----

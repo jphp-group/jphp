@@ -37,13 +37,34 @@ Class UXImage
 - `->`[`toNative()`](#method-tonative) - _Convert to native image._
 
 ---
+# Статичные Методы
+
+<a name="method-ofnative"></a>
+
+### ofNative()
+```php
+UXImage::ofNative(php\graphic\Image $image): php\gui\UXImage
+```
+Create from native image.
+
+---
+
+<a name="method-ofurl"></a>
+
+### ofUrl()
+```php
+UXImage::ofUrl(string $url, bool $background): UXImage
+```
+Создает новую картинку из URL.
+
+---
 # Методы
 
 <a name="method-__construct"></a>
 
 ### __construct()
 ```php
-__construct(Stream|string|Image $stream,  $requiredWidth,  $requiredHeight, bool $proportional): void
+__construct(Stream|string|Image $stream, mixed $requiredWidth, mixed $requiredHeight, bool $proportional): void
 ```
 
 ---
@@ -113,5 +134,3 @@ save(string|Stream|File $to, string $format): void
 toNative(): php\graphic\Image
 ```
 Convert to native image.
-
----

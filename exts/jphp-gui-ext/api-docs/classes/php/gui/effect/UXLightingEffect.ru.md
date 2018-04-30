@@ -1,6 +1,6 @@
 # UXLightingEffect
 
-- **класс** `UXLightingEffect` (`php\gui\effect\UXLightingEffect`) **унаследован от** [`UXEffect`](api-docs/classes/php/gui/effect/UXEffect.ru.md)
+- **класс** `UXLightingEffect` (`php\gui\effect\UXLightingEffect`) **унаследован от** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/effect/UXLightingEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXLightingEffect.php)
 
@@ -34,5 +34,3 @@ Class UXLightingEffect
 ```php
 __construct(double $threshold): void
 ```
-
----

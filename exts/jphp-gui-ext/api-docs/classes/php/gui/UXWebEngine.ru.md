@@ -161,5 +161,3 @@ off(string $event, string $group): void
 ```php
 trigger(string $event, php\gui\UXEvent $e): void
 ```
-
----

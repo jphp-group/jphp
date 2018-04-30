@@ -50,5 +50,3 @@ __construct(php\gui\UXNode $node): void
 ```php
 scrollToNode(php\gui\UXNode $node): void
 ```
-
----

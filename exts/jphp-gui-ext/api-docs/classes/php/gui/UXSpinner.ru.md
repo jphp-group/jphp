@@ -1,6 +1,6 @@
 # UXSpinner
 
-- **класс** `UXSpinner` (`php\gui\UXSpinner`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXSpinner` (`php\gui\UXSpinner`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXSpinner.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSpinner.php)
 
@@ -62,5 +62,3 @@ setValueFactory(callable|null $incrementHandler, callable|null $decrementHandler
 ```php
 setIntegerValueFactory(int $min, int $max, int $initial, int $step): void
 ```
-
----

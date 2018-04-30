@@ -42,5 +42,3 @@ show(): void
 hide(): void
 ```
 ...
-
----

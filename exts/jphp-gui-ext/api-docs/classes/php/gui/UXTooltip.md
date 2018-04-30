@@ -1,6 +1,6 @@
 # UXTooltip
 
-- **class** `UXTooltip` (`php\gui\UXTooltip`) **extends** [`UXPopupWindow`](api-docs/classes/php/gui/UXPopupWindow.md)
+- **class** `UXTooltip` (`php\gui\UXTooltip`) **extends** [`UXPopupWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md)
 - **package** `gui`
 - **source** [`php/gui/UXTooltip.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTooltip.php)
 
@@ -28,3 +28,31 @@ Class UXTooltip
 - `UXTooltip ::`[`of()`](#method-of)
 - `UXTooltip ::`[`install()`](#method-install)
 - `UXTooltip ::`[`uninstall()`](#method-uninstall)
+
+---
+# Static Methods
+
+<a name="method-of"></a>
+
+### of()
+```php
+UXTooltip::of(string $text, php\gui\UXNode $graphic): UXTooltip
+```
+
+---
+
+<a name="method-install"></a>
+
+### install()
+```php
+UXTooltip::install(php\gui\UXNode $node, php\gui\UXTooltip $tooltip): void
+```
+
+---
+
+<a name="method-uninstall"></a>
+
+### uninstall()
+```php
+UXTooltip::uninstall(php\gui\UXNode $node, php\gui\UXTooltip $tooltip): void
+```

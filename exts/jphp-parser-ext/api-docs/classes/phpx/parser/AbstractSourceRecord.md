@@ -33,5 +33,3 @@ Class AbstractSourceRecord
 clear(): void
 ```
 Remove all data.
-
----

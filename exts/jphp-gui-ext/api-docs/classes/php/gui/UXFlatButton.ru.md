@@ -1,6 +1,6 @@
 # UXFlatButton
 
-- **класс** `UXFlatButton` (`php\gui\UXFlatButton`) **унаследован от** [`UXButtonBase`](api-docs/classes/php/gui/UXButtonBase.ru.md)
+- **класс** `UXFlatButton` (`php\gui\UXFlatButton`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXFlatButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXFlatButton.php)
 

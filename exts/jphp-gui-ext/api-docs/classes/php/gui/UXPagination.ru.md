@@ -1,6 +1,6 @@
 # UXPagination
 
-- **класс** `UXPagination` (`php\gui\UXPagination`) **унаследован от** [`UXFlowPane`](api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
+- **класс** `UXPagination` (`php\gui\UXPagination`) **унаследован от** [`UXFlowPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXPagination.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXPagination.php)
 
@@ -40,5 +40,3 @@ Class UXPagination
 ```php
 __construct(): void
 ```
-
----

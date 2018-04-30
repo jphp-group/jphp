@@ -77,7 +77,5 @@ stop(): void
 
 ### seek()
 ```php
-seek( $time): void
+seek(mixed $time): void
 ```
-
----

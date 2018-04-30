@@ -1,6 +1,6 @@
 # UXMenuButton
 
-- **класс** `UXMenuButton` (`php\gui\UXMenuButton`) **унаследован от** [`UXButtonBase`](api-docs/classes/php/gui/UXButtonBase.ru.md)
+- **класс** `UXMenuButton` (`php\gui\UXMenuButton`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXMenuButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenuButton.php)
 
@@ -53,5 +53,3 @@ Show popup menu.
 hideMenu(): void
 ```
 Hide popup menu.
-
----

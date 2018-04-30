@@ -31,13 +31,24 @@ Class ZipFile
 - `->`[`getPath()`](#method-getpath)
 
 ---
+# Static Methods
+
+<a name="method-create"></a>
+
+### create()
+```php
+ZipFile::create(string $file, bool $rewrite): ZipFile
+```
+Create ZIP Archive.
+
+---
 # Methods
 
 <a name="method-__construct"></a>
 
 ### __construct()
 ```php
-__construct( $file, bool $create): void
+__construct(mixed $file, bool $create): void
 ```
 ZipFile constructor.
 
@@ -98,7 +109,7 @@ Returns all stats of zip archive.
 
 ### has()
 ```php
-has( $path): bool
+has(mixed $path): bool
 ```
 Checks zip entry exist by path.
 
@@ -150,5 +161,3 @@ Remove zip entry by its path.
 ```php
 getPath(): string
 ```
-
----

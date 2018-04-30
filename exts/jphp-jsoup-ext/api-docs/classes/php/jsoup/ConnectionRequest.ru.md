@@ -65,5 +65,3 @@ ignoreHttpErrors(bool $enable): bool|ConnectionRequest
 ```php
 ignoreContentType(bool $enable): bool|ConnectionRequest
 ```
-
----

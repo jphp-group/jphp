@@ -245,7 +245,7 @@ with the current fill paint attribute.
 
 ### drawImage()
 ```php
-drawImage(php\gui\UXImage $image,  $x,  $y,  $w,  $h,  $dx,  $dy,  $dw,  $dh): void
+drawImage(php\gui\UXImage $image, mixed $x, mixed $y, mixed $w, mixed $h, mixed $dx, mixed $dy, mixed $dw, mixed $dh): void
 ```
 
 ---
@@ -256,5 +256,3 @@ drawImage(php\gui\UXImage $image,  $x,  $y,  $w,  $h,  $dx,  $dy,  $dw,  $dh): v
 ```php
 setFillColor(php\gui\paint\UXColor $color): void
 ```
-
----

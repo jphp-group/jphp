@@ -1,6 +1,6 @@
 # UXDatePicker
 
-- **класс** `UXDatePicker` (`php\gui\UXDatePicker`) **унаследован от** [`UXComboBoxBase`](api-docs/classes/php/gui/UXComboBoxBase.ru.md)
+- **класс** `UXDatePicker` (`php\gui\UXDatePicker`) **унаследован от** [`UXComboBoxBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXComboBoxBase.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXDatePicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDatePicker.php)
 

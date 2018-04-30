@@ -1,6 +1,6 @@
 # UXTableCell
 
-- **класс** `UXTableCell` (`php\gui\UXTableCell`) **унаследован от** [`UXCell`](api-docs/classes/php/gui/UXCell.ru.md)
+- **класс** `UXTableCell` (`php\gui\UXTableCell`) **унаследован от** [`UXCell`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXTableCell.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableCell.php)
 
@@ -33,5 +33,3 @@ updateTableView(php\gui\UXTableView $tableView): void
 ```php
 updateTableColumn(php\gui\UXTableColumn $tableColumn): void
 ```
-
----

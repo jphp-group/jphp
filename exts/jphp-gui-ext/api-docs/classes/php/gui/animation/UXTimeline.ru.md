@@ -1,6 +1,6 @@
 # UXTimeline
 
-- **класс** `UXTimeline` (`php\gui\animation\UXTimeline`) **унаследован от** [`UXAnimation`](api-docs/classes/php/gui/animation/UXAnimation.ru.md)
+- **класс** `UXTimeline` (`php\gui\animation\UXTimeline`) **унаследован от** [`UXAnimation`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/animation/UXTimeline.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXTimeline.php)
 
@@ -29,5 +29,3 @@ Class UXTimeline
 ```php
 __construct(UXKeyFrame[] $keyFrames): void
 ```
-
----

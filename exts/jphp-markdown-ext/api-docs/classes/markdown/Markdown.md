@@ -21,7 +21,7 @@ Class Markdown
 
 ### __construct()
 ```php
-__construct( $options): void
+__construct(mixed $options): void
 ```
 Markdown constructor.
 
@@ -33,5 +33,3 @@ Markdown constructor.
 ```php
 render(string $content): string
 ```
-
----

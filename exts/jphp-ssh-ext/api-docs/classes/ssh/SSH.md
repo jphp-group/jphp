@@ -73,5 +73,3 @@ addIdentity(string $prvkey, string $passphrase): void
 ```php
 removeAllIdentity(): void
 ```
-
----

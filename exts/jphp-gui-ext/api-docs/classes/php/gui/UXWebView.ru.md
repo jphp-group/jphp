@@ -1,6 +1,6 @@
 # UXWebView
 
-- **класс** `UXWebView` (`php\gui\UXWebView`) **унаследован от** [`UXParent`](api-docs/classes/php/gui/UXParent.ru.md)
+- **класс** `UXWebView` (`php\gui\UXWebView`) **унаследован от** [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXWebView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebView.php)
 

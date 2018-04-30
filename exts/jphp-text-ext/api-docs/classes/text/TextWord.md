@@ -229,5 +229,3 @@ Return text of this.
 ```php
 __clone(): void
 ```
-
----

@@ -3,7 +3,7 @@
 ---
 
 ## jphp-mongo-ext
-> version 1.0.0, created by JPPM v0.1.15
+> version 1.0.0, created by JPPM v0.1.16
 
 Library for working with MongoDB.
 
@@ -14,8 +14,8 @@ jppm add jphp-mongo-ext@1.0.0
 
 ### API
 **Classes**
-- [`mongo\MongoClient`](api-docs/classes/mongo/MongoClient.md)- _Class MongoClient_
-- [`mongo\MongoCollection`](api-docs/classes/mongo/MongoCollection.md)- _Class MongoCollection_
-- [`mongo\MongoDatabase`](api-docs/classes/mongo/MongoDatabase.md)- _Class MongoDatabase_
-- [`mongo\MongoIterable`](api-docs/classes/mongo/MongoIterable.md)- _Class MongoIterable_
-- [`mongo\ObjectId`](api-docs/classes/mongo/ObjectId.md)- _Class ObjectId_
+- [`mongo\MongoClient`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-mongo-ext/api-docs/classes/mongo/MongoClient.md)- _Class MongoClient_
+- [`mongo\MongoCollection`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-mongo-ext/api-docs/classes/mongo/MongoCollection.md)- _Class MongoCollection_
+- [`mongo\MongoDatabase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-mongo-ext/api-docs/classes/mongo/MongoDatabase.md)- _Class MongoDatabase_
+- [`mongo\MongoIterable`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-mongo-ext/api-docs/classes/mongo/MongoIterable.md)- _Class MongoIterable_
+- [`mongo\ObjectId`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-mongo-ext/api-docs/classes/mongo/ObjectId.md)- _Class ObjectId_

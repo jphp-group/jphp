@@ -64,5 +64,3 @@ Stop playing.
 pause(): void
 ```
 Pause playing.
-
----

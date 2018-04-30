@@ -42,5 +42,3 @@ first(): array
 ```php
 batchSize(int $size): mongo\MongoIterable
 ```
-
----

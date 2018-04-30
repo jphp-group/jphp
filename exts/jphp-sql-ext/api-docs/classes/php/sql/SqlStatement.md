@@ -157,5 +157,3 @@ valid(): void
 rewind(): void
 ```
 {@inheritdoc}
-
----

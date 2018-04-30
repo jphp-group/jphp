@@ -67,7 +67,7 @@ play(string $animation, int $speed): void
 
 ### draw()
 ```php
-draw(php\gui\UXCanvas $canvas,  $index): void
+draw(php\gui\UXCanvas $canvas, mixed $index): void
 ```
 
 ---
@@ -96,5 +96,3 @@ drawByTime(php\gui\UXCanvas $canvas, int $now): void
 ```php
 getFrameImage(int $index): UXImage
 ```
-
----

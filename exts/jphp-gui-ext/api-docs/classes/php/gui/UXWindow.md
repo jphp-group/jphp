@@ -254,5 +254,3 @@ __get(string $id): UXNode|null
 ```php
 __isset(string $id): bool
 ```
-
----

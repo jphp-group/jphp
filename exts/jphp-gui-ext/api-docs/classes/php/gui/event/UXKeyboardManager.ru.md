@@ -66,5 +66,3 @@ onDown(string $keyCombination, callable $handler, string $group): void
 ```php
 onUp(string $keyCombination, callable $handler, string $group): void
 ```
-
----

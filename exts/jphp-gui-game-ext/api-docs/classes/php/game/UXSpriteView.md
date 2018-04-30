@@ -89,5 +89,3 @@ resume(): void
 ```php
 isPaused(): bool
 ```
-
----

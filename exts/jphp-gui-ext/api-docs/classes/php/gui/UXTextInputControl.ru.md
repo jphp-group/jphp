@@ -1,6 +1,6 @@
 # UXTextInputControl
 
-- **класс** `UXTextInputControl` (`php\gui\UXTextInputControl`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXTextInputControl` (`php\gui\UXTextInputControl`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXTextInputControl.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTextInputControl.php)
 
@@ -342,5 +342,3 @@ Commit the current text and convert it to a value.
 cancelEdit(): void
 ```
 If the field is currently being edited, this call will set text to the last commited value.
-
----

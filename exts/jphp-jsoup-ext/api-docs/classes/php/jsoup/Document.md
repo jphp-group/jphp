@@ -62,5 +62,3 @@ body(): Element
 ```php
 select(string $cssQuery): Elements
 ```
-
----

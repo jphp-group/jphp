@@ -142,5 +142,3 @@ imagePath => any string (default /img/).
 imageClass => any string (style css class).
 imageSize => integer (default 20)
 useImageUrls => bool (default false)
-
----

@@ -29,5 +29,3 @@ Class UXBloomEffect
 ```php
 __construct(double $threshold): void
 ```
-
----

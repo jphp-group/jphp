@@ -63,5 +63,3 @@ cancelEdit(): void
 ```php
 commitEdit(mixed $value): void
 ```
-
----

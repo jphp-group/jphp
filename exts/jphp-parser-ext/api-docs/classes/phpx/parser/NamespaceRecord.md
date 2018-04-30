@@ -1,6 +1,6 @@
 # NamespaceRecord
 
-- **class** `NamespaceRecord` (`phpx\parser\NamespaceRecord`) **extends** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.md)
+- **class** `NamespaceRecord` (`phpx\parser\NamespaceRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
 - **source** [`phpx/parser/NamespaceRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/NamespaceRecord.php)
 
 **Description**
@@ -52,5 +52,3 @@ addFunction(phpx\parser\MethodRecord $function): void
 ```php
 addClass(phpx\parser\ClassRecord $class): void
 ```
-
----

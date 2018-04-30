@@ -1,6 +1,6 @@
 # UXSepiaToneEffect
 
-- **класс** `UXSepiaToneEffect` (`php\gui\effect\UXSepiaToneEffect`) **унаследован от** [`UXEffect`](api-docs/classes/php/gui/effect/UXEffect.ru.md)
+- **класс** `UXSepiaToneEffect` (`php\gui\effect\UXSepiaToneEffect`) **унаследован от** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/effect/UXSepiaToneEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXSepiaToneEffect.php)
 

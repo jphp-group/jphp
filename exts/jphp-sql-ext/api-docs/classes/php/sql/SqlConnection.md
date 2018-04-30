@@ -108,5 +108,3 @@ getSchemas(): array
 ```php
 getMetaData(): array
 ```
-
----

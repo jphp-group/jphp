@@ -93,5 +93,3 @@ clear(): void
 ```php
 setScrollHandler(callable|null $handler): void
 ```
-
----

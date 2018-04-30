@@ -1,6 +1,6 @@
 # ModuleRecord
 
-- **class** `ModuleRecord` (`phpx\parser\ModuleRecord`) **extends** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.md)
+- **class** `ModuleRecord` (`phpx\parser\ModuleRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
 - **source** [`phpx/parser/ModuleRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ModuleRecord.php)
 
 **Description**
@@ -73,5 +73,3 @@ Alias of findFunction().
 ```php
 findFunction(string $name): phpx\parser\MethodRecord
 ```
-
----

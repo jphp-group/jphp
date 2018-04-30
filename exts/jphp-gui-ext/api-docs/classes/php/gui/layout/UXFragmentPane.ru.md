@@ -26,5 +26,3 @@
 ```php
 applyFragment(php\gui\UXForm $form): void
 ```
-
----

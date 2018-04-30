@@ -202,5 +202,3 @@ request(): ConnectionRequest
 ```php
 response(): ConnectionResponse
 ```
-
----

@@ -153,5 +153,3 @@ insertMany(array $documents): void
 drop(): void
 ```
 Drop collection.
-
----

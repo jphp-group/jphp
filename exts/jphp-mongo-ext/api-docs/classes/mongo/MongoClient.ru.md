@@ -43,5 +43,3 @@ database(string $name): mongo\MongoDatabase
 ```php
 close(): void
 ```
-
----

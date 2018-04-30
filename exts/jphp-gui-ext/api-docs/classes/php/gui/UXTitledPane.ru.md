@@ -1,6 +1,6 @@
 # UXTitledPane
 
-- **класс** `UXTitledPane` (`php\gui\UXTitledPane`) **унаследован от** [`UXLabeled`](api-docs/classes/php/gui/UXLabeled.ru.md)
+- **класс** `UXTitledPane` (`php\gui\UXTitledPane`) **унаследован от** [`UXLabeled`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabeled.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXTitledPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTitledPane.php)
 
@@ -32,5 +32,3 @@ Class UXTitledPane
 ```php
 __construct(string $title, php\gui\UXNode $content): void
 ```
-
----

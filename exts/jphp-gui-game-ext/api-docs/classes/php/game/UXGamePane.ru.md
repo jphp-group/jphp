@@ -35,7 +35,7 @@ Class UXGamePane
 
 ### scrollTo()
 ```php
-scrollTo( $x,  $y): void
+scrollTo(mixed $x, mixed $y): void
 ```
 
 ---
@@ -46,5 +46,3 @@ scrollTo( $x,  $y): void
 ```php
 loadArea(php\gui\layout\UXAnchorPane $area): void
 ```
-
----

@@ -1,6 +1,6 @@
 # UXListView
 
-- **класс** `UXListView` (`php\gui\UXListView`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXListView` (`php\gui\UXListView`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXListView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXListView.php)
 
@@ -84,5 +84,3 @@ setDraggableCellFactory(callable|null $handler, callable|null $dragDoneHandler):
 update(): void
 ```
 Визуально обновить список.
-
----

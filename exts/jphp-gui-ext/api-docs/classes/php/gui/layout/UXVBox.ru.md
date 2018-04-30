@@ -1,6 +1,6 @@
 # UXVBox
 
-- **класс** `UXVBox` (`php\gui\layout\UXVBox`) **унаследован от** [`UXPane`](api-docs/classes/php/gui/layout/UXPane.ru.md)
+- **класс** `UXVBox` (`php\gui\layout\UXVBox`) **унаследован от** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/layout/UXVBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXVBox.php)
 
@@ -33,6 +33,34 @@ BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `->`[`requestLayout()`](#method-requestlayout)
 
 ---
+# Статичные Методы
+
+<a name="method-setvgrow"></a>
+
+### setVgrow()
+```php
+UXVBox::setVgrow(php\gui\UXNode $node, string $value): void
+```
+
+---
+
+<a name="method-getvgrow"></a>
+
+### getVgrow()
+```php
+UXVBox::getVgrow(php\gui\UXNode $node): string
+```
+
+---
+
+<a name="method-setmargin"></a>
+
+### setMargin()
+```php
+UXVBox::setMargin(php\gui\UXNode $node, double[]|double $margins): void
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -50,5 +78,3 @@ __construct(UXNode[] $nodes, float|int $spacing): void
 ```php
 requestLayout(): void
 ```
-
----

@@ -1,6 +1,6 @@
 # NamespaceRecord
 
-- **класс** `NamespaceRecord` (`phpx\parser\NamespaceRecord`) **унаследован от** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
+- **класс** `NamespaceRecord` (`phpx\parser\NamespaceRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 - **исходники** [`phpx/parser/NamespaceRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/NamespaceRecord.php)
 
 **Описание**
@@ -52,5 +52,3 @@ addFunction(phpx\parser\MethodRecord $function): void
 ```php
 addClass(phpx\parser\ClassRecord $class): void
 ```
-
----

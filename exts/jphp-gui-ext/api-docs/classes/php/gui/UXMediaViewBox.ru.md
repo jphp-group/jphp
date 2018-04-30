@@ -1,6 +1,6 @@
 # UXMediaViewBox
 
-- **класс** `UXMediaViewBox` (`php\gui\UXMediaViewBox`) **унаследован от** [`UXPanel`](api-docs/classes/php/gui/layout/UXPanel.ru.md)
+- **класс** `UXMediaViewBox` (`php\gui\UXMediaViewBox`) **унаследован от** [`UXPanel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXMediaViewBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMediaViewBox.php)
 
@@ -64,5 +64,3 @@ Stop playing.
 pause(): void
 ```
 Pause playing.
-
----

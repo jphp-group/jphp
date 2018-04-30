@@ -260,5 +260,3 @@ Check http code is 503.
 time(): php\time\Time
 ```
 Time of creation response.
-
----

@@ -1,6 +1,6 @@
 # ArgumentRecord
 
-- **class** `ArgumentRecord` (`phpx\parser\ArgumentRecord`) **extends** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.md)
+- **class** `ArgumentRecord` (`phpx\parser\ArgumentRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
 - **source** [`phpx/parser/ArgumentRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ArgumentRecord.php)
 
 **Description**

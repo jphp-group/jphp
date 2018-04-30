@@ -202,5 +202,3 @@ renameNode(php\xml\DomNode $node, string $namespaceURI, string $qualifiedName): 
 ```php
 normalizeDocument(): void
 ```
-
----

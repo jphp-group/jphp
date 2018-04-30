@@ -39,5 +39,3 @@ add(php\gui\UXNode $node): void
 ```php
 remove(php\gui\UXNode $node): void
 ```
-
----

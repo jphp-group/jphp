@@ -1,6 +1,6 @@
 # UXPanel
 
-- **класс** `UXPanel` (`php\gui\layout\UXPanel`) **унаследован от** [`UXAnchorPane`](api-docs/classes/php/gui/layout/UXAnchorPane.ru.md)
+- **класс** `UXPanel` (`php\gui\layout\UXPanel`) **унаследован от** [`UXAnchorPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXAnchorPane.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/layout/UXPanel.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXPanel.php)
 

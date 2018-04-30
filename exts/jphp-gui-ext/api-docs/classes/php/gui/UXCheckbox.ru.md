@@ -1,6 +1,6 @@
 # UXCheckbox
 
-- **класс** `UXCheckbox` (`php\gui\UXCheckbox`) **унаследован от** [`UXButtonBase`](api-docs/classes/php/gui/UXButtonBase.ru.md)
+- **класс** `UXCheckbox` (`php\gui\UXCheckbox`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXCheckbox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCheckbox.php)
 
@@ -31,5 +31,3 @@ Class UXCheckbox
 ```php
 __construct(string $text): void
 ```
-
----

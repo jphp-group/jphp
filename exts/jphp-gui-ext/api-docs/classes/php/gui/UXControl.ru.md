@@ -1,6 +1,6 @@
 # UXControl
 
-- **класс** `UXControl` (`php\gui\UXControl`) **унаследован от** [`UXRegion`](api-docs/classes/php/gui/layout/UXRegion.ru.md)
+- **класс** `UXControl` (`php\gui\UXControl`) **унаследован от** [`UXRegion`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXRegion.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXControl.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXControl.php)
 

@@ -34,5 +34,3 @@ Class UXImageView
 __construct(UXImage|string|null $image): void
 ```
 UXImageView constructor.
-
----

@@ -55,7 +55,7 @@ outerHtml(): string
 
 ### text()
 ```php
-text( $text): string
+text(mixed $text): string
 ```
 
 ---
@@ -100,7 +100,7 @@ id(): string
 
 ### attr()
 ```php
-attr( $attributeKey,  $attributeValue): $this
+attr(mixed $attributeKey, mixed $attributeValue): $this
 ```
 
 ---
@@ -192,5 +192,3 @@ removeClass(string $class): void
 ```php
 hasClass(string $class): bool
 ```
-
----

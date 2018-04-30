@@ -55,5 +55,3 @@ save(string|Stream|File $to, string $format): void
 ```php
 writeImageAsync(string $format, Stream|File|string $output, php\gui\paint\UXColor $transparentColor, callable $callback): void
 ```
-
----

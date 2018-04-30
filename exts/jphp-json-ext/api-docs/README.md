@@ -3,7 +3,7 @@
 ---
 
 ## jphp-json-ext
-> version 1.0.0, created by JPPM v0.1.15
+> version 1.0.0, created by JPPM v0.1.16
 
 Parse and format JSON.
 
@@ -14,4 +14,4 @@ jppm add jphp-json-ext@1.0.0
 
 ### API
 **Classes**
-- [`php\format\JsonProcessor`](api-docs/classes/php/format/JsonProcessor.md)- _Class JsonProcessor_
+- [`php\format\JsonProcessor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-json-ext/api-docs/classes/php/format/JsonProcessor.md)- _Class JsonProcessor_

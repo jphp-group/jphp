@@ -43,5 +43,3 @@ start(): void
 ```php
 stop(): void
 ```
-
----

@@ -1,6 +1,6 @@
 # UXTilePane
 
-- **класс** `UXTilePane` (`php\gui\layout\UXTilePane`) **унаследован от** [`UXPane`](api-docs/classes/php/gui/layout/UXPane.ru.md)
+- **класс** `UXTilePane` (`php\gui\layout\UXTilePane`) **унаследован от** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/layout/UXTilePane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXTilePane.php)
 

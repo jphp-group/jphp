@@ -1,6 +1,6 @@
 # UXRadioGroupPane
 
-- **класс** `UXRadioGroupPane` (`php\gui\UXRadioGroupPane`) **унаследован от** [`UXVBox`](api-docs/classes/php/gui/layout/UXVBox.ru.md)
+- **класс** `UXRadioGroupPane` (`php\gui\UXRadioGroupPane`) **унаследован от** [`UXVBox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXVBox.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXRadioGroupPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXRadioGroupPane.php)
 
@@ -35,5 +35,3 @@ Class UXRadioGroupPane
 update(): void
 ```
 Update ui.
-
----

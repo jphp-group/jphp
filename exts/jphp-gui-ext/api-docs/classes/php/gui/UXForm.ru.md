@@ -82,5 +82,3 @@ toFront(): void
 ```php
 maximize(): void
 ```
-
----

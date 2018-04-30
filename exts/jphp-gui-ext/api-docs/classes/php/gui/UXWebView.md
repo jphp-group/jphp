@@ -1,6 +1,6 @@
 # UXWebView
 
-- **class** `UXWebView` (`php\gui\UXWebView`) **extends** [`UXParent`](api-docs/classes/php/gui/UXParent.md)
+- **class** `UXWebView` (`php\gui\UXWebView`) **extends** [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
 - **package** `gui`
 - **source** [`php/gui/UXWebView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebView.php)
 

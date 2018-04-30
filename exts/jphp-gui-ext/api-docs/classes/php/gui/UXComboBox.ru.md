@@ -55,5 +55,3 @@ onCellRender(callable|null $handler): void
 ```php
 onButtonRender(callable|null $handler): void
 ```
-
----

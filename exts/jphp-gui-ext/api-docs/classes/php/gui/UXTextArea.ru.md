@@ -33,5 +33,3 @@ Class UXTextArea
 ```php
 __construct(string $text): void
 ```
-
----

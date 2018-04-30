@@ -1,6 +1,6 @@
 # UXKeyEvent
 
-- **класс** `UXKeyEvent` (`php\gui\event\UXKeyEvent`) **унаследован от** [`UXEvent`](api-docs/classes/php/gui/event/UXEvent.ru.md)
+- **класс** `UXKeyEvent` (`php\gui\event\UXKeyEvent`) **унаследован от** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/event/UXKeyEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXKeyEvent.php)
 
@@ -45,7 +45,7 @@ Class UXKeyEvent
 
 ### __construct()
 ```php
-__construct(php\gui\event\UXKeyEvent $parent,  $sender): void
+__construct(php\gui\event\UXKeyEvent $parent, mixed $sender): void
 ```
 
 ---
@@ -159,5 +159,3 @@ isUndefinedKey(): bool
 This value is used to indicate that the keyCode is unknown.
 Key typed events do not have a keyCode value; this value
 is used instead.
-
----

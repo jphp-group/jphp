@@ -1,6 +1,6 @@
 # ArgumentRecord
 
-- **класс** `ArgumentRecord` (`phpx\parser\ArgumentRecord`) **унаследован от** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
+- **класс** `ArgumentRecord` (`phpx\parser\ArgumentRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 - **исходники** [`phpx/parser/ArgumentRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ArgumentRecord.php)
 
 **Описание**

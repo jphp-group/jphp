@@ -30,5 +30,3 @@ Class UXColorPicker
 ```php
 __construct(php\gui\paint\UXColor $color): void
 ```
-
----

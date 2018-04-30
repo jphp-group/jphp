@@ -100,5 +100,3 @@ setCircleFixture(float $radius): void
 ```php
 setCollisionHandler(string $entityType, callable|null $handler): void
 ```
-
----

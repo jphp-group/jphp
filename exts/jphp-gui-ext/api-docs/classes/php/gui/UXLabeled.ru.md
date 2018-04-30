@@ -1,6 +1,6 @@
 # UXLabeled
 
-- **класс** `UXLabeled` (`php\gui\UXLabeled`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXLabeled` (`php\gui\UXLabeled`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXLabeled.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLabeled.php)
 

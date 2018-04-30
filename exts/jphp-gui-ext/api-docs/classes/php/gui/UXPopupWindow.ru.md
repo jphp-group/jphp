@@ -54,5 +54,3 @@ showByNode(php\gui\UXNode $node, double $offsetX, double $offsetY): void
 hide(): void
 ```
 ...
-
----

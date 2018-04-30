@@ -1,6 +1,6 @@
 # UXHtmlEditor
 
-- **класс** `UXHtmlEditor` (`php\gui\UXHtmlEditor`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXHtmlEditor` (`php\gui\UXHtmlEditor`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXHtmlEditor.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXHtmlEditor.php)
 
@@ -30,5 +30,3 @@ Class UXHtmlEditor
 __construct(): void
 ```
 ...
-
----

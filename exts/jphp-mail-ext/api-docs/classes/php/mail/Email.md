@@ -144,5 +144,3 @@ send(php\mail\EmailBackend $backend): string
 ```
 Sends the email. Internally we build a MimeMessage
 which is afterwards sent to the SMTP server.
-
----

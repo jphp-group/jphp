@@ -1,6 +1,6 @@
 # MethodRecord
 
-- **class** `MethodRecord` (`phpx\parser\MethodRecord`) **extends** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.md)
+- **class** `MethodRecord` (`phpx\parser\MethodRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
 - **source** [`phpx/parser/MethodRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/MethodRecord.php)
 
 **Description**

@@ -111,5 +111,3 @@ collation => string (UNCOLLATED, COLLATED)
 printSides => string (ONE_SIDED, DUPLEX, TUMBLE)
 printColor => string (COLOR, MONOCHROME)
 printQuality => string (DRAFT, LOW, NORMAL, HIGH)
-
----

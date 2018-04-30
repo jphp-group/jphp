@@ -60,7 +60,5 @@ write(phpx\parser\SourceFile $file, phpx\parser\SourceWriter $writer): void
 
 ### get()
 ```php
-get( $path,  $uniqueId): SourceFile
+get(mixed $path, mixed $uniqueId): SourceFile
 ```
-
----

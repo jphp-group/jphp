@@ -1,6 +1,6 @@
 # SSHSftpChannel
 
-- **класс** `SSHSftpChannel` (`ssh\SSHSftpChannel`) **унаследован от** [`SSHChannel`](api-docs/classes/ssh/SSHChannel.ru.md)
+- **класс** `SSHSftpChannel` (`ssh\SSHSftpChannel`) **унаследован от** [`SSHChannel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 - **пакет** `ssh`
 - **исходники** [`ssh/SSHSftpChannel.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHSftpChannel.php)
 
@@ -232,5 +232,3 @@ put(string $src, string $mode, callable|null $progressHandler, int $offset): php
 ```php
 getExtension(string $key): string
 ```
-
----

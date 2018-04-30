@@ -1,6 +1,6 @@
 # ClassRecord
 
-- **класс** `ClassRecord` (`phpx\parser\ClassRecord`) **унаследован от** [`AbstractSourceRecord`](api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
+- **класс** `ClassRecord` (`phpx\parser\ClassRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 - **исходники** [`phpx/parser/ClassRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ClassRecord.php)
 
 **Описание**
@@ -64,7 +64,7 @@ addProperty(phpx\parser\PropertyRecord $property): void
 
 ### getMethod()
 ```php
-getMethod( $name): MethodRecord
+getMethod(mixed $name): MethodRecord
 ```
 
 ---
@@ -82,7 +82,7 @@ getProperty(string $name): phpx\parser\PropertyRecord
 
 ### removeMethod()
 ```php
-removeMethod( $name): void
+removeMethod(mixed $name): void
 ```
 
 ---
@@ -102,5 +102,3 @@ getMethods(): MethodRecord[]
 ```php
 getProperties(): PropertyRecord[]
 ```
-
----

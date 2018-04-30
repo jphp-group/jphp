@@ -153,5 +153,3 @@ incPreRelease(): semver\SemVersion
 ```php
 satisfies(string $expr): bool
 ```
-
----

@@ -150,5 +150,3 @@ contentType([ null|string $contentType): null|string
 ```php
 bodyParser([ callable|null $callback): callable|null
 ```
-
----

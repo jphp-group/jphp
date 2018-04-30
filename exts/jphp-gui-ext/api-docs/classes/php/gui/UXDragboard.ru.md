@@ -36,5 +36,3 @@ Class UXDragboard
 ```php
 __construct(php\gui\UXDragboard $origin): void
 ```
-
----

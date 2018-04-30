@@ -54,5 +54,3 @@ Add listener which call only once!
 ```php
 removeListener(php\lang\Invoker $invoker): bool
 ```
-
----

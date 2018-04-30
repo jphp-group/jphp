@@ -1,6 +1,6 @@
 # UXTreeView
 
-- **class** `UXTreeView` (`php\gui\UXTreeView`) **extends** [`UXControl`](api-docs/classes/php/gui/UXControl.md)
+- **class** `UXTreeView` (`php\gui\UXTreeView`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXTreeView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTreeView.php)
 
@@ -108,5 +108,3 @@ expandAll(): void
 ```php
 collapseAll(): void
 ```
-
----

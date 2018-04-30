@@ -115,7 +115,7 @@ Getter and Setter for object data
 
 ### screenToLocal()
 ```php
-screenToLocal( $x,  $y): array
+screenToLocal(mixed $x, mixed $y): array
 ```
 
 ---
@@ -144,7 +144,7 @@ lookup(string $selector): UXNode
 
 ### lookupAll()
 ```php
-lookupAll( $selector): UXNode[]
+lookupAll(mixed $selector): UXNode[]
 ```
 Ищет и возвращает все компоненты по css селектору.
 
@@ -331,5 +331,3 @@ Use observer() ..
 ```php
 observer(string $property): UXValue
 ```
-
----

@@ -47,6 +47,52 @@ Class UXFont
 - `->`[`generateStyle()`](#method-generatestyle) - _Generate CSS style of font._
 
 ---
+# Статичные Методы
+
+<a name="method-of"></a>
+
+### of()
+```php
+UXFont::of(string $family, double $size, string $fontWeight, bool $italic): UXFont
+```
+
+---
+
+<a name="method-load"></a>
+
+### load()
+```php
+UXFont::load(php\io\Stream $stream, double $size): UXFont
+```
+
+---
+
+<a name="method-getdefault"></a>
+
+### getDefault()
+```php
+UXFont::getDefault(): UXFont
+```
+
+---
+
+<a name="method-getfontnames"></a>
+
+### getFontNames()
+```php
+UXFont::getFontNames(string $family): string[]
+```
+
+---
+
+<a name="method-getfamilies"></a>
+
+### getFamilies()
+```php
+UXFont::getFamilies(): string[]
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -62,7 +108,7 @@ __construct(double $size, string $family): void
 
 ### withName()
 ```php
-withName( $name): UXFont
+withName(mixed $name): UXFont
 ```
 
 ---
@@ -71,7 +117,7 @@ withName( $name): UXFont
 
 ### withSize()
 ```php
-withSize( $size): UXFont
+withSize(mixed $size): UXFont
 ```
 
 ---
@@ -80,7 +126,7 @@ withSize( $size): UXFont
 
 ### withNameAndSize()
 ```php
-withNameAndSize( $name,  $size): void
+withNameAndSize(mixed $name, mixed $size): void
 ```
 
 ---
@@ -146,5 +192,3 @@ calculateTextWidth(string $text): float
 generateStyle(): string
 ```
 Generate CSS style of font.
-
----

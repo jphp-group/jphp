@@ -44,5 +44,3 @@ __construct(mixed $value): void
 update(): void
 ```
 Update tree item.
-
----

@@ -73,5 +73,3 @@ onSerialize(string $nameOfType, callable $handler): void
 ```php
 onClassSerialize(string $className, callable $handler): void
 ```
-
----

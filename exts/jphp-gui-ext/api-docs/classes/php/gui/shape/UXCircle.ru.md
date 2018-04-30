@@ -29,5 +29,3 @@ Class UXCircle
 ```php
 __construct(double $radius): void
 ```
-
----

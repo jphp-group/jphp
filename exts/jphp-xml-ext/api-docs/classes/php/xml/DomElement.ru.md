@@ -67,7 +67,7 @@ Remove attribute by name
 
 ### __isset()
 ```php
-__isset( $name): bool
+__isset(mixed $name): bool
 ```
 Check attribute exists by name
 
@@ -205,5 +205,3 @@ setIdAttribute(string $name, bool $isId): void
 ```php
 setIdAttributeNS(string $namespaceURI, string $localName, string $isId): void
 ```
-
----

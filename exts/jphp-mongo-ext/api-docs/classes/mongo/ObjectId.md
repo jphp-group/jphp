@@ -21,6 +21,16 @@ Class ObjectId
 - `->`[`__toString()`](#method-__tostring)
 
 ---
+# Static Methods
+
+<a name="method-isvalid"></a>
+
+### isValid()
+```php
+ObjectId::isValid(string $hexString): bool
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -39,5 +49,3 @@ ObjectId constructor.
 ```php
 __toString(): string
 ```
-
----

@@ -47,5 +47,3 @@ showPopup(): void
 hidePopup(): void
 ```
 Скрыть меню-попап.
-
----

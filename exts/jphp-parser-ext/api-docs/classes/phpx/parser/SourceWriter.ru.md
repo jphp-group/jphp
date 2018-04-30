@@ -32,5 +32,3 @@ write(phpx\parser\SourceManager $manager, phpx\parser\SourceFile $file): void
 ```php
 writeModule(phpx\parser\SourceManager $manager, phpx\parser\SourceFile $file, phpx\parser\ModuleRecord $record, php\io\Stream $out): mixed
 ```
-
----

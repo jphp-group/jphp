@@ -52,5 +52,3 @@ parse(Stream|string $string): DomDocument
 ```php
 createDocument(): DomDocument
 ```
-
----

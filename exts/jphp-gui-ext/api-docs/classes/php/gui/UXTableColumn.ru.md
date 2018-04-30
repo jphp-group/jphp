@@ -52,7 +52,7 @@ sizeWidthToFit(): void
 
 ### data()
 ```php
-data( $name, mixed $value): void
+data(mixed $name, mixed $value): void
 ```
 
 ---
@@ -82,5 +82,3 @@ setCellValueFactory(callable|null $factory): void
 ```php
 setCellFactory(callable|null $factory): void
 ```
-
----

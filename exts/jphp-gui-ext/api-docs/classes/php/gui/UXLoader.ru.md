@@ -47,7 +47,5 @@ load(string|File|Stream $source): UXNode
 
 ### loadFromString()
 ```php
-loadFromString( $string): UXNode
+loadFromString(mixed $string): UXNode
 ```
-
----

@@ -92,5 +92,3 @@ setMaxLifetime(int $millis): $this
 ```php
 setMinimumIdle(int $millis): $this
 ```
-
----

@@ -1,6 +1,6 @@
 # UXTableView
 
-- **класс** `UXTableView` (`php\gui\UXTableView`) **унаследован от** [`UXControl`](api-docs/classes/php/gui/UXControl.ru.md)
+- **класс** `UXTableView` (`php\gui\UXTableView`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXTableView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableView.php)
 
@@ -43,5 +43,3 @@ Class UXTableView
 update(): void
 ```
 ...
-
----

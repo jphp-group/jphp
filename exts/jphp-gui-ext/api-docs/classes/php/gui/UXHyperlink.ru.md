@@ -1,6 +1,6 @@
 # UXHyperlink
 
-- **класс** `UXHyperlink` (`php\gui\UXHyperlink`) **унаследован от** [`UXButtonBase`](api-docs/classes/php/gui/UXButtonBase.ru.md)
+- **класс** `UXHyperlink` (`php\gui\UXHyperlink`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
 - **исходники** [`php/gui/UXHyperlink.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXHyperlink.php)
 
@@ -41,5 +41,3 @@ fire(): void
 ```
 Implemented to invoke the action event if one is defined. This
 function will also set visited to true.
-
----

@@ -77,7 +77,7 @@ outerHtml(): string
 
 ### attr()
 ```php
-attr(string $attributeKey,  $value): string|$this
+attr(string $attributeKey, mixed $value): string|$this
 ```
 
 ---
@@ -232,5 +232,3 @@ is(string $query): bool
 ```php
 parents(): Elements
 ```
-
----
