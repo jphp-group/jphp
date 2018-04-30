@@ -4,7 +4,7 @@ version: 1.0.0
 description: Library for working with FireBird SQL database.
 
 deps:
-  jphp-sql-ext: '>=%version%'
+  jphp-sql-ext: '>=1.0.0'
 
 plugins:
 - Doc

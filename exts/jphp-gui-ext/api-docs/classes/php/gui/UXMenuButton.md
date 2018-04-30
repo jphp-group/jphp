@@ -1,6 +1,6 @@
 # UXMenuButton
 
-- **class** `UXMenuButton` (`php\gui\UXMenuButton`) **extends** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
+- **class** `UXMenuButton` (`php\gui\UXMenuButton`) **extends** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
 - **package** `gui`
 - **source** [`php/gui/UXMenuButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenuButton.php)
 

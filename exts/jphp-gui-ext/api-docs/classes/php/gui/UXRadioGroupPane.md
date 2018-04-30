@@ -1,6 +1,6 @@
 # UXRadioGroupPane
 
-- **class** `UXRadioGroupPane` (`php\gui\UXRadioGroupPane`) **extends** [`UXVBox`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/layout/UXVBox.md)
+- **class** `UXRadioGroupPane` (`php\gui\UXRadioGroupPane`) **extends** [`UXVBox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXVBox.md)
 - **package** `gui`
 - **source** [`php/gui/UXRadioGroupPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXRadioGroupPane.php)
 

@@ -1,6 +1,6 @@
 # UXKeyEvent
 
-- **class** `UXKeyEvent` (`php\gui\event\UXKeyEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
+- **class** `UXKeyEvent` (`php\gui\event\UXKeyEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
 - **source** [`php/gui/event/UXKeyEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXKeyEvent.php)
 

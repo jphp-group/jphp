@@ -1,6 +1,6 @@
 # ZipArchiveEntry
 
-- **class** `ZipArchiveEntry` (`compress\ZipArchiveEntry`) **extends** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
+- **class** `ZipArchiveEntry` (`compress\ZipArchiveEntry`) **extends** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
 - **package** `compress`
 - **source** [`compress/ZipArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveEntry.php)
 

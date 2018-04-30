@@ -1,6 +1,6 @@
 # UXCheckbox
 
-- **class** `UXCheckbox` (`php\gui\UXCheckbox`) **extends** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
+- **class** `UXCheckbox` (`php\gui\UXCheckbox`) **extends** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
 - **package** `gui`
 - **source** [`php/gui/UXCheckbox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCheckbox.php)
 

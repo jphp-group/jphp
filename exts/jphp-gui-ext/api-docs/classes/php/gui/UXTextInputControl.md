@@ -1,6 +1,6 @@
 # UXTextInputControl
 
-- **class** `UXTextInputControl` (`php\gui\UXTextInputControl`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
+- **class** `UXTextInputControl` (`php\gui\UXTextInputControl`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXTextInputControl.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTextInputControl.php)
 

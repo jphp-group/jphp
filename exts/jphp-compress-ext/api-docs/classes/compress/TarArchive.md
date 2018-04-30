@@ -1,6 +1,6 @@
 # TarArchive
 
-- **class** `TarArchive` (`compress\TarArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/Archive.md)
+- **class** `TarArchive` (`compress\TarArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.md)
 - **package** `compress`
 - **source** [`compress/TarArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchive.php)
 

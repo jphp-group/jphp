@@ -14,6 +14,6 @@ jppm add jphp-gui-desktop-ext@1.0.0
 
 ### АПИ
 **Классы**
-- [`php\desktop\Mouse`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Mouse.ru.md)- _Class Mouse_
-- [`php\desktop\Robot`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Robot.ru.md)- _Class Robot_
-- [`php\desktop\Runtime`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Runtime.ru.md)
+- [`php\desktop\Mouse`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Mouse.ru.md)- _Class Mouse_
+- [`php\desktop\Robot`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Robot.ru.md)- _Class Robot_
+- [`php\desktop\Runtime`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-desktop-ext/api-docs/classes/php/desktop/Runtime.ru.md)

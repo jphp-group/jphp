@@ -1,6 +1,6 @@
 # TarArchiveOutput
 
-- **class** `TarArchiveOutput` (`compress\TarArchiveOutput`) **extends** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.md)
+- **class** `TarArchiveOutput` (`compress\TarArchiveOutput`) **extends** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.md)
 - **package** `compress`
 - **source** [`compress/TarArchiveOutput.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveOutput.php)
 

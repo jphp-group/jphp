@@ -1,6 +1,6 @@
 # ZipArchiveOutput
 
-- **class** `ZipArchiveOutput` (`compress\ZipArchiveOutput`) **extends** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.md)
+- **class** `ZipArchiveOutput` (`compress\ZipArchiveOutput`) **extends** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.md)
 - **package** `compress`
 - **source** [`compress/ZipArchiveOutput.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveOutput.php)
 

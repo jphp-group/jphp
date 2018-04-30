@@ -1,6 +1,6 @@
 # ZipArchive
 
-- **class** `ZipArchive` (`compress\ZipArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/Archive.md)
+- **class** `ZipArchive` (`compress\ZipArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.md)
 - **package** `compress`
 - **source** [`compress/ZipArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchive.php)
 

@@ -1,6 +1,6 @@
 # UXTableView
 
-- **class** `UXTableView` (`php\gui\UXTableView`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
+- **class** `UXTableView` (`php\gui\UXTableView`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
 - **source** [`php/gui/UXTableView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableView.php)
 

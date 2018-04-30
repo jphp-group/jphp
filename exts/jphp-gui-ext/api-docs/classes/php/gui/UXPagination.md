@@ -1,6 +1,6 @@
 # UXPagination
 
-- **class** `UXPagination` (`php\gui\UXPagination`) **extends** [`UXFlowPane`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.md)
+- **class** `UXPagination` (`php\gui\UXPagination`) **extends** [`UXFlowPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.md)
 - **package** `gui`
 - **source** [`php/gui/UXPagination.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXPagination.php)
 

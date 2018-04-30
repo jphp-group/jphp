@@ -1,6 +1,6 @@
 # TarArchiveEntry
 
-- **класс** `TarArchiveEntry` (`compress\TarArchiveEntry`) **унаследован от** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
+- **класс** `TarArchiveEntry` (`compress\TarArchiveEntry`) **унаследован от** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 - **пакет** `compress`
 - **исходники** [`compress/TarArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveEntry.php)
 

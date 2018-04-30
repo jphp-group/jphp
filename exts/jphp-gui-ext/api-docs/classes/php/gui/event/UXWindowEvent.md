@@ -1,6 +1,6 @@
 # UXWindowEvent
 
-- **class** `UXWindowEvent` (`php\gui\event\UXWindowEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
+- **class** `UXWindowEvent` (`php\gui\event\UXWindowEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
 - **source** [`php/gui/event/UXWindowEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXWindowEvent.php)
 

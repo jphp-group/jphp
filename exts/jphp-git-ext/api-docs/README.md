@@ -14,5 +14,5 @@ jppm add jphp-git-ext@1.0.0
 
 ### API
 **Classes**
-- [`git\Git`](https://github.com/jphp-compiler/jphp/blob/master/jphp-git-ext/api-docs/classes/git/Git.md)- _Class Git_
-- [`git\GitAPIException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-git-ext/api-docs/classes/git/GitAPIException.md)- _Class GitAPIException_
+- [`git\Git`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-git-ext/api-docs/classes/git/Git.md)- _Class Git_
+- [`git\GitAPIException`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-git-ext/api-docs/classes/git/GitAPIException.md)- _Class GitAPIException_
