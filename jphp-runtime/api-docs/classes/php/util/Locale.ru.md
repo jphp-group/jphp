@@ -54,6 +54,228 @@ Class Locale, Immutable
 - `->`[`__clone()`](#method-__clone) - _Class is immutable, the disallowed clone method_
 
 ---
+# Статичные Методы
+
+<a name="method-english"></a>
+
+### ENGLISH()
+```php
+Locale::ENGLISH(): Locale
+```
+
+---
+
+<a name="method-us"></a>
+
+### US()
+```php
+Locale::US(): Locale
+```
+
+---
+
+<a name="method-uk"></a>
+
+### UK()
+```php
+Locale::UK(): Locale
+```
+
+---
+
+<a name="method-canada"></a>
+
+### CANADA()
+```php
+Locale::CANADA(): Locale
+```
+
+---
+
+<a name="method-canada_french"></a>
+
+### CANADA_FRENCH()
+```php
+Locale::CANADA_FRENCH(): Locale
+```
+
+---
+
+<a name="method-french"></a>
+
+### FRENCH()
+```php
+Locale::FRENCH(): Locale
+```
+
+---
+
+<a name="method-france"></a>
+
+### FRANCE()
+```php
+Locale::FRANCE(): Locale
+```
+
+---
+
+<a name="method-italian"></a>
+
+### ITALIAN()
+```php
+Locale::ITALIAN(): Locale
+```
+
+---
+
+<a name="method-italy"></a>
+
+### ITALY()
+```php
+Locale::ITALY(): Locale
+```
+
+---
+
+<a name="method-german"></a>
+
+### GERMAN()
+```php
+Locale::GERMAN(): Locale
+```
+
+---
+
+<a name="method-germany"></a>
+
+### GERMANY()
+```php
+Locale::GERMANY(): Locale
+```
+
+---
+
+<a name="method-japan"></a>
+
+### JAPAN()
+```php
+Locale::JAPAN(): Locale
+```
+
+---
+
+<a name="method-japanese"></a>
+
+### JAPANESE()
+```php
+Locale::JAPANESE(): Locale
+```
+
+---
+
+<a name="method-korea"></a>
+
+### KOREA()
+```php
+Locale::KOREA(): Locale
+```
+
+---
+
+<a name="method-korean"></a>
+
+### KOREAN()
+```php
+Locale::KOREAN(): Locale
+```
+
+---
+
+<a name="method-china"></a>
+
+### CHINA()
+```php
+Locale::CHINA(): Locale
+```
+
+---
+
+<a name="method-chinese"></a>
+
+### CHINESE()
+```php
+Locale::CHINESE(): Locale
+```
+
+---
+
+<a name="method-taiwan"></a>
+
+### TAIWAN()
+```php
+Locale::TAIWAN(): Locale
+```
+
+---
+
+<a name="method-russian"></a>
+
+### RUSSIAN()
+```php
+Locale::RUSSIAN(): Locale
+```
+
+---
+
+<a name="method-russia"></a>
+
+### RUSSIA()
+```php
+Locale::RUSSIA(): Locale
+```
+
+---
+
+<a name="method-root"></a>
+
+### ROOT()
+```php
+Locale::ROOT(): Locale
+```
+
+---
+
+<a name="method-getdefault"></a>
+
+### getDefault()
+```php
+Locale::getDefault(bool $globally): Locale
+```
+Get default locale (if globally = false - only for the current environment)
+
+---
+
+<a name="method-setdefault"></a>
+
+### setDefault()
+```php
+Locale::setDefault(php\util\Locale $locale, bool $globally): void
+```
+Set default locale
+
+---
+
+<a name="method-getavailablelocales"></a>
+
+### getAvailableLocales()
+```php
+Locale::getAvailableLocales(): Locale[]
+```
+Returns an array of all installed locales.
+The returned array represents the union of locales supported
+by the Java runtime environment
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -158,5 +380,3 @@ language + "_" + country + "_" + (variant + "_#" | "#") + script + "-" + extensi
 __clone(): void
 ```
 Class is immutable, the disallowed clone method
-
----

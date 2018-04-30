@@ -51,6 +51,74 @@ Class Stream
 - `->`[`eachLine()`](#method-eachline) - _Each line of stream._
 
 ---
+# Статичные Методы
+
+<a name="method-of"></a>
+
+### of()
+```php
+Stream::of(string $path, string $mode): Stream
+```
+
+---
+
+<a name="method-getcontents"></a>
+
+### getContents()
+```php
+Stream::getContents(string $path, string $mode): string
+```
+Create a stream, call and return the result of the readFully() method, finally call the close() method.
+
+---
+
+<a name="method-putcontents"></a>
+
+### putContents()
+```php
+Stream::putContents(string $path, string $data, string $mode): void
+```
+Create a stream, call and return the result of the write() method, finally call the close() method.
+
+---
+
+<a name="method-tryaccess"></a>
+
+### tryAccess()
+```php
+Stream::tryAccess(string $path, callable $onAccess, string $mode): void
+```
+Open a stream and close it after calling $onAccess automatically.
+
+---
+
+<a name="method-exists"></a>
+
+### exists()
+```php
+Stream::exists(string $path): bool
+```
+Checks stream is exists. It tries to open a stream and if all is ok, returns true and closes it.
+
+---
+
+<a name="method-register"></a>
+
+### register()
+```php
+Stream::register(string $protocol, string $className): void
+```
+
+---
+
+<a name="method-unregister"></a>
+
+### unregister()
+```php
+Stream::unregister(mixed $protocol): void
+```
+
+---
 # Методы
 
 <a name="method-getpath"></a>
@@ -131,7 +199,7 @@ readFormatted(string $format, int $flags): mixed
 
 ### writeFormatted()
 ```php
-writeFormatted( $value, string $format, int $flags): mixed
+writeFormatted(mixed $value, string $format, int $flags): mixed
 ```
 
 ---
@@ -185,7 +253,7 @@ __construct(string $path, null|string $mode): Stream
 
 ### setContext()
 ```php
-setContext( $context): void
+setContext(mixed $context): void
 ```
 
 ---
@@ -216,5 +284,3 @@ Alias of readFully() with converting to string always.
 eachLine(callable $callback, string|null $encoding): void
 ```
 Each line of stream.
-
----

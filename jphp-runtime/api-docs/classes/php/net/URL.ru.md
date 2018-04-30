@@ -37,6 +37,25 @@ Class URL
 - `->`[`__toString()`](#method-__tostring)
 
 ---
+# Статичные Методы
+
+<a name="method-encode"></a>
+
+### encode()
+```php
+URL::encode(string $text, string $encoding): string
+```
+
+---
+
+<a name="method-decode"></a>
+
+### decode()
+```php
+URL::decode(string $text, string $encoding): string
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -197,5 +216,3 @@ openStream(): Stream
 ```php
 __toString(): string
 ```
-
----

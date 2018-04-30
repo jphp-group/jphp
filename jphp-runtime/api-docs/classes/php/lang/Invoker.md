@@ -31,6 +31,16 @@ Class for calling methods/functions/etc.
 - `->`[`isDynamicCall()`](#method-isdynamiccall) - _Checks it is a dynamic call_
 
 ---
+# Static Methods
+
+<a name="method-of"></a>
+
+### of()
+```php
+Invoker::of(mixed|callable $callback): Invoker|null
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -139,5 +149,3 @@ Checks it is a static call
 isDynamicCall(): bool
 ```
 Checks it is a dynamic call
-
----

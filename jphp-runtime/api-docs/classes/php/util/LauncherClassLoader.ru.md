@@ -23,5 +23,3 @@ Class LauncherClassLoader
 ```php
 loadClass(string $name): void
 ```
-
----

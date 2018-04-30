@@ -83,5 +83,3 @@ getAndSet(callable $updateCallback): mixed
 ```php
 setAndGet(callable $updateCallback): mixed
 ```
-
----

@@ -44,5 +44,3 @@ count(): int
 clear(): void
 ```
 Remove all elements.
-
----

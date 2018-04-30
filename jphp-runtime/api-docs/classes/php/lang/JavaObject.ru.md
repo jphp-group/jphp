@@ -35,5 +35,3 @@ Get class of object
 getClassName(): string
 ```
 Get name of class of object
-
----

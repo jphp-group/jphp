@@ -36,6 +36,49 @@ Class Thread
 - `->`[`join()`](#method-join) - _Waits at most $millis milliseconds plus_
 
 ---
+# Статичные Методы
+
+<a name="method-doyield"></a>
+
+### doYield()
+```php
+Thread::doYield(): void
+```
+A hint to the scheduler that the current thread is willing to yield
+its current use of a processor. The scheduler is free to ignore this
+hint.
+
+---
+
+<a name="method-sleep"></a>
+
+### sleep()
+```php
+Thread::sleep(int $millis, int $nanos): void
+```
+Causes the currently executing thread to sleep (temporarily cease
+execution)
+
+---
+
+<a name="method-getactivecount"></a>
+
+### getActiveCount()
+```php
+Thread::getActiveCount(): int
+```
+
+---
+
+<a name="method-current"></a>
+
+### current()
+```php
+Thread::current(): Thread
+```
+Get current thread
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -157,5 +200,3 @@ join(int $millis, int $nanos): void
 ```
 Waits at most $millis milliseconds plus
 $nanos nanoseconds for this thread to die.
-
----

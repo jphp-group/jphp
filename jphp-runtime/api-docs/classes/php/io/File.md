@@ -63,6 +63,38 @@ Class File
 - `->`[`__toString()`](#method-__tostring)
 
 ---
+# Static Methods
+
+<a name="method-createtemp"></a>
+
+### createTemp()
+```php
+File::createTemp(string $prefix, string $suffix, null|File|string $directory): File
+```
+
+---
+
+<a name="method-listroots"></a>
+
+### listRoots()
+```php
+File::listRoots(): File[]
+```
+List the available filesystem roots.
+Returns an array of objects denoting the available filesystem roots,
+or empty array if the set of roots could not be determined.
+The array will be empty if there are no filesystem roots.
+
+---
+
+<a name="method-of"></a>
+
+### of()
+```php
+File::of(string $path): File
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -431,5 +463,3 @@ formatTo(mixed $value, string $format, int $flags): void
 ```php
 __toString(): string
 ```
-
----

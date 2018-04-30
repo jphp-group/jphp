@@ -85,5 +85,3 @@ peek(): mixed
 poll(): mixed
 ```
 Retrieves and removes the head of this queue.
-
----

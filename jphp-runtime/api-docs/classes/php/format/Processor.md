@@ -25,13 +25,41 @@ Class Processor
 - `->`[`parse()`](#method-parse)
 
 ---
+# Static Methods
+
+<a name="method-register"></a>
+
+### register()
+```php
+Processor::register(string $code, string $processorClass): void
+```
+
+---
+
+<a name="method-unregister"></a>
+
+### unregister()
+```php
+Processor::unregister(string $code): bool
+```
+
+---
+
+<a name="method-isregistered"></a>
+
+### isRegistered()
+```php
+Processor::isRegistered(string $code): bool
+```
+
+---
 # Methods
 
 <a name="method-format"></a>
 
 ### format()
 ```php
-format( $value): string
+format(mixed $value): string
 ```
 
 ---
@@ -40,7 +68,7 @@ format( $value): string
 
 ### formatTo()
 ```php
-formatTo( $value, php\io\Stream $output): mixed
+formatTo(mixed $value, php\io\Stream $output): mixed
 ```
 
 ---
@@ -51,5 +79,3 @@ formatTo( $value, php\io\Stream $output): mixed
 ```php
 parse(string|Stream $source): mixed
 ```
-
----

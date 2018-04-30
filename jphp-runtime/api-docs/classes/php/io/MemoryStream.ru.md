@@ -24,5 +24,3 @@ Class MemoryStream
 __construct(mixed $content, string $mode): void
 ```
 MemoryStream constructor.
-
----

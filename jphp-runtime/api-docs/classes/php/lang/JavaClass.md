@@ -48,6 +48,16 @@ Class JavaClass
 - `->`[`getResource()`](#method-getresource)
 
 ---
+# Static Methods
+
+<a name="method-primitive"></a>
+
+### primitive()
+```php
+JavaClass::primitive(string $name): void
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -234,7 +244,7 @@ getDeclaredMethods(): JavaMethod[]
 
 ### getDeclaredField()
 ```php
-getDeclaredField( $name): JavaField
+getDeclaredField(mixed $name): JavaField
 ```
 
 ---
@@ -299,5 +309,3 @@ getEnumConstants(): JavaObject[]
 ```php
 getResource(string $name): string|null
 ```
-
----

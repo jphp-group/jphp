@@ -46,6 +46,17 @@ Class Environment
 - `->`[`setGlobal()`](#method-setglobal)
 
 ---
+# Статичные Методы
+
+<a name="method-current"></a>
+
+### current()
+```php
+Environment::current(): Environment
+```
+Взять окружение текущего выполнения
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -288,5 +299,3 @@ hasGlobal(string $name): bool
 ```php
 setGlobal(string $name, mixed $value): void
 ```
-
----

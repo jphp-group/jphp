@@ -29,6 +29,16 @@ Class ResourceStream
 - `->`[`toExternalForm()`](#method-toexternalform)
 
 ---
+# Static Methods
+
+<a name="method-getresources"></a>
+
+### getResources()
+```php
+ResourceStream::getResources(string $name): ResourceStream[]
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -109,5 +119,3 @@ close(): mixed
 ```php
 toExternalForm(): string
 ```
-
----

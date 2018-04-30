@@ -103,5 +103,3 @@ addConstant(string $name): bool
 ```php
 addConstants(array $names): bool
 ```
-
----

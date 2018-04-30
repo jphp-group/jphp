@@ -144,5 +144,3 @@ save(string|Stream $out, string $encoding): void
 ```php
 toArray(): array
 ```
-
----

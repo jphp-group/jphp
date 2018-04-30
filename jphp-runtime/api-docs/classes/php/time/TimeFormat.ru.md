@@ -54,5 +54,3 @@ parse(string $string, php\time\TimeZone $timeZone): Time|null
 __clone(): void
 ```
 Class is immutable, the disallowed clone method
-
----

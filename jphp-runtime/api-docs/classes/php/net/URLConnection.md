@@ -60,6 +60,58 @@ or if the content length is greater than Integer.MAX_VALUE._
 - `->`[`setChunkedStreamingMode()`](#method-setchunkedstreamingmode) - _This method is used to enable streaming of a HTTP request body_
 
 ---
+# Static Methods
+
+<a name="method-guesscontenttypefromstream"></a>
+
+### guessContentTypeFromStream()
+```php
+URLConnection::guessContentTypeFromStream(php\io\Stream $stream): string
+```
+Tries to determine the type of an input stream based on the
+characters at the beginning of the input stream. This method can
+be used by subclasses that override the
+<code>getContentType</code> method.
+
+---
+
+<a name="method-guesscontenttypefromname"></a>
+
+### guessContentTypeFromName()
+```php
+URLConnection::guessContentTypeFromName(string $name): string
+```
+
+---
+
+<a name="method-create"></a>
+
+### create()
+```php
+URLConnection::create(string $url, php\net\Proxy $proxy): URLConnection
+```
+
+---
+
+<a name="method-enablesslverificationforhttps"></a>
+
+### enableSSLVerificationForHttps()
+```php
+URLConnection::enableSSLVerificationForHttps(): void
+```
+Enable checking ssl for https
+
+---
+
+<a name="method-disablesslverificationforhttps"></a>
+
+### disableSSLVerificationForHttps()
+```php
+URLConnection::disableSSLVerificationForHttps(): void
+```
+Disable checking ssl for https
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -178,5 +230,3 @@ without internal buffering, when the content length is <b>not</b>
 known in advance. In this mode, chunked transfer encoding
 is used to send the request body. Note, not all HTTP servers
 support this mode.
-
----

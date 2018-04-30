@@ -37,7 +37,7 @@ get(php\lang\JavaObject $object): mixed
 
 ### set()
 ```php
-set(php\lang\JavaObject $object,  $value): void
+set(php\lang\JavaObject $object, mixed $value): void
 ```
 
 ---
@@ -129,5 +129,3 @@ getName(): string
 ```php
 getDeclaringClass(): JavaClass
 ```
-
----

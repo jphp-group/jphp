@@ -61,6 +61,56 @@ Class Flow, Immutable
 - `->`[`__clone()`](#method-__clone) - _Class is immutable, the disallowed clone method_
 
 ---
+# Static Methods
+
+<a name="method-ofempty"></a>
+
+### ofEmpty()
+```php
+Flow::ofEmpty(): php\util\Flow
+```
+
+---
+
+<a name="method-of"></a>
+
+### of()
+```php
+Flow::of(iterable $collection): php\util\Flow
+```
+Creates a new flow for an array of Iterator
+
+---
+
+<a name="method-ofrange"></a>
+
+### ofRange()
+```php
+Flow::ofRange(int $from, int $to, int $step): php\util\Flow
+```
+Creates a new flow for a number range
+
+---
+
+<a name="method-ofstring"></a>
+
+### ofString()
+```php
+Flow::ofString(string $string, int $chunkSize): php\util\Flow
+```
+Creates a new flow for the string
+
+---
+
+<a name="method-ofstream"></a>
+
+### ofStream()
+```php
+Flow::ofStream(php\io\Stream $stream, int $chunkSize): php\util\Flow
+```
+Creates a new flow for the Stream object
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -129,7 +179,7 @@ when $filter will return the first ``true``
 
 ### findValue()
 ```php
-findValue( $value, bool $strict): int|null|string
+findValue(mixed $value, bool $strict): int|null|string
 ```
 
 ---
@@ -409,5 +459,3 @@ rewind(): void
 __clone(): void
 ```
 Class is immutable, the disallowed clone method
-
----

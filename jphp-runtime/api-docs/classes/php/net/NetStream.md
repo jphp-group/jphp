@@ -34,7 +34,7 @@ Class NetStream
 
 ### read()
 ```php
-read( $length): void
+read(mixed $length): void
 ```
 {@inheritdoc}
 
@@ -62,7 +62,7 @@ readFullyWithCallback(int $bufferSize, callable $callback): void
 
 ### write()
 ```php
-write( $value,  $length): void
+write(mixed $value, mixed $length): void
 ```
 {@inheritdoc}
 
@@ -82,7 +82,7 @@ eof(): void
 
 ### seek()
 ```php
-seek( $position): void
+seek(mixed $position): void
 ```
 {@inheritdoc}
 
@@ -141,5 +141,3 @@ getProxy(): Proxy
 ```php
 getUrlConnection(): URLConnection
 ```
-
----

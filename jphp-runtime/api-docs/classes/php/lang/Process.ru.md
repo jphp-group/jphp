@@ -139,7 +139,7 @@ inheritIO(): php\lang\Process
 
 ### redirectOutputToFile()
 ```php
-redirectOutputToFile( $file): php\lang\Process
+redirectOutputToFile(mixed $file): php\lang\Process
 ```
 
 ---
@@ -166,7 +166,7 @@ redirectOutputToPipe(): php\lang\Process
 
 ### redirectErrorToFile()
 ```php
-redirectErrorToFile( $file): php\lang\Process
+redirectErrorToFile(mixed $file): php\lang\Process
 ```
 
 ---
@@ -193,7 +193,7 @@ redirectErrorToPipe(): php\lang\Process
 
 ### redirectInputFromFile()
 ```php
-redirectInputFromFile( $file): php\lang\Process
+redirectInputFromFile(mixed $file): php\lang\Process
 ```
 
 ---
@@ -236,5 +236,3 @@ waitFor(): int
 Causes the current thread to wait, if necessary, until the
 process represented by this {@code Process} object has
 terminated.
-
----

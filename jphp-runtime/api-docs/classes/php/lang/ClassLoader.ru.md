@@ -43,5 +43,3 @@ register(): void
 ```php
 unregister(): void
 ```
-
----

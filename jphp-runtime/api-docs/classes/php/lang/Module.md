@@ -28,6 +28,16 @@ Class Module
 - `->`[`getConstants()`](#method-getconstants)
 
 ---
+# Static Methods
+
+<a name="method-package"></a>
+
+### package()
+```php
+Module::package(string $name, array $classes): void
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -102,5 +112,3 @@ getFunctions(): \ReflectionFunction
 ```php
 getConstants(): array
 ```
-
----

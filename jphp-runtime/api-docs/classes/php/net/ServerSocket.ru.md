@@ -31,6 +31,25 @@ Class SocketServer
 - `->`[`setPerformancePreferences()`](#method-setperformancepreferences) - _Sets performance preferences for this ServerSocket._
 
 ---
+# Статичные Методы
+
+<a name="method-findavailablelocalport"></a>
+
+### findAvailableLocalPort()
+```php
+ServerSocket::findAvailableLocalPort(): int
+```
+
+---
+
+<a name="method-isavailablelocalport"></a>
+
+### isAvailableLocalPort()
+```php
+ServerSocket::isAvailableLocalPort(int $port): bool
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -127,5 +146,3 @@ setPerformancePreferences(int $connectTime, int $latency, int $bandWidth): void
 Sets performance preferences for this ServerSocket.
 
 ! Not implemented yet for TCP/IP
-
----

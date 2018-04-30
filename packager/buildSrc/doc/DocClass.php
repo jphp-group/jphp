@@ -184,18 +184,37 @@ class DocClass
             }
         }
 
+        if ($staticMethods) {
+            $result[] = "";
+            $result[] = "---";
+            $result[] = "# {$this->index->translate('class.static-method.title')}";
+            $result[] = "";
+
+            foreach ($staticMethods as $i => $method) {
+                arr::push($result, ...$this->renderMethod($method));
+
+                if ($i !== sizeof($staticMethods) - 1) {
+                    $result[] = "";
+                    $result[] = "---";
+                    $result[] = "";
+                }
+            }
+        }
+
         if ($methods) {
             $result[] = "";
             $result[] = "---";
             $result[] = "# {$this->index->translate('class.method.title')}";
             $result[] = "";
 
-            foreach ($methods as $method) {
+            foreach ($methods as $i => $method) {
                 arr::push($result, ...$this->renderMethod($method));
 
-                $result[] = "";
-                $result[] = "---";
-                $result[] = "";
+                if ($i !== sizeof($methods) - 1) {
+                    $result[] = "";
+                    $result[] = "---";
+                    $result[] = "";
+                }
             }
         }
 
@@ -287,6 +306,8 @@ class DocClass
                 $prefix = str::lower($arg->hintType);
             }
 
+            if (!$prefix) $prefix = 'mixed';
+
             $result = "$prefix \${$arg->name}";
 
             if ($arg->optional && !$optionalExists) {
@@ -312,7 +333,12 @@ class DocClass
             $return = str::lower($method->returnTypeHint);
         }
 
-        $result[] = "{$method->name}($args): $return";
+        if ($method->static) {
+            $result[] = "{$method->classRecord->shortName}::{$method->name}($args): $return";
+        } else {
+            $result[] = "{$method->name}($args): $return";
+        }
+
         $result[] = "```";
 
         $desc = Annotations::getContent($method->comment, $this->lang);

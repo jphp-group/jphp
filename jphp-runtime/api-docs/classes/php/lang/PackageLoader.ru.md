@@ -42,5 +42,3 @@ Register package in current env.
 unregister(): void
 ```
 Unregister package in current env.
-
----

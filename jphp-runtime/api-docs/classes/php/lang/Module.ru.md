@@ -28,6 +28,16 @@ Class Module
 - `->`[`getConstants()`](#method-getconstants)
 
 ---
+# Статичные Методы
+
+<a name="method-package"></a>
+
+### package()
+```php
+Module::package(string $name, array $classes): void
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -102,5 +112,3 @@ getFunctions(): \ReflectionFunction
 ```php
 getConstants(): array
 ```
-
----

@@ -24,5 +24,3 @@ Class SharedMemory
 synchronize(callable $callback): mixed
 ```
 You can use a shared value as a mutex
-
----

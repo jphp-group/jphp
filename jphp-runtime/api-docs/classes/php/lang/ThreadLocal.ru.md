@@ -55,5 +55,3 @@ set(mixed $value): void
 remove(): void
 ```
 Remove value.
-
----

@@ -180,5 +180,3 @@ getParameterTypes(): JavaClass[]
 ```php
 getParameterCount(): int
 ```
-
----

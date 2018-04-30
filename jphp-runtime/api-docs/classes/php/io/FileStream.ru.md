@@ -113,5 +113,3 @@ getFilePointer(): int
 ```php
 truncate(int $size): void
 ```
-
----

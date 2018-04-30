@@ -31,6 +31,16 @@
 - `->`[`isDynamicCall()`](#method-isdynamiccall) - _Проверяет - является ли это динамичным вызовом_
 
 ---
+# Статичные Методы
+
+<a name="method-of"></a>
+
+### of()
+```php
+Invoker::of(mixed|callable $callback): Invoker|null
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -139,5 +149,3 @@ isStaticCall(): bool
 isDynamicCall(): bool
 ```
 Проверяет - является ли это динамичным вызовом
-
----

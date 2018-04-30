@@ -98,5 +98,3 @@ Print jvm stack trace
 ```php
 getErrno(): void
 ```
-
----

@@ -43,5 +43,3 @@ address(): string
 ```php
 type(): string
 ```
-
----

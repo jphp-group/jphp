@@ -40,6 +40,52 @@ Class NetAddress
 - `->`[`isMCOrgLocal()`](#method-ismcorglocal)
 
 ---
+# Static Methods
+
+<a name="method-getallbyname"></a>
+
+### getAllByName()
+```php
+NetAddress::getAllByName(string $host): NetAddress[]
+```
+
+---
+
+<a name="method-getbyaddress"></a>
+
+### getByAddress()
+```php
+NetAddress::getByAddress(int[] $address): NetAddress
+```
+
+---
+
+<a name="method-getloopbackaddress"></a>
+
+### getLoopbackAddress()
+```php
+NetAddress::getLoopbackAddress(): NetAddress
+```
+Returns the loopback address.
+
+The NetAddress returned will represent the IPv4
+loopback address, 127.0.0.1, or the IPv6 loopback
+address, ::1. The IPv4 loopback address returned
+is only one of many in the form 127.*.*.*
+
+---
+
+<a name="method-getlocalhost"></a>
+
+### getLocalHost()
+```php
+NetAddress::getLocalHost(): NetAddress
+```
+Returns the address of the local host. This is achieved by retrieving
+the name of the host from the system, then resolving that name into
+an NetAddress.
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -208,5 +254,3 @@ isMCSiteLocal(): bool
 ```php
 isMCOrgLocal(): bool
 ```
-
----

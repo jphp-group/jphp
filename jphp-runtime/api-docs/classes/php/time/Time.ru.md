@@ -49,6 +49,83 @@ Class Time, Immutable
 - `->`[`__clone()`](#method-__clone) - _Class is immutable, the disallowed clone method_
 
 ---
+# Статичные Методы
+
+<a name="method-now"></a>
+
+### now()
+```php
+Time::now(php\time\TimeZone $timeZone, php\util\Locale $locale): Time
+```
+Returns now time object (date + time)
+
+---
+
+<a name="method-today"></a>
+
+### today()
+```php
+Time::today(php\time\TimeZone $timeZone, php\util\Locale $locale): Time
+```
+Returns today date (without time)
+
+---
+
+<a name="method-of"></a>
+
+### of()
+```php
+Time::of(array $args, php\time\TimeZone $timeZone, php\util\Locale $locale): Time
+```
+Create a new time by using the $args arrays that can contain the ``sec``, ``min``, ``hour`` and other keys::
+
+$time = Time::of(['year' => 2013, 'month' => 1, 'day' => 1]) // 01 Jan 2013
+
+---
+
+<a name="method-seconds"></a>
+
+### seconds()
+```php
+Time::seconds(): int
+```
+Returns the current time in seconds (like the ``millis()`` method only in seconds)
+
+---
+
+<a name="method-millis"></a>
+
+### millis()
+```php
+Time::millis(): int
+```
+Returns the current time in milliseconds.  Note that
+while the unit of time of the return value is a millisecond,
+the granularity of the value depends on the underlying
+operating system and may be larger.  For example, many
+operating systems measure time in units of tens of
+milliseconds.
+
+---
+
+<a name="method-nanos"></a>
+
+### nanos()
+```php
+Time::nanos(): int
+```
+Returns the current value of the running Java Virtual Machine's
+high-resolution time source, in nanoseconds.
+
+This method can only be used to measure elapsed time and is
+not related to any other notion of system or wall-clock time.
+The value returned represents nanoseconds since some fixed but
+arbitrary *origin* time (perhaps in the future, so values
+may be negative).  The same origin is used by all invocations of
+this method in an instance of a Java virtual machine; other
+virtual machine instances are likely to use a different origin
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -318,5 +395,3 @@ Format the time to yyyy-MM-dd'T'HH:mm:ss
 __clone(): void
 ```
 Class is immutable, the disallowed clone method
-
----

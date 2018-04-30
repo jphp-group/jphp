@@ -103,5 +103,3 @@ length(): int
 ```php
 flush(): void
 ```
-
----

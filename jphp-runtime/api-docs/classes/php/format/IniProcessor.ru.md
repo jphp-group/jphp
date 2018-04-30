@@ -23,7 +23,7 @@ Class IniProcessor
 
 ### format()
 ```php
-format( $value): string
+format(mixed $value): string
 ```
 
 ---
@@ -32,7 +32,7 @@ format( $value): string
 
 ### formatTo()
 ```php
-formatTo( $value, php\io\Stream $output): mixed
+formatTo(mixed $value, php\io\Stream $output): mixed
 ```
 
 ---
@@ -43,5 +43,3 @@ formatTo( $value, php\io\Stream $output): mixed
 ```php
 parse(string|Stream $source): mixed
 ```
-
----

@@ -25,6 +25,37 @@ Class Shared
 - `->`[`__construct()`](#method-__construct)
 
 ---
+# Статичные Методы
+
+<a name="method-value"></a>
+
+### value()
+```php
+Shared::value(string $name, callable $creator): SharedValue
+```
+Get or create if does not exist and get a shared value
+
+---
+
+<a name="method-reset"></a>
+
+### reset()
+```php
+Shared::reset(String $name): SharedValue
+```
+Removes the value by $name.
+
+---
+
+<a name="method-resetall"></a>
+
+### resetAll()
+```php
+Shared::resetAll(): void
+```
+Removes the all shared memory values.
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -33,5 +64,3 @@ Class Shared
 ```php
 __construct(): void
 ```
-
----

@@ -225,5 +225,3 @@ Iterator of the scanner can be used only one time
 __clone(): void
 ```
 The scanner cannot be cloned
-
----

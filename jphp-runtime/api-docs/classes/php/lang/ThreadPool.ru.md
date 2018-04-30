@@ -36,6 +36,55 @@ Class ThreadPool
 - `->`[`getTaskCount()`](#method-gettaskcount) - _Returns the approximate total number of tasks that have ever been_
 
 ---
+# Статичные Методы
+
+<a name="method-create"></a>
+
+### create()
+```php
+ThreadPool::create(int $coreSize, int $maxSize, int $keepAliveTime): ThreadPool
+```
+
+---
+
+<a name="method-createfixed"></a>
+
+### createFixed()
+```php
+ThreadPool::createFixed(int $max): ThreadPool
+```
+
+---
+
+<a name="method-createcached"></a>
+
+### createCached()
+```php
+ThreadPool::createCached(): ThreadPool
+```
+
+---
+
+<a name="method-createsingle"></a>
+
+### createSingle()
+```php
+ThreadPool::createSingle(): ThreadPool
+```
+Создает Executor, который будет все обрабатывать в один поток
+
+---
+
+<a name="method-createscheduled"></a>
+
+### createScheduled()
+```php
+ThreadPool::createScheduled(int $corePoolSize): ThreadPool
+```
+Создает пулл потоков, который сможет планировать задания к запуску
+после определенной задержки или для переодического их запуска.
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -159,5 +208,3 @@ Returns the approximate total number of tasks that have ever been
 scheduled for execution. Because the states of tasks and
 threads may change dynamically during computation, the returned
 value is only an approximation.
-
----

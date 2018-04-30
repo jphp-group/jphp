@@ -104,5 +104,3 @@ Remove all items.
 ```php
 isEmpty(): bool
 ```
-
----

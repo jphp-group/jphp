@@ -33,7 +33,7 @@ Class ThreadGroup
 
 ### __construct()
 ```php
-__construct( $name, php\lang\ThreadGroup $parent): void
+__construct(mixed $name, php\lang\ThreadGroup $parent): void
 ```
 
 ---
@@ -147,5 +147,3 @@ modify this thread group.
 interrupt(): void
 ```
 Interrupts all threads in this thread group.
-
----

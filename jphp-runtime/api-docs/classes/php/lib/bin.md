@@ -22,6 +22,16 @@ Class bin
 - `->`[`__construct()`](#method-__construct)
 
 ---
+# Static Methods
+
+<a name="method-of"></a>
+
+### of()
+```php
+bin::of(string|array $string): string
+```
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -30,5 +40,3 @@ Class bin
 ```php
 __construct(): void
 ```
-
----

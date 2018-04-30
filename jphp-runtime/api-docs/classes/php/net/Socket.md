@@ -317,5 +317,3 @@ sendUrgentData(int $data): void
 ```
 Send one byte of urgent data on the socket. The byte to be sent is the lowest eight
 bits of the data parameter.
-
----

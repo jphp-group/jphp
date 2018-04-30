@@ -62,6 +62,75 @@ Class Regex, Immutable
 - `->`[`__clone()`](#method-__clone) - _Class is immutable, the disallowed clone method_
 
 ---
+# Static Methods
+
+<a name="method-of"></a>
+
+### of()
+```php
+Regex::of(string $pattern, int|string $flag, string $string): Regex
+```
+Creates a new Regex of regex with $string and $flag
+
+---
+
+<a name="method-match"></a>
+
+### match()
+```php
+Regex::match(string $pattern, string $string, int|string $flags): bool
+```
+Tells whether or not this string matches the given regular expression.
+See also java.lang.String.matches()
+
+---
+
+<a name="method-split"></a>
+
+### split()
+```php
+Regex::split(string $pattern, string $string, int $limit): array
+```
+Splits this string around matches of the given regular expression.
+See also java.lang.String.split()
+
+---
+
+<a name="method-quote"></a>
+
+### quote()
+```php
+Regex::quote(string $string): string
+```
+Returns a literal pattern ``String`` for the specified
+``String``.
+
+
+This method produces a ``String`` that can be used to
+create a ``Regex`` that would match the string
+``$string`` as if it were a literal pattern. Metacharacters
+or escape sequences in the input sequence will be given no special
+meaning.
+
+---
+
+<a name="method-quotereplacement"></a>
+
+### quoteReplacement()
+```php
+Regex::quoteReplacement(string $string): string
+```
+Returns a literal replacement ``String`` for the specified
+``String``.
+
+This method produces a ``String`` that will work
+as a literal replacement $string in the
+replaceWithCallback() method of the ``php\util\Regex`` class.
+The ``String`` produced will match the sequence of characters
+in $string treated as a literal sequence. Slashes ('\') and
+dollar signs ('$') will be given no special meaning.
+
+---
 # Methods
 
 <a name="method-__construct"></a>
@@ -449,5 +518,3 @@ rewind(): void
 __clone(): void
 ```
 Class is immutable, the disallowed clone method
-
----

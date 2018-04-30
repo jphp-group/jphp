@@ -29,6 +29,43 @@ Class Promise
 - `->`[`wait()`](#method-wait) - _Stops execution until this promise is resolved._
 
 ---
+# Статичные Методы
+
+<a name="method-resolve"></a>
+
+### resolve()
+```php
+Promise::resolve(mixed $result): php\concurrent\Promise
+```
+
+---
+
+<a name="method-reject"></a>
+
+### reject()
+```php
+Promise::reject(Throwable $error): php\concurrent\Promise
+```
+
+---
+
+<a name="method-race"></a>
+
+### race()
+```php
+Promise::race(Promise[]|iterable $promises): php\concurrent\Promise
+```
+
+---
+
+<a name="method-all"></a>
+
+### all()
+```php
+Promise::all(Promise[]|iterable $promises): php\concurrent\Promise
+```
+
+---
 # Методы
 
 <a name="method-__construct"></a>
@@ -45,7 +82,7 @@ Promise constructor.
 
 ### makeFulfill()
 ```php
-makeFulfill( $result): void
+makeFulfill(mixed $result): void
 ```
 
 ---
@@ -84,5 +121,3 @@ catch([ callable|null $onRejected): php\concurrent\Promise
 wait(): mixed
 ```
 Stops execution until this promise is resolved.
-
----

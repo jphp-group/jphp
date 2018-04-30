@@ -63,5 +63,3 @@ cancel(bool $mayInterruptIfRunning): bool
 ```php
 get(null|int $timeout): mixed
 ```
-
----

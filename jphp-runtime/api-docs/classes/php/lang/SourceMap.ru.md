@@ -94,5 +94,3 @@ Remove all lines.
 ```php
 toArray(): array
 ```
-
----
