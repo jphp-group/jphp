@@ -2,7 +2,8 @@
 namespace php\gui\animation;
 
 /**
- * Class UXAnimation
+ * Abstract animation class.
+ *
  * @package php\gui\animation
  *
  * @packages gui, javafx

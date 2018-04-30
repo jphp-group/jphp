@@ -8,6 +8,7 @@ use packager\Package;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use phpx\parser\ArgumentRecord;
 use phpx\parser\ClassRecord;
 use phpx\parser\MethodRecord;
 use phpx\parser\PropertyRecord;
@@ -40,6 +41,11 @@ class DocClass
     private $srcFile;
 
     /**
+     * @var array
+     */
+    private $excludeMethods = [];
+
+    /**
      * DocClass constructor.
      * @param DocIndex $index
      * @param ClassRecord $class
@@ -51,6 +57,14 @@ class DocClass
         $this->class = $class;
         $this->index = $index;
         $this->lang = $lang;
+    }
+
+    /**
+     * @param array $excludeMethods
+     */
+    public function setExcludeMethods(array $excludeMethods)
+    {
+        $this->excludeMethods = $excludeMethods;
     }
 
     /**
@@ -86,12 +100,12 @@ class DocClass
             ""
         ];
 
-        $line = "- **class** `{$class->shortName}` (`$class->name`)";
+        $line = "- **{$this->index->translate('common.class')}** `{$class->shortName}` (`$class->name`)";
         if ($class->parent) {
             if ($this->index->hasClass($class->parent)) {
-                $line .= " **extends** [`{$class->parent->shortName}`]({$this->index->classLink($class->parent)})";
+                $line .= " **{$this->index->translate('common.extends')}** [`{$class->parent->shortName}`]({$this->index->classLink($class->parent)})";
             } else {
-                $line .= " **extends** `{$class->parent->shortName}` (`{$class->parent->name}`)";
+                $line .= " **{$this->index->translate('common.extends')}** `{$class->parent->shortName}` (`{$class->parent->name}`)";
             }
         }
 
@@ -101,14 +115,14 @@ class DocClass
         $packages = flow($packages)->map([str::class, 'trim'])->toArray();
 
         if ($packages) {
-            $result[] = "- **package** `" . arr::first($packages) . "`";
+            $result[] = "- **{$this->index->translate('common.package')}** `" . arr::first($packages) . "`";
         }
 
         if ($this->srcFile) {
             if ($this->file) {
-                $result[] = "- **source** [`$this->srcFile`]($this->file)";
+                $result[] = "- **{$this->index->translate('common.source')}** [`$this->srcFile`]($this->file)";
             } else {
-                $result[] = "- **source** `$this->srcFile`";
+                $result[] = "- **{$this->index->translate('common.source')}** `$this->srcFile`";
             }
         }
 
@@ -117,7 +131,7 @@ class DocClass
         $description = Annotations::getContent($class->comment, $this->lang);
 
         if ($description !== "") {
-            $result[] = "**Description**";
+            $result[] = "**{$this->index->translate('class.description.title')}**";
             $result[] = "";
             $result[] = $description;
         }
@@ -127,7 +141,7 @@ class DocClass
             $result[] = "";
             $result[] = "---";
             $result[] = "";
-            $result[] = "#### Properties";
+            $result[] = "#### {$this->index->translate('class.properties.title')}";
             $result[] = "";
 
             foreach ($properties as $property) {
@@ -135,13 +149,16 @@ class DocClass
             }
         }
 
-        $staticMethods = flow($class->getMethods())->find(function ($m) { return $m->static; })->toArray();
+        $staticMethods = flow($class->getMethods())
+            ->find(function ($m) { return $m->static; })
+            ->find(function ($m) { return !arr::has($this->excludeMethods, $m->name); })
+            ->toArray();
 
         if ($staticMethods) {
             $result[] = "";
             $result[] = "---";
             $result[] = "";
-            $result[] = "#### Static Methods";
+            $result[] = "#### {$this->index->translate('class.static-method.title')}";
             $result[] = "";
 
             foreach ($staticMethods as $method) {
@@ -149,18 +166,36 @@ class DocClass
             }
         }
 
-        $methods = flow($class->getMethods())->find(function ($m) { return !$m->static; })->toArray();
+        $methods = flow($class->getMethods())
+            ->find(function ($m) { return !$m->static; })
+            ->find(function ($m) { return !arr::has($this->excludeMethods, $m->name); })
+            ->toArray();
 
         if ($methods) {
             $result[] = "";
             $result[] = "---";
             $result[] = "";
-            $result[] = "#### Methods";
+            $result[] = "#### {$this->index->translate('class.method.title')}";
             $result[] = "";
 
 
             foreach ($methods as $method) {
                 $result[] = $this->renderMethodLine($method);
+            }
+        }
+
+        if ($methods) {
+            $result[] = "";
+            $result[] = "---";
+            $result[] = "# {$this->index->translate('class.method.title')}";
+            $result[] = "";
+
+            foreach ($methods as $method) {
+                arr::push($result, ...$this->renderMethod($method));
+
+                $result[] = "";
+                $result[] = "---";
+                $result[] = "";
             }
         }
 
@@ -201,15 +236,90 @@ class DocClass
         $line .= "[`{$method->name}()`]({$anchor})";
 
         if ($deprecated) {
-            $line .= " **deprecated**";
+            $line .= " **{$this->index->translate('common.deprecated')}**";
         }
 
-        $desc = Annotations::getContent($method->comment, $this->lang);
+        $desc = str::lines(Annotations::getContent($method->comment, $this->lang), true)[0];
 
         if ($desc) {
             $line .= " - _{$desc}_";
         }
 
         return $line;
+    }
+
+    public function renderMethod(MethodRecord $method): array
+    {
+        $result = [];
+
+        $anchor = "method-" . str::lower($method->name);
+
+        $result[] = "<a name=\"$anchor\"></a>";
+        $result[] = "";
+        $result[] = "### {$method->name}()";
+        $result[] = "```php";
+
+        $optionalExists = false;
+
+        $_paramsAnn = Annotations::get('param', $method->comment, []);
+
+        $paramsAnn = [];
+
+        foreach ($_paramsAnn as $one) {
+            [$prmType, $prmName, $prmDesc] = str::split($one, ' ', 3);
+
+            $prmType = str::trim($prmType);
+            $prmName = str::trim($prmName);
+
+            if ($prmName[0] === '$') $prmName = str::sub($prmName, 1);
+
+            $paramsAnn[$prmName] = $prmType;
+        }
+
+        $args = flow($method->argumentRecords)->map(function (ArgumentRecord $arg, $i) use (&$optionalExists, $method, $paramsAnn) {
+            $prefix = "mixed";
+
+            if ($arg->hintTypeClass) {
+                $prefix = "$arg->hintTypeClass";
+            } else if ($paramsAnn[$arg->name]) {
+                $prefix = $paramsAnn[$arg->name];
+            } else if ($arg->hintType !== 'ANY') {
+                $prefix = str::lower($arg->hintType);
+            }
+
+            $result = "$prefix \${$arg->name}";
+
+            if ($arg->optional && !$optionalExists) {
+                $result = "[ $result";
+                $optionalExists = true;
+            } elseif ($arg->optional && $i == sizeof($method->argumentRecords) - 1) {
+                $result = "$result ]";
+            }
+
+            return $result;
+        })->toString(", ");
+
+
+        [$returnAnnType, $returnAnnDesc] = str::split(Annotations::get('return', $method->comment), ' ', 2);
+
+        $return = "void";
+
+        if ($method->returnTypeHintClass) {
+            $return = "$method->returnTypeHintClass";
+        } else if ($returnAnnType) {
+            $return = str::trim($returnAnnType);
+        } elseif ($method->returnTypeHint) {
+            $return = str::lower($method->returnTypeHint);
+        }
+
+        $result[] = "{$method->name}($args): $return";
+        $result[] = "```";
+
+        $desc = Annotations::getContent($method->comment, $this->lang);
+        if ($desc) {
+            $result[] = "$desc";
+        }
+
+        return $result;
     }
 }

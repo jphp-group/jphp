@@ -1,5 +1,5 @@
 name: jppm
-version: 0.1.15
+version: 0.1.16
 
 plugins:
 - GitHub
@@ -12,7 +12,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + New `includes` section for auto-include source files.
+    + Ned Doc plugin for generating api-docs from php sdk and sources.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

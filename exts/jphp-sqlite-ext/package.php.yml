@@ -1,11 +1,10 @@
 
-name: jphp-core
+name: jphp-sqlite-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
+description: Library for working with SQLite database.
 
 deps:
-  jphp-runtime: '>=1.0.0'
-
+  jphp-sql-ext: '>=%version%'
 
 plugins:
 - Doc

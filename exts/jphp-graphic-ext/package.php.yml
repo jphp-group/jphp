@@ -1,11 +1,7 @@
 
-name: jphp-core
+name: jphp-graphic-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
-
-deps:
-  jphp-runtime: '>=1.0.0'
-
+description: Graphic library like GD in zend php.
 
 plugins:
 - Doc

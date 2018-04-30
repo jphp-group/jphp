@@ -1,13 +1,13 @@
 
-name: jphp-httpserver-ext
+name: jphp-json-ext
 version: 1.0.0
+description: Parse and format JSON.
 
 plugins:
 - Doc
 
-
 doc:
-  stub-dirs: ['./src-php']
+  stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 
 config:

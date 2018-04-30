@@ -1,13 +1,13 @@
 
-name: jphp-httpserver-ext
+name: jphp-xml-ext
 version: 1.0.0
+description: Library for working XML format.
 
 plugins:
 - Doc
 
-
 doc:
-  stub-dirs: ['./src-php']
+  stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 
 config:

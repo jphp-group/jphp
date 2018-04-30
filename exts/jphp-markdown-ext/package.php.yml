@@ -1,11 +1,7 @@
 
-name: jphp-core
+name: jphp-markdown-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
-
-deps:
-  jphp-runtime: '>=1.0.0'
-
+description: Library for convert markdown to HTML.
 
 plugins:
 - Doc

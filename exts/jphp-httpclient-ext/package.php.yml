@@ -1,10 +1,13 @@
 
-name: jphp-httpserver-ext
+name: jphp-httpclient-ext
 version: 1.0.0
+description: Http Client library.
 
 plugins:
 - Doc
 
+sources:
+- src-php
 
 doc:
   stub-dirs: ['./src-php']

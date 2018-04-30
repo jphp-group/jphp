@@ -1,3 +1,7 @@
+ext {
+    useDocBuild = true
+}
+
 dependencies {
     provided project(":jphp-runtime")
 

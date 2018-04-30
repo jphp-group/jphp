@@ -4,6 +4,9 @@ common.function: function
 common.final: final
 common.asbtract: abstract
 common.package: package
+common.extends: extends
+common.source: source
+common.depricated: depricated
 
 class.description.title: Description
 class.classes.title: Classes
@@ -13,8 +16,6 @@ class.properties.title: Properties
 class.see-parent-class: Also the parent class
 class.property.readonly: Read Only
 
-common.class: class
-
 index.install.title: Install
 index.api.title: API
-index.api.title: API
+index.description: 'version {0}, created by JPPM v{1}'

@@ -28,48 +28,67 @@ def jppmDist(Project project) {
 
     packageFile.parentFile.mkdirs()
 
-    if (!packageFile.isFile()) {
-        packageFile.createNewFile()
-    }
-
-    def name = project.name
-
-    if (name.startsWith("exts/")) {
-        name = name.substring(5)
-    }
-
-    def jppmVersion = version.toString().replace("-SNAPSHOT", "+SNAPSHOT");
-
-    def text = "name: '$name'\nversion: $jppmVersion\n"
-    def jars = []
-
-    def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency) + project.configurations.jppmCompile.getAllDependencies().withType(ProjectDependency)
-
-    if (!deps.empty) {
-        text += "deps:\n"
-        def ver = version.toString().split("\\-")[0];
-        ver = ver.split("\\+")[0];
-
-        deps.each {
-            text += "  ${file(it.name).name}: '>=$ver'\n"
-
-            delete "$jarsDir/${file(it.name).name}-${version}.jar"
+    if (new File(project.projectDir.path + "/package.php.yml").isFile()) {
+        copy {
+            from project.projectDir.path + "/package.php.yml"
+            into packageFile.parentFile.path
         }
-    }
 
-    //text += "\ndeps:\n" + deps.join(": $project.version\n") + "\n";
+        def jars = []
 
-    jarsDir.listFiles().each { file ->
-        if (file.name.endsWith(".jar")) {
-            jars.add(file.name)
+        jarsDir.listFiles().each { file ->
+            if (file.name.endsWith(".jar")) {
+                jars.add(file.name)
+            }
         }
-    }
 
-    if (!jars.empty) {
-        text += "\njars: ['" + jars.join("', '") + "']\n"
-    }
+        if (!jars.empty) {
+            packageFile.setText(packageFile.getText('UTF-8') + "\n\njars: ['" + jars.join("', '") + "']\n", 'UTF-8')
+        }
+    } else {
+        if (!packageFile.isFile()) {
+            packageFile.createNewFile()
+        }
 
-    packageFile.text = text;
+        def name = project.name
+
+        if (name.startsWith("exts/")) {
+            name = name.substring(5)
+        }
+
+        def jppmVersion = version.toString().replace("-SNAPSHOT", "+SNAPSHOT");
+
+        def text = "name: '$name'\nversion: $jppmVersion\n"
+        def jars = []
+
+        def deps = project.configurations.compile.getAllDependencies().withType(ProjectDependency) + project.configurations.jppmCompile.getAllDependencies().withType(ProjectDependency)
+
+        if (!deps.empty) {
+            text += "deps:\n"
+            def ver = version.toString().split("\\-")[0];
+            ver = ver.split("\\+")[0];
+
+            deps.each {
+                text += "  ${file(it.name).name}: '>=$ver'\n"
+
+                delete "$jarsDir/${file(it.name).name}-${version}.jar"
+            }
+        }
+
+        //text += "\ndeps:\n" + deps.join(": $project.version\n") + "\n";
+
+        jarsDir.listFiles().each { file ->
+            if (file.name.endsWith(".jar")) {
+                jars.add(file.name)
+            }
+        }
+
+        if (!jars.empty) {
+            text += "\njars: ['" + jars.join("', '") + "']\n"
+        }
+
+        packageFile.text = text;
+    }
 }
 
 def jppmInstall(project) {

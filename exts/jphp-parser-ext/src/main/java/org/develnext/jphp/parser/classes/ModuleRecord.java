@@ -10,6 +10,7 @@ import php.runtime.env.Environment;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -187,6 +188,13 @@ public class ModuleRecord extends AbstractSourceRecord {
         methodRecord.setStatic(token.isStatic());
         methodRecord.setAbstract(token.isAbstract());
         methodRecord.setFinal(token.isFinal());
+        methodRecord.setReturnTypeHint(token.getReturnHintType());
+        methodRecord.setReturnTypeHintClass(token.getReturnHintTypeClass() == null ? null : token.getReturnHintTypeClass().getName());
+
+        methodRecord.setArgumentRecords(new ArrayList<>(token.getArguments().size()));
+        for (ArgumentStmtToken stmtToken : token.getArguments()) {
+            methodRecord.getArgumentRecords().add(new ArgumentRecord(env, stmtToken));
+        }
 
         classRecord.addMethod(methodRecord);
     }

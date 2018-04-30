@@ -1,13 +1,13 @@
 
-name: jphp-httpserver-ext
+name: jphp-gui-systemtray-ext
 version: 1.0.0
+description: GUI System Tray.
 
 plugins:
 - Doc
 
-
 doc:
-  stub-dirs: ['./src-php']
+  stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 
 config:

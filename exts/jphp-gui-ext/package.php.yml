@@ -1,7 +1,11 @@
 
 name: jphp-gui-ext
-version: 0.9.3
+version: 1.0.0
 description: GUI based on JavaFX library.
+
+deps:
+  jphp-xml-ext: '*'
+  jphp-graphic-ext: '*'
 
 plugins:
 - Doc
@@ -9,3 +13,6 @@ plugins:
 doc:
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
+
+config:
+  ignore: ['/api-docs/**']

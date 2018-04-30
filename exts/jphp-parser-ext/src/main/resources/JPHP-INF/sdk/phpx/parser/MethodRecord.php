@@ -31,4 +31,19 @@ class MethodRecord extends AbstractSourceRecord
      * @var bool
      */
     public $abstract = false;
+
+    /**
+     * @var string
+     */
+    public $returnTypeHint = 'VOID';
+
+    /**
+     * @var string
+     */
+    public $returnTypeHintClass;
+
+    /**
+     * @var ArgumentRecord[]
+     */
+    public $argumentRecords = [];
 }

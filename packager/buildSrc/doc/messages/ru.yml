@@ -5,6 +5,10 @@ common.final: final
 common.asbtract: abstract
 common.package: пакет
 
+common.extends: унаследован от
+common.source: исходники
+common.depricated: устарело
+
 class.description.title: Описание
 class.classes.title: Классы
 class.method.title: Методы
@@ -15,3 +19,5 @@ class.property.readonly: Только для чтения
 
 index.install.title: Установка
 index.api.title: АПИ
+
+index.description: 'версия {0}, создано с помощью JPPM v{1}'

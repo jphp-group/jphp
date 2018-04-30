@@ -5,6 +5,7 @@ use doc\DocIndex;
 use packager\cli\Console;
 use packager\Event;
 use packager\Vendor;
+use php\io\IOException;
 use php\lang\Environment;
 use php\lang\Module;
 use php\lib\arr;
@@ -41,8 +42,12 @@ class DocPlugin
      */
     private $excludeClasses = [];
     private $excludeFunctions = [];
+    private $excludeMethods = [];
 
-    private $languages = [];
+    /**
+     * @var array
+     */
+    private $messages = [];
 
     /**
      * @var array
@@ -58,9 +63,18 @@ class DocPlugin
         $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);
 
         $this->excludeClasses = $event->package()->getAny('doc.exclude-classes', []);
+        $this->excludeMethods = $event->package()->getAny('doc.exclude-methods', []);
         $this->excludeFunctions = $event->package()->getAny('doc.exclude-functions', []);
 
         $this->defLang = arr::firstKey($this->langs);
+
+        foreach ($this->langs as $lang => $name) {
+            try {
+                $this->messages[$lang] = fs::parse("res://doc/messages/$lang.yml");
+            } catch (IOException $e) {
+                continue;
+            }
+        }
     }
 
     protected function parseFile($filename, string $uniqueId): SourceFile
@@ -96,6 +110,23 @@ class DocPlugin
 
             $docIndex = new DocIndex($event->package(), $this->langs, $this->defLang, $lang);
             $docIndex->setUrlPrefix($this->urlPrefix);
+            $docIndex->setTranslateFunc(function ($message, array $args = []) use ($lang) {
+                $msg = $this->messages[$lang][$message];
+
+                if (!$msg && $lang !== $this->defLang) {
+                    $msg = $this->messages[$this->defLang][$message];
+                }
+
+                if (!$msg) {
+                    return $message;
+                }
+
+                foreach ($args as $i => $arg) {
+                    $msg = str::replace($msg, "\{$i\}", $arg);
+                }
+
+                return $msg;
+            });
 
             foreach ($sources as $source) {
                 $originSource = $source;
@@ -120,6 +151,7 @@ class DocPlugin
                         $docClass = new DocClass($docIndex, $cls, $lang);
                         $docClass->setFile("$originSource/$uniqueId");
                         $docClass->setSrcFile($uniqueId);
+                        $docClass->setExcludeMethods($this->excludeMethods);
 
                         $filename = "$docDir/classes/" . str::replace($cls->name, "\\", "/");
 

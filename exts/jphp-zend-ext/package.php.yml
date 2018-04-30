@@ -1,11 +1,10 @@
 
-name: jphp-core
+name: jphp-zend-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
+description: Zend PHP legacy functions and classes.
 
 deps:
-  jphp-runtime: '>=1.0.0'
-
+  jphp-json-ext: '*'
 
 plugins:
 - Doc

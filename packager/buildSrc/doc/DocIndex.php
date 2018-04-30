@@ -44,6 +44,11 @@ class DocIndex
     private $urlPrefix = 'api-docs/';
 
     /**
+     * @var callable
+     */
+    private $translateFunc = null;
+
+    /**
      * DocIndex constructor.
      * @param Package $package
      * @param array $langs
@@ -58,6 +63,14 @@ class DocIndex
         $this->defLang = $defLang;
     }
 
+    /**
+     * @param callable $translateFunc
+     */
+    public function setTranslateFunc(callable $translateFunc)
+    {
+        $this->translateFunc = $translateFunc;
+    }
+
     function addClass(ClassRecord $class)
     {
         $this->classes[$class->name] = $class;
@@ -66,6 +79,15 @@ class DocIndex
     function hasClass(ClassRecord $class): bool
     {
         return isset($this->classes[$class->name]);
+    }
+
+    function translate($message, ...$args)
+    {
+        if ($this->translateFunc) {
+            return call_user_func_array($this->translateFunc, [$message, $args]);
+        } else {
+            return $message;
+        }
     }
 
     /**
@@ -108,25 +130,26 @@ class DocIndex
         }
 
         $result[] = "## {$this->package->getName()}";
-        $result[] = "> version {$this->package->getVersion()}, created by JPPM v" . $packager->getVersion();
+        $result[] = "> {$this->translate('index.description', $this->package->getVersion(), $packager->getVersion())}";
+        $result[] = "";
 
         if ($this->package->getDescription()) {
             $result[] = $this->package->getDescription();
         }
 
         $result[] = "";
-        $result[] = "### Install";
+        $result[] = "### {$this->translate('index.install.title')}";
         $result[] = "```";
         $result[] = "jppm add {$this->package->getNameWithVersion()}";
         $result[] = "```";
         $result[] = "";
-        $result[] = "### API";
+        $result[] = "### {$this->translate('index.api.title')}";
 
-        $result[] = "**Classes**";
+        $result[] = "**{$this->translate('class.classes.title')}**";
         foreach ($this->classes as $class) {
             $line = "- [`{$class->name}`]({$this->classLink($class)})";
 
-            $desc = Annotations::getContent($class->comment, $this->lang);
+            $desc = str::lines(Annotations::getContent($class->comment, $this->lang), true)[0];
 
             if ($desc) {
                 $line .= "- _{$desc}_";

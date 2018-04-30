@@ -1,11 +1,7 @@
 
-name: jphp-core
+name: jphp-sql-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
-
-deps:
-  jphp-runtime: '>=1.0.0'
-
+description: Basic SQL extension for any JDBC drivers.
 
 plugins:
 - Doc

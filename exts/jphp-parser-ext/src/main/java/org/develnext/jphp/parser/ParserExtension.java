@@ -21,6 +21,7 @@ public class ParserExtension extends Extension {
         registerClass(scope, ModuleRecord.class);
         registerClass(scope, PropertyRecord.class);
         registerClass(scope, UseImportRecord.class);
+        registerClass(scope, ArgumentRecord.class);
 
         registerClass(scope, SourceWriter.class);
         registerClass(scope, SourceFile.class);

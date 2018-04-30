@@ -1,11 +1,10 @@
 
-name: jphp-core
+name: jphp-pgsql-ext
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
+description: Library for working with PostgreSQL database.
 
 deps:
-  jphp-runtime: '>=1.0.0'
-
+  jphp-sql-ext: '>=%version%'
 
 plugins:
 - Doc

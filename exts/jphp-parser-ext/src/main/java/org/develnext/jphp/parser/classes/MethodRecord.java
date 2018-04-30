@@ -5,8 +5,11 @@ import org.develnext.jphp.parser.ParserExtension;
 import php.runtime.annotation.Reflection.Getter;
 import php.runtime.annotation.Reflection.Namespace;
 import php.runtime.annotation.Reflection.Setter;
+import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.reflection.ClassEntity;
+
+import java.util.List;
 
 @Namespace(ParserExtension.NS)
 public class MethodRecord extends AbstractSourceRecord<FunctionStmtToken> {
@@ -16,6 +19,9 @@ public class MethodRecord extends AbstractSourceRecord<FunctionStmtToken> {
     protected boolean isStatic;
     protected boolean isFinal;
     protected boolean isAbstract;
+    protected List<ArgumentRecord> argumentRecords;
+    protected HintType returnTypeHint;
+    protected String returnTypeHintClass;
 
     public MethodRecord(Environment env, ClassEntity clazz) {
         super(env, clazz);
@@ -81,5 +87,35 @@ public class MethodRecord extends AbstractSourceRecord<FunctionStmtToken> {
     @Setter
     public void setAbstract(boolean anAbstract) {
         isAbstract = anAbstract;
+    }
+
+    @Getter
+    public HintType getReturnTypeHint() {
+        return returnTypeHint;
+    }
+
+    @Setter
+    public void setReturnTypeHint(HintType returnTypeHint) {
+        this.returnTypeHint = returnTypeHint;
+    }
+
+    @Getter
+    public String getReturnTypeHintClass() {
+        return returnTypeHintClass;
+    }
+
+    @Setter
+    public void setReturnTypeHintClass(String returnTypeHintClass) {
+        this.returnTypeHintClass = returnTypeHintClass;
+    }
+
+    @Getter
+    public List<ArgumentRecord> getArgumentRecords() {
+        return argumentRecords;
+    }
+
+    @Setter
+    public void setArgumentRecords(List<ArgumentRecord> argumentRecords) {
+        this.argumentRecords = argumentRecords;
     }
 }

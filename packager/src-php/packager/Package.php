@@ -3,6 +3,7 @@ namespace packager;
 
 use php\io\IOException;
 use php\io\Stream;
+use php\lang\System;
 use php\lib\arr;
 use php\lib\str;
 use php\util\Regex;
@@ -53,6 +54,14 @@ class Package
 
                 $result[$key] = $r->replaceWithCallback(function (Regex $r) {
                     [$var, $def] = str::split($r->group(1), ':');
+
+                    if (str::startsWith($var, 'env.')) {
+                        return $_ENV[str::sub($var, 4)] ?? $def;
+                    }
+
+                    if (str::startsWith($var, 'sys.')) {
+                        return System::getProperty(str::sub($var, 4), $def);
+                    }
 
                     return $this->getAny($var, $def);
                 });
