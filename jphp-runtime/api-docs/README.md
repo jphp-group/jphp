@@ -14,7 +14,7 @@ jppm add jphp-runtime@1.0.0
 
 ### API
 **Classes**
-- [`php\concurrent\Future`](/api-docs/classes/php/concurrent/Future.md)- _Class Future_
+- [`php\concurrent\Future`](api-docs/classes/php/concurrent/Future.md)- _Class Future_
 - [`php\concurrent\Promise`](api-docs/classes/php/concurrent/Promise.md)- _Class Promise_
 - [`php\concurrent\TimeoutException`](api-docs/classes/php/concurrent/TimeoutException.md)- _Class TimeoutException_
 - [`php\format\IniProcessor`](api-docs/classes/php/format/IniProcessor.md)- _Class IniProcessor_
