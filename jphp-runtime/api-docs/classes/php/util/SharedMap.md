@@ -1,6 +1,6 @@
 # SharedMap
 
-- **class** `SharedMap` (`php\util\SharedMap`) **extends** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.md)
+- **class** `SharedMap` (`php\util\SharedMap`) **extends** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.md)
 - **package** `std`
 - **source** [`php/util/SharedMap.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedMap.php)
 

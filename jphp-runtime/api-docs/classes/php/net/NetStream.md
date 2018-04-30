@@ -1,6 +1,6 @@
 # NetStream
 
-- **class** `NetStream` (`php\net\NetStream`) **extends** [`Stream`](api-docs/classes/php/io/Stream.md)
+- **class** `NetStream` (`php\net\NetStream`) **extends** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 - **package** `std`
 - **source** [`php/net/NetStream.php`](./src/main/resources/JPHP-INF/sdk/php/net/NetStream.php)
 

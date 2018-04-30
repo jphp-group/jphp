@@ -1,6 +1,6 @@
 # NetStream
 
-- **класс** `NetStream` (`php\net\NetStream`) **унаследован от** [`Stream`](api-docs/classes/php/io/Stream.ru.md)
+- **класс** `NetStream` (`php\net\NetStream`) **унаследован от** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 - **пакет** `std`
 - **исходники** [`php/net/NetStream.php`](./src/main/resources/JPHP-INF/sdk/php/net/NetStream.php)
 

@@ -1,6 +1,6 @@
 # SharedStack
 
-- **class** `SharedStack` (`php\util\SharedStack`) **extends** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.md)
+- **class** `SharedStack` (`php\util\SharedStack`) **extends** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.md)
 - **package** `std`
 - **source** [`php/util/SharedStack.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedStack.php)
 

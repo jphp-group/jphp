@@ -1,6 +1,6 @@
 # binary
 
-- **class** `binary` (`php\lib\binary`) **extends** [`bin`](api-docs/classes/php/lib/bin.md)
+- **class** `binary` (`php\lib\binary`) **extends** [`bin`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/bin.md)
 - **source** [`php/lib/Binary.php`](./src/main/resources/JPHP-INF/sdk/php/lib/Binary.php)
 
 **Description**

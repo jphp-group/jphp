@@ -1,6 +1,6 @@
 # SharedStack
 
-- **класс** `SharedStack` (`php\util\SharedStack`) **унаследован от** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.ru.md)
+- **класс** `SharedStack` (`php\util\SharedStack`) **унаследован от** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 - **пакет** `std`
 - **исходники** [`php/util/SharedStack.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedStack.php)
 

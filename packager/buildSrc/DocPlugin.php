@@ -57,7 +57,7 @@ class DocPlugin
     public function __construct(Event $event)
     {
         $this->langs = $event->package()->getAny('doc.langs', ['en' => 'English']);
-        $this->urlPrefix = $event->package()->getAny('doc.url-prefix', 'api-docs/');
+        $this->urlPrefix = $event->package()->getAny('doc.url-prefix', '');
         $this->dir = $event->package()->getAny('doc.dir', './api-docs');
 
         $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);

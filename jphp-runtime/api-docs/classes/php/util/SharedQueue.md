@@ -1,6 +1,6 @@
 # SharedQueue
 
-- **class** `SharedQueue` (`php\util\SharedQueue`) **extends** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.md)
+- **class** `SharedQueue` (`php\util\SharedQueue`) **extends** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.md)
 - **package** `std`
 - **source** [`php/util/SharedQueue.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedQueue.php)
 

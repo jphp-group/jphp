@@ -1,6 +1,6 @@
 # NumberFormatException
 
-- **class** `NumberFormatException` (`php\lang\NumberFormatException`) **extends** [`JavaException`](api-docs/classes/php/lang/JavaException.md)
+- **class** `NumberFormatException` (`php\lang\NumberFormatException`) **extends** [`JavaException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaException.md)
 - **package** `std`
 - **source** [`php/lang/NumberFormatException.php`](./src/main/resources/JPHP-INF/sdk/php/lang/NumberFormatException.php)
 

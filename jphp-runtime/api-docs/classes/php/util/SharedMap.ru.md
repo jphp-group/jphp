@@ -1,6 +1,6 @@
 # SharedMap
 
-- **класс** `SharedMap` (`php\util\SharedMap`) **унаследован от** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.ru.md)
+- **класс** `SharedMap` (`php\util\SharedMap`) **унаследован от** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 - **пакет** `std`
 - **исходники** [`php/util/SharedMap.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedMap.php)
 

@@ -1,6 +1,6 @@
 # SharedQueue
 
-- **класс** `SharedQueue` (`php\util\SharedQueue`) **унаследован от** [`SharedCollection`](api-docs/classes/php/util/SharedCollection.ru.md)
+- **класс** `SharedQueue` (`php\util\SharedQueue`) **унаследован от** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 - **пакет** `std`
 - **исходники** [`php/util/SharedQueue.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedQueue.php)
 
