@@ -59,14 +59,14 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Documentation
 
-- Wiki here: [read](http://j-php.net/wiki/)
+- Wiki here: [read](http://jphp.develnext.org/wiki/)
 - You can find the latest api documentation here: http://jphp-docs.readthedocs.org/
 - To contribute to the api documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
 
 
 ### Getting started (Hello World)
 
-[http://j-php.net/wiki/Getting-started](http://j-php.net/wiki/Getting-started)
+[http://jphp.develnext.org/wiki/Getting-started](http://jphp.develnext.org/wiki/Getting-started)
 
 ### Hot to run benchmarks?
 
