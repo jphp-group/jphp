@@ -16,4 +16,3 @@ doc:
   langs: {en: English, ru: Русский}
 
 config:
-  ignore: ['/api-docs/**']

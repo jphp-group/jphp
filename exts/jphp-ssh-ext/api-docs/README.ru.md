@@ -3,7 +3,7 @@
 ---
 
 ## jphp-ssh-ext
-> версия 1.0.0, создано с помощью JPPM v0.1.17
+> версия 1.0.0, создано с помощью JPPM v0.2.0
 
 Library for working with SSH.
 

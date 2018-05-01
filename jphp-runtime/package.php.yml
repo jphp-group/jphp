@@ -11,4 +11,4 @@ doc:
   langs: {en: English, ru: Русский}
 
 config:
-  ignore: ['/api-docs/**', '/package.hub.yml']
+  ignore: ['/package.hub.yml']

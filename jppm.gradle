@@ -22,6 +22,16 @@ def jppmDist(Project project) {
         into project.buildDir.path + "/jppm/dist/"
     }
 
+    copy {
+        from project.projectDir.path + "/api-docs"
+        into project.buildDir.path + "/jppm/dist/api-docs"
+    }
+
+    copy {
+        from project.projectDir.path + "/api-docs-extra"
+        into project.buildDir.path + "/jppm/dist/api-docs-extra"
+    }
+
     if (new File(rootDir.path, "/package.hub.yml").exists()) {
         copy {
             from rootProject.rootDir.path + "/package.hub.yml"

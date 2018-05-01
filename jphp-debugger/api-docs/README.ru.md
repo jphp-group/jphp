@@ -2,14 +2,14 @@
 
 ---
 
-## jphp-zend-ext
+## jphp-debugger
 > версия 1.0.0, создано с помощью JPPM v0.2.0
 
-Zend PHP legacy functions and classes.
+XDebuger for JPHP.
 
 ### Установка
 ```
-jppm add jphp-zend-ext@1.0.0
+jppm add jphp-debugger@1.0.0
 ```
 
 ### АПИ

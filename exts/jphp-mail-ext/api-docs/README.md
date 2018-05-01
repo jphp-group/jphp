@@ -3,7 +3,7 @@
 ---
 
 ## jphp-mail-ext
-> version 1.0.0, created by JPPM v0.1.17
+> version 1.0.0, created by JPPM v0.2.0
 
 Library for sending email via SMTP servers.
 

@@ -84,7 +84,26 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
     if (new File(project.projectDir.path + "/package.php.yml").exists()) {
-        task hubPublish(type: Exec) {
+
+        /*try {
+            project.tasks.getByName('install').dependsOn += jppmPublish
+        } catch (UnknownTaskException e) {
+
+        }*/
+
+        task docBuild(type: Exec) {
+            def cmdArgs = ['jppm', 'doc:build']
+
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                cmdArgs.add(0, "/c");
+                cmdArgs.add(0, "cmd");
+            }
+
+            commandLine cmdArgs
+            workingDir = project.projectDir
+        }
+
+        task hubPublish(type: Exec, dependsOn: docBuild) {
             def cmdArgs = ['jppm', 'hub:publish', '-yes', '-force']
 
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -97,26 +116,6 @@ configure(subprojects) {
 
             doFirst {
                 jppmDist(project)
-            }
-        }
-
-        /*try {
-            project.tasks.getByName('install').dependsOn += jppmPublish
-        } catch (UnknownTaskException e) {
-
-        }*/
-
-        if (project.name != "packager") {
-            task docBuild(type: Exec) {
-                def cmdArgs = ['jppm', 'doc:build']
-
-                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                    cmdArgs.add(0, "/c");
-                    cmdArgs.add(0, "cmd");
-                }
-
-                commandLine cmdArgs
-                workingDir = project.projectDir
             }
         }
     }

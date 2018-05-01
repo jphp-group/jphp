@@ -98,6 +98,8 @@ class DocPlugin
     }
 
     /**
+     * @jppm-dependency-of clean
+     *
      * @jppm-need-package true
      * @jppm-description Remove build API documentation files!
      * @param Event $event
@@ -110,6 +112,8 @@ class DocPlugin
     }
 
     /**
+     * @jppm-dependency-of publish
+     *
      * @jppm-depends-on doc:clean
      * @jppm-need-package true
      * @jppm-description Build markdown API documentation.

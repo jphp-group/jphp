@@ -1,7 +1,7 @@
 name: jppm
 version: 0.2.0
 
-plugins: [GitHub, Hub]
+plugins: [GitHub, Hub, Doc]
 
 hub:
   login: d.zayceff@gmail.com

@@ -1,11 +1,7 @@
 
-name: jphp-core
+name: jphp-debugger
 version: 1.0.0
-description: Compiler and Launcher for JPHP.
-
-deps:
-  jphp-runtime: '>=1.0.0'
-
+description: XDebuger for JPHP.
 
 plugins: [Doc, Hub]
 
@@ -13,6 +9,3 @@ doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/%name%/api-docs/'
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
-
-config:
-  ignore: ['/package.hub.yml']
