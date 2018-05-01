@@ -24,7 +24,6 @@ public class NumUtils extends BaseObject {
 
     protected final static DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS;
 
-    @FastMethod
     @Signature({
             @Arg("number"),
             @Arg("pattern"),
@@ -53,13 +52,11 @@ public class NumUtils extends BaseObject {
         }
     }
 
-    @FastMethod
     @Signature(@Arg("value"))
     public static Memory toBin(Environment env, Memory... args) {
         return StringMemory.valueOf(Long.toBinaryString(args[0].toLong()));
     }
 
-    @FastMethod
     @Signature({
             @Arg("num1"), @Arg("num2")
     })
@@ -67,25 +64,21 @@ public class NumUtils extends BaseObject {
         return LongMemory.valueOf(args[0].toNumeric().compareTo(args[1].toNumeric()));
     }
 
-    @FastMethod
     @Signature(@Arg("value"))
     public static Memory toOctal(Environment env, Memory... args) {
         return StringMemory.valueOf(Long.toOctalString(args[0].toLong()));
     }
 
-    @FastMethod
     @Signature(@Arg("value"))
     public static Memory toHex(Environment env, Memory... args) {
         return StringMemory.valueOf(Long.toHexString(args[0].toLong()));
     }
 
-    @FastMethod
     @Signature({@Arg("value"), @Arg("radix")})
     public static Memory toString(Environment env, Memory... args) {
         return StringMemory.valueOf(Long.toString(args[0].toLong(), args[1].toInteger()));
     }
 
-    @FastMethod
     @Signature(@Arg("value"))
     public static Memory decode(Environment env, Memory... args) {
         try {
@@ -95,7 +88,6 @@ public class NumUtils extends BaseObject {
         }
     }
 
-    @FastMethod
     @Signature(@Arg("number"))
     public static Memory reverse(Environment env, Memory... args) {
         return LongMemory.valueOf(Long.reverse(args[0].toLong()));

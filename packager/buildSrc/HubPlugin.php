@@ -262,6 +262,7 @@ class HubPlugin
 
     /**
      * @jppm-need-package
+     * @jppm-depends-on build
      * @jppm-description Publish package on remote hub repository.
      * @param Event $event
      */

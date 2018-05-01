@@ -296,6 +296,12 @@ class Package
         $ignore->addRule($this->getConfigBuildPath() . "/**");
         $ignore->addRule($this->getConfigVendorPath() . "/**");
         $ignore->addRule("/package.*.yml");
+        $ignore->addRule("/.gradle/**");
+        $ignore->addRule("/gradle/**");
+        $ignore->addRule("/src-jvm/**");
+        $ignore->addRule("/build.gradle");
+        $ignore->addRule("/gradlew.bat");
+        $ignore->addRule("/gradlew");
 
         return $this->ignore = $ignore;
     }

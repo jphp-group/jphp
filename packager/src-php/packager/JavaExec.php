@@ -189,9 +189,11 @@ class JavaExec
     {
         $classPaths = [];
 
-        if ($jars = $package->getJars()) {
+        $jars = fs::scan("./jars/", ['extensions' => ['jar'], 'excludeDirs' => true], 1);
+
+        if ($jars) {
             foreach ($jars as $jar) {
-                $classPaths[] = fs::abs("./jars/$jar");
+                $classPaths[] = fs::abs("./jars/" . fs::name($jar));
             }
         }
 

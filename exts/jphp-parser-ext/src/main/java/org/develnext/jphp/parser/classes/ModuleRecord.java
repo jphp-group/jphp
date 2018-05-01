@@ -156,7 +156,7 @@ public class ModuleRecord extends AbstractSourceRecord {
         }
 
         methodRecord.setName(token.getFulledName());
-        methodRecord.setComment(token.getDocComment().getComment());
+        methodRecord.setComment(token.getDocComment() == null ? null : token.getDocComment().getComment());
 
         namespace.addFunction(methodRecord);
     }

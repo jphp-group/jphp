@@ -103,6 +103,10 @@ class Vendor
 
     public function fetchPaths(): array
     {
-        return (array) fs::parseAs("{$this->getDir()}/paths.json", 'json');
+        if (fs::isFile("{$this->getDir()}/paths.json")) {
+            return (array)fs::parseAs("{$this->getDir()}/paths.json", 'json');
+        } else {
+            return [];
+        }
     }
 }

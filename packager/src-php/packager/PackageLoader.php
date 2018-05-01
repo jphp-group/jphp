@@ -37,7 +37,14 @@ class PackageLoader
             }
         }
 
-        foreach ($package->getJars() as $jar) {
+        $jars = fs::scan(
+            $tmp = ($dir ? "$dir/" : $dir) . ($vendor === null ? "../jars/" : $vendor->getFile($package, "jars/")),
+            ['extensions' => ['jar'], 'excludeDirs' => true],
+            1
+        );
+
+        foreach ($jars as $jar) {
+            $jar = fs::name($jar);
             $this->classPaths[$scope][] = "$dir/" . ($vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($package, "jars/$jar"));
         }
 
