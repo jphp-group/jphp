@@ -1,8 +1,12 @@
 # UXAnchorPane
 
-- **class** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **extends** `UXPane` (`php\gui\layout\UXPane`)
+- **class** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **extends** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 - **package** `gui`
 - **source** `php/gui/layout/UXAnchorPane.php`
+
+**Child Classes**
+
+> [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.md)
 
 **Description**
 
@@ -21,6 +25,7 @@ Class UXAnchorPane
 - `UXAnchorPane ::`[`setTopAnchor()`](#method-settopanchor)
 - `UXAnchorPane ::`[`setBottomAnchor()`](#method-setbottomanchor)
 - `UXAnchorPane ::`[`setAnchor()`](#method-setanchor)
+- See also in the parent class [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 
 ---
 # Static Methods

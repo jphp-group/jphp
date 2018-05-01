@@ -7,8 +7,7 @@ deps:
   jphp-runtime: '>=1.0.0'
 
 
-plugins:
-- Doc
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/%name%/api-docs/'
@@ -16,4 +15,4 @@ doc:
   langs: {en: English, ru: Русский}
 
 config:
-  ignore: ['/api-docs/**']
+  ignore: ['/api-docs/**', '/package.hub.yml']

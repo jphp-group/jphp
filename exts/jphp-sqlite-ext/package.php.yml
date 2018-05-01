@@ -6,8 +6,8 @@ description: Library for working with SQLite database.
 deps:
   jphp-sql-ext: '>=1.0.0'
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

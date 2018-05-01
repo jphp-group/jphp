@@ -1,6 +1,6 @@
 # IniProcessor
 
-- **класс** `IniProcessor` (`php\format\IniProcessor`) **унаследован от** `Processor` (`php\format\Processor`)
+- **класс** `IniProcessor` (`php\format\IniProcessor`) **унаследован от** [`Processor`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/format/Processor.ru.md)
 - **пакет** `std`
 - **исходники** `php/format/IniProcessor.php`
 
@@ -15,6 +15,7 @@ Class IniProcessor
 - `->`[`format()`](#method-format)
 - `->`[`formatTo()`](#method-formatto)
 - `->`[`parse()`](#method-parse)
+- См. также в родительском классе [Processor](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/format/Processor.ru.md)
 
 ---
 # Методы

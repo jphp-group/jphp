@@ -22,4 +22,4 @@ Class UXWebView
 - `->`[`engine`](#prop-engine) : [`UXWebEngine`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWebEngine.ru.md)
 - `->`[`contextMenuEnabled`](#prop-contextmenuenabled) : `bool`
 - `->`[`url`](#prop-url) : `string` - _See also ->engine->url (this is alias)_
-- См. также в родительском классе [UXParent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.ru.md)
+- *См. также в родительском классе* [UXParent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.ru.md).

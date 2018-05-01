@@ -4,6 +4,10 @@
 - **пакет** `std`
 - **исходники** `php/lang/ClassLoader.php`
 
+**Классы наследники**
+
+> [LauncherClassLoader](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/LauncherClassLoader.ru.md)
+
 **Описание**
 
 Class ClassLoader

@@ -25,7 +25,7 @@ Class UXTextInputControl
 - `->`[`length`](#prop-length) : `int`
 - `->`[`editable`](#prop-editable) : `bool`
 - `->`[`caretPosition`](#prop-caretposition) : `int`
-- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
+- *See also in the parent class* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md).
 
 ---
 

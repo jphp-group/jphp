@@ -20,7 +20,7 @@ Class UXKeyEvent
 - `->`[`shiftDown`](#prop-shiftdown) : `bool`
 - `->`[`metaDown`](#prop-metadown) : `bool`
 - `->`[`shortcutDown`](#prop-shortcutdown) : `bool`
-- См. также в родительском классе [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
+- *См. также в родительском классе* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md).
 
 ---
 

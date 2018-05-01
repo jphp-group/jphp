@@ -1,6 +1,6 @@
 # UXData
 
-- **класс** `UXData` (`php\gui\UXData`) **унаследован от** `UXNode` (`php\gui\UXNode`)
+- **класс** `UXData` (`php\gui\UXData`) **унаследован от** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXData.php`
 
@@ -19,6 +19,7 @@ Class UXData
 - `->`[`remove()`](#method-remove)
 - `->`[`set()`](#method-set)
 - `->`[`toArray()`](#method-toarray)
+- См. также в родительском классе [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 
 ---
 # Методы

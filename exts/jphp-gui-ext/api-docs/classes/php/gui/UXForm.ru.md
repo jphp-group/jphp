@@ -1,6 +1,6 @@
 # UXForm
 
-- **класс** `UXForm` (`php\gui\UXForm`) **унаследован от** `UXWindow` (`php\gui\UXWindow`)
+- **класс** `UXForm` (`php\gui\UXForm`) **унаследован от** [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXForm.php`
 
@@ -12,7 +12,7 @@
 - `->`[`modality`](#prop-modality) : `string` - _NONE, WINDOW_MODAL, APPLICATION_MODAL_
 - `->`[`alwaysOnTop`](#prop-alwaysontop) : `bool` - _Всегда поверх всех окон._
 - `->`[`maximized`](#prop-maximized) : `bool` - _Раскрытость на весь экран._
-- `->`[`owner`](#prop-owner) : `UXWindow`
+- `->`[`owner`](#prop-owner) : [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md)
 - `->`[`style`](#prop-style) : `string` - _Стиль окна.
 
 DECORATED, UNDECORATED, TRANSPARENT, UTILITY, UNIFIED_
@@ -21,6 +21,7 @@ DECORATED, UNDECORATED, TRANSPARENT, UTILITY, UNIFIED_
 - `->`[`resizable`](#prop-resizable) : `bool`
 - `->`[`iconified`](#prop-iconified) : `bool`
 - `->`[`fullScreen`](#prop-fullscreen) : `bool` - _Фулскрин._
+- *См. также в родительском классе* [UXWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md).
 
 ---
 
@@ -31,6 +32,7 @@ DECORATED, UNDECORATED, TRANSPARENT, UTILITY, UNIFIED_
 - `->`[`toBack()`](#method-toback) - _Переместить назад (под все окна)._
 - `->`[`toFront()`](#method-tofront) - _Переместить вперед (над всеми окнами)._
 - `->`[`maximize()`](#method-maximize)
+- См. также в родительском классе [UXWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md)
 
 ---
 # Методы

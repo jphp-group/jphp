@@ -3,8 +3,8 @@ name: jphp-markdown-ext
 version: 1.0.0
 description: Library for convert markdown to HTML.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

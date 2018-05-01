@@ -4,6 +4,10 @@
 - **пакет** `std`
 - **исходники** `php/lib/arr.php`
 
+**Классы наследники**
+
+> [items](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/items.ru.md)
+
 **Описание**
 
 Библиотека для работы с коллекциями - массивы, итераторы и т.д.

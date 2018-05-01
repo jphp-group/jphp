@@ -4,6 +4,10 @@
 - **package** `compress`
 - **source** `compress/ArchiveOutput.php`
 
+**Child Classes**
+
+> [TarArchiveOutput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/TarArchiveOutput.md), [ZipArchiveOutput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ZipArchiveOutput.md)
+
 **Description**
 
 Class ArchiveOutputStream

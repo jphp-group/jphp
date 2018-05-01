@@ -1,12 +1,12 @@
 # UXRegion
 
-- **class** `UXRegion` (`php\gui\layout\UXRegion`) **extends** `UXParent` (`php\gui\UXParent`)
+- **class** `UXRegion` (`php\gui\layout\UXRegion`) **extends** [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
 - **package** `gui`
 - **source** `php/gui/layout/UXRegion.php`
 
 **Child Classes**
 
-> [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
+> [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md), [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 **Description**
 
@@ -30,4 +30,5 @@ Class UXRegion
 - `->`[`paddingTop`](#prop-paddingtop) : `double`
 - `->`[`paddingRight`](#prop-paddingright) : `double`
 - `->`[`paddingBottom`](#prop-paddingbottom) : `double`
-- `->`[`backgroundColor`](#prop-backgroundcolor) : `UXColor` - _Фоновый цвет._
+- `->`[`backgroundColor`](#prop-backgroundcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md) - _Фоновый цвет._
+- *See also in the parent class* [UXParent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md).

@@ -4,6 +4,10 @@
 - **пакет** `compress`
 - **исходники** `compress/ArchiveEntry.php`
 
+**Классы наследники**
+
+> [TarArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/TarArchiveEntry.ru.md), [ZipArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ZipArchiveEntry.ru.md)
+
 **Описание**
 
 Class ArchiveEntry

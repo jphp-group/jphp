@@ -13,7 +13,7 @@ Class UXTimeline
 #### Свойства
 
 - `->`[`keyFrames`](#prop-keyframes) : `UXList of UXKeyFrame`
-- См. также в родительском классе [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.ru.md)
+- *См. также в родительском классе* [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.ru.md).
 
 ---
 

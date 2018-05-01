@@ -2,7 +2,15 @@ dependencies {
     provided project(":jphp-runtime")
 
     // dependencies ....
-    compile 'com.vladsch.flexmark:flexmark-all:0.32.18'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-gfm-strikethrough', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-tables', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-autolink', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-anchorlink', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-emoji', version: '0.32.22'
+    compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-superscript', version: '0.32.22'
+
+
     // -----------------
 
     testCompile 'junit:junit:4.+'

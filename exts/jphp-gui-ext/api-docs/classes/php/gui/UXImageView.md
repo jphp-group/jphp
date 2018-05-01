@@ -1,6 +1,6 @@
 # UXImageView
 
-- **class** `UXImageView` (`php\gui\UXImageView`) **extends** `UXNode` (`php\gui\UXNode`)
+- **class** `UXImageView` (`php\gui\UXImageView`) **extends** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - **package** `gui`
 - **source** `php/gui/UXImageView.php`
 
@@ -17,12 +17,14 @@ Class UXImageView
 - `->`[`preserveRatio`](#prop-preserveratio) : `bool`
 - `->`[`fitWidth`](#prop-fitwidth) : `double`
 - `->`[`fitHeight`](#prop-fitheight) : `double`
+- *See also in the parent class* [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md).
 
 ---
 
 #### Methods
 
 - `->`[`__construct()`](#method-__construct) - _UXImageView constructor._
+- See also in the parent class [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 
 ---
 # Methods

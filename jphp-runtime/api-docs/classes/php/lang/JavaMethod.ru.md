@@ -1,6 +1,6 @@
 # JavaMethod
 
-- **класс** `JavaMethod` (`php\lang\JavaMethod`) **унаследован от** `JavaReflection` (`php\lang\JavaReflection`)
+- **класс** `JavaMethod` (`php\lang\JavaMethod`) **унаследован от** [`JavaReflection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.ru.md)
 - **исходники** `php/lang/JavaMethod.php`
 
 ---
@@ -24,6 +24,7 @@
 - `->`[`isAnnotationPresent()`](#method-isannotationpresent)
 - `->`[`getParameterTypes()`](#method-getparametertypes)
 - `->`[`getParameterCount()`](#method-getparametercount)
+- См. также в родительском классе [JavaReflection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.ru.md)
 
 ---
 # Методы

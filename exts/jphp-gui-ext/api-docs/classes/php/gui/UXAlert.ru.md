@@ -16,8 +16,8 @@
 - `->`[`headerText`](#prop-headertext) : `string`
 - `->`[`title`](#prop-title) : `string`
 - `->`[`expanded`](#prop-expanded) : `bool`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
-- `->`[`expandableContent`](#prop-expandablecontent) : `UXNode`
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
+- `->`[`expandableContent`](#prop-expandablecontent) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 
 ---
 

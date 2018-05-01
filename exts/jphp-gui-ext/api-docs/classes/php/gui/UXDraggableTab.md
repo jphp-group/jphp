@@ -1,6 +1,6 @@
 # UXDraggableTab
 
-- **class** `UXDraggableTab` (`php\gui\UXDraggableTab`) **extends** `UXTab` (`php\gui\UXTab`)
+- **class** `UXDraggableTab` (`php\gui\UXDraggableTab`) **extends** [`UXTab`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTab.md)
 - **package** `gui`
 - **source** `php/gui/UXDraggableTab.php`
 
@@ -16,6 +16,7 @@ Class UXDraggableTab
 - `->`[`draggable`](#prop-draggable) : `bool`
 - `->`[`disableDragFirst`](#prop-disabledragfirst) : `bool`
 - `->`[`disableDragLast`](#prop-disabledraglast) : `bool`
+- *See also in the parent class* [UXTab](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTab.md).
 
 ---
 
@@ -23,6 +24,7 @@ Class UXDraggableTab
 
 - `->`[`toFront()`](#method-tofront)
 - `->`[`toBack()`](#method-toback)
+- See also in the parent class [UXTab](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTab.md)
 
 ---
 # Methods

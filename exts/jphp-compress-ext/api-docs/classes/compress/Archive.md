@@ -3,6 +3,10 @@
 - **class** `Archive` (`compress\Archive`)
 - **source** `compress/Archive.php`
 
+**Child Classes**
+
+> [TarArchive](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/TarArchive.md), [ZipArchive](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ZipArchive.md)
+
 **Description**
 
 Class Archive

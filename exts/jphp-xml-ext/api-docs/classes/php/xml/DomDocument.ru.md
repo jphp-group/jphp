@@ -1,6 +1,6 @@
 # DomDocument
 
-- **класс** `DomDocument` (`php\xml\DomDocument`) **унаследован от** `DomElement` (`php\xml\DomElement`)
+- **класс** `DomDocument` (`php\xml\DomDocument`) **унаследован от** [`DomElement`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomElement.ru.md)
 - **исходники** `php/xml/DomDocument.php`
 
 **Описание**
@@ -30,6 +30,7 @@ Class DomDocument
 - `->`[`adoptNode()`](#method-adoptnode)
 - `->`[`renameNode()`](#method-renamenode)
 - `->`[`normalizeDocument()`](#method-normalizedocument)
+- См. также в родительском классе [DomElement](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomElement.ru.md)
 
 ---
 # Методы

@@ -84,8 +84,8 @@ configure(subprojects) {
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
     if (new File(project.projectDir.path + "/package.php.yml").exists()) {
-        task jppmPublish(type: Exec) {
-            def cmdArgs = ['jppm', 'publish', '-yes']
+        task hubPublish(type: Exec) {
+            def cmdArgs = ['jppm', 'hub:publish', '-yes', '-force']
 
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
                 cmdArgs.add(0, "/c");
@@ -100,11 +100,11 @@ configure(subprojects) {
             }
         }
 
-        try {
+        /*try {
             project.tasks.getByName('install').dependsOn += jppmPublish
         } catch (UnknownTaskException e) {
 
-        }
+        }*/
 
         if (project.name != "packager") {
             task docBuild(type: Exec) {

@@ -4,6 +4,10 @@
 - **package** `gui`
 - **source** `php/gui/animation/UXAnimation.php`
 
+**Child Classes**
+
+> [UXFadeAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXFadeAnimation.md), [UXPathAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXPathAnimation.md), [UXTimeline](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXTimeline.md)
+
 **Description**
 
 Abstract animation class.

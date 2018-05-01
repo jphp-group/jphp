@@ -1,6 +1,6 @@
 # UXHBox
 
-- **class** `UXHBox` (`php\gui\layout\UXHBox`) **extends** `UXPane` (`php\gui\layout\UXPane`)
+- **class** `UXHBox` (`php\gui\layout\UXHBox`) **extends** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 - **package** `gui`
 - **source** `php/gui/layout/UXHBox.php`
 
@@ -16,6 +16,7 @@ Class UXHBox
 BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `->`[`spacing`](#prop-spacing) : `float`
 - `->`[`fillHeight`](#prop-fillheight) : `bool`
+- *See also in the parent class* [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md).
 
 ---
 
@@ -24,6 +25,7 @@ BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `UXHBox ::`[`setHgrow()`](#method-sethgrow)
 - `UXHBox ::`[`getHgrow()`](#method-gethgrow)
 - `UXHBox ::`[`setMargin()`](#method-setmargin)
+- See also in the parent class [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 
 ---
 
@@ -31,6 +33,7 @@ BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`requestLayout()`](#method-requestlayout)
+- See also in the parent class [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 
 ---
 # Static Methods

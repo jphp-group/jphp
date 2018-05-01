@@ -1,6 +1,6 @@
 # UXTextArea
 
-- **класс** `UXTextArea` (`php\gui\UXTextArea`) **унаследован от** `UXTextInputControl` (`php\gui\UXTextInputControl`)
+- **класс** `UXTextArea` (`php\gui\UXTextArea`) **унаследован от** [`UXTextInputControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextInputControl.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXTextArea.php`
 
@@ -17,12 +17,14 @@ Class UXTextArea
 - `->`[`scrollTop`](#prop-scrolltop) : `double`
 - `->`[`prefRowCount`](#prop-prefrowcount) : `int`
 - `->`[`prefColumnCount`](#prop-prefcolumncount) : `int`
+- *См. также в родительском классе* [UXTextInputControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextInputControl.ru.md).
 
 ---
 
 #### Методы
 
 - `->`[`__construct()`](#method-__construct)
+- См. также в родительском классе [UXTextInputControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextInputControl.ru.md)
 
 ---
 # Методы

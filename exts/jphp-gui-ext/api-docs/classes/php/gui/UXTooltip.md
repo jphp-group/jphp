@@ -20,7 +20,7 @@ Class UXTooltip
 - `->`[`graphicTextGap`](#prop-graphictextgap) : `double`
 - `->`[`activated`](#prop-activated) : `bool`
 - `->`[`wrapText`](#prop-wraptext) : `bool`
-- See also in the parent class [UXPopupWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md)
+- *See also in the parent class* [UXPopupWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md).
 
 ---
 

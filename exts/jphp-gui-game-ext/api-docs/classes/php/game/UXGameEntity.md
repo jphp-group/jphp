@@ -22,7 +22,7 @@ Class UXGameObject
 - `->`[`gravity`](#prop-gravity) : `array|null [x, y]` - _If null, using scene gravity_
 - `->`[`gravityX`](#prop-gravityx) : `float`
 - `->`[`gravityY`](#prop-gravityy) : `float`
-- `->`[`gameScene`](#prop-gamescene) : `UXGameScene`
+- `->`[`gameScene`](#prop-gamescene) : [`UXGameScene`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-game-ext/api-docs/classes/php/game/UXGameScene.md)
 - `->`[`velocity`](#prop-velocity) : `array`
 - `->`[`velocityX`](#prop-velocityx) : `float`
 - `->`[`velocityY`](#prop-velocityy) : `float`

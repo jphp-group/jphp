@@ -201,10 +201,13 @@ class AppPlugin
      * @jppm-dependency-of start
      *
      * @param Event $event
-     * @jppm-depends-on install
      */
     function run(Event $event)
     {
+        if (!$event->isFlag('light', 'l')) {
+            Tasks::run('install');
+        }
+
         $exec = new JavaExec();
 
         $launcher = $event->package()->getAny('app') ?: [];

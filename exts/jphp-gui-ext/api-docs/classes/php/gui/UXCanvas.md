@@ -1,8 +1,12 @@
 # UXCanvas
 
-- **class** `UXCanvas` (`php\gui\UXCanvas`) **extends** `UXNode` (`php\gui\UXNode`)
+- **class** `UXCanvas` (`php\gui\UXCanvas`) **extends** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - **package** `gui`
 - **source** `php/gui/UXCanvas.php`
+
+**Child Classes**
+
+> [UXImageArea](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImageArea.md)
 
 **Description**
 
@@ -16,6 +20,7 @@ Class UXCanvas
 - `->`[`gc()`](#method-gc) - _Alias of getGraphicsContext()._
 - `->`[`save()`](#method-save) - _Save image of canvas to file or stream in passed format, by default png._
 - `->`[`writeImageAsync()`](#method-writeimageasync) **common.deprecated**
+- See also in the parent class [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 
 ---
 # Methods

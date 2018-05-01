@@ -18,7 +18,7 @@ Class UXLightingEffect
 - `->`[`surfaceScale`](#prop-surfacescale) : `float 0 to 10`
 - `->`[`contentInput`](#prop-contentinput) : [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
 - `->`[`bumpInput`](#prop-bumpinput) : [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
-- См. также в родительском классе [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
+- *См. также в родительском классе* [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md).
 
 ---
 

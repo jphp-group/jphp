@@ -1,6 +1,6 @@
 # Document
 
-- **class** `Document` (`php\jsoup\Document`) **extends** `Element` (`php\jsoup\Element`)
+- **class** `Document` (`php\jsoup\Document`) **extends** [`Element`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-jsoup-ext/api-docs/classes/php/jsoup/Element.md)
 - **source** `php/jsoup/Document.php`
 
 **Description**
@@ -16,6 +16,7 @@ Class Document
 - `->`[`head()`](#method-head)
 - `->`[`body()`](#method-body)
 - `->`[`select()`](#method-select)
+- See also in the parent class [Element](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-jsoup-ext/api-docs/classes/php/jsoup/Element.md)
 
 ---
 # Methods

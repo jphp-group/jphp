@@ -7,8 +7,8 @@ deps:
   jphp-xml-ext: '*'
   jphp-graphic-ext: '*'
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

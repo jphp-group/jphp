@@ -6,7 +6,7 @@
 
 **Классы наследники**
 
-> [UXRegion](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXRegion.ru.md), [UXGroup](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXGroup.ru.md)
+> [UXRegion](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXRegion.ru.md), [UXGroup](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXGroup.ru.md), [UXWebView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWebView.ru.md)
 
 **Описание**
 
@@ -18,7 +18,7 @@ Class UXParent
 
 - `->`[`childrenUnmodifiable`](#prop-childrenunmodifiable) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md)
 - `->`[`stylesheets`](#prop-stylesheets) : `UXList of string (paths for css style sheets)` - _Список css таблиц стилей (пути к файлам и ресурсам)._
-- См. также в родительском классе [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
+- *См. также в родительском классе* [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md).
 
 ---
 

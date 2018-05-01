@@ -1,6 +1,6 @@
 # UXBloomEffect
 
-- **class** `UXBloomEffect` (`php\gui\effect\UXBloomEffect`) **extends** `UXEffect` (`php\gui\effect\UXEffect`)
+- **class** `UXBloomEffect` (`php\gui\effect\UXBloomEffect`) **extends** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 - **package** `gui`
 - **source** `php/gui/effect/UXBloomEffect.php`
 
@@ -13,12 +13,14 @@ Class UXBloomEffect
 #### Properties
 
 - `->`[`threshold`](#prop-threshold) : `double`
+- *See also in the parent class* [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md).
 
 ---
 
 #### Methods
 
 - `->`[`__construct()`](#method-__construct)
+- See also in the parent class [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 
 ---
 # Methods

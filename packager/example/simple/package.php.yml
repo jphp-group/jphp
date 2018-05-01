@@ -5,9 +5,7 @@ deps:
   jphp-core: '*'
   jppm-helloworld: github.com/jphp-compiler/jppm-helloworld#dev
 
-plugins:
-- App
-- Doc
+plugins: [Doc, Hub]
 
 app:
   disable-launcher: true

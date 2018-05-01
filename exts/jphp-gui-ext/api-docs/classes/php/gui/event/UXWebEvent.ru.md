@@ -13,4 +13,4 @@ Class UXWebEvent
 #### Свойства
 
 - `->`[`data`](#prop-data) : `mixed`
-- См. также в родительском классе [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
+- *См. также в родительском классе* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md).

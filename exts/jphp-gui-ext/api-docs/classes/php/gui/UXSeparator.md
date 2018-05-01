@@ -15,7 +15,7 @@ Class UXSeparator
 - `->`[`orientation`](#prop-orientation) : `string HORIZONTAL or VERTICAL`
 - `->`[`hAlignment`](#prop-halignment) : `string`
 - `->`[`vAlignment`](#prop-valignment) : `string`
-- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
+- *See also in the parent class* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md).
 
 ---
 

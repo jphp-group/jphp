@@ -176,7 +176,7 @@ class DocClass
 
             if ($class->parent) {
                 if ($this->index->hasClass($class->parent)) {
-                    $result[] = "- {$this->index->translate('class.see-parent-class')} [{$class->parent->shortName}]({$this->index->classLink($class->parent)})";
+                    $result[] = "- *{$this->index->translate('class.see-parent-class')}* [{$class->parent->shortName}]({$this->index->classLink($class->parent)}).";
                 }
             }
         }

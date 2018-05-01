@@ -2,8 +2,8 @@
 name: jphp-httpserver-ext
 version: 1.0.0
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 
 doc:

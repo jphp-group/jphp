@@ -13,7 +13,7 @@ Class UXScene
 #### Properties
 
 - `->`[`root`](#prop-root) : [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
-- `->`[`window`](#prop-window) : `UXWindow`
+- `->`[`window`](#prop-window) : [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.md)
 - `->`[`cursor`](#prop-cursor) : `string`
 
 ---

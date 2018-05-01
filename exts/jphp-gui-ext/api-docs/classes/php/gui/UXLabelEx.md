@@ -12,6 +12,6 @@ Class UXLabelEx
 
 #### Properties
 
-- `->`[`autoSize`](#prop-autosize) : `UXNode`
+- `->`[`autoSize`](#prop-autosize) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - `->`[`autoSizeType`](#prop-autosizetype) : `string ALL, HORIZONTAL, VERTICAL`
-- See also in the parent class [UXLabel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabel.md)
+- *See also in the parent class* [UXLabel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabel.md).

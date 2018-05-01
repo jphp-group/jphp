@@ -4,6 +4,10 @@
 - **пакет** `ssh`
 - **исходники** `ssh/SSHChannel.php`
 
+**Классы наследники**
+
+> [SSHExecChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHExecChannel.ru.md), [SSHSftpChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHSftpChannel.ru.md)
+
 **Описание**
 
 Class SSHChannel

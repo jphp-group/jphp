@@ -19,6 +19,11 @@ class Ignore
     private $rules = [];
 
     /**
+     * @var array
+     */
+    private $notRules = [];
+
+    /**
      * @var string
      */
     private $base = '';
@@ -40,11 +45,20 @@ class Ignore
      */
     public function addRule(string $rule)
     {
+        if ($not = str::startsWith($rule, '!')) {
+            $rule = str::sub($rule, 1);
+        }
+
         if (str::startsWith($rule, "./")) {
             $rule = str::sub($rule, 1);
         }
 
-        $this->rules[] = $rule;
+        if ($not) {
+            $this->notRules[$rule] = $rule;
+        } else {
+            $this->rules[$rule] = $rule;
+        }
+
         return $this;
     }
 
@@ -62,6 +76,12 @@ class Ignore
      */
     public function test(string $path)
     {
+        foreach ($this->notRules as $rule) {
+            if (fs::match($this->base . $path, 'glob:' . $rule)) {
+                return false;
+            }
+        }
+
         foreach ($this->rules as $rule) {
             if (fs::match($this->base . $path, 'glob:' . $rule)) {
                 return true;

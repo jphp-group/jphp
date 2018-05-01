@@ -1,6 +1,6 @@
 # JavaField
 
-- **класс** `JavaField` (`php\lang\JavaField`) **унаследован от** `JavaReflection` (`php\lang\JavaReflection`)
+- **класс** `JavaField` (`php\lang\JavaField`) **унаследован от** [`JavaReflection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.ru.md)
 - **исходники** `php/lang/JavaField.php`
 
 ---
@@ -19,6 +19,7 @@
 - `->`[`getModifiers()`](#method-getmodifiers)
 - `->`[`getName()`](#method-getname)
 - `->`[`getDeclaringClass()`](#method-getdeclaringclass)
+- См. также в родительском классе [JavaReflection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.ru.md)
 
 ---
 # Методы

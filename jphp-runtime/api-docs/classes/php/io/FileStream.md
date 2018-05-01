@@ -1,6 +1,6 @@
 # FileStream
 
-- **class** `FileStream` (`php\io\FileStream`) **extends** `Stream` (`php\io\Stream`)
+- **class** `FileStream` (`php\io\FileStream`) **extends** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 - **package** `std`
 - **source** `php/io/FileStream.php`
 
@@ -22,6 +22,7 @@ Class FileStream
 - `->`[`length()`](#method-length)
 - `->`[`getFilePointer()`](#method-getfilepointer)
 - `->`[`truncate()`](#method-truncate)
+- See also in the parent class [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 
 ---
 # Methods

@@ -17,7 +17,7 @@ Class UXTabPane
 - `->`[`selectedIndex`](#prop-selectedindex) : `int`
 - `->`[`tabClosingPolicy`](#prop-tabclosingpolicy) : `string SELECTED_TAB, ALL_TABS, UNAVAILABLE`
 - `->`[`side`](#prop-side) : `string`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).
 
 ---
 

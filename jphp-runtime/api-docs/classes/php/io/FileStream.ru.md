@@ -1,6 +1,6 @@
 # FileStream
 
-- **класс** `FileStream` (`php\io\FileStream`) **унаследован от** `Stream` (`php\io\Stream`)
+- **класс** `FileStream` (`php\io\FileStream`) **унаследован от** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 - **пакет** `std`
 - **исходники** `php/io/FileStream.php`
 
@@ -22,6 +22,7 @@ Class FileStream
 - `->`[`length()`](#method-length)
 - `->`[`getFilePointer()`](#method-getfilepointer)
 - `->`[`truncate()`](#method-truncate)
+- См. также в родительском классе [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 
 ---
 # Методы

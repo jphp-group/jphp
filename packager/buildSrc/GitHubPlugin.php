@@ -68,14 +68,16 @@ class GitHubPlugin
      */
     public function __construct(Event $event)
     {
-        $github = $event->package()->getAny('github');
+        if ($event->package()) {
+            $github = $event->package()->getAny('github');
 
-        $this->tagPrefix = $github['tag-prefix'] ?? '';
-        $this->defaultTitle = $github['title'] ?? null;
-        $this->defaultDescription = $github['description'] ?? null;
-        $this->defaultRepo = $github['address'] ?? null;
-        $this->defaultLogin = $github['login'] ?? null;
-        $this->additionalAssets = $github['assets'] ?? [];
+            $this->tagPrefix = $github['tag-prefix'] ?? '';
+            $this->defaultTitle = $github['title'] ?? null;
+            $this->defaultDescription = $github['description'] ?? null;
+            $this->defaultRepo = $github['address'] ?? null;
+            $this->defaultLogin = $github['login'] ?? null;
+            $this->additionalAssets = $github['assets'] ?? [];
+        }
 
         $this->readConfig();
     }
@@ -334,7 +336,7 @@ class GitHubPlugin
             $response = $github->post('/repos' . $address->getPath() . '/releases', $data);
 
             if ($response->statusCode() === 201) {
-                Console::log("Release of current package has successfuly created.");
+                Console::log("Release of current package has successfully created.");
 
                 $body = $response->body();
 

@@ -3,8 +3,8 @@ name: jphp-gui-jfoenix-ext
 version: 1.0.0
 description: Material UI components for JavaFX.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

@@ -22,7 +22,7 @@ Class UXTreeView
 - `->`[`selectedIndexes`](#prop-selectedindexes) : `int[]`
 - `->`[`focusedItem`](#prop-focuseditem) : [`UXTreeItem`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTreeItem.ru.md)
 - `->`[`expandedItems`](#prop-expandeditems) : `UXTreeItem[]`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).
 
 ---
 

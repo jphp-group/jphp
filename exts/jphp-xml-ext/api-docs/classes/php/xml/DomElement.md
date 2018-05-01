@@ -1,6 +1,6 @@
 # DomElement
 
-- **class** `DomElement` (`php\xml\DomElement`) **extends** `DomNode` (`php\xml\DomNode`)
+- **class** `DomElement` (`php\xml\DomElement`) **extends** [`DomNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomNode.md)
 - **source** `php/xml/DomElement.php`
 
 **Child Classes**
@@ -34,6 +34,7 @@ Class DomElement
 - `->`[`removeAttributeNS()`](#method-removeattributens)
 - `->`[`setIdAttribute()`](#method-setidattribute)
 - `->`[`setIdAttributeNS()`](#method-setidattributens)
+- See also in the parent class [DomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomNode.md)
 
 ---
 # Methods

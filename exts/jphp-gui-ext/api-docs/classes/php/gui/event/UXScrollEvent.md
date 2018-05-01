@@ -28,7 +28,7 @@ Class UXScrollEvent
 - `->`[`controlDown`](#prop-controldown) : `bool` - _Indicates whether or not the Control modifier is down on this event._
 - `->`[`metaDown`](#prop-metadown) : `bool` - _Indicates whether or not the Meta modifier is down on this event._
 - `->`[`shortcutDown`](#prop-shortcutdown) : `bool` - _Indicates whether or not the Shortcut modifier is down on this event._
-- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
+- *See also in the parent class* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md).
 
 ---
 

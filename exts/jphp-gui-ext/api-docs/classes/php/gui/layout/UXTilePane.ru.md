@@ -17,4 +17,4 @@
 - `->`[`prefRows`](#prop-prefrows) : `int`
 - `->`[`alignment`](#prop-alignment) : `string`
 - `->`[`tileAlignment`](#prop-tilealignment) : `string`
-- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
+- *См. также в родительском классе* [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md).

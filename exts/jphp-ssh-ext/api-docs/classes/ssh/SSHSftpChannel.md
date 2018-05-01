@@ -16,7 +16,7 @@ Class SSHSftpChannel
 - `->`[`version`](#prop-version) : `string`
 - `->`[`serverVersion`](#prop-serverversion) : `int`
 - `->`[`bulkRequests`](#prop-bulkrequests) : `int`
-- See also in the parent class [SSHChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.md)
+- *See also in the parent class* [SSHChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.md).
 
 ---
 

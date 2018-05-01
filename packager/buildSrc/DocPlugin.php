@@ -58,24 +58,26 @@ class DocPlugin
 
     public function __construct(Event $event)
     {
-        $this->langs = $event->package()->getAny('doc.langs', ['en' => 'English']);
-        $this->urlPrefix = $event->package()->getAny('doc.url-prefix', '');
-        $this->dir = $event->package()->getAny('doc.dir', './api-docs');
-        $this->extraDir = $event->package()->getAny('doc.extra-dir', './api-docs-extra');
+        if ($event->package()) {
+            $this->langs = $event->package()->getAny('doc.langs', ['en' => 'English']);
+            $this->urlPrefix = $event->package()->getAny('doc.url-prefix', '');
+            $this->dir = $event->package()->getAny('doc.dir', './api-docs');
+            $this->extraDir = $event->package()->getAny('doc.extra-dir', './api-docs-extra');
 
-        $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);
+            $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);
 
-        $this->excludeClasses = $event->package()->getAny('doc.exclude-classes', []);
-        $this->excludeMethods = $event->package()->getAny('doc.exclude-methods', []);
-        $this->excludeFunctions = $event->package()->getAny('doc.exclude-functions', []);
+            $this->excludeClasses = $event->package()->getAny('doc.exclude-classes', []);
+            $this->excludeMethods = $event->package()->getAny('doc.exclude-methods', []);
+            $this->excludeFunctions = $event->package()->getAny('doc.exclude-functions', []);
 
-        $this->defLang = arr::firstKey($this->langs);
+            $this->defLang = arr::firstKey($this->langs);
 
-        foreach ($this->langs as $lang => $name) {
-            try {
-                $this->messages[$lang] = fs::parse("res://doc/messages/$lang.yml");
-            } catch (IOException $e) {
-                continue;
+            foreach ($this->langs as $lang => $name) {
+                try {
+                    $this->messages[$lang] = fs::parse("res://doc/messages/$lang.yml");
+                } catch (IOException $e) {
+                    continue;
+                }
             }
         }
     }
@@ -147,7 +149,22 @@ class DocPlugin
                 $source = "./$source";
 
                 fs::scan($source, ['extensions' => ['php'], 'callback' => function ($filename)
-                                use ($docIndex, $event, $source, $originSource, $docDir, $suffix, $lang) {
+                        use ($docIndex, $event, $source, $originSource, $docDir, $suffix, $lang) {
+                    $uniqueId = fs::relativize($filename, $source);
+
+                    $sourceFile = $this->parseFile($filename, $uniqueId);
+
+                    $classes = $sourceFile->moduleRecord->getClasses();
+
+                    flow($classes)->each(function (ClassRecord $cls) use ($docIndex, $event, $docDir) {
+                        if (!arr::has($this->excludeClasses, $cls->name)) {
+                            $docIndex->addClass($cls);
+                        }
+                    });
+                }]);
+
+                fs::scan($source, ['extensions' => ['php'], 'callback' => function ($filename)
+                use ($docIndex, $event, $source, $originSource, $docDir, $suffix, $lang) {
                     $uniqueId = fs::relativize($filename, $source);
 
                     $sourceFile = $this->parseFile($filename, $uniqueId);
@@ -160,14 +177,8 @@ class DocPlugin
 
                     $classes = $sourceFile->moduleRecord->getClasses();
 
-                    flow($classes)->each(function (ClassRecord $cls) use ($docIndex, $event, $docDir) {
-                        if (!arr::has($this->excludeClasses, $cls->name)) {
-                            $docIndex->addClass($cls);
-                        }
-                    });
-
                     flow($classes)->each(function (ClassRecord $cls)
-                        use ($docDir, $docIndex, $suffix, $lang, $uniqueId, $originSource, $sourceFile, $extra) {
+                    use ($docDir, $docIndex, $suffix, $lang, $uniqueId, $originSource, $sourceFile, $extra) {
                         if (arr::has($this->excludeClasses, $cls->name)) return;
 
                         $docClass = new DocClass($docIndex, $cls, $lang, $sourceFile);

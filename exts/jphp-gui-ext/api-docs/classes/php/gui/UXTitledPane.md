@@ -16,7 +16,7 @@ Class UXTitledPane
 - `->`[`animated`](#prop-animated) : `bool`
 - `->`[`collapsible`](#prop-collapsible) : `bool`
 - `->`[`expanded`](#prop-expanded) : `bool`
-- See also in the parent class [UXLabeled](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabeled.md)
+- *See also in the parent class* [UXLabeled](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabeled.md).
 
 ---
 

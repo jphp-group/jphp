@@ -22,7 +22,7 @@ Class TarArchiveEntry
 - `->`[`realSize`](#prop-realsize) : `int`
 - `->`[`devMinor`](#prop-devminor) : `int`
 - `->`[`devMajor`](#prop-devmajor) : `int`
-- См. также в родительском классе [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
+- *См. также в родительском классе* [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md).
 
 ---
 

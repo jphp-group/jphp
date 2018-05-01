@@ -15,7 +15,7 @@ Class UXCheckbox
 - `->`[`selected`](#prop-selected) : `bool` - _Отмечен или нет._
 - `->`[`indeterminate`](#prop-indeterminate) : `bool`
 - `->`[`allowIndeterminate`](#prop-allowindeterminate) : `bool`
-- See also in the parent class [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
+- *See also in the parent class* [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md).
 
 ---
 

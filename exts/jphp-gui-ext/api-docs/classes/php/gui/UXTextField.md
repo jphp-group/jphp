@@ -1,6 +1,6 @@
 # UXTextField
 
-- **class** `UXTextField` (`php\gui\UXTextField`) **extends** `UXTextInputControl` (`php\gui\UXTextInputControl`)
+- **class** `UXTextField` (`php\gui\UXTextField`) **extends** [`UXTextInputControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextInputControl.md)
 - **package** `gui`
 - **source** `php/gui/UXTextField.php`
 
@@ -18,3 +18,4 @@ Class UXTextField
 
 - `->`[`alignment`](#prop-alignment) : `string`
 - `->`[`prefColumnCount`](#prop-prefcolumncount) : `int`
+- *See also in the parent class* [UXTextInputControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextInputControl.md).

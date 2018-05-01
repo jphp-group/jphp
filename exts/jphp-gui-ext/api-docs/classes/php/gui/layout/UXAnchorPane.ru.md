@@ -1,8 +1,12 @@
 # UXAnchorPane
 
-- **класс** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **унаследован от** `UXPane` (`php\gui\layout\UXPane`)
+- **класс** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **унаследован от** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/layout/UXAnchorPane.php`
+
+**Классы наследники**
+
+> [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
 
 **Описание**
 
@@ -21,6 +25,7 @@ Class UXAnchorPane
 - `UXAnchorPane ::`[`setTopAnchor()`](#method-settopanchor)
 - `UXAnchorPane ::`[`setBottomAnchor()`](#method-setbottomanchor)
 - `UXAnchorPane ::`[`setAnchor()`](#method-setanchor)
+- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 
 ---
 # Статичные Методы

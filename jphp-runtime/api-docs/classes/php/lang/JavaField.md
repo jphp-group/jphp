@@ -1,6 +1,6 @@
 # JavaField
 
-- **class** `JavaField` (`php\lang\JavaField`) **extends** `JavaReflection` (`php\lang\JavaReflection`)
+- **class** `JavaField` (`php\lang\JavaField`) **extends** [`JavaReflection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.md)
 - **source** `php/lang/JavaField.php`
 
 ---
@@ -19,6 +19,7 @@
 - `->`[`getModifiers()`](#method-getmodifiers)
 - `->`[`getName()`](#method-getname)
 - `->`[`getDeclaringClass()`](#method-getdeclaringclass)
+- See also in the parent class [JavaReflection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaReflection.md)
 
 ---
 # Methods

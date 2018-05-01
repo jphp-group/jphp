@@ -4,6 +4,10 @@
 - **package** `ssh`
 - **source** `ssh/SSHChannel.php`
 
+**Child Classes**
+
+> [SSHExecChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHExecChannel.md), [SSHSftpChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHSftpChannel.md)
+
 **Description**
 
 Class SSHChannel

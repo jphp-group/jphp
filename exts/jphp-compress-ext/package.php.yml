@@ -3,8 +3,8 @@ name: jphp-compress-ext
 version: 1.0.0
 description: Compress library, supports tar, bz2, gz, zip and lz4 formats.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

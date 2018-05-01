@@ -4,6 +4,10 @@
 - **package** `std`
 - **source** `php/lib/arr.php`
 
+**Child Classes**
+
+> [items](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/items.md)
+
 **Description**
 
 Library for working with collections - arrays, iterators, etc.

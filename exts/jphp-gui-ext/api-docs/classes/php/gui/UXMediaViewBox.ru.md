@@ -15,7 +15,7 @@ Class UXMediaViewBox
 - `->`[`player`](#prop-player) : [`UXMediaPlayer`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaPlayer.ru.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`proportional`](#prop-proportional) : `bool`
-- См. также в родительском классе [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
+- *См. также в родительском классе* [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md).
 
 ---
 

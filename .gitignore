@@ -25,3 +25,6 @@ out/
 build/
 
 secret.asc
+
+package.github.yml
+package.hub.yml

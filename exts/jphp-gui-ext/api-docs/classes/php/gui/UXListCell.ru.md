@@ -12,5 +12,5 @@ Class UXTableCell
 
 #### Свойства
 
-- `->`[`listView`](#prop-listview) : `UXListView`
-- См. также в родительском классе [UXCell](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.ru.md)
+- `->`[`listView`](#prop-listview) : [`UXListView`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXListView.ru.md)
+- *См. также в родительском классе* [UXCell](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.ru.md).

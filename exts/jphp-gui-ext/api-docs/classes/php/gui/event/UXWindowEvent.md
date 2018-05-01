@@ -12,8 +12,8 @@ Class UXWindowEvent
 
 #### Properties
 
-- `->`[`target`](#prop-target) : `UXWindow`
-- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
+- `->`[`target`](#prop-target) : [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.md)
+- *See also in the parent class* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md).
 
 ---
 

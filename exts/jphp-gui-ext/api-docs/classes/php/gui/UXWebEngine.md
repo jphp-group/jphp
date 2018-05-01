@@ -13,7 +13,7 @@ Class UXWebEngine
 #### Properties
 
 - `->`[`document`](#prop-document) : `DomDocument`
-- `->`[`history`](#prop-history) : `UXWebHistory`
+- `->`[`history`](#prop-history) : [`UXWebHistory`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWebHistory.md)
 - `->`[`javaScriptEnabled`](#prop-javascriptenabled) : `bool`
 - `->`[`userStyleSheetLocation`](#prop-userstylesheetlocation) : `string`
 - `->`[`userDataDirectory`](#prop-userdatadirectory) : `string`

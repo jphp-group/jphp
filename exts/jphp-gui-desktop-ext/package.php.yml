@@ -3,8 +3,8 @@ name: jphp-gui-desktop-ext
 version: 1.0.0
 description: Desktop features.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

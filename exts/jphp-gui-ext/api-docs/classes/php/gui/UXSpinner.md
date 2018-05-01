@@ -17,10 +17,10 @@ Class UXSpinner
 #### Properties
 
 - `->`[`editable`](#prop-editable) : `bool`
-- `->`[`editor`](#prop-editor) : `UXTextField`
+- `->`[`editor`](#prop-editor) : [`UXTextField`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextField.md)
 - `->`[`value`](#prop-value) : `mixed`
 - `->`[`alignment`](#prop-alignment) : `string` - _Text field alignment (pos)._
-- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
+- *See also in the parent class* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md).
 
 ---
 

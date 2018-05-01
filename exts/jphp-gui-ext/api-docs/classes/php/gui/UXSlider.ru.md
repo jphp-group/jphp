@@ -22,4 +22,4 @@ Class UXSlider
 - `->`[`majorTickUnit`](#prop-majortickunit) : `double`
 - `->`[`minorTickUnit`](#prop-minortickunit) : `int`
 - `->`[`orientation`](#prop-orientation) : `string`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).

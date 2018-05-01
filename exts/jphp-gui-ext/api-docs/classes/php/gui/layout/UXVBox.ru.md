@@ -6,7 +6,7 @@
 
 **Классы наследники**
 
-> [UXFragmentPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFragmentPane.ru.md)
+> [UXFragmentPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFragmentPane.ru.md), [UXRadioGroupPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXRadioGroupPane.ru.md)
 
 **Описание**
 
@@ -20,7 +20,7 @@ Class UXVBox
 BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `->`[`spacing`](#prop-spacing) : `float`
 - `->`[`fillWidth`](#prop-fillwidth) : `bool`
-- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
+- *См. также в родительском классе* [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md).
 
 ---
 

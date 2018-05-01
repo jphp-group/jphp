@@ -4,6 +4,10 @@
 - **пакет** `std`
 - **исходники** `php/lib/num.php`
 
+**Классы наследники**
+
+> [number](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/number.ru.md)
+
 **Описание**
 
 Utils for numbers

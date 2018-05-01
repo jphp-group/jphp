@@ -14,4 +14,4 @@ Class UXWebErrorEvent
 
 - `->`[`message`](#prop-message) : `mixed`
 - `->`[`exception`](#prop-exception) : `JavaException`
-- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
+- *See also in the parent class* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md).

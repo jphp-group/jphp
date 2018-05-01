@@ -14,4 +14,4 @@ Class UXMenuBar
 
 - `->`[`useSystemMenuBar`](#prop-usesystemmenubar) : `bool`
 - `->`[`menus`](#prop-menus) : `UXList of UXMenu`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).

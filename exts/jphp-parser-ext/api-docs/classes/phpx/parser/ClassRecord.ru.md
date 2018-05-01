@@ -11,12 +11,12 @@ Class ClassRecord
 
 #### Свойства
 
-- `->`[`namespaceRecord`](#prop-namespacerecord) : `NamespaceRecord`
+- `->`[`namespaceRecord`](#prop-namespacerecord) : [`NamespaceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/NamespaceRecord.ru.md)
 - `->`[`parent`](#prop-parent) : [`ClassRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/ClassRecord.ru.md)
 - `->`[`type`](#prop-type) : `string CLASS, INTERFACE, TRAIT`
 - `->`[`shortParentName`](#prop-shortparentname) : `bool`
 - `->`[`abstract`](#prop-abstract) : `bool`
-- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
+- *См. также в родительском классе* [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md).
 
 ---
 

@@ -25,7 +25,7 @@ Class UXTab
 - `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - `->`[`text`](#prop-text) : `string`
 - `->`[`style`](#prop-style) : `string`
-- `->`[`tooltip`](#prop-tooltip) : `UXTooltip`
+- `->`[`tooltip`](#prop-tooltip) : [`UXTooltip`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTooltip.ru.md)
 - `->`[`userData`](#prop-userdata) : `mixed`
 - `->`[`draggable`](#prop-draggable) : `bool`
 

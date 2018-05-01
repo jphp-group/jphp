@@ -213,7 +213,7 @@ class Repository
     {
         if ($repo === "jphp") {
             //$this->addExternalRepo(new GithubReleasesRepository("https://github.com/jphp-compiler/jphp-repo/releases"));
-            return $this->addExternalRepo(new GithubRepository("https://github.com/jphp-compiler/jphp-repo"));
+            return $this->addExternalRepo(new ServerRepository("http://api.develnext.org"));
         }
 
         if ($repo === "central") {
@@ -407,6 +407,15 @@ class Repository
         return null;
     }
 
+    public function getPackageArchiveFile(string $name, string $version): ?File
+    {
+        if (fs::isFile($archFile = "$this->dir/$name/$version.tar.gz")) {
+            return new File($archFile);
+        }
+
+        return null;
+    }
+
     /**
      * @param string $name
      * @param string $version
@@ -472,25 +481,21 @@ class Repository
         if (fs::isDir($path)) {
             $archFile = new File("$path.tar.gz");
 
-            if (fs::isFile($archFile->getPath())) {
-                return $archFile;
-            } else {
-                $arch = new TarArchive(new GzipOutputStream("$path.tar.gz", ['compressLevel' => 9]));
-                $arch->open();
+            $arch = new TarArchive(new GzipOutputStream("$path.tar.gz", ['compressLevel' => 9]));
+            $arch->open();
 
-                foreach (arr::sort(fs::scan($path)) as $file) {
-                    if (fs::isFile($file)) {
-                        $name = fs::relativize($file, $path);
-                        if ($name === "README.md") {
-                            continue;
-                        }
-
-                        $arch->addFile($file, $name);
+            foreach (arr::sort(fs::scan($path)) as $file) {
+                if (fs::isFile($file)) {
+                    $name = fs::relativize($file, $path);
+                    if ($name === "README.md") {
+                        continue;
                     }
+
+                    $arch->addFile($file, $name);
                 }
+            }
 
                 $arch->close();
-            }
 
             return $archFile;
         }
@@ -569,7 +574,7 @@ class Repository
                     fs::makeDir("$dir/$entry->name");
                 } else {
                     fs::ensureParent("$dir/$entry->name");
-                    fs::copy($stream, "$dir/$entry->name");
+                    fs::copy($stream, "$dir/$entry->name", null, 1024 * 128);
                 }
             });
 
@@ -684,6 +689,11 @@ class Repository
                     'size' => $size,
                     'sha256' => $hash,
                 ];
+
+                fs::format("$destDir/$module/" . fs::name($version) . ".json", [
+                    'size' => $size,
+                    'sha256' => $hash
+                ]);
             }
 
             fs::formatAs(

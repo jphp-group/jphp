@@ -3,7 +3,7 @@
 ---
 
 ## jphp-semver-ext
-> version 1.0.0, created by JPPM v0.1.16
+> version 1.0.0, created by JPPM v0.1.17
 
 Library for working with versions using SemVer standard.
 

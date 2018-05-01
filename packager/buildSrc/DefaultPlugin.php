@@ -99,11 +99,14 @@ class DefaultPlugin
 
         $version = "1.0.0";
 
-        $name = Console::read("Enter name ($name):", $name);
-        $version = Console::read("Enter version ($version):", $version);
-        $description = Console::read("Enter description:", '');
-
-        $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
+        if ($event->isFlag('y', 'yes')) {
+            $addAppPlugin = true;
+        } else {
+            $name = Console::read("Enter name ($name):", $name);
+            $version = Console::read("Enter version ($version):", $version);
+            $description = Console::read("Enter description:", '');
+            $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
+        }
 
         $data = [
             'name' => $name,

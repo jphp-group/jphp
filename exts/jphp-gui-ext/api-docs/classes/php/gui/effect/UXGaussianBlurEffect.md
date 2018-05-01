@@ -13,7 +13,7 @@ Class UXGaussianBlurEffect
 #### Properties
 
 - `->`[`radius`](#prop-radius) : `float`
-- See also in the parent class [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
+- *See also in the parent class* [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md).
 
 ---
 

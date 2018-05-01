@@ -4,6 +4,10 @@
 - **пакет** `gui`
 - **исходники** `php/gui/UXMenuButton.php`
 
+**Классы наследники**
+
+> [UXSplitMenuButton](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXSplitMenuButton.ru.md)
+
 **Описание**
 
 Class UXMenuButton
@@ -14,7 +18,7 @@ Class UXMenuButton
 
 - `->`[`items`](#prop-items) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md) - _List of UXMenuItem_
 - `->`[`popupSide`](#prop-popupside) : `string` - _BOTTOM, TOP, LEFT or RIGHT._
-- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
+- *См. также в родительском классе* [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md).
 
 ---
 

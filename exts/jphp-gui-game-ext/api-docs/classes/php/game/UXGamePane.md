@@ -12,7 +12,7 @@ Class UXGamePane
 
 #### Properties
 
-- `->`[`scene`](#prop-scene) : `UXGameScene`
+- `->`[`scene`](#prop-scene) : [`UXGameScene`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-game-ext/api-docs/classes/php/game/UXGameScene.md)
 - `->`[`content`](#prop-content) : `UXAnchorPane`
 - `->`[`autoSize`](#prop-autosize) : `bool`
 - `->`[`areaBackgroundColor`](#prop-areabackgroundcolor) : `string|UXColor`

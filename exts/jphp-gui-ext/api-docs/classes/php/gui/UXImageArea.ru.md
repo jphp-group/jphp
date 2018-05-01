@@ -28,7 +28,7 @@ Class UXImageArea
 - `->`[`clickImage`](#prop-clickimage) : [`UXImage`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImage.ru.md) - _Изображение при клике._
 - `->`[`flipX`](#prop-flipx) : `bool` - _Отразить изображение по оси X._
 - `->`[`flipY`](#prop-flipy) : `bool` - _Отразить изображение по оси Y._
-- См. также в родительском классе [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.ru.md)
+- *См. также в родительском классе* [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.ru.md).
 
 ---
 

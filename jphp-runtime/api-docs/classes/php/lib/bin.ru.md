@@ -3,6 +3,10 @@
 - **класс** `bin` (`php\lib\bin`)
 - **исходники** `php/lib/bin.php`
 
+**Классы наследники**
+
+> [binary](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/binary.ru.md)
+
 **Описание**
 
 Class for working with binary strings

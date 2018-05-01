@@ -26,7 +26,7 @@ Class UXTableView
 - `->`[`selectedItem`](#prop-selecteditem) : `mixed`
 - `->`[`focusedItem`](#prop-focuseditem) : `mixed`
 - `->`[`placeholder`](#prop-placeholder) : `UXNode|UXLabel`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).
 
 ---
 

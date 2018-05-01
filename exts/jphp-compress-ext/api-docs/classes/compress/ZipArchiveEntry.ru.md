@@ -17,7 +17,7 @@ Class TarArchiveEntry
 - `->`[`method`](#prop-method) : `int`
 - `->`[`crc`](#prop-crc) : `int`
 - `->`[`time`](#prop-time) : `int`
-- См. также в родительском классе [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
+- *См. также в родительском классе* [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md).
 
 ---
 

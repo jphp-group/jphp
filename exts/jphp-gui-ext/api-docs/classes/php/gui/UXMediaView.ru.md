@@ -1,6 +1,6 @@
 # UXMediaView
 
-- **класс** `UXMediaView` (`php\gui\UXMediaView`) **унаследован от** `UXNode` (`php\gui\UXNode`)
+- **класс** `UXMediaView` (`php\gui\UXMediaView`) **унаследован от** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXMediaView.php`
 
@@ -15,6 +15,7 @@ Class UXMediaView
 - `->`[`player`](#prop-player) : [`UXMediaPlayer`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaPlayer.ru.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`proportional`](#prop-proportional) : `bool`
+- *См. также в родительском классе* [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md).
 
 ---
 
@@ -24,6 +25,7 @@ Class UXMediaView
 - `->`[`play()`](#method-play) - _Play media._
 - `->`[`stop()`](#method-stop) - _Stop playing._
 - `->`[`pause()`](#method-pause) - _Pause playing._
+- См. также в родительском классе [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 
 ---
 # Методы

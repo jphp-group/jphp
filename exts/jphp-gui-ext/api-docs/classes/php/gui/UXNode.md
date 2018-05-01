@@ -6,7 +6,7 @@
 
 **Child Classes**
 
-> [UXShape](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/shape/UXShape.md), [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.md), [UXCustomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCustomNode.md), [UXData](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXData.md), [UXImageView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImageView.md), [UXMediaView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaView.md)
+> [UXShape](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/shape/UXShape.md), [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.md), [UXCustomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCustomNode.md), [UXData](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXData.md), [UXImageView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImageView.md), [UXMediaView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaView.md), [UXParent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
 
 **Description**
 
@@ -18,14 +18,14 @@ Class UXNode
 
 - `->`[`id`](#prop-id) : `string` - _Идентификатор._
 - `->`[`style`](#prop-style) : `string` - _CSS стили компонента в одну строку._
-- `->`[`parent`](#prop-parent) : `UXParent` - _Родительский компонент._
+- `->`[`parent`](#prop-parent) : [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md) - _Родительский компонент._
 - `->`[`cache`](#prop-cache) : `bool`
 - `->`[`cacheHint`](#prop-cachehint) : `string` - _DEFAULT, SPEED, QUALITY, SCALE, ROTATE, SCALE_AND_ROTATE_
 - `->`[`effects`](#prop-effects) : [`UXEffectPipeline`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffectPipeline.md) - _Эффекты компонента._
 - `->`[`clip`](#prop-clip) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
-- `->`[`scene`](#prop-scene) : `UXScene` - _Сцена компонента._
+- `->`[`scene`](#prop-scene) : [`UXScene`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXScene.md) - _Сцена компонента._
 - `->`[`form`](#prop-form) : [`UXForm`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXForm.md) - _Форма компонента._
-- `->`[`window`](#prop-window) : `UXWindow` - _Окно компонента_
+- `->`[`window`](#prop-window) : [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.md) - _Окно компонента_
 - `->`[`x`](#prop-x) : `double` - _Позиция по X._
 - `->`[`y`](#prop-y) : `double` - _Позиция по Y._
 - `->`[`translateX`](#prop-translatex) : `double` - _Смещение по X._

@@ -56,7 +56,11 @@ class ServerRepository extends ExternalRepository
             $url = $res->body()['downloadUrl'];
 
             if ($url) {
-                $copied = fs::copy($url, $toFile);
+                $copied = fs::copy($url, $toFile, function () {
+                    Console::print(".");
+                }, 1024 * 128);
+                Console::log(". done.");
+
                 return $copied > 0;
             } else {
                 Console::warn(

@@ -1,6 +1,6 @@
 # ResourceStream
 
-- **class** `ResourceStream` (`php\io\ResourceStream`) **extends** `Stream` (`php\io\Stream`)
+- **class** `ResourceStream` (`php\io\ResourceStream`) **extends** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 - **package** `std`
 - **source** `php/io/ResourceStream.php`
 
@@ -13,6 +13,7 @@ Class ResourceStream
 #### Static Methods
 
 - `ResourceStream ::`[`getResources()`](#method-getresources)
+- See also in the parent class [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 
 ---
 
@@ -27,6 +28,7 @@ Class ResourceStream
 - `->`[`getPosition()`](#method-getposition)
 - `->`[`close()`](#method-close)
 - `->`[`toExternalForm()`](#method-toexternalform)
+- See also in the parent class [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 
 ---
 # Static Methods

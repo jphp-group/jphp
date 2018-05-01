@@ -3,7 +3,7 @@
 ---
 
 ## jphp-compress-ext
-> версия 1.0.0, создано с помощью JPPM v0.1.16
+> версия 1.0.0, создано с помощью JPPM v0.1.17
 
 Compress library, supports tar, bz2, gz, zip and lz4 formats.
 

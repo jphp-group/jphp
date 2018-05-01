@@ -3,8 +3,8 @@ name: jphp-jsoup-ext
 version: 1.0.0
 description: Parsing html like in jQuery.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

@@ -5,7 +5,7 @@ repos:
 - jphp
 - central
 
-plugins:
+
 - GitHub
 
 app:

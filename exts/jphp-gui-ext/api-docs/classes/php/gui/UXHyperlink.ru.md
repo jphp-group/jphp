@@ -13,7 +13,7 @@ Class UXHyperlink
 #### Свойства
 
 - `->`[`visited`](#prop-visited) : `bool`
-- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
+- *См. также в родительском классе* [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md).
 
 ---
 

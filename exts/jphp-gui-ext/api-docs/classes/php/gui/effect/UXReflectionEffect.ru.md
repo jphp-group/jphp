@@ -16,4 +16,4 @@ Class UXReflectionEffect
 - `->`[`bottomOffset`](#prop-bottomoffset) : `float`
 - `->`[`topOpacity`](#prop-topopacity) : `float`
 - `->`[`bottomOpacity`](#prop-bottomopacity) : `float`
-- См. также в родительском классе [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md)
+- *См. также в родительском классе* [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.ru.md).

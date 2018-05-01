@@ -4,10 +4,10 @@ version: 1.0.0
 description: Zend PHP legacy functions and classes.
 
 deps:
-  jphp-json-ext: '*'
+  jphp-json-ext: '>=1.0.0'
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

@@ -1,6 +1,6 @@
 # MiscStream
 
-- **класс** `MiscStream` (`php\io\MiscStream`) **унаследован от** `Stream` (`php\io\Stream`)
+- **класс** `MiscStream` (`php\io\MiscStream`) **унаследован от** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 - **пакет** `std`
 - **исходники** `php/io/MiscStream.php`
 
@@ -25,6 +25,7 @@ Class MiscStream
 - `->`[`close()`](#method-close)
 - `->`[`length()`](#method-length)
 - `->`[`flush()`](#method-flush)
+- См. также в родительском классе [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 
 ---
 # Методы

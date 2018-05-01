@@ -1,6 +1,6 @@
 # UXNumberSpinner
 
-- **класс** `UXNumberSpinner` (`php\gui\UXNumberSpinner`) **унаследован от** `UXSpinner` (`php\gui\UXSpinner`)
+- **класс** `UXNumberSpinner` (`php\gui\UXNumberSpinner`) **унаследован от** [`UXSpinner`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXSpinner.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXNumberSpinner.php`
 
@@ -14,3 +14,4 @@
 - `->`[`initial`](#prop-initial) : `int`
 - `->`[`value`](#prop-value) : `int`
 - `->`[`arrowsStyle`](#prop-arrowsstyle) : `string` - _RIGHT_VERTICAL, RIGHT_HORIZONTAL, LEFT_VERTICAL, LEFT_HORIZONTAL, SPLIT_VERTICAL, SPLIT_HORIZONTAL_
+- *См. также в родительском классе* [UXSpinner](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXSpinner.ru.md).

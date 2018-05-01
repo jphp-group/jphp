@@ -1,8 +1,12 @@
 # SharedCollection
 
-- **class** `SharedCollection` (`php\util\SharedCollection`) **extends** `SharedMemory` (`php\util\SharedMemory`)
+- **class** `SharedCollection` (`php\util\SharedCollection`) **extends** [`SharedMemory`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.md)
 - **package** `std`
 - **source** `php/util/SharedCollection.php`
+
+**Child Classes**
+
+> [SharedMap](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMap.md), [SharedQueue](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedQueue.md), [SharedStack](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedStack.md)
 
 **Description**
 
@@ -15,6 +19,7 @@ Class SharedCollection
 - `->`[`isEmpty()`](#method-isempty)
 - `->`[`count()`](#method-count)
 - `->`[`clear()`](#method-clear) - _Remove all elements._
+- See also in the parent class [SharedMemory](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.md)
 
 ---
 # Methods

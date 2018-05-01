@@ -1,0 +1,8 @@
+
+name: jphp
+version: 1.0.0
+
+plugins: [Doc, Hub]
+
+hub:
+  login: d.zayceff@gmail.com

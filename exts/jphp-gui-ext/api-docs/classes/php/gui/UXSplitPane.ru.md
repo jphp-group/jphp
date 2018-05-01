@@ -15,7 +15,7 @@ Class UXSplitPane
 - `->`[`items`](#prop-items) : `UXList list of UXNode`
 - `->`[`orientation`](#prop-orientation) : `string`
 - `->`[`dividerPositions`](#prop-dividerpositions) : `double[]`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).
 
 ---
 

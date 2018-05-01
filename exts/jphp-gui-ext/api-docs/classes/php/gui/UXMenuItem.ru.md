@@ -18,7 +18,7 @@ Class UXMenuItem
 
 - `->`[`id`](#prop-id) : `string`
 - `->`[`text`](#prop-text) : `string`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - `->`[`style`](#prop-style) : `string`
 - `->`[`classes`](#prop-classes) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md)
 - `->`[`accelerator`](#prop-accelerator) : `string`

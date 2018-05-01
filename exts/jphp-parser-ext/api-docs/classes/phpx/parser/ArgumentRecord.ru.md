@@ -17,4 +17,4 @@ Class ArgumentRecord
 - `->`[`optional`](#prop-optional) : `bool`
 - `->`[`reference`](#prop-reference) : `bool`
 - `->`[`variadic`](#prop-variadic) : `bool`
-- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
+- *См. также в родительском классе* [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md).

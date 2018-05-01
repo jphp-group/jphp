@@ -1,6 +1,6 @@
 # UXCustomNode
 
-- **class** `UXCustomNode` (`php\gui\UXCustomNode`) **extends** `UXNode` (`php\gui\UXNode`)
+- **class** `UXCustomNode` (`php\gui\UXCustomNode`) **extends** [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - **package** `gui`
 - **source** `php/gui/UXCustomNode.php`
 
@@ -19,6 +19,7 @@ Class UXCustomNode
 - `->`[`remove()`](#method-remove)
 - `->`[`set()`](#method-set)
 - `->`[`toArray()`](#method-toarray)
+- See also in the parent class [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 
 ---
 # Methods

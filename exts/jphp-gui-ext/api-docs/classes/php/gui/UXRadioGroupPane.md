@@ -18,7 +18,7 @@ Class UXRadioGroupPane
 - `->`[`orientation`](#prop-orientation) : `string`
 - `->`[`font`](#prop-font) : [`UXFont`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/text/UXFont.md)
 - `->`[`textColor`](#prop-textcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md)
-- See also in the parent class [UXVBox](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXVBox.md)
+- *See also in the parent class* [UXVBox](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXVBox.md).
 
 ---
 

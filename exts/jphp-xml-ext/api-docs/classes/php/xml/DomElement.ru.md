@@ -1,6 +1,6 @@
 # DomElement
 
-- **класс** `DomElement` (`php\xml\DomElement`) **унаследован от** `DomNode` (`php\xml\DomNode`)
+- **класс** `DomElement` (`php\xml\DomElement`) **унаследован от** [`DomNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomNode.ru.md)
 - **исходники** `php/xml/DomElement.php`
 
 **Классы наследники**
@@ -34,6 +34,7 @@ Class DomElement
 - `->`[`removeAttributeNS()`](#method-removeattributens)
 - `->`[`setIdAttribute()`](#method-setidattribute)
 - `->`[`setIdAttributeNS()`](#method-setidattributens)
+- См. также в родительском классе [DomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomNode.ru.md)
 
 ---
 # Методы

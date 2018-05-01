@@ -13,7 +13,7 @@ Class UXGlowEffect
 #### Properties
 
 - `->`[`level`](#prop-level) : `double   0.0 to 1.0`
-- See also in the parent class [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
+- *See also in the parent class* [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md).
 
 ---
 

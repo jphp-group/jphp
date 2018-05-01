@@ -1,6 +1,6 @@
 # UXDragEvent
 
-- **class** `UXDragEvent` (`php\gui\event\UXDragEvent`) **extends** `UXEvent` (`php\gui\event\UXEvent`)
+- **class** `UXDragEvent` (`php\gui\event\UXDragEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
 - **source** `php/gui/event/UXDragEvent.php`
 
@@ -24,13 +24,15 @@ Class UXDragEvent
 - `->`[`dropCompleted`](#prop-dropcompleted) : `bool`
 - `->`[`gestureSource`](#prop-gesturesource) : `mixed|UXNode`
 - `->`[`gestureTarget`](#prop-gesturetarget) : `mixed|UXNode`
-- `->`[`dragboard`](#prop-dragboard) : `UXDragboard`
+- `->`[`dragboard`](#prop-dragboard) : [`UXDragboard`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXDragboard.md)
+- *See also in the parent class* [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md).
 
 ---
 
 #### Methods
 
 - `->`[`acceptTransferModes()`](#method-accepttransfermodes)
+- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 
 ---
 # Methods

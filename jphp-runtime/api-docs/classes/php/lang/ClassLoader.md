@@ -4,6 +4,10 @@
 - **package** `std`
 - **source** `php/lang/ClassLoader.php`
 
+**Child Classes**
+
+> [LauncherClassLoader](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/LauncherClassLoader.md)
+
 **Description**
 
 Class ClassLoader

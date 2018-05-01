@@ -1,6 +1,6 @@
 # ResourceStream
 
-- **класс** `ResourceStream` (`php\io\ResourceStream`) **унаследован от** `Stream` (`php\io\Stream`)
+- **класс** `ResourceStream` (`php\io\ResourceStream`) **унаследован от** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 - **пакет** `std`
 - **исходники** `php/io/ResourceStream.php`
 
@@ -13,6 +13,7 @@ Class ResourceStream
 #### Статичные Методы
 
 - `ResourceStream ::`[`getResources()`](#method-getresources)
+- См. также в родительском классе [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 
 ---
 
@@ -27,6 +28,7 @@ Class ResourceStream
 - `->`[`getPosition()`](#method-getposition)
 - `->`[`close()`](#method-close)
 - `->`[`toExternalForm()`](#method-toexternalform)
+- См. также в родительском классе [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.ru.md)
 
 ---
 # Статичные Методы

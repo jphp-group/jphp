@@ -1,6 +1,6 @@
 # UXScrollPane
 
-- **класс** `UXScrollPane` (`php\gui\layout\UXScrollPane`) **унаследован от** `UXControl` (`php\gui\UXControl`)
+- **класс** `UXScrollPane` (`php\gui\layout\UXScrollPane`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/layout/UXScrollPane.php`
 
@@ -12,7 +12,7 @@ Class UXScrollPane
 
 #### Свойства
 
-- `->`[`content`](#prop-content) : `UXNode`
+- `->`[`content`](#prop-content) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - `->`[`scrollX`](#prop-scrollx) : `double`
 - `->`[`scrollY`](#prop-scrolly) : `double`
 - `->`[`viewportBounds`](#prop-viewportbounds) : `array`
@@ -24,6 +24,7 @@ Class UXScrollPane
 - `->`[`fitToHeight`](#prop-fittoheight) : `bool`
 - `->`[`vbarPolicy`](#prop-vbarpolicy) : `string AS_NEEDED, ALWAYS, NEVER`
 - `->`[`hbarPolicy`](#prop-hbarpolicy) : `string AS_NEEDED, ALWAYS, NEVER`
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).
 
 ---
 
@@ -31,6 +32,7 @@ Class UXScrollPane
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`scrollToNode()`](#method-scrolltonode)
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 # Методы

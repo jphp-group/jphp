@@ -1,12 +1,12 @@
 # UXPopupWindow
 
-- **класс** `UXPopupWindow` (`php\gui\UXPopupWindow`) **унаследован от** `UXWindow` (`php\gui\UXWindow`)
+- **класс** `UXPopupWindow` (`php\gui\UXPopupWindow`) **унаследован от** [`UXWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/UXPopupWindow.php`
 
 **Классы наследники**
 
-> [UXContextMenu](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXContextMenu.ru.md)
+> [UXContextMenu](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXContextMenu.ru.md), [UXTooltip](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTooltip.ru.md)
 
 **Описание**
 
@@ -21,6 +21,7 @@ Class UXPopupWindow
 - `->`[`hideOnEscape`](#prop-hideonescape) : `bool`
 - `->`[`style`](#prop-style) : `string`
 - `->`[`classes`](#prop-classes) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md)
+- *См. также в родительском классе* [UXWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md).
 
 ---
 
@@ -29,6 +30,7 @@ Class UXPopupWindow
 - `->`[`show()`](#method-show)
 - `->`[`showByNode()`](#method-showbynode)
 - `->`[`hide()`](#method-hide) - _..._
+- См. также в родительском классе [UXWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWindow.ru.md)
 
 ---
 # Методы

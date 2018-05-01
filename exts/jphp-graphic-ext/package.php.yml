@@ -3,8 +3,8 @@ name: jphp-graphic-ext
 version: 1.0.0
 description: Graphic library like GD in zend php.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

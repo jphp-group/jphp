@@ -78,7 +78,7 @@ class Package
 
     public function getHash(): ?string
     {
-        return $this->info['sha256'];
+        return $this->info['sha256'] ?? $this->info['hash'];
     }
 
     /**
@@ -278,19 +278,25 @@ class Package
         return $this->getAny('config.build-dir', './build');
     }
 
+    private $ignore = null;
+
     /**
      * @return Ignore
      */
     public function fetchIgnore(): Ignore
     {
+        if ($this->ignore) return $this->ignore;
+
         $ignore = new Ignore((array) $this->getAny('config.ignore', []));
 
         $ignore->setBase('/');
+        $ignore->addRule("!/" . self::FILENAME);
         $ignore->addRule("/" . self::LOCK_FILENAME);
 
         $ignore->addRule($this->getConfigBuildPath() . "/**");
         $ignore->addRule($this->getConfigVendorPath() . "/**");
+        $ignore->addRule("/package.*.yml");
 
-        return $ignore;
+        return $this->ignore = $ignore;
     }
 }

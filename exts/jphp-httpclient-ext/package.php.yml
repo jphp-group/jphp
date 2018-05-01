@@ -3,8 +3,7 @@ name: jphp-httpclient-ext
 version: 1.0.0
 description: Http Client library.
 
-plugins:
-- Doc
+plugins: [Doc, Hub]
 
 sources:
 - src-php
@@ -15,4 +14,4 @@ doc:
   langs: {en: English, ru: Русский}
 
 config:
-  ignore: ['/api-docs/**']
+  ignore: ['/api-docs/**', '/package.hub.yml']

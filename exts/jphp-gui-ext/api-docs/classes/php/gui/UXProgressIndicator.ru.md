@@ -19,4 +19,4 @@ Class ProgressIndicator
 - `->`[`progressK`](#prop-progressk) : `double`
 - `->`[`progress`](#prop-progress) : `int`
 - `->`[`indeterminate`](#prop-indeterminate) : `bool`
-- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
+- *См. также в родительском классе* [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md).

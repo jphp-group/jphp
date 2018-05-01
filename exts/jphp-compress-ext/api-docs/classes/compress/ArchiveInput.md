@@ -4,6 +4,10 @@
 - **package** `compress`
 - **source** `compress/ArchiveInput.php`
 
+**Child Classes**
+
+> [TarArchiveInput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/TarArchiveInput.md), [ZipArchiveInput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ZipArchiveInput.md)
+
 ---
 
 #### Methods

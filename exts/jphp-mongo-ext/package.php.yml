@@ -3,8 +3,8 @@ name: jphp-mongo-ext
 version: 1.0.0
 description: Library for working with MongoDB.
 
-plugins:
-- Doc
+
+plugins: [Doc, Hub]
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

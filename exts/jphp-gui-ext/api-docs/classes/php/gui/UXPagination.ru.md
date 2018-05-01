@@ -24,7 +24,7 @@ Class UXPagination
 - `->`[`showPrevNext`](#prop-showprevnext) : `bool`
 - `->`[`previousButton`](#prop-previousbutton) : [`UXButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButton.ru.md)
 - `->`[`nextButton`](#prop-nextbutton) : [`UXButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButton.ru.md)
-- См. также в родительском классе [UXFlowPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
+- *См. также в родительском классе* [UXFlowPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md).
 
 ---
 

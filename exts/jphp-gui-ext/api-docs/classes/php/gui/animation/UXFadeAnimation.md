@@ -16,8 +16,8 @@ Class UXFadeAnimation
 - `->`[`toValue`](#prop-tovalue) : `double`
 - `->`[`byValue`](#prop-byvalue) : `double`
 - `->`[`duration`](#prop-duration) : `int millis`
-- `->`[`node`](#prop-node) : `UXNode`
-- See also in the parent class [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
+- `->`[`node`](#prop-node) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
+- *See also in the parent class* [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md).
 
 ---
 
