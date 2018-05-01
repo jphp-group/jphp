@@ -2,7 +2,7 @@
 
 - **класс** `UXKeyFrame` (`php\gui\animation\UXKeyFrame`)
 - **пакет** `gui`
-- **исходники** [`php/gui/animation/UXKeyFrame.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXKeyFrame.php)
+- **исходники** `php/gui/animation/UXKeyFrame.php`
 
 **Описание**
 

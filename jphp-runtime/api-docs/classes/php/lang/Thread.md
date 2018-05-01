@@ -2,7 +2,7 @@
 
 - **class** `Thread` (`php\lang\Thread`)
 - **package** `std`
-- **source** [`php/lang/Thread.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Thread.php)
+- **source** `php/lang/Thread.php`
 
 **Description**
 

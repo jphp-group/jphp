@@ -2,7 +2,7 @@
 
 - **класс** `UXTableCell` (`php\gui\UXTableCell`) **унаследован от** [`UXCell`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTableCell.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableCell.php)
+- **исходники** `php/gui/UXTableCell.php`
 
 **Описание**
 
@@ -14,6 +14,7 @@ Class UXTableCell
 
 - `->`[`updateTableView()`](#method-updatetableview)
 - `->`[`updateTableColumn()`](#method-updatetablecolumn)
+- См. также в родительском классе [UXCell](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.ru.md)
 
 ---
 # Методы

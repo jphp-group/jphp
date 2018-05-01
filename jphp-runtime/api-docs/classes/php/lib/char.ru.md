@@ -2,7 +2,7 @@
 
 - **класс** `char` (`php\lib\char`)
 - **пакет** `std`
-- **исходники** [`php/lib/char.php`](./src/main/resources/JPHP-INF/sdk/php/lib/char.php)
+- **исходники** `php/lib/char.php`
 
 **Описание**
 

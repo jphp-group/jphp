@@ -2,7 +2,11 @@
 
 - **class** `UXPane` (`php\gui\layout\UXPane`) **extends** `UXRegion` (`php\gui\layout\UXRegion`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXPane.php)
+- **source** `php/gui/layout/UXPane.php`
+
+**Child Classes**
+
+> [UXAnchorPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXAnchorPane.md), [UXFlowPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.md), [UXHBox](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXHBox.md)
 
 **Description**
 

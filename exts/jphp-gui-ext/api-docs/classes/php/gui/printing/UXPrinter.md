@@ -2,8 +2,7 @@
 
 - **class** `UXPrinter` (`php\gui\printing\UXPrinter`)
 - **package** `gui`
-- **source** [`php/gui/printing/UXPrinter.php`](./src/main/resources/JPHP-INF/sdk/php/gui/printing/UXPrinter.php)
-
+- **source** `php/gui/printing/UXPrinter.php`
 
 ---
 

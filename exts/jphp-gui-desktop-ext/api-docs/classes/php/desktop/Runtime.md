@@ -1,8 +1,7 @@
 # Runtime
 
 - **class** `Runtime` (`php\desktop\Runtime`)
-- **source** [`php/desktop/Runtime.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/Runtime.php)
-
+- **source** `php/desktop/Runtime.php`
 
 ---
 

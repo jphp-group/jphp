@@ -1,7 +1,7 @@
 # HttpRequest
 
 - **class** `HttpRequest` (`httpclient\HttpRequest`)
-- **source** [`httpclient/HttpRequest.php`](src-php/httpclient/HttpRequest.php)
+- **source** `httpclient/HttpRequest.php`
 
 **Description**
 

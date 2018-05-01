@@ -2,7 +2,7 @@
 
 - **class** `UXKeyEvent` (`php\gui\event\UXKeyEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
-- **source** [`php/gui/event/UXKeyEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXKeyEvent.php)
+- **source** `php/gui/event/UXKeyEvent.php`
 
 **Description**
 
@@ -20,6 +20,7 @@ Class UXKeyEvent
 - `->`[`shiftDown`](#prop-shiftdown) : `bool`
 - `->`[`metaDown`](#prop-metadown) : `bool`
 - `->`[`shortcutDown`](#prop-shortcutdown) : `bool`
+- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 
 ---
 
@@ -37,6 +38,7 @@ Class UXKeyEvent
 - `->`[`isWhitespaceKey()`](#method-iswhitespacekey) - _Space, tab and enter._
 - `->`[`isMediaKey()`](#method-ismediakey) - _All multimedia keys (channel up/down, volume control, etc...)._
 - `->`[`isUndefinedKey()`](#method-isundefinedkey) - _This value is used to indicate that the keyCode is unknown._
+- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 
 ---
 # Methods

@@ -2,7 +2,7 @@
 
 - **класс** `UXMenu` (`php\gui\UXMenu`) **унаследован от** `UXMenuItem` (`php\gui\UXMenuItem`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMenu.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenu.php)
+- **исходники** `php/gui/UXMenu.php`
 
 **Описание**
 

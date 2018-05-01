@@ -2,7 +2,7 @@
 
 - **класс** `SSHSftpChannel` (`ssh\SSHSftpChannel`) **унаследован от** [`SSHChannel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 - **пакет** `ssh`
-- **исходники** [`ssh/SSHSftpChannel.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHSftpChannel.php)
+- **исходники** `ssh/SSHSftpChannel.php`
 
 **Описание**
 
@@ -16,6 +16,7 @@ Class SSHSftpChannel
 - `->`[`version`](#prop-version) : `string`
 - `->`[`serverVersion`](#prop-serverversion) : `int`
 - `->`[`bulkRequests`](#prop-bulkrequests) : `int`
+- См. также в родительском классе [SSHChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 
 ---
 
@@ -42,6 +43,7 @@ Class SSHSftpChannel
 - `->`[`get()`](#method-get)
 - `->`[`put()`](#method-put)
 - `->`[`getExtension()`](#method-getextension)
+- См. также в родительском классе [SSHChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 
 ---
 # Методы

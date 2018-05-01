@@ -2,7 +2,11 @@
 
 - **класс** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXNode.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXNode.php)
+- **исходники** `php/gui/UXNode.php`
+
+**Классы наследники**
+
+> [UXShape](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/shape/UXShape.ru.md), [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.ru.md), [UXCustomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCustomNode.ru.md), [UXData](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXData.ru.md), [UXImageView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImageView.ru.md), [UXMediaView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaView.ru.md)
 
 **Описание**
 
@@ -17,10 +21,10 @@ Class UXNode
 - `->`[`parent`](#prop-parent) : `UXParent` - _Родительский компонент._
 - `->`[`cache`](#prop-cache) : `bool`
 - `->`[`cacheHint`](#prop-cachehint) : `string` - _DEFAULT, SPEED, QUALITY, SCALE, ROTATE, SCALE_AND_ROTATE_
-- `->`[`effects`](#prop-effects) : `UXEffectPipeline` - _Эффекты компонента._
-- `->`[`clip`](#prop-clip) : `UXNode`
+- `->`[`effects`](#prop-effects) : [`UXEffectPipeline`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffectPipeline.ru.md) - _Эффекты компонента._
+- `->`[`clip`](#prop-clip) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - `->`[`scene`](#prop-scene) : `UXScene` - _Сцена компонента._
-- `->`[`form`](#prop-form) : `UXForm` - _Форма компонента._
+- `->`[`form`](#prop-form) : [`UXForm`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXForm.ru.md) - _Форма компонента._
 - `->`[`window`](#prop-window) : `UXWindow` - _Окно компонента_
 - `->`[`x`](#prop-x) : `double` - _Позиция по X._
 - `->`[`y`](#prop-y) : `double` - _Позиция по Y._

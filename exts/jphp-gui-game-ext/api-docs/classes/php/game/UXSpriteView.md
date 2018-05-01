@@ -2,7 +2,7 @@
 
 - **class** `UXSpriteView` (`php\game\UXSpriteView`) **extends** `UXCanvas` (`php\gui\UXCanvas`)
 - **package** `game`
-- **source** [`php/game/UXSpriteView.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXSpriteView.php)
+- **source** `php/game/UXSpriteView.php`
 
 **Description**
 
@@ -12,7 +12,7 @@ Class UXSpriteView
 
 #### Properties
 
-- `->`[`sprite`](#prop-sprite) : `UXSprite` - _Спрайт._
+- `->`[`sprite`](#prop-sprite) : [`UXSprite`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-game-ext/api-docs/classes/php/game/UXSprite.md) - _Спрайт._
 - `->`[`animated`](#prop-animated) : `bool` - _Анимирован._
 - `->`[`animationName`](#prop-animationname) : `null|string` - _Анимация._
 - `->`[`animationSpeed`](#prop-animationspeed) : `int` - _Скорость анимации._

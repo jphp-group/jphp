@@ -2,7 +2,7 @@
 
 - **class** `UXCustomNode` (`php\gui\UXCustomNode`) **extends** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXCustomNode.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCustomNode.php)
+- **source** `php/gui/UXCustomNode.php`
 
 **Description**
 

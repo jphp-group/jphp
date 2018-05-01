@@ -2,8 +2,7 @@
 
 - **class** `UXTilePane` (`php\gui\layout\UXTilePane`) **extends** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 - **package** `gui`
-- **source** [`php/gui/layout/UXTilePane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXTilePane.php)
-
+- **source** `php/gui/layout/UXTilePane.php`
 
 ---
 
@@ -18,3 +17,4 @@
 - `->`[`prefRows`](#prop-prefrows) : `int`
 - `->`[`alignment`](#prop-alignment) : `string`
 - `->`[`tileAlignment`](#prop-tilealignment) : `string`
+- See also in the parent class [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)

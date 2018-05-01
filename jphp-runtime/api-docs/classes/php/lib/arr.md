@@ -2,7 +2,7 @@
 
 - **class** `arr` (`php\lib\arr`)
 - **package** `std`
-- **source** [`php/lib/arr.php`](./src/main/resources/JPHP-INF/sdk/php/lib/arr.php)
+- **source** `php/lib/arr.php`
 
 **Description**
 

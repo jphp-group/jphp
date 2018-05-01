@@ -2,7 +2,7 @@
 
 - **class** `UXLabel` (`php\gui\UXLabel`) **extends** `UXLabeled` (`php\gui\UXLabeled`)
 - **package** `gui`
-- **source** [`php/gui/UXLabel.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLabel.php)
+- **source** `php/gui/UXLabel.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **класс** `UXHyperlink` (`php\gui\UXHyperlink`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXHyperlink.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXHyperlink.php)
+- **исходники** `php/gui/UXHyperlink.php`
 
 **Описание**
 
@@ -13,6 +13,7 @@ Class UXHyperlink
 #### Свойства
 
 - `->`[`visited`](#prop-visited) : `bool`
+- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 
 ---
 
@@ -20,6 +21,7 @@ Class UXHyperlink
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`fire()`](#method-fire) - _Implemented to invoke the action event if one is defined. This_
+- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 
 ---
 # Методы

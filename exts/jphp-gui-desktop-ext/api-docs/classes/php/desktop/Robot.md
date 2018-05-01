@@ -1,7 +1,7 @@
 # Robot
 
 - **class** `Robot` (`php\desktop\Robot`)
-- **source** [`php/desktop/Robot.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/Robot.php)
+- **source** `php/desktop/Robot.php`
 
 **Description**
 

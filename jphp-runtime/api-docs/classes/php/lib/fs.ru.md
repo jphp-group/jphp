@@ -2,7 +2,7 @@
 
 - **класс** `fs` (`php\lib\fs`)
 - **пакет** `std`
-- **исходники** [`php/lib/fs.php`](./src/main/resources/JPHP-INF/sdk/php/lib/fs.php)
+- **исходники** `php/lib/fs.php`
 
 **Описание**
 

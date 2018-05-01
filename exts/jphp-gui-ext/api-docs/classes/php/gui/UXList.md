@@ -2,7 +2,7 @@
 
 - **class** `UXList` (`php\gui\UXList`)
 - **package** `gui`
-- **source** [`php/gui/UXList.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXList.php)
+- **source** `php/gui/UXList.php`
 
 **Description**
 

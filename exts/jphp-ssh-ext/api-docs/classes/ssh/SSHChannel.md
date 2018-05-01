@@ -2,7 +2,7 @@
 
 - **class** `SSHChannel` (`ssh\SSHChannel`)
 - **package** `ssh`
-- **source** [`ssh/SSHChannel.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHChannel.php)
+- **source** `ssh/SSHChannel.php`
 
 **Description**
 

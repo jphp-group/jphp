@@ -2,7 +2,7 @@
 
 - **класс** `IniProcessor` (`php\format\IniProcessor`) **унаследован от** `Processor` (`php\format\Processor`)
 - **пакет** `std`
-- **исходники** [`php/format/IniProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/IniProcessor.php)
+- **исходники** `php/format/IniProcessor.php`
 
 **Описание**
 

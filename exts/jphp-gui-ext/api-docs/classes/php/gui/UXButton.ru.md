@@ -2,7 +2,7 @@
 
 - **класс** `UXButton` (`php\gui\UXButton`) **унаследован от** `UXButtonBase` (`php\gui\UXButtonBase`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXButton.php)
+- **исходники** `php/gui/UXButton.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **class** `UXDraggableTab` (`php\gui\UXDraggableTab`) **extends** `UXTab` (`php\gui\UXTab`)
 - **package** `gui`
-- **source** [`php/gui/UXDraggableTab.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDraggableTab.php)
+- **source** `php/gui/UXDraggableTab.php`
 
 **Description**
 

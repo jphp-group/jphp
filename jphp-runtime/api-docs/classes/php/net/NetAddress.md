@@ -2,7 +2,7 @@
 
 - **class** `NetAddress` (`php\net\NetAddress`)
 - **package** `std`
-- **source** [`php/net/NetAddress.php`](./src/main/resources/JPHP-INF/sdk/php/net/NetAddress.php)
+- **source** `php/net/NetAddress.php`
 
 **Description**
 

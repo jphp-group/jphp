@@ -2,7 +2,7 @@
 
 - **класс** `UXPagination` (`php\gui\UXPagination`) **унаследован от** [`UXFlowPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXPagination.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXPagination.php)
+- **исходники** `php/gui/UXPagination.php`
 
 **Описание**
 
@@ -19,17 +19,19 @@ Class UXPagination
 - `->`[`selectedPage`](#prop-selectedpage) : `int`
 - `->`[`hintText`](#prop-hinttext) : `string`
 - `->`[`showTotal`](#prop-showtotal) : `bool`
-- `->`[`font`](#prop-font) : `UXFont`
-- `->`[`textColor`](#prop-textcolor) : `UXColor`
+- `->`[`font`](#prop-font) : [`UXFont`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/text/UXFont.ru.md)
+- `->`[`textColor`](#prop-textcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.ru.md)
 - `->`[`showPrevNext`](#prop-showprevnext) : `bool`
-- `->`[`previousButton`](#prop-previousbutton) : `UXButton`
-- `->`[`nextButton`](#prop-nextbutton) : `UXButton`
+- `->`[`previousButton`](#prop-previousbutton) : [`UXButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButton.ru.md)
+- `->`[`nextButton`](#prop-nextbutton) : [`UXButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButton.ru.md)
+- См. также в родительском классе [UXFlowPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`__construct()`](#method-__construct)
+- См. также в родительском классе [UXFlowPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFlowPane.ru.md)
 
 ---
 # Методы

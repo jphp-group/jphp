@@ -2,12 +2,13 @@ package org.develnext.jphp.parser.classes;
 
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
-import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken.UseType;
 import org.develnext.jphp.parser.ParserExtension;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
+import php.runtime.common.Callback;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.Stream;
@@ -21,11 +22,16 @@ import java.io.IOException;
 
 @Namespace(ParserExtension.NS)
 public class SourceFile extends BaseObject {
+    interface FetchFullNameHandler {
+        String fetch(String name, NamespaceStmtToken baseNamespace, UseType useType);
+    }
+
     protected Memory path;
     protected String uniqueId;
 
     private Context context;
     private ModuleRecord moduleRecord;
+    private FetchFullNameHandler fetchFullNameHandler;
 
     public SourceFile(Environment env) {
         super(env);
@@ -73,6 +79,15 @@ public class SourceFile extends BaseObject {
         return !getContext().isLikeFile();
     }
 
+    @Signature
+    public String fetchFullName(String name, NamespaceRecord namespace, UseType useType) {
+        if (namespace.token instanceof NamespaceStmtToken) {
+            return fetchFullNameHandler == null ? name : fetchFullNameHandler.fetch(name, (NamespaceStmtToken) namespace.token, useType);
+        } else {
+            throw new IllegalArgumentException("namespace must be NamespaceStmt token!");
+        }
+    }
+
     @Signature({
             @Arg(value = "manager", nativeType = SourceManager.class)
     })
@@ -84,6 +99,13 @@ public class SourceFile extends BaseObject {
             Tokenizer tokenizer = new Tokenizer(context);
 
             SyntaxAnalyzer analyzer = new SyntaxAnalyzer(manager.env, tokenizer);
+
+            fetchFullNameHandler = new FetchFullNameHandler() {
+                @Override
+                public String fetch(String name, NamespaceStmtToken baseNamespace, UseType useType) {
+                    return analyzer.getRealName(NameToken.valueOf(name), baseNamespace, useType).toName();
+                }
+            };
 
             for (ClassStmtToken token : analyzer.getClasses()) {
                 moduleRecord.synchronize(env, token, tokenizer);

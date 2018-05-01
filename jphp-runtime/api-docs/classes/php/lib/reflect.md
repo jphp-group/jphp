@@ -2,7 +2,11 @@
 
 - **class** `reflect` (`php\lib\reflect`)
 - **package** `std`
-- **source** [`php/lib/reflect.php`](./src/main/resources/JPHP-INF/sdk/php/lib/reflect.php)
+- **source** `php/lib/reflect.php`
+
+**Child Classes**
+
+> [Mirror](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/Mirror.md)
 
 **Description**
 

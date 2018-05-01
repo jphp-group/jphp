@@ -1,7 +1,7 @@
 # MongoDatabase
 
 - **класс** `MongoDatabase` (`mongo\MongoDatabase`)
-- **исходники** [`mongo/MongoDatabase.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoDatabase.php)
+- **исходники** `mongo/MongoDatabase.php`
 
 **Описание**
 

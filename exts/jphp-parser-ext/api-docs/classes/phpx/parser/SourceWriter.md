@@ -1,7 +1,7 @@
 # SourceWriter
 
 - **class** `SourceWriter` (`phpx\parser\SourceWriter`)
-- **source** [`phpx/parser/SourceWriter.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceWriter.php)
+- **source** `phpx/parser/SourceWriter.php`
 
 **Description**
 

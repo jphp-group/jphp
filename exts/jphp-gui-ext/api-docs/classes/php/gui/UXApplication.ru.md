@@ -2,7 +2,7 @@
 
 - **класс** `UXApplication` (`php\gui\UXApplication`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXApplication.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXApplication.php)
+- **исходники** `php/gui/UXApplication.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **класс** `SSHExecChannel` (`ssh\SSHExecChannel`) **унаследован от** [`SSHChannel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 - **пакет** `ssh`
-- **исходники** [`ssh/SSHExecChannel.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHExecChannel.php)
+- **исходники** `ssh/SSHExecChannel.php`
 
 **Описание**
 
@@ -15,6 +15,7 @@ Class SSHExecChannel
 - `->`[`setCommand()`](#method-setcommand)
 - `->`[`getErrorStream()`](#method-geterrorstream)
 - `->`[`setErrorStream()`](#method-seterrorstream)
+- См. также в родительском классе [SSHChannel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-ssh-ext/api-docs/classes/ssh/SSHChannel.ru.md)
 
 ---
 # Методы

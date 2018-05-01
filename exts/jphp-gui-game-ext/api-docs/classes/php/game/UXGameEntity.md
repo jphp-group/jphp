@@ -2,7 +2,7 @@
 
 - **class** `UXGameEntity` (`php\game\UXGameEntity`)
 - **package** `game`
-- **source** [`php/game/UXGameEntity.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameEntity.php)
+- **source** `php/game/UXGameEntity.php`
 
 **Description**
 

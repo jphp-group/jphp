@@ -2,7 +2,7 @@
 
 - **class** `UXMedia` (`php\gui\UXMedia`)
 - **package** `gui`
-- **source** [`php/gui/UXMedia.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMedia.php)
+- **source** `php/gui/UXMedia.php`
 
 **Description**
 

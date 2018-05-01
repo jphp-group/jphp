@@ -1,7 +1,7 @@
 # MongoCollection
 
 - **class** `MongoCollection` (`mongo\MongoCollection`)
-- **source** [`mongo/MongoCollection.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoCollection.php)
+- **source** `mongo/MongoCollection.php`
 
 **Description**
 

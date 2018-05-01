@@ -2,7 +2,7 @@
 
 - **class** `UXSlider` (`php\gui\UXSlider`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXSlider.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSlider.php)
+- **source** `php/gui/UXSlider.php`
 
 **Description**
 
@@ -22,3 +22,4 @@ Class UXSlider
 - `->`[`majorTickUnit`](#prop-majortickunit) : `double`
 - `->`[`minorTickUnit`](#prop-minortickunit) : `int`
 - `->`[`orientation`](#prop-orientation) : `string`
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)

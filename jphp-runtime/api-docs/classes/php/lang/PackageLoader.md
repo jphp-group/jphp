@@ -2,8 +2,7 @@
 
 - **class** `PackageLoader` (`php\lang\PackageLoader`)
 - **package** `std`
-- **source** [`php/lang/PackageLoader.php`](./src/main/resources/JPHP-INF/sdk/php/lang/PackageLoader.php)
-
+- **source** `php/lang/PackageLoader.php`
 
 ---
 

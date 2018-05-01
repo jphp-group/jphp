@@ -2,7 +2,7 @@
 
 - **class** `UXFlowPane` (`php\gui\layout\UXFlowPane`) **extends** `UXPane` (`php\gui\layout\UXPane`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXFlowPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXFlowPane.php)
+- **source** `php/gui/layout/UXFlowPane.php`
 
 **Description**
 

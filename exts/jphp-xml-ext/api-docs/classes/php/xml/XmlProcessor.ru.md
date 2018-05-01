@@ -1,7 +1,7 @@
 # XmlProcessor
 
 - **класс** `XmlProcessor` (`php\xml\XmlProcessor`) **унаследован от** `Processor` (`php\format\Processor`)
-- **исходники** [`php/xml/XmlProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/xml/XmlProcessor.php)
+- **исходники** `php/xml/XmlProcessor.php`
 
 **Описание**
 

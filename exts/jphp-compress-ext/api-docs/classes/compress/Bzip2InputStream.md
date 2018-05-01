@@ -2,8 +2,7 @@
 
 - **class** `Bzip2InputStream` (`compress\Bzip2InputStream`) **extends** `MiscStream` (`php\io\MiscStream`)
 - **package** `compress`
-- **source** [`compress/Bzip2InputStream.php`](./src/main/resources/JPHP-INF/sdk/compress/Bzip2InputStream.php)
-
+- **source** `compress/Bzip2InputStream.php`
 
 ---
 

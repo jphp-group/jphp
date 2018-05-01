@@ -1,7 +1,11 @@
 # Element
 
 - **класс** `Element` (`php\jsoup\Element`)
-- **исходники** [`php/jsoup/Element.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Element.php)
+- **исходники** `php/jsoup/Element.php`
+
+**Классы наследники**
+
+> [Document](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-jsoup-ext/api-docs/classes/php/jsoup/Document.ru.md)
 
 **Описание**
 

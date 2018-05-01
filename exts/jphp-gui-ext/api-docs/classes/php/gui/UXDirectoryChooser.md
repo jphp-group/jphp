@@ -2,7 +2,7 @@
 
 - **class** `UXDirectoryChooser` (`php\gui\UXDirectoryChooser`)
 - **package** `gui`
-- **source** [`php/gui/UXDirectoryChooser.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDirectoryChooser.php)
+- **source** `php/gui/UXDirectoryChooser.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **class** `number` (`php\lib\number`) **extends** [`num`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/num.md)
 - **package** `std`
-- **source** [`php/lib/Number.php`](./src/main/resources/JPHP-INF/sdk/php/lib/Number.php)
+- **source** `php/lib/Number.php`
 
 **Description**
 

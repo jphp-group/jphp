@@ -1,7 +1,7 @@
 # Archive
 
 - **class** `Archive` (`compress\Archive`)
-- **source** [`compress/Archive.php`](./src/main/resources/JPHP-INF/sdk/compress/Archive.php)
+- **source** `compress/Archive.php`
 
 **Description**
 

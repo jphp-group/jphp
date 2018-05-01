@@ -2,7 +2,7 @@
 
 - **class** `UXCollisionEvent` (`php\game\event\UXCollisionEvent`) **extends** `UXEvent` (`php\gui\event\UXEvent`)
 - **package** `game`
-- **source** [`php/game/event/UXCollisionEvent.php`](./src/main/resources/JPHP-INF/sdk/php/game/event/UXCollisionEvent.php)
+- **source** `php/game/event/UXCollisionEvent.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **класс** `UXContextMenu` (`php\gui\UXContextMenu`) **унаследован от** `UXPopupWindow` (`php\gui\UXPopupWindow`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXContextMenu.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXContextMenu.php)
+- **исходники** `php/gui/UXContextMenu.php`
 
 **Описание**
 

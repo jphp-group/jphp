@@ -1,5 +1,5 @@
 name: jppm
-version: 0.1.16
+version: 0.1.17
 
 plugins:
 - GitHub
@@ -12,7 +12,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Ned Doc plugin for generating api-docs from php sdk and sources.
+    + Improve doc plugin.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

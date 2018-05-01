@@ -2,7 +2,7 @@
 
 - **class** `UXToggleGroup` (`php\gui\UXToggleGroup`)
 - **package** `gui`
-- **source** [`php/gui/UXToggleGroup.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXToggleGroup.php)
+- **source** `php/gui/UXToggleGroup.php`
 
 **Description**
 

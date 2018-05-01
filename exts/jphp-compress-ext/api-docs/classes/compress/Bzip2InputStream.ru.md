@@ -2,8 +2,7 @@
 
 - **класс** `Bzip2InputStream` (`compress\Bzip2InputStream`) **унаследован от** `MiscStream` (`php\io\MiscStream`)
 - **пакет** `compress`
-- **исходники** [`compress/Bzip2InputStream.php`](./src/main/resources/JPHP-INF/sdk/compress/Bzip2InputStream.php)
-
+- **исходники** `compress/Bzip2InputStream.php`
 
 ---
 

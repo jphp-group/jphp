@@ -2,7 +2,7 @@
 
 - **класс** `SharedStack` (`php\util\SharedStack`) **унаследован от** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 - **пакет** `std`
-- **исходники** [`php/util/SharedStack.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedStack.php)
+- **исходники** `php/util/SharedStack.php`
 
 **Описание**
 
@@ -19,6 +19,7 @@ Class SharedStack
 - `->`[`count()`](#method-count)
 - `->`[`clear()`](#method-clear) - _Remove all items._
 - `->`[`isEmpty()`](#method-isempty)
+- См. также в родительском классе [SharedCollection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 
 ---
 # Методы

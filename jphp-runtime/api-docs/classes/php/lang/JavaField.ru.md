@@ -1,8 +1,7 @@
 # JavaField
 
 - **класс** `JavaField` (`php\lang\JavaField`) **унаследован от** `JavaReflection` (`php\lang\JavaReflection`)
-- **исходники** [`php/lang/JavaField.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaField.php)
-
+- **исходники** `php/lang/JavaField.php`
 
 ---
 

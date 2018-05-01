@@ -2,7 +2,7 @@
 
 - **класс** `UXSplitPane` (`php\gui\UXSplitPane`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXSplitPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSplitPane.php)
+- **исходники** `php/gui/UXSplitPane.php`
 
 **Описание**
 
@@ -15,12 +15,14 @@ Class UXSplitPane
 - `->`[`items`](#prop-items) : `UXList list of UXNode`
 - `->`[`orientation`](#prop-orientation) : `string`
 - `->`[`dividerPositions`](#prop-dividerpositions) : `double[]`
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 
 #### Статичные Методы
 
 - `UXSplitPane ::`[`setResizeWithParent()`](#method-setresizewithparent)
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 
@@ -28,6 +30,7 @@ Class UXSplitPane
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`setDividerPosition()`](#method-setdividerposition)
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 # Статичные Методы

@@ -2,7 +2,7 @@
 
 - **class** `UXButton` (`php\gui\UXButton`) **extends** `UXButtonBase` (`php\gui\UXButtonBase`)
 - **package** `gui`
-- **source** [`php/gui/UXButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXButton.php)
+- **source** `php/gui/UXButton.php`
 
 **Description**
 

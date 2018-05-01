@@ -2,7 +2,11 @@
 
 - **class** `UXSpinner` (`php\gui\UXSpinner`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXSpinner.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSpinner.php)
+- **source** `php/gui/UXSpinner.php`
+
+**Child Classes**
+
+> [UXNumberSpinner](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNumberSpinner.md)
 
 **Description**
 
@@ -16,6 +20,7 @@ Class UXSpinner
 - `->`[`editor`](#prop-editor) : `UXTextField`
 - `->`[`value`](#prop-value) : `mixed`
 - `->`[`alignment`](#prop-alignment) : `string` - _Text field alignment (pos)._
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
@@ -25,6 +30,7 @@ Class UXSpinner
 - `->`[`decrement()`](#method-decrement)
 - `->`[`setValueFactory()`](#method-setvaluefactory)
 - `->`[`setIntegerValueFactory()`](#method-setintegervaluefactory)
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 # Methods

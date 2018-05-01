@@ -2,7 +2,7 @@
 
 - **class** `URL` (`php\net\URL`)
 - **package** `std`
-- **source** [`php/net/URL.php`](./src/main/resources/JPHP-INF/sdk/php/net/URL.php)
+- **source** `php/net/URL.php`
 
 **Description**
 

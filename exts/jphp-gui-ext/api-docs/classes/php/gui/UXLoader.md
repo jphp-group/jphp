@@ -2,7 +2,7 @@
 
 - **class** `UXLoader` (`php\gui\UXLoader`)
 - **package** `gui`
-- **source** [`php/gui/UXLoader.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLoader.php)
+- **source** `php/gui/UXLoader.php`
 
 **Description**
 

@@ -14,6 +14,9 @@ jppm add jphp-httpclient-ext@1.0.0
 
 ### API
 **Classes**
-- [`httpclient\HttpClient`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpClient.md)- _Class HttpClient_
-- [`httpclient\HttpRequest`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpRequest.md)- _Class HttpRequest_
-- [`httpclient\HttpResponse`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpResponse.md)- _Class HttpResponse_
+
+#### `httpclient`
+
+- [`HttpClient`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpClient.md)- _Class HttpClient_
+- [`HttpRequest`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpRequest.md)- _Class HttpRequest_
+- [`HttpResponse`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpclient-ext/api-docs/classes/httpclient/HttpResponse.md)- _Class HttpResponse_

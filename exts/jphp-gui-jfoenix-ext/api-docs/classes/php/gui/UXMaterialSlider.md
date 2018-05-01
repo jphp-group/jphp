@@ -2,7 +2,7 @@
 
 - **class** `UXMaterialSlider` (`php\gui\UXMaterialSlider`) **extends** `UXSlider` (`php\gui\UXSlider`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialSlider.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialSlider.php)
+- **source** `php/gui/UXMaterialSlider.php`
 
 **Description**
 

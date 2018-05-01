@@ -2,8 +2,7 @@
 
 - **класс** `KeyPairGenerator` (`php\crypto\KeyPairGenerator`)
 - **пакет** `crypto`
-- **исходники** [`php/crypto/KeyPairGenerator.php`](./src/main/resources/JPHP-INF/sdk/php/crypto/KeyPairGenerator.php)
-
+- **исходники** `php/crypto/KeyPairGenerator.php`
 
 ---
 

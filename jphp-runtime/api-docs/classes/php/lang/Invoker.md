@@ -2,7 +2,7 @@
 
 - **class** `Invoker` (`php\lang\Invoker`)
 - **package** `std`
-- **source** [`php/lang/Invoker.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Invoker.php)
+- **source** `php/lang/Invoker.php`
 
 **Description**
 

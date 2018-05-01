@@ -1,7 +1,7 @@
 # TextWord
 
 - **class** `TextWord` (`text\TextWord`)
-- **source** [`text/TextWord.php`](./src/main/resources/JPHP-INF/sdk/text/TextWord.php)
+- **source** `text/TextWord.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **class** `SharedCollection` (`php\util\SharedCollection`) **extends** `SharedMemory` (`php\util\SharedMemory`)
 - **package** `std`
-- **source** [`php/util/SharedCollection.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedCollection.php)
+- **source** `php/util/SharedCollection.php`
 
 **Description**
 

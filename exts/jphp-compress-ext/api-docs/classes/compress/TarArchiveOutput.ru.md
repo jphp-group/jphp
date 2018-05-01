@@ -2,7 +2,7 @@
 
 - **класс** `TarArchiveOutput` (`compress\TarArchiveOutput`) **унаследован от** [`ArchiveOutput`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.ru.md)
 - **пакет** `compress`
-- **исходники** [`compress/TarArchiveOutput.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveOutput.php)
+- **исходники** `compress/TarArchiveOutput.php`
 
 **Описание**
 
@@ -14,6 +14,7 @@ Class TarArchiveOutputStream
 
 - `->`[`__construct()`](#method-__construct) - _TarArchiveOutput constructor._
 - `->`[`createEntry()`](#method-createentry)
+- См. также в родительском классе [ArchiveOutput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveOutput.ru.md)
 
 ---
 # Методы

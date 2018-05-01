@@ -1,7 +1,7 @@
 # Elements
 
 - **класс** `Elements` (`php\jsoup\Elements`)
-- **исходники** [`php/jsoup/Elements.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Elements.php)
+- **исходники** `php/jsoup/Elements.php`
 
 **Описание**
 

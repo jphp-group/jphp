@@ -2,7 +2,7 @@
 
 - **класс** `UXComboBox` (`php\gui\UXComboBox`) **унаследован от** `UXComboBoxBase` (`php\gui\UXComboBoxBase`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXComboBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXComboBox.php)
+- **исходники** `php/gui/UXComboBox.php`
 
 **Описание**
 

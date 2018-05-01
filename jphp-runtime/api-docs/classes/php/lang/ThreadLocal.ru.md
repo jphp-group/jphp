@@ -2,7 +2,7 @@
 
 - **класс** `ThreadLocal` (`php\lang\ThreadLocal`)
 - **пакет** `std`
-- **исходники** [`php/lang/ThreadLocal.php`](./src/main/resources/JPHP-INF/sdk/php/lang/ThreadLocal.php)
+- **исходники** `php/lang/ThreadLocal.php`
 
 **Описание**
 

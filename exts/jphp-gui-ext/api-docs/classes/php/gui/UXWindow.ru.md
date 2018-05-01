@@ -2,7 +2,11 @@
 
 - **класс** `UXWindow` (`php\gui\UXWindow`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXWindow.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWindow.php)
+- **исходники** `php/gui/UXWindow.php`
+
+**Классы наследники**
+
+> [UXForm](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXForm.ru.md), [UXPopupWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.ru.md)
 
 **Описание**
 
@@ -12,15 +16,15 @@ Class UXWindow
 
 #### Свойства
 
-- `->`[`scene`](#prop-scene) : `UXScene` - _Сцена._
+- `->`[`scene`](#prop-scene) : [`UXScene`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXScene.ru.md) - _Сцена._
 - `->`[`x`](#prop-x) : `double`
 - `->`[`y`](#prop-y) : `double`
 - `->`[`width`](#prop-width) : `double`
 - `->`[`height`](#prop-height) : `double`
 - `->`[`opacity`](#prop-opacity) : `double`
 - `->`[`size`](#prop-size) : `double[]` - _Размеры [width, height]_
-- `->`[`layout`](#prop-layout) : `UXPane`
-- `->`[`children`](#prop-children) : `UXList` - _Компоненты._
+- `->`[`layout`](#prop-layout) : [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
+- `->`[`children`](#prop-children) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md) - _Компоненты._
 - `->`[`visible`](#prop-visible) : `bool` - _Видимость._
 - `->`[`cursor`](#prop-cursor) : `string` - _Тип курсора._
 - `->`[`userData`](#prop-userdata) : `mixed` - _Любые данные._

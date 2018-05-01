@@ -1,7 +1,11 @@
 # Element
 
 - **class** `Element` (`php\jsoup\Element`)
-- **source** [`php/jsoup/Element.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Element.php)
+- **source** `php/jsoup/Element.php`
+
+**Child Classes**
+
+> [Document](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-jsoup-ext/api-docs/classes/php/jsoup/Document.md)
 
 **Description**
 

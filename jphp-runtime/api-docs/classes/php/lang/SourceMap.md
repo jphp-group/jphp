@@ -2,7 +2,7 @@
 
 - **class** `SourceMap` (`php\lang\SourceMap`)
 - **package** `std`
-- **source** [`php/lang/SourceMap.php`](./src/main/resources/JPHP-INF/sdk/php/lang/SourceMap.php)
+- **source** `php/lang/SourceMap.php`
 
 **Description**
 

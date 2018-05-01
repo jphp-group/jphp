@@ -2,7 +2,7 @@
 
 - **class** `UXComboBox` (`php\gui\UXComboBox`) **extends** `UXComboBoxBase` (`php\gui\UXComboBoxBase`)
 - **package** `gui`
-- **source** [`php/gui/UXComboBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXComboBox.php)
+- **source** `php/gui/UXComboBox.php`
 
 **Description**
 

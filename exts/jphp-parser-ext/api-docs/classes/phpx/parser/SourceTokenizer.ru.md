@@ -1,7 +1,7 @@
 # SourceTokenizer
 
 - **класс** `SourceTokenizer` (`phpx\parser\SourceTokenizer`)
-- **исходники** [`phpx/parser/SourceTokenizer.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceTokenizer.php)
+- **исходники** `phpx/parser/SourceTokenizer.php`
 
 **Описание**
 

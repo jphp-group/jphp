@@ -1,7 +1,7 @@
 # SqlConnectionPool
 
 - **class** `SqlConnectionPool` (`php\sql\SqlConnectionPool`)
-- **source** [`php/sql/SqlConnectionPool.php`](./src/main/resources/JPHP-INF/sdk/php/sql/SqlConnectionPool.php)
+- **source** `php/sql/SqlConnectionPool.php`
 
 **Description**
 

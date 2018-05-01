@@ -2,7 +2,7 @@
 
 - **class** `YamlProcessor` (`php\format\YamlProcessor`) **extends** `Processor` (`php\format\Processor`)
 - **package** `std`
-- **source** [`php/format/YamlProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/YamlProcessor.php)
+- **source** `php/format/YamlProcessor.php`
 
 **Description**
 

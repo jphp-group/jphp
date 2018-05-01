@@ -2,7 +2,7 @@
 
 - **class** `Locale` (`php\util\Locale`)
 - **package** `std`
-- **source** [`php/util/Locale.php`](./src/main/resources/JPHP-INF/sdk/php/util/Locale.php)
+- **source** `php/util/Locale.php`
 
 **Description**
 

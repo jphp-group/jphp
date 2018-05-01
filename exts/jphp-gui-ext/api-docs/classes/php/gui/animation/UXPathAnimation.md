@@ -2,7 +2,7 @@
 
 - **class** `UXPathAnimation` (`php\gui\animation\UXPathAnimation`) **extends** [`UXAnimation`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 - **package** `gui`
-- **source** [`php/gui/animation/UXPathAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXPathAnimation.php)
+- **source** `php/gui/animation/UXPathAnimation.php`
 
 **Description**
 
@@ -17,6 +17,7 @@ Class UXPathAnimation
 
 ORTHOGONAL_TO_TANGENT - The targeted node's rotation matrix is set to keep node
 perpendicular to the path's tangent along the geometric path._
+- See also in the parent class [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 
 ---
 
@@ -26,6 +27,7 @@ perpendicular to the path's tangent along the geometric path._
 - `->`[`addMoveTo()`](#method-addmoveto)
 - `->`[`addLineTo()`](#method-addlineto)
 - `->`[`clearPath()`](#method-clearpath)
+- See also in the parent class [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 
 ---
 # Methods

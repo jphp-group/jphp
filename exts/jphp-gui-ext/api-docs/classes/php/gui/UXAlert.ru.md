@@ -2,7 +2,7 @@
 
 - **класс** `UXAlert` (`php\gui\UXAlert`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXAlert.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXAlert.php)
+- **исходники** `php/gui/UXAlert.php`
 
 **Описание**
 

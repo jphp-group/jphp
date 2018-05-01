@@ -2,7 +2,7 @@
 
 - **класс** `Process` (`php\lang\Process`)
 - **пакет** `std`
-- **исходники** [`php/lang/Process.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Process.php)
+- **исходники** `php/lang/Process.php`
 
 **Описание**
 

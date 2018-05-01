@@ -2,7 +2,7 @@
 
 - **class** `Timer` (`php\time\Timer`)
 - **package** `std`
-- **source** [`php/time/Timer.php`](./src/main/resources/JPHP-INF/sdk/php/time/Timer.php)
+- **source** `php/time/Timer.php`
 
 **Description**
 

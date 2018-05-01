@@ -2,7 +2,7 @@
 
 - **class** `Key` (`php\crypto\Key`)
 - **package** `crypto`
-- **source** [`php/crypto/Key.php`](./src/main/resources/JPHP-INF/sdk/php/crypto/Key.php)
+- **source** `php/crypto/Key.php`
 
 **Description**
 

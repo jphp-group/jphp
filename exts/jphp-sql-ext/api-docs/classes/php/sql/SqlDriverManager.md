@@ -1,7 +1,7 @@
 # SqlDriverManager
 
 - **class** `SqlDriverManager` (`php\sql\SqlDriverManager`)
-- **source** [`php/sql/SqlDriverManager.php`](./src/main/resources/JPHP-INF/sdk/php/sql/SqlDriverManager.php)
+- **source** `php/sql/SqlDriverManager.php`
 
 **Description**
 

@@ -1,7 +1,7 @@
 # bin
 
 - **класс** `bin` (`php\lib\bin`)
-- **исходники** [`php/lib/bin.php`](./src/main/resources/JPHP-INF/sdk/php/lib/bin.php)
+- **исходники** `php/lib/bin.php`
 
 **Описание**
 

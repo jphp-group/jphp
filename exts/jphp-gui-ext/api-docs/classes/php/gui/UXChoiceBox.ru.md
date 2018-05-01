@@ -2,7 +2,7 @@
 
 - **класс** `UXChoiceBox` (`php\gui\UXChoiceBox`) **унаследован от** `UXControl` (`php\gui\UXControl`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXChoiceBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXChoiceBox.php)
+- **исходники** `php/gui/UXChoiceBox.php`
 
 **Описание**
 

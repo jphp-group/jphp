@@ -1,7 +1,7 @@
 # HttpClient
 
 - **class** `HttpClient` (`httpclient\HttpClient`)
-- **source** [`httpclient/HttpClient.php`](src-php/httpclient/HttpClient.php)
+- **source** `httpclient/HttpClient.php`
 
 **Description**
 

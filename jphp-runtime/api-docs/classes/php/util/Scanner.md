@@ -2,7 +2,7 @@
 
 - **class** `Scanner` (`php\util\Scanner`)
 - **package** `std`
-- **source** [`php/util/Scanner.php`](./src/main/resources/JPHP-INF/sdk/php/util/Scanner.php)
+- **source** `php/util/Scanner.php`
 
 **Description**
 

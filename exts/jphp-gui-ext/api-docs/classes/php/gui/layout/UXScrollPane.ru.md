@@ -2,7 +2,7 @@
 
 - **класс** `UXScrollPane` (`php\gui\layout\UXScrollPane`) **унаследован от** `UXControl` (`php\gui\UXControl`)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXScrollPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXScrollPane.php)
+- **исходники** `php/gui/layout/UXScrollPane.php`
 
 **Описание**
 

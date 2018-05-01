@@ -2,7 +2,7 @@
 
 - **класс** `SSHSession` (`ssh\SSHSession`)
 - **пакет** `ssh`
-- **исходники** [`ssh/SSHSession.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHSession.php)
+- **исходники** `ssh/SSHSession.php`
 
 **Описание**
 

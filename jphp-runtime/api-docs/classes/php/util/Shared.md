@@ -2,7 +2,7 @@
 
 - **class** `Shared` (`php\util\Shared`)
 - **package** `std`
-- **source** [`php/util/Shared.php`](./src/main/resources/JPHP-INF/sdk/php/util/Shared.php)
+- **source** `php/util/Shared.php`
 
 **Description**
 

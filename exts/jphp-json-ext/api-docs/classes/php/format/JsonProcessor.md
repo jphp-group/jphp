@@ -2,7 +2,7 @@
 
 - **class** `JsonProcessor` (`php\format\JsonProcessor`) **extends** `Processor` (`php\format\Processor`)
 - **package** `std`
-- **source** [`php/format/JsonProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/JsonProcessor.php)
+- **source** `php/format/JsonProcessor.php`
 
 **Description**
 

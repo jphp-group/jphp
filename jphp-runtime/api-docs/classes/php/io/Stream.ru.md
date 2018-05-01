@@ -2,7 +2,11 @@
 
 - **класс** `Stream` (`php\io\Stream`)
 - **пакет** `std`
-- **исходники** [`php/io/Stream.php`](./src/main/resources/JPHP-INF/sdk/php/io/Stream.php)
+- **исходники** `php/io/Stream.php`
+
+**Классы наследники**
+
+> [FileStream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/FileStream.ru.md), [MiscStream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/MiscStream.ru.md), [ResourceStream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/ResourceStream.ru.md)
 
 **Описание**
 

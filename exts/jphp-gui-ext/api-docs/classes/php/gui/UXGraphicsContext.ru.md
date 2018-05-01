@@ -2,7 +2,7 @@
 
 - **класс** `UXGraphicsContext` (`php\gui\UXGraphicsContext`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXGraphicsContext.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXGraphicsContext.php)
+- **исходники** `php/gui/UXGraphicsContext.php`
 
 **Описание**
 
@@ -12,17 +12,17 @@ Class UXGraphicsContext
 
 #### Свойства
 
-- `->`[`canvas`](#prop-canvas) : `UXCanvas`
-- `->`[`font`](#prop-font) : `UXFont`
+- `->`[`canvas`](#prop-canvas) : [`UXCanvas`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.ru.md)
+- `->`[`font`](#prop-font) : [`UXFont`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/text/UXFont.ru.md)
 - `->`[`globalAlpha`](#prop-globalalpha) : `float`
 - `->`[`globalBlendMode`](#prop-globalblendmode) : `string` - _SRC_OVER, SRC_ATOP, ADD, MULTIPLY, SCREEN, OVERLAY, DARKEN, LIGHTEN, COLOR_DODGE, COLOR_BURN_
 - `->`[`lineWidth`](#prop-linewidth) : `double`
 - `->`[`lineCap`](#prop-linecap) : `string` - _SQUARE, BUTT, ROUND_
 - `->`[`lineJoin`](#prop-linejoin) : `string` - _MITER, BEVEL, BEVEL_
 - `->`[`miterLimit`](#prop-miterlimit) : `double`
-- `->`[`fillColor`](#prop-fillcolor) : `UXColor`
+- `->`[`fillColor`](#prop-fillcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.ru.md)
 - `->`[`fillRule`](#prop-fillrule) : `string` - _EVEN_ODD, NON_ZERO_
-- `->`[`strokeColor`](#prop-strokecolor) : `UXColor`
+- `->`[`strokeColor`](#prop-strokecolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.ru.md)
 
 ---
 

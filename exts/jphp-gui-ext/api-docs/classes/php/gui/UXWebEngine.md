@@ -2,7 +2,7 @@
 
 - **class** `UXWebEngine` (`php\gui\UXWebEngine`)
 - **package** `gui`
-- **source** [`php/gui/UXWebEngine.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebEngine.php)
+- **source** `php/gui/UXWebEngine.php`
 
 **Description**
 

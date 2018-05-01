@@ -1,7 +1,7 @@
 # ClassRecord
 
 - **класс** `ClassRecord` (`phpx\parser\ClassRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
-- **исходники** [`phpx/parser/ClassRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ClassRecord.php)
+- **исходники** `phpx/parser/ClassRecord.php`
 
 **Описание**
 
@@ -12,10 +12,11 @@ Class ClassRecord
 #### Свойства
 
 - `->`[`namespaceRecord`](#prop-namespacerecord) : `NamespaceRecord`
-- `->`[`parent`](#prop-parent) : `ClassRecord`
+- `->`[`parent`](#prop-parent) : [`ClassRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/ClassRecord.ru.md)
 - `->`[`type`](#prop-type) : `string CLASS, INTERFACE, TRAIT`
 - `->`[`shortParentName`](#prop-shortparentname) : `bool`
 - `->`[`abstract`](#prop-abstract) : `bool`
+- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 
 ---
 
@@ -29,6 +30,7 @@ Class ClassRecord
 - `->`[`removeMethod()`](#method-removemethod)
 - `->`[`getMethods()`](#method-getmethods)
 - `->`[`getProperties()`](#method-getproperties)
+- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 
 ---
 # Методы

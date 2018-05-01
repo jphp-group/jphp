@@ -2,7 +2,11 @@
 
 - **class** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXNode.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXNode.php)
+- **source** `php/gui/UXNode.php`
+
+**Child Classes**
+
+> [UXShape](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/shape/UXShape.md), [UXCanvas](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCanvas.md), [UXCustomNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCustomNode.md), [UXData](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXData.md), [UXImageView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImageView.md), [UXMediaView](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaView.md)
 
 **Description**
 
@@ -17,10 +21,10 @@ Class UXNode
 - `->`[`parent`](#prop-parent) : `UXParent` - _Родительский компонент._
 - `->`[`cache`](#prop-cache) : `bool`
 - `->`[`cacheHint`](#prop-cachehint) : `string` - _DEFAULT, SPEED, QUALITY, SCALE, ROTATE, SCALE_AND_ROTATE_
-- `->`[`effects`](#prop-effects) : `UXEffectPipeline` - _Эффекты компонента._
-- `->`[`clip`](#prop-clip) : `UXNode`
+- `->`[`effects`](#prop-effects) : [`UXEffectPipeline`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffectPipeline.md) - _Эффекты компонента._
+- `->`[`clip`](#prop-clip) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - `->`[`scene`](#prop-scene) : `UXScene` - _Сцена компонента._
-- `->`[`form`](#prop-form) : `UXForm` - _Форма компонента._
+- `->`[`form`](#prop-form) : [`UXForm`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXForm.md) - _Форма компонента._
 - `->`[`window`](#prop-window) : `UXWindow` - _Окно компонента_
 - `->`[`x`](#prop-x) : `double` - _Позиция по X._
 - `->`[`y`](#prop-y) : `double` - _Позиция по Y._

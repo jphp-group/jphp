@@ -1,7 +1,7 @@
 # AbstractSourceRecord
 
 - **class** `AbstractSourceRecord` (`phpx\parser\AbstractSourceRecord`)
-- **source** [`phpx/parser/AbstractSourceRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/AbstractSourceRecord.php)
+- **source** `phpx/parser/AbstractSourceRecord.php`
 
 **Description**
 

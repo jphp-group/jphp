@@ -2,7 +2,7 @@
 
 - **класс** `UXDragEvent` (`php\gui\event\UXDragEvent`) **унаследован от** `UXEvent` (`php\gui\event\UXEvent`)
 - **пакет** `gui`
-- **исходники** [`php/gui/event/UXDragEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXDragEvent.php)
+- **исходники** `php/gui/event/UXDragEvent.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **class** `TimeZone` (`php\time\TimeZone`)
 - **package** `std`
-- **source** [`php/time/TimeZone.php`](./src/main/resources/JPHP-INF/sdk/php/time/TimeZone.php)
+- **source** `php/time/TimeZone.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **класс** `UXMediaView` (`php\gui\UXMediaView`) **унаследован от** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMediaView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMediaView.php)
+- **исходники** `php/gui/UXMediaView.php`
 
 **Описание**
 
@@ -12,7 +12,7 @@ Class UXMediaView
 
 #### Свойства
 
-- `->`[`player`](#prop-player) : `UXMediaPlayer`
+- `->`[`player`](#prop-player) : [`UXMediaPlayer`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaPlayer.ru.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`proportional`](#prop-proportional) : `bool`
 

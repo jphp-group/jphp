@@ -1,7 +1,7 @@
 # rx
 
 - **class** `rx` (`php\lib\rx`)
-- **source** [`php/lib/rx.php`](./src/main/resources/JPHP-INF/sdk/php/lib/rx.php)
+- **source** `php/lib/rx.php`
 
 **Description**
 

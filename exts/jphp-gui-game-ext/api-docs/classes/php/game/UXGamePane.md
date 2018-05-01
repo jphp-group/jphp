@@ -2,7 +2,7 @@
 
 - **class** `UXGamePane` (`php\game\UXGamePane`) **extends** `UXPanel` (`php\gui\layout\UXPanel`)
 - **package** `game`
-- **source** [`php/game/UXGamePane.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGamePane.php)
+- **source** `php/game/UXGamePane.php`
 
 **Description**
 

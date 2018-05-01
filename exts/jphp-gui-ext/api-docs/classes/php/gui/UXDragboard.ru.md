@@ -2,7 +2,7 @@
 
 - **класс** `UXDragboard` (`php\gui\UXDragboard`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXDragboard.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDragboard.php)
+- **исходники** `php/gui/UXDragboard.php`
 
 **Описание**
 

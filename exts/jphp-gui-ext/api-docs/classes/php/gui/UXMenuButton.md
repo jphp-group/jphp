@@ -2,7 +2,7 @@
 
 - **class** `UXMenuButton` (`php\gui\UXMenuButton`) **extends** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
 - **package** `gui`
-- **source** [`php/gui/UXMenuButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenuButton.php)
+- **source** `php/gui/UXMenuButton.php`
 
 **Description**
 
@@ -12,8 +12,9 @@ Class UXMenuButton
 
 #### Properties
 
-- `->`[`items`](#prop-items) : `UXList` - _List of UXMenuItem_
+- `->`[`items`](#prop-items) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.md) - _List of UXMenuItem_
 - `->`[`popupSide`](#prop-popupside) : `string` - _BOTTOM, TOP, LEFT or RIGHT._
+- See also in the parent class [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
 
 ---
 
@@ -22,6 +23,7 @@ Class UXMenuButton
 - `->`[`__construct()`](#method-__construct) - _UXMenuButton constructor._
 - `->`[`showMenu()`](#method-showmenu) - _Show popup menu._
 - `->`[`hideMenu()`](#method-hidemenu) - _Hide popup menu._
+- See also in the parent class [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.md)
 
 ---
 # Methods

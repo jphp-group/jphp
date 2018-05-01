@@ -2,7 +2,7 @@
 
 - **class** `SharedMap` (`php\util\SharedMap`) **extends** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.md)
 - **package** `std`
-- **source** [`php/util/SharedMap.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedMap.php)
+- **source** `php/util/SharedMap.php`
 
 **Description**
 
@@ -21,6 +21,7 @@ Class SharedMap
 - `->`[`remove()`](#method-remove)
 - `->`[`clear()`](#method-clear) - _Remove all items._
 - `->`[`isEmpty()`](#method-isempty)
+- See also in the parent class [SharedCollection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.md)
 
 ---
 # Methods

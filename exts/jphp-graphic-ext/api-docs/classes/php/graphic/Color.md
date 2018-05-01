@@ -2,7 +2,7 @@
 
 - **class** `Color` (`php\graphic\Color`)
 - **package** `graphic`
-- **source** [`php/graphic/Color.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/Color.php)
+- **source** `php/graphic/Color.php`
 
 **Description**
 

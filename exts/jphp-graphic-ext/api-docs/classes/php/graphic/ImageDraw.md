@@ -2,7 +2,7 @@
 
 - **class** `ImageDraw` (`php\graphic\ImageDraw`)
 - **package** `graphic`
-- **source** [`php/graphic/ImageDraw.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/ImageDraw.php)
+- **source** `php/graphic/ImageDraw.php`
 
 **Description**
 
@@ -13,7 +13,7 @@ Class ImageDraw
 #### Properties
 
 - `->`[`fill`](#prop-fill) : `Color|string`
-- `->`[`font`](#prop-font) : `Font`
+- `->`[`font`](#prop-font) : [`Font`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-graphic-ext/api-docs/classes/php/graphic/Font.md)
 - `->`[`antialiasing`](#prop-antialiasing) : `bool`
 - `->`[`textAntialiasing`](#prop-textantialiasing) : `bool|string` - _GASP, LCD_*, true, false_
 

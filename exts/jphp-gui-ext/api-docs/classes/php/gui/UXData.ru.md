@@ -2,7 +2,7 @@
 
 - **класс** `UXData` (`php\gui\UXData`) **унаследован от** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXData.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXData.php)
+- **исходники** `php/gui/UXData.php`
 
 **Описание**
 

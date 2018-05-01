@@ -2,7 +2,7 @@
 
 - **класс** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **унаследован от** `UXPane` (`php\gui\layout\UXPane`)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXAnchorPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXAnchorPane.php)
+- **исходники** `php/gui/layout/UXAnchorPane.php`
 
 **Описание**
 

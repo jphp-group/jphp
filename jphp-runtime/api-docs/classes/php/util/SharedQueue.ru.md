@@ -2,7 +2,7 @@
 
 - **класс** `SharedQueue` (`php\util\SharedQueue`) **унаследован от** [`SharedCollection`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 - **пакет** `std`
-- **исходники** [`php/util/SharedQueue.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedQueue.php)
+- **исходники** `php/util/SharedQueue.php`
 
 **Описание**
 
@@ -19,6 +19,7 @@ Class SharedQueue
 - `->`[`add()`](#method-add)
 - `->`[`peek()`](#method-peek)
 - `->`[`poll()`](#method-poll) - _Retrieves and removes the head of this queue._
+- См. также в родительском классе [SharedCollection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 
 ---
 # Методы

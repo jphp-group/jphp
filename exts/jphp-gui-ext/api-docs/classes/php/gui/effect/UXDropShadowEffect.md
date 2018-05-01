@@ -2,7 +2,7 @@
 
 - **class** `UXDropShadowEffect` (`php\gui\effect\UXDropShadowEffect`) **extends** `UXEffect` (`php\gui\effect\UXEffect`)
 - **package** `gui`
-- **source** [`php/gui/effect/UXDrowShadowEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXDrowShadowEffect.php)
+- **source** `php/gui/effect/UXDrowShadowEffect.php`
 
 **Description**
 

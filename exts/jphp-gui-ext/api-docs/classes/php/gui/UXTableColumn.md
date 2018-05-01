@@ -2,7 +2,7 @@
 
 - **class** `UXTableColumn` (`php\gui\UXTableColumn`)
 - **package** `gui`
-- **source** [`php/gui/UXTableColumn.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableColumn.php)
+- **source** `php/gui/UXTableColumn.php`
 
 **Description**
 
@@ -16,7 +16,7 @@ Class UXTableColumn
 - `->`[`editable`](#prop-editable) : `bool`
 - `->`[`resizable`](#prop-resizable) : `bool`
 - `->`[`sortable`](#prop-sortable) : `bool`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - `->`[`text`](#prop-text) : `string`
 - `->`[`width`](#prop-width) : `int`
 - `->`[`maxWidth`](#prop-maxwidth) : `int`

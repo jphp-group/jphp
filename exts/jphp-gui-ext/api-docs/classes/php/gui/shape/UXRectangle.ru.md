@@ -2,7 +2,7 @@
 
 - **класс** `UXRectangle` (`php\gui\shape\UXRectangle`) **унаследован от** `UXShape` (`php\gui\shape\UXShape`)
 - **пакет** `gui`
-- **исходники** [`php/gui/shape/UXRectangle.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXRectangle.php)
+- **исходники** `php/gui/shape/UXRectangle.php`
 
 **Описание**
 

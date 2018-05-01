@@ -2,7 +2,7 @@
 
 - **класс** `Locale` (`php\util\Locale`)
 - **пакет** `std`
-- **исходники** [`php/util/Locale.php`](./src/main/resources/JPHP-INF/sdk/php/util/Locale.php)
+- **исходники** `php/util/Locale.php`
 
 **Описание**
 

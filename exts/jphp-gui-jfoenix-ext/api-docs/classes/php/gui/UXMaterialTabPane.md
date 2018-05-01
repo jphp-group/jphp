@@ -2,7 +2,7 @@
 
 - **class** `UXMaterialTabPane` (`php\gui\UXMaterialTabPane`) **extends** `UXTabPane` (`php\gui\UXTabPane`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialTabPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTabPane.php)
+- **source** `php/gui/UXMaterialTabPane.php`
 
 **Description**
 

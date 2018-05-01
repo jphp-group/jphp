@@ -2,8 +2,7 @@
 
 - **класс** `ZipArchiveInput` (`compress\ZipArchiveInput`) **унаследован от** [`ArchiveInput`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveInput.ru.md)
 - **пакет** `compress`
-- **исходники** [`compress/ZipArchiveInput.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveInput.php)
-
+- **исходники** `compress/ZipArchiveInput.php`
 
 ---
 
@@ -11,6 +10,7 @@
 
 - `->`[`__construct()`](#method-__construct) - _TarArchiveOutput constructor._
 - `->`[`nextEntry()`](#method-nextentry)
+- См. также в родительском классе [ArchiveInput](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveInput.ru.md)
 
 ---
 # Методы

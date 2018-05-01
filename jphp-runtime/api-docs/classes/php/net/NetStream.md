@@ -2,7 +2,7 @@
 
 - **class** `NetStream` (`php\net\NetStream`) **extends** [`Stream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 - **package** `std`
-- **source** [`php/net/NetStream.php`](./src/main/resources/JPHP-INF/sdk/php/net/NetStream.php)
+- **source** `php/net/NetStream.php`
 
 **Description**
 
@@ -26,6 +26,7 @@ Class NetStream
 - `->`[`setProxy()`](#method-setproxy)
 - `->`[`getProxy()`](#method-getproxy)
 - `->`[`getUrlConnection()`](#method-geturlconnection)
+- See also in the parent class [Stream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/Stream.md)
 
 ---
 # Methods

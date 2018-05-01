@@ -1,7 +1,7 @@
 # ModuleRecord
 
 - **класс** `ModuleRecord` (`phpx\parser\ModuleRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
-- **исходники** [`phpx/parser/ModuleRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ModuleRecord.php)
+- **исходники** `phpx/parser/ModuleRecord.php`
 
 **Описание**
 
@@ -17,6 +17,7 @@ Class ModuleRecord
 - `->`[`findClass()`](#method-findclass)
 - `->`[`findMethod()`](#method-findmethod) - _Alias of findFunction()._
 - `->`[`findFunction()`](#method-findfunction)
+- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 
 ---
 # Методы

@@ -2,7 +2,7 @@
 
 - **class** `UXSprite` (`php\game\UXSprite`)
 - **package** `game`
-- **source** [`php/game/UXSprite.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXSprite.php)
+- **source** `php/game/UXSprite.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **класс** `Image` (`php\graphic\Image`)
 - **пакет** `graphic`
-- **исходники** [`php/graphic/Image.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/Image.php)
+- **исходники** `php/graphic/Image.php`
 
 **Описание**
 

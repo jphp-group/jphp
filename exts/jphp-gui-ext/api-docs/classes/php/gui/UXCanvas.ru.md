@@ -2,7 +2,7 @@
 
 - **класс** `UXCanvas` (`php\gui\UXCanvas`) **унаследован от** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXCanvas.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCanvas.php)
+- **исходники** `php/gui/UXCanvas.php`
 
 **Описание**
 

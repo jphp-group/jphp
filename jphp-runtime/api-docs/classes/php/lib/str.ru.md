@@ -2,7 +2,7 @@
 
 - **класс** `str` (`php\lib\str`)
 - **пакет** `std`
-- **исходники** [`php/lib/Str.php`](./src/main/resources/JPHP-INF/sdk/php/lib/Str.php)
+- **исходники** `php/lib/Str.php`
 
 **Описание**
 

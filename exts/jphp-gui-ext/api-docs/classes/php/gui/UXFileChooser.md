@@ -2,7 +2,7 @@
 
 - **class** `UXFileChooser` (`php\gui\UXFileChooser`)
 - **package** `gui`
-- **source** [`php/gui/UXFileChooser.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXFileChooser.php)
+- **source** `php/gui/UXFileChooser.php`
 
 **Description**
 

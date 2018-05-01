@@ -2,7 +2,7 @@
 
 - **class** `UXScreen` (`php\gui\UXScreen`)
 - **package** `gui`
-- **source** [`php/gui/UXScreen.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXScreen.php)
+- **source** `php/gui/UXScreen.php`
 
 **Description**
 

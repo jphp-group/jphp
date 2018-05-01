@@ -2,7 +2,7 @@
 
 - **класс** `UXImage` (`php\gui\UXImage`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXImage.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXImage.php)
+- **исходники** `php/gui/UXImage.php`
 
 **Описание**
 

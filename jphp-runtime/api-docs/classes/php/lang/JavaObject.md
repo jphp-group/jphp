@@ -2,7 +2,7 @@
 
 - **class** `JavaObject` (`php\lang\JavaObject`)
 - **package** `std`
-- **source** [`php/lang/JavaObject.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaObject.php)
+- **source** `php/lang/JavaObject.php`
 
 **Description**
 

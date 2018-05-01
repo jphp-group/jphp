@@ -2,7 +2,7 @@
 
 - **класс** `UXGameBackground` (`php\game\UXGameBackground`) **унаследован от** `UXCanvas` (`php\gui\UXCanvas`)
 - **пакет** `game`
-- **исходники** [`php/game/UXGameBackground.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameBackground.php)
+- **исходники** `php/game/UXGameBackground.php`
 
 **Описание**
 

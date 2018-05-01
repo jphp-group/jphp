@@ -2,7 +2,7 @@
 
 - **класс** `FileStream` (`php\io\FileStream`) **унаследован от** `Stream` (`php\io\Stream`)
 - **пакет** `std`
-- **исходники** [`php/io/FileStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/FileStream.php)
+- **исходники** `php/io/FileStream.php`
 
 **Описание**
 

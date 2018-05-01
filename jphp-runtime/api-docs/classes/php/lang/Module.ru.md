@@ -2,7 +2,7 @@
 
 - **класс** `Module` (`php\lang\Module`)
 - **пакет** `std`
-- **исходники** [`php/lang/Module.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Module.php)
+- **исходники** `php/lang/Module.php`
 
 **Описание**
 

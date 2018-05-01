@@ -2,7 +2,7 @@
 
 - **class** `FileStream` (`php\io\FileStream`) **extends** `Stream` (`php\io\Stream`)
 - **package** `std`
-- **source** [`php/io/FileStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/FileStream.php)
+- **source** `php/io/FileStream.php`
 
 **Description**
 

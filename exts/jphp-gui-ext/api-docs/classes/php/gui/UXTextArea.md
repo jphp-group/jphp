@@ -2,7 +2,7 @@
 
 - **class** `UXTextArea` (`php\gui\UXTextArea`) **extends** `UXTextInputControl` (`php\gui\UXTextInputControl`)
 - **package** `gui`
-- **source** [`php/gui/UXTextArea.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTextArea.php)
+- **source** `php/gui/UXTextArea.php`
 
 **Description**
 

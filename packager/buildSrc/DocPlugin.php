@@ -22,6 +22,7 @@ use phpx\parser\SourceTokenizer;
  * @jppm-task-prefix doc
  *
  * @jppm-task build
+ * @jppm-task clean
  */
 class DocPlugin
 {
@@ -53,12 +54,14 @@ class DocPlugin
      * @var array
      */
     private $stubDirs = [];
+    private $extraDir;
 
     public function __construct(Event $event)
     {
         $this->langs = $event->package()->getAny('doc.langs', ['en' => 'English']);
         $this->urlPrefix = $event->package()->getAny('doc.url-prefix', '');
         $this->dir = $event->package()->getAny('doc.dir', './api-docs');
+        $this->extraDir = $event->package()->getAny('doc.extra-dir', './api-docs-extra');
 
         $this->stubDirs = $event->package()->getAny('doc.stub-dirs', ['./sdk']);
 
@@ -94,13 +97,24 @@ class DocPlugin
 
     /**
      * @jppm-need-package true
-     * @jppm-description build html php doc
+     * @jppm-description Remove build API documentation files!
+     * @param Event $event
+     */
+    public function clean(Event $event)
+    {
+        $docDir = $this->dir;
+
+        Tasks::cleanDir($docDir);
+    }
+
+    /**
+     * @jppm-depends-on doc:clean
+     * @jppm-need-package true
+     * @jppm-description Build markdown API documentation.
      * @param Event $event
      */
     public function build(Event $event)
     {
-        $env = new Environment(null, Environment::HOT_RELOAD);
-
         $sources = $event->package()->getSources() + $this->stubDirs;
 
         $docDir = $this->dir;
@@ -132,11 +146,18 @@ class DocPlugin
                 $originSource = $source;
                 $source = "./$source";
 
-                fs::scan($source, ['extensions' => ['php', 'phb'], 'callback' => function ($filename)
-                                use ($env, $docIndex, $event, $source, $originSource, $docDir, $suffix, $lang) {
+                fs::scan($source, ['extensions' => ['php'], 'callback' => function ($filename)
+                                use ($docIndex, $event, $source, $originSource, $docDir, $suffix, $lang) {
                     $uniqueId = fs::relativize($filename, $source);
 
                     $sourceFile = $this->parseFile($filename, $uniqueId);
+
+                    if (fs::isFile($extraFile = "$this->extraDir/" . fs::pathNoExt($uniqueId) . ".yml")) {
+                        $extra = fs::parse($extraFile);
+                    } else {
+                        $extra = [];
+                    }
+
                     $classes = $sourceFile->moduleRecord->getClasses();
 
                     flow($classes)->each(function (ClassRecord $cls) use ($docIndex, $event, $docDir) {
@@ -145,13 +166,15 @@ class DocPlugin
                         }
                     });
 
-                    flow($classes)->each(function (ClassRecord $cls) use ($docDir, $docIndex, $suffix, $lang, $uniqueId, $originSource) {
+                    flow($classes)->each(function (ClassRecord $cls)
+                        use ($docDir, $docIndex, $suffix, $lang, $uniqueId, $originSource, $sourceFile, $extra) {
                         if (arr::has($this->excludeClasses, $cls->name)) return;
 
-                        $docClass = new DocClass($docIndex, $cls, $lang);
+                        $docClass = new DocClass($docIndex, $cls, $lang, $sourceFile);
                         $docClass->setFile("$originSource/$uniqueId");
                         $docClass->setSrcFile($uniqueId);
                         $docClass->setExcludeMethods($this->excludeMethods);
+                        $docClass->setExtra($extra);
 
                         $filename = "$docDir/classes/" . str::replace($cls->name, "\\", "/");
 

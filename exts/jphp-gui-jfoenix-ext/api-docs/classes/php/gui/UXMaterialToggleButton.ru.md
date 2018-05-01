@@ -2,8 +2,7 @@
 
 - **класс** `UXMaterialToggleButton` (`php\gui\UXMaterialToggleButton`) **унаследован от** `UXToggleButton` (`php\gui\UXToggleButton`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialToggleButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialToggleButton.php)
-
+- **исходники** `php/gui/UXMaterialToggleButton.php`
 
 ---
 

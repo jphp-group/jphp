@@ -2,7 +2,7 @@
 
 - **класс** `ArchiveEntry` (`compress\ArchiveEntry`)
 - **пакет** `compress`
-- **исходники** [`compress/ArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/ArchiveEntry.php)
+- **исходники** `compress/ArchiveEntry.php`
 
 **Описание**
 

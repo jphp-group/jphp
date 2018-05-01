@@ -2,7 +2,7 @@
 
 - **класс** `UXLoader` (`php\gui\UXLoader`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXLoader.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLoader.php)
+- **исходники** `php/gui/UXLoader.php`
 
 **Описание**
 

@@ -14,5 +14,8 @@ jppm add jphp-markdown-ext@1.0.0
 
 ### API
 **Classes**
-- [`markdown\Markdown`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-markdown-ext/api-docs/classes/markdown/Markdown.md)- _Class Markdown_
-- [`markdown\MarkdownOptions`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-markdown-ext/api-docs/classes/markdown/MarkdownOptions.md)
+
+#### `markdown`
+
+- [`Markdown`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-markdown-ext/api-docs/classes/markdown/Markdown.md)- _Class Markdown_
+- [`MarkdownOptions`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-markdown-ext/api-docs/classes/markdown/MarkdownOptions.md)

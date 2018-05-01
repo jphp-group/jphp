@@ -2,7 +2,7 @@
 
 - **class** `GzipOutputStream` (`compress\GzipOutputStream`) **extends** `MiscStream` (`php\io\MiscStream`)
 - **package** `compress`
-- **source** [`compress/GzipOutputStream.php`](./src/main/resources/JPHP-INF/sdk/compress/GzipOutputStream.php)
+- **source** `compress/GzipOutputStream.php`
 
 **Description**
 

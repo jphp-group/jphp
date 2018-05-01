@@ -2,7 +2,7 @@
 
 - **class** `UXWebHistory` (`php\gui\UXWebHistory`)
 - **package** `gui`
-- **source** [`php/gui/UXWebHistory.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebHistory.php)
+- **source** `php/gui/UXWebHistory.php`
 
 **Description**
 

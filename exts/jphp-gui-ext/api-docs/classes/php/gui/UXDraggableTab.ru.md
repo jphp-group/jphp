@@ -2,7 +2,7 @@
 
 - **класс** `UXDraggableTab` (`php\gui\UXDraggableTab`) **унаследован от** `UXTab` (`php\gui\UXTab`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXDraggableTab.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDraggableTab.php)
+- **исходники** `php/gui/UXDraggableTab.php`
 
 **Описание**
 

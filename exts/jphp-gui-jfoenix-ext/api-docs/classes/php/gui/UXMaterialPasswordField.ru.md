@@ -2,8 +2,7 @@
 
 - **класс** `UXMaterialPasswordField` (`php\gui\UXMaterialPasswordField`) **унаследован от** `UXPasswordField` (`php\gui\UXPasswordField`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialPasswordField.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialPasswordField.php)
-
+- **исходники** `php/gui/UXMaterialPasswordField.php`
 
 ---
 

@@ -2,7 +2,7 @@
 
 - **class** `ArchiveEntry` (`compress\ArchiveEntry`)
 - **package** `compress`
-- **source** [`compress/ArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/ArchiveEntry.php)
+- **source** `compress/ArchiveEntry.php`
 
 **Description**
 

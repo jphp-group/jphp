@@ -2,7 +2,7 @@
 
 - **класс** `Font` (`php\graphic\Font`)
 - **пакет** `graphic`
-- **исходники** [`php/graphic/Font.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/Font.php)
+- **исходники** `php/graphic/Font.php`
 
 **Описание**
 

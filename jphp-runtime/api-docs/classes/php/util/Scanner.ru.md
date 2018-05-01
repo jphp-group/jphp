@@ -2,7 +2,7 @@
 
 - **класс** `Scanner` (`php\util\Scanner`)
 - **пакет** `std`
-- **исходники** [`php/util/Scanner.php`](./src/main/resources/JPHP-INF/sdk/php/util/Scanner.php)
+- **исходники** `php/util/Scanner.php`
 
 **Описание**
 

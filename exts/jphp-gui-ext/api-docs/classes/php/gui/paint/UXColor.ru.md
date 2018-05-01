@@ -2,7 +2,7 @@
 
 - **класс** `UXColor` (`php\gui\paint\UXColor`)
 - **пакет** `gui`
-- **исходники** [`php/gui/paint/UXColor.php`](./src/main/resources/JPHP-INF/sdk/php/gui/paint/UXColor.php)
+- **исходники** `php/gui/paint/UXColor.php`
 
 **Описание**
 

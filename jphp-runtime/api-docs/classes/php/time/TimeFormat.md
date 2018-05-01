@@ -2,7 +2,7 @@
 
 - **class** `TimeFormat` (`php\time\TimeFormat`)
 - **package** `std`
-- **source** [`php/time/TimeFormat.php`](./src/main/resources/JPHP-INF/sdk/php/time/TimeFormat.php)
+- **source** `php/time/TimeFormat.php`
 
 **Description**
 

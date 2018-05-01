@@ -2,8 +2,7 @@
 
 - **class** `ArchiveInput` (`compress\ArchiveInput`)
 - **package** `compress`
-- **source** [`compress/ArchiveInput.php`](./src/main/resources/JPHP-INF/sdk/compress/ArchiveInput.php)
-
+- **source** `compress/ArchiveInput.php`
 
 ---
 

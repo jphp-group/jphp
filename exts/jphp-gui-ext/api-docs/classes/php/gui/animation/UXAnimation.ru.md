@@ -2,7 +2,7 @@
 
 - **класс** `UXAnimation` (`php\gui\animation\UXAnimation`)
 - **пакет** `gui`
-- **исходники** [`php/gui/animation/UXAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXAnimation.php)
+- **исходники** `php/gui/animation/UXAnimation.php`
 
 **Описание**
 

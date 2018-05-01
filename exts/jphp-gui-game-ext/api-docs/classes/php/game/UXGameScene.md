@@ -2,7 +2,7 @@
 
 - **class** `UXGameScene` (`php\game\UXGameScene`)
 - **package** `game`
-- **source** [`php/game/UXGameScene.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameScene.php)
+- **source** `php/game/UXGameScene.php`
 
 **Description**
 

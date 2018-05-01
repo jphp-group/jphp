@@ -2,7 +2,7 @@
 
 - **class** `UXImage` (`php\gui\UXImage`)
 - **package** `gui`
-- **source** [`php/gui/UXImage.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXImage.php)
+- **source** `php/gui/UXImage.php`
 
 **Description**
 

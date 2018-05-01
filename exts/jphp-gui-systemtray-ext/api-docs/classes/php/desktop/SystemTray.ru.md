@@ -1,7 +1,7 @@
 # SystemTray
 
 - **класс** `SystemTray` (`php\desktop\SystemTray`)
-- **исходники** [`php/desktop/SystemTray.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/SystemTray.php)
+- **исходники** `php/desktop/SystemTray.php`
 
 **Описание**
 

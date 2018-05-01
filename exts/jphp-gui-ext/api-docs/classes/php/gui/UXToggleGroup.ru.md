@@ -2,7 +2,7 @@
 
 - **класс** `UXToggleGroup` (`php\gui\UXToggleGroup`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXToggleGroup.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXToggleGroup.php)
+- **исходники** `php/gui/UXToggleGroup.php`
 
 **Описание**
 

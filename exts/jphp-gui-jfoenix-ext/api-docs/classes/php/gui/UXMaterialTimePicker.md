@@ -2,8 +2,7 @@
 
 - **class** `UXMaterialTimePicker` (`php\gui\UXMaterialTimePicker`) **extends** `UXComboBoxBase` (`php\gui\UXComboBoxBase`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialTimePicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTimePicker.php)
-
+- **source** `php/gui/UXMaterialTimePicker.php`
 
 ---
 

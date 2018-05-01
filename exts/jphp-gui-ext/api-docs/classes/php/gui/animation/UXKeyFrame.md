@@ -2,7 +2,7 @@
 
 - **class** `UXKeyFrame` (`php\gui\animation\UXKeyFrame`)
 - **package** `gui`
-- **source** [`php/gui/animation/UXKeyFrame.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXKeyFrame.php)
+- **source** `php/gui/animation/UXKeyFrame.php`
 
 **Description**
 

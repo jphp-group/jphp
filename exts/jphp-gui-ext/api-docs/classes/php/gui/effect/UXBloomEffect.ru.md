@@ -2,7 +2,7 @@
 
 - **класс** `UXBloomEffect` (`php\gui\effect\UXBloomEffect`) **унаследован от** `UXEffect` (`php\gui\effect\UXEffect`)
 - **пакет** `gui`
-- **исходники** [`php/gui/effect/UXBloomEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXBloomEffect.php)
+- **исходники** `php/gui/effect/UXBloomEffect.php`
 
 **Описание**
 

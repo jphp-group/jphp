@@ -2,7 +2,7 @@
 
 - **класс** `UXGroup` (`php\gui\UXGroup`) **унаследован от** `UXParent` (`php\gui\UXParent`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXGroup.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXGroup.php)
+- **исходники** `php/gui/UXGroup.php`
 
 **Описание**
 

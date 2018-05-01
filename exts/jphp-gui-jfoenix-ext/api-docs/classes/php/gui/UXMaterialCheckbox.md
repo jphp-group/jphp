@@ -2,8 +2,7 @@
 
 - **class** `UXMaterialCheckbox` (`php\gui\UXMaterialCheckbox`) **extends** `UXCheckbox` (`php\gui\UXCheckbox`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialCheckbox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialCheckbox.php)
-
+- **source** `php/gui/UXMaterialCheckbox.php`
 
 ---
 

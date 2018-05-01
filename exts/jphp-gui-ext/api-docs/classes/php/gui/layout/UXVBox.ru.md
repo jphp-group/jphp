@@ -2,7 +2,11 @@
 
 - **класс** `UXVBox` (`php\gui\layout\UXVBox`) **унаследован от** [`UXPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXVBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXVBox.php)
+- **исходники** `php/gui/layout/UXVBox.php`
+
+**Классы наследники**
+
+> [UXFragmentPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXFragmentPane.ru.md)
 
 **Описание**
 
@@ -16,6 +20,7 @@ Class UXVBox
 BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `->`[`spacing`](#prop-spacing) : `float`
 - `->`[`fillWidth`](#prop-fillwidth) : `bool`
+- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 
 ---
 
@@ -24,6 +29,7 @@ BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 - `UXVBox ::`[`setVgrow()`](#method-setvgrow)
 - `UXVBox ::`[`getVgrow()`](#method-getvgrow)
 - `UXVBox ::`[`setMargin()`](#method-setmargin)
+- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 
 ---
 
@@ -31,6 +37,7 @@ BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT_
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`requestLayout()`](#method-requestlayout)
+- См. также в родительском классе [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 
 ---
 # Статичные Методы

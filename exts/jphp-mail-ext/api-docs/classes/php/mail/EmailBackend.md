@@ -1,7 +1,7 @@
 # EmailBackend
 
 - **class** `EmailBackend` (`php\mail\EmailBackend`)
-- **source** [`php/mail/EmailBackend.php`](./src/main/resources/JPHP-INF/sdk/php/mail/EmailBackend.php)
+- **source** `php/mail/EmailBackend.php`
 
 **Description**
 

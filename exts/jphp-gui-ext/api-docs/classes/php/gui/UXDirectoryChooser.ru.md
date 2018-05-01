@@ -2,7 +2,7 @@
 
 - **класс** `UXDirectoryChooser` (`php\gui\UXDirectoryChooser`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXDirectoryChooser.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDirectoryChooser.php)
+- **исходники** `php/gui/UXDirectoryChooser.php`
 
 **Описание**
 

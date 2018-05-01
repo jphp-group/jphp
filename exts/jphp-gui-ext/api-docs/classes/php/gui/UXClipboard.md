@@ -2,7 +2,7 @@
 
 - **class** `UXClipboard` (`php\gui\UXClipboard`)
 - **package** `gui`
-- **source** [`php/gui/UXClipboard.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXClipboard.php)
+- **source** `php/gui/UXClipboard.php`
 
 **Description**
 

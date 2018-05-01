@@ -1,7 +1,7 @@
 # TextWord
 
 - **класс** `TextWord` (`text\TextWord`)
-- **исходники** [`text/TextWord.php`](./src/main/resources/JPHP-INF/sdk/text/TextWord.php)
+- **исходники** `text/TextWord.php`
 
 **Описание**
 

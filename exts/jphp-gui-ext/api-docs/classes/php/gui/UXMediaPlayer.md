@@ -2,7 +2,7 @@
 
 - **class** `UXMediaPlayer` (`php\gui\UXMediaPlayer`)
 - **package** `gui`
-- **source** [`php/gui/UXMediaPlayer.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMediaPlayer.php)
+- **source** `php/gui/UXMediaPlayer.php`
 
 **Description**
 
@@ -22,7 +22,7 @@ Class UXMediaPlayer
 - `->`[`currentTime`](#prop-currenttime) : `int in millis`
 - `->`[`currentTimeAsPercent`](#prop-currenttimeaspercent) : `int in percent from 0 to 100`
 - `->`[`currentCount`](#prop-currentcount) : `int`
-- `->`[`media`](#prop-media) : `UXMedia`
+- `->`[`media`](#prop-media) : [`UXMedia`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMedia.md)
 
 ---
 

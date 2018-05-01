@@ -2,7 +2,7 @@
 
 - **класс** `ThreadPool` (`php\lang\ThreadPool`)
 - **пакет** `std`
-- **исходники** [`php/lang/ThreadPool.php`](./src/main/resources/JPHP-INF/sdk/php/lang/ThreadPool.php)
+- **исходники** `php/lang/ThreadPool.php`
 
 **Описание**
 

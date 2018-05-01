@@ -2,7 +2,7 @@
 
 - **класс** `System` (`php\lang\System`)
 - **пакет** `std`
-- **исходники** [`php/lang/System.php`](./src/main/resources/JPHP-INF/sdk/php/lang/System.php)
+- **исходники** `php/lang/System.php`
 
 **Описание**
 

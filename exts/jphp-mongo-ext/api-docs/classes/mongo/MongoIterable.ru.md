@@ -1,7 +1,7 @@
 # MongoIterable
 
 - **класс** `MongoIterable` (`mongo\MongoIterable`)
-- **исходники** [`mongo/MongoIterable.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoIterable.php)
+- **исходники** `mongo/MongoIterable.php`
 
 **Описание**
 

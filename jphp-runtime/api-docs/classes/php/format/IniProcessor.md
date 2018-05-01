@@ -2,7 +2,7 @@
 
 - **class** `IniProcessor` (`php\format\IniProcessor`) **extends** `Processor` (`php\format\Processor`)
 - **package** `std`
-- **source** [`php/format/IniProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/IniProcessor.php)
+- **source** `php/format/IniProcessor.php`
 
 **Description**
 

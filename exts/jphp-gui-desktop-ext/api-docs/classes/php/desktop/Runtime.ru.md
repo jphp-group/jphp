@@ -1,8 +1,7 @@
 # Runtime
 
 - **класс** `Runtime` (`php\desktop\Runtime`)
-- **исходники** [`php/desktop/Runtime.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/Runtime.php)
-
+- **исходники** `php/desktop/Runtime.php`
 
 ---
 

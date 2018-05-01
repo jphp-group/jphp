@@ -105,6 +105,7 @@ public class ModuleRecord extends AbstractSourceRecord {
         if (namespaceRecord == null) {
             namespaceRecord = new NamespaceRecord(env);
             namespaceRecord.setModuleRecord(this);
+            namespaceRecord.setToken(namespace);
             namespaces.put(namespaceRecord.getIdName(), namespaceRecord);
         }
 

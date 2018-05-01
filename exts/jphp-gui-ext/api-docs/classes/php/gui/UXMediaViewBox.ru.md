@@ -2,7 +2,7 @@
 
 - **класс** `UXMediaViewBox` (`php\gui\UXMediaViewBox`) **унаследован от** [`UXPanel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMediaViewBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMediaViewBox.php)
+- **исходники** `php/gui/UXMediaViewBox.php`
 
 **Описание**
 
@@ -12,9 +12,10 @@ Class UXMediaViewBox
 
 #### Свойства
 
-- `->`[`player`](#prop-player) : `UXMediaPlayer`
+- `->`[`player`](#prop-player) : [`UXMediaPlayer`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaPlayer.ru.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`proportional`](#prop-proportional) : `bool`
+- См. также в родительском классе [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
 
 ---
 
@@ -24,6 +25,7 @@ Class UXMediaViewBox
 - `->`[`play()`](#method-play) - _Play media._
 - `->`[`stop()`](#method-stop) - _Stop playing._
 - `->`[`pause()`](#method-pause) - _Pause playing._
+- См. также в родительском классе [UXPanel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPanel.ru.md)
 
 ---
 # Методы

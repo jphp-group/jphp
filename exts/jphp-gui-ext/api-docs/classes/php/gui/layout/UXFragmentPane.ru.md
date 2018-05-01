@@ -2,8 +2,7 @@
 
 - **класс** `UXFragmentPane` (`php\gui\layout\UXFragmentPane`) **унаследован от** `UXVBox` (`php\gui\layout\UXVBox`)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXFragmentPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXFragmentPane.php)
-
+- **исходники** `php/gui/layout/UXFragmentPane.php`
 
 ---
 

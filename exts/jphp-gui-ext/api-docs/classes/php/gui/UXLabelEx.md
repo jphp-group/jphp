@@ -2,7 +2,7 @@
 
 - **class** `UXLabelEx` (`php\gui\UXLabelEx`) **extends** [`UXLabel`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabel.md)
 - **package** `gui`
-- **source** [`php/gui/UXLabelEx.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLabelEx.php)
+- **source** `php/gui/UXLabelEx.php`
 
 **Description**
 
@@ -14,3 +14,4 @@ Class UXLabelEx
 
 - `->`[`autoSize`](#prop-autosize) : `UXNode`
 - `->`[`autoSizeType`](#prop-autosizetype) : `string ALL, HORIZONTAL, VERTICAL`
+- See also in the parent class [UXLabel](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXLabel.md)

@@ -2,7 +2,7 @@
 
 - **class** `Process` (`php\lang\Process`)
 - **package** `std`
-- **source** [`php/lang/Process.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Process.php)
+- **source** `php/lang/Process.php`
 
 **Description**
 

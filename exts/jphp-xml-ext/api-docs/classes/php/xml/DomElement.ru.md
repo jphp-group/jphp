@@ -1,7 +1,11 @@
 # DomElement
 
 - **класс** `DomElement` (`php\xml\DomElement`) **унаследован от** `DomNode` (`php\xml\DomNode`)
-- **исходники** [`php/xml/DomElement.php`](./src/main/resources/JPHP-INF/sdk/php/xml/DomElement.php)
+- **исходники** `php/xml/DomElement.php`
+
+**Классы наследники**
+
+> [DomDocument](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-xml-ext/api-docs/classes/php/xml/DomDocument.ru.md)
 
 **Описание**
 

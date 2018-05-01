@@ -2,7 +2,7 @@
 
 - **class** `Time` (`php\time\Time`)
 - **package** `std`
-- **source** [`php/time/Time.php`](./src/main/resources/JPHP-INF/sdk/php/time/Time.php)
+- **source** `php/time/Time.php`
 
 **Description**
 
@@ -147,6 +147,15 @@ getTime(): int
 Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT
 represented by this Time object.
 
+_Examples:_
+
+- **Unix Timestamp**
+
+```php
+echo Time::now()->getTime() / 1000;
+```
+
+
 ---
 
 <a name="method-gettimezone"></a>
@@ -166,6 +175,16 @@ Get timezone of the time object
 year(): int
 ```
 Get the current year
+
+_Examples:_
+
+- **Get current year**
+
+```php
+$now = Time::now();
+echo $now->year();
+```
+
 
 ---
 
@@ -335,6 +354,27 @@ Get a new time + $args
 .. note::
 
 use negative values to minus
+
+_Examples:_
+
+- **Add one year to date**
+
+```php
+$date = Time::of(['year' => 2018, 'month' => 5, 'day' => 1]);
+echo $date->year();
+
+$dayPlusYear = $date->add(['year' => 1]);
+echo $dayPlusYear->year();
+```
+
+- **Decrease date by one day**
+
+```php
+$date = Time::of(['year' => 2018, 'month' => 5, 'day' => 1]);
+$newDate = $date->add(['day' => -1]);
+
+echo $newDate->toString('yyyy/MM/dd'); // 2018.04.30
+```
 
 ---
 

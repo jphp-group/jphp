@@ -1,7 +1,7 @@
 # Markdown
 
 - **class** `Markdown` (`markdown\Markdown`)
-- **source** [`markdown/Markdown.php`](./src/main/resources/JPHP-INF/sdk/markdown/Markdown.php)
+- **source** `markdown/Markdown.php`
 
 **Description**
 

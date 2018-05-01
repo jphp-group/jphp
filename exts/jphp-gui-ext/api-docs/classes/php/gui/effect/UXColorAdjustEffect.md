@@ -2,7 +2,7 @@
 
 - **class** `UXColorAdjustEffect` (`php\gui\effect\UXColorAdjustEffect`) **extends** `UXEffect` (`php\gui\effect\UXEffect`)
 - **package** `gui`
-- **source** [`php/gui/effect/UXColorAdjustEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXColorAdjustEffect.php)
+- **source** `php/gui/effect/UXColorAdjustEffect.php`
 
 **Description**
 

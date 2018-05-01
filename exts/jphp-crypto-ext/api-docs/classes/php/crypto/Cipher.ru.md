@@ -2,7 +2,7 @@
 
 - **класс** `Cipher` (`php\crypto\Cipher`)
 - **пакет** `crypto`
-- **исходники** [`php/crypto/Cipher.php`](./src/main/resources/JPHP-INF/sdk/php/crypto/Cipher.php)
+- **исходники** `php/crypto/Cipher.php`
 
 **Описание**
 

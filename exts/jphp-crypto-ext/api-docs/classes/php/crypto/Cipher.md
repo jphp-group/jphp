@@ -2,7 +2,7 @@
 
 - **class** `Cipher` (`php\crypto\Cipher`)
 - **package** `crypto`
-- **source** [`php/crypto/Cipher.php`](./src/main/resources/JPHP-INF/sdk/php/crypto/Cipher.php)
+- **source** `php/crypto/Cipher.php`
 
 **Description**
 

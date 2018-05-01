@@ -2,7 +2,7 @@
 
 - **класс** `UXColorAdjustEffect` (`php\gui\effect\UXColorAdjustEffect`) **унаследован от** `UXEffect` (`php\gui\effect\UXEffect`)
 - **пакет** `gui`
-- **исходники** [`php/gui/effect/UXColorAdjustEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXColorAdjustEffect.php)
+- **исходники** `php/gui/effect/UXColorAdjustEffect.php`
 
 **Описание**
 

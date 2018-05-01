@@ -2,7 +2,7 @@
 
 - **class** `UXEllipse` (`php\gui\shape\UXEllipse`) **extends** `UXShape` (`php\gui\shape\UXShape`)
 - **package** `gui`
-- **source** [`php/gui/shape/UXEllipse.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXEllipse.php)
+- **source** `php/gui/shape/UXEllipse.php`
 
 **Description**
 

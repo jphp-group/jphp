@@ -2,8 +2,7 @@
 
 - **class** `UXNumberSpinner` (`php\gui\UXNumberSpinner`) **extends** `UXSpinner` (`php\gui\UXSpinner`)
 - **package** `gui`
-- **source** [`php/gui/UXNumberSpinner.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXNumberSpinner.php)
-
+- **source** `php/gui/UXNumberSpinner.php`
 
 ---
 

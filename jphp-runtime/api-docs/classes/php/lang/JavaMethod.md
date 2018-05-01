@@ -1,8 +1,7 @@
 # JavaMethod
 
 - **class** `JavaMethod` (`php\lang\JavaMethod`) **extends** `JavaReflection` (`php\lang\JavaReflection`)
-- **source** [`php/lang/JavaMethod.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaMethod.php)
-
+- **source** `php/lang/JavaMethod.php`
 
 ---
 

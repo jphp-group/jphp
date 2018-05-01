@@ -2,8 +2,7 @@
 
 - **класс** `Lz4OutputStream` (`compress\Lz4OutputStream`) **унаследован от** `MiscStream` (`php\io\MiscStream`)
 - **пакет** `compress`
-- **исходники** [`compress/Lz4OutputStream.php`](./src/main/resources/JPHP-INF/sdk/compress/Lz4OutputStream.php)
-
+- **исходники** `compress/Lz4OutputStream.php`
 
 ---
 

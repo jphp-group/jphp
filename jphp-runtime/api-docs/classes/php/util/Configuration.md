@@ -2,7 +2,7 @@
 
 - **class** `Configuration` (`php\util\Configuration`)
 - **package** `std`
-- **source** [`php/util/Configuration.php`](./src/main/resources/JPHP-INF/sdk/php/util/Configuration.php)
+- **source** `php/util/Configuration.php`
 
 **Description**
 

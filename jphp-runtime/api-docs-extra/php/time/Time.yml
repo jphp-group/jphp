@@ -1,0 +1,36 @@
+
+methods:
+  getTime:
+    eg:
+      - title: Unix Timestamp
+        source: |
+          ```php
+          echo Time::now()->getTime() / 1000;
+          ```
+  year:
+    eg:
+      - title: {en: Get current year, ru: Вывести текущий код}
+        source: |
+          ```php
+          $now = Time::now();
+          echo $now->year();
+          ```
+  add:
+    eg:
+      - title: {en: Add one year to date, ru: Добавить один год дате}
+        source: |
+          ```php
+          $date = Time::of(['year' => 2018, 'month' => 5, 'day' => 1]);
+          echo $date->year();
+
+          $dayPlusYear = $date->add(['year' => 1]);
+          echo $dayPlusYear->year();
+          ```
+      - title: {en: Decrease date by one day, ru: Уменьшить дату на один день }
+        source: |
+          ```php
+          $date = Time::of(['year' => 2018, 'month' => 5, 'day' => 1]);
+          $newDate = $date->add(['day' => -1]);
+
+          echo $newDate->toString('yyyy/MM/dd'); // 2018.04.30
+          ```

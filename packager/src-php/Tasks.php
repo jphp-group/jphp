@@ -71,15 +71,16 @@ class Tasks
 
     /**
      * @param string $path
+     * @param array $filter
      * @param bool $ignoreErrs
      * @return bool
      */
-    static function cleanDir(string $path, bool $ignoreErrs = false): bool
+    static function cleanDir(string $path, array $filter = [], bool $ignoreErrs = false): bool
     {
         if (fs::isDir($path)) {
             Console::log("-> clean dir '{0}'", $path);
 
-            $result = fs::clean($path);
+            $result = fs::clean($path, $filter);
 
             if (!$result['error']) {
                 return true;

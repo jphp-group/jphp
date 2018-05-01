@@ -2,7 +2,11 @@
 
 - **класс** `SharedMemory` (`php\util\SharedMemory`)
 - **пакет** `std`
-- **исходники** [`php/util/SharedMemory.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedMemory.php)
+- **исходники** `php/util/SharedMemory.php`
+
+**Классы наследники**
+
+> [SharedCollection](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedCollection.ru.md)
 
 **Описание**
 

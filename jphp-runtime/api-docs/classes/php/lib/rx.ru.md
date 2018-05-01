@@ -1,7 +1,7 @@
 # rx
 
 - **класс** `rx` (`php\lib\rx`)
-- **исходники** [`php/lib/rx.php`](./src/main/resources/JPHP-INF/sdk/php/lib/rx.php)
+- **исходники** `php/lib/rx.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **class** `UXData` (`php\gui\UXData`) **extends** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXData.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXData.php)
+- **source** `php/gui/UXData.php`
 
 **Description**
 

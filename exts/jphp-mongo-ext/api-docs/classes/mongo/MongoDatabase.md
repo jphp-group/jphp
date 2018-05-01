@@ -1,7 +1,7 @@
 # MongoDatabase
 
 - **class** `MongoDatabase` (`mongo\MongoDatabase`)
-- **source** [`mongo/MongoDatabase.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoDatabase.php)
+- **source** `mongo/MongoDatabase.php`
 
 **Description**
 

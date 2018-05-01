@@ -2,7 +2,7 @@
 
 - **class** `UXValue` (`php\gui\UXValue`)
 - **package** `gui`
-- **source** [`php/gui/UXValue.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXValue.php)
+- **source** `php/gui/UXValue.php`
 
 **Description**
 

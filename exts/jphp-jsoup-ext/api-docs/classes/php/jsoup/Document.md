@@ -1,7 +1,7 @@
 # Document
 
 - **class** `Document` (`php\jsoup\Document`) **extends** `Element` (`php\jsoup\Element`)
-- **source** [`php/jsoup/Document.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Document.php)
+- **source** `php/jsoup/Document.php`
 
 **Description**
 

@@ -1,7 +1,7 @@
 # bin
 
 - **class** `bin` (`php\lib\bin`)
-- **source** [`php/lib/bin.php`](./src/main/resources/JPHP-INF/sdk/php/lib/bin.php)
+- **source** `php/lib/bin.php`
 
 **Description**
 

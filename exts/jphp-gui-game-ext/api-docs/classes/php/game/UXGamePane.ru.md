@@ -2,7 +2,7 @@
 
 - **класс** `UXGamePane` (`php\game\UXGamePane`) **унаследован от** `UXPanel` (`php\gui\layout\UXPanel`)
 - **пакет** `game`
-- **исходники** [`php/game/UXGamePane.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGamePane.php)
+- **исходники** `php/game/UXGamePane.php`
 
 **Описание**
 

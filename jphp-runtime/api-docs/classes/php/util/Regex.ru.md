@@ -2,7 +2,7 @@
 
 - **класс** `Regex` (`php\util\Regex`)
 - **пакет** `std`
-- **исходники** [`php/util/Regex.php`](./src/main/resources/JPHP-INF/sdk/php/util/Regex.php)
+- **исходники** `php/util/Regex.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **класс** `Environment` (`php\lang\Environment`)
 - **пакет** `std`
-- **исходники** [`php/lang/Environment.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Environment.php)
+- **исходники** `php/lang/Environment.php`
 
 **Описание**
 

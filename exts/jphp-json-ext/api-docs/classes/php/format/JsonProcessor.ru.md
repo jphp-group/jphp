@@ -2,7 +2,7 @@
 
 - **класс** `JsonProcessor` (`php\format\JsonProcessor`) **унаследован от** `Processor` (`php\format\Processor`)
 - **пакет** `std`
-- **исходники** [`php/format/JsonProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/JsonProcessor.php)
+- **исходники** `php/format/JsonProcessor.php`
 
 **Описание**
 

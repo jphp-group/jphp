@@ -2,7 +2,7 @@
 
 - **class** `Promise` (`php\concurrent\Promise`)
 - **package** `std`
-- **source** [`php/concurrent/Promise.php`](./src/main/resources/JPHP-INF/sdk/php/concurrent/Promise.php)
+- **source** `php/concurrent/Promise.php`
 
 **Description**
 

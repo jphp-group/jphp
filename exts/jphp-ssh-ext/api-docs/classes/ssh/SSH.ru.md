@@ -2,7 +2,7 @@
 
 - **класс** `SSH` (`ssh\SSH`)
 - **пакет** `ssh`
-- **исходники** [`ssh/SSH.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSH.php)
+- **исходники** `ssh/SSH.php`
 
 **Описание**
 

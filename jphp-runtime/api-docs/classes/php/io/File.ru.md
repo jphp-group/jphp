@@ -2,7 +2,7 @@
 
 - **класс** `File` (`php\io\File`)
 - **пакет** `std`
-- **исходники** [`php/io/File.php`](./src/main/resources/JPHP-INF/sdk/php/io/File.php)
+- **исходники** `php/io/File.php`
 
 **Описание**
 

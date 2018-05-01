@@ -2,7 +2,7 @@
 
 - **класс** `TarArchive` (`compress\TarArchive`) **унаследован от** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.ru.md)
 - **пакет** `compress`
-- **исходники** [`compress/TarArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchive.php)
+- **исходники** `compress/TarArchive.php`
 
 **Описание**
 
@@ -18,6 +18,7 @@ Class TarArchive
 - `->`[`entry()`](#method-entry)
 - `->`[`readAll()`](#method-readall)
 - `->`[`read()`](#method-read)
+- См. также в родительском классе [Archive](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.ru.md)
 
 ---
 # Методы

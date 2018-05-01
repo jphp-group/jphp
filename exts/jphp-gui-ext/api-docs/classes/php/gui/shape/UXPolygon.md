@@ -2,7 +2,7 @@
 
 - **class** `UXPolygon` (`php\gui\shape\UXPolygon`) **extends** `UXShape` (`php\gui\shape\UXShape`)
 - **package** `gui`
-- **source** [`php/gui/shape/UXPolygon.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXPolygon.php)
+- **source** `php/gui/shape/UXPolygon.php`
 
 **Description**
 

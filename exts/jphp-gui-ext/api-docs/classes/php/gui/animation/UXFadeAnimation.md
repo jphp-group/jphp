@@ -2,7 +2,7 @@
 
 - **class** `UXFadeAnimation` (`php\gui\animation\UXFadeAnimation`) **extends** [`UXAnimation`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 - **package** `gui`
-- **source** [`php/gui/animation/UXFadeAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXFadeAnimation.php)
+- **source** `php/gui/animation/UXFadeAnimation.php`
 
 **Description**
 
@@ -17,12 +17,14 @@ Class UXFadeAnimation
 - `->`[`byValue`](#prop-byvalue) : `double`
 - `->`[`duration`](#prop-duration) : `int millis`
 - `->`[`node`](#prop-node) : `UXNode`
+- See also in the parent class [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 
 ---
 
 #### Methods
 
 - `->`[`__construct()`](#method-__construct)
+- See also in the parent class [UXAnimation](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/animation/UXAnimation.md)
 
 ---
 # Methods

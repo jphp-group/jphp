@@ -2,7 +2,7 @@
 
 - **класс** `UXCustomNode` (`php\gui\UXCustomNode`) **унаследован от** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXCustomNode.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCustomNode.php)
+- **исходники** `php/gui/UXCustomNode.php`
 
 **Описание**
 

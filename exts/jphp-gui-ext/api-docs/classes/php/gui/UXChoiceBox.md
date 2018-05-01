@@ -2,7 +2,7 @@
 
 - **class** `UXChoiceBox` (`php\gui\UXChoiceBox`) **extends** `UXControl` (`php\gui\UXControl`)
 - **package** `gui`
-- **source** [`php/gui/UXChoiceBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXChoiceBox.php)
+- **source** `php/gui/UXChoiceBox.php`
 
 **Description**
 

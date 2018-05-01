@@ -2,7 +2,11 @@
 
 - **class** `UXComboBoxBase` (`php\gui\UXComboBoxBase`) **extends** `UXControl` (`php\gui\UXControl`)
 - **package** `gui`
-- **source** [`php/gui/UXComboBoxBase.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXComboBoxBase.php)
+- **source** `php/gui/UXComboBoxBase.php`
+
+**Child Classes**
+
+> [UXColorPicker](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXColorPicker.md), [UXComboBox](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXComboBox.md)
 
 **Description**
 

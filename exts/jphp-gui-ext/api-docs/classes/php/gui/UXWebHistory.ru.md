@@ -2,7 +2,7 @@
 
 - **класс** `UXWebHistory` (`php\gui\UXWebHistory`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXWebHistory.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebHistory.php)
+- **исходники** `php/gui/UXWebHistory.php`
 
 **Описание**
 

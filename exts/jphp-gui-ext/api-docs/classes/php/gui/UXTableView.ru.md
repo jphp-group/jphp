@@ -2,7 +2,7 @@
 
 - **класс** `UXTableView` (`php\gui\UXTableView`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTableView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableView.php)
+- **исходники** `php/gui/UXTableView.php`
 
 **Описание**
 
@@ -26,12 +26,14 @@ Class UXTableView
 - `->`[`selectedItem`](#prop-selecteditem) : `mixed`
 - `->`[`focusedItem`](#prop-focuseditem) : `mixed`
 - `->`[`placeholder`](#prop-placeholder) : `UXNode|UXLabel`
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`update()`](#method-update) - _..._
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 # Методы

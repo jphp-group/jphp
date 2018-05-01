@@ -1,7 +1,7 @@
 # SemVersion
 
 - **class** `SemVersion` (`semver\SemVersion`)
-- **source** [`semver/SemVersion.php`](./src/main/resources/JPHP-INF/sdk/semver/SemVersion.php)
+- **source** `semver/SemVersion.php`
 
 **Description**
 

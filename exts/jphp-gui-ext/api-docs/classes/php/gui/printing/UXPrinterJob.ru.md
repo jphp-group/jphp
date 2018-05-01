@@ -1,8 +1,7 @@
 # UXPrinterJob
 
 - **класс** `UXPrinterJob` (`php\gui\printing\UXPrinterJob`)
-- **исходники** [`php/gui/printing/UXPrinterJob.php`](./src/main/resources/JPHP-INF/sdk/php/gui/printing/UXPrinterJob.php)
-
+- **исходники** `php/gui/printing/UXPrinterJob.php`
 
 ---
 

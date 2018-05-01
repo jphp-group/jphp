@@ -2,7 +2,7 @@
 
 - **class** `ResourceStream` (`php\io\ResourceStream`) **extends** `Stream` (`php\io\Stream`)
 - **package** `std`
-- **source** [`php/io/ResourceStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/ResourceStream.php)
+- **source** `php/io/ResourceStream.php`
 
 **Description**
 

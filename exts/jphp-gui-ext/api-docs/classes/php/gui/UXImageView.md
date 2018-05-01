@@ -2,7 +2,7 @@
 
 - **class** `UXImageView` (`php\gui\UXImageView`) **extends** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXImageView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXImageView.php)
+- **source** `php/gui/UXImageView.php`
 
 **Description**
 
@@ -12,7 +12,7 @@ Class UXImageView
 
 #### Properties
 
-- `->`[`image`](#prop-image) : `UXImage`
+- `->`[`image`](#prop-image) : [`UXImage`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImage.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`preserveRatio`](#prop-preserveratio) : `bool`
 - `->`[`fitWidth`](#prop-fitwidth) : `double`

@@ -2,7 +2,7 @@
 
 - **класс** `UXValue` (`php\gui\UXValue`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXValue.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXValue.php)
+- **исходники** `php/gui/UXValue.php`
 
 **Описание**
 

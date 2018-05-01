@@ -2,7 +2,7 @@
 
 - **класс** `UXTreeItem` (`php\gui\UXTreeItem`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTreeItem.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTreeItem.php)
+- **исходники** `php/gui/UXTreeItem.php`
 
 **Описание**
 
@@ -14,8 +14,8 @@ Class UXTreeItem
 
 - `->`[`value`](#prop-value) : `mixed`
 - `->`[`expanded`](#prop-expanded) : `bool`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
-- `->`[`parent`](#prop-parent) : `UXTreeItem`
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
+- `->`[`parent`](#prop-parent) : [`UXTreeItem`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTreeItem.ru.md)
 - `->`[`children`](#prop-children) : `UXList of UXTreeItem`
 
 ---

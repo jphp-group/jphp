@@ -2,7 +2,7 @@
 
 - **класс** `URLConnection` (`php\net\URLConnection`)
 - **пакет** `std`
-- **исходники** [`php/net/URLConnection.php`](./src/main/resources/JPHP-INF/sdk/php/net/URLConnection.php)
+- **исходники** `php/net/URLConnection.php`
 
 **Описание**
 
@@ -20,7 +20,7 @@ Class URLConnection
 - `->`[`useCaches`](#prop-usecaches) : `bool`
 - `->`[`ifModifiedSince`](#prop-ifmodifiedsince) : `int millis`
 - `->`[`followRedirects`](#prop-followredirects) : `bool`
-- `->`[`url`](#prop-url) : `URL`
+- `->`[`url`](#prop-url) : [`URL`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/net/URL.ru.md)
 - `->`[`responseCode`](#prop-responsecode) : `int`
 - `->`[`responseMessage`](#prop-responsemessage) : `int`
 - `->`[`contentLength`](#prop-contentlength) : `int bytes` - _int the content length of the resource that this connection's URL

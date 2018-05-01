@@ -2,7 +2,7 @@
 
 - **class** `UXListView` (`php\gui\UXListView`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXListView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXListView.php)
+- **source** `php/gui/UXListView.php`
 
 **Description**
 
@@ -16,7 +16,7 @@ Class UXListView
 - `->`[`editingIndex`](#prop-editingindex) : `int`
 - `->`[`fixedCellSize`](#prop-fixedcellsize) : `double` - _Фиксированный размер (высота) строк._
 - `->`[`placeholder`](#prop-placeholder) : `UXNode`
-- `->`[`items`](#prop-items) : `UXList` - _Список._
+- `->`[`items`](#prop-items) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.md) - _Список._
 - `->`[`orientation`](#prop-orientation) : `string HORIZONTAL or VERTICAL` - _Ориентация._
 - `->`[`multipleSelection`](#prop-multipleselection) : `bool` - _Множественное выделение._
 - `->`[`selectedIndexes`](#prop-selectedindexes) : `int[]` - _Выделенные индексы (массив), начиная с 0._
@@ -26,6 +26,7 @@ Class UXListView
 - `->`[`selectedItem`](#prop-selecteditem) : `mixed` - _Выделенный элемент._
 - `->`[`focusedItem`](#prop-focuseditem) : `mixed` - _Сфокусированный элемент._
 - `->`[`itemsText`](#prop-itemstext) : `string`
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
@@ -36,6 +37,7 @@ Class UXListView
 - `->`[`setCellFactory()`](#method-setcellfactory)
 - `->`[`setDraggableCellFactory()`](#method-setdraggablecellfactory)
 - `->`[`update()`](#method-update) - _Визуально обновить список._
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 # Methods

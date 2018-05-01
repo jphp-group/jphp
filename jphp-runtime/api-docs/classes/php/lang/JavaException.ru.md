@@ -2,7 +2,11 @@
 
 - **класс** `JavaException` (`php\lang\JavaException`) **унаследован от** `Exception` (`Exception`)
 - **пакет** `std`
-- **исходники** [`php/lang/JavaException.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaException.php)
+- **исходники** `php/lang/JavaException.php`
+
+**Классы наследники**
+
+> [TimeoutException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/concurrent/TimeoutException.ru.md), [IOException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/IOException.ru.md), [IllegalArgumentException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/IllegalArgumentException.ru.md), [IllegalStateException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/IllegalStateException.ru.md), [InterruptedException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/InterruptedException.ru.md)
 
 **Описание**
 

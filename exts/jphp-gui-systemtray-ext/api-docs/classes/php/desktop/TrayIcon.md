@@ -1,7 +1,7 @@
 # TrayIcon
 
 - **class** `TrayIcon` (`php\desktop\TrayIcon`)
-- **source** [`php/desktop/TrayIcon.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/TrayIcon.php)
+- **source** `php/desktop/TrayIcon.php`
 
 **Description**
 

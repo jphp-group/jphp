@@ -2,7 +2,7 @@
 
 - **класс** `UXWebEngine` (`php\gui\UXWebEngine`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXWebEngine.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebEngine.php)
+- **исходники** `php/gui/UXWebEngine.php`
 
 **Описание**
 

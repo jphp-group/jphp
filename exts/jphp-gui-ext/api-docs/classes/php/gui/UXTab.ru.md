@@ -2,7 +2,11 @@
 
 - **класс** `UXTab` (`php\gui\UXTab`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTab.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTab.php)
+- **исходники** `php/gui/UXTab.php`
+
+**Классы наследники**
+
+> [UXDraggableTab](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXDraggableTab.ru.md)
 
 **Описание**
 
@@ -17,8 +21,8 @@ Class UXTab
 - `->`[`disable`](#prop-disable) : `bool`
 - `->`[`selected`](#prop-selected) : `bool`
 - `->`[`id`](#prop-id) : `string`
-- `->`[`content`](#prop-content) : `UXNode`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
+- `->`[`content`](#prop-content) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.ru.md)
 - `->`[`text`](#prop-text) : `string`
 - `->`[`style`](#prop-style) : `string`
 - `->`[`tooltip`](#prop-tooltip) : `UXTooltip`

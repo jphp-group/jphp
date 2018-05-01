@@ -2,7 +2,7 @@
 
 - **class** `Git` (`git\Git`)
 - **package** `git`
-- **source** [`git/Git.php`](./src/main/resources/JPHP-INF/sdk/git/Git.php)
+- **source** `git/Git.php`
 
 **Description**
 

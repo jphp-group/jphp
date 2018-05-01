@@ -2,7 +2,7 @@
 
 - **class** `UXScrollEvent` (`php\gui\event\UXScrollEvent`) **extends** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 - **package** `gui`
-- **source** [`php/gui/event/UXScrollEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXScrollEvent.php)
+- **source** `php/gui/event/UXScrollEvent.php`
 
 **Description**
 
@@ -28,6 +28,7 @@ Class UXScrollEvent
 - `->`[`controlDown`](#prop-controldown) : `bool` - _Indicates whether or not the Control modifier is down on this event._
 - `->`[`metaDown`](#prop-metadown) : `bool` - _Indicates whether or not the Meta modifier is down on this event._
 - `->`[`shortcutDown`](#prop-shortcutdown) : `bool` - _Indicates whether or not the Shortcut modifier is down on this event._
+- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 
 ---
 
@@ -35,6 +36,7 @@ Class UXScrollEvent
 
 - `->`[`isDirect()`](#method-isdirect) - _Indicates whether this gesture is caused by a direct or indirect input_
 - `->`[`isInertia()`](#method-isinertia) - _Indicates if this event represents an inertia of an already finished_
+- See also in the parent class [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.md)
 
 ---
 # Methods

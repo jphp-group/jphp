@@ -2,7 +2,7 @@
 
 - **class** `SSH` (`ssh\SSH`)
 - **package** `ssh`
-- **source** [`ssh/SSH.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSH.php)
+- **source** `ssh/SSH.php`
 
 **Description**
 

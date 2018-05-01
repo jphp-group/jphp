@@ -2,7 +2,7 @@
 
 - **class** `Environment` (`php\lang\Environment`)
 - **package** `std`
-- **source** [`php/lang/Environment.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Environment.php)
+- **source** `php/lang/Environment.php`
 
 **Description**
 

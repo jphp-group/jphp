@@ -2,7 +2,7 @@
 
 - **class** `UXMenu` (`php\gui\UXMenu`) **extends** `UXMenuItem` (`php\gui\UXMenuItem`)
 - **package** `gui`
-- **source** [`php/gui/UXMenu.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenu.php)
+- **source** `php/gui/UXMenu.php`
 
 **Description**
 

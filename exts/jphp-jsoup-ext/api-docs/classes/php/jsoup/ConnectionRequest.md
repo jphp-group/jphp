@@ -1,7 +1,7 @@
 # ConnectionRequest
 
 - **class** `ConnectionRequest` (`php\jsoup\ConnectionRequest`)
-- **source** [`php/jsoup/ConnectionRequest.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/ConnectionRequest.php)
+- **source** `php/jsoup/ConnectionRequest.php`
 
 **Description**
 

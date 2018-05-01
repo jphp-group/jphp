@@ -2,7 +2,7 @@
 
 - **класс** `ResourceStream` (`php\io\ResourceStream`) **унаследован от** `Stream` (`php\io\Stream`)
 - **пакет** `std`
-- **исходники** [`php/io/ResourceStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/ResourceStream.php)
+- **исходники** `php/io/ResourceStream.php`
 
 **Описание**
 

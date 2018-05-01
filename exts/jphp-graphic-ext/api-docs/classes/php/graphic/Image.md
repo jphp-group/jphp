@@ -2,7 +2,7 @@
 
 - **class** `Image` (`php\graphic\Image`)
 - **package** `graphic`
-- **source** [`php/graphic/Image.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/Image.php)
+- **source** `php/graphic/Image.php`
 
 **Description**
 

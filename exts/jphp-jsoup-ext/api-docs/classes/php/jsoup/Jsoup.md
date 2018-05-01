@@ -1,7 +1,7 @@
 # Jsoup
 
 - **class** `Jsoup` (`php\jsoup\Jsoup`)
-- **source** [`php/jsoup/Jsoup.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Jsoup.php)
+- **source** `php/jsoup/Jsoup.php`
 
 **Description**
 

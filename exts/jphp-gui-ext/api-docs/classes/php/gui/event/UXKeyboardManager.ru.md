@@ -2,7 +2,7 @@
 
 - **класс** `UXKeyboardManager` (`php\gui\event\UXKeyboardManager`)
 - **пакет** `gui`
-- **исходники** [`php/gui/event/UXKeyboardManager.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXKeyboardManager.php)
+- **исходники** `php/gui/event/UXKeyboardManager.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **класс** `UXHBox` (`php\gui\layout\UXHBox`) **унаследован от** `UXPane` (`php\gui\layout\UXPane`)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXHBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXHBox.php)
+- **исходники** `php/gui/layout/UXHBox.php`
 
 **Описание**
 

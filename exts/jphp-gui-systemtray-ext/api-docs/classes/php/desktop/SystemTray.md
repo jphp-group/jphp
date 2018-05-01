@@ -1,7 +1,7 @@
 # SystemTray
 
 - **class** `SystemTray` (`php\desktop\SystemTray`)
-- **source** [`php/desktop/SystemTray.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/SystemTray.php)
+- **source** `php/desktop/SystemTray.php`
 
 **Description**
 

@@ -2,7 +2,7 @@
 
 - **class** `UXDragEvent` (`php\gui\event\UXDragEvent`) **extends** `UXEvent` (`php\gui\event\UXEvent`)
 - **package** `gui`
-- **source** [`php/gui/event/UXDragEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXDragEvent.php)
+- **source** `php/gui/event/UXDragEvent.php`
 
 **Description**
 

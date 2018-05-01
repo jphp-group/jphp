@@ -2,7 +2,11 @@
 
 - **класс** `UXMenuItem` (`php\gui\UXMenuItem`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMenuItem.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenuItem.php)
+- **исходники** `php/gui/UXMenuItem.php`
+
+**Классы наследники**
+
+> [UXMenu](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMenu.ru.md)
 
 **Описание**
 
@@ -16,9 +20,9 @@ Class UXMenuItem
 - `->`[`text`](#prop-text) : `string`
 - `->`[`graphic`](#prop-graphic) : `UXNode`
 - `->`[`style`](#prop-style) : `string`
-- `->`[`classes`](#prop-classes) : `UXList`
+- `->`[`classes`](#prop-classes) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md)
 - `->`[`accelerator`](#prop-accelerator) : `string`
-- `->`[`parentPopup`](#prop-parentpopup) : `UXContextMenu`
+- `->`[`parentPopup`](#prop-parentpopup) : [`UXContextMenu`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXContextMenu.ru.md)
 - `->`[`visible`](#prop-visible) : `bool`
 - `->`[`disable`](#prop-disable) : `bool`
 - `->`[`enabled`](#prop-enabled) : `bool`

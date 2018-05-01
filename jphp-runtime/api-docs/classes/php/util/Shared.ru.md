@@ -2,7 +2,7 @@
 
 - **класс** `Shared` (`php\util\Shared`)
 - **пакет** `std`
-- **исходники** [`php/util/Shared.php`](./src/main/resources/JPHP-INF/sdk/php/util/Shared.php)
+- **исходники** `php/util/Shared.php`
 
 **Описание**
 

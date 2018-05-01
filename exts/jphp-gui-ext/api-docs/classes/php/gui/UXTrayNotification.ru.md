@@ -2,7 +2,7 @@
 
 - **класс** `UXTrayNotification` (`php\gui\UXTrayNotification`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTrayNotification.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTrayNotification.php)
+- **исходники** `php/gui/UXTrayNotification.php`
 
 **Описание**
 
@@ -17,8 +17,8 @@ Class UXTrayNotification
 - `->`[`notificationType`](#prop-notificationtype) : `string INFORMATION, NOTICE, WARNING, SUCCESS, ERROR, CUSTOM`
 - `->`[`animationType`](#prop-animationtype) : `string FADE, SLIDE, POPUP`
 - `->`[`location`](#prop-location) : `string BOTTOM_RIGHT, BOTTOM_LEFT, TOP_LEFT, TOP_RIGHT`
-- `->`[`image`](#prop-image) : `UXImage`
-- `->`[`trayIcon`](#prop-trayicon) : `UXImage`
+- `->`[`image`](#prop-image) : [`UXImage`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImage.ru.md)
+- `->`[`trayIcon`](#prop-trayicon) : [`UXImage`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImage.ru.md)
 - `->`[`horGap`](#prop-horgap) : `int`
 - `->`[`verGap`](#prop-vergap) : `int`
 

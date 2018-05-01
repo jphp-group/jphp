@@ -2,7 +2,7 @@
 
 - **class** `UXInnerShadowEffect` (`php\gui\effect\UXInnerShadowEffect`) **extends** [`UXEffect`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 - **package** `gui`
-- **source** [`php/gui/effect/UXInnerShadowEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXInnerShadowEffect.php)
+- **source** `php/gui/effect/UXInnerShadowEffect.php`
 
 **Description**
 
@@ -20,12 +20,14 @@ Class UXInnerShadowEffect
 - `->`[`width`](#prop-width) : `double`
 - `->`[`height`](#prop-height) : `double`
 - `->`[`size`](#prop-size) : `float[] width + height`
+- See also in the parent class [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 
 ---
 
 #### Methods
 
 - `->`[`__construct()`](#method-__construct)
+- See also in the parent class [UXEffect](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/effect/UXEffect.md)
 
 ---
 # Methods

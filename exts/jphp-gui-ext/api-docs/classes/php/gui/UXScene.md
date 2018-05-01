@@ -2,7 +2,7 @@
 
 - **class** `UXScene` (`php\gui\UXScene`)
 - **package** `gui`
-- **source** [`php/gui/UXScene.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXScene.php)
+- **source** `php/gui/UXScene.php`
 
 **Description**
 
@@ -12,7 +12,7 @@ Class UXScene
 
 #### Properties
 
-- `->`[`root`](#prop-root) : `UXParent`
+- `->`[`root`](#prop-root) : [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
 - `->`[`window`](#prop-window) : `UXWindow`
 - `->`[`cursor`](#prop-cursor) : `string`
 

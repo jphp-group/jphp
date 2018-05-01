@@ -1,7 +1,7 @@
 # Connection
 
 - **class** `Connection` (`php\jsoup\Connection`)
-- **source** [`php/jsoup/Connection.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Connection.php)
+- **source** `php/jsoup/Connection.php`
 
 **Description**
 

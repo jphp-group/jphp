@@ -1,7 +1,7 @@
 # ArgumentRecord
 
 - **class** `ArgumentRecord` (`phpx\parser\ArgumentRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
-- **source** [`phpx/parser/ArgumentRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/ArgumentRecord.php)
+- **source** `phpx/parser/ArgumentRecord.php`
 
 **Description**
 
@@ -17,3 +17,4 @@ Class ArgumentRecord
 - `->`[`optional`](#prop-optional) : `bool`
 - `->`[`reference`](#prop-reference) : `bool`
 - `->`[`variadic`](#prop-variadic) : `bool`
+- See also in the parent class [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)

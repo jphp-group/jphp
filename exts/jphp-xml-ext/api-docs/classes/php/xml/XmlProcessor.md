@@ -1,7 +1,7 @@
 # XmlProcessor
 
 - **class** `XmlProcessor` (`php\xml\XmlProcessor`) **extends** `Processor` (`php\format\Processor`)
-- **source** [`php/xml/XmlProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/xml/XmlProcessor.php)
+- **source** `php/xml/XmlProcessor.php`
 
 **Description**
 

@@ -1,7 +1,7 @@
 # MethodRecord
 
 - **class** `MethodRecord` (`phpx\parser\MethodRecord`) **extends** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)
-- **source** [`phpx/parser/MethodRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/MethodRecord.php)
+- **source** `phpx/parser/MethodRecord.php`
 
 **Description**
 
@@ -19,3 +19,4 @@ Class MethodRecord
 - `->`[`returnTypeHint`](#prop-returntypehint) : `string`
 - `->`[`returnTypeHintClass`](#prop-returntypehintclass) : `string`
 - `->`[`argumentRecords`](#prop-argumentrecords) : `ArgumentRecord[]`
+- See also in the parent class [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.md)

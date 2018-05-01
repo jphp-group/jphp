@@ -2,7 +2,7 @@
 
 - **class** `Flow` (`php\util\Flow`)
 - **package** `std`
-- **source** [`php/util/Flow.php`](./src/main/resources/JPHP-INF/sdk/php/util/Flow.php)
+- **source** `php/util/Flow.php`
 
 **Description**
 

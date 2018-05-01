@@ -2,7 +2,7 @@
 
 - **класс** `UXImageView` (`php\gui\UXImageView`) **унаследован от** `UXNode` (`php\gui\UXNode`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXImageView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXImageView.php)
+- **исходники** `php/gui/UXImageView.php`
 
 **Описание**
 
@@ -12,7 +12,7 @@ Class UXImageView
 
 #### Свойства
 
-- `->`[`image`](#prop-image) : `UXImage`
+- `->`[`image`](#prop-image) : [`UXImage`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXImage.ru.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`preserveRatio`](#prop-preserveratio) : `bool`
 - `->`[`fitWidth`](#prop-fitwidth) : `double`

@@ -2,7 +2,7 @@
 
 - **class** `UXDatePicker` (`php\gui\UXDatePicker`) **extends** [`UXComboBoxBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXComboBoxBase.md)
 - **package** `gui`
-- **source** [`php/gui/UXDatePicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDatePicker.php)
+- **source** `php/gui/UXDatePicker.php`
 
 **Description**
 
@@ -16,3 +16,4 @@ Class UXDatePicker
 - `->`[`format`](#prop-format) : `string`
 - `->`[`showWeekNumbers`](#prop-showweeknumbers) : `bool`
 - `->`[`valueAsTime`](#prop-valueastime) : `Time`
+- See also in the parent class [UXComboBoxBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXComboBoxBase.md)

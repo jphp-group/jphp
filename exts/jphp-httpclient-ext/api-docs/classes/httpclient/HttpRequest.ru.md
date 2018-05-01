@@ -1,7 +1,7 @@
 # HttpRequest
 
 - **класс** `HttpRequest` (`httpclient\HttpRequest`)
-- **исходники** [`httpclient/HttpRequest.php`](src-php/httpclient/HttpRequest.php)
+- **исходники** `httpclient/HttpRequest.php`
 
 **Описание**
 

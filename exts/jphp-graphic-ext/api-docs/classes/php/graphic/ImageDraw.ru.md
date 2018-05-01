@@ -2,7 +2,7 @@
 
 - **класс** `ImageDraw` (`php\graphic\ImageDraw`)
 - **пакет** `graphic`
-- **исходники** [`php/graphic/ImageDraw.php`](./src/main/resources/JPHP-INF/sdk/php/graphic/ImageDraw.php)
+- **исходники** `php/graphic/ImageDraw.php`
 
 **Описание**
 
@@ -13,7 +13,7 @@ Class ImageDraw
 #### Свойства
 
 - `->`[`fill`](#prop-fill) : `Color|string`
-- `->`[`font`](#prop-font) : `Font`
+- `->`[`font`](#prop-font) : [`Font`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-graphic-ext/api-docs/classes/php/graphic/Font.ru.md)
 - `->`[`antialiasing`](#prop-antialiasing) : `bool`
 - `->`[`textAntialiasing`](#prop-textantialiasing) : `bool|string` - _GASP, LCD_*, true, false_
 

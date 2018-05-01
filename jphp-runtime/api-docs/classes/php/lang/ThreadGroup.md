@@ -2,7 +2,7 @@
 
 - **class** `ThreadGroup` (`php\lang\ThreadGroup`)
 - **package** `std`
-- **source** [`php/lang/ThreadGroup.php`](./src/main/resources/JPHP-INF/sdk/php/lang/ThreadGroup.php)
+- **source** `php/lang/ThreadGroup.php`
 
 **Description**
 

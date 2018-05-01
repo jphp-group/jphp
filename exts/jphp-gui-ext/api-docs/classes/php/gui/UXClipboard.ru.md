@@ -2,7 +2,7 @@
 
 - **класс** `UXClipboard` (`php\gui\UXClipboard`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXClipboard.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXClipboard.php)
+- **исходники** `php/gui/UXClipboard.php`
 
 **Описание**
 

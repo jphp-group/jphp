@@ -2,7 +2,7 @@
 
 - **class** `UXAlert` (`php\gui\UXAlert`)
 - **package** `gui`
-- **source** [`php/gui/UXAlert.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXAlert.php)
+- **source** `php/gui/UXAlert.php`
 
 **Description**
 

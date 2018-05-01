@@ -2,7 +2,7 @@
 
 - **class** `UXApplication` (`php\gui\UXApplication`)
 - **package** `gui`
-- **source** [`php/gui/UXApplication.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXApplication.php)
+- **source** `php/gui/UXApplication.php`
 
 **Description**
 

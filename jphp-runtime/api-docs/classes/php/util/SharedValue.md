@@ -2,7 +2,7 @@
 
 - **class** `SharedValue` (`php\util\SharedValue`) **extends** [`SharedMemory`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.md)
 - **package** `std`
-- **source** [`php/util/SharedValue.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedValue.php)
+- **source** `php/util/SharedValue.php`
 
 **Description**
 
@@ -19,6 +19,7 @@ Class SharedValue
 - `->`[`isEmpty()`](#method-isempty)
 - `->`[`getAndSet()`](#method-getandset)
 - `->`[`setAndGet()`](#method-setandget)
+- See also in the parent class [SharedMemory](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.md)
 
 ---
 # Methods

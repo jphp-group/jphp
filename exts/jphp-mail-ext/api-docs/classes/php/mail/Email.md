@@ -1,7 +1,7 @@
 # Email
 
 - **class** `Email` (`php\mail\Email`)
-- **source** [`php/mail/Email.php`](./src/main/resources/JPHP-INF/sdk/php/mail/Email.php)
+- **source** `php/mail/Email.php`
 
 **Description**
 

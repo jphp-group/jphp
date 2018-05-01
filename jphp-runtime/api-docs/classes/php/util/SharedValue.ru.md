@@ -2,7 +2,7 @@
 
 - **класс** `SharedValue` (`php\util\SharedValue`) **унаследован от** [`SharedMemory`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.ru.md)
 - **пакет** `std`
-- **исходники** [`php/util/SharedValue.php`](./src/main/resources/JPHP-INF/sdk/php/util/SharedValue.php)
+- **исходники** `php/util/SharedValue.php`
 
 **Описание**
 
@@ -19,6 +19,7 @@ Class SharedValue
 - `->`[`isEmpty()`](#method-isempty)
 - `->`[`getAndSet()`](#method-getandset)
 - `->`[`setAndGet()`](#method-setandget)
+- См. также в родительском классе [SharedMemory](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/util/SharedMemory.ru.md)
 
 ---
 # Методы

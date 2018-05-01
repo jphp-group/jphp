@@ -2,7 +2,7 @@
 
 - **class** `UXWebView` (`php\gui\UXWebView`) **extends** [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)
 - **package** `gui`
-- **source** [`php/gui/UXWebView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXWebView.php)
+- **source** `php/gui/UXWebView.php`
 
 **Description**
 
@@ -19,6 +19,7 @@ Class UXWebView
 - `->`[`maxWidth`](#prop-maxwidth) : `double`
 - `->`[`maxHeight`](#prop-maxheight) : `double`
 - `->`[`zoom`](#prop-zoom) : `double`
-- `->`[`engine`](#prop-engine) : `UXWebEngine`
+- `->`[`engine`](#prop-engine) : [`UXWebEngine`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXWebEngine.md)
 - `->`[`contextMenuEnabled`](#prop-contextmenuenabled) : `bool`
 - `->`[`url`](#prop-url) : `string` - _See also ->engine->url (this is alias)_
+- See also in the parent class [UXParent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.md)

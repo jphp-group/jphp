@@ -2,7 +2,7 @@
 
 - **класс** `Package` (`php\lang\Package`)
 - **пакет** `std`
-- **исходники** [`php/lang/Package.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Package.php)
+- **исходники** `php/lang/Package.php`
 
 **Описание**
 

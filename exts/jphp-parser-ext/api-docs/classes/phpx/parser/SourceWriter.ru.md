@@ -1,7 +1,7 @@
 # SourceWriter
 
 - **класс** `SourceWriter` (`phpx\parser\SourceWriter`)
-- **исходники** [`phpx/parser/SourceWriter.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceWriter.php)
+- **исходники** `phpx/parser/SourceWriter.php`
 
 **Описание**
 

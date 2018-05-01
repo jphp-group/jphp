@@ -2,7 +2,7 @@
 
 - **класс** `UXMedia` (`php\gui\UXMedia`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMedia.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMedia.php)
+- **исходники** `php/gui/UXMedia.php`
 
 **Описание**
 

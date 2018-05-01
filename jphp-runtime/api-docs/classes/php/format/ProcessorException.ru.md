@@ -2,7 +2,7 @@
 
 - **класс** `ProcessorException` (`php\format\ProcessorException`) **унаследован от** `Exception` (`Exception`)
 - **пакет** `std`
-- **исходники** [`php/format/ProcessorException.php`](./src/main/resources/JPHP-INF/sdk/php/format/ProcessorException.php)
+- **исходники** `php/format/ProcessorException.php`
 
 **Описание**
 

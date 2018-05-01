@@ -2,7 +2,7 @@
 
 - **class** `UXBloomEffect` (`php\gui\effect\UXBloomEffect`) **extends** `UXEffect` (`php\gui\effect\UXEffect`)
 - **package** `gui`
-- **source** [`php/gui/effect/UXBloomEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXBloomEffect.php)
+- **source** `php/gui/effect/UXBloomEffect.php`
 
 **Description**
 

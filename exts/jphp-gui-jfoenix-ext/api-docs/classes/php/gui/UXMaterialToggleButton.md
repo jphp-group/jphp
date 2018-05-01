@@ -2,8 +2,7 @@
 
 - **class** `UXMaterialToggleButton` (`php\gui\UXMaterialToggleButton`) **extends** `UXToggleButton` (`php\gui\UXToggleButton`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialToggleButton.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialToggleButton.php)
-
+- **source** `php/gui/UXMaterialToggleButton.php`
 
 ---
 

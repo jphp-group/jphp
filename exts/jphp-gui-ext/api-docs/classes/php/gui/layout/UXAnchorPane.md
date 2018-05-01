@@ -2,7 +2,7 @@
 
 - **class** `UXAnchorPane` (`php\gui\layout\UXAnchorPane`) **extends** `UXPane` (`php\gui\layout\UXPane`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXAnchorPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXAnchorPane.php)
+- **source** `php/gui/layout/UXAnchorPane.php`
 
 **Description**
 

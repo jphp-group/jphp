@@ -2,7 +2,7 @@
 
 - **class** `UXGroup` (`php\gui\UXGroup`) **extends** `UXParent` (`php\gui\UXParent`)
 - **package** `gui`
-- **source** [`php/gui/UXGroup.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXGroup.php)
+- **source** `php/gui/UXGroup.php`
 
 **Description**
 

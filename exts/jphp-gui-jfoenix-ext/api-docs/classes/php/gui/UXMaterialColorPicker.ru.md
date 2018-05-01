@@ -2,4 +2,4 @@
 
 - **класс** `UXMaterialColorPicker` (`php\gui\UXMaterialColorPicker`) **унаследован от** `UXColorPicker` (`php\gui\UXColorPicker`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialColorPicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialColorPicker.php)
+- **исходники** `php/gui/UXMaterialColorPicker.php`

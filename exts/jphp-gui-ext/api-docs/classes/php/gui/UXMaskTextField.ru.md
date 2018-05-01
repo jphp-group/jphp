@@ -2,8 +2,7 @@
 
 - **класс** `UXMaskTextField` (`php\gui\UXMaskTextField`) **унаследован от** `UXTextField` (`php\gui\UXTextField`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaskTextField.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaskTextField.php)
-
+- **исходники** `php/gui/UXMaskTextField.php`
 
 ---
 

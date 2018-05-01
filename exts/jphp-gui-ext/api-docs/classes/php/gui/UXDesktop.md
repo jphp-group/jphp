@@ -2,7 +2,7 @@
 
 - **class** `UXDesktop` (`php\gui\UXDesktop`)
 - **package** `gui`
-- **source** [`php/gui/UXDesktop.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDesktop.php)
+- **source** `php/gui/UXDesktop.php`
 
 **Description**
 

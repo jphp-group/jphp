@@ -2,7 +2,7 @@
 
 - **class** `Package` (`php\lang\Package`)
 - **package** `std`
-- **source** [`php/lang/Package.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Package.php)
+- **source** `php/lang/Package.php`
 
 **Description**
 

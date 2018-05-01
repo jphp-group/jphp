@@ -1,7 +1,7 @@
 # NamespaceRecord
 
 - **класс** `NamespaceRecord` (`phpx\parser\NamespaceRecord`) **унаследован от** [`AbstractSourceRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
-- **исходники** [`phpx/parser/NamespaceRecord.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/NamespaceRecord.php)
+- **исходники** `phpx/parser/NamespaceRecord.php`
 
 **Описание**
 
@@ -15,6 +15,7 @@ Class NamespaceRecord
 - `->`[`addUseImport()`](#method-adduseimport)
 - `->`[`addFunction()`](#method-addfunction)
 - `->`[`addClass()`](#method-addclass)
+- См. также в родительском классе [AbstractSourceRecord](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/AbstractSourceRecord.ru.md)
 
 ---
 # Методы

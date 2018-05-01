@@ -2,7 +2,7 @@
 
 - **класс** `UXSeparator` (`php\gui\UXSeparator`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXSeparator.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSeparator.php)
+- **исходники** `php/gui/UXSeparator.php`
 
 **Описание**
 
@@ -15,12 +15,14 @@ Class UXSeparator
 - `->`[`orientation`](#prop-orientation) : `string HORIZONTAL or VERTICAL`
 - `->`[`hAlignment`](#prop-halignment) : `string`
 - `->`[`vAlignment`](#prop-valignment) : `string`
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`__construct()`](#method-__construct) - _UXSeparator constructor._
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 # Методы

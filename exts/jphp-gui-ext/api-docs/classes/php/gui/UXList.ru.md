@@ -2,7 +2,7 @@
 
 - **класс** `UXList` (`php\gui\UXList`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXList.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXList.php)
+- **исходники** `php/gui/UXList.php`
 
 **Описание**
 

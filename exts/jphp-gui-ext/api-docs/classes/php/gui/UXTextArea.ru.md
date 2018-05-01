@@ -2,7 +2,7 @@
 
 - **класс** `UXTextArea` (`php\gui\UXTextArea`) **унаследован от** `UXTextInputControl` (`php\gui\UXTextInputControl`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTextArea.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTextArea.php)
+- **исходники** `php/gui/UXTextArea.php`
 
 **Описание**
 

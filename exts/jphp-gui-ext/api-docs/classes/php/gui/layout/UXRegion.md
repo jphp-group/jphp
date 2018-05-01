@@ -2,7 +2,11 @@
 
 - **class** `UXRegion` (`php\gui\layout\UXRegion`) **extends** `UXParent` (`php\gui\UXParent`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXRegion.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXRegion.php)
+- **source** `php/gui/layout/UXRegion.php`
+
+**Child Classes**
+
+> [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.md)
 
 **Description**
 

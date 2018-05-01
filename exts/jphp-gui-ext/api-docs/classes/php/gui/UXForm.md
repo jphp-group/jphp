@@ -2,8 +2,7 @@
 
 - **class** `UXForm` (`php\gui\UXForm`) **extends** `UXWindow` (`php\gui\UXWindow`)
 - **package** `gui`
-- **source** [`php/gui/UXForm.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXForm.php)
-
+- **source** `php/gui/UXForm.php`
 
 ---
 

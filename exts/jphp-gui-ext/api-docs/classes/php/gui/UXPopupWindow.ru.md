@@ -2,7 +2,11 @@
 
 - **класс** `UXPopupWindow` (`php\gui\UXPopupWindow`) **унаследован от** `UXWindow` (`php\gui\UXWindow`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXPopupWindow.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXPopupWindow.php)
+- **исходники** `php/gui/UXPopupWindow.php`
+
+**Классы наследники**
+
+> [UXContextMenu](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXContextMenu.ru.md)
 
 **Описание**
 
@@ -16,7 +20,7 @@ Class UXPopupWindow
 - `->`[`autoHide`](#prop-autohide) : `bool`
 - `->`[`hideOnEscape`](#prop-hideonescape) : `bool`
 - `->`[`style`](#prop-style) : `string`
-- `->`[`classes`](#prop-classes) : `UXList`
+- `->`[`classes`](#prop-classes) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.ru.md)
 
 ---
 

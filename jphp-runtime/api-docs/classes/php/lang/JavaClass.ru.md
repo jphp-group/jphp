@@ -2,7 +2,7 @@
 
 - **класс** `JavaClass` (`php\lang\JavaClass`)
 - **пакет** `std`
-- **исходники** [`php/lang/JavaClass.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaClass.php)
+- **исходники** `php/lang/JavaClass.php`
 
 **Описание**
 

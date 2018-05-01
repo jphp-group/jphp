@@ -2,7 +2,7 @@
 
 - **class** `UXCircle` (`php\gui\shape\UXCircle`) **extends** `UXShape` (`php\gui\shape\UXShape`)
 - **package** `gui`
-- **source** [`php/gui/shape/UXCircle.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXCircle.php)
+- **source** `php/gui/shape/UXCircle.php`
 
 **Description**
 

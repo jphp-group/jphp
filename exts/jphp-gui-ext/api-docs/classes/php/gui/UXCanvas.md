@@ -2,7 +2,7 @@
 
 - **class** `UXCanvas` (`php\gui\UXCanvas`) **extends** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXCanvas.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCanvas.php)
+- **source** `php/gui/UXCanvas.php`
 
 **Description**
 

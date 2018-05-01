@@ -2,7 +2,7 @@
 
 - **класс** `UXColorChooser` (`php\gui\UXColorChooser`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXColorChooser.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXColorChooser.php)
+- **исходники** `php/gui/UXColorChooser.php`
 
 **Описание**
 

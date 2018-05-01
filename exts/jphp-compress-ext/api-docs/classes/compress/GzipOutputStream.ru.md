@@ -2,7 +2,7 @@
 
 - **класс** `GzipOutputStream` (`compress\GzipOutputStream`) **унаследован от** `MiscStream` (`php\io\MiscStream`)
 - **пакет** `compress`
-- **исходники** [`compress/GzipOutputStream.php`](./src/main/resources/JPHP-INF/sdk/compress/GzipOutputStream.php)
+- **исходники** `compress/GzipOutputStream.php`
 
 **Описание**
 

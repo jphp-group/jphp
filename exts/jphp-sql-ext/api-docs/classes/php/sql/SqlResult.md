@@ -1,7 +1,7 @@
 # SqlResult
 
 - **class** `SqlResult` (`php\sql\SqlResult`)
-- **source** [`php/sql/SqlResult.php`](./src/main/resources/JPHP-INF/sdk/php/sql/SqlResult.php)
+- **source** `php/sql/SqlResult.php`
 
 **Description**
 

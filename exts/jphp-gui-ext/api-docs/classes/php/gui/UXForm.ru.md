@@ -2,8 +2,7 @@
 
 - **класс** `UXForm` (`php\gui\UXForm`) **унаследован от** `UXWindow` (`php\gui\UXWindow`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXForm.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXForm.php)
-
+- **исходники** `php/gui/UXForm.php`
 
 ---
 

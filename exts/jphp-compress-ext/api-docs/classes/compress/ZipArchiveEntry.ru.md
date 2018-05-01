@@ -2,7 +2,7 @@
 
 - **класс** `ZipArchiveEntry` (`compress\ZipArchiveEntry`) **унаследован от** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 - **пакет** `compress`
-- **исходники** [`compress/ZipArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchiveEntry.php)
+- **исходники** `compress/ZipArchiveEntry.php`
 
 **Описание**
 
@@ -17,18 +17,21 @@ Class TarArchiveEntry
 - `->`[`method`](#prop-method) : `int`
 - `->`[`crc`](#prop-crc) : `int`
 - `->`[`time`](#prop-time) : `int`
+- См. также в родительском классе [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 
 ---
 
 #### Статичные Методы
 
 - `ZipArchiveEntry ::`[`ofFile()`](#method-offile)
+- См. также в родительском классе [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`__construct()`](#method-__construct) - _TarArchiveEntry constructor._
+- См. также в родительском классе [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.ru.md)
 
 ---
 # Статичные Методы

@@ -2,7 +2,7 @@
 
 - **class** `SSHSession` (`ssh\SSHSession`)
 - **package** `ssh`
-- **source** [`ssh/SSHSession.php`](./src/main/resources/JPHP-INF/sdk/ssh/SSHSession.php)
+- **source** `ssh/SSHSession.php`
 
 **Description**
 

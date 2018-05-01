@@ -12,6 +12,7 @@ use phpx\parser\ArgumentRecord;
 use phpx\parser\ClassRecord;
 use phpx\parser\MethodRecord;
 use phpx\parser\PropertyRecord;
+use phpx\parser\SourceFile;
 
 class DocClass
 {
@@ -44,19 +45,38 @@ class DocClass
      * @var array
      */
     private $excludeMethods = [];
+    /**
+     * @var SourceFile
+     */
+    private $sourceFile;
+
+    /**
+     * @var array
+     */
+    private $extra = [];
 
     /**
      * DocClass constructor.
      * @param DocIndex $index
      * @param ClassRecord $class
      * @param string $lang
+     * @param SourceFile $sourceFile
      * @internal param Package $package
      */
-    public function __construct(DocIndex $index, ClassRecord $class, string $lang = 'def')
+    public function __construct(DocIndex $index, ClassRecord $class, string $lang = 'def', SourceFile $sourceFile = null)
     {
         $this->class = $class;
         $this->index = $index;
         $this->lang = $lang;
+        $this->sourceFile = $sourceFile;
+    }
+
+    /**
+     * @param array $extra
+     */
+    public function setExtra(array $extra)
+    {
+        $this->extra = $extra;
     }
 
     /**
@@ -119,18 +139,24 @@ class DocClass
         }
 
         if ($this->srcFile) {
-            if ($this->file) {
-                $result[] = "- **{$this->index->translate('common.source')}** [`$this->srcFile`]($this->file)";
-            } else {
-                $result[] = "- **{$this->index->translate('common.source')}** `$this->srcFile`";
-            }
+            $result[] = "- **{$this->index->translate('common.source')}** `$this->srcFile`";
         }
 
-        $result[] = "";
+        if ($children = $this->index->getClassChildren($this->class->name)) {
+            $result[] = "";
+            $result[] = "**{$this->index->translate('class.children.list')}**";
+            $result[] = "";
+
+            $result[] = "> " . flow($children)->map(function (ClassRecord $cls) {
+                $r = "[$cls->shortName]({$this->index->classLink($cls)})";
+                return $r;
+            })->toString(', ');
+        }
 
         $description = Annotations::getContent($class->comment, $this->lang);
 
         if ($description !== "") {
+            $result[] = "";
             $result[] = "**{$this->index->translate('class.description.title')}**";
             $result[] = "";
             $result[] = $description;
@@ -146,6 +172,12 @@ class DocClass
 
             foreach ($properties as $property) {
                 $result[] = $this->renderPropertyLine($property);
+            }
+
+            if ($class->parent) {
+                if ($this->index->hasClass($class->parent)) {
+                    $result[] = "- {$this->index->translate('class.see-parent-class')} [{$class->parent->shortName}]({$this->index->classLink($class->parent)})";
+                }
             }
         }
 
@@ -164,6 +196,12 @@ class DocClass
             foreach ($staticMethods as $method) {
                 $result[] = $this->renderMethodLine($method);
             }
+
+            if ($class->parent) {
+                if ($this->index->hasClass($class->parent)) {
+                    $result[] = "- {$this->index->translate('class.see-parent-class')} [{$class->parent->shortName}]({$this->index->classLink($class->parent)})";
+                }
+            }
         }
 
         $methods = flow($class->getMethods())
@@ -181,6 +219,12 @@ class DocClass
 
             foreach ($methods as $method) {
                 $result[] = $this->renderMethodLine($method);
+            }
+
+            if ($class->parent) {
+                if ($this->index->hasClass($class->parent)) {
+                    $result[] = "- {$this->index->translate('class.see-parent-class')} [{$class->parent->shortName}]({$this->index->classLink($class->parent)})";
+                }
             }
         }
 
@@ -221,13 +265,33 @@ class DocClass
         return str::join($result, "\n");
     }
 
+    public function renderTypeHint(string $type): string
+    {
+        if ($cls = $this->index->getClass($type)) {
+            $type = "[`$cls->shortName`]({$this->index->classLink($cls)})";
+        } else if ($this->sourceFile) {
+            $cls = $this->index->getClass($this->sourceFile->fetchFullName($type, $this->class->namespaceRecord, 'CLASS'));
+
+            if ($cls) {
+                $type = "[`$cls->shortName`]({$this->index->classLink($cls)})";
+            } else {
+                $type = "`$type`";
+            }
+        } else {
+            $type = "`$type`";
+        }
+
+        return $type;
+    }
+
     public function renderPropertyLine(PropertyRecord $property): string
     {
         $anchor = "#prop-" . str::lower($property->name);
 
         $type = Annotations::get('var', $property->comment, 'mixed');
 
-        $line = "- `->`[`{$property->name}`]({$anchor}) : `$type`";
+
+        $line = "- `->`[`{$property->name}`]({$anchor}) : {$this->renderTypeHint($type)}";
         $desc = Annotations::getContent($property->comment, $this->lang);
 
         if ($desc) {
@@ -341,9 +405,35 @@ class DocClass
 
         $result[] = "```";
 
+        $extra = $this->extra['methods'][$method->name];
+
+        if ($extra['short-desc']) {
+            $result[] = flow(str::lines($this->index->translate($extra['short-desc'])))
+                ->map(function ($l) { return "> $l"; })
+                ->toString("\n");
+            $result[] = "";
+        }
+
         $desc = Annotations::getContent($method->comment, $this->lang);
-        if ($desc) {
+        if ($desc && !$extra['desc']) {
             $result[] = "$desc";
+        }
+
+        if ($extra['desc']) {
+            $result[] = "";
+            $result[] = $this->index->translate($extra['desc']);
+        }
+
+        if (is_array($extra['eg'])) {
+            $result[] = "";
+            $result[] = "_Examples:_";
+            $result[] = "";
+
+            foreach ($extra['eg'] as $example) {
+                $result[] = "- **{$this->index->translate($example['title'])}**";
+                $result[] = "";
+                $result[] = $example['source'];
+            }
         }
 
         return $result;

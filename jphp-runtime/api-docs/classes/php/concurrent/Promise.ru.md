@@ -2,7 +2,7 @@
 
 - **класс** `Promise` (`php\concurrent\Promise`)
 - **пакет** `std`
-- **исходники** [`php/concurrent/Promise.php`](./src/main/resources/JPHP-INF/sdk/php/concurrent/Promise.php)
+- **исходники** `php/concurrent/Promise.php`
 
 **Описание**
 

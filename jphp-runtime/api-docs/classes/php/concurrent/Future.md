@@ -2,7 +2,7 @@
 
 - **class** `Future` (`php\concurrent\Future`)
 - **package** `std`
-- **source** [`php/concurrent/Future.php`](./src/main/resources/JPHP-INF/sdk/php/concurrent/Future.php)
+- **source** `php/concurrent/Future.php`
 
 **Description**
 

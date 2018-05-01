@@ -2,7 +2,7 @@
 
 - **class** `UXMediaView` (`php\gui\UXMediaView`) **extends** `UXNode` (`php\gui\UXNode`)
 - **package** `gui`
-- **source** [`php/gui/UXMediaView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMediaView.php)
+- **source** `php/gui/UXMediaView.php`
 
 **Description**
 
@@ -12,7 +12,7 @@ Class UXMediaView
 
 #### Properties
 
-- `->`[`player`](#prop-player) : `UXMediaPlayer`
+- `->`[`player`](#prop-player) : [`UXMediaPlayer`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMediaPlayer.md)
 - `->`[`smooth`](#prop-smooth) : `bool`
 - `->`[`proportional`](#prop-proportional) : `bool`
 

@@ -2,7 +2,7 @@
 
 - **class** `UXTableCell` (`php\gui\UXTableCell`) **extends** [`UXCell`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.md)
 - **package** `gui`
-- **source** [`php/gui/UXTableCell.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTableCell.php)
+- **source** `php/gui/UXTableCell.php`
 
 **Description**
 
@@ -14,6 +14,7 @@ Class UXTableCell
 
 - `->`[`updateTableView()`](#method-updatetableview)
 - `->`[`updateTableColumn()`](#method-updatetablecolumn)
+- See also in the parent class [UXCell](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXCell.md)
 
 ---
 # Methods

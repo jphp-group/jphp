@@ -2,7 +2,7 @@
 
 - **класс** `UXDialog` (`php\gui\UXDialog`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXDialog.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDialog.php)
+- **исходники** `php/gui/UXDialog.php`
 
 **Описание**
 

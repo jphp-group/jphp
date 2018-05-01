@@ -1,7 +1,7 @@
 # Markdown
 
 - **класс** `Markdown` (`markdown\Markdown`)
-- **исходники** [`markdown/Markdown.php`](./src/main/resources/JPHP-INF/sdk/markdown/Markdown.php)
+- **исходники** `markdown/Markdown.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **class** `UXTabPane` (`php\gui\UXTabPane`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXTabPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTabPane.php)
+- **source** `php/gui/UXTabPane.php`
 
 **Description**
 
@@ -12,11 +12,12 @@ Class UXTabPane
 
 #### Properties
 
-- `->`[`tabs`](#prop-tabs) : `UXList`
-- `->`[`selectedTab`](#prop-selectedtab) : `UXTab`
+- `->`[`tabs`](#prop-tabs) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.md)
+- `->`[`selectedTab`](#prop-selectedtab) : [`UXTab`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTab.md)
 - `->`[`selectedIndex`](#prop-selectedindex) : `int`
 - `->`[`tabClosingPolicy`](#prop-tabclosingpolicy) : `string SELECTED_TAB, ALL_TABS, UNAVAILABLE`
 - `->`[`side`](#prop-side) : `string`
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
@@ -28,6 +29,7 @@ Class UXTabPane
 - `->`[`selectLastTab()`](#method-selectlasttab) - _..._
 - `->`[`selectPreviousTab()`](#method-selectprevioustab) - _..._
 - `->`[`clearSelection()`](#method-clearselection) - _..._
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 # Methods

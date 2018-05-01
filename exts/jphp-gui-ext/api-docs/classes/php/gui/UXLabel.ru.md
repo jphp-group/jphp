@@ -2,7 +2,7 @@
 
 - **класс** `UXLabel` (`php\gui\UXLabel`) **унаследован от** `UXLabeled` (`php\gui\UXLabeled`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXLabel.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXLabel.php)
+- **исходники** `php/gui/UXLabel.php`
 
 **Описание**
 

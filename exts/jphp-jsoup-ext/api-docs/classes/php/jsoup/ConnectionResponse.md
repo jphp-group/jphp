@@ -1,7 +1,7 @@
 # ConnectionResponse
 
 - **class** `ConnectionResponse` (`php\jsoup\ConnectionResponse`)
-- **source** [`php/jsoup/ConnectionResponse.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/ConnectionResponse.php)
+- **source** `php/jsoup/ConnectionResponse.php`
 
 **Description**
 

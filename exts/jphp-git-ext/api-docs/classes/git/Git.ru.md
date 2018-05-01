@@ -2,7 +2,7 @@
 
 - **класс** `Git` (`git\Git`)
 - **пакет** `git`
-- **исходники** [`git/Git.php`](./src/main/resources/JPHP-INF/sdk/git/Git.php)
+- **исходники** `git/Git.php`
 
 **Описание**
 

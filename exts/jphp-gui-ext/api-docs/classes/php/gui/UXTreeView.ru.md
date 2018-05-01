@@ -2,7 +2,7 @@
 
 - **класс** `UXTreeView` (`php\gui\UXTreeView`) **унаследован от** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXTreeView.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTreeView.php)
+- **исходники** `php/gui/UXTreeView.php`
 
 **Описание**
 
@@ -13,15 +13,16 @@ Class UXTreeView
 #### Свойства
 
 - `->`[`editable`](#prop-editable) : `bool`
-- `->`[`root`](#prop-root) : `UXTreeItem`
+- `->`[`root`](#prop-root) : [`UXTreeItem`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTreeItem.ru.md)
 - `->`[`rootVisible`](#prop-rootvisible) : `bool`
 - `->`[`fixedCellSize`](#prop-fixedcellsize) : `double|int`
 - `->`[`expandedItemCount`](#prop-expandeditemcount) : `int`
 - `->`[`multipleSelection`](#prop-multipleselection) : `bool`
 - `->`[`selectedItems`](#prop-selecteditems) : `UXTreeItem[]`
 - `->`[`selectedIndexes`](#prop-selectedindexes) : `int[]`
-- `->`[`focusedItem`](#prop-focuseditem) : `UXTreeItem`
+- `->`[`focusedItem`](#prop-focuseditem) : [`UXTreeItem`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTreeItem.ru.md)
 - `->`[`expandedItems`](#prop-expandeditems) : `UXTreeItem[]`
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 
@@ -35,6 +36,7 @@ Class UXTreeView
 - `->`[`scrollTo()`](#method-scrollto)
 - `->`[`expandAll()`](#method-expandall)
 - `->`[`collapseAll()`](#method-collapseall)
+- См. также в родительском классе [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.ru.md)
 
 ---
 # Методы

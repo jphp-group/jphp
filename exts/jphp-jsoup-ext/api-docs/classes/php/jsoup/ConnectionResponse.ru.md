@@ -1,7 +1,7 @@
 # ConnectionResponse
 
 - **класс** `ConnectionResponse` (`php\jsoup\ConnectionResponse`)
-- **исходники** [`php/jsoup/ConnectionResponse.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/ConnectionResponse.php)
+- **исходники** `php/jsoup/ConnectionResponse.php`
 
 **Описание**
 

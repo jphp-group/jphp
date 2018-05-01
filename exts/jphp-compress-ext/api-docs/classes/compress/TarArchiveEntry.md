@@ -2,7 +2,7 @@
 
 - **class** `TarArchiveEntry` (`compress\TarArchiveEntry`) **extends** [`ArchiveEntry`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
 - **package** `compress`
-- **source** [`compress/TarArchiveEntry.php`](./src/main/resources/JPHP-INF/sdk/compress/TarArchiveEntry.php)
+- **source** `compress/TarArchiveEntry.php`
 
 **Description**
 
@@ -22,12 +22,14 @@ Class TarArchiveEntry
 - `->`[`realSize`](#prop-realsize) : `int`
 - `->`[`devMinor`](#prop-devminor) : `int`
 - `->`[`devMajor`](#prop-devmajor) : `int`
+- See also in the parent class [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
 
 ---
 
 #### Static Methods
 
 - `TarArchiveEntry ::`[`ofFile()`](#method-offile)
+- See also in the parent class [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
 
 ---
 
@@ -55,6 +57,7 @@ Class TarArchiveEntry
 - `->`[`clearExtraPaxHeaders()`](#method-clearextrapaxheaders)
 - `->`[`getExtraPaxHeader()`](#method-getextrapaxheader)
 - `->`[`getExtraPaxHeaders()`](#method-getextrapaxheaders)
+- See also in the parent class [ArchiveEntry](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/ArchiveEntry.md)
 
 ---
 # Static Methods

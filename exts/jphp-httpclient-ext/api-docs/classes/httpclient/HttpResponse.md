@@ -1,7 +1,7 @@
 # HttpResponse
 
 - **class** `HttpResponse` (`httpclient\HttpResponse`)
-- **source** [`httpclient/HttpResponse.php`](src-php/httpclient/HttpResponse.php)
+- **source** `httpclient/HttpResponse.php`
 
 **Description**
 

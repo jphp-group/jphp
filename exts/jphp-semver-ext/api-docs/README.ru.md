@@ -14,4 +14,7 @@ jppm add jphp-semver-ext@1.0.0
 
 ### АПИ
 **Классы**
-- [`semver\SemVersion`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-semver-ext/api-docs/classes/semver/SemVersion.ru.md)- _Class SemVersion_
+
+#### `semver`
+
+- [`SemVersion`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-semver-ext/api-docs/classes/semver/SemVersion.ru.md)- _Class SemVersion_

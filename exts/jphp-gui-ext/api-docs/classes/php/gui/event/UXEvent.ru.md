@@ -2,7 +2,11 @@
 
 - **класс** `UXEvent` (`php\gui\event\UXEvent`)
 - **пакет** `gui`
-- **исходники** [`php/gui/event/UXEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXEvent.php)
+- **исходники** `php/gui/event/UXEvent.php`
+
+**Классы наследники**
+
+> [UXContextMenuEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXContextMenuEvent.ru.md), [UXDragEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXDragEvent.ru.md)
 
 **Описание**
 

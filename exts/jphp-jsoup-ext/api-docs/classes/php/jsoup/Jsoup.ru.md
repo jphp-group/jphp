@@ -1,7 +1,7 @@
 # Jsoup
 
 - **класс** `Jsoup` (`php\jsoup\Jsoup`)
-- **исходники** [`php/jsoup/Jsoup.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Jsoup.php)
+- **исходники** `php/jsoup/Jsoup.php`
 
 **Описание**
 

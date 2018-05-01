@@ -2,7 +2,11 @@
 
 - **class** `UXMenuItem` (`php\gui\UXMenuItem`)
 - **package** `gui`
-- **source** [`php/gui/UXMenuItem.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMenuItem.php)
+- **source** `php/gui/UXMenuItem.php`
+
+**Child Classes**
+
+> [UXMenu](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXMenu.md)
 
 **Description**
 
@@ -16,9 +20,9 @@ Class UXMenuItem
 - `->`[`text`](#prop-text) : `string`
 - `->`[`graphic`](#prop-graphic) : `UXNode`
 - `->`[`style`](#prop-style) : `string`
-- `->`[`classes`](#prop-classes) : `UXList`
+- `->`[`classes`](#prop-classes) : [`UXList`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXList.md)
 - `->`[`accelerator`](#prop-accelerator) : `string`
-- `->`[`parentPopup`](#prop-parentpopup) : `UXContextMenu`
+- `->`[`parentPopup`](#prop-parentpopup) : [`UXContextMenu`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXContextMenu.md)
 - `->`[`visible`](#prop-visible) : `bool`
 - `->`[`disable`](#prop-disable) : `bool`
 - `->`[`enabled`](#prop-enabled) : `bool`

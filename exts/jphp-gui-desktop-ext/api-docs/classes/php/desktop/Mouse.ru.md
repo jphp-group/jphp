@@ -1,7 +1,7 @@
 # Mouse
 
 - **класс** `Mouse` (`php\desktop\Mouse`)
-- **исходники** [`php/desktop/Mouse.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/Mouse.php)
+- **исходники** `php/desktop/Mouse.php`
 
 **Описание**
 

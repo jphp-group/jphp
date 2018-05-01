@@ -2,7 +2,7 @@
 
 - **class** `UXTooltip` (`php\gui\UXTooltip`) **extends** [`UXPopupWindow`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md)
 - **package** `gui`
-- **source** [`php/gui/UXTooltip.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTooltip.php)
+- **source** `php/gui/UXTooltip.php`
 
 **Description**
 
@@ -15,11 +15,12 @@ Class UXTooltip
 - `->`[`text`](#prop-text) : `string`
 - `->`[`textAlignment`](#prop-textalignment) : `string` - _LEFT, RIGHT, CENTER, JUSTIFY_
 - `->`[`textOverrun`](#prop-textoverrun) : `string` - _CLIP, ELLIPSIS, WORD_ELLIPSIS, CENTER_ELLIPSIS, CENTER_WORD_ELLIPSIS, LEADING_ELLIPSIS, LEADING_WORD_ELLIPSIS_
-- `->`[`font`](#prop-font) : `UXFont`
-- `->`[`graphic`](#prop-graphic) : `UXNode`
+- `->`[`font`](#prop-font) : [`UXFont`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/text/UXFont.md)
+- `->`[`graphic`](#prop-graphic) : [`UXNode`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md)
 - `->`[`graphicTextGap`](#prop-graphictextgap) : `double`
 - `->`[`activated`](#prop-activated) : `bool`
 - `->`[`wrapText`](#prop-wraptext) : `bool`
+- See also in the parent class [UXPopupWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md)
 
 ---
 
@@ -28,6 +29,7 @@ Class UXTooltip
 - `UXTooltip ::`[`of()`](#method-of)
 - `UXTooltip ::`[`install()`](#method-install)
 - `UXTooltip ::`[`uninstall()`](#method-uninstall)
+- See also in the parent class [UXPopupWindow](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXPopupWindow.md)
 
 ---
 # Static Methods

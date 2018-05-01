@@ -1,7 +1,7 @@
 # HttpClient
 
 - **класс** `HttpClient` (`httpclient\HttpClient`)
-- **исходники** [`httpclient/HttpClient.php`](src-php/httpclient/HttpClient.php)
+- **исходники** `httpclient/HttpClient.php`
 
 **Описание**
 

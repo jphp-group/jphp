@@ -2,7 +2,7 @@
 
 - **класс** `ServerSocket` (`php\net\ServerSocket`)
 - **пакет** `std`
-- **исходники** [`php/net/ServerSocket.php`](./src/main/resources/JPHP-INF/sdk/php/net/ServerSocket.php)
+- **исходники** `php/net/ServerSocket.php`
 
 **Описание**
 

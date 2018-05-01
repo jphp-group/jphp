@@ -1,7 +1,7 @@
 # SourceManager
 
 - **class** `SourceManager` (`phpx\parser\SourceManager`)
-- **source** [`phpx/parser/SourceManager.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceManager.php)
+- **source** `phpx/parser/SourceManager.php`
 
 **Description**
 

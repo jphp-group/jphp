@@ -2,7 +2,7 @@
 
 - **class** `UXScrollPane` (`php\gui\layout\UXScrollPane`) **extends** `UXControl` (`php\gui\UXControl`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXScrollPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXScrollPane.php)
+- **source** `php/gui/layout/UXScrollPane.php`
 
 **Description**
 

@@ -1,7 +1,7 @@
 # SqlStatement
 
 - **класс** `SqlStatement` (`php\sql\SqlStatement`)
-- **исходники** [`php/sql/SqlStatement.php`](./src/main/resources/JPHP-INF/sdk/php/sql/SqlStatement.php)
+- **исходники** `php/sql/SqlStatement.php`
 
 **Описание**
 

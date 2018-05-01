@@ -2,7 +2,7 @@
 
 - **класс** `UXFont` (`php\gui\text\UXFont`)
 - **пакет** `gui`
-- **исходники** [`php/gui/text/UXFont.php`](./src/main/resources/JPHP-INF/sdk/php/gui/text/UXFont.php)
+- **исходники** `php/gui/text/UXFont.php`
 
 **Описание**
 

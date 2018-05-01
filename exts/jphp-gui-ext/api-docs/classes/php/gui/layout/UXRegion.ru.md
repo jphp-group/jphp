@@ -2,7 +2,11 @@
 
 - **класс** `UXRegion` (`php\gui\layout\UXRegion`) **унаследован от** `UXParent` (`php\gui\UXParent`)
 - **пакет** `gui`
-- **исходники** [`php/gui/layout/UXRegion.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXRegion.php)
+- **исходники** `php/gui/layout/UXRegion.php`
+
+**Классы наследники**
+
+> [UXPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXPane.ru.md)
 
 **Описание**
 

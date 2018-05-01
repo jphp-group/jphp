@@ -2,7 +2,7 @@
 
 - **class** `UXRectangle` (`php\gui\shape\UXRectangle`) **extends** `UXShape` (`php\gui\shape\UXShape`)
 - **package** `gui`
-- **source** [`php/gui/shape/UXRectangle.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXRectangle.php)
+- **source** `php/gui/shape/UXRectangle.php`
 
 **Description**
 

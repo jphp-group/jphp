@@ -2,8 +2,7 @@
 
 - **класс** `UXNumberSpinner` (`php\gui\UXNumberSpinner`) **унаследован от** `UXSpinner` (`php\gui\UXSpinner`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXNumberSpinner.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXNumberSpinner.php)
-
+- **исходники** `php/gui/UXNumberSpinner.php`
 
 ---
 

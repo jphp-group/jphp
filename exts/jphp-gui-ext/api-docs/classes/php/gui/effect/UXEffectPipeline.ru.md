@@ -2,7 +2,7 @@
 
 - **класс** `UXEffectPipeline` (`php\gui\effect\UXEffectPipeline`)
 - **пакет** `gui`
-- **исходники** [`php/gui/effect/UXEffectPipeline.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXEffectPipeline.php)
+- **исходники** `php/gui/effect/UXEffectPipeline.php`
 
 **Описание**
 

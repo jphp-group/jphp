@@ -2,8 +2,7 @@
 
 - **class** `ZipArchive` (`compress\ZipArchive`) **extends** [`Archive`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.md)
 - **package** `compress`
-- **source** [`compress/ZipArchive.php`](./src/main/resources/JPHP-INF/sdk/compress/ZipArchive.php)
-
+- **source** `compress/ZipArchive.php`
 
 ---
 
@@ -15,6 +14,7 @@
 - `->`[`entry()`](#method-entry)
 - `->`[`readAll()`](#method-readall)
 - `->`[`read()`](#method-read)
+- See also in the parent class [Archive](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-compress-ext/api-docs/classes/compress/Archive.md)
 
 ---
 # Methods

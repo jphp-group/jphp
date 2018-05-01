@@ -49,6 +49,11 @@ class DocIndex
     private $translateFunc = null;
 
     /**
+     * @var array
+     */
+    private $classImplements = [];
+
+    /**
      * DocIndex constructor.
      * @param Package $package
      * @param array $langs
@@ -74,6 +79,10 @@ class DocIndex
     function addClass(ClassRecord $class)
     {
         $this->classes[$class->name] = $class;
+
+        if ($class->parent) {
+            $this->classImplements[$class->parent->name][$class->name] = $class;
+        }
     }
 
     function hasClass(ClassRecord $class): bool
@@ -81,8 +90,30 @@ class DocIndex
         return isset($this->classes[$class->name]);
     }
 
+    function getClass(string $name): ?ClassRecord
+    {
+        return $this->classes[$name];
+    }
+
+    /**
+     * @param string $className
+     * @return array
+     */
+    function getClassChildren(string $className): array
+    {
+        if ($r = $this->classImplements[$className]) {
+            return $r;
+        }
+
+        return [];
+    }
+
     function translate($message, ...$args)
     {
+        if (is_array($message)) {
+            return $message[$this->lang] ?? ($message[$this->defLang] ?? 'not translated');
+        }
+
         if ($this->translateFunc) {
             return call_user_func_array($this->translateFunc, [$message, $args]);
         } else {
@@ -146,19 +177,36 @@ class DocIndex
         $result[] = "### {$this->translate('index.api.title')}";
 
         $result[] = "**{$this->translate('class.classes.title')}**";
-        foreach ($this->classes as $class) {
-            $line = "- [`{$class->name}`]({$this->classLink($class)})";
+        foreach ($this->getClassesByCategory() as $cat => $classes) {
+            $result[] = "";
+            $result[] = "#### `$cat`";
+            $result[] = "";
 
-            $desc = str::lines(Annotations::getContent($class->comment, $this->lang), true)[0];
+            foreach ($classes as $class) {
+                $line = "- [`{$class->shortName}`]({$this->classLink($class)})";
 
-            if ($desc) {
-                $line .= "- _{$desc}_";
+                $desc = str::lines(Annotations::getContent($class->comment, $this->lang), true)[0];
+
+                if ($desc) {
+                    $line .= "- _{$desc}_";
+                }
+
+                $result[] = $line;
             }
-
-            $result[] = $line;
         }
 
         return str::join($result, "\n");
+    }
+
+    public function getClassesByCategory()
+    {
+        $result = [];
+
+        foreach ($this->classes as $class) {
+            $result[$class->namespace][$class->name] = $class;
+        }
+
+        return $result;
     }
 
     public function getLangPrefix()

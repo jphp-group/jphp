@@ -2,7 +2,7 @@
 
 - **класс** `YamlProcessor` (`php\format\YamlProcessor`) **унаследован от** `Processor` (`php\format\Processor`)
 - **пакет** `std`
-- **исходники** [`php/format/YamlProcessor.php`](./src/main/resources/JPHP-INF/sdk/php/format/YamlProcessor.php)
+- **исходники** `php/format/YamlProcessor.php`
 
 **Описание**
 

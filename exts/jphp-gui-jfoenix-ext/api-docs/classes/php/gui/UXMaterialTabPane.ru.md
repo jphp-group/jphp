@@ -2,7 +2,7 @@
 
 - **класс** `UXMaterialTabPane` (`php\gui\UXMaterialTabPane`) **унаследован от** `UXTabPane` (`php\gui\UXTabPane`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialTabPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTabPane.php)
+- **исходники** `php/gui/UXMaterialTabPane.php`
 
 **Описание**
 

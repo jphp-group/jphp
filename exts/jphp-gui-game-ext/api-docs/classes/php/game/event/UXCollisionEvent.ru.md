@@ -2,7 +2,7 @@
 
 - **класс** `UXCollisionEvent` (`php\game\event\UXCollisionEvent`) **унаследован от** `UXEvent` (`php\gui\event\UXEvent`)
 - **пакет** `game`
-- **исходники** [`php/game/event/UXCollisionEvent.php`](./src/main/resources/JPHP-INF/sdk/php/game/event/UXCollisionEvent.php)
+- **исходники** `php/game/event/UXCollisionEvent.php`
 
 **Описание**
 

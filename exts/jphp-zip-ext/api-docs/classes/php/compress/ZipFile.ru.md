@@ -1,7 +1,7 @@
 # ZipFile
 
 - **класс** `ZipFile` (`php\compress\ZipFile`)
-- **исходники** [`php/compress/ZipFile.php`](./src/main/resources/JPHP-INF/sdk/php/compress/ZipFile.php)
+- **исходники** `php/compress/ZipFile.php`
 
 **Описание**
 

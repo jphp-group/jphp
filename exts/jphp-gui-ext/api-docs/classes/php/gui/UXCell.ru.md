@@ -2,7 +2,7 @@
 
 - **класс** `UXCell` (`php\gui\UXCell`) **унаследован от** `UXLabeled` (`php\gui\UXLabeled`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXCell.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCell.php)
+- **исходники** `php/gui/UXCell.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **класс** `arr` (`php\lib\arr`)
 - **пакет** `std`
-- **исходники** [`php/lib/arr.php`](./src/main/resources/JPHP-INF/sdk/php/lib/arr.php)
+- **исходники** `php/lib/arr.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **класс** `URL` (`php\net\URL`)
 - **пакет** `std`
-- **исходники** [`php/net/URL.php`](./src/main/resources/JPHP-INF/sdk/php/net/URL.php)
+- **исходники** `php/net/URL.php`
 
 **Описание**
 

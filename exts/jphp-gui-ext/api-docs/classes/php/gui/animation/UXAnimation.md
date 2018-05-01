@@ -2,7 +2,7 @@
 
 - **class** `UXAnimation` (`php\gui\animation\UXAnimation`)
 - **package** `gui`
-- **source** [`php/gui/animation/UXAnimation.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXAnimation.php)
+- **source** `php/gui/animation/UXAnimation.php`
 
 **Description**
 

@@ -14,17 +14,20 @@ jppm add jphp-gui-jfoenix-ext@1.0.0
 
 ### API
 **Classes**
-- [`php\gui\UXMaterialButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialButton.md)- _Class UXMaterialButton_
-- [`php\gui\UXMaterialCheckbox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialCheckbox.md)
-- [`php\gui\UXMaterialColorPicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialColorPicker.md)
-- [`php\gui\UXMaterialComboBox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialComboBox.md)
-- [`php\gui\UXMaterialDatePicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialDatePicker.md)
-- [`php\gui\UXMaterialPasswordField`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialPasswordField.md)
-- [`php\gui\UXMaterialProgressBar`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialProgressBar.md)
-- [`php\gui\UXMaterialProgressIndicator`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialProgressIndicator.md)
-- [`php\gui\UXMaterialSlider`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialSlider.md)- _Class UXMaterialButton_
-- [`php\gui\UXMaterialTabPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTabPane.md)- _Class UXMaterialButton_
-- [`php\gui\UXMaterialTextArea`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTextArea.md)
-- [`php\gui\UXMaterialTextField`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTextField.md)
-- [`php\gui\UXMaterialTimePicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTimePicker.md)
-- [`php\gui\UXMaterialToggleButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialToggleButton.md)
+
+#### `php\gui`
+
+- [`UXMaterialButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialButton.md)- _Class UXMaterialButton_
+- [`UXMaterialCheckbox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialCheckbox.md)
+- [`UXMaterialColorPicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialColorPicker.md)
+- [`UXMaterialComboBox`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialComboBox.md)
+- [`UXMaterialDatePicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialDatePicker.md)
+- [`UXMaterialPasswordField`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialPasswordField.md)
+- [`UXMaterialProgressBar`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialProgressBar.md)
+- [`UXMaterialProgressIndicator`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialProgressIndicator.md)
+- [`UXMaterialSlider`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialSlider.md)- _Class UXMaterialButton_
+- [`UXMaterialTabPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTabPane.md)- _Class UXMaterialButton_
+- [`UXMaterialTextArea`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTextArea.md)
+- [`UXMaterialTextField`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTextField.md)
+- [`UXMaterialTimePicker`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialTimePicker.md)
+- [`UXMaterialToggleButton`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-jfoenix-ext/api-docs/classes/php/gui/UXMaterialToggleButton.md)

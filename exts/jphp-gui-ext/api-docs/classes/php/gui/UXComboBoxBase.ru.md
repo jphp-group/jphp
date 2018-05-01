@@ -2,7 +2,11 @@
 
 - **класс** `UXComboBoxBase` (`php\gui\UXComboBoxBase`) **унаследован от** `UXControl` (`php\gui\UXControl`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXComboBoxBase.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXComboBoxBase.php)
+- **исходники** `php/gui/UXComboBoxBase.php`
+
+**Классы наследники**
+
+> [UXColorPicker](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXColorPicker.ru.md), [UXComboBox](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXComboBox.ru.md)
 
 **Описание**
 

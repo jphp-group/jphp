@@ -2,7 +2,7 @@
 
 - **class** `UXHBox` (`php\gui\layout\UXHBox`) **extends** `UXPane` (`php\gui\layout\UXPane`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXHBox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXHBox.php)
+- **source** `php/gui/layout/UXHBox.php`
 
 **Description**
 

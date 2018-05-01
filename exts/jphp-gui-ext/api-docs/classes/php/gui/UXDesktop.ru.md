@@ -2,7 +2,7 @@
 
 - **класс** `UXDesktop` (`php\gui\UXDesktop`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXDesktop.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXDesktop.php)
+- **исходники** `php/gui/UXDesktop.php`
 
 **Описание**
 

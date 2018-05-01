@@ -2,7 +2,7 @@
 
 - **class** `UXContextMenuEvent` (`php\gui\event\UXContextMenuEvent`) **extends** `UXEvent` (`php\gui\event\UXEvent`)
 - **package** `gui`
-- **source** [`php/gui/event/UXContextMenuEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXContextMenuEvent.php)
+- **source** `php/gui/event/UXContextMenuEvent.php`
 
 **Description**
 

@@ -1,8 +1,7 @@
 # JavaField
 
 - **class** `JavaField` (`php\lang\JavaField`) **extends** `JavaReflection` (`php\lang\JavaReflection`)
-- **source** [`php/lang/JavaField.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaField.php)
-
+- **source** `php/lang/JavaField.php`
 
 ---
 

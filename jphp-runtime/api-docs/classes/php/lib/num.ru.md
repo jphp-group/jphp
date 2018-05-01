@@ -2,7 +2,7 @@
 
 - **класс** `num` (`php\lib\num`)
 - **пакет** `std`
-- **исходники** [`php/lib/num.php`](./src/main/resources/JPHP-INF/sdk/php/lib/num.php)
+- **исходники** `php/lib/num.php`
 
 **Описание**
 

@@ -2,7 +2,7 @@
 
 - **class** `UXEffectPipeline` (`php\gui\effect\UXEffectPipeline`)
 - **package** `gui`
-- **source** [`php/gui/effect/UXEffectPipeline.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXEffectPipeline.php)
+- **source** `php/gui/effect/UXEffectPipeline.php`
 
 **Description**
 

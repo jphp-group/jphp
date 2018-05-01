@@ -1,7 +1,7 @@
 # SourceToken
 
 - **class** `SourceToken` (`phpx\parser\SourceToken`)
-- **source** [`phpx/parser/SourceToken.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceToken.php)
+- **source** `phpx/parser/SourceToken.php`
 
 **Description**
 

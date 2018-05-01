@@ -2,7 +2,7 @@
 
 - **class** `ThreadPool` (`php\lang\ThreadPool`)
 - **package** `std`
-- **source** [`php/lang/ThreadPool.php`](./src/main/resources/JPHP-INF/sdk/php/lang/ThreadPool.php)
+- **source** `php/lang/ThreadPool.php`
 
 **Description**
 

@@ -2,7 +2,11 @@
 
 - **class** `UXTextInputControl` (`php\gui\UXTextInputControl`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXTextInputControl.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXTextInputControl.php)
+- **source** `php/gui/UXTextInputControl.php`
+
+**Child Classes**
+
+> [UXTextArea](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextArea.md), [UXTextField](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXTextField.md)
 
 **Description**
 
@@ -14,13 +18,14 @@ Class UXTextInputControl
 
 - `->`[`anchor`](#prop-anchor) : `int`
 - `->`[`text`](#prop-text) : `string`
-- `->`[`font`](#prop-font) : `UXFont`
+- `->`[`font`](#prop-font) : [`UXFont`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/text/UXFont.md)
 - `->`[`selection`](#prop-selection) : `array` - _array(start, end, length)._
 - `->`[`selectedText`](#prop-selectedtext) : `string`
 - `->`[`promptText`](#prop-prompttext) : `string`
 - `->`[`length`](#prop-length) : `int`
 - `->`[`editable`](#prop-editable) : `bool`
 - `->`[`caretPosition`](#prop-caretposition) : `int`
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
@@ -57,6 +62,7 @@ Class UXTextInputControl
 - `->`[`redo()`](#method-redo) - _Redo changes._
 - `->`[`commitValue()`](#method-commitvalue) - _Commit the current text and convert it to a value._
 - `->`[`cancelEdit()`](#method-canceledit) - _If the field is currently being edited, this call will set text to the last commited value._
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 # Methods

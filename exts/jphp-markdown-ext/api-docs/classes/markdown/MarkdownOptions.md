@@ -1,8 +1,7 @@
 # MarkdownOptions
 
 - **class** `MarkdownOptions` (`markdown\MarkdownOptions`)
-- **source** [`markdown/MarkdownOptions.php`](./src/main/resources/JPHP-INF/sdk/markdown/MarkdownOptions.php)
-
+- **source** `markdown/MarkdownOptions.php`
 
 ---
 

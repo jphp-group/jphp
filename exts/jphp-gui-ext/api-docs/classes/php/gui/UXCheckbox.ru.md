@@ -2,7 +2,7 @@
 
 - **класс** `UXCheckbox` (`php\gui\UXCheckbox`) **унаследован от** [`UXButtonBase`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXCheckbox.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXCheckbox.php)
+- **исходники** `php/gui/UXCheckbox.php`
 
 **Описание**
 
@@ -15,12 +15,14 @@ Class UXCheckbox
 - `->`[`selected`](#prop-selected) : `bool` - _Отмечен или нет._
 - `->`[`indeterminate`](#prop-indeterminate) : `bool`
 - `->`[`allowIndeterminate`](#prop-allowindeterminate) : `bool`
+- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`__construct()`](#method-__construct)
+- См. также в родительском классе [UXButtonBase](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXButtonBase.ru.md)
 
 ---
 # Методы

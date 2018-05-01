@@ -1,7 +1,7 @@
 # HttpResponse
 
 - **класс** `HttpResponse` (`httpclient\HttpResponse`)
-- **исходники** [`httpclient/HttpResponse.php`](src-php/httpclient/HttpResponse.php)
+- **исходники** `httpclient/HttpResponse.php`
 
 **Описание**
 

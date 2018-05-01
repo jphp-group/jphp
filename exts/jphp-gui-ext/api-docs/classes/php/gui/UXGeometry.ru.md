@@ -2,7 +2,7 @@
 
 - **класс** `UXGeometry` (`php\gui\UXGeometry`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXGeometry.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXGeometry.php)
+- **исходники** `php/gui/UXGeometry.php`
 
 **Описание**
 

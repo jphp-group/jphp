@@ -2,7 +2,7 @@
 
 - **класс** `UXContextMenuEvent` (`php\gui\event\UXContextMenuEvent`) **унаследован от** `UXEvent` (`php\gui\event\UXEvent`)
 - **пакет** `gui`
-- **исходники** [`php/gui/event/UXContextMenuEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXContextMenuEvent.php)
+- **исходники** `php/gui/event/UXContextMenuEvent.php`
 
 **Описание**
 

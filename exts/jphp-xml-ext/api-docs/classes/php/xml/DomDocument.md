@@ -1,7 +1,7 @@
 # DomDocument
 
 - **class** `DomDocument` (`php\xml\DomDocument`) **extends** `DomElement` (`php\xml\DomElement`)
-- **source** [`php/xml/DomDocument.php`](./src/main/resources/JPHP-INF/sdk/php/xml/DomDocument.php)
+- **source** `php/xml/DomDocument.php`
 
 **Description**
 

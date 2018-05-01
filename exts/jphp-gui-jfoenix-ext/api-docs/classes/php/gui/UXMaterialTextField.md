@@ -2,8 +2,7 @@
 
 - **class** `UXMaterialTextField` (`php\gui\UXMaterialTextField`) **extends** `UXTextField` (`php\gui\UXTextField`)
 - **package** `gui`
-- **source** [`php/gui/UXMaterialTextField.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTextField.php)
-
+- **source** `php/gui/UXMaterialTextField.php`
 
 ---
 

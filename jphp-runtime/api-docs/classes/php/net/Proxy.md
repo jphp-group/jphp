@@ -2,7 +2,7 @@
 
 - **class** `Proxy` (`php\net\Proxy`)
 - **package** `std`
-- **source** [`php/net/Proxy.php`](./src/main/resources/JPHP-INF/sdk/php/net/Proxy.php)
+- **source** `php/net/Proxy.php`
 
 **Description**
 

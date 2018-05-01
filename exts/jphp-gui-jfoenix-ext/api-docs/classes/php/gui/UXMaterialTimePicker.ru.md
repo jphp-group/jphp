@@ -2,8 +2,7 @@
 
 - **класс** `UXMaterialTimePicker` (`php\gui\UXMaterialTimePicker`) **унаследован от** `UXComboBoxBase` (`php\gui\UXComboBoxBase`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialTimePicker.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTimePicker.php)
-
+- **исходники** `php/gui/UXMaterialTimePicker.php`
 
 ---
 

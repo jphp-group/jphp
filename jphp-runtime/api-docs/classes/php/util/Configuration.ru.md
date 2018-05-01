@@ -2,7 +2,7 @@
 
 - **класс** `Configuration` (`php\util\Configuration`)
 - **пакет** `std`
-- **исходники** [`php/util/Configuration.php`](./src/main/resources/JPHP-INF/sdk/php/util/Configuration.php)
+- **исходники** `php/util/Configuration.php`
 
 **Описание**
 

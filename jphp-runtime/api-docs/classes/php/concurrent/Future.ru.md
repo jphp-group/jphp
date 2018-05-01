@@ -2,7 +2,7 @@
 
 - **класс** `Future` (`php\concurrent\Future`)
 - **пакет** `std`
-- **исходники** [`php/concurrent/Future.php`](./src/main/resources/JPHP-INF/sdk/php/concurrent/Future.php)
+- **исходники** `php/concurrent/Future.php`
 
 **Описание**
 

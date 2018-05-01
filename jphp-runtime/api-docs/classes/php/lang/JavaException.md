@@ -2,7 +2,11 @@
 
 - **class** `JavaException` (`php\lang\JavaException`) **extends** `Exception` (`Exception`)
 - **package** `std`
-- **source** [`php/lang/JavaException.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaException.php)
+- **source** `php/lang/JavaException.php`
+
+**Child Classes**
+
+> [TimeoutException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/concurrent/TimeoutException.md), [IOException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/IOException.md), [IllegalArgumentException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/IllegalArgumentException.md), [IllegalStateException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/IllegalStateException.md), [InterruptedException](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/InterruptedException.md)
 
 **Description**
 

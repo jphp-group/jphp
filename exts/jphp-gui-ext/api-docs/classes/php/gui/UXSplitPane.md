@@ -2,7 +2,7 @@
 
 - **class** `UXSplitPane` (`php\gui\UXSplitPane`) **extends** [`UXControl`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 - **package** `gui`
-- **source** [`php/gui/UXSplitPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXSplitPane.php)
+- **source** `php/gui/UXSplitPane.php`
 
 **Description**
 
@@ -15,12 +15,14 @@ Class UXSplitPane
 - `->`[`items`](#prop-items) : `UXList list of UXNode`
 - `->`[`orientation`](#prop-orientation) : `string`
 - `->`[`dividerPositions`](#prop-dividerpositions) : `double[]`
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
 #### Static Methods
 
 - `UXSplitPane ::`[`setResizeWithParent()`](#method-setresizewithparent)
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 
@@ -28,6 +30,7 @@ Class UXSplitPane
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`setDividerPosition()`](#method-setdividerposition)
+- See also in the parent class [UXControl](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXControl.md)
 
 ---
 # Static Methods

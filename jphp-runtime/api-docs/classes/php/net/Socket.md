@@ -2,7 +2,7 @@
 
 - **class** `Socket` (`php\net\Socket`)
 - **package** `std`
-- **source** [`php/net/Socket.php`](./src/main/resources/JPHP-INF/sdk/php/net/Socket.php)
+- **source** `php/net/Socket.php`
 
 **Description**
 

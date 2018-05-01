@@ -2,8 +2,7 @@
 
 - **класс** `UXMaterialTextField` (`php\gui\UXMaterialTextField`) **унаследован от** `UXTextField` (`php\gui\UXTextField`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialTextField.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTextField.php)
-
+- **исходники** `php/gui/UXMaterialTextField.php`
 
 ---
 

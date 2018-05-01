@@ -1,8 +1,7 @@
 # JavaMethod
 
 - **класс** `JavaMethod` (`php\lang\JavaMethod`) **унаследован от** `JavaReflection` (`php\lang\JavaReflection`)
-- **исходники** [`php/lang/JavaMethod.php`](./src/main/resources/JPHP-INF/sdk/php/lang/JavaMethod.php)
-
+- **исходники** `php/lang/JavaMethod.php`
 
 ---
 

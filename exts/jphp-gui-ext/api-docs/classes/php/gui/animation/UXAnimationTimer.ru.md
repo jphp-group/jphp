@@ -2,7 +2,7 @@
 
 - **класс** `UXAnimationTimer` (`php\gui\animation\UXAnimationTimer`)
 - **пакет** `gui`
-- **исходники** [`php/gui/animation/UXAnimationTimer.php`](./src/main/resources/JPHP-INF/sdk/php/gui/animation/UXAnimationTimer.php)
+- **исходники** `php/gui/animation/UXAnimationTimer.php`
 
 **Описание**
 

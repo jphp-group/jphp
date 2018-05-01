@@ -2,8 +2,7 @@
 
 - **класс** `UXMaterialTextArea` (`php\gui\UXMaterialTextArea`) **унаследован от** `UXTextArea` (`php\gui\UXTextArea`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXMaterialTextArea.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaterialTextArea.php)
-
+- **исходники** `php/gui/UXMaterialTextArea.php`
 
 ---
 

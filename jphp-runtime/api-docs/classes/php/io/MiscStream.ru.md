@@ -2,7 +2,11 @@
 
 - **класс** `MiscStream` (`php\io\MiscStream`) **унаследован от** `Stream` (`php\io\Stream`)
 - **пакет** `std`
-- **исходники** [`php/io/MiscStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/MiscStream.php)
+- **исходники** `php/io/MiscStream.php`
+
+**Классы наследники**
+
+> [MemoryStream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/MemoryStream.ru.md)
 
 **Описание**
 

@@ -14,5 +14,8 @@ jppm add jphp-gui-systemtray-ext@1.0.0
 
 ### API
 **Classes**
-- [`php\desktop\SystemTray`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-systemtray-ext/api-docs/classes/php/desktop/SystemTray.md)- _Class SystemTray_
-- [`php\desktop\TrayIcon`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-systemtray-ext/api-docs/classes/php/desktop/TrayIcon.md)- _Class TrayIcon_
+
+#### `php\desktop`
+
+- [`SystemTray`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-systemtray-ext/api-docs/classes/php/desktop/SystemTray.md)- _Class SystemTray_
+- [`TrayIcon`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-systemtray-ext/api-docs/classes/php/desktop/TrayIcon.md)- _Class TrayIcon_

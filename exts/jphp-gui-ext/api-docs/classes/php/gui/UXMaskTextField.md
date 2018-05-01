@@ -2,8 +2,7 @@
 
 - **class** `UXMaskTextField` (`php\gui\UXMaskTextField`) **extends** `UXTextField` (`php\gui\UXTextField`)
 - **package** `gui`
-- **source** [`php/gui/UXMaskTextField.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXMaskTextField.php)
-
+- **source** `php/gui/UXMaskTextField.php`
 
 ---
 

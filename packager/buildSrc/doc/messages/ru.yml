@@ -16,6 +16,7 @@ class.static-method.title: Статичные Методы
 class.properties.title: Свойства
 class.see-parent-class: См. также в родительском классе
 class.property.readonly: Только для чтения
+class.children.list: Классы наследники
 
 index.install.title: Установка
 index.api.title: АПИ

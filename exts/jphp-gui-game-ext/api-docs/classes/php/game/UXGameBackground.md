@@ -2,7 +2,7 @@
 
 - **class** `UXGameBackground` (`php\game\UXGameBackground`) **extends** `UXCanvas` (`php\gui\UXCanvas`)
 - **package** `game`
-- **source** [`php/game/UXGameBackground.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameBackground.php)
+- **source** `php/game/UXGameBackground.php`
 
 **Description**
 

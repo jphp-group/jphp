@@ -1,8 +1,7 @@
 # UXPrinterJob
 
 - **class** `UXPrinterJob` (`php\gui\printing\UXPrinterJob`)
-- **source** [`php/gui/printing/UXPrinterJob.php`](./src/main/resources/JPHP-INF/sdk/php/gui/printing/UXPrinterJob.php)
-
+- **source** `php/gui/printing/UXPrinterJob.php`
 
 ---
 

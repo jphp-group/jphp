@@ -2,7 +2,7 @@
 
 - **класс** `UXScene` (`php\gui\UXScene`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXScene.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXScene.php)
+- **исходники** `php/gui/UXScene.php`
 
 **Описание**
 
@@ -12,7 +12,7 @@ Class UXScene
 
 #### Свойства
 
-- `->`[`root`](#prop-root) : `UXParent`
+- `->`[`root`](#prop-root) : [`UXParent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXParent.ru.md)
 - `->`[`window`](#prop-window) : `UXWindow`
 - `->`[`cursor`](#prop-cursor) : `string`
 

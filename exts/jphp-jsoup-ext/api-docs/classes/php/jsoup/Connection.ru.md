@@ -1,7 +1,7 @@
 # Connection
 
 - **класс** `Connection` (`php\jsoup\Connection`)
-- **исходники** [`php/jsoup/Connection.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Connection.php)
+- **исходники** `php/jsoup/Connection.php`
 
 **Описание**
 

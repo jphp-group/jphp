@@ -2,7 +2,7 @@
 
 - **класс** `UXMouseEvent` (`php\gui\event\UXMouseEvent`) **унаследован от** [`UXEvent`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
 - **пакет** `gui`
-- **исходники** [`php/gui/event/UXMouseEvent.php`](./src/main/resources/JPHP-INF/sdk/php/gui/event/UXMouseEvent.php)
+- **исходники** `php/gui/event/UXMouseEvent.php`
 
 **Описание**
 
@@ -24,12 +24,14 @@ Class UXMouseEvent
 - `->`[`shiftDown`](#prop-shiftdown) : `bool`
 - `->`[`metaDown`](#prop-metadown) : `bool`
 - `->`[`shortcutDown`](#prop-shortcutdown) : `bool`
+- См. также в родительском классе [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
 
 ---
 
 #### Методы
 
 - `->`[`isDoubleClick()`](#method-isdoubleclick) - _Returns true if clickCount >= 2._
+- См. также в родительском классе [UXEvent](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/event/UXEvent.ru.md)
 
 ---
 # Методы

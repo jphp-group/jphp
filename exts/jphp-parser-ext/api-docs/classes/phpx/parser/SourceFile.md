@@ -1,7 +1,7 @@
 # SourceFile
 
 - **class** `SourceFile` (`phpx\parser\SourceFile`)
-- **source** [`phpx/parser/SourceFile.php`](./src/main/resources/JPHP-INF/sdk/phpx/parser/SourceFile.php)
+- **source** `phpx/parser/SourceFile.php`
 
 **Description**
 
@@ -11,7 +11,7 @@ Class SourceFile
 
 #### Properties
 
-- `->`[`moduleRecord`](#prop-modulerecord) : `ModuleRecord`
+- `->`[`moduleRecord`](#prop-modulerecord) : [`ModuleRecord`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-parser-ext/api-docs/classes/phpx/parser/ModuleRecord.md)
 
 ---
 
@@ -19,6 +19,7 @@ Class SourceFile
 
 - `->`[`__construct()`](#method-__construct)
 - `->`[`isReadOnly()`](#method-isreadonly)
+- `->`[`fetchFullName()`](#method-fetchfullname) - _Returns full name with namespace for class, func and constant name._
 - `->`[`update()`](#method-update)
 
 ---
@@ -39,6 +40,16 @@ __construct(string|Stream $path, string $uniqueId): void
 ```php
 isReadOnly(): bool
 ```
+
+---
+
+<a name="method-fetchfullname"></a>
+
+### fetchFullName()
+```php
+fetchFullName(string $name, phpx\parser\NamespaceRecord $namespace, string $useType): string
+```
+Returns full name with namespace for class, func and constant name.
 
 ---
 

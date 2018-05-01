@@ -1,7 +1,7 @@
 # Robot
 
 - **класс** `Robot` (`php\desktop\Robot`)
-- **исходники** [`php/desktop/Robot.php`](./src/main/resources/JPHP-INF/sdk/php/desktop/Robot.php)
+- **исходники** `php/desktop/Robot.php`
 
 **Описание**
 

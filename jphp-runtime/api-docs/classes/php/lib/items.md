@@ -2,7 +2,7 @@
 
 - **class** `items` (`php\lib\items`) **extends** [`arr`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lib/arr.md)
 - **package** `std`
-- **source** [`php/lib/Items.php`](./src/main/resources/JPHP-INF/sdk/php/lib/Items.php)
+- **source** `php/lib/Items.php`
 
 **Description**
 

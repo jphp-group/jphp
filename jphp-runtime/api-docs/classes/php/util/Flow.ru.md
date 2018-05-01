@@ -2,7 +2,7 @@
 
 - **класс** `Flow` (`php\util\Flow`)
 - **пакет** `std`
-- **исходники** [`php/util/Flow.php`](./src/main/resources/JPHP-INF/sdk/php/util/Flow.php)
+- **исходники** `php/util/Flow.php`
 
 **Описание**
 

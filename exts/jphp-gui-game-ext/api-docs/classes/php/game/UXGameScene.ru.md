@@ -2,7 +2,7 @@
 
 - **класс** `UXGameScene` (`php\game\UXGameScene`)
 - **пакет** `game`
-- **исходники** [`php/game/UXGameScene.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameScene.php)
+- **исходники** `php/game/UXGameScene.php`
 
 **Описание**
 

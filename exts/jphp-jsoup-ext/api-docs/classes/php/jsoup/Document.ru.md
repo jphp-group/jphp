@@ -1,7 +1,7 @@
 # Document
 
 - **класс** `Document` (`php\jsoup\Document`) **унаследован от** `Element` (`php\jsoup\Element`)
-- **исходники** [`php/jsoup/Document.php`](./src/main/resources/JPHP-INF/sdk/php/jsoup/Document.php)
+- **исходники** `php/jsoup/Document.php`
 
 **Описание**
 

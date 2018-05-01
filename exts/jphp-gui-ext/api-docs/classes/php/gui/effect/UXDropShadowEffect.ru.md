@@ -2,7 +2,7 @@
 
 - **класс** `UXDropShadowEffect` (`php\gui\effect\UXDropShadowEffect`) **унаследован от** `UXEffect` (`php\gui\effect\UXEffect`)
 - **пакет** `gui`
-- **исходники** [`php/gui/effect/UXDrowShadowEffect.php`](./src/main/resources/JPHP-INF/sdk/php/gui/effect/UXDrowShadowEffect.php)
+- **исходники** `php/gui/effect/UXDrowShadowEffect.php`
 
 **Описание**
 

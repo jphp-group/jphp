@@ -2,7 +2,7 @@
 
 - **class** `System` (`php\lang\System`)
 - **package** `std`
-- **source** [`php/lang/System.php`](./src/main/resources/JPHP-INF/sdk/php/lang/System.php)
+- **source** `php/lang/System.php`
 
 **Description**
 

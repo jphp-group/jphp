@@ -2,7 +2,11 @@
 
 - **class** `MiscStream` (`php\io\MiscStream`) **extends** `Stream` (`php\io\Stream`)
 - **package** `std`
-- **source** [`php/io/MiscStream.php`](./src/main/resources/JPHP-INF/sdk/php/io/MiscStream.php)
+- **source** `php/io/MiscStream.php`
+
+**Child Classes**
+
+> [MemoryStream](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/MemoryStream.md)
 
 **Description**
 

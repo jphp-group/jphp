@@ -2,7 +2,7 @@
 
 - **класс** `UXEllipse` (`php\gui\shape\UXEllipse`) **унаследован от** `UXShape` (`php\gui\shape\UXShape`)
 - **пакет** `gui`
-- **исходники** [`php/gui/shape/UXEllipse.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXEllipse.php)
+- **исходники** `php/gui/shape/UXEllipse.php`
 
 **Описание**
 

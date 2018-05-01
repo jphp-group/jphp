@@ -2,7 +2,7 @@
 
 - **класс** `UXGameEntity` (`php\game\UXGameEntity`)
 - **пакет** `game`
-- **исходники** [`php/game/UXGameEntity.php`](./src/main/resources/JPHP-INF/sdk/php/game/UXGameEntity.php)
+- **исходники** `php/game/UXGameEntity.php`
 
 **Описание**
 

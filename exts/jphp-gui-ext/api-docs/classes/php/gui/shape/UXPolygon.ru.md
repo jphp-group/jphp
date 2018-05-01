@@ -2,7 +2,7 @@
 
 - **класс** `UXPolygon` (`php\gui\shape\UXPolygon`) **унаследован от** `UXShape` (`php\gui\shape\UXShape`)
 - **пакет** `gui`
-- **исходники** [`php/gui/shape/UXPolygon.php`](./src/main/resources/JPHP-INF/sdk/php/gui/shape/UXPolygon.php)
+- **исходники** `php/gui/shape/UXPolygon.php`
 
 **Описание**
 

@@ -1,7 +1,7 @@
 # DomDocument
 
 - **класс** `DomDocument` (`php\xml\DomDocument`) **унаследован от** `DomElement` (`php\xml\DomElement`)
-- **исходники** [`php/xml/DomDocument.php`](./src/main/resources/JPHP-INF/sdk/php/xml/DomDocument.php)
+- **исходники** `php/xml/DomDocument.php`
 
 **Описание**
 

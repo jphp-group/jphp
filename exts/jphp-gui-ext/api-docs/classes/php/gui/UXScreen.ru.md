@@ -2,7 +2,7 @@
 
 - **класс** `UXScreen` (`php\gui\UXScreen`)
 - **пакет** `gui`
-- **исходники** [`php/gui/UXScreen.php`](./src/main/resources/JPHP-INF/sdk/php/gui/UXScreen.php)
+- **исходники** `php/gui/UXScreen.php`
 
 **Описание**
 

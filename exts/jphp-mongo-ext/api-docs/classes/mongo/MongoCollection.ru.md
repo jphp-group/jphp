@@ -1,7 +1,7 @@
 # MongoCollection
 
 - **класс** `MongoCollection` (`mongo\MongoCollection`)
-- **исходники** [`mongo/MongoCollection.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoCollection.php)
+- **исходники** `mongo/MongoCollection.php`
 
 **Описание**
 

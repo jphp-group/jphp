@@ -2,8 +2,7 @@
 
 - **class** `UXFragmentPane` (`php\gui\layout\UXFragmentPane`) **extends** `UXVBox` (`php\gui\layout\UXVBox`)
 - **package** `gui`
-- **source** [`php/gui/layout/UXFragmentPane.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXFragmentPane.php)
-
+- **source** `php/gui/layout/UXFragmentPane.php`
 
 ---
 

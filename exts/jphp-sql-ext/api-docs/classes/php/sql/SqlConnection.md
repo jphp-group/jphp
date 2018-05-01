@@ -1,7 +1,7 @@
 # SqlConnection
 
 - **class** `SqlConnection` (`php\sql\SqlConnection`)
-- **source** [`php/sql/SqlConnection.php`](./src/main/resources/JPHP-INF/sdk/php/sql/SqlConnection.php)
+- **source** `php/sql/SqlConnection.php`
 
 **Description**
 

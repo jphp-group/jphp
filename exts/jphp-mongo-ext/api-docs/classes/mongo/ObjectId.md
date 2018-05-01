@@ -1,7 +1,7 @@
 # ObjectId
 
 - **class** `ObjectId` (`mongo\ObjectId`)
-- **source** [`mongo/ObjectId.php`](./src/main/resources/JPHP-INF/sdk/mongo/ObjectId.php)
+- **source** `mongo/ObjectId.php`
 
 **Description**
 

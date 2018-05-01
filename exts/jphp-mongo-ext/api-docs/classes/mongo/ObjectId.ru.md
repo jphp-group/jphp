@@ -1,7 +1,7 @@
 # ObjectId
 
 - **класс** `ObjectId` (`mongo\ObjectId`)
-- **исходники** [`mongo/ObjectId.php`](./src/main/resources/JPHP-INF/sdk/mongo/ObjectId.php)
+- **исходники** `mongo/ObjectId.php`
 
 **Описание**
 

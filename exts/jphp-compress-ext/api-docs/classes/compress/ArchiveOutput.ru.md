@@ -2,7 +2,7 @@
 
 - **класс** `ArchiveOutput` (`compress\ArchiveOutput`)
 - **пакет** `compress`
-- **исходники** [`compress/ArchiveOutput.php`](./src/main/resources/JPHP-INF/sdk/compress/ArchiveOutput.php)
+- **исходники** `compress/ArchiveOutput.php`
 
 **Описание**
 

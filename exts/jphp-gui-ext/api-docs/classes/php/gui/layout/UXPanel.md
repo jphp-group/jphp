@@ -2,7 +2,7 @@
 
 - **class** `UXPanel` (`php\gui\layout\UXPanel`) **extends** [`UXAnchorPane`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXAnchorPane.md)
 - **package** `gui`
-- **source** [`php/gui/layout/UXPanel.php`](./src/main/resources/JPHP-INF/sdk/php/gui/layout/UXPanel.php)
+- **source** `php/gui/layout/UXPanel.php`
 
 **Description**
 
@@ -21,3 +21,4 @@ Class UXPanel
 - `->`[`borderColor`](#prop-bordercolor) : `UXColor`
 - `->`[`borderRadius`](#prop-borderradius) : `int`
 - `->`[`borderStyle`](#prop-borderstyle) : `string SOLID, DOTTED, DASHED, NONE`
+- See also in the parent class [UXAnchorPane](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/layout/UXAnchorPane.md)

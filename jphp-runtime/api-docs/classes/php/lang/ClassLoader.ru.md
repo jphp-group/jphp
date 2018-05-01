@@ -2,7 +2,7 @@
 
 - **класс** `ClassLoader` (`php\lang\ClassLoader`)
 - **пакет** `std`
-- **исходники** [`php/lang/ClassLoader.php`](./src/main/resources/JPHP-INF/sdk/php/lang/ClassLoader.php)
+- **исходники** `php/lang/ClassLoader.php`
 
 **Описание**
 

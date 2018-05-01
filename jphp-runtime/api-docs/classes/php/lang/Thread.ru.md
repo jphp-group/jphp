@@ -2,7 +2,7 @@
 
 - **класс** `Thread` (`php\lang\Thread`)
 - **пакет** `std`
-- **исходники** [`php/lang/Thread.php`](./src/main/resources/JPHP-INF/sdk/php/lang/Thread.php)
+- **исходники** `php/lang/Thread.php`
 
 **Описание**
 

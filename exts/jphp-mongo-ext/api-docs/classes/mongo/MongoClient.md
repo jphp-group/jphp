@@ -1,7 +1,7 @@
 # MongoClient
 
 - **class** `MongoClient` (`mongo\MongoClient`)
-- **source** [`mongo/MongoClient.php`](./src/main/resources/JPHP-INF/sdk/mongo/MongoClient.php)
+- **source** `mongo/MongoClient.php`
 
 **Description**
 
