@@ -21,4 +21,4 @@ class.children.list: Классы наследники
 index.install.title: Установка
 index.api.title: АПИ
 
-index.description: 'версия {0}, создано с помощью JPPM v{1}'
+index.description: 'версия {0}, создано с помощью JPPM.'

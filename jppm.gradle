@@ -51,7 +51,7 @@ def jppmDist(Project project) {
             into packageFile.parentFile.path
         }
 
-        def jars = []
+        /*def jars = []
 
         jarsDir.listFiles().each { file ->
             if (file.name.endsWith(".jar")) {
@@ -61,7 +61,7 @@ def jppmDist(Project project) {
 
         if (!jars.empty) {
             packageFile.setText(packageFile.getText('UTF-8') + "\n\njars: ['" + jars.join("', '") + "']\n", 'UTF-8')
-        }
+        }*/
     } else {
         if (!packageFile.isFile()) {
             packageFile.createNewFile()
@@ -94,7 +94,7 @@ def jppmDist(Project project) {
 
         //text += "\ndeps:\n" + deps.join(": $project.version\n") + "\n";
 
-        jarsDir.listFiles().each { file ->
+        /*jarsDir.listFiles().each { file ->
             if (file.name.endsWith(".jar")) {
                 jars.add(file.name)
             }
@@ -102,7 +102,7 @@ def jppmDist(Project project) {
 
         if (!jars.empty) {
             text += "\njars: ['" + jars.join("', '") + "']\n"
-        }
+        }*/
 
         packageFile.text = text;
     }

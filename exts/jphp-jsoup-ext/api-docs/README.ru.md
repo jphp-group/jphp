@@ -3,7 +3,7 @@
 ---
 
 ## jphp-jsoup-ext
-> версия 1.0.0, создано с помощью JPPM v0.2.0
+> версия 1.0.0, создано с помощью JPPM.
 
 Parsing html like in jQuery.
 

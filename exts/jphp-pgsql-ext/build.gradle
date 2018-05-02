@@ -1,6 +1,6 @@
 dependencies {
     provided project(":jphp-runtime")
-    compile project(":exts/jphp-sql-ext")
+    compileMaven project(":exts/jphp-sql-ext")
 
     // dependencies ....
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'

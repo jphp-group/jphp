@@ -3,7 +3,7 @@
 ---
 
 ## jphp-gui-ext
-> version 1.0.0, created by JPPM v0.2.0
+> version 1.0.0, created by JPPM.
 
 GUI based on JavaFX library.
 

@@ -3,7 +3,7 @@
 ---
 
 ## jphp-zip-ext
-> версия 1.0.0, создано с помощью JPPM v0.2.0
+> версия 1.0.0, создано с помощью JPPM.
 
 Library for working with ZIP archive files.
 

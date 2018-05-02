@@ -19,4 +19,4 @@ class.children.list: Child Classes
 
 index.install.title: Install
 index.api.title: API
-index.description: 'version {0}, created by JPPM v{1}'
+index.description: 'version {0}, created by JPPM.'

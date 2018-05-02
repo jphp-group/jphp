@@ -146,8 +146,6 @@ class DefaultPlugin
     }
 
     /**
-     * @jppm-need-depends-on true
-     *
      * @jppm-need-package true
      * @jppm-description clean the project.
      * @param Event $event
@@ -156,9 +154,7 @@ class DefaultPlugin
     {
     }
 
-    /**
-     * @jppm-need-depends-on true
-     *
+    /**c
      * @jppm-need-package true
      * @jppm-description build the project.
      * @param Event $event

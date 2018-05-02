@@ -3,7 +3,7 @@
 ---
 
 ## jphp-gui-game-ext
-> версия 1.0.0, создано с помощью JPPM v0.2.0
+> версия 1.0.0, создано с помощью JPPM.
 
 Game Addon for GUI JavaFX library.
 

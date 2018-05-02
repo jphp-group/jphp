@@ -46,16 +46,16 @@ allprojects {
     configurations {
         provided
         jppmCompile
-        java9
+        compileMaven
     }
 
     sourceSets {
         main {
-            compileClasspath += configurations.provided + configurations.jppmCompile
+            compileClasspath += configurations.provided + configurations.jppmCompile + configurations.compileMaven
         }
 
         test {
-            compileClasspath += configurations.provided + configurations.jppmCompile
+            compileClasspath += configurations.provided + configurations.jppmCompile + configurations.compileMaven
         }
     }
 }
@@ -66,6 +66,8 @@ configure(subprojects) {
 
     if (it.name.endsWith("-ext") || it.name.startsWith("jphp-")) {
         apply plugin: 'maven'
+
+        install.repositories.mavenInstaller.pom.scopeMappings.addMapping(100, configurations.compileMaven, 'compile')
     }
 
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -103,7 +105,7 @@ configure(subprojects) {
             workingDir = project.projectDir
         }
 
-        task hubPublish(type: Exec, dependsOn: docBuild) {
+        task hubPublish(type: Exec, dependsOn: [docBuild, jar]) {
             def cmdArgs = ['jppm', 'hub:publish', '-yes', '-force']
 
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -136,7 +138,12 @@ configure(subprojects) {
         def pr = it
 
         install {
+
             repositories.mavenInstaller {
+                configurations.compileMaven.allDependencies.each { dep ->
+                    //pom.dependencies.add(dep)
+                }
+
                 if (pr.name.startsWith(extDir)) {
                     pom.artifactId = pr.name.substring(extDir.length())
                 }
@@ -147,7 +154,6 @@ configure(subprojects) {
 
         [installer]*.pom*.whenConfigured { pom ->
             pom.dependencies.each { dep ->
-
                 if (dep.artifactId.startsWith(extDir)) {
                     dep.artifactId = dep.artifactId.substring(extDir.length())
                 }

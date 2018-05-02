@@ -3,7 +3,7 @@
 ---
 
 ## jphp-sql-ext
-> версия 1.0.0, создано с помощью JPPM v0.2.0
+> версия 1.0.0, создано с помощью JPPM.
 
 Basic SQL extension for any JDBC drivers.
 

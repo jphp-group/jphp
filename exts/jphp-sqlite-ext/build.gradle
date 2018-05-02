@@ -1,6 +1,6 @@
 dependencies {
     provided project(":jphp-runtime")
-    compile project(":exts/jphp-sql-ext")
+    compileMaven project(":exts/jphp-sql-ext")
 
     // dependencies ....
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'

@@ -1,6 +1,6 @@
 dependencies {
     provided project(":jphp-runtime")
-    compile project(":exts/jphp-sql-ext")
+    compileMaven project(":exts/jphp-sql-ext")
 
     // dependencies ....
     compile group: 'org.firebirdsql.jdbc', name: 'jaybird-jdk18', version: '3.0.1'
