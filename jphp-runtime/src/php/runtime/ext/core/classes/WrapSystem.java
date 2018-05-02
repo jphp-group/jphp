@@ -4,13 +4,12 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
+import php.runtime.loader.RuntimeClassLoader;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
@@ -160,5 +159,30 @@ final public class WrapSystem extends BaseObject {
     @Signature
     public static String osVersion() {
         return System.getProperty("os.name");
+    }
+
+    @Signature
+    public static void addRuntimeJarFile(Environment env, File file) throws IOException {
+        try {
+            env.getScope().getClassLoader().addLibrary(file.toURI().toURL());
+        } catch (Throwable t) {
+            throw new IOException("Error, could not add URL to system classloader, " + t.getMessage());
+        }
+    }
+
+    @Signature
+    public static void addRuntimeJarResource(Environment env, String file) throws IOException {
+        try {
+            RuntimeClassLoader classLoader = env.getScope().getClassLoader();
+            URL resource = classLoader.getResource(file);
+
+            if (resource == null) {
+                throw new IOException("Resource not found");
+            }
+
+            classLoader.addLibrary(resource);
+        } catch (Throwable t) {
+            throw new IOException("Error, could not add URL to system classloader, " + t.getMessage());
+        }
     }
 }

@@ -25,12 +25,14 @@ Class System
 - `System ::`[`setIn()`](#method-setin) - _Set stdin stream._
 - `System ::`[`setOut()`](#method-setout) - _Set stdout stream._
 - `System ::`[`setErr()`](#method-seterr) - _Set stderr stream._
-- `System ::`[`tempDirectory()`](#method-tempdirectory)
+- `System ::`[`tempDirectory()`](#method-tempdirectory) - _Returns temp directory that has write access._
 - `System ::`[`userDirectory()`](#method-userdirectory)
-- `System ::`[`userHome()`](#method-userhome)
-- `System ::`[`userName()`](#method-username)
-- `System ::`[`osName()`](#method-osname)
-- `System ::`[`osVersion()`](#method-osversion)
+- `System ::`[`userHome()`](#method-userhome) - _Returns user.home directory._
+- `System ::`[`userName()`](#method-username) - _Returns os user name which logged._
+- `System ::`[`osName()`](#method-osname) - _Returns Operation System Name, eg:  `Windows`._
+- `System ::`[`osVersion()`](#method-osversion) - _Returns Operation System Version._
+- `System ::`[`addRuntimeJarFile()`](#method-addruntimejarfile) - _Добавить jar файл во время выполнения._
+- `System ::`[`addRuntimeJarResource()`](#method-addruntimejarresource) - _Добавить jar из ресурсов во время выполнения._
 
 ---
 
@@ -171,6 +173,7 @@ Set stderr stream.
 ```php
 System::tempDirectory(): string
 ```
+Returns temp directory that has write access.
 
 ---
 
@@ -189,6 +192,7 @@ System::userDirectory(): string
 ```php
 System::userHome(): string
 ```
+Returns user.home directory.
 
 ---
 
@@ -198,6 +202,7 @@ System::userHome(): string
 ```php
 System::userName(): string
 ```
+Returns os user name which logged.
 
 ---
 
@@ -207,6 +212,7 @@ System::userName(): string
 ```php
 System::osName(): string
 ```
+Returns Operation System Name, eg:  `Windows`.
 
 ---
 
@@ -216,6 +222,27 @@ System::osName(): string
 ```php
 System::osVersion(): string
 ```
+Returns Operation System Version.
+
+---
+
+<a name="method-addruntimejarfile"></a>
+
+### addRuntimeJarFile()
+```php
+System::addRuntimeJarFile(mixed $file): void
+```
+Добавить jar файл во время выполнения.
+
+---
+
+<a name="method-addruntimejarresource"></a>
+
+### addRuntimeJarResource()
+```php
+System::addRuntimeJarResource(string $path): void
+```
+Добавить jar из ресурсов во время выполнения.
 
 ---
 # Методы

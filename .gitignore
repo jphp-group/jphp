@@ -28,3 +28,5 @@ secret.asc
 
 package.github.yml
 package.hub.yml
+
+*.hprof

@@ -109,6 +109,7 @@ final class System
     }
 
     /**
+     * Returns temp directory that has write access.
      * @return string
      */
     public static function tempDirectory(): string
@@ -123,6 +124,7 @@ final class System
     }
 
     /**
+     * Returns user.home directory.
      * @return string
      */
     public static function userHome(): string
@@ -130,6 +132,7 @@ final class System
     }
 
     /**
+     * Returns os user name which logged.
      * @return string
      */
     public static function userName(): string
@@ -137,6 +140,7 @@ final class System
     }
 
     /**
+     * Returns Operation System Name, eg:  `Windows`.
      * @return string
      */
     public static function osName(): string
@@ -144,9 +148,32 @@ final class System
     }
 
     /**
+     * Returns Operation System Version.
      * @return string
      */
     public static function osVersion(): string
+    {
+    }
+
+    /**
+     * Add jar from file at runtime to runtime.
+     * --RU--
+     * Добавить jar файл во время выполнения.
+     *
+     * @param $file
+     */
+    public static function addRuntimeJarFile($file)
+    {
+    }
+
+    /**
+     * Add jar from classpath at runtime to runtime.
+     * --RU--
+     * Добавить jar из ресурсов во время выполнения.
+     *
+     * @param string $path
+     */
+    public static function addRuntimeJarResource(string $path)
     {
     }
 }

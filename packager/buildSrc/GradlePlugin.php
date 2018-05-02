@@ -56,7 +56,23 @@ class GradlePlugin
 
         foreach ((array) $this->config['deps'] as $dep) {
             if (str::trim($dep)) {
-                $compile[] = "  compile '$dep'";
+                if (str::startsWith($dep, 'file:')) {
+                    $dep = str::sub($dep, 5);
+                    $compile[] = "  compile files('$dep')";
+                } else {
+                    $compile[] = "  compile '$dep'";
+                }
+            }
+        }
+
+        foreach ((array) $this->config['providedDeps'] as $dep) {
+            if (str::trim($dep)) {
+                if (str::startsWith($dep, 'file:')) {
+                    $dep = str::sub($dep, 5);
+                    $provided[] = "  provided files('$dep')";
+                } else {
+                    $provided[] = "  provided '$dep'";
+                }
             }
         }
 
@@ -155,6 +171,7 @@ class GradlePlugin
     /**
      * @jppm-need-package
      * @jppm-depends-on gradle:install
+     * @jppm-dependency-of publish
      * @jppm-dependency-of build
      * @param Event $event
      */
@@ -186,8 +203,9 @@ class GradlePlugin
         $name = $event->package()->getName();
         $name = (new TextWord($name))->capitalizeFully('-_ ');
 
-        $name = str::replace($name, '-', ' ');
-        $name = str::replace($name, '_', ' ');
+        $name = str::replace($name, '-', '');
+        $name = str::replace($name, '_', '');
+        $name = str::replace($name, ' ', '');
 
         $package = Console::read('Enter package name of java sources:', 'php.pkg.' . str::lower($name));
         $packageDir = str::replace($package, '.', '/');

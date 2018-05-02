@@ -17,6 +17,11 @@ import java.awt.*;
 public class PColor extends BaseObject {
     private Color color;
 
+    public PColor(Environment env, String color) {
+        super(env);
+        this.color = Color.decode(color);
+    }
+
     public PColor(Environment env, Color color) {
         super(env);
         this.color = color;
