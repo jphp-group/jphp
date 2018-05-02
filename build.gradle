@@ -120,6 +120,22 @@ configure(subprojects) {
                 jppmDist(project)
             }
         }
+
+        task localPublish(type: Exec, dependsOn: [docBuild, jar]) {
+            def cmdArgs = ['jppm', 'publish', '-yes', '-force']
+
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                cmdArgs.add(0, "/c");
+                cmdArgs.add(0, "cmd");
+            }
+
+            commandLine cmdArgs
+            workingDir = project.buildDir.path + "/jppm/dist"
+
+            doFirst {
+                jppmDist(project)
+            }
+        }
     }
 
     def extDir = "exts/";
