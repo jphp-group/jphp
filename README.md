@@ -41,6 +41,20 @@ Our project started in October 2013. There were a few reasons for that:
 **What JPHP supports from PHP 7.0, 7.1?**
 + All features except anonymous classes.
 
+### Own Extensions
++ [Http Server](exts/jphp-httpserver-ext) (+Web Sockets +Multithread)
++ GUI ([JavaFX](exts/jphp-gui-ext/api-docs) or [SWT](https://github.com/jphp-compiler/jphp-swt-ext))
+- [Git](exts/jphp-git-ext/api-docs) (based on JGit)
+- [JSoup](exts/jphp-jsoup-ext/api-docs) - for parsing html in jQuery style.
+- [SQL](exts/jphp-sql-ext/api-docs) (supports [MySQL](exts/jphp-sql-ext/api-docs), [PostgreSQL](exts/jphp-pgsql-ext/api-docs), [SQLite](exts/jphp-sqlite-ext/api-docs), [Firebird](exts/jphp-firebirdsql-ext/api-docs)).
+- [SSH](exts/jphp-ssh-ext/api-docs) - for working with the ssh protocol.
+- [Yaml](exts/jphp-yaml-ext/) - for parsing and formating yaml.
+- [Compress](exts/jphp-compress-ext) - for working with tar, gz, bz2, lz4, zip archives.
+- [HttpClient](exts/jphp-httpclient-ext/api-docs) - http client with promises.
+- [SemVer](exts/jphp-semver-ext/api-docs) - for parsing versions in the SemVer standard.
+- [Mail](exts/jphp-mail-ext/api-docs) - for sending emails via SMTP servers.
+- [MongoDB](exts/jphp-mongo-ext/api-docs) - a driver for Mongo DB 3.0+.
+
 ### Documentation
 
 - You can find the latest api documentation here: [jphp-runtime/api-docs](jphp-runtime/api-docs)
