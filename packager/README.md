@@ -11,10 +11,10 @@ JPPM will help you to build and run jphp applications.
 - Download the installer (\*.exe) of the last jppm version here: https://github.com/jphp-compiler/jphp/releases
 - Run the downloaded installer (`jppm-setup-{version}.exe`).
 
-That's all! Try to check jppm in console.
-
 **For Linux Users**
 - Use the linux install instructions from the last jppm version here: https://github.com/jphp-compiler/jphp/releases
+
+That's all! Try to check jppm in console.
 
 ```
 jppm version
