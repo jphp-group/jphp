@@ -5,7 +5,7 @@
 
 ### How to use?
 
-0. **See sdk of the main classes**: [API documentation](api-docs).
+0. **See** [API documentation](api-docs).
 
 1. **Run server with hello world page**.
 ```php
