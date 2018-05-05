@@ -39,30 +39,12 @@ Our project started in October 2013. There were a few reasons for that:
 + ~~Ability to use on **Android** OS~~ (not yet)
 
 **What JPHP supports from PHP 7.0, 7.1?**
-+ Context Sensitive Lexer.
-+ Fix list() behavior inconsistency.
-+ Throwable Interface.
-+ Group Use Declarations.
-+ Scalar and Optional Type Hinting.
-+ Return Type Hinting.
-+ Void and Iterable Type Hinting.
-+ Uniform Variable Syntax (partly).
-+ Null Coalesce Operator `??`.
-+ Multiple catch syntax.
-+ Short list syntax.
-+ List Keys.
-+ Class constant visibility modifiers.
-+ Spaceship Operator `<=>`.
-+ Generator Delegation `yield from`.
-+ Generator Return Expressions.
-+ `intdiv()` function.
++ All features except anonymous classes.
 
 ### Documentation
 
 - Wiki here: [read](http://jphp.develnext.org/wiki/)
-- You can find the latest api documentation here: http://jphp-docs.readthedocs.org/
-- To contribute to the api documentation, you can fork the `docs` project: https://github.com/jphp-compiler/docs
-
+- You can find the latest api documentation here: [jphp-runtime/api-docs](jphp-runtime/api-docs)
 
 ### Getting started (Hello World)
 
