@@ -43,12 +43,12 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Documentation
 
-- Wiki here: [read](http://jphp.develnext.org/wiki/)
 - You can find the latest api documentation here: [jphp-runtime/api-docs](jphp-runtime/api-docs)
+- Wiki here: [read](http://jphp.develnext.org/wiki/)
 
 ### Getting started (Hello World)
 
-1. Install jphp package manager (jppm), [how to install](packager/).
+1. Install jphp package manager (jppm), [how to install](packager/#0-how-to-install-jppm).
 2. Init new project (jppm package) with default values:
 ```bash
 jppm init
@@ -56,8 +56,6 @@ jppm init
 3. Run in console `jppm start`.
 
 You will see `Hello World` in your console, the sources of this program will be in `src/index.php`.
-
-[http://jphp.develnext.org/wiki/Getting-started](http://jphp.develnext.org/wiki/Getting-started)
 
 ### Hot to run benchmarks?
 
