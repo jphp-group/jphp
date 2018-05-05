@@ -32,7 +32,7 @@ Our project started in October 2013. There were a few reasons for that:
 + JIT (~2.5 faster PHP 5.6, ~1.1 faster PHP 7.0).
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
-+ Threading, Sockets, Environment architecture (like sandbox objects in the runkit zend extension).
++ [Threading](jphp-runtime/api-docs/classes/php/lang/Thread.md), [Sockets](jphp-runtime/api-docs/classes/php/net/Socket.md), [Environment](jphp-runtime/api-docs/classes/php/lang/Environment.md) architecture (like sandbox objects in the runkit zend extension).
 + GUI ([JavaFX](exts/jphp-gui-ext/api-docs) or [SWT](https://github.com/jphp-compiler/jphp-swt-ext))
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions
