@@ -117,19 +117,11 @@ class DefaultPlugin
             $data['description'] = $description;
         }
 
-        $data['repos'] = ['jphp'];
-
         if ($addAppPlugin) {
             $data['deps']['jphp-core'] = '*';
             $data['deps']['jphp-zend-ext'] = '*';
 
             $data['plugins'] = ['App'];
-
-            $data['app'] = [
-                'encoding' => 'UTF-8',
-                'metrics' => false,
-                'trace' => false
-            ];
 
             $data['sources'] = ['src'];
             $data['includes'] = ['index.php'];

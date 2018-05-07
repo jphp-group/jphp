@@ -240,12 +240,12 @@ class AppPlugin
             $sysArgs['bootstrap.file'] = 'res://' . $launcher['bootstrap'];
         }
 
-        if (is_array($launcher['jvmArgs'])) {
-            $exec->setJvmArgs($launcher['jvmArgs']);
+        if (is_array($launcher['jvm-args'])) {
+            $exec->setJvmArgs($launcher['jvm-args']);
         }
 
         $exec->setSystemProperties($sysArgs);
-        $exec->setMainClass($launcher['mainClass'] ?: 'php.runtime.launcher.Launcher');
+        $exec->setMainClass($launcher['main-class'] ?: 'php.runtime.launcher.Launcher');
 
         $process = $exec->run($launcher['args'] ?: []);
 

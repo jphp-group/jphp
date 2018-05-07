@@ -22,14 +22,7 @@ public class JavaExtension extends Extension {
 
     @Override
     public void onRegister(CompileScope scope) {
-        //registerFunctions(new JavaFunctions());
-
         registerClass(scope, JavaException.class);
-        /*registerClass(scope, JavaReflection.class);
-        registerClass(scope, JavaObject.class);
-        registerClass(scope, JavaClass.class);
-        registerClass(scope, JavaMethod.class);
-        registerClass(scope, JavaField.class);*/
     }
 
     public static class JavaObject extends BaseObject {

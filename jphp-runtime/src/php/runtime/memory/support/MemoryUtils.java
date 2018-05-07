@@ -4,7 +4,6 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.ext.java.JavaObject;
 import php.runtime.memory.*;
 
 import java.util.*;
@@ -220,9 +219,6 @@ public class MemoryUtils {
     }
 
     public static Object fromMemory(Memory value, Class<?> type){
-        if (value.instanceOf("php\\lang\\JavaObject"))
-            return ((JavaObject)value.toValue(ObjectMemory.class).value).getObject();
-
         Converter converter = getConverter(type);
         if (converter != null)
             return converter.run(value);
@@ -305,10 +301,7 @@ public class MemoryUtils {
                     return result;
                 }
 
-            if (env != null)
-                return new ObjectMemory(JavaObject.of(env, value));
-            else
-                return null;
+            return null;
             //}
         }
     }

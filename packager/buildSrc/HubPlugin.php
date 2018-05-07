@@ -186,7 +186,7 @@ class HubPlugin
             }
         }
 
-        $login = str::trim(Console::read('Your Login:', $this->config['login']));
+        $login = str::trim(Console::read('Your Email:', $this->config['login']));
         $password = str::trim(Console::read('Your Password:'));
 
         $this->config['login'] = $login;

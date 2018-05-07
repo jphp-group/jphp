@@ -4,10 +4,6 @@
 - **package** `std`
 - **source** `php/lang/JavaClass.php`
 
-**Description**
-
-Class JavaClass
-
 ---
 
 #### Static Methods

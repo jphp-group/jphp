@@ -135,13 +135,13 @@ class ConsoleApp
     function invokeTask(string $task, array $args, ...$flags)
     {
         if ($this->taskUpDate[$task . '#' . str::join($flags, ',')]) {
-            Console::log("\r[$task] Skip (up-to-date)");
+            Console::log("-> $task (up-to-date)");
             return;
         }
 
         $flags = arr::combine($flags, $flags);
 
-        $this->taskUpDate[$task] = true;
+        $this->taskUpDate[$task . '#' . str::join($flags, ',')] = true;
 
         switch ($task) {
             case "version":

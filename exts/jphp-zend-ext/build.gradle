@@ -4,6 +4,7 @@ sourceSets {
 
 dependencies {
     provided project(':jphp-core')
+    provided project(':jphp-runtime')
     jppmCompile (project(':exts/jphp-json-ext')) {
         exclude group: 'com.google.code.gson', module: 'gson'
     }

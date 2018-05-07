@@ -45,7 +45,7 @@ jppm add jphp-runtime@1.0.0
 - [`IllegalStateException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/IllegalStateException.md)- _Class IllegalStateException_
 - [`InterruptedException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/InterruptedException.md)- _Class InterruptedException_
 - [`Invoker`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/Invoker.md)- _Class for calling methods/functions/etc._
-- [`JavaClass`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaClass.md)- _Class JavaClass_
+- [`JavaClass`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaClass.md)
 - [`JavaException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaException.md)- _Class JavaException_
 - [`JavaField`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaField.md)
 - [`JavaMethod`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/lang/JavaMethod.md)

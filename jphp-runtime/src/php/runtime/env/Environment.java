@@ -43,9 +43,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static php.runtime.exceptions.support.ErrorType.*;
@@ -1613,6 +1610,18 @@ public class Environment {
             throw new DieException(value);
         } else
             throw new DieException(Memory.NULL);
+    }
+
+    public Memory getObjectProperty(IObject object, String propertyName) throws Throwable {
+        if (object == null) {
+            return Memory.NULL;
+        }
+
+        return object.getReflection().getProperty(this, this.trace(), object, propertyName, null, -1);
+    }
+
+    public Memory setObjectProperty(IObject object, String propertyName, Memory value) throws Throwable {
+        return object.getReflection().setProperty(this, this.trace(), object, propertyName, value, null, null, -1);
     }
 
     public Memory invokeMethod(TraceInfo trace, IObject object, String name, Memory... args) throws Throwable {

@@ -103,6 +103,7 @@ class GradlePlugin
             "  mavenLocal()",
             "  mavenCentral()",
             "  jcenter()",
+            "  maven { url 'https://oss.sonatype.org/content/groups/public' }",
             "}",
             "",
             "configurations { provided }",
@@ -149,12 +150,14 @@ class GradlePlugin
     }
 
     /**
+     * @jppm-description Install gradle build files.
+     * @jppm-dependency-of install
      * @jppm-need-package
      * @param Event $event
      */
     public function install(Event $event)
     {
-        Tasks::run('install');
+        Tasks::run('install', [], 'gradle');
 
         $this->makeGradleBuild($event->package());
 

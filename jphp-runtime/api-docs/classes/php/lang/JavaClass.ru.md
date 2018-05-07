@@ -4,10 +4,6 @@
 - **пакет** `std`
 - **исходники** `php/lang/JavaClass.php`
 
-**Описание**
-
-Class JavaClass
-
 ---
 
 #### Статичные Методы

@@ -66,14 +66,8 @@ public class JavaException extends BaseException {
     public Memory getJavaException(Environment env, Memory... args) {
         if (throwable == null)
             return Memory.NULL;
-        return new ObjectMemory(JavaObject.of(env, throwable));
-    }
 
-    @Signature
-    public Memory getExceptionClass(Environment env, Memory... args){
-        if (throwable == null)
-            return Memory.NULL;
-        return new ObjectMemory(JavaClass.of(env, throwable.getClass()));
+        return StringMemory.valueOf(throwable.getClass().getName());
     }
 
     @Signature

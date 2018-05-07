@@ -18,6 +18,7 @@ sourceSets {
 
 dependencies {
     compile project(':jphp-core')
+    compile project(':jphp-runtime')
     compile project(':exts/jphp-zend-ext')
     compile project(':exts/jphp-yaml-ext')
     compile project(':exts/jphp-compress-ext')

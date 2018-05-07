@@ -2,7 +2,6 @@
 namespace php\lang;
 
 /**
- * Class JavaClass
  * @packages std, core
  */
 final class JavaClass
