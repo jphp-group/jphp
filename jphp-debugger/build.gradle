@@ -1,7 +1,8 @@
 apply plugin: 'maven'
 
 dependencies {
-    compile project(':jphp-core')
+    provided project(':jphp-core')
+    provided project(':jphp-runtime')
     compile 'commons-codec:commons-codec:1.10'
 
     testCompile 'junit:junit:4.+'
