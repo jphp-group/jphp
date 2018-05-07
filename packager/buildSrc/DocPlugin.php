@@ -117,7 +117,7 @@ class DocPlugin
      */
     public function build(Event $event)
     {
-        $sources = $event->package()->getSources() + $this->stubDirs;
+        $sources = flow($event->package()->getSources(), $this->stubDirs)->toArray();
 
         $docDir = $this->dir;
 
