@@ -31,8 +31,7 @@ Class System
 - `System ::`[`userName()`](#method-username) - _Returns os user name which logged._
 - `System ::`[`osName()`](#method-osname) - _Returns Operation System Name, eg:  `Windows`._
 - `System ::`[`osVersion()`](#method-osversion) - _Returns Operation System Version._
-- `System ::`[`addRuntimeJarFile()`](#method-addruntimejarfile) - _Добавить jar файл во время выполнения._
-- `System ::`[`addRuntimeJarResource()`](#method-addruntimejarresource) - _Добавить jar из ресурсов во время выполнения._
+- `System ::`[`addClassPath()`](#method-addclasspath) - _Добавить jar файл или папку classpath во время выполнения._
 
 ---
 
@@ -226,23 +225,13 @@ Returns Operation System Version.
 
 ---
 
-<a name="method-addruntimejarfile"></a>
+<a name="method-addclasspath"></a>
 
-### addRuntimeJarFile()
+### addClassPath()
 ```php
-System::addRuntimeJarFile(mixed $file): void
+System::addClassPath(mixed $file): void
 ```
-Добавить jar файл во время выполнения.
-
----
-
-<a name="method-addruntimejarresource"></a>
-
-### addRuntimeJarResource()
-```php
-System::addRuntimeJarResource(string $path): void
-```
-Добавить jar из ресурсов во время выполнения.
+Добавить jar файл или папку classpath во время выполнения.
 
 ---
 # Методы

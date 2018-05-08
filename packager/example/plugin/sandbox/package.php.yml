@@ -1,0 +1,5 @@
+name: plugin-sandbox
+version: 1.0.0
+
+devDeps:
+  simple-plugin-for-jppm: ../

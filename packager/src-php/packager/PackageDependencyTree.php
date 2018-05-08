@@ -84,6 +84,14 @@ class PackageDependencyTree
     }
 
     /**
+     * @return array[]
+     */
+    public function getDeps(): array
+    {
+        return $this->deps;
+    }
+
+    /**
      * @param string $name
      * @return null|Package
      */

@@ -17,6 +17,13 @@ class Package
     const FILENAME = "package.php.yml";
     const LOCK_FILENAME = "package-lock.php.yml";
 
+    const TYPE_LIBRARY = 'library';
+    const TYPE_PROJECT = 'project';
+    const TYPE_PLUGIN = 'plugin';
+    const TYPE_META = 'meta';
+
+    const TYPES = [self::TYPE_LIBRARY, self::TYPE_PROJECT, self::TYPE_PLUGIN, self::TYPE_META];
+
     /**
      * @var array
      */
@@ -86,7 +93,7 @@ class Package
      */
     public function getType(): string
     {
-        return $this->info['type'] ?: 'std';
+        return $this->data['type'] ?: 'library';
     }
 
     public function getInfo(): array

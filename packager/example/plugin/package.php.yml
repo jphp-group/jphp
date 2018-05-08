@@ -1,0 +1,11 @@
+name: simple-plugin-for-jppm
+type: plugin
+version: 1.0.0
+
+plugin:
+  list: [Simple]
+  sources:
+  - src
+
+config:
+  ignore: ['/sandbox/**']

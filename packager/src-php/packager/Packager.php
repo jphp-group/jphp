@@ -124,6 +124,11 @@ class Packager
         foreach (['' => $tree, 'dev' => $devTree] as $scope => $one) {
             /** @var PackageDependencyTree $one */
             $one->eachDep(function (Package $pkg, PackageDependencyTree $tree, int $depth = 0) use ($forceUpdate, $vendor, $scope, &$usedPackages) {
+                if ($depth === 0 && $scope !== 'dev' && $pkg->getType() === Package::TYPE_PLUGIN) {
+                    Console::warn("-> failed to install {0}, the package is a plugin and must be in 'devDeps'.", $pkg->getNameWithVersion());
+                    return;
+                }
+
                 $usedPackages[$pkg->getName()] = true;
                 $prefix = str::repeat('-', $depth);
 
@@ -134,12 +139,21 @@ class Packager
                 }
 
                 $this->packageLock->addPackage($pkg);
-
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
             });
 
             foreach ($one->getInvalidDeps() as $name => $version) {
                 Console::warn("-> failed to install {0}@{1}, cannot find in repositories.", $name, $version);
+            }
+        }
+
+        /**
+         * @var Package $pkg
+         * @var PackageDependencyTree $tree
+         */
+        foreach ($devTree->getDeps() as [$pkg, $tree]) {
+            if ($pkg->getAny('type') === Package::TYPE_PLUGIN) {
+                $this->packageLoader->registerPlugin($pkg, $vendor);
             }
         }
 

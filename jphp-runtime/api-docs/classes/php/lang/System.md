@@ -31,8 +31,7 @@ Class System
 - `System ::`[`userName()`](#method-username) - _Returns os user name which logged._
 - `System ::`[`osName()`](#method-osname) - _Returns Operation System Name, eg:  `Windows`._
 - `System ::`[`osVersion()`](#method-osversion) - _Returns Operation System Version._
-- `System ::`[`addRuntimeJarFile()`](#method-addruntimejarfile) - _Add jar from file at runtime to runtime._
-- `System ::`[`addRuntimeJarResource()`](#method-addruntimejarresource) - _Add jar from classpath at runtime to runtime._
+- `System ::`[`addClassPath()`](#method-addclasspath) - _Add jar from file or classpath dir at runtime to runtime._
 
 ---
 
@@ -226,23 +225,13 @@ Returns Operation System Version.
 
 ---
 
-<a name="method-addruntimejarfile"></a>
+<a name="method-addclasspath"></a>
 
-### addRuntimeJarFile()
+### addClassPath()
 ```php
-System::addRuntimeJarFile(mixed $file): void
+System::addClassPath(mixed $file): void
 ```
-Add jar from file at runtime to runtime.
-
----
-
-<a name="method-addruntimejarresource"></a>
-
-### addRuntimeJarResource()
-```php
-System::addRuntimeJarResource(string $path): void
-```
-Add jar from classpath at runtime to runtime.
+Add jar from file or classpath dir at runtime to runtime.
 
 ---
 # Methods

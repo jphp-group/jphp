@@ -139,16 +139,16 @@ class DefaultPlugin
 
     /**
      * @jppm-need-package true
-     * @jppm-description clean the project.
+     * @jppm-description Clean the project.
      * @param Event $event
      */
     function clean(Event $event)
     {
     }
 
-    /**c
+    /**
      * @jppm-need-package true
-     * @jppm-description build the project.
+     * @jppm-description Build the project.
      * @param Event $event
      */
     function build(Event $event)
@@ -156,10 +156,21 @@ class DefaultPlugin
     }
 
     /**
-     * @jppm-need-depends-on true
+     * @jppm-need-depends-on
+     *
+     * @jppm-need-package
+     * @jppm-description Run tests of the project.
+     * @param Event $event
+     */
+    function test(Event $event)
+    {
+    }
+
+    /**
+     * @jppm-need-depends-on
      *
      * @jppm-need-package true
-     * @jppm-description start the project.
+     * @jppm-description Start the project.
      * @param Event $event
      */
     function start(Event $event)

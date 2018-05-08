@@ -1,5 +1,5 @@
 name: jppm
-version: 0.2.4
+version: 0.2.5
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,9 +14,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Fix minor bugs.
-    + Fix scan dir bug in Doc plugin.
-    + Improve gradle plugin.
+    + Add Plugin API and plugin example.
+    + Add test task.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

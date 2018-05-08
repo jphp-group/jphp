@@ -156,24 +156,13 @@ final class System
     }
 
     /**
-     * Add jar from file at runtime to runtime.
+     * Add jar from file or classpath dir at runtime to runtime.
      * --RU--
-     * Добавить jar файл во время выполнения.
+     * Добавить jar файл или папку classpath во время выполнения.
      *
      * @param $file
      */
-    public static function addRuntimeJarFile($file)
-    {
-    }
-
-    /**
-     * Add jar from classpath at runtime to runtime.
-     * --RU--
-     * Добавить jar из ресурсов во время выполнения.
-     *
-     * @param string $path
-     */
-    public static function addRuntimeJarResource(string $path)
+    public static function addClassPath($file)
     {
     }
 }

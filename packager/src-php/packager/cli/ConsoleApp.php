@@ -262,6 +262,19 @@ class ConsoleApp
     protected function loadPlugins()
     {
         if ($this->getPackage()) {
+            $vendor = new Vendor($this->getPackage()->getConfigVendorPath());
+            $paths = $vendor->fetchPaths();
+
+            if (is_array($paths['classPaths']['plugin'])) {
+                foreach ($paths['classPaths']['plugin'] as $classPath) {
+                    System::addClassPath($vendor->getDir() . $classPath);
+                }
+            }
+
+            if (is_array($paths['plugins'])) {
+                flow($paths['plugins'])->each([$this, 'loadPlugin']);
+            }
+
             $plugins = $this->getPackage()->getAny('plugins', []);
 
             foreach ((array) $plugins as $key => $plugin) {

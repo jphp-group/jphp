@@ -162,25 +162,9 @@ final public class WrapSystem extends BaseObject {
     }
 
     @Signature
-    public static void addRuntimeJarFile(Environment env, File file) throws IOException {
+    public static void addClassPath(Environment env, File file) throws IOException {
         try {
             env.getScope().getClassLoader().addLibrary(file.toURI().toURL());
-        } catch (Throwable t) {
-            throw new IOException("Error, could not add URL to system classloader, " + t.getMessage());
-        }
-    }
-
-    @Signature
-    public static void addRuntimeJarResource(Environment env, String file) throws IOException {
-        try {
-            RuntimeClassLoader classLoader = env.getScope().getClassLoader();
-            URL resource = classLoader.getResource(file);
-
-            if (resource == null) {
-                throw new IOException("Resource not found");
-            }
-
-            classLoader.addLibrary(resource);
         } catch (Throwable t) {
             throw new IOException("Error, could not add URL to system classloader, " + t.getMessage());
         }

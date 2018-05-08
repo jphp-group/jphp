@@ -14,6 +14,8 @@ class PackageLoader
 
     private $includes = [];
 
+    private $plugins = [];
+
     /**
      *
      */
@@ -54,6 +56,39 @@ class PackageLoader
     }
 
     /**
+     * @param Package $pkg
+     * @param null|Vendor $vendor
+     * @throws \Exception
+     */
+    public function registerPlugin(Package $pkg, ?Vendor $vendor = null)
+    {
+        $dir = $pkg->getInfo()['dir'];
+
+        foreach ($pkg->getAny('plugin.sources') as $src) {
+            $this->classPaths['plugin'][] = "$dir/" . ($vendor === null ? "../$src" : $vendor->getRelativeFile($pkg, $src));
+        }
+
+        $jars = fs::scan(
+            $tmp = ($dir ? "$dir/" : $dir) . ($vendor === null ? "../plugin-jars/" : $vendor->getFile($pkg, "plugin-jars/")),
+            ['extensions' => ['jar'], 'excludeDirs' => true],
+            1
+        );
+
+        foreach ($jars as $jar) {
+            $jar = fs::name($jar);
+            $this->classPaths['plugin'][] = "$dir/" . ($vendor === null ? "../jars/$jar" : $vendor->getRelativeFile($pkg, "plugin-jars/$jar"));
+        }
+
+        foreach ($pkg->getAny('plugin.list') as $cls) {
+            if (isset($this->plugins[$cls])) {
+                throw new \Exception("Plugin '$cls' already registered.");
+            }
+
+            $this->plugins[$cls] = $cls;
+        }
+    }
+
+    /**
      * @return array
      */
     public function getClassPaths(): array
@@ -70,7 +105,8 @@ class PackageLoader
             "{$vendor->getDir()}/paths.json",
                 [
                     'classPaths' => $this->getClassPaths(),
-                    'includes' => arr::values($this->includes)
+                    'includes' => arr::values($this->includes),
+                    'plugins' => arr::values($this->plugins)
                 ],
             'json',
             JsonProcessor::SERIALIZE_PRETTY_PRINT
