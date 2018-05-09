@@ -23,6 +23,7 @@ Class JavaException
 - `->`[`getExceptionClass()`](#method-getexceptionclass)
 - `->`[`getJavaException()`](#method-getjavaexception)
 - `->`[`printJVMStackTrace()`](#method-printjvmstacktrace) - _Print jvm stack trace_
+- `->`[`getJVMStackTrace()`](#method-getjvmstacktrace) - _Get jvm stack trace as string._
 - `->`[`getErrno()`](#method-geterrno)
 
 ---
@@ -93,6 +94,16 @@ getJavaException(): JavaObject
 printJVMStackTrace(): void
 ```
 Print jvm stack trace
+
+---
+
+<a name="method-getjvmstacktrace"></a>
+
+### getJVMStackTrace()
+```php
+getJVMStackTrace(): string
+```
+Get jvm stack trace as string.
 
 ---
 
