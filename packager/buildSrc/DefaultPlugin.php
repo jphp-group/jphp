@@ -299,13 +299,19 @@ class DefaultPlugin
             foreach ($event->args() as $arg) {
                 [$dep, $version] = str::split($arg, '@');
 
-                if ($package['deps'][$dep]) {
+                $key = 'deps';
+
+                if ($event->isFlag('dev')) {
+                    $key = 'devDeps';
+                }
+
+                if ($package[$key][$dep]) {
                     Console::log("-> skip adding '{0}', already added.", $arg);
                 } else {
                     $pkg = $repo->findPackage($dep, $version ?: '*');
 
                     if ($pkg) {
-                        $package['deps'][$dep] = $version ?: '*';
+                        $package[$key][$dep] = $version ?: '*';
                         $modified = true;
 
                         Console::log("-> add '{0}' dependency, lock version = {1}", $arg, $pkg->getVersion($version));

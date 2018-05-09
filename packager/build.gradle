@@ -133,6 +133,7 @@ task publish(type: Exec, dependsOn: ['dist']) {
                 'cd ~',
                 "wget -O jppm-${jppmVersion}.tar.gz $jppmRepoAddress/releases/download/jppm-$jppmVersion/jppm-${jppmVersion}.tar.gz",
                 "mkdir -p /opt/jppm-$jppmVersion && tar -xzf ~/jppm-${jppmVersion}.tar.gz -C /opt/jppm-$jppmVersion/",
+                "export PATH=/opt/jppm-${jppmVersion}/:\$PATH",
                 "sudo ln -sfn /opt/jppm-${jppmVersion}/jppm /usr/local/bin/jppm && chmod +x /opt/jppm-${jppmVersion}/jppm",
                 "echo \"----------------------------------------------\"",
                 "echo \"JPPM $jppmVersion has been installed.\"",

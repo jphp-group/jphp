@@ -16,6 +16,13 @@ class SemVersion
     }
 
     /**
+     * @return bool
+     */
+    public function isStable(): bool
+    {
+    }
+
+    /**
      * @return int
      */
     public function getMajorNum(): int
@@ -43,12 +50,6 @@ class SemVersion
     {
     }
 
-    /**
-     * @return string
-     */
-    public function getBuildString(): string
-    {
-    }
 
     /**
      * @return string
@@ -66,42 +67,26 @@ class SemVersion
     }
 
     /**
-     * @param string $preRelease [optional]
      * @return SemVersion
      */
-    public function incMajorNum(string $preRelease): SemVersion
-    {
-    }
-
-    /**
-     * @param string $preRelease [optional]
-     * @return SemVersion
-     */
-    public function incMinorNum(string $preRelease): SemVersion
-    {
-    }
-
-    /**
-     * @param string $preRelease [optional]
-     * @return SemVersion
-     */
-    public function incPatchNum(string $preRelease): SemVersion
+    public function incMajorNum(): SemVersion
     {
     }
 
     /**
      * @return SemVersion
      */
-    public function incBuildString(): SemVersion
+    public function incMinorNum(): SemVersion
     {
     }
 
     /**
      * @return SemVersion
      */
-    public function incPreRelease(): SemVersion
+    public function incPatchNum(): SemVersion
     {
     }
+
 
     /**
      * @param string $expr

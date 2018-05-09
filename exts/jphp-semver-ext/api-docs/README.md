@@ -3,13 +3,13 @@
 ---
 
 ## jphp-semver-ext
-> version 1.0.0, created by JPPM.
+> version 1.1.0, created by JPPM.
 
 Library for working with versions using SemVer standard.
 
 ### Install
 ```
-jppm add jphp-semver-ext@1.0.0
+jppm add jphp-semver-ext@1.1.0
 ```
 
 ### API

@@ -3,13 +3,13 @@
 ---
 
 ## jphp-semver-ext
-> версия 1.0.0, создано с помощью JPPM.
+> версия 1.1.0, создано с помощью JPPM.
 
 Library for working with versions using SemVer standard.
 
 ### Установка
 ```
-jppm add jphp-semver-ext@1.0.0
+jppm add jphp-semver-ext@1.1.0
 ```
 
 ### АПИ

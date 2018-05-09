@@ -12,18 +12,16 @@ Class SemVersion
 #### Методы
 
 - `->`[`__construct()`](#method-__construct) - _SemVersion constructor._
+- `->`[`isStable()`](#method-isstable)
 - `->`[`getMajorNum()`](#method-getmajornum)
 - `->`[`getMinorNum()`](#method-getminornum)
 - `->`[`getPatchNum()`](#method-getpatchnum)
 - `->`[`getPreReleaseString()`](#method-getprereleasestring)
-- `->`[`getBuildString()`](#method-getbuildstring)
 - `->`[`toNormal()`](#method-tonormal)
 - `->`[`__toString()`](#method-__tostring)
 - `->`[`incMajorNum()`](#method-incmajornum)
 - `->`[`incMinorNum()`](#method-incminornum)
 - `->`[`incPatchNum()`](#method-incpatchnum)
-- `->`[`incBuildString()`](#method-incbuildstring)
-- `->`[`incPreRelease()`](#method-incprerelease)
 - `->`[`satisfies()`](#method-satisfies)
 
 ---
@@ -36,6 +34,15 @@ Class SemVersion
 __construct(string $value): void
 ```
 SemVersion constructor.
+
+---
+
+<a name="method-isstable"></a>
+
+### isStable()
+```php
+isStable(): bool
+```
 
 ---
 
@@ -75,15 +82,6 @@ getPreReleaseString(): string
 
 ---
 
-<a name="method-getbuildstring"></a>
-
-### getBuildString()
-```php
-getBuildString(): string
-```
-
----
-
 <a name="method-tonormal"></a>
 
 ### toNormal()
@@ -106,7 +104,7 @@ __toString(): string
 
 ### incMajorNum()
 ```php
-incMajorNum(string $preRelease): semver\SemVersion
+incMajorNum(): semver\SemVersion
 ```
 
 ---
@@ -115,7 +113,7 @@ incMajorNum(string $preRelease): semver\SemVersion
 
 ### incMinorNum()
 ```php
-incMinorNum(string $preRelease): semver\SemVersion
+incMinorNum(): semver\SemVersion
 ```
 
 ---
@@ -124,25 +122,7 @@ incMinorNum(string $preRelease): semver\SemVersion
 
 ### incPatchNum()
 ```php
-incPatchNum(string $preRelease): semver\SemVersion
-```
-
----
-
-<a name="method-incbuildstring"></a>
-
-### incBuildString()
-```php
-incBuildString(): semver\SemVersion
-```
-
----
-
-<a name="method-incprerelease"></a>
-
-### incPreRelease()
-```php
-incPreRelease(): semver\SemVersion
+incPatchNum(): semver\SemVersion
 ```
 
 ---

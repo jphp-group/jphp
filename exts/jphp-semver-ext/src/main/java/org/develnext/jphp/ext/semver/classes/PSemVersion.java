@@ -1,11 +1,10 @@
 package org.develnext.jphp.ext.semver.classes;
 
-import com.github.zafarkhaja.semver.ParseException;
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
-import com.github.zafarkhaja.semver.Version;
+import com.vdurmont.semver4j.Semver;
 import org.develnext.jphp.ext.semver.SemverExtension;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Signature;
+import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.support.IComparableObject;
@@ -14,9 +13,9 @@ import php.runtime.reflection.ClassEntity;
 @Reflection.Name("SemVersion")
 @Reflection.Namespace(SemverExtension.NS)
 public class PSemVersion extends BaseObject implements IComparableObject<PSemVersion> {
-    protected Version value;
+    protected Semver value;
 
-    public PSemVersion(Environment env, Version value) {
+    public PSemVersion(Environment env, Semver value) {
         super(env);
         this.value = value;
     }
@@ -25,47 +24,52 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
         super(env, clazz);
     }
 
-    public Version getValue() {
+    public Semver getValue() {
         return value;
     }
 
     @Signature
     public void __construct(String version) {
         try {
-            value = Version.valueOf(version);
+            value = new Semver(version, Semver.SemverType.NPM);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
     @Signature
-    public int getMajorNum() {
-        return getValue().getMajorVersion();
+    public Integer getMajorNum() {
+        return getValue().getMajor();
     }
 
     @Signature
-    public int getMinorNum() {
-        return getValue().getMinorVersion();
+    public Integer getMinorNum() {
+        return getValue().getMinor();
     }
 
     @Signature
-    public int getPatchNum() {
-        return getValue().getPatchVersion();
+    public Integer getPatchNum() {
+        return getValue().getPatch();
     }
 
     @Signature
     public String getBuildString() {
-        return getValue().getBuildMetadata();
+        return getValue().getBuild();
     }
 
     @Signature
     public String getPreReleaseString() {
-        return getValue().getPreReleaseVersion();
+        return StringUtils.join(getValue().getSuffixTokens(), " ");
     }
 
     @Signature
     public String toNormal() {
-        return getValue().getNormalVersion();
+        return getValue().withClearedSuffixAndBuild().getValue();
+    }
+
+    @Signature
+    public boolean isStable() {
+        return getValue().isStable();
     }
 
     @Signature
@@ -75,42 +79,17 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
 
     @Signature
     public PSemVersion incMajorNum(Environment env) {
-        return new PSemVersion(env, getValue().incrementMajorVersion());
-    }
-
-    @Signature
-    public PSemVersion incMajorNum(Environment env, String preRelease) {
-        return new PSemVersion(env, getValue().incrementMajorVersion(preRelease));
+        return new PSemVersion(env, getValue().nextMajor());
     }
 
     @Signature
     public PSemVersion incMinorNum(Environment env) {
-        return new PSemVersion(env, getValue().incrementMinorVersion());
-    }
-
-    @Signature
-    public PSemVersion incMinorNum(Environment env, String preRelease) {
-        return new PSemVersion(env, getValue().incrementMinorVersion(preRelease));
+        return new PSemVersion(env, getValue().nextMinor());
     }
 
     @Signature
     public PSemVersion incPatchNum(Environment env) {
-        return new PSemVersion(env, getValue().incrementPatchVersion());
-    }
-
-    @Signature
-    public PSemVersion incPatchNum(Environment env, String preRelease) {
-        return new PSemVersion(env, getValue().incrementPatchVersion(preRelease));
-    }
-
-    @Signature
-    public PSemVersion incPreRelease(Environment env) {
-        return new PSemVersion(env, getValue().incrementPreReleaseVersion());
-    }
-
-    @Signature
-    public PSemVersion incBuildString(Environment env) {
-        return new PSemVersion(env, getValue().incrementBuildMetadata());
+        return new PSemVersion(env, getValue().nextPatch());
     }
 
     @Signature
@@ -130,21 +109,21 @@ public class PSemVersion extends BaseObject implements IComparableObject<PSemVer
 
     @Override
     public boolean __greater(PSemVersion iObject) {
-        return value.greaterThan(iObject.value);
+        return value.isGreaterThan(iObject.value);
     }
 
     @Override
     public boolean __greaterEq(PSemVersion iObject) {
-        return value.greaterThanOrEqualTo(iObject.value);
+        return value.isGreaterThanOrEqualTo(iObject.value);
     }
 
     @Override
     public boolean __smaller(PSemVersion iObject) {
-        return value.lessThan(iObject.value);
+        return value.isLowerThanOrEqualTo(iObject.value);
     }
 
     @Override
     public boolean __smallerEq(PSemVersion iObject) {
-        return value.lessThanOrEqualTo(iObject.value);
+        return value.isLowerThanOrEqualTo(iObject.value);
     }
 }

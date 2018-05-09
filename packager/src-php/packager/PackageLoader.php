@@ -81,7 +81,8 @@ class PackageLoader
 
         foreach ($pkg->getAny('plugin.list') as $cls) {
             if (isset($this->plugins[$cls])) {
-                throw new \Exception("Plugin '$cls' already registered.");
+                continue;
+                //throw new \Exception("Plugin '$cls' already registered.");
             }
 
             $this->plugins[$cls] = $cls;
