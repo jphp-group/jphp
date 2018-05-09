@@ -45,6 +45,7 @@ use semver\SemVersion;
  * @jppm-task clean
  * @jppm-task build
  * @jppm-task start
+ * @jppm-task test
  */
 class DefaultPlugin
 {
