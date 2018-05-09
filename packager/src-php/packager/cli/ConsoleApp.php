@@ -92,29 +92,39 @@ class ConsoleApp
                     $this->packager->getRepo()->addExternalRepoByString($repo);
                 }
 
-                $scripts = $this->packager->loadTasks($this->getPackage());
+                $tasks = $this->packager->loadTasks($this->getPackage());
 
-                foreach ($scripts as $bin => $handler) {
-                    $invoker = Invoker::of($handler);
+                foreach ($tasks as $name => $task) {
+                    if ($this->commands[$name]) {
+                        Console::error("Task '{0}' already exists. Duplicate names in the 'tasks' section.", $name);
+                        exit(-1);
+                    }
 
-                    $description = Annotations::get(
-                        'jppm-description',
-                        $invoker->getDescription(),
-                        "script " . (is_string($handler) ? $handler : '')
-                    );
+                    if (!is_array($task)) {
+                        Console::error("Task '{0}' is invalid format, check your 'tasks' section.", $name);
+                        exit(-1);
+                    }
 
-                    $needPackage = Annotations::get('jppm-need-package', $invoker->getDescription());
+                    $this->addCommand($name, function () use ($task) {
+                        foreach ((array) $task['depends-on'] as $one) {
+                            $one = flow(str::split($one, ' '))->map([str::class, 'trim'])->toArray();
 
-                    $dependsOn = Annotations::get('jppm-depends-on', $invoker->getDescription(), []);
+                            $flags = flow($one)
+                                ->find(function ($x) { return $x[0] === '-'; })
+                                ->map(function ($x) { return str::sub($x, 1); })
+                                ->toArray();
 
-                    $this->addCommand($bin, function ($args) use ($invoker, $handler, $needPackage, $bin, $needPackage) {
-                        if ($needPackage && !$this->getPackage()) {
-                            Console::error("'{0}' task needs a package.php.yml", $bin);
-                            exit(-1);
+                            $args = flow($one)
+                                ->find(function ($x) { return $x[0] !== '-'; })
+                                ->toArray();
+
+                            Tasks::run($one[0], $args, $flags);
                         }
+                    }, $task['description']);
+                }
 
-                        $invoker->call(new Event($this->packager, $this->getPackage(), $args));
-                    }, $description, $dependsOn);
+                if (is_string($tasks)) {
+                    $tasks = str::split($tasks, ',');
                 }
             }
 
