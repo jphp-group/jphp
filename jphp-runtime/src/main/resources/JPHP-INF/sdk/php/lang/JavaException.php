@@ -48,6 +48,15 @@ class JavaException extends \Exception
      */
     public function printJVMStackTrace() { }
 
+    /**
+     * Get jvm stack trace as string.
+     *
+     * @return string
+     */
+    public function getJVMStackTrace(): string
+    {
+    }
+
     public function getErrno()
     {
     }

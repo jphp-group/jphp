@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.env.Environment;
 import php.runtime.lang.BaseException;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringBuilderMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.util.JVMStackTracer;
@@ -82,5 +83,24 @@ public class JavaException extends BaseException {
             env.echo(el.toString() + "\n");
         }
         return Memory.NULL;
+    }
+
+    @Signature
+    public Memory getJVMStackTrace(Environment env, Memory... args) {
+        if (throwable == null)
+            return Memory.NULL;
+
+        StringBuilderMemory sb = new StringBuilderMemory();
+
+        JVMStackTracer tracer = new JVMStackTracer(
+                env.scope.getClassLoader(), throwable.getStackTrace()
+        );
+
+        for(JVMStackTracer.Item el : tracer){
+            sb.append(el.toString());
+            sb.append("\n");
+        }
+
+        return sb;
     }
 }
