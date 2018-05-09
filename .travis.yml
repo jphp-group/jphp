@@ -12,11 +12,6 @@ env:
   - JPHP_TEST_COMPILED=1
   - JPHP_TEST_CONCURRENT=1
 
-matrix:
-  include:
-    - env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
-
 before_install:
  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
  - cat /etc/hosts # optionally check the content *before*
