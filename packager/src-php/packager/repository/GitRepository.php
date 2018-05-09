@@ -4,6 +4,7 @@ namespace packager\repository;
 use compress\GzipOutputStream;
 use compress\TarArchive;
 use git\Git;
+use git\GitAPIException;
 use packager\cli\Console;
 use packager\Ignore;
 use packager\Package;
@@ -180,7 +181,12 @@ class GitRepository extends SingleExternalRepository
         }
 
         $git->clean(['force' => true, 'cleanDirectories' => true]);
-        $git->fetch(['removeDeletedRefs' => true, 'remote' => 'origin', 'tagOpt' => 'FETCH_TAGS']);
+
+        try {
+            $git->fetch(['removeDeletedRefs' => true, 'remote' => 'origin', 'tagOpt' => 'FETCH_TAGS']);
+        } catch (GitAPIException $e) {
+            throw new IOException("Failed to fetch from git '{$e->getMessage()}'");
+        }
 
         //
 

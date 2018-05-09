@@ -330,7 +330,12 @@ class Repository
                     $newInfo = $cached ? $this->getVersionInfoFromExternal($repo, $name, $versionPattern) : null;
 
                     if (!$newInfo) {
-                        $newInfo = $repo->getVersions($name)[$versionPattern];
+                        try {
+                            $newInfo = $repo->getVersions($name)[$versionPattern];
+                        } catch (\Throwable $e) {
+                            Console::warn($e->getMessage());
+                            continue;
+                        }
                     }
 
                     if ($oldInfo['hash'] !== $newInfo['hash']) {
@@ -390,12 +395,17 @@ class Repository
                 $dirFile = "$this->dir/$name/$foundVersion";
                 fs::ensureParent($archFile);
 
-                if ($foundVersionSource->downloadTo($name, $foundVersion, $archFile)) {
-                    $this->installFromArchive($archFile);
-                    fs::delete($archFile);
-                    fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
-                } else if ($foundVersionSource->downloadToDirectory($name, $foundVersion, $dirFile)) {
-                    fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
+                try {
+                    if ($foundVersionSource->downloadTo($name, $foundVersion, $archFile)) {
+                        $this->installFromArchive($archFile);
+                        fs::delete($archFile);
+                        fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
+                    } else if ($foundVersionSource->downloadToDirectory($name, $foundVersion, $dirFile)) {
+                        fs::format($indexFile, $foundVersionInfo, JsonProcessor::SERIALIZE_PRETTY_PRINT);
+                    }
+                } catch (\Throwable $e) {
+                    Console::error($e->getMessage());
+                    return null;
                 }
             }
 
