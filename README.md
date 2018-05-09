@@ -9,6 +9,7 @@ How does it work? JPHP is a compiler like `javac`, it compiles php sources to JV
 can execute the result on the Java VM.
 
 - Official Site: **[jphp.develnext.org](http://jphp.develnext.org/)**
+- [Awesome JPHP](https://github.com/jphp-group/awesome-jphp)
 
 ### In Production
 
