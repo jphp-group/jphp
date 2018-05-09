@@ -1,7 +1,7 @@
 JPHP - an implementation of PHP
 ===============================
 
-[![Build Status](https://travis-ci.org/jphp-compiler/jphp.svg?branch=master)](https://travis-ci.org/jphp-compiler/jphp)
+[![Build Status](https://travis-ci.org/jphp-group/jphp.svg?branch=master)](https://travis-ci.org/jphp-group/jphp)
 
 JPHP is a new implementation for PHP which uses the Java VM. It supports many features of the PHP language (7.1+).
 
