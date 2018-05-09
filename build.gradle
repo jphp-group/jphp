@@ -68,6 +68,12 @@ configure(subprojects) {
         apply plugin: 'maven'
 
         install.repositories.mavenInstaller.pom.scopeMappings.addMapping(100, configurations.compileMaven, 'compile')
+
+        dependencies {
+            testCompile 'junit:junit:4.+'
+            testCompile project(':jphp-runtime')
+            testCompile project(':exts/jphp-zend-ext')
+        }
     }
 
     apply plugin: 'com.github.johnrengelman.shadow'
