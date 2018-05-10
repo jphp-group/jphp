@@ -3,13 +3,13 @@
 ---
 
 ## jphp-httpclient-ext
-> version 1.0.0, created by JPPM.
+> version 1.0.1, created by JPPM.
 
 Http Client library.
 
 ### Install
 ```
-jppm add jphp-httpclient-ext@1.0.0
+jppm add jphp-httpclient-ext@1.0.1
 ```
 
 ### API

@@ -49,13 +49,15 @@ abstract public class GenericMemoryOperation<T> extends MemoryOperation<T> {
                     if (this.operations[i] == null) {
                         throw new CriticalException("Unsupported generic type binding - " + genericType);
                     }
-                } else {
+                } else if (genericTypes[i] instanceof Class) {
                     Class<?> genericType = (Class<?>) genericTypes[i];
                     this.operations[i] = MemoryOperation.get(genericType, null);
 
                     if (this.operations[i] == null) {
                         throw new CriticalException("Unsupported type binding - " + genericType);
                     }
+                } else {
+                    throw new CriticalException("Unsupported type binding - " + genericTypes[i]);
                 }
             }
         }

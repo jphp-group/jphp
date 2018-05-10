@@ -1,5 +1,6 @@
 package org.develnext.jphp.ext.httpserver.classes;
 
+import javax.servlet.RequestDispatcher;
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.*;
@@ -438,6 +439,23 @@ public class PHttpServer extends BaseObject {
         } else {
             server.setRequestLog((request, response) -> {
                 invoker.callAny(new PHttpServerRequest(env, request), new PHttpServerResponse(env, response));
+            });
+        }
+    }
+
+    @Signature
+    public void setErrorHandler(Environment env, @Nullable Invoker invoker) {
+        if (invoker == null) {
+            server.setErrorHandler(null);
+        } else {
+            ErrorHandler errorHandler = new ErrorHandler();
+
+            server.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+                    Throwable th = (Throwable)request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+                    invoker.callAny(th, new PHttpServerRequest(env, Request.getBaseRequest(request)), new PHttpServerResponse(env, response));
+                }
             });
         }
     }

@@ -1,3 +1,6 @@
 
+buildSrc/gradle/gradlew text eol=lf
+buildSrc/gradle/gradlew.bat text eol=crlf
+
 scripts/jppm text eol=lf
 scripts/jppm.bat text eol=crlf

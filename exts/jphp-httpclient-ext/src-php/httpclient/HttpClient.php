@@ -601,9 +601,9 @@ class HttpClient
                 $str[] = $this->formatUrlencode($value, $prefix ? "{$prefix}[$code]" : $code);
             } else {
                 if ($prefix) {
-                    $str[] = "{$prefix}[$code]=" . urlencode($value);
+                    $str[] = "{$prefix}[$code]=" . URL::encode($value);
                 } else {
-                    $str[] = "$code=" . urlencode($value);
+                    $str[] = "$code=" . URL::encode($value);
                 }
             }
         }
@@ -627,7 +627,7 @@ class HttpClient
                 $out->write($this->_boundary);
                 $out->write(self::CRLF);
 
-                $name = urlencode($name);
+                $name = URL::encode($name);
                 $out->write("Content-Disposition: form-data; name=\"$name\"");
                 $out->write(self::CRLF);
 
@@ -646,9 +646,9 @@ class HttpClient
             $out->write($this->_boundary);
             $out->write(self::CRLF);
 
-            $name = urlencode($name);
+            $name = URL::encode($name);
             $out->write("Content-Disposition: form-data; name=\"$name\"; filename=\"");
-            $out->write(urlencode(fs::name($stream->getPath())) . "\"");
+            $out->write(URL::encode(fs::name($stream->getPath())) . "\"");
             $out->write(self::CRLF);
 
             $out->write("Content-Type: ");

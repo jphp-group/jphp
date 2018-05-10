@@ -30,6 +30,7 @@ Class HttpServer
 - `->`[`addHandler()`](#method-addhandler)
 - `->`[`clearHandlers()`](#method-clearhandlers) - _Remove all handlers._
 - `->`[`setRequestLogHandler()`](#method-setrequestloghandler)
+- `->`[`setErrorHandler()`](#method-seterrorhandler)
 - `->`[`isRunning()`](#method-isrunning)
 - `->`[`isFailed()`](#method-isfailed)
 - `->`[`isStopped()`](#method-isstopped)
@@ -218,6 +219,15 @@ Remove all handlers.
 ### setRequestLogHandler()
 ```php
 setRequestLogHandler([ callable|null $handler): void
+```
+
+---
+
+<a name="method-seterrorhandler"></a>
+
+### setErrorHandler()
+```php
+setErrorHandler([ callable|null $handler): void
 ```
 
 ---

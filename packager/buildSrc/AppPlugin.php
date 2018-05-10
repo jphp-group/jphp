@@ -1,5 +1,8 @@
 <?php
 
+use compress\GzipOutputStream;
+use compress\TarArchive;
+use compress\TarArchiveEntry;
 use compress\ZipArchive;
 use compress\ZipArchiveEntry;
 use packager\{
@@ -67,21 +70,21 @@ class AppPlugin
         $exec->addVendorClassPath($vendor);
         $exec->addPackageClassPath($event->package());
 
-        $buildFileName = "{$event->package()->getName()}-{$event->package()->getVersion('last')}.jar";
+        $buildFileName = "{$event->package()->getName()}-{$event->package()->getVersion('last')}";
 
-        if ($build['fileName']) {
-            $buildFileName = $build['fileName'];
+        if ($build['file-name']) {
+            $buildFileName = $build['file-name'];
         }
 
         $buildDir = $event->package()->getConfigBuildPath();
 
         Tasks::createDir("$buildDir");
-        Tasks::createFile("$buildDir/$buildFileName");
+        Tasks::createFile("$buildDir/$buildFileName.jar");
 
-        $zip = new ZipArchive("$buildDir/$buildFileName");
+        $zip = new ZipArchive("$buildDir/$buildFileName.jar");
         $zip->open();
 
-        Tasks::createDir("$buildDir/app");
+        Tasks::createDir("$buildDir/.app");
 
         $metaInfServices = [];
 
@@ -91,9 +94,9 @@ class AppPlugin
 
                 fs::scan($classPath, function ($filename) use ($zip, $classPath, &$metaInfServices, $buildDir) {
                     $name = fs::relativize($filename, $classPath);
-                    $file = "$buildDir/app/$name";
+                    $file = "$buildDir/.app/$name";
 
-                    Console::log("--> add file: {$classPath}{$name}");
+                    Console::log("--> add file: {$classPath}/{$name}");
 
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines(fs::get($filename)))->toArray();
@@ -120,7 +123,7 @@ class AppPlugin
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
                     } else {
-                        $file = "$buildDir/app/{$name}";
+                        $file = "$buildDir/.app/{$name}";
 
                         //Console::log("--> add jar file: $name");
 
@@ -131,18 +134,18 @@ class AppPlugin
             }
         }
 
-        Tasks::cleanDir("$buildDir/app/JPHP-INF/sdk");
-        Tasks::deleteFile("$buildDir/app/JPHP-INF/sdk");
+        Tasks::cleanDir("$buildDir/.app/JPHP-INF/sdk");
+        Tasks::deleteFile("$buildDir/.app/JPHP-INF/sdk");
 
-        fs::delete("$buildDir/app/META-INF/manifest.mf");
-        fs::delete("$buildDir/app/META-INF/Manifest.mf");
-        fs::delete("$buildDir/app/META-INF/MANIFEST.MF");
+        fs::delete("$buildDir/.app/META-INF/manifest.mf");
+        fs::delete("$buildDir/.app/META-INF/Manifest.mf");
+        fs::delete("$buildDir/.app/META-INF/MANIFEST.MF");
 
         if (!$launcher['disable-launcher']) {
             Console::log("-> create jphp app launcher");
 
-            Tasks::createDir("$buildDir/app/JPHP-INF/");
-            Tasks::createDir("$buildDir/app/META-INF/");
+            Tasks::createDir("$buildDir/.app/JPHP-INF/");
+            Tasks::createDir("$buildDir/.app/META-INF/");
 
             $includes = (array) $vendor->fetchPaths()['includes'];
 
@@ -152,14 +155,14 @@ class AppPlugin
                 $launcher['bootstrap'] = arr::pop($includes);
             }
 
-            fs::formatAs("$buildDir/app/JPHP-INF/launcher.conf", [
+            fs::formatAs("$buildDir/.app/JPHP-INF/launcher.conf", [
                 'bootstrap.files' => flow($includes)->map(function ($one) { return "res://$one"; })->toString('|'),
                 'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
             ], 'ini');
 
-            Tasks::createFile("$buildDir/app/META-INF/MANIFEST.MF");
+            Tasks::createFile("$buildDir/.app/META-INF/MANIFEST.MF");
 
-            Stream::putContents("$buildDir/app/META-INF/MANIFEST.MF", str::join([
+            Stream::putContents("$buildDir/.app/META-INF/MANIFEST.MF", str::join([
                 "Manifest-Version: 1.0",
                 "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
                 "Main-Class: " . ($launcher['mainClass'] ?? 'php.runtime.launcher.Launcher'),
@@ -171,23 +174,64 @@ class AppPlugin
         }
 
         foreach ($metaInfServices as $name => $lines) {
-            fs::ensureParent("$buildDir/app/$name");
-            Stream::putContents("$buildDir/app/$name", str::join($lines, "\n"));
+            fs::ensureParent("$buildDir/.app/$name");
+            Stream::putContents("$buildDir/.app/$name", str::join($lines, "\n"));
         }
 
-        fs::scan("$buildDir/app", function (File $file) use ($zip, $buildDir) {
+        fs::scan("$buildDir/.app", function (File $file) use ($zip, $buildDir) {
             if ($file->isFile()) {
-                $zip->addFile($file, fs::relativize($file, "$buildDir/app"));
+                $zip->addFile($file, fs::relativize($file, "$buildDir/.app"));
             }
         });
 
         $zip->close();
 
-        $time = Time::millis() - $time;
+        Tasks::deleteFile("$buildDir/.app");
 
-        if (!$launcher['disable-launcher']) {
-            Console::log("\n   Use 'java -jar \"$buildDir/$buildFileName\"' to run the result app.");
+        foreach ($event->package()->getAny('app.assets', []) as $asset) {
+            Tasks::deleteFile("$buildDir/" . fs::name($asset));
+
+            if (fs::isDir($asset)) {
+                Tasks::copy($asset, "$buildDir/" . fs::name($asset));
+            } else {
+                Tasks::copy($asset, "$buildDir/");
+            }
         }
+
+        switch (str::lower($event->package()->getAny('app.build.result'))) {
+            case 'tar':
+                Console::log("-> pack build dir to tar.gz archive ...");
+
+                $archFile = File::createTemp($buildFileName, ".tar.gz");
+                $archFile->deleteOnExit();
+
+                $tar = new TarArchive(new GzipOutputStream($archFile));
+                $tar->open();
+
+                fs::scan("$buildDir/", function ($file) use ($buildDir, $tar) {
+                    Console::log("-> pack '{0}'", fs::relativize($file, $buildDir . "/"));
+                    if (fs::isFile($file)) {
+                        $tar->addFile($file, fs::relativize($file, $buildDir . "/"));
+                    } else {
+                        $tar->addEmptyEntry(new TarArchiveEntry(fs::relativize($file, $buildDir . "/")));
+                    }
+                });
+
+                $tar->close();
+
+                Tasks::cleanDir("$buildDir/");
+                Tasks::copy($archFile, "$buildDir/");
+                fs::rename("$buildDir/" . fs::name($archFile), "{$buildFileName}.tar.gz");
+
+                break;
+
+            default:
+                if (!$launcher['disable-launcher']) {
+                    Console::log("\n   Use 'java -jar \"$buildDir/$buildFileName.jar\"' to run the result app.");
+                }
+        }
+
+        $time = Time::millis() - $time;
 
         Console::log("\n-----");
         Console::log("Building time: {0} sec.", round($time / 1000, 2));

@@ -1,5 +1,5 @@
 name: jppm
-version: 0.2.7
+version: 0.2.9
 
 plugins: [GitHub, Hub, Doc]
 
@@ -15,7 +15,7 @@ github:
 
     **What's new**
     + Improve the `tasks` section in package yml.
-    + Fix semver bugs.
+    + Fix gradlew attrs.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
