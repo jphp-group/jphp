@@ -21,6 +21,43 @@ class Tasks
     }
 
     /**
+     * Copy file or directory.
+     *
+     * @param string $path
+     * @param string $intoDir
+     * @param bool $ignoreErrs
+     */
+    static function copy(string $path, string $intoDir, bool $ignoreErrs = false)
+    {
+        if (fs::isFile($path)) {
+            if (fs::copy($path, "$intoDir/" . fs::name($path), 1024 * 128) < 0) {
+                Console::error("Failed to copy file '{0}' into dir '{1}'", $path, $intoDir);
+                if (!$ignoreErrs) {
+                    exit(-1);
+                }
+            }
+        } else if (fs::isDir($path)) {
+            fs::scan($path, function ($file) use ($path, $intoDir, $ignoreErrs) {
+                $name = fs::relativize($file, $path);
+
+                if (fs::isDir($file)) {
+                    fs::makeDir("$intoDir/$name");
+                    return;
+                }
+
+                fs::ensureParent("$intoDir/$name");
+
+                if (fs::copy($file, "$intoDir/$name", 1024 * 128) < 0) {
+                    Console::error("Failed to copy file '{0}' into dir '{1}'", $path, $intoDir);
+                    if (!$ignoreErrs) {
+                        exit(-1);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
      * @param string $path
      * @param string $content
      * @param bool $ignoreErrs
@@ -35,7 +72,7 @@ class Tasks
             Stream::putContents($path, $content);
             return true;
         } catch (IOException $e) {
-            Console::error("Failed to create file '{0}', cause = {0}", $path, $e->getMessage());
+            Console::error("Failed to create file '{0}', cause = {1}", $path, $e->getMessage());
             if (!$ignoreErrs) {
                 exit(-1);
             }

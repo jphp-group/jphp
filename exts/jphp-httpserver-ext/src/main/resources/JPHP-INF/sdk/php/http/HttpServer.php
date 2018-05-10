@@ -1,6 +1,8 @@
 <?php
 namespace php\http;
 
+use Throwable;
+
 /**
  * Class HttpServer
  * @package php\http
@@ -147,6 +149,13 @@ class HttpServer
      * @param callable|null $handler ($request, $response)
      */
     public function setRequestLogHandler(?callable $handler)
+    {
+    }
+
+    /**
+     * @param callable|null $handler (Throwable $err, $request, $response)
+     */
+    public function setErrorHandler(?callable $handler)
     {
     }
 
