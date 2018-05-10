@@ -93,7 +93,7 @@ class AppPlugin
                     $name = fs::relativize($filename, $classPath);
                     $file = "$buildDir/app/$name";
 
-                    Console::log("--> add file: {$classPath}{$name}");
+                    Console::log("--> add file: {$classPath}/{$name}");
 
                     if (str::startsWith($name, "META-INF/services/")) {
                         $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines(fs::get($filename)))->toArray();
