@@ -1,5 +1,5 @@
 name: jppm
-version: 0.2.9
+version: 0.3.0
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Improve the `tasks` section in package yml.
-    + Fix gradlew attrs.
+    + Add package.build.php script support.
+    + Add Tasks::runExternal for tasks of external jppm project.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

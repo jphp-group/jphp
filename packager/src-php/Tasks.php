@@ -1,8 +1,10 @@
 <?php
 
 use packager\cli\Console;
+use packager\JavaExec;
 use php\io\IOException;
 use php\io\Stream;
+use php\lang\System;
 use php\lib\arr;
 use php\lib\fs;
 
@@ -18,6 +20,32 @@ class Tasks
         global $app;
 
         $app->invokeTask($name, $args, ...arr::combine($flags, $flags));
+    }
+
+    /**
+     * @param string $dir
+     * @param string $name
+     * @param array $args
+     * @param array ...$flags
+     */
+    static function runExternal(string $dir, string $name, array $args = [], ...$flags)
+    {
+        Console::log("-> {0} for '{1}'", $name, $dir);
+
+        $exec = new JavaExec();
+        $exec->addClassPath(System::getProperty("jppm.home") . "/packager-all.jar");
+        $exec->addClassPath(System::getProperty("jppm.home") . "/buildSrc");
+
+        $array = flow([$name], $args, flow($flags)->map(function ($e) {
+            return "-$e";
+        }))->toArray();
+
+        $process = $exec->run($array, $dir);
+        $process = $process->inheritIO()->startAndWait();
+
+        if ($process->getExitValue() != 0) {
+            exit($process->getExitValue());
+        }
     }
 
     /**

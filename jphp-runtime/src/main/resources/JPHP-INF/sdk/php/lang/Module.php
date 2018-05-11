@@ -53,7 +53,7 @@ class Module
     }
 
     /**
-     * @return \ReflectionFunction
+     * @return \ReflectionFunction[]
      */
     public function getFunctions(): array {}
 

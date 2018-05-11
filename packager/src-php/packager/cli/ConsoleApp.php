@@ -20,6 +20,7 @@ use php\io\File;
 use php\io\IOException;
 use php\io\Stream;
 use php\lang\Invoker;
+use php\lang\Module;
 use php\lang\System;
 use php\lang\Thread;
 use php\lib\arr;
@@ -123,9 +124,7 @@ class ConsoleApp
                     }, $task['description']);
                 }
 
-                if (is_string($tasks)) {
-                    $tasks = str::split($tasks, ',');
-                }
+                $this->loadBuildScript();
             }
 
             $this->invokeTask($command, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
@@ -266,6 +265,30 @@ class ConsoleApp
             }
         } else {
             Console::error("Incorrect plugin '{0}', class not found.", $plugin);
+        }
+    }
+
+    protected function loadBuildScript()
+    {
+        if ($this->getPackage()) {
+            if (fs::isFile("./package.build.php")) {
+                $module = new Module("./package.build.php");
+                $module->call();
+
+                foreach ($module->getFunctions() as $function) {
+                    if (str::startsWith($function->getName(), "task_")) {
+                        $task = Annotations::get('jppm-task', $function->getDocComment(), str::sub($function->getName(), 5));
+
+                        $this->addCommand(
+                            $task,
+                            function ($args, $flags = []) use ($function) {
+                                $function->invoke(new Event($this->packager, $this->getPackage(), $args, $flags));
+                            },
+                            Annotations::get('jppm-description', $function->getDocComment(), 'from package.build.php')
+                        );
+                    }
+                }
+            }
         }
     }
 
