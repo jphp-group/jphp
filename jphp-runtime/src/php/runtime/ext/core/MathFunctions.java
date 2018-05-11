@@ -171,8 +171,8 @@ public class MathFunctions extends FunctionsContainer {
     }
 
     @Immutable
-    public static long getmaxrand(){
-        return Integer.MAX_VALUE;
+    public static long getrandmax(){
+        return Long.MAX_VALUE;
     }
 
     @Immutable
