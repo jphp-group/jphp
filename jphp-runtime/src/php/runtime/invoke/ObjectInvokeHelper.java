@@ -203,12 +203,18 @@ final public class ObjectInvokeHelper {
                     staticClass = ((Closure) iObject).getScope();
                 }
 
-                String stackClass = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
+                if (clazz.isHiddenInCallStack()) {
+                    env.pushCall(trace, iObject, args, methodName, staticClass, staticClass);
 
-                env.pushCall(trace, iObject, args, methodName, stackClass, staticClass);
+                    if (doublePop) {
+                        env.pushCall(trace, iObject, passed, method.getName(), staticClass, staticClass);
+                    }
+                } else {
+                    env.pushCallEx(trace, iObject, args, methodName, clazz, staticClass);
 
-                if (doublePop) {
-                    env.pushCall(trace, iObject, passed, method.getName(), stackClass, staticClass);
+                    if (doublePop) {
+                        env.pushCallEx(trace, iObject, passed, method.getName(), clazz, staticClass);
+                    }
                 }
             }
 
@@ -266,9 +272,11 @@ final public class ObjectInvokeHelper {
                 staticClass = ((Closure) iObject).getScope();
             }
 
-            String stackClass = clazz.isHiddenInCallStack() ? staticClass : method.getClazz().getName();
-
-            env.pushCall(trace, iObject, args, method.getName(), stackClass, staticClass);
+            if (clazz.isHiddenInCallStack()) {
+                env.pushCall(trace, iObject, args, method.getName(), staticClass, staticClass);
+            } else {
+                env.pushCallEx(trace, iObject, args, method.getName(), method.getClazz(), staticClass);
+            }
         }
 
         try {

@@ -45,11 +45,7 @@ public class DynamicMethodInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, object, args,
-                method.getName(),
-                method.getClazz().getName(),
-                object.getReflection().getName()
-        );
+        env.pushCallEx(trace, object, args, method.getName(), method.getClazz(), object.getReflection());
     }
 
     @Override

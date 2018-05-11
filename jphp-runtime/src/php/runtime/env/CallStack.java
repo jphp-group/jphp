@@ -22,7 +22,7 @@ public class CallStack {
         return callStackTop;
     }
 
-    public void push(CallStackItem stackItem) {
+    public CallStackItem push(CallStackItem stackItem) {
         if (callStackTop >= callStack.length){
             CallStackItem[] newCallStack = new CallStackItem[callStack.length * 2];
             System.arraycopy(callStack, 0, newCallStack, 0, callStack.length);
@@ -31,6 +31,7 @@ public class CallStack {
 
         callStack[callStackTop++] = stackItem;
         maxCallStackTop = callStackTop;
+        return stackItem;
     }
 
     public CallStackItem push(TraceInfo trace, IObject self, Memory[] args, String function, String clazz, String staticClazz) {

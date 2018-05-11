@@ -371,7 +371,7 @@ final public class InvokeHelper {
 
         try {
             if (trace != null)
-                env.pushCall(trace, null, args, originMethodName, method.getClazz().getName(), originClassName);
+                env.pushCallEx(trace, null, args, originMethodName, method.getClazz(), classEntity);
 
             return method.invokeStatic(env, trace, passed);
         } finally {
@@ -412,7 +412,7 @@ final public class InvokeHelper {
 
         try {
             if (trace != null && method.isUsesStackTrace()) {
-                env.pushCall(trace, null, passed, originMethodName, originClassName, staticClazz);
+                env.pushCallEx(trace, null, passed, originMethodName, method.getClazz(), staticClazz);
             }
 
             return method.invokeStatic(env, passed);

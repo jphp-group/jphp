@@ -367,6 +367,19 @@ public class Environment {
         return getCallStack().push(trace, self, args, function, clazz, staticClazz);
     }
 
+    public CallStackItem pushCallEx(TraceInfo trace, IObject self, Memory[] args, String function, ClassEntity clazz, String staticClazz) {
+        CallStackItem stackItem = new CallStackItem(trace, self, args, function, clazz.getName(), staticClazz);
+        stackItem.classEntity = clazz;
+        return getCallStack().push(stackItem);
+    }
+
+    public CallStackItem pushCallEx(TraceInfo trace, IObject self, Memory[] args, String function, ClassEntity clazz, ClassEntity staticClazz) {
+        CallStackItem stackItem = new CallStackItem(trace, self, args, function, clazz.getName(), staticClazz.getName());
+        stackItem.classEntity = clazz;
+        stackItem.staticClassEntity = staticClazz;
+        return getCallStack().push(stackItem);
+    }
+
     public CallStackItem pushCall(IObject self, String method, Memory... args) {
         return getCallStack().push(self, method, args);
     }
@@ -1722,9 +1735,11 @@ public class Environment {
     }
 
     public ClassEntity getLastClassOnStack() {
-        int N = getCallStackTop();
+        CallStack callStack = getCallStack();
+        int N = callStack.getTop();
+
         for (int i = 0; i < N; i++) {
-            CallStackItem item = peekCall(i);
+            CallStackItem item = callStack.peekCall(i);
             if (item != null && item.clazz != null) {
                 if (item.classEntity != null) {
                     if (item.object instanceof Closure) {
@@ -1738,12 +1753,16 @@ public class Environment {
 
                     return item.classEntity;
                 }
+
                 ClassEntity e = item.classEntity = fetchClass(item.clazz, false);
-                if (e == null)
+
+                if (e == null) {
                     throw new IllegalStateException("Cannot find '" + item.clazz + "' in the current environment");
+                }
                 return e;
             }
         }
+
         return null;
     }
 

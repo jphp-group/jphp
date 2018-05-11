@@ -51,7 +51,7 @@ public class StaticMethodInvoker extends Invoker {
 
     @Override
     public void pushCall(TraceInfo trace, Memory[] args) {
-        env.pushCall(trace, null, args, method.getName(), method.getClazz().getName(), calledClass);
+        env.pushCallEx(trace, null, args, method.getName(), method.getClazz(), calledClass);
     }
 
     @Override
