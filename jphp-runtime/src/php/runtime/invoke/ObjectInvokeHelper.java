@@ -210,10 +210,10 @@ final public class ObjectInvokeHelper {
                         env.pushCall(trace, iObject, passed, method.getName(), staticClass, staticClass);
                     }
                 } else {
-                    env.pushCallEx(trace, iObject, args, methodName, clazz, staticClass);
+                    env.pushCallEx(trace, iObject, args, methodName, method.getClazz(), staticClass);
 
                     if (doublePop) {
-                        env.pushCallEx(trace, iObject, passed, method.getName(), clazz, staticClass);
+                        env.pushCallEx(trace, iObject, passed, method.getName(), method.getClazz(), staticClass);
                     }
                 }
             }
