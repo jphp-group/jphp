@@ -288,6 +288,8 @@ class AppPlugin
             $exec->setJvmArgs($launcher['jvm-args']);
         }
 
+        $sysArgs['environment'] = 'dev';
+
         $exec->setSystemProperties($sysArgs);
         $exec->setMainClass($launcher['main-class'] ?: 'php.runtime.launcher.Launcher');
 
