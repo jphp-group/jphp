@@ -61,6 +61,7 @@ class GitHubPlugin
      * @var string
      */
     protected $defaultLogin;
+    protected $configDir = "./";
 
     /**
      * GitHubPlugin constructor.
@@ -77,6 +78,8 @@ class GitHubPlugin
             $this->defaultRepo = $github['address'] ?? null;
             $this->defaultLogin = $github['login'] ?? null;
             $this->additionalAssets = $github['assets'] ?? [];
+
+            $this->configDir = $github['config-dir'] ?? './';
         }
 
         $this->readConfig();
@@ -226,7 +229,7 @@ class GitHubPlugin
     protected function readConfig(): array
     {
         try {
-            $file = "./package.github.yml";
+            $file = $this->configDir . "package.github.yml";
 
             $config = [];
             if (fs::isFile($file)) {
@@ -246,7 +249,7 @@ class GitHubPlugin
     protected function writeConfig()
     {
         try {
-            $file = "./package.github.yml";
+            $file =  $this->configDir . "package.github.yml";
 
             fs::format($file, $this->config, YamlProcessor::SERIALIZE_PRETTY_FLOW);
         } catch (ProcessorException|IOException $e) {

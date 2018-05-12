@@ -4,9 +4,9 @@ use httpclient\HttpClient;
 use httpclient\HttpRequest;
 use packager\cli\Console;
 use packager\Event;
+use packager\Package;
 use php\format\ProcessorException;
 use php\format\YamlProcessor;
-use php\io\File;
 use php\io\IOException;
 use php\lib\fs;
 use php\lib\str;
@@ -36,6 +36,8 @@ class HubPlugin
 
     private $defaultLogin;
 
+    private $configDir = "./";
+
     /**
      * HubPlugin constructor.
      */
@@ -46,9 +48,10 @@ class HubPlugin
 
             $this->endpoint = $hub['endpoint'] ?? 'http://api.develnext.org';
             $this->defaultLogin = $hub['login'] ?? null;
-        }
+            $this->configDir = $event->package()->getAny('hub.config-dir', "./");
 
-        $this->readConfig();
+            $this->readConfig();
+        }
     }
 
 
@@ -58,7 +61,7 @@ class HubPlugin
     protected function readConfig(): array
     {
         try {
-            $file = "./package.hub.yml";
+            $file = $this->configDir . "package.hub.yml";
 
             $config = [];
             if (fs::isFile($file)) {
@@ -77,7 +80,7 @@ class HubPlugin
     protected function writeConfig()
     {
         try {
-            $file = "./package.hub.yml";
+            $file = $this->configDir . "package.hub.yml";
 
             fs::format($file, $this->config, YamlProcessor::SERIALIZE_PRETTY_FLOW);
         } catch (ProcessorException|IOException $e) {
