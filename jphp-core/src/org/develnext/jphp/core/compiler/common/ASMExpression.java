@@ -96,6 +96,11 @@ public class ASMExpression {
                         ArrayGetRefExprToken newAssign = new ArrayGetRefExprToken((ArrayGetExprToken)prev);
                         result.set(i - 1, newAssign);
                     }
+                } else if (el instanceof ArrayPushExprToken) {
+                    if (prev != null && prev.getClass() == DynamicAccessExprToken.class) {
+                        DynamicAccessGetRefExprToken accessGetRefExprToken = new DynamicAccessGetRefExprToken((DynamicAccessExprToken) prev);
+                        result.set(i - 1, accessGetRefExprToken);
+                    }
                 }
 
                 if (operator.isBinary()){

@@ -53,4 +53,9 @@ public class UnsetTest extends JvmCompilerCase {
         Memory memory = includeResource("unset/complex.php");
         Assert.assertEquals("success", memory.toString());
     }
+
+    @Test
+    public void testBug260() {
+        check("unset/bug260.php");
+    }
 }

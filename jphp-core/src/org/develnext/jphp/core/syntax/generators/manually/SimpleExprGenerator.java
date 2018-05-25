@@ -660,6 +660,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 dResult.setValue(value);
                 return dResult;
             }
+
             iterator.previous();
         }
 
