@@ -52,4 +52,9 @@ public class LambdaTest extends JvmCompilerCase {
         assertEquals("3", run("fn($x, $y = 2) => { return $x + $y; }(1)").toString());
         assertEquals("6", run("fn($x, $y = [1, 2, 3]) => { return $x + $y[0] + $y[1] + $y[2]; }(0)").toString());
     }
+
+    @Test
+    public void testBug261() {
+        assertEquals("success", includeResource("lambdas/bug261.php").toString());
+    }
 }

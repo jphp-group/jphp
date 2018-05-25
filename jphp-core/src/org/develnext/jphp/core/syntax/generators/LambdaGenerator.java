@@ -9,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.KeyValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
+import php.runtime.env.CompileScope;
 
 import java.util.*;
 
@@ -113,6 +114,12 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
 
             for (VariableExprToken l : local) {
                 if (!arguments.contains(l) && !l.equals(FunctionStmtToken.thisVariable)) {
+                    CompileScope compileScope = this.analyzer.getEnvironment().getScope();
+
+                    if (compileScope.superGlobals.contains(l.getName())) {
+                        continue;
+                    }
+
                     ArgumentStmtToken use = new ArgumentStmtToken(l.getMeta());
                     use.setName(l);
                     use.setReference(false);
