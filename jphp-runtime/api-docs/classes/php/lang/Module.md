@@ -101,7 +101,7 @@ getClasses(): \ReflectionClass[]
 
 ### getFunctions()
 ```php
-getFunctions(): \ReflectionFunction
+getFunctions(): \ReflectionFunction[]
 ```
 
 ---

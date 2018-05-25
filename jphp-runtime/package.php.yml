@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.0.0
+version: 1.0.1
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
