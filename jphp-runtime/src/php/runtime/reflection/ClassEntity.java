@@ -422,7 +422,7 @@ ClassReader classReader;
                     if (!isAbstract && method.isAbstract && implMethod.isAbstract)
                         result.add(InvalidMethod.error(InvalidMethod.Kind.NON_EXISTS, implMethod));
 
-                    if (!implMethod.equalsBySignature(method)) {
+                    if (!implMethod.isImplementableSignatureFor(method)) {
                         if (!method.isDynamicSignature() || method.isAbstractable()) {
                             boolean isWarning = true;
                             MethodEntity pr = method;
@@ -612,7 +612,7 @@ ClassReader classReader;
             } else {
                 implMethod.setPrototype(method);
 
-                if (/*!method.isDynamicSignature() &&*/ !implMethod.equalsBySignature(method)) { // checking dynamic for only extends
+                if (/*!method.isDynamicSignature() &&*/ !implMethod.isImplementableSignatureFor(method)) { // checking dynamic for only extends
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, implMethod));
                 } else if (implMethod.isStatic() && !method.isStatic()) {
                     result.signature.add(InvalidMethod.error(InvalidMethod.Kind.MUST_NON_STATIC, implMethod));

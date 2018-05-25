@@ -387,7 +387,11 @@ public class MethodEntity extends AbstractFunctionEntity {
     }
 
     public String getSignature() {
-        if (signature != null)
+        return getSignature(false);
+    }
+
+    public String getSignature(boolean withoutReturn) {
+        if (signature != null && !withoutReturn)
             return signature;
 
         StringBuilder sb = new StringBuilder();
@@ -403,16 +407,30 @@ public class MethodEntity extends AbstractFunctionEntity {
             }
         }
 
-        TypeChecker typeChecker = getReturnTypeChecker();
+        if (!withoutReturn) {
+            TypeChecker typeChecker = getReturnTypeChecker();
 
-        if (typeChecker != null) {
-            String signature = typeChecker.getSignature();
+            if (typeChecker != null) {
+                String signature = typeChecker.getSignature();
 
-            sb.append(":");
-            sb.append(signature);
+                sb.append(":");
+                sb.append(signature);
+            }
         }
 
         return signature = sb.toString();
+    }
+
+    public boolean isImplementableSignatureFor(MethodEntity parentMethod) {
+        if (getSignature().equals(parentMethod.getSignature())) {
+            return true;
+        } else {
+            if (parentMethod.getReturnTypeChecker() == null && getReturnTypeChecker() != null) {
+                return getSignature(true).equals(parentMethod.getSignature(true));
+            }
+
+            return false;
+        }
     }
 
     public boolean equalsBySignature(MethodEntity method, boolean strong){
