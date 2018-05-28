@@ -54,6 +54,7 @@ class AppPlugin
      * @jppm-depends-on app:clean
      * @jppm-depends-on install
      * @param Event $event
+     * @throws \php\io\IOException
      */
     function build(Event $event)
     {
@@ -76,6 +77,8 @@ class AppPlugin
             $buildFileName = $build['file-name'];
         }
 
+        $buildType = $build['type'] ?? 'one-jar';
+
         $buildDir = $event->package()->getConfigBuildPath();
 
         Tasks::createDir("$buildDir");
@@ -87,6 +90,7 @@ class AppPlugin
         Tasks::createDir("$buildDir/.app");
 
         $metaInfServices = [];
+        $jars = [];
 
         foreach ($exec->getClassPaths() as $classPath) {
             if (fs::isDir($classPath)) {
@@ -112,25 +116,42 @@ class AppPlugin
             } else if (fs::ext($classPath) === 'jar') {
                 Console::log("-> add jar: $classPath");
 
-                $jar = new ZipArchive($classPath);
-                $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices, $buildDir) {
-                    $name = $stat->name;
+                switch ($buildType) {
+                    case 'one-jar': {
+                        $jar = new ZipArchive($classPath);
+                        $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices, $buildDir) {
+                            $name = $stat->name;
 
-                    if ($stat->isDirectory()) {
-                        return;
+                            if ($stat->isDirectory()) {
+                                return;
+                            }
+
+                            if (str::startsWith($name, "META-INF/services/")) {
+                                $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
+                            } else {
+                                $file = "$buildDir/.app/{$name}";
+
+                                //Console::log("--> add jar file: $name");
+
+                                fs::ensureParent($file);
+                                fs::copy($stream, $file);
+                            }
+                        });
+
+                        break;
                     }
 
-                    if (str::startsWith($name, "META-INF/services/")) {
-                        $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
-                    } else {
-                        $file = "$buildDir/.app/{$name}";
+                    case 'multi-jar':
+                        $jars[] = "./libs/" . fs::name($classPath);
 
-                        //Console::log("--> add jar file: $name");
+                        Tasks::createDir("$buildDir/libs");
+                        Tasks::copy($classPath, "$buildDir/libs");
+                        break;
 
-                        fs::ensureParent($file);
-                        fs::copy($stream, $file);
-                    }
-                });
+                    default:
+                        Console::error("Unknown build.type variant: {0}", $buildType);
+                        exit(-1);
+                }
             }
         }
 
@@ -165,8 +186,7 @@ class AppPlugin
             Stream::putContents("$buildDir/.app/META-INF/MANIFEST.MF", str::join([
                 "Manifest-Version: 1.0",
                 "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
-                "Main-Class: " . ($launcher['mainClass'] ?? 'php.runtime.launcher.Launcher'),
-                "",
+                "Main-Class: " . ($launcher['main-class'] ?? 'php.runtime.launcher.Launcher'),
                 "",
             ], "\r\n"));
         } else {
