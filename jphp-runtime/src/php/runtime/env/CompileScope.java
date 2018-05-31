@@ -302,60 +302,62 @@ public class CompileScope {
         }
     }
 
-    synchronized public void registerExtension(Extension extension) {
-        long t = System.currentTimeMillis();
+    public void registerExtension(Extension extension) {
+        synchronized (extensions) {
+            long t = System.currentTimeMillis();
 
-        if (extensions.containsKey(extension.getName()))
-            return;
+            if (extensions.containsKey(extension.getName()))
+                return;
 
-        // required
-        for(String dep : extension.getRequiredExtensions()){
-            try {
-                Extension el = (Extension) Class.forName(dep).newInstance();
-                registerExtension(el);
-            } catch (Exception e) {
-                throw new CriticalException(e);
+            // required
+            for (String dep : extension.getRequiredExtensions()) {
+                try {
+                    Extension el = (Extension) Class.forName(dep).newInstance();
+                    registerExtension(el);
+                } catch (Exception e) {
+                    throw new CriticalException(e);
+                }
             }
-        }
 
-        // optional
-        for (String dep : extension.getOptionalExtensions()) {
-            try {
-                Extension el = (Extension) Class.forName(dep).newInstance();
-                registerExtension(el);
-            } catch (ClassNotFoundException e) {
-                // do nothing ...
-            } catch (Exception e) {
-                throw new CriticalException(e);
+            // optional
+            for (String dep : extension.getOptionalExtensions()) {
+                try {
+                    Extension el = (Extension) Class.forName(dep).newInstance();
+                    registerExtension(el);
+                } catch (ClassNotFoundException e) {
+                    // do nothing ...
+                } catch (Exception e) {
+                    throw new CriticalException(e);
+                }
             }
-        }
 
-        // conflicts
-        for(String dep : extension.getConflictExtensions()) {
-            if (extensions.containsKey(dep))
-                throw new ConflictException(
-                        "'" + dep + "' extension conflicts with '" + extension.getClass().getName() + "'"
-                );
-        }
+            // conflicts
+            for (String dep : extension.getConflictExtensions()) {
+                if (extensions.containsKey(dep))
+                    throw new ConflictException(
+                            "'" + dep + "' extension conflicts with '" + extension.getClass().getName() + "'"
+                    );
+            }
 
-        extension.onRegister(this);
+            extension.onRegister(this);
 
-        compileConstantMap.putAll(extension.getConstants());
-        compileFunctionSpecMap.putAll(extension.getFunctions());
+            compileConstantMap.putAll(extension.getConstants());
+            compileFunctionSpecMap.putAll(extension.getFunctions());
 
 
-        for(Class<?> clazz : extension.getClasses()) {
-            registerLazyClass(extension, clazz);
-        }
+            for (Class<?> clazz : extension.getClasses()) {
+                registerLazyClass(extension, clazz);
+            }
 
-        for(CompileFunctionSpec function : extension.getFunctions().values()) {
-            functionMap.put(function.getLowerName(), new CompileFunctionEntity(extension, function));
-        }
+            for (CompileFunctionSpec function : extension.getFunctions().values()) {
+                functionMap.put(function.getLowerName(), new CompileFunctionEntity(extension, function));
+            }
 
-        extensions.put(extension.getName().toLowerCase(), extension);
+            extensions.put(extension.getName().toLowerCase(), extension);
 
-        if (Startup.isTracing()) {
-            Startup.traceWithTime("Register extension '" + extension.getName() + "', classes = " + extension.getClasses().size(), t);
+            if (Startup.isTracing()) {
+                Startup.traceWithTime("Register extension '" + extension.getName() + "', classes = " + extension.getClasses().size(), t);
+            }
         }
     }
 

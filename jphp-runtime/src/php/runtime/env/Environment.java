@@ -327,7 +327,7 @@ public class Environment {
      */
     public void finalizeObjects() throws Throwable {
         cleanGcObjects();
-        for (WeakReference<IObject> el : gcObjects) {
+        for (WeakReference<IObject> el : new HashSet<>(gcObjects)) {
             IObject o = el.get();
             if (o == null)
                 continue;

@@ -9,7 +9,9 @@ use packager\{
     cli\Console, Event, JavaExec, Packager, Vendor
 };
 
-use php\lang\{System, Thread};
+use php\lang\{
+    System, Thread
+};
 use php\io\{
     File, Stream
 };
@@ -103,16 +105,20 @@ class AppPlugin
                     Console::log("--> add file: {$classPath}/{$name}");
 
                     if (str::startsWith($name, "META-INF/services/")) {
-                        $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines(fs::get($filename)))->toArray();
+                        $metaInfServices[$name] = flow((array)$metaInfServices[$name], str::lines(fs::get($filename)))->toArray();
                     } else {
                         if (fs::isDir($filename)) {
                             fs::makeDir($file);
                         } else {
-                            fs::ensureParent($file);
-                            fs::copy($filename, $file);
+                            if (!fs::isFile($file)) {
+                                fs::ensureParent($file);
+                                fs::copy($filename, $file);
+                            }
                         }
                     }
                 });
+
+                break;
             } else if (fs::ext($classPath) === 'jar') {
                 Console::log("-> add jar: $classPath");
 
@@ -127,7 +133,7 @@ class AppPlugin
                             }
 
                             if (str::startsWith($name, "META-INF/services/")) {
-                                $metaInfServices[$name] = flow((array) $metaInfServices[$name], str::lines($stream->readFully()))->toArray();
+                                $metaInfServices[$name] = flow((array)$metaInfServices[$name], str::lines($stream->readFully()))->toArray();
                             } else {
                                 $file = "$buildDir/.app/{$name}";
 
@@ -168,7 +174,7 @@ class AppPlugin
             Tasks::createDir("$buildDir/.app/JPHP-INF/");
             Tasks::createDir("$buildDir/.app/META-INF/");
 
-            $includes = (array) $vendor->fetchPaths()['includes'];
+            $includes = (array)$vendor->fetchPaths()['includes'];
 
             $includes = flow($includes, $event->package()->getIncludes())->toArray();
 
@@ -177,8 +183,10 @@ class AppPlugin
             }
 
             fs::formatAs("$buildDir/.app/JPHP-INF/launcher.conf", [
-                'bootstrap.files' => flow($includes)->map(function ($one) { return "res://$one"; })->toString('|'),
-                'bootstrap.file' => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php'
+                'bootstrap.files' => flow($includes)->map(function ($one) {
+                    return "res://$one";
+                })->toString('|'),
+                'bootstrap.file'  => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php',
             ], 'ini');
 
             Tasks::createFile("$buildDir/.app/META-INF/MANIFEST.MF");
@@ -297,7 +305,9 @@ class AppPlugin
         }
 
         if ($includes) {
-            $sysArgs['bootstrap.files'] = flow($includes)->map(function ($one) { return "res://$one"; })->toString('|');
+            $sysArgs['bootstrap.files'] = flow($includes)->map(function ($one) {
+                return "res://$one";
+            })->toString('|');
         }
 
         if ($launcher['bootstrap']) {

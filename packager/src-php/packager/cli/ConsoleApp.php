@@ -127,7 +127,9 @@ class ConsoleApp
                 $this->loadBuildScript();
             }
 
-            $this->invokeTask($command, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
+            foreach (str::split($command, '+') as $item) {
+                $this->invokeTask($item, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
+            }
         } finally {
             Timer::shutdownAll();
         }
