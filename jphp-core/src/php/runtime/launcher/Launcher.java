@@ -1,5 +1,6 @@
 package php.runtime.launcher;
 
+import java.lang.reflect.Field;
 import org.develnext.jphp.core.opcode.ModuleOpcodePrinter;
 import php.runtime.Information;
 import php.runtime.Memory;
@@ -25,6 +26,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
+import sun.misc.Unsafe;
 
 public class Launcher {
     protected final String[] args;
@@ -390,7 +392,24 @@ public class Launcher {
         return current;
     }
 
+    @SuppressWarnings("unchecked")
+    public static void disableWarning() {
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe u = (Unsafe) theUnsafe.get(null);
+
+            Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
     public static void main(String[] args) throws Throwable {
+        disableWarning();
+
         Launcher launcher = new Launcher(args);
         Launcher.current = launcher;
         launcher.run();
