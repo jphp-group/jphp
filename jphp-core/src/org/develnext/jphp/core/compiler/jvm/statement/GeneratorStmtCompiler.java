@@ -35,7 +35,12 @@ public class GeneratorStmtCompiler extends StmtCompiler<GeneratorEntity> {
         MethodStmtToken methodToken = new MethodStmtToken(statement);
         methodToken.setClazz(classStmtToken);
         methodToken.setGenerator(false);
-        methodToken.setReturnReference(false);
+        methodToken.setReturnReference(statement.isReturnReference());
+
+        if (statement.isReturnReference()) {
+            methodToken.setDynamicLocal(true);
+        }
+
         methodToken.setModifier(Modifier.PROTECTED);
         methodToken.setName(NameToken.valueOf("_run"));
         methodToken.setUses(statement.getArguments());

@@ -209,4 +209,8 @@ public class GeneratorsTest extends JvmCompilerCase {
         Assert.assertTrue(false);
     }
 
+    @Test
+    public void testBug262() {
+        check("generators/bug262.php");
+    }
 }

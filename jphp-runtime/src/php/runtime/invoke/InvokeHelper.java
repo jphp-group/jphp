@@ -423,7 +423,7 @@ final public class InvokeHelper {
     }
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace) {
-        if (memory.isImmutable()) {
+        if (memory.isImmutable() && !memory.isUndefined()) {
             env.warning(trace, Messages.ERR_RETURN_NOT_REFERENCE.fetch());
         }
     }
