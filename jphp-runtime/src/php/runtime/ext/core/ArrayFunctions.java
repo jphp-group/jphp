@@ -50,12 +50,10 @@ public class ArrayFunctions extends FunctionsContainer {
             case OBJECT:
                 ObjectMemory objectMemory = var.toValue(ObjectMemory.class);
                 if (objectMemory.value instanceof Countable){
-                    env.pushCall(objectMemory.value, "count");
                     try {
-                        long size = ((Countable) objectMemory.value).count(env).toLong();
-                        return LongMemory.valueOf(size);
-                    } finally {
-                        env.popCall();
+                        return env.invokeMethod(objectMemory, "count");
+                    } catch (Throwable throwable) {
+                        env.forwardThrow(throwable);
                     }
                 } else {
                     return Memory.CONST_INT_1;

@@ -32,22 +32,22 @@ public class ObjectMemory extends Memory {
         super(Type.OBJECT);
     }
 
-    public ObjectMemory(IObject object){
+    public ObjectMemory(IObject object) {
         this();
         this.value = object;
     }
 
-    public static Memory valueOf(IObject object){
+    public static Memory valueOf(IObject object) {
         if (object == null)
             return NULL;
         return new ObjectMemory(object);
     }
 
-    public ClassEntity getReflection(){
+    public ClassEntity getReflection() {
         return value.getReflection();
     }
 
-    public ArrayMemory getProperties(){
+    public ArrayMemory getProperties() {
         return value.getProperties();
     }
 
@@ -94,7 +94,7 @@ public class ObjectMemory extends Memory {
     @Override
     public String toString() {
         ClassEntity entity = value.getReflection();
-        if (entity.methodMagicToString != null){
+        if (entity.methodMagicToString != null) {
             Environment env = value.getEnvironment();
             if (env == null)
                 return "Object";
@@ -106,7 +106,7 @@ public class ObjectMemory extends Memory {
             );
             try {
                 Memory result = entity.methodMagicToString.invokeDynamic(value, env, env.trace(), (Memory[]) null);
-                if (!result.isString()){
+                if (!result.isString()) {
                     env.error(
                             ErrorType.E_RECOVERABLE_ERROR, "Method %s must return a string value",
                             entity.methodMagicToString.getSignatureString(false)
@@ -116,7 +116,7 @@ public class ObjectMemory extends Memory {
                 return result.toString();
             } catch (RuntimeException e) {
                 throw e;
-            } catch (Throwable e){
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             } finally {
                 env.popCall();
@@ -169,20 +169,21 @@ public class ObjectMemory extends Memory {
         boolean compare(IObject o1, IObject o2);
     }
 
-    private boolean compare(Memory other, Comparator comparator){
-        switch (other.type){
+    private boolean compare(Memory other, Comparator comparator) {
+        switch (other.type) {
             case OBJECT:
-                ClassEntity otherReflection = ((ObjectMemory)other).getReflection();
+                ClassEntity otherReflection = ((ObjectMemory) other).getReflection();
                 if (otherReflection.getId() != getReflection().getId())
                     return false;
-                IObject otherObject = ((ObjectMemory)other).value;
+                IObject otherObject = ((ObjectMemory) other).value;
                 return comparator.compare(value, otherObject);
-            case REFERENCE: return compare(other.toValue(), comparator);
+            case REFERENCE:
+                return compare(other.toValue(), comparator);
         }
         return false;
     }
 
-    public int compare(IObject other, boolean strict, Set<Integer> used){
+    public int compare(IObject other, boolean strict, Set<Integer> used) {
         ClassEntity otherReflection = other.getReflection();
         if (otherReflection.getId() != getReflection().getId())
             return -2;
@@ -308,7 +309,7 @@ public class ObjectMemory extends Memory {
         if (value instanceof IteratorAggregate) {
             return env.invokeMethodNoThrow(value, "getIterator").getNewIterator(env, getReferences, getKeyReferences);
         } else if (value instanceof Iterator) {
-            final Iterator iterator = (Iterator)value;
+            final Iterator iterator = (Iterator) value;
             final String className = value.getReflection().getName();
             final boolean isNative = value.getReflection().isInternal();
 
@@ -334,7 +335,7 @@ public class ObjectMemory extends Memory {
                         }
                     }
 
-                    if (!rewind){
+                    if (!rewind) {
                         if (!isNative)
                             env.pushCall(trace, ObjectMemory.this.value, null, "rewind", className, null);
                         try {
@@ -365,7 +366,7 @@ public class ObjectMemory extends Memory {
 
                     boolean valid = false;
                     keyInit = false;
-                    if (needNext){
+                    if (needNext) {
                         if (!isNative)
                             env.pushCall(trace, ObjectMemory.this.value, null, "next", className, null);
                         try {
@@ -411,14 +412,14 @@ public class ObjectMemory extends Memory {
                 @Override
                 public Memory getMemoryKey() {
                     if (keyInit)
-                        return (Memory)currentKey;
+                        return (Memory) currentKey;
 
                     if (!isNative)
                         env.pushCall(trace, ObjectMemory.this.value, null, "key", className, null);
                     try {
                         currentKey = iterator.key(env).toImmutable();
                         keyInit = true;
-                        return (Memory)currentKey;
+                        return (Memory) currentKey;
                     } finally {
                         if (!isNative)
                             env.popCall();
@@ -448,13 +449,13 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 protected boolean nextValue() {
-                    while (true){
+                    while (true) {
                         if (!child.next())
                             return false;
 
                         Object key = child.getKey();
-                        if (key instanceof String){
-                            String keyS = (String)key;
+                        if (key instanceof String) {
+                            String keyS = (String) key;
                             int pos = keyS.lastIndexOf('\0');
                             if (pos > -1) keyS = keyS.substring(pos + 1);
 
@@ -462,7 +463,7 @@ public class ObjectMemory extends Memory {
                                     ? context.properties.get(keyS) : reflection.properties.get(keyS);
 
                             int accessFlag = entity == null ? 0 : entity.canAccess(env);
-                            if (accessFlag == 0){
+                            if (accessFlag == 0) {
                                 currentKey = entity == null ? keyS : entity.getName();
                                 break;
                             } else
@@ -525,18 +526,18 @@ public class ObjectMemory extends Memory {
 
         ClassEntity reflection = value.getReflection();
 
-        while (iterator.next()){
+        while (iterator.next()) {
             Object key = iterator.getKey();
             Memory value = iterator.getValue().toImmutable();
 
-            if (key instanceof String){
-                String keyS = (String)key;
+            if (key instanceof String) {
+                String keyS = (String) key;
                 PropertyEntity prop = reflection.properties.get(keyS);
 
-                if (prop == null || prop.getModifier() == Modifier.PUBLIC){
+                if (prop == null || prop.getModifier() == Modifier.PUBLIC) {
                     result.refOfIndex(keyS).assign(iterator.getValue().toImmutable());
                 } else {
-                    if (prop.getModifier() == Modifier.PROTECTED){
+                    if (prop.getModifier() == Modifier.PROTECTED) {
                         result.refOfIndex("\0*\0" + keyS).assign(value);
                     } else {
                         result.refOfIndex("\0" + prop.getClazz().getName() + "\0" + keyS).assign(value);
@@ -563,9 +564,9 @@ public class ObjectMemory extends Memory {
                     }
 
                     entity.methodDestruct.invokeDynamic(value, env, env.trace());
-                } catch (InvocationTargetException e){
+                } catch (InvocationTargetException e) {
                     env.__throwException(e);
-                } catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {
                     throw new CriticalException(throwable);
@@ -576,9 +577,9 @@ public class ObjectMemory extends Memory {
         }
     }
 
-    private void invalidUseAsArray(TraceInfo trace){
+    private void invalidUseAsArray(TraceInfo trace) {
         Environment env = value.getEnvironment();
-        if (env != null){
+        if (env != null) {
             env.error(trace == null ? getReflection().getTrace() : trace, ErrorType.E_ERROR,
                     Messages.ERR_CANNOT_USE_OBJECT_AS_ARRAY, getReflection().getName()
             );
@@ -587,20 +588,15 @@ public class ObjectMemory extends Memory {
 
     @Override
     public Memory refOfIndex(final TraceInfo trace, final Memory index) {
-        if (value instanceof ArrayAccess){
-            return new ReferenceMemory(){
+        if (value instanceof ArrayAccess) {
+            return new ReferenceMemory() {
                 @Override
                 public Memory assign(Memory memory) {
                     Environment env = ObjectMemory.this.value.getEnvironment();
-                    if (env != null && trace != null){
-                        ArrayAccess array = (ArrayAccess)ObjectMemory.this.value;
-                        Memory[] args = new Memory[]{ index, memory };
-                        env.pushCall(ObjectMemory.this.value, "offsetSet", args);
-                        try {
-                            array.offsetSet(env, args);
-                        } finally {
-                            env.popCall();
-                        }
+                    if (env != null && trace != null) {
+                        ArrayAccess array = (ArrayAccess) ObjectMemory.this.value;
+                        Memory[] args = new Memory[]{index, memory};
+                        array.callMethod(env, "offsetSet", args);
                     } else
                         invalidUseAsArray(trace);
                     return memory;
@@ -706,115 +702,115 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public Memory assignMinus(double memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(boolean memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinus(String memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMinus(memory);
                 }
 
                 @Override
                 public Memory assignMinusRight(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMinusRight(memory);
                 }
 
                 @Override
                 public Memory assignMul(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(long memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(double memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(boolean memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMul(String memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMul(memory);
                 }
 
                 @Override
                 public Memory assignMulRight(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMulRight(memory);
                 }
 
                 @Override
                 public Memory assignDiv(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(long memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(double memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(boolean memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDiv(String memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDiv(memory);
                 }
 
                 @Override
                 public Memory assignDivRight(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignDivRight(memory);
                 }
 
                 @Override
                 public Memory assignMod(Memory memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(long memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMod(memory);
                 }
 
                 @Override
                 public Memory assignMod(double memory) {
-                   setValue(toValue());
+                    setValue(toValue());
                     return super.assignMod(memory);
                 }
 
@@ -1025,7 +1021,7 @@ public class ObjectMemory extends Memory {
                 public ReferenceMemory getReference() {
                     Memory ret = toValue();
                     if (ret instanceof ReferenceMemory)
-                        return (ReferenceMemory)ret;
+                        return (ReferenceMemory) ret;
                     else
                         return new ReferenceMemory();
                 }
@@ -1143,7 +1139,7 @@ public class ObjectMemory extends Memory {
 
     @Override
     public Memory refOfIndex(TraceInfo trace, String index) {
-        return refOfIndex(trace,StringMemory.valueOf(index));
+        return refOfIndex(trace, StringMemory.valueOf(index));
     }
 
     @Override
@@ -1153,7 +1149,7 @@ public class ObjectMemory extends Memory {
 
     @Override
     public Memory refOfPush(TraceInfo trace) {
-        if (value instanceof ArrayAccess){
+        if (value instanceof ArrayAccess) {
             return refOfIndex(trace, NULL);
         } else {
             invalidUseAsArray(trace);
@@ -1163,16 +1159,11 @@ public class ObjectMemory extends Memory {
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, Memory index) {
-        if (value instanceof ArrayAccess){
+        if (value instanceof ArrayAccess) {
             Environment env = value.getEnvironment();
-            if (env != null && trace != null){
-                Memory[] args = new Memory[] { index };
-                env.pushCall(value, "offsetGet", args);
-                try {
-                    return ((ArrayAccess) value).offsetGet(env, args);
-                } finally {
-                    env.popCall();
-                }
+            if (env != null && trace != null) {
+                Memory[] args = new Memory[]{index};
+                return value.callMethod(env, "offsetGet", args);
             } else {
                 invalidUseAsArray(trace);
                 return NULL;
@@ -1206,16 +1197,11 @@ public class ObjectMemory extends Memory {
 
     @Override
     public void unsetOfIndex(TraceInfo trace, Memory index) {
-        if (value instanceof ArrayAccess){
+        if (value instanceof ArrayAccess) {
             Environment env = value.getEnvironment();
-            if (env != null && trace != null){
+            if (env != null && trace != null) {
                 Memory[] args = new Memory[]{index};
-                env.pushCall(value, "offsetUnset", args);
-                try {
-                    ((ArrayAccess) value).offsetUnset(env, args);
-                } finally {
-                    env.popCall();
-                }
+                value.callMethod(env, "offsetUnset", args);
             } else
                 invalidUseAsArray(trace);
         } else
@@ -1233,19 +1219,16 @@ public class ObjectMemory extends Memory {
     }
 
     private Memory issetOfIndex(TraceInfo trace, Memory index, boolean asEmpty) {
-        if (value instanceof ArrayAccess){
+        if (value instanceof ArrayAccess) {
             Environment env = value.getEnvironment();
-            if (env != null && trace != null){
+            if (env != null && trace != null) {
                 Memory[] args = new Memory[]{index};
-                env.pushCall(value, "offsetExists", args);
-                try {
-                    if (((ArrayAccess) value).offsetExists(env, args).toBoolean())
-                        return asEmpty ? valueOfIndex(trace, index) : TRUE;
-                    else
-                        return NULL;
-                } finally {
-                    env.popCall();
-                }
+
+                if (value.callMethod(env, "offsetExists", args).toBoolean())
+                    return asEmpty ? valueOfIndex(trace, index) : TRUE;
+                else
+                    return NULL;
+
             } else {
                 invalidUseAsArray(trace);
                 return NULL;

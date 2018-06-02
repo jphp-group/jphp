@@ -260,12 +260,7 @@ public class Deserializer {
                                         i++;
                                         if (i >= length || input.charAt(i) != '}') return error(i, length);
 
-                                        env.pushCall(trace, iObject, "unserialize", new StringMemory(what));
-                                        try {
-                                            ((Serializable) iObject).unserialize(env, new StringMemory(what));
-                                        } finally {
-                                            env.popCall();
-                                        }
+                                        iObject.callMethod(env, "unserialize", new StringMemory(what));
                                     }
                                 } else {
                                     ArrayMemory props = iObject.getProperties();
