@@ -1019,7 +1019,7 @@ ClassReader classReader;
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 if (oldValue != null)
-                    oldValue.assign(o1);
+                    oldValue.assign(o1.toValue());
 
                 return o1.plus(o2);
             }
@@ -1033,7 +1033,7 @@ ClassReader classReader;
             @Override
             public Memory invoke(Memory o1, Memory o2) {
                 if (oldValue != null)
-                    oldValue.assign(o1);
+                    oldValue.assign(o1.toValue());
 
                 return o1.minus(o2);
             }
