@@ -117,8 +117,6 @@ class AppPlugin
                         }
                     }
                 });
-
-                break;
             } else if (fs::ext($classPath) === 'jar') {
                 Console::log("-> add jar: $classPath");
 
