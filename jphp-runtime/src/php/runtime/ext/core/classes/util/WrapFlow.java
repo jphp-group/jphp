@@ -718,6 +718,45 @@ public class WrapFlow extends BaseObject implements Iterator {
         });
     }
 
+    @Signature(@Arg(value = "predicate", type = HintType.CALLABLE))
+    public Memory anyMatch(Environment env, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+
+        while (iterator.next()) {
+            if (call(iterator, invoker).toBoolean()) {
+                return Memory.TRUE;
+            }
+        }
+
+        return Memory.FALSE;
+    }
+
+    @Signature(@Arg(value = "predicate", type = HintType.CALLABLE))
+    public Memory allMatch(Environment env, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+
+        while (iterator.next()) {
+            if (!call(iterator, invoker).toBoolean()) {
+                return Memory.FALSE;
+            }
+        }
+
+        return Memory.TRUE;
+    }
+
+    @Signature(@Arg(value = "predicate", type = HintType.CALLABLE))
+    public Memory noneMatch(Environment env, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+
+        while (iterator.next()) {
+            if (call(iterator, invoker).toBoolean()) {
+                return Memory.FALSE;
+            }
+        }
+
+        return Memory.TRUE;
+    }
+
     @Signature(@Arg(value = "filter", type = HintType.CALLABLE, optional = @Optional("NULL")))
     public Memory find(Environment env, Memory... args) {
         final Invoker invoker = Invoker.valueOf(env, null, args[0]);

@@ -1,5 +1,6 @@
 package php.runtime.ext.core;
 
+import java.util.Arrays;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Runtime;
@@ -958,6 +959,8 @@ public class LangFunctions extends FunctionsContainer {
             for (Memory other : others) {
                 if (other.isTraversable()) {
                     flow = flow.append(env, other).toObject(WrapFlow.class);
+                } else {
+                    flow = flow.append(env, ArrayMemory.of(other)).toObject(WrapFlow.class);
                 }
             }
         }

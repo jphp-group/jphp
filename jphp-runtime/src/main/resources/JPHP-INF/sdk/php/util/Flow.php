@@ -46,8 +46,41 @@ class Flow implements Iterator
     public function append(iterable $collection): Flow { }
 
     /**
+     * Returns whether any elements of this stream match the provided
+     * predicate.  May not evaluate the predicate on all elements if not
+     * necessary for determining the result. If the flow is empty then
+     * `false` is returned and the predicate is not evaluated.
+     *
+     * @param callable $predicate ($el[, $key]): bool
+     * @return bool
+     */
+    public function anyMatch(callable $predicate): bool { }
+
+    /**
+     * Returns whether all elements of this stream match the provided predicate.
+     * May not evaluate the predicate on all elements if not necessary for
+     * determining the result. If the flow is empty then `true` is
+     * returned and the predicate is not evaluated.
+     *
+     * @param callable $predicate ($el[, $key]): bool
+     * @return bool
+     */
+    public function allMatch(callable $predicate): bool { }
+
+    /**
+     * Returns whether no elements of this stream match the provided predicate.
+     * May not evaluate the predicate on all elements if not necessary for
+     * determining the result. If the flow is empty then `true` is
+     * returned and the predicate is not evaluated.
+     *
+     * @param callable $predicate ($el[, $key]): bool
+     * @return bool
+     */
+    public function noneMatch(callable $predicate): bool { }
+
+    /**
      * Finds elements by using the $filter callback,
-     * elements - for each iteration that returns ``true``
+     * elements - for each iteration that returns `true`
      *
      * @param callable $filter
      * @return Flow
@@ -56,7 +89,7 @@ class Flow implements Iterator
 
     /**
      * Finds the first element by using the $filter callback,
-     * when $filter will return the first ``true``
+     * when $filter will return the first `true`
      *
      * @param callable $filter
      * @return mixed

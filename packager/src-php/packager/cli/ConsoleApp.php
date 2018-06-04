@@ -3,6 +3,9 @@
 namespace packager\cli;
 
 use DefaultPlugin;
+use function flow;
+use function is_array;
+use const JPHP_VERSION;
 use packager\Annotations;
 use packager\Event;
 use packager\JavaExec;
@@ -27,8 +30,10 @@ use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use php\time\Timer;
+use semver\SemVersion;
 use Tasks;
 use text\TextWord;
+use function var_dump;
 
 /**
  * Class ConsoleApp
@@ -127,11 +132,104 @@ class ConsoleApp
                 $this->loadBuildScript();
             }
 
+            $this->checkRequires();
+
             foreach (str::split($command, '+') as $item) {
                 $this->invokeTask($item, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
             }
         } finally {
             Timer::shutdownAll();
+        }
+    }
+
+    protected function checkOs($os)
+    {
+        $pkg = $this->getPackage();
+
+        if ($os) {
+            $osVariants = [];
+            $osName = str::split(System::getProperty("os.name"), ' ')[0];
+            $osVersion = System::getProperty("os.version");
+
+            $success = flow($os)->anyMatch(function ($variant) use (&$osVariants, $osName, $osVersion) {
+                if (is_array($variant)) {
+                    $name = $variant['name'];
+                    $version = $variant['version'];
+
+                    $osVariants[] = "$name-$version";
+                    if (str::equalsIgnoreCase($osName, $name)) {
+                        return true;
+                    }
+
+                    return false;
+                } else {
+                    $osVariants[] = $variant;
+                    [$name, $version] = str::split($variant, '-');
+
+                    return str::equalsIgnoreCase($osName, $name);
+                }
+            });
+
+            if (!$success) {
+                Console::log("'{0}' requires OS '{1}', but it's '{2}'",
+                    $pkg->getNameWithVersion(), flow($osVariants)->toString(' or '),
+                    $osName
+                );
+                exit(-1);
+            }
+        }
+    }
+
+    protected function checkJava($java)
+    {
+        $pkg = $this->getPackage();
+
+        $type = $java['type'] ?? 'jre';
+        $version = $java['version'] ?? null;
+        $arch = $java['arch'] ?? null;
+
+        if ($version) {
+            $javaVersion = str::split(System::getProperty("java.version"), '_')[0];
+
+            $javaVersion = new SemVersion($javaVersion);
+            if (!$javaVersion->satisfies($version)) {
+                Console::error("'{0}' requires Java version {1}, but it's {2}", $pkg->getNameWithVersion(), $version, $javaVersion);
+                exit(-1);
+            }
+        }
+
+        if ($arch) {
+            $osArch = System::getProperty("os.arch");
+
+            $success = flow($arch)->anyMatch(function ($el) use ($osArch) {
+                return $el === $osArch;
+            });
+
+            if (!$success) {
+                Console::log(
+                    "'{0}' requires Java with '{1}' architecture(s), but it's {2}",
+                    $pkg->getNameWithVersion(), flow($arch)->toString(' or '), $osArch
+                );
+                exit(-1);
+            }
+        }
+    }
+
+    public function checkRequires()
+    {
+        if ($pkg = $this->getPackage()) {
+            $requires = $pkg->getAny('requires');
+
+            $java = $requires['java'];
+            $os = $requires['os'];
+
+            if (isset($java)) {
+                $this->checkJava($java);
+            }
+
+            if (isset($os)) {
+                $this->checkOs($os);
+            }
         }
     }
 
@@ -156,10 +254,13 @@ class ConsoleApp
 
         switch ($task) {
             case "version":
-                Console::log('JPHP Packager Welcome');
+                Console::log('JPPM Information:');
                 Console::log("-> version: {0}", $this->packager->getVersion());
-                Console::log("-> jphp version: {0}", JPHP_VERSION);
-                Console::log("-> home dir: {0}", System::getProperty("jppm.home"));
+                Console::log("--> jphp: {0}", JPHP_VERSION);
+                Console::log("--> java: {0} ({1})", System::getProperty("java.version"), System::getProperty("os.arch"));
+                Console::log("-> home: '{0}'", System::getProperty("jppm.home"));
+                Console::log("--> java home: '{0}'", $_ENV['JAVA_HOME']);
+
                 break;
 
             default:

@@ -1,5 +1,5 @@
 name: jppm
-version: 0.3.5
+version: 0.3.6
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Update jphp.
-    + Fix bug of the `app:build` task for sources.
+    + Add `requires` section (support java versions and OS).
+    + Improve the `version` task.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
