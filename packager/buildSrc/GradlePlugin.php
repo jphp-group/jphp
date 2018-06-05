@@ -162,7 +162,7 @@ class GradlePlugin
         $this->makeGradleBuild($event->package());
 
         Tasks::createDir('./gradle/wrapper');
-        Tasks::createFile('./gradlew', fs::get('res://gradle/gradlew'));
+        Tasks::createFile('./gradlew', str::replace(fs::get('res://gradle/gradlew'), "\r\n", "\n"));
         Tasks::createFile('./gradlew.bat', fs::get('res://gradle/gradlew.bat'));
 
         (new \php\io\File('./gradlew'))->setExecutable(true);

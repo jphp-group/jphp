@@ -1,5 +1,5 @@
 name: jppm
-version: 0.3.6
+version: 0.3.7
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Add `requires` section (support java versions and OS).
-    + Improve the `version` task.
+    + Fix gradle plugin for linux.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
