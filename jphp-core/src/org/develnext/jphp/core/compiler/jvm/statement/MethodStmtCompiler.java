@@ -5,6 +5,7 @@ import org.develnext.jphp.core.compiler.jvm.Constants;
 import org.develnext.jphp.core.compiler.jvm.misc.JumpItem;
 import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.node.MethodNodeImpl;
+import org.develnext.jphp.core.syntax.VariableStats;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
@@ -339,7 +340,9 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                 for (ArgumentStmtToken argument : statement.getUses()) {
                     LocalVariable local;
-                    if (statement.isDynamicLocal()) {
+                    VariableStats variableStats = statement.variable(argument.getName());
+
+                    if (statement.isDynamicLocal() || variableStats.isArrayAccess()) {
                         expressionCompiler.writeDefineVariable(argument.getName());
                         local = getLocalVariable(argument.getName().getName());
                     } else {
@@ -348,13 +351,13 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                     if (argument.isReference()){
                         local.setReference(true);
-                        statement.variable(argument.getName()).setUnstable(true);
+                        variableStats.setUnstable(true);
                     }
 
                     expressionCompiler.writePushDup();
                     expressionCompiler.writePushGetFromArray(i, Memory.class);
 
-                    if (statement.isDynamicLocal()) {
+                    if (statement.isDynamicLocal() || variableStats.isArrayAccess()) {
                         expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
                     } else {
                         expressionCompiler.writeVarStore(local, false, false);

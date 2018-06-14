@@ -6,6 +6,7 @@ use packager\Package;
 use packager\Vendor;
 use php\lang\Process;
 use php\lang\System;
+use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
 use text\TextWord;
@@ -87,6 +88,13 @@ class GradlePlugin
             $provided[] = "  provided files('" . str::join($deps, "',\r\n '") . "')";
         }
 
+        $addRepos = [];
+        if ($this->config['repos']) {
+            $addRepos = flow($this->config['repos'])->map(function ($repo) {
+                return "  maven { url '$repo' }";
+            })->toArray();
+        }
+
         $lines = [
             'apply plugin: "java"',
             'apply plugin: "idea"',
@@ -104,6 +112,7 @@ class GradlePlugin
             "  mavenCentral()",
             "  jcenter()",
             "  maven { url 'https://oss.sonatype.org/content/groups/public' }",
+            $addRepos,
             "}",
             "",
             "configurations { provided }",
@@ -127,7 +136,7 @@ class GradlePlugin
             "}"
         ];
 
-        Tasks::createFile("./build.gradle", str::join($lines, "\r\n"));
+        Tasks::createFile("./build.gradle", str::join(arr::flatten($lines), "\r\n"));
     }
 
     /**

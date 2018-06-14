@@ -1,6 +1,6 @@
 
 name: jphp-core
-version: 1.0.3
+version: 1.0.4
 description: Compiler and Launcher for JPHP.
 
 deps:

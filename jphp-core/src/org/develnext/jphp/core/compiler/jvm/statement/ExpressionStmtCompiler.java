@@ -1548,7 +1548,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setValue(null);
                 variable.setReference(true);
             } else { // simple local variables
-                if (variable.isReference()) {
+                if (variable.isReference() || methodStatement.variable(value).isArrayAccess()) {
                     writePushNewObject(ReferenceMemory.class);
                 } else {
                     writePushNull();
