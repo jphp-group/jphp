@@ -59,11 +59,15 @@ public class WrapProcess extends BaseObject {
         return Memory.NULL;
     }
 
-    protected Process getProcess() {
+    public Process getProcess() {
         if (process == null)
             throw new IllegalStateException("Process is not started, use the start() method to initialize it");
 
         return process;
+    }
+
+    public ProcessBuilder getProcessBuilder() {
+        return processBuilder;
     }
 
     @Signature
