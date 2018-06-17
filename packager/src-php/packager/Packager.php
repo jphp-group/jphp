@@ -12,6 +12,7 @@ use php\lib\fs;
 use php\lib\str;
 use php\time\Time;
 use php\time\Timer;
+use semver\SemVersion;
 use Tasks;
 
 /**
@@ -142,8 +143,24 @@ class Packager
                 $this->packageLoader->registerPackage($pkg, $vendor, $scope);
             });
 
-            foreach ($one->getInvalidDeps() as $name => $version) {
-                Console::warn("-> failed to install {0}@{1}, cannot find in repositories.", $name, $version);
+            $hasFail = false;
+            foreach ($one->getInvalidDeps() as $name => list($version, $comment, $fail)) {
+                $method = $fail ? 'warn' : 'error';
+
+                if (is_array($comment)) {
+                    Console::{$method}("-> failed to install {0}@{1}, {2}.", $name, $version, $comment);
+                } else {
+                    Console::{$method}("-> failed to install {0}@{1}: ", $name, $version);
+                    foreach ($comment as $c) {
+                        Console::{$method}("  1. {0} ", $c);
+                    }
+                }
+
+                if ($fail) $hasFail = true;
+            }
+
+            if ($hasFail) {
+                exit(-1);
             }
         }
 
@@ -168,6 +185,101 @@ class Packager
         $this->packageLock->save($vendor->getDir() . "/../");
     }
 
+
+    protected function checkPackageOs(Package $pkg, $os)
+    {
+        if ($os) {
+            $osVariants = [];
+            $osName = str::split(System::getProperty("os.name"), ' ')[0];
+            $osVersion = System::getProperty("os.version");
+
+            $success = flow($os)->anyMatch(function ($variant) use (&$osVariants, $osName, $osVersion) {
+                if (is_array($variant)) {
+                    $name = $variant['name'];
+                    $version = $variant['version'];
+
+                    $osVariants[] = "$name-$version";
+                    if (str::equalsIgnoreCase($osName, $name)) {
+                        return true;
+                    }
+
+                    return false;
+                } else {
+                    $osVariants[] = $variant;
+                    [$name, $version] = str::split($variant, '-');
+
+                    return str::equalsIgnoreCase($osName, $name);
+                }
+            });
+
+            if (!$success) {
+                $p1 = flow($osVariants)->toString(' or ');
+                return "'{$pkg->getNameWithVersion()}' requires OS '{$p1}', but it's '{$osName}'";
+            }
+        }
+
+        return null;
+    }
+
+    protected function checkPackageJava(Package $pkg, $java)
+    {
+        $type = $java['type'] ?? 'jre';
+        $version = $java['version'] ?? null;
+        $arch = $java['arch'] ?? null;
+
+        if ($version) {
+            $javaVersion = str::split(System::getProperty("java.version"), '_')[0];
+
+            $javaVersion = new SemVersion($javaVersion);
+            if (!$javaVersion->satisfies($version)) {
+                return "'{$pkg->getNameWithVersion()}' requires Java version {$version}, but it's {$javaVersion}";
+            }
+        }
+
+        if ($arch) {
+            $osArch = System::getProperty("os.arch");
+
+            $success = flow($arch)->anyMatch(function ($el) use ($osArch) {
+                return $el === $osArch;
+            });
+
+            if (!$success) {
+                $p1 = flow($arch)->toString(' or ');
+                return "'{$pkg->getNameWithVersion()}' requires Java with '$p1' architecture(s), but it's $osArch";
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param Package $pkg
+     * @return array errors of check
+     */
+    public function checkPackage(Package $pkg): array
+    {
+        $requires = $pkg->getAny('requires');
+
+        $java = $requires['java'];
+        $os = $requires['os'];
+
+        $result = [];
+
+        if (isset($java)) {
+            if ($s = $this->checkPackageJava($pkg, $java)) {
+                $result[] = $s;
+            }
+        }
+
+        if (isset($os)) {
+            if ($s = $this->checkPackageOs($pkg, $os)) {
+                $result[] = $s;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @param Package $package
      * @param string $scope '' or 'dev'
@@ -189,12 +301,19 @@ class Packager
             $handler = function () use ($dep, $version, $result, $parent, $threadPool) {
                 if ($pkg = $this->repo->findPackage($dep, $version, $this->packageLock)) {
                     $result->addDep($pkg, $this->fetchDependencyTree($pkg, '', $result));
+                    if ($errors = $this->checkPackage($pkg)) {
+                        if ($parent) {
+                            $parent->addInvalidDep($dep, $version, $errors, true);
+                        }
+
+                        $result->addInvalidDep($dep, $version, $errors, true);
+                    }
                 } else {
                     if ($parent) {
-                        $parent->addInvalidDep($dep, $version);
+                        $parent->addInvalidDep($dep, $version, 'cannot find package', true);
                     }
 
-                    $result->addInvalidDep($dep, $version);
+                    $result->addInvalidDep($dep, $version, 'cannot find package', true);
                 }
             };
 

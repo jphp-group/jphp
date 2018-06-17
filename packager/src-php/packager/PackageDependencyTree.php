@@ -52,10 +52,12 @@ class PackageDependencyTree
     /**
      * @param string $name
      * @param string $version
+     * @param string|array $comment
+     * @param bool $fail
      */
-    public function addInvalidDep(string $name, string $version)
+    public function addInvalidDep(string $name, string $version, $comment, bool $fail = false)
     {
-        $this->invalidDeps[$name] = $version;
+        $this->invalidDeps[$name] = [$version, $comment, $fail];
     }
 
     /**

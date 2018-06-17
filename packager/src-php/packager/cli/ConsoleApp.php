@@ -132,104 +132,21 @@ class ConsoleApp
                 $this->loadBuildScript();
             }
 
-            $this->checkRequires();
+            if ($this->getPackage()) {
+                if ($errors = $this->packager->checkPackage($this->getPackage())) {
+                    foreach ($errors as $error) {
+                        Console::error($error);
+                    }
+
+                    exit(-1);
+                }
+            }
 
             foreach (str::split($command, '+') as $item) {
                 $this->invokeTask($item, flow($args)->skip(2)->toArray(), ...flow($this->flags)->keys());
             }
         } finally {
             Timer::shutdownAll();
-        }
-    }
-
-    protected function checkOs($os)
-    {
-        $pkg = $this->getPackage();
-
-        if ($os) {
-            $osVariants = [];
-            $osName = str::split(System::getProperty("os.name"), ' ')[0];
-            $osVersion = System::getProperty("os.version");
-
-            $success = flow($os)->anyMatch(function ($variant) use (&$osVariants, $osName, $osVersion) {
-                if (is_array($variant)) {
-                    $name = $variant['name'];
-                    $version = $variant['version'];
-
-                    $osVariants[] = "$name-$version";
-                    if (str::equalsIgnoreCase($osName, $name)) {
-                        return true;
-                    }
-
-                    return false;
-                } else {
-                    $osVariants[] = $variant;
-                    [$name, $version] = str::split($variant, '-');
-
-                    return str::equalsIgnoreCase($osName, $name);
-                }
-            });
-
-            if (!$success) {
-                Console::log("'{0}' requires OS '{1}', but it's '{2}'",
-                    $pkg->getNameWithVersion(), flow($osVariants)->toString(' or '),
-                    $osName
-                );
-                exit(-1);
-            }
-        }
-    }
-
-    protected function checkJava($java)
-    {
-        $pkg = $this->getPackage();
-
-        $type = $java['type'] ?? 'jre';
-        $version = $java['version'] ?? null;
-        $arch = $java['arch'] ?? null;
-
-        if ($version) {
-            $javaVersion = str::split(System::getProperty("java.version"), '_')[0];
-
-            $javaVersion = new SemVersion($javaVersion);
-            if (!$javaVersion->satisfies($version)) {
-                Console::error("'{0}' requires Java version {1}, but it's {2}", $pkg->getNameWithVersion(), $version, $javaVersion);
-                exit(-1);
-            }
-        }
-
-        if ($arch) {
-            $osArch = System::getProperty("os.arch");
-
-            $success = flow($arch)->anyMatch(function ($el) use ($osArch) {
-                return $el === $osArch;
-            });
-
-            if (!$success) {
-                Console::log(
-                    "'{0}' requires Java with '{1}' architecture(s), but it's {2}",
-                    $pkg->getNameWithVersion(), flow($arch)->toString(' or '), $osArch
-                );
-                exit(-1);
-            }
-        }
-    }
-
-    public function checkRequires()
-    {
-        if ($pkg = $this->getPackage()) {
-            $requires = $pkg->getAny('requires');
-
-            $java = $requires['java'];
-            $os = $requires['os'];
-
-            if (isset($java)) {
-                $this->checkJava($java);
-            }
-
-            if (isset($os)) {
-                $this->checkOs($os);
-            }
         }
     }
 
