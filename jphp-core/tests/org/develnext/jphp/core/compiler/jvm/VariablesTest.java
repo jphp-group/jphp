@@ -67,6 +67,11 @@ public class VariablesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testNegativeStrings(){
+        check("variables/negative_strings.php");
+    }
+
+    @Test
     public void testBug152(){
         check("variables/bug152.php");
     }
