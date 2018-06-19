@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.0.3
+version: 1.0.4
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -12,3 +12,7 @@ doc:
 
 config:
   ignore: ['/package.hub.yml']
+
+history:
+  1.0.4:
+    - Fix bug \#267 of ReflectionMethod.getClosure().

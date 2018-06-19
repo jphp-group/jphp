@@ -80,4 +80,9 @@ public class ReflectionTest extends JvmCompilerCase {
         check("ext/reflection/ReflectionMethod_003.php");
         check("ext/reflection/ReflectionMethod_004.php");
     }
+
+    @Test
+    public void testMethodBug267(){
+        check("ext/reflection/ReflectionMethod_bug267.php");
+    }
 }

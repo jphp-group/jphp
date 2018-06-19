@@ -128,7 +128,7 @@ public class MethodEntity extends AbstractFunctionEntity {
     */
 
     public Closure getClosure(Environment env, final IObject object) {
-        if (cachedClosure != null)
+        if (cachedClosure != null && object == null)
             return cachedClosure;
 
         final MethodEntity bind = this;
@@ -174,7 +174,12 @@ public class MethodEntity extends AbstractFunctionEntity {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-        return cachedClosure = tmp;
+
+        if (object == null) {
+            cachedClosure = tmp;
+        }
+
+        return tmp;
     }
 
     public boolean isDynamicSignature() {
