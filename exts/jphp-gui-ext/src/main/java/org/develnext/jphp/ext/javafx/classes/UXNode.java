@@ -175,6 +175,7 @@ public class UXNode<T extends Node> extends BaseWrapper<Node> implements Eventab
 
     public UXNode getRealObject() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<? extends BaseWrapper> wrapperClass = MemoryOperation.getWrapper(getWrappedObject().getClass());
+
         if (wrapperClass != null) {
             return (UXNode) wrapperClass
                     .getConstructor(Environment.class, getWrappedObject().getClass())

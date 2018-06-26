@@ -98,7 +98,10 @@ class MongoCollection
     {
     }
 
-    public function insertMany(array $documents)
+    /**
+     * @param array $documents
+     */
+    public function insertMany(array $documents): void
     {
     }
 

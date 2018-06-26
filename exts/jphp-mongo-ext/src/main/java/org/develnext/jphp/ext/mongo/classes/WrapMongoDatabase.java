@@ -43,6 +43,11 @@ public class WrapMongoDatabase extends BaseWrapper<MongoDatabase> {
     }
 
     @Signature
+    public WrapMongoIterable collections(Environment env) {
+        return new WrapMongoIterable(env, getWrappedObject().listCollections());
+    }
+
+    @Signature
     public void createCollection(String name) {
         getWrappedObject().createCollection(name);
     }

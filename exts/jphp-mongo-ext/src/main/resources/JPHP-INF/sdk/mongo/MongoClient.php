@@ -32,6 +32,14 @@ class MongoClient
     {
     }
 
+    /**
+     * Get All Databases of Mongo Server.
+     * @return MongoIterable
+     */
+    public function databases(): MongoIterable
+    {
+    }
+
     public function close()
     {
     }
