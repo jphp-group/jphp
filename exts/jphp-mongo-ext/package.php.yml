@@ -1,10 +1,14 @@
 
 name: jphp-mongo-ext
-version: 1.0.0
+version: 1.0.1
 description: Library for working with MongoDB.
 
 
 plugins: [Doc, Hub]
+
+history:
+  1.0.1:
+  - Add MongoClient::createFromURI() method.
 
 doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'

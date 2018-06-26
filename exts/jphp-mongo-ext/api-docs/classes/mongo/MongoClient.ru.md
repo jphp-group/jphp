@@ -9,11 +9,27 @@ Class MongoClient
 
 ---
 
+#### Статичные Методы
+
+- `MongoClient ::`[`createFromURI()`](#method-createfromuri)
+
+---
+
 #### Методы
 
 - `->`[`__construct()`](#method-__construct) - _MongoClient constructor._
 - `->`[`database()`](#method-database)
 - `->`[`close()`](#method-close)
+
+---
+# Статичные Методы
+
+<a name="method-createfromuri"></a>
+
+### createFromURI()
+```php
+MongoClient::createFromURI(string $uri): mongo\MongoClient
+```
 
 ---
 # Методы

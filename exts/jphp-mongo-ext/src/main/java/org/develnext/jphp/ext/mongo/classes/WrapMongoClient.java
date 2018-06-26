@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.mongo.classes;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import org.develnext.jphp.ext.mongo.MongoExtension;
 import php.runtime.annotation.Reflection.Name;
@@ -35,6 +36,11 @@ public class WrapMongoClient extends BaseWrapper<MongoClient> {
     @Signature
     public void __construct(String host, int port) {
         __wrappedObject = new MongoClient(host, port);
+    }
+
+    @Signature
+    static public WrapMongoClient createFromURI(Environment env, String uri) {
+        return new WrapMongoClient(env, new MongoClient(new MongoClientURI(uri)));
     }
 
     @Signature

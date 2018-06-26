@@ -17,6 +17,14 @@ class MongoClient
     }
 
     /**
+     * @param string $uri
+     * @return MongoClient
+     */
+    static public function createFromURI(string $uri): MongoClient
+    {
+    }
+
+    /**
      * @param string $name
      * @return MongoDatabase
      */
