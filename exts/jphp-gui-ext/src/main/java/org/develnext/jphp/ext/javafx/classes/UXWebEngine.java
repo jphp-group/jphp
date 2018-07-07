@@ -108,6 +108,35 @@ public class UXWebEngine extends BaseWrapper<WebEngine> {
     }
 
     @Signature
+    public void addPermanentBridge(Environment env, String name, Invoker handler) {
+        ChangeListener<Worker.State> changeListener = new ChangeListener<Worker.State>() {
+            @Override
+            public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+                if (newValue == Worker.State.SUCCEEDED) {
+                    JSObject window = (JSObject) getWrappedObject().executeScript("window");
+                    window.setMember(name, new Bridge(handler));
+                }
+            }
+        };
+
+        getWrappedObject().getLoadWorker().stateProperty().addListener(changeListener);
+    }
+
+    @Signature
+    public void addSuccessStateListener(Invoker handler) {
+        ChangeListener<Worker.State> changeListener = new ChangeListener<Worker.State>() {
+            @Override
+            public void changed(ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) {
+                if (newValue == Worker.State.SUCCEEDED) {
+                    handler.callAny();
+                }
+            }
+        };
+
+        getWrappedObject().getLoadWorker().stateProperty().addListener(changeListener);
+    }
+
+    @Signature
     public ObservableValue observer(String property) {
         return JavaFxUtils.findObservable(this, property);
     }

@@ -116,6 +116,22 @@ abstract class UXWebEngine
     }
 
     /**
+     * Add permanent bridge.
+     * @param string $name
+     * @param callable $handler
+     */
+    public function addPermanentBridge($name, callable $handler)
+    {
+    }
+
+    /**
+     * @param callable $handler
+     */
+    public function addSuccessStateListener(callable $handler)
+    {
+    }
+
+    /**
      * @param callable $handler (UXWebEngine $self, $old, $new)
      */
     public function watchState(callable $handler)

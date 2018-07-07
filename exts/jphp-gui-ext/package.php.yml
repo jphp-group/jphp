@@ -1,6 +1,6 @@
 
 name: jphp-gui-ext
-version: 1.0.0
+version: 1.0.1
 description: GUI based on JavaFX library.
 
 deps:
@@ -15,4 +15,7 @@ doc:
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 
-config:
+
+history:
+  1.0.1:
+  - Add bridge api for webView
