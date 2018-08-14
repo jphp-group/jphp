@@ -83,7 +83,7 @@ public class CompileMethodEntity extends MethodEntity {
         int paramCount = method.getParameterCount();
         Class<?>[] parameterTypes = method.getParameterTypes();
 
-        for (int x = 0; i < paramCount; x++) {
+        for (int x = 0; x < paramCount; x++) {
         //for (Parameter el : method.getParameters()) { // FIX for Android!
             Class<?> elType = parameterTypes[x];
 
