@@ -80,8 +80,12 @@ public class CompileMethodEntity extends MethodEntity {
         Annotation[][] annotations   = method.getParameterAnnotations();
 
         int i = 0, k = 0;
-        for (Parameter el : method.getParameters()) {
-            Class<?> elType = el.getType();
+        int paramCount = method.getParameterCount();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+
+        for (int x = 0; i < paramCount; x++) {
+        //for (Parameter el : method.getParameters()) { // FIX for Android!
+            Class<?> elType = parameterTypes[x];
 
             if (elType == Environment.class || elType == TraceInfo.class) {
                 k++;
@@ -89,7 +93,7 @@ public class CompileMethodEntity extends MethodEntity {
             }
 
             ParameterEntity param = new ParameterEntity(context);
-            param.setName(el.isNamePresent() ? el.getName() : "arg" + i);
+            param.setName(/*el.isNamePresent() ? el.getName() : */"arg" + i); // Fix for Android!
             param.setTrace(TraceInfo.UNKNOWN);
 
             Annotation[] argAnnotations = annotations[k];
