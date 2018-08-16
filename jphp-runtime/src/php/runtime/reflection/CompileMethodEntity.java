@@ -80,8 +80,8 @@ public class CompileMethodEntity extends MethodEntity {
         Annotation[][] annotations   = method.getParameterAnnotations();
 
         int i = 0, k = 0;
-        int paramCount = method.getParameterCount();
         Class<?>[] parameterTypes = method.getParameterTypes();
+        int paramCount = parameterTypes.length;
 
         for (int x = 0; x < paramCount; x++) {
         //for (Parameter el : method.getParameters()) { // FIX for Android!
