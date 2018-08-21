@@ -577,7 +577,7 @@ public class Environment {
     }
 
     public ClassEntity fetchClass(String name, String nameL, boolean autoLoad) {
-        if (name.charAt(0) == '\\') {
+        if (!name.isEmpty() && name.charAt(0) == '\\') {
             name = name.substring(1);
             nameL = nameL.substring(1);
         }
@@ -618,14 +618,14 @@ public class Environment {
     }
 
     public FunctionEntity fetchFunction(String name, String nameL) {
-        if (name.charAt(0) == '\\') {
-            name = name.substring(1);
-            nameL = nameL.substring(1);
-        }
-
         FunctionEntity r = functionMap.get(nameL);
+
         if (r == null) {
             r = scope.findUserFunction(name);
+        }
+
+        if (r == null && !name.isEmpty() && name.charAt(0) == '\\') {
+            return fetchFunction(name.substring(1), nameL.substring(1));
         }
 
         return r;
