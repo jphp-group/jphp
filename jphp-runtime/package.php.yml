@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.0.5
+version: 1.0.6
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,8 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.0.6:
+    - Fix Bug - Dynamic class names works only without leading backslash.
   1.0.5:
     - Fix capability with Android.
   1.0.4:
