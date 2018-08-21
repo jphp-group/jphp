@@ -137,4 +137,9 @@ public class ClassesTest extends JvmCompilerCase {
     public void testBug264() {
         check("classes/bug264.php");
     }
+
+    @Test
+    public void testBug271() {
+        check("classes/bug271.php");
+    }
 }
