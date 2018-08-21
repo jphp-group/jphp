@@ -1,8 +1,8 @@
 language: java
 
 jdk:
-  - openjdk10
   - oraclejdk10
+  - oraclejdk9
   - oraclejdk8
 
 services:
