@@ -73,7 +73,7 @@ jppm init
 
 You will see `Hello World` in your console, the sources of this program will be in `src/index.php`.
 
-### Hot to run benchmarks?
+### How to run benchmarks?
 
 ```
 // via jphp
