@@ -219,7 +219,7 @@ public class LongMemory extends Memory {
             case INT: return ((LongMemory)memory).value != value;
             case DOUBLE: return ((DoubleMemory)memory).value != value;
             case STRING: return notEqual(memory.toNumeric());
-            case REFERENCE: return smaller(memory.toValue());
+            case REFERENCE: return notEqual(memory.toValue());
             default:
                 return value != toLong();
         }

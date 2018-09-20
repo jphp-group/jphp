@@ -24,6 +24,8 @@ Class MongoCollection
 - `->`[`findOneAndUpdate()`](#method-findoneandupdate)
 - `->`[`insertOne()`](#method-insertone)
 - `->`[`insertMany()`](#method-insertmany)
+- `->`[`updateOne()`](#method-updateone)
+- `->`[`updateMany()`](#method-updatemany)
 - `->`[`drop()`](#method-drop) - _Drop collection._
 
 ---
@@ -142,6 +144,24 @@ insertOne(array $document): array
 ### insertMany()
 ```php
 insertMany(array $documents): void
+```
+
+---
+
+<a name="method-updateone"></a>
+
+### updateOne()
+```php
+updateOne(array $filter, array $document): array
+```
+
+---
+
+<a name="method-updatemany"></a>
+
+### updateMany()
+```php
+updateMany(array $filter, array $documents): void
 ```
 
 ---

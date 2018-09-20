@@ -1,12 +1,16 @@
 
 name: jphp-mongo-ext
-version: 1.0.1
+version: 1.0.3
 description: Library for working with MongoDB.
 
 
 plugins: [Doc, Hub]
 
 history:
+  1.0.3:
+  - Add new methods for MongoIterable for limit, skip, sort, etc.
+  1.0.2:
+  - Fix sdk and docs.
   1.0.1:
   - Add MongoClient::createFromURI() method.
 

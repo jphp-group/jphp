@@ -1,7 +1,10 @@
 package org.develnext.jphp.ext.mongo.classes;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoIterable;
+import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import org.develnext.jphp.ext.mongo.MongoExtension;
 import php.runtime.Memory;
@@ -22,6 +25,10 @@ public class WrapMongoIterable extends BaseWrapper<MongoIterable<Document>> impl
         super(env, wrappedObject);
     }
 
+    public WrapMongoIterable(Environment env, FindIterable wrappedObject) {
+        super(env, wrappedObject);
+    }
+
     public WrapMongoIterable(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
@@ -33,6 +40,141 @@ public class WrapMongoIterable extends BaseWrapper<MongoIterable<Document>> impl
     @Signature
     public Document first() {
         return getWrappedObject().first();
+    }
+
+    @Signature
+    public WrapMongoIterable skip(int n) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).skip(n));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable projection(BasicDBObject projection) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).projection(projection));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable hint(BasicDBObject hint) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).hint(hint));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable comment(String comment) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).comment(comment));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable max(BasicDBObject max) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).max(max));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable min(BasicDBObject min) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).min(min));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable filter(BasicDBObject filter) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).filter(filter));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable maxAwaitTime(long millis) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).maxAwaitTime(millis, TimeUnit.MILLISECONDS));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable maxTime(long millis) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).maxTime(millis, TimeUnit.MILLISECONDS));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable maxScan(long maxScan) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).maxScan(maxScan));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable returnKey(boolean returnKey) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).returnKey(returnKey));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable partial(boolean partial) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).partial(partial));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable snapshot(boolean snapshot) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).snapshot(snapshot));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable sort(BasicDBObject sort) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).sort(sort));
+        } else {
+            return this;
+        }
+    }
+
+    @Signature
+    public WrapMongoIterable limit(int c) {
+        if (getWrappedObject() instanceof FindIterable) {
+            return new WrapMongoIterable(this.__env__, ((FindIterable) getWrappedObject()).limit(c));
+        } else {
+            return this;
+        }
     }
 
     @Signature

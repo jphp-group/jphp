@@ -19,6 +19,7 @@ Class MongoClient
 
 - `->`[`__construct()`](#method-__construct) - _MongoClient constructor._
 - `->`[`database()`](#method-database)
+- `->`[`databases()`](#method-databases) - _Get All Databases of Mongo Server._
 - `->`[`close()`](#method-close)
 
 ---
@@ -50,6 +51,16 @@ MongoClient constructor.
 ```php
 database(string $name): mongo\MongoDatabase
 ```
+
+---
+
+<a name="method-databases"></a>
+
+### databases()
+```php
+databases(): mongo\MongoIterable
+```
+Get All Databases of Mongo Server.
 
 ---
 

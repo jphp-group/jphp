@@ -106,6 +106,23 @@ class MongoCollection
     }
 
     /**
+     * @param array $filter
+     * @param array $document
+     * @return array
+     */
+    public function updateOne(array $filter, array $document): array
+    {
+    }
+
+    /**
+     * @param array $filter
+     * @param array $documents
+     */
+    public function updateMany(array $filter, array $documents): void
+    {
+    }
+
+    /**
      * Drop collection.
      */
     public function drop()
