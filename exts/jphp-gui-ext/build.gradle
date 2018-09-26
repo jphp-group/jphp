@@ -1,7 +1,34 @@
 dependencies {
+
+    def currentOS = org.gradle.internal.os.OperatingSystem.current()
+    def platform
+    if (currentOS.isWindows()) {
+        platform = 'win'
+    } else if (currentOS.isLinux()) {
+        platform = 'linux'
+    } else if (currentOS.isMacOsX()) {
+        platform = 'mac'
+    }
+    
+    // new JavaFX from maven
+    compile "org.openjfx:javafx-base:11:${platform}"
+    compile "org.openjfx:javafx-graphics:11:${platform}"
+    compile "org.openjfx:javafx-controls:11:${platform}"
+    compile "org.openjfx:javafx-fxml:11:${platform}"
+    compile "org.openjfx:javafx-media:11:${platform}"
+
     provided project(":jphp-runtime")
 
     provided project(":jphp-core")
     compileMaven project(":exts/jphp-xml-ext")
     compileMaven project(":exts/jphp-graphic-ext")
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'javafx.controls'
+        ]
+    }
 }
