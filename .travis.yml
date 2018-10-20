@@ -15,14 +15,15 @@ env:
   - JPHP_TEST_CONCURRENT=1
 
 before_install:
- - sudo apt-get --yes install openjfx
  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
  - cat /etc/hosts # optionally check the content *before*
  - sudo hostname "$(hostname | cut -c1-63)"
  - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
  - cat /etc/hosts # optionally check the content *after*
-# - gradle wrapper
  - chmod +x gradlew
+ 
+install:
+ - sudo apt-get --yes install openjfx
 
 script: ./gradlew check --stacktrace -Dfile.encoding=UTF-8
 
