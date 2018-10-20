@@ -1,12 +1,18 @@
 language: java
 
 jdk:
-  - oraclejdk10
-  - oraclejdk9
-  - oraclejdk8
+  - openjdk11
+  - openjdk10
+  - openjdk9
+  - openjdk8
 
 services:
   - mongodb
+  
+addons:
+  apt:
+    packages:
+    - openjfx
 
 env:
   -
