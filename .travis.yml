@@ -1,9 +1,10 @@
 language: java
 
+sudo: true
 jdk:
-  - oraclejdk10
-  - oraclejdk9
-  - oraclejdk8
+  - openjdk10
+  - openjdk9
+  - openjdk8
 
 services:
   - mongodb
@@ -14,6 +15,7 @@ env:
   - JPHP_TEST_CONCURRENT=1
 
 before_install:
+ - sudo apt-get --yes install openjfx
  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
  - cat /etc/hosts # optionally check the content *before*
  - sudo hostname "$(hostname | cut -c1-63)"
