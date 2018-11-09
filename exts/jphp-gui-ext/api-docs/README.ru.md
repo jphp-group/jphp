@@ -3,13 +3,13 @@
 ---
 
 ## jphp-gui-ext
-> версия 1.0.0, создано с помощью JPPM.
+> версия 2.0.0, создано с помощью JPPM.
 
-GUI based on JavaFX library.
+GUI based on JavaFX 11 library.
 
 ### Установка
 ```
-jppm add jphp-gui-ext@1.0.0
+jppm add jphp-gui-ext@2.0.0
 ```
 
 ### АПИ

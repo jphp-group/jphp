@@ -4,4 +4,10 @@ dependencies {
     provided project(":jphp-core")
     compileMaven project(":exts/jphp-xml-ext")
     compileMaven project(":exts/jphp-graphic-ext")
+
+    compile group: 'org.openjfx', name: 'javafx-controls', version: '11.0.1'
+    compile group: 'org.openjfx', name: 'javafx-fxml', version: '11.0.1'
+    compile group: 'org.openjfx', name: 'javafx-web', version: '11.0.1'
+    compile group: 'org.openjfx', name: 'javafx-media', version: '11.0.1'
+    compile group: 'org.openjfx', name: 'javafx-swing', version: '11.0.1'
 }

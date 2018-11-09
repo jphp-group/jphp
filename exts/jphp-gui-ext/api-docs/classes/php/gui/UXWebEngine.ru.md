@@ -35,6 +35,8 @@ Class UXWebEngine
 - `->`[`executeScript()`](#method-executescript)
 - `->`[`callFunction()`](#method-callfunction)
 - `->`[`addSimpleBridge()`](#method-addsimplebridge)
+- `->`[`addPermanentBridge()`](#method-addpermanentbridge) - _Add permanent bridge._
+- `->`[`addSuccessStateListener()`](#method-addsuccessstatelistener)
 - `->`[`watchState()`](#method-watchstate)
 - `->`[`print()`](#method-print)
 - `->`[`on()`](#method-on)
@@ -115,6 +117,25 @@ callFunction(string $name, array $args): mixed
 ### addSimpleBridge()
 ```php
 addSimpleBridge(string $name, callable $handler): void
+```
+
+---
+
+<a name="method-addpermanentbridge"></a>
+
+### addPermanentBridge()
+```php
+addPermanentBridge(string $name, callable $handler): void
+```
+Add permanent bridge.
+
+---
+
+<a name="method-addsuccessstatelistener"></a>
+
+### addSuccessStateListener()
+```php
+addSuccessStateListener(callable $handler): void
 ```
 
 ---

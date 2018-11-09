@@ -1,7 +1,7 @@
 
 name: jphp-gui-ext
-version: 1.0.1
-description: GUI based on JavaFX library.
+version: 2.0.0
+description: GUI based on JavaFX 11 library.
 
 deps:
   jphp-xml-ext: '*'
@@ -17,5 +17,7 @@ doc:
 
 
 history:
+  2.0.0:
+  - Migrate to OpenJFX 11.
   1.0.1:
-  - Add bridge api for webView
+  - Add bridge api for webView.
