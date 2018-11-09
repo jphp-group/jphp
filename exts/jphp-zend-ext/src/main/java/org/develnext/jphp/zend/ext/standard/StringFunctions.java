@@ -17,7 +17,6 @@ import php.runtime.memory.*;
 import php.runtime.util.PrintF;
 import php.runtime.util.SScanF;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
