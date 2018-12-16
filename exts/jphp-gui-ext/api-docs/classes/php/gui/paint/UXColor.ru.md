@@ -1,6 +1,6 @@
 # UXColor
 
-- **класс** `UXColor` (`php\gui\paint\UXColor`)
+- **класс** `UXColor` (`php\gui\paint\UXColor`) **унаследован от** [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.ru.md)
 - **пакет** `gui`
 - **исходники** `php/gui/paint/UXColor.php`
 
@@ -20,6 +20,7 @@ Class UXColor
 - `->`[`hue`](#prop-hue) : `double`
 - `->`[`saturation`](#prop-saturation) : `double`
 - `->`[`webValue`](#prop-webvalue) : `string` - _WEB значение цвета._
+- *См. также в родительском классе* [UXPaint](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.ru.md).
 
 ---
 
@@ -27,6 +28,7 @@ Class UXColor
 
 - `UXColor ::`[`of()`](#method-of)
 - `UXColor ::`[`rgb()`](#method-rgb)
+- См. также в родительском классе [UXPaint](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.ru.md)
 
 ---
 
@@ -40,6 +42,7 @@ Class UXColor
 - `->`[`interpolate()`](#method-interpolate)
 - `->`[`getRGB()`](#method-getrgb)
 - `->`[`getWebValue()`](#method-getwebvalue)
+- См. также в родительском классе [UXPaint](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.ru.md)
 
 ---
 # Статичные Методы
