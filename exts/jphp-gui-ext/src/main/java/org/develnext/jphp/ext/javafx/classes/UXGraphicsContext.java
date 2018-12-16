@@ -6,6 +6,7 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.StrokeLineCap;
@@ -95,28 +96,28 @@ public class UXGraphicsContext extends BaseWrapper<GraphicsContext> {
 
     @Setter
     @Signature
-    public void setFillColor(@Nullable Color color) {
-        getWrappedObject().setFill(color);
+    public void setFill(@Nullable Paint paint) {
+        getWrappedObject().setFill(paint);
     }
 
     @Getter
-    public Color getFillColor() {
-        return getWrappedObject().getFill() instanceof Color ? (Color) getWrappedObject().getFill() : null;
+    public Paint getFill(){
+        return getWrappedObject().getFill();
     }
 
     @Setter
     @Signature
-    public void setStrokeColor(@Nullable Color color) {
-        getWrappedObject().setStroke(color);
+    public void setStroke(@Nullable Paint paint) {
+        getWrappedObject().setStroke(paint);
     }
 
     @Getter
-    public Color getStrokeColor() {
-        return getWrappedObject().getStroke() instanceof Color ? (Color) getWrappedObject().getStroke() : null;
+    public Paint getStroke(){
+        return getWrappedObject().getStroke();
     }
 
     @Getter
-    public UXFont getFont(Environment env) {
+    public UXFont getFont(Environment env){
         return new UXFont(env, getWrappedObject().getFont(), font -> getWrappedObject().setFont(font));
     }
 

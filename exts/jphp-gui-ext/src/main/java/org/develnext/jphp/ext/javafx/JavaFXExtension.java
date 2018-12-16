@@ -32,7 +32,7 @@ import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
@@ -50,7 +50,7 @@ import org.develnext.jphp.ext.javafx.classes.data.Data;
 import org.develnext.jphp.ext.javafx.classes.effect.*;
 import org.develnext.jphp.ext.javafx.classes.event.*;
 import org.develnext.jphp.ext.javafx.classes.layout.*;
-import org.develnext.jphp.ext.javafx.classes.paint.UXColor;
+import org.develnext.jphp.ext.javafx.classes.paint.*;
 import org.develnext.jphp.ext.javafx.classes.printing.UXPrinter;
 import org.develnext.jphp.ext.javafx.classes.printing.UXPrinterJob;
 import org.develnext.jphp.ext.javafx.classes.shape.*;
@@ -98,6 +98,7 @@ public class JavaFXExtension extends Extension {
         registerMemoryOperation(Rectangle2DMemoryOperation.class);
         registerMemoryOperation(BoundsMemoryOperation.class);
         registerMemoryOperation(IndexRangeMemoryOperation.class);
+        registerMemoryOperation(CycleMethodMemoryOperation.class);
 
         registerClass(scope, UXGeometry.class);
 
@@ -107,7 +108,14 @@ public class JavaFXExtension extends Extension {
         registerWrapperClass(scope, Screen.class, UXScreen.class);
 
         registerWrapperClass(scope, Font.class, UXFont.class);
+
+        registerWrapperClass(scope, Paint.class, UXPaint.class);
         registerWrapperClass(scope, Color.class, UXColor.class);
+        registerWrapperClass(scope, LinearGradient.class, UXLinearGradient.class);
+        registerWrapperClass(scope, RadialGradient.class, UXRadialGradient.class);
+        registerWrapperClass(scope, ImagePattern.class, UXImagePattern.class);
+        registerWrapperClass(scope, Stop.class, UXStop.class);
+
         registerWrapperClass(scope, Image.class, UXImage.class);
 
         registerWrapperClass(scope, Window.class, UXWindow.class);

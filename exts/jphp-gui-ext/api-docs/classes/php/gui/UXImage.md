@@ -22,6 +22,7 @@ Class UXImage
 
 - `UXImage ::`[`ofNative()`](#method-ofnative) - _Create from native image._
 - `UXImage ::`[`ofUrl()`](#method-ofurl) - _Создает новую картинку из URL._
+- `UXImage ::`[`createWritable()`](#method-createwritable)
 
 ---
 
@@ -30,9 +31,12 @@ Class UXImage
 - `->`[`__construct()`](#method-__construct)
 - `->`[`getPixelColor()`](#method-getpixelcolor) - _Возвращает цвет пикселя картинки._
 - `->`[`getPixelARGB()`](#method-getpixelargb) - _Возвращает цвет пикселя картинки в формате argb._
+- `->`[`setPixelARGB()`](#method-setpixelargb)
+- `->`[`setPixelColor()`](#method-setpixelcolor)
 - `->`[`cancel()`](#method-cancel) - _Отменяет загрузку картинки._
 - `->`[`isError()`](#method-iserror)
 - `->`[`isBackgroundLoading()`](#method-isbackgroundloading)
+- `->`[`toWritable()`](#method-towritable)
 - `->`[`save()`](#method-save) - _Save image to file or stream in passed format, by default png._
 - `->`[`toNative()`](#method-tonative) - _Convert to native image._
 
@@ -56,6 +60,15 @@ Create from native image.
 UXImage::ofUrl(string $url, bool $background): UXImage
 ```
 Создает новую картинку из URL.
+
+---
+
+<a name="method-createwritable"></a>
+
+### createWritable()
+```php
+UXImage::createWritable(int $width, int $height, UXImage|null $source): UXImage
+```
 
 ---
 # Methods
@@ -89,6 +102,24 @@ getPixelARGB(int $x, int $y): int
 
 ---
 
+<a name="method-setpixelargb"></a>
+
+### setPixelARGB()
+```php
+setPixelARGB(int $x, int $y, int $argb): void
+```
+
+---
+
+<a name="method-setpixelcolor"></a>
+
+### setPixelColor()
+```php
+setPixelColor(int $x, int $y, UXColor $color): void
+```
+
+---
+
 <a name="method-cancel"></a>
 
 ### cancel()
@@ -113,6 +144,15 @@ isError(): bool
 ### isBackgroundLoading()
 ```php
 isBackgroundLoading(): bool
+```
+
+---
+
+<a name="method-towritable"></a>
+
+### toWritable()
+```php
+toWritable(): UXImage
 ```
 
 ---

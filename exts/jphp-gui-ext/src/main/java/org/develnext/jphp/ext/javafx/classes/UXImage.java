@@ -3,6 +3,7 @@ package org.develnext.jphp.ext.javafx.classes;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.develnext.jphp.ext.image.classes.PImage;
@@ -101,6 +102,31 @@ public class UXImage extends BaseWrapper<Image> {
     }
 
     @Signature
+    public void setPixelARGB(int x, int y, int argb){
+        if(getWrappedObject() instanceof WritableImage){
+            ((WritableImage) getWrappedObject()).getPixelWriter().setArgb(x, y, argb);
+        }
+        else{
+            throw new IllegalStateException("Current image is readonly");
+        }
+    }
+
+    @Signature
+    public void setPixelColor(int x, int y, Color color){
+        if(getWrappedObject() instanceof WritableImage){
+            ((WritableImage) getWrappedObject()).getPixelWriter().setColor(x, y, color);
+        }
+        else{
+            throw new IllegalStateException("Current image is readonly");
+        }
+    }
+
+    @Signature
+    public UXImage toWritable(Environment env){
+        return createWritable(env, (int)getWrappedObject().getWidth(), (int)getWrappedObject().getHeight(), getWrappedObject());
+    }
+
+    @Signature
     public boolean isError() {
         return getWrappedObject().isError();
     }
@@ -118,6 +144,15 @@ public class UXImage extends BaseWrapper<Image> {
     @Signature
     public static Image ofUrl(String url, boolean background) {
         return new Image(url, background);
+    }
+
+    @Signature
+    public static UXImage createWritable(Environment env, int width, int height){
+        return new UXImage(env, new WritableImage(width, height));
+    }
+    @Signature
+    public static UXImage createWritable(Environment env, int width, int height, Image source){
+        return new UXImage(env, new WritableImage(source.getPixelReader(), width, height));
     }
 
     @Signature

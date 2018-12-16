@@ -20,9 +20,9 @@ Class UXGraphicsContext
 - `->`[`lineCap`](#prop-linecap) : `string` - _SQUARE, BUTT, ROUND_
 - `->`[`lineJoin`](#prop-linejoin) : `string` - _MITER, BEVEL, BEVEL_
 - `->`[`miterLimit`](#prop-miterlimit) : `double`
-- `->`[`fillColor`](#prop-fillcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md)
+- `->`[`fill`](#prop-fill) : [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.md)
 - `->`[`fillRule`](#prop-fillrule) : `string` - _EVEN_ODD, NON_ZERO_
-- `->`[`strokeColor`](#prop-strokecolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md)
+- `->`[`stroke`](#prop-stroke) : [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.md)
 
 ---
 

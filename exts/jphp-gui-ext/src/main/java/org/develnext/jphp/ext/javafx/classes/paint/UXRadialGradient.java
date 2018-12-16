@@ -2,33 +2,35 @@ package org.develnext.jphp.ext.javafx.classes.paint;
 
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import org.develnext.jphp.ext.javafx.JavaFXExtension;
-import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.List;
 
-@Reflection.Name(JavaFXExtension.NS + "paint\\UXLinearGradient")
-public class UXLinearGradient extends UXPaint<LinearGradient>{
-    public UXLinearGradient(Environment env, LinearGradient wrappedObject) {
+@Reflection.Name(JavaFXExtension.NS + "paint\\UXRadialGradient")
+public class UXRadialGradient extends UXPaint<RadialGradient>{
+
+    public UXRadialGradient(Environment env, RadialGradient wrappedObject) {
         super(env, wrappedObject);
     }
-    public UXLinearGradient(Environment env, ClassEntity clazz) {
+
+    public UXRadialGradient(Environment env, ClassEntity clazz) {
         super(env, clazz);
     }
 
     interface WrappedInterface{
-        @Reflection.Getter String getCycleMethod();
+        @Reflection.Getter CycleMethod getCycleMethod();
 
-        @Reflection.Getter double getEndX();
-        @Reflection.Getter double getEndY();
+        @Reflection.Getter double getCenterX();
+        @Reflection.Getter double getCenterY();
 
-        @Reflection.Getter double getStartX();
-        @Reflection.Getter double getStartY();
+        @Reflection.Getter double getFocusAngle();
+        @Reflection.Getter double getFocusDistance();
+        @Reflection.Getter double getRadius();
 
         @Reflection.Getter List<Stop> getStops();
 
@@ -36,14 +38,14 @@ public class UXLinearGradient extends UXPaint<LinearGradient>{
     }
 
     @Reflection.Signature
-    public void __construct(double startX, double startY, double endX, double endY, boolean proportional, CycleMethod cycleMethod, List<Stop> stops){
-        __wrappedObject = new LinearGradient(startX, startY, endX, endY, proportional, cycleMethod, stops);
+    public void __construct(double focusAngle, double focusDistance, double centerX, double centerY, double radius, boolean proportional, CycleMethod cycleMethod, List<Stop> stops){
+        __wrappedObject = new RadialGradient(focusAngle, focusDistance, centerX, centerY, radius, proportional, cycleMethod, stops);
     }
 
     @Reflection.Signature
-    public static LinearGradient of(String value){
+    public static RadialGradient of(String value){
         try{
-            return LinearGradient.valueOf(value);
+            return RadialGradient.valueOf(value);
         }
         catch(IllegalArgumentException e){
             return null;

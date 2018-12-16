@@ -3,13 +3,13 @@
 ---
 
 ## jphp-gui-ext
-> версия 2.0.0, создано с помощью JPPM.
+> версия 2.1.1, создано с помощью JPPM.
 
 GUI based on JavaFX 11 library.
 
 ### Установка
 ```
-jppm add jphp-gui-ext@2.0.0
+jppm add jphp-gui-ext@2.1.1
 ```
 
 ### АПИ
@@ -158,6 +158,11 @@ jppm add jphp-gui-ext@2.0.0
 #### `php\gui\paint`
 
 - [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.ru.md)- _Class UXColor_
+- [`UXImagePattern`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXImagePattern.ru.md)- _Class UXImagePattern_
+- [`UXLinearGradient`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXLinearGradient.ru.md)- _Class UXLinearGradient_
+- [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.ru.md)- _Class UXPaint_
+- [`UXRadialGradient`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXRadialGradient.ru.md)- _Class UXRadialGradient_
+- [`UXStop`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXStop.ru.md)- _Class UXStop_
 
 #### `php\gui\printing`
 

@@ -13,7 +13,7 @@ import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 @Reflection.Name(JavaFXExtension.NS + "paint\\UXColor")
-public class UXColor extends BaseWrapper<Color> {
+public class UXColor extends UXPaint<Color> {
     interface WrappedInterface {
         @Property
         double red();
@@ -110,9 +110,10 @@ public class UXColor extends BaseWrapper<Color> {
 
     @Signature
     public static Color of(String colorString) {
-        try {
+        try{
             return Color.web(colorString);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return null;
         }
     }

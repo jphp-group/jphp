@@ -2,6 +2,7 @@
 namespace php\gui;
 use php\gui\effect\UXEffect;
 use php\gui\paint\UXColor;
+use php\gui\paint\UXPaint;
 use php\gui\text\UXFont;
 
 /**
@@ -57,9 +58,9 @@ class UXGraphicsContext
     public $miterLimit;
 
     /**
-     * @var UXColor
+     * @var UXPaint
      */
-    public $fillColor;
+    public $fill;
 
     /**
      * EVEN_ODD, NON_ZERO
@@ -68,9 +69,9 @@ class UXGraphicsContext
     public $fillRule;
 
     /**
-     * @var UXColor
+     * @var UXPaint
      */
-    public $strokeColor;
+    public $stroke;
 
 
     /**

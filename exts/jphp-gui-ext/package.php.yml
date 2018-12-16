@@ -1,6 +1,6 @@
 
 name: jphp-gui-ext
-version: 2.0.0
+version: 2.1.1
 description: GUI based on JavaFX 11 library.
 
 deps:
@@ -17,6 +17,8 @@ doc:
 
 
 history:
+  2.1.1:
+  - Add Paint, LinearGradient, etc. Now UXImage can be writen.
   2.0.0:
   - Migrate to OpenJFX 11.
   1.0.1:

@@ -2,23 +2,51 @@
 namespace php\gui\paint;
 
 
+use php\gui\UXImage;
+
 /**
- * Class UXPaint
+ * Class UXImagePattern
  * @package php\gui\paint
  * @packages gui, javafx
  */
-class UXPaint
+class UXImagePattern extends UXPaint
 {
     /**
      * @readonly
      * @var boolean
      */
-    public $opaque;
+    public $width;
+    /**
+     * @readonly
+     * @var boolean
+     */
+    public $height;
+    /**
+     * @readonly
+     * @var boolean
+     */
+    public $x;
+    /**
+     * @readonly
+     * @var boolean
+     */
+    public $y;
+    /**
+     * @readonly
+     * @var boolean
+     */
+    public $proportional;
 
 
     /**
-     * @param string $value
-     * @return UXPaint
+     * UXImagePattern constructor.
+     * @param UXImage $image
+     * @param float|null $width
+     * @param float|null $height
+     * @param float|null $x
+     * @param float|null $y
+     * @param float|null $proportional
      */
-    public static function of($value){}
+    public function __construct($image, $x = null, $y = null, $width = null, $height = null, $proportional = null){
+    }
 }
