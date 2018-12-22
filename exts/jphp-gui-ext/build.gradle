@@ -1,15 +1,15 @@
 buildscript {
     repositories {
-        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.0'
+        classpath 'org.openjfx:javafx-plugin:0.0.5'
     }
 }
 
-apply plugin: 'com.google.osdetector'
-
-ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
+apply plugin: 'org.openjfx.javafxplugin'
 
 dependencies {
     provided project(":jphp-runtime")
@@ -17,12 +17,8 @@ dependencies {
     provided project(":jphp-core")
     compileMaven project(":exts/jphp-xml-ext")
     compileMaven project(":exts/jphp-graphic-ext")
+}
 
-    compile "org.openjfx:javafx-base:11.0.1:$platform"
-    compile "org.openjfx:javafx-graphics:11.0.1:$platform"
-    compile "org.openjfx:javafx-controls:11.0.1:$platform"
-    compile "org.openjfx:javafx-web:11.0.1:$platform"
-    compile "org.openjfx:javafx-fxml:11.0.1:$platform"
-    compile "org.openjfx:javafx-media:11.0.1:$platform"
-    compile "org.openjfx:javafx-swing:11.0.1:$platform"
+javafx {
+    modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.web', 'javafx.fxml', 'javafx.media', 'javafx.swing' ]
 }
