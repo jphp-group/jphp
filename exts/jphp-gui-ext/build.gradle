@@ -1,15 +1,22 @@
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
+bool useOpenJFX = false;
+
+if (Double.parseDouble(System.getProperty("java.specification.version")) > 10)
+    useOPenJFX = true;
+
+if (useOPenJFX) {
+    buildscript {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+        }
+        dependencies {
+            classpath 'org.openjfx:javafx-plugin:0.0.5'
         }
     }
-    dependencies {
-        classpath 'org.openjfx:javafx-plugin:0.0.5'
-    }
-}
 
-apply plugin: 'org.openjfx.javafxplugin'
+    apply plugin: 'org.openjfx.javafxplugin'
+}
 
 dependencies {
     provided project(":jphp-runtime")
@@ -19,6 +26,8 @@ dependencies {
     compileMaven project(":exts/jphp-graphic-ext")
 }
 
-javafx {
-    modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.web', 'javafx.fxml', 'javafx.media', 'javafx.swing' ]
+if (useOpenJFX) {
+    javafx {
+        modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.web', 'javafx.fxml', 'javafx.media', 'javafx.swing' ]
+    }
 }
