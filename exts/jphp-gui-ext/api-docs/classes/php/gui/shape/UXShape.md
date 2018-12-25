@@ -17,8 +17,8 @@ Class UXShape
 #### Properties
 
 - `->`[`smooth`](#prop-smooth) : `bool`
-- `->`[`fillColor`](#prop-fillcolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md)
-- `->`[`strokeColor`](#prop-strokecolor) : [`UXColor`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXColor.md)
+- `->`[`fill`](#prop-fill) : [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.md)
+- `->`[`stroke`](#prop-stroke) : [`UXPaint`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/paint/UXPaint.md)
 - `->`[`strokeWidth`](#prop-strokewidth) : `double`
 - `->`[`strokeType`](#prop-stroketype) : `string INSIDE, OUTSIDE, CENTERED`
 - *See also in the parent class* [UXNode](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-gui-ext/api-docs/classes/php/gui/UXNode.md).

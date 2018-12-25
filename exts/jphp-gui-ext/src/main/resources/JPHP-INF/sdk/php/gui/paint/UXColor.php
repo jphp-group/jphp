@@ -6,7 +6,7 @@ namespace php\gui\paint;
  * @package php\gui\paint
  * @packages gui, javafx
  */
-class UXColor
+class UXColor extends UXPaint
 {
     /**
      * Уровень красного (от 0 до 1)

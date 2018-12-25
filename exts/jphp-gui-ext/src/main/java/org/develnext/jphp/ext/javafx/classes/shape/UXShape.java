@@ -16,6 +16,9 @@ public abstract class UXShape<T extends Shape> extends UXNode<Shape> {
         @Property boolean smooth();
         @Property double strokeWidth();
         @Property StrokeType strokeType();
+
+        @Property Paint fill();
+        @Property Paint stroke();
     }
 
     public UXShape(Environment env, T wrappedObject) {
@@ -29,37 +32,5 @@ public abstract class UXShape<T extends Shape> extends UXNode<Shape> {
     @Override
     public T getWrappedObject() {
         return (T) super.getWrappedObject();
-    }
-
-    @Setter
-    public void setFillColor(@Nullable Color color) {
-        getWrappedObject().setFill(color);
-    }
-
-    @Getter
-    public Color getFillColor() {
-        Paint fill = getWrappedObject().getFill();
-
-        if (fill instanceof Color) {
-            return (Color) fill;
-        }
-
-        return null;
-    }
-
-    @Setter
-    public void setStrokeColor(@Nullable Color color) {
-        getWrappedObject().setStroke(color);
-    }
-
-    @Getter
-    public Color getStrokeColor() {
-        Paint fill = getWrappedObject().getStroke();
-
-        if (fill instanceof Color) {
-            return (Color) fill;
-        }
-
-        return null;
     }
 }

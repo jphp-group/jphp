@@ -64,6 +64,26 @@ class UXImage
     }
 
     /**
+     * @param int $x
+     * @param int $y
+     * @param int $argb
+     */
+    public function setPixelARGB($x, $y, $argb)
+    {
+
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @param UXColor|string $color
+     */
+    public function setPixelColor($x, $y, $color)
+    {
+
+    }
+
+    /**
      * Отменяет загрузку картинки.
      */
     public function cancel() {}
@@ -79,6 +99,13 @@ class UXImage
      * @return bool
      */
     public function isBackgroundLoading()
+    {
+    }
+
+    /**
+     * @return UXImage
+     */
+    public function toWritable()
     {
     }
 
@@ -120,4 +147,12 @@ class UXImage
      * @return UXImage
      */
     public static function ofUrl($url, $background = false) {}
+
+    /**
+     * @param int $width
+     * @param int $height
+     * @param UXImage|null $source
+     * @return UXImage
+     */
+    public static function createWritable($width, $height, $source = null){}
 }

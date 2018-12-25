@@ -2,6 +2,7 @@
 namespace php\gui\shape;
 
 use php\gui\paint\UXColor;
+use php\gui\paint\UXPaint;
 use php\gui\UXNode;
 
 /**
@@ -17,14 +18,14 @@ abstract class UXShape extends UXNode
     public $smooth = true;
 
     /**
-     * @var UXColor
+     * @var UXPaint
      */
-    public $fillColor;
+    public $fill;
 
     /**
-     * @var UXColor
+     * @var UXPaint
      */
-    public $strokeColor;
+    public $stroke;
 
     /**
      * @var double
