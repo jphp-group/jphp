@@ -1,5 +1,5 @@
 name: jppm
-version: 0.3.8
+version: 0.4.0
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Add gradle source capability with 1.8 by default.
-    + Add checks for dep requires.
+    + Upgradle gradle to 4.10.2 (java 11 support)
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
