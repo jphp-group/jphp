@@ -41,7 +41,7 @@ class GradlePlugin
         $paths = $vendor->fetchPaths();
 
         $deps = [];
-        foreach ($paths['classPaths'][''] as $file) {
+        foreach ((array) $paths['classPaths'][''] as $file) {
             if (fs::ext($file) === 'jar') {
                 $file = $vendor->getDir() . $file;
 

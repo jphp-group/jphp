@@ -1,7 +1,0 @@
-
-dependencies {
-    provided project(":jphp-runtime")
-    provided project(":exts/jphp-gui-ext")
-
-    compile group: 'com.jfoenix', name: 'jfoenix', version: '8.0.3'
-}
