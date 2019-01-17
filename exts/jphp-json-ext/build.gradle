@@ -5,7 +5,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
 
     testCompile 'junit:junit:4.+'
-    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':exts:jphp-zend-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }

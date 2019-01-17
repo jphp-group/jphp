@@ -10,7 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
     }
 }
 
@@ -72,7 +72,7 @@ configure(subprojects) {
         dependencies {
             testCompile 'junit:junit:4.+'
             testCompile project(':jphp-runtime')
-            testCompile project(':exts/jphp-zend-ext')
+            testCompile project(':exts:jphp-zend-ext')
         }
     }
 
@@ -146,7 +146,7 @@ configure(subprojects) {
 
     def extDir = "exts/";
 
-    if (it.name.startsWith("jphp-") || it.name.startsWith("exts/jphp-")) {
+    if (it.name.startsWith("jphp-")) {
         task jppmDist(dependsOn: 'jar') {
             doLast { jppmDist(project) }
         }

@@ -5,14 +5,14 @@ sourceSets {
 dependencies {
     provided project(':jphp-core')
     provided project(':jphp-runtime')
-    jppmCompile (project(':exts/jphp-json-ext')) {
+    jppmCompile (project(':exts:jphp-json-ext')) {
         exclude group: 'com.google.code.gson', module: 'gson'
     }
 
     provided "com.google.code.gson:gson:2.7"
 
     testCompile 'junit:junit:4.+'
-    testCompile project(':exts/jphp-json-ext')
+    testCompile project(':exts:jphp-json-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }

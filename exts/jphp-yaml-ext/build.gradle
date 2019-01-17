@@ -5,6 +5,6 @@ dependencies {
     compile group: 'org.yaml', name: 'snakeyaml', version: '1.21'
 
     testCompile 'junit:junit:4.+'
-    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':exts:jphp-zend-ext')
     testCompile project(':jphp-core').sourceSets.test.output
 }

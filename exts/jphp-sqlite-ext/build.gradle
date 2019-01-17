@@ -1,13 +1,13 @@
 dependencies {
     provided project(":jphp-runtime")
-    compileMaven project(":exts/jphp-sql-ext")
+    compileMaven project(":exts:jphp-sql-ext")
 
     // dependencies ....
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
     // -----------------
 
     testCompile 'junit:junit:4.+'
-    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':exts:jphp-zend-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }

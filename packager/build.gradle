@@ -1,7 +1,7 @@
 apply plugin: 'maven'
 
 def jppmVersion = version.toString()
-def jppmRepoAddress = 'https://github.com/jphp-compiler/jphp'
+def jppmRepoAddress = 'https://github.com/jphp-group/jphp'
 
 file("$projectDir.path/package.php.yml").readLines().each { line ->
     if (line.startsWith("version:")) {
@@ -19,16 +19,16 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-runtime')
-    compile project(':exts/jphp-zend-ext')
-    compile project(':exts/jphp-yaml-ext')
-    compile project(':exts/jphp-compress-ext')
-    compile project(':exts/jphp-json-ext')
-    compile project(':exts/jphp-jsoup-ext')
-    compile project(':exts/jphp-semver-ext')
-    compile project(':exts/jphp-text-ext')
-    compile project(':exts/jphp-httpclient-ext')
-    compile project(':exts/jphp-git-ext')
-    compile project(':exts/jphp-parser-ext')
+    compile project(':exts:jphp-zend-ext')
+    compile project(':exts:jphp-yaml-ext')
+    compile project(':exts:jphp-compress-ext')
+    compile project(':exts:jphp-json-ext')
+    compile project(':exts:jphp-jsoup-ext')
+    compile project(':exts:jphp-semver-ext')
+    compile project(':exts:jphp-text-ext')
+    compile project(':exts:jphp-httpclient-ext')
+    compile project(':exts:jphp-git-ext')
+    compile project(':exts:jphp-parser-ext')
 }
 
 shadowJar {

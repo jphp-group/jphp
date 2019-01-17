@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     provided project(':jphp-runtime')
-    compile project(':exts/jphp-gdx-ext')
+    compile project(':exts:jphp-gdx-ext')
 
     compile group: 'com.badlogicgames.gdx', name: 'gdx-platform', version: '1.9.8'
 

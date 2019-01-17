@@ -1,6 +1,6 @@
 dependencies {
     provided project(":jphp-runtime")
-    compileMaven project(":exts/jphp-sql-ext")
+    compileMaven project(":exts:jphp-sql-ext")
 
     // dependencies ....
     compile group: 'org.firebirdsql.jdbc', name: 'jaybird-jdk18', version: '3.0.1'
@@ -8,7 +8,7 @@ dependencies {
     // -----------------
 
     testCompile 'junit:junit:4.+'
-    testCompile project(':exts/jphp-zend-ext')
+    testCompile project(':exts:jphp-zend-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output
 }

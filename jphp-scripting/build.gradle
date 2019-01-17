@@ -15,7 +15,7 @@ sourceSets {
 dependencies {
     compile project(':jphp-core')
     compile project(':jphp-runtime')
-    compile project(':exts/jphp-zend-ext')
+    compile project(':exts:jphp-zend-ext')
 
     testCompile 'junit:junit:4.+'
     testCompile project(':jphp-core').sourceSets.test.output

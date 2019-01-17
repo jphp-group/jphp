@@ -13,12 +13,6 @@ include 'jphp-runtime',
 
 file("$rootDir.path/exts").listFiles().each { file ->
     if (file.directory && file.name.startsWith("jphp-") && file.name.endsWith("-ext")) {
-        include "exts/$file.name"
-    }
-}
-
-file("$rootDir.path/packager-exts").listFiles().each { file ->
-    if (file.directory && file.name.startsWith("jppm-") && file.name.endsWith("-ext")) {
-        include "packager-exts/$file.name"
+        include "exts:$file.name"
     }
 }

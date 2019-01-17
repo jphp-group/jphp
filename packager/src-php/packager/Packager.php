@@ -147,7 +147,7 @@ class Packager
             foreach ($one->getInvalidDeps() as $name => list($version, $comment, $fail)) {
                 $method = $fail ? 'warn' : 'error';
 
-                if (is_array($comment)) {
+                if (!is_array($comment)) {
                     Console::{$method}("-> failed to install {0}@{1}, {2}.", $name, $version, $comment);
                 } else {
                     Console::{$method}("-> failed to install {0}@{1}: ", $name, $version);
