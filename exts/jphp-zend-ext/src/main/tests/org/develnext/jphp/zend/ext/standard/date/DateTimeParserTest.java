@@ -4,6 +4,8 @@ import static java.util.Collections.singletonList;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -11,6 +13,10 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 public class DateTimeParserTest {
+
+    private static ZonedDateTime parse(String input) {
+        return new DateTimeParser(input).parse().withNano(0);
+    }
 
     @Test
     public void hourAndMinute() {
@@ -186,25 +192,13 @@ public class DateTimeParserTest {
 
     @Test
     public void dummy() {
-        Stream.of(
-                /*
-                "2008:08:07 18:11:31",
-                "@-15",
-                "20080701T22:38:07",
-                "20080701T9:38:07",
-                "20080701t223807",
-                "20080701T093807",
-
-
-                "2008.197",
-                "2008197",
-                "2008W27",
-                "2008-W28"
-                */
-                "2008-08-07 18:11:31",
-                "2008-7-1T9:3:37"
-        )
-                .map(DateTimeParser::new)
-                .forEach(DateTimeParser::parse);
+        assertEquals(ZonedDateTime.parse("1991-08-07T18:11:31+04:00[Asia/Yerevan]"), parse("1991-08-07 18:11:31"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T09:03:37+04:00[Asia/Yerevan]"), parse("2008-7-1T9:3:37"));
+        assertEquals(ZonedDateTime.parse("2018-12-07T23:59:59+04:00[Asia/Yerevan]"), parse("2018:12:07 23:59:59"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:38:07+04:00[Asia/Yerevan]"), parse("20080701T22:38:07"));
+        assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701t53807"));
+        assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701T53807"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T09:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
+        assertEquals(LocalDate.parse("2008-01-02"), parse("2008.002").toLocalDate());
     }
 }

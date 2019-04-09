@@ -1,7 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
-
 class AndNode extends Node {
     private final Node l;
     private final Node r;
@@ -16,7 +14,18 @@ class AndNode extends Node {
     }
 
     @Override
-    public boolean matches(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        return l.matches(tokens, cursor, tokenizer) && r.matches(tokens, cursor, tokenizer);
+    public boolean matches(DateTimeParserContext ctx) {
+        return l.matches(ctx) && r.matches(ctx);
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        Cursor cursor = ctx.cursor();
+        int snapshot = cursor.value();
+        if (matches(ctx)) {
+            cursor.setValue(snapshot);
+            l.apply(ctx);
+            r.apply(ctx);
+        }
     }
 }

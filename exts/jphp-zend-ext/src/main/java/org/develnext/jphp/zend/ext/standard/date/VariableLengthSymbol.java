@@ -1,7 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
-
 abstract class VariableLengthSymbol extends SymbolNode {
     private final int min;
     private final int max;
@@ -12,9 +10,17 @@ abstract class VariableLengthSymbol extends SymbolNode {
         this.max = max;
     }
 
+    public int min() {
+        return min;
+    }
+
+    public int max() {
+        return max;
+    }
+
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        Token current = tokens.get(cursor.value());
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        Token current = ctx.tokens().get(ctx.cursor().value());
         return current.length() >= min && current.length() <= max;
     }
 }

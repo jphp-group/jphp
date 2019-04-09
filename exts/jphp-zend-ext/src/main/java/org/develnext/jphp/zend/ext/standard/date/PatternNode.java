@@ -1,22 +1,35 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 class PatternNode extends SymbolNode {
     private final Pattern pattern;
+    private final BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster;
 
-    PatternNode(Pattern pattern, Symbol symbol) {
+    private PatternNode(Pattern pattern, Symbol symbol, BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster) {
         super(symbol);
         this.pattern = pattern;
+        this.adjuster = adjuster;
+    }
+
+    static PatternNode ofDigits(Pattern pattern, BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster) {
+        return new PatternNode(pattern, Symbol.DIGITS, adjuster);
     }
 
     static PatternNode ofDigits(Pattern pattern) {
-        return new PatternNode(pattern, Symbol.DIGITS);
+        return new PatternNode(pattern, Symbol.DIGITS, (integer, zonedDateTime) -> zonedDateTime);
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        return pattern.matcher(tokenizer.readCharBuffer(tokens.get(cursor.value()))).matches();
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        return pattern.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        int value = ctx.readIntAtCursor();
+        ctx.dateTime(adjuster.apply(value, ctx.dateTime()));
     }
 }

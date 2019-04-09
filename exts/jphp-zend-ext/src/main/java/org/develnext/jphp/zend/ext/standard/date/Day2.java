@@ -2,8 +2,6 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_DAY;
 
-import java.util.List;
-
 class Day2 extends FixedLengthSymbol {
     Day2() {
         super(Symbol.DIGITS, 2);
@@ -14,8 +12,13 @@ class Day2 extends FixedLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        boolean matches = TWO_DIGIT_DAY.matcher(tokenizer.readCharBuffer(tokens.get(cursor.value()))).matches();
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        boolean matches = TWO_DIGIT_DAY.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
         return matches;
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        ctx.dateTime(ctx.dateTime().withDayOfMonth(ctx.readIntAtCursor()));
     }
 }

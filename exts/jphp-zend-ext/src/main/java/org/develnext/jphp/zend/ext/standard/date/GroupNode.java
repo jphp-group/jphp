@@ -2,14 +2,13 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.StringJoiner;
 
 class GroupNode extends Node implements Iterable<Node> {
     private final String name;
     private final Node[] nodes;
 
-    GroupNode(String name, Node[] nodes) {
+    private GroupNode(String name, Node[] nodes) {
         this.name = name;
         this.nodes = nodes;
     }
@@ -23,24 +22,31 @@ class GroupNode extends Node implements Iterable<Node> {
     }
 
     @Override
-    boolean matches(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
+    boolean matches(DateTimeParserContext ctx) {
         Iterator<Node> nodeIt = iterator();
+        Cursor cursor = ctx.cursor();
         int mark = cursor.value();
 
-        for (; cursor.value() < tokens.size() && nodeIt.hasNext(); cursor.inc()) {
+        for (; cursor.value() < ctx.tokens().size() && nodeIt.hasNext(); cursor.inc()) {
             Node node = nodeIt.next();
-            boolean matches = node.matches(tokens, cursor, tokenizer);
+            boolean matches = node.matches(ctx);
 
             if (!matches) {
                 cursor.setValue(mark);
                 return false;
-            } else {
-                mark = cursor.value();
             }
         }
 
         System.out.println("=== " + name + " ===");
         return true;
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        for (Node node : nodes) {
+            node.apply(ctx);
+            ctx.cursor().inc();
+        }
     }
 
     @Override

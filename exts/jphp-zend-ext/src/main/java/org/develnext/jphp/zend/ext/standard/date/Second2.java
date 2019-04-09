@@ -3,10 +3,9 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_SECOND;
 
 import java.nio.CharBuffer;
-import java.util.List;
 
 class Second2 extends FixedLengthSymbol {
-    Second2() {
+    private Second2() {
         super(Symbol.DIGITS, 2);
     }
 
@@ -15,8 +14,15 @@ class Second2 extends FixedLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        CharBuffer input = tokenizer.readCharBuffer(tokens.get(cursor.value()));
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        CharBuffer input = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
         return TWO_DIGIT_SECOND.matcher(input).matches();
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        int sec = ctx.readIntAtCursor();
+
+        ctx.dateTime(ctx.dateTime().withSecond(sec));
     }
 }

@@ -220,6 +220,10 @@ class DateTimeTokenizer {
         return CharBuffer.wrap(chars, token.start(), token.length()).asReadOnlyBuffer();
     }
 
+    CharBuffer readCharBuffer(int start, int length) {
+        return CharBuffer.wrap(chars, start, length).asReadOnlyBuffer();
+    }
+
     private char lookahead(int current, int to) {
         if (current + to < length && current + to > 0)
             return chars[current + to];
@@ -305,11 +309,16 @@ class DateTimeTokenizer {
         }
 
         CharBuffer cb = readCharBuffer(token);
+        int start = token.start();
+        return toLong(cb, start);
+    }
+
+    private long toLong(CharBuffer cb, int start) {
         long result = 0;
         int sign = 1;
 
         // if number is signed we should consume sign and save it
-        char first = cb.get(token.start());
+        char first = cb.get(start);
         if (first == '-' || first == '+') {
             cb.get();
             sign = first == '-' ? -1 : 1;
@@ -321,6 +330,14 @@ class DateTimeTokenizer {
         }
 
         return result * sign;
+    }
+
+    public int readInt(Token token) {
+        return (int) readLong(token);
+    }
+
+    public int readInt(int start, int length) {
+        return (int) toLong(readCharBuffer(start, length), start);
     }
 
     enum BufferCharacteristics {

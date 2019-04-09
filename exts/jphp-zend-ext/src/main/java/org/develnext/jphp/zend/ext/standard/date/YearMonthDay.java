@@ -1,16 +1,15 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.nio.CharBuffer;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
  * Matches following pattern: YYYYMMDD
  */
 class YearMonthDay extends FixedLengthSymbol {
-    private static final Pattern PATTERN = Pattern.compile("[0-9]{4}[0-1][0-9]([01][0-9]|2[0-4])");
+    private static final Pattern PATTERN = Pattern.compile("[0-9]{4}([0][0-9]|1[0-2])([01][0-9]|2[0-4])");
 
-    YearMonthDay() {
+    private YearMonthDay() {
         super(Symbol.DIGITS, 8);
     }
 
@@ -19,9 +18,20 @@ class YearMonthDay extends FixedLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        CharBuffer cb = tokenizer.readCharBuffer(tokens.get(cursor.value()));
-
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        CharBuffer cb = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
         return PATTERN.matcher(cb).matches();
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        int start = ctx.tokenAtCursor().start();
+
+        DateTimeTokenizer tokenizer = ctx.tokenizer();
+        int year = tokenizer.readInt(start, 4);
+        int month = tokenizer.readInt(start + 4, 2);
+        int day = tokenizer.readInt(start + 6, 2);
+
+        ctx.dateTime(ctx.dateTime().withYear(year).withMonth(month).withDayOfMonth(day));
     }
 }

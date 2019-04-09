@@ -1,6 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
 import java.util.StringJoiner;
 
 class OrNode extends Node {
@@ -17,8 +16,18 @@ class OrNode extends Node {
     }
 
     @Override
-    public boolean matches(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        return l.matches(tokens, cursor, tokenizer) || r.matches(tokens, cursor, tokenizer);
+    public boolean matches(DateTimeParserContext ctx) {
+        return l.matches(new DateTimeParserContext(ctx.tokens(), ctx.cursor(), ctx.tokenizer())) || r.matches(new DateTimeParserContext(ctx.tokens(), ctx.cursor(), ctx.tokenizer()));
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        int snapshot = ctx.cursor().value();
+        if (l.matches(ctx)) {
+            l.apply(ctx.withCursorValue(snapshot));
+        } else if (r.matches(ctx)) {
+            r.apply(ctx.withCursorValue(snapshot));
+        }
     }
 
     @Override

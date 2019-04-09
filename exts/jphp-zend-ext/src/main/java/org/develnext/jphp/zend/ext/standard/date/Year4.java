@@ -1,9 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
-
 class Year4 extends FixedLengthSymbol {
-    Year4() {
+    private Year4() {
         super(Symbol.DIGITS, 4);
     }
 
@@ -12,7 +10,14 @@ class Year4 extends FixedLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
+    public boolean matchesInternal(DateTimeParserContext ctx) {
         return true;
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        int year = ctx.readIntAtCursor();
+
+        ctx.dateTime(ctx.dateTime().withYear(year));
     }
 }

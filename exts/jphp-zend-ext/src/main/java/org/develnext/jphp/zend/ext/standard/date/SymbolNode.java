@@ -1,6 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
 import java.util.StringJoiner;
 
 /**
@@ -22,15 +21,19 @@ class SymbolNode extends Node {
     }
 
     @Override
-    public boolean matches(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        if (tokens.get(cursor.value()).symbol() == symbol) {
-            return matchesInternal(tokens, cursor, tokenizer);
+    public boolean matches(DateTimeParserContext ctx) {
+        if (ctx.tokenAtCursor().symbol() == symbol) {
+            return matchesInternal(ctx);
         }
 
         return false;
     }
 
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
+    @Override
+    void apply(DateTimeParserContext ctx) {
+    }
+
+    public boolean matchesInternal(DateTimeParserContext ctx) {
         return true;
     }
 

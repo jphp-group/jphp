@@ -20,6 +20,10 @@ class Token {
         return new Token(type, start, length);
     }
 
+    static Token ofDigit(int start, int length) {
+        return new Token(Symbol.DIGITS, start, length);
+    }
+
     public Symbol symbol() {
         return symbol;
     }

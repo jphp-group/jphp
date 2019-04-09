@@ -1,7 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.List;
-
 class CharacterNode extends SymbolNode {
     private final char c;
     private final boolean caseSensitive;
@@ -21,13 +19,17 @@ class CharacterNode extends SymbolNode {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        if (!super.matchesInternal(tokens, cursor, tokenizer)) {
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        if (!super.matchesInternal(ctx)) {
             return false;
         }
 
-        Token current = tokens.get(cursor.value());
-        return caseSensitive ? tokenizer.readChar(current) == c :
-                Character.toLowerCase(tokenizer.readChar(current)) == Character.toLowerCase(c);
+        Token current = ctx.tokens().get(ctx.cursor().value());
+        return caseSensitive ? ctx.tokenizer().readChar(current) == c :
+                Character.toLowerCase(ctx.tokenizer().readChar(current)) == Character.toLowerCase(c);
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
     }
 }

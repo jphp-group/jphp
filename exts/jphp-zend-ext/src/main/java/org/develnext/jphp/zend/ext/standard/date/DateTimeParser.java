@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 public class DateTimeParser {
@@ -24,11 +25,10 @@ public class DateTimeParser {
     private static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
     private static final CharacterNode ISO_WEEK_NODE = CharacterNode.of('W');
 
+    private static final SymbolNode SPACE_NODE = SymbolNode.of(Symbol.SPACE);
     private static final SymbolNode COLON_NODE = SymbolNode.of(Symbol.COLON);
     private static final GroupNode EXIF = GroupNode.of(
             "EXIF",
-            YEAR_4_DIGIT,
-            COLON_NODE,
             Month2.of(),
             COLON_NODE,
             Day2.of(),
@@ -40,6 +40,53 @@ public class DateTimeParser {
             Second2.of()
     );
 
+    private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
+    private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
+    private static final GroupNode PostgreSQLYearWithDayOfYear = GroupNode.of(
+            "PostgreSQL: Year with day-of-year",
+            OrNode.of(
+                    AndNode.of(
+                            YEAR_4_DIGIT,
+                            OrNode.of(
+                                    AndNode.of(SymbolNode.of(Symbol.DOT), DOY_NODE),
+                                    DOY_NODE
+                            )
+                    ),
+                    PatternNode.ofDigits(POSTGRESQL_DOY)
+            )
+    );
+    private static final GroupNode WDDX = GroupNode.of("WDDX",
+            PatternNode.ofDigits(MONTH_mm, monthAdjuster()),
+            MINUS_NODE,
+            PatternNode.ofDigits(DAY_dd, dayAdjuster()),
+            CharacterNode.of('T'),
+            PatternNode.ofDigits(HOUR_hh, hourAdjuster()),
+            COLON_NODE,
+            PatternNode.ofDigits(MINUTE_ii, minuteAdjuster()),
+            COLON_NODE,
+            PatternNode.ofDigits(SECOND_ss, secondAdjuster())
+    );
+    private static final GroupNode MYSQL = GroupNode.of(
+            "MYSQL", Month2.of(), MINUS_NODE, Day2.of(), SPACE_NODE, Hour24.of(), COLON_NODE, Minute2.of(), COLON_NODE, Second2.of()
+    );
+    private static final SymbolNode DOT_NODE = SymbolNode.of(Symbol.DOT);
+    private static final GroupNode XMLRPC_FULL = GroupNode.of("XMLRPC Full", CharacterNode.of('T'), OrNode.of(Hour12.of(), Hour24.of()), COLON_NODE, Minute2.of(), COLON_NODE, Second2.of());
+    private static final GroupNode XMLRPC_COMPACT = GroupNode.of("XMLRPC Compact", CharacterNode.ofCaseInsensitive('t'), HourMinuteSecond.of(5, 6));
+    private static final GroupNode XMLRPC = GroupNode.of("XMLRPC", YearMonthDay.of(), OrNode.of(XMLRPC_FULL, XMLRPC_COMPACT));
+    private static final GroupNode UNIX_TIMESTAMP = GroupNode.of("Unix Timestamp", SymbolNode.of(Symbol.AT), SymbolNode.of(Symbol.DIGITS));
+
+    private static final GroupNode COMPOUND_ROOT = GroupNode.of(
+            "Compound Root",
+            YEAR_4_DIGIT,
+            OrNode.of(
+                    OrNode.of(
+                            GroupNode.of("EXIF", COLON_NODE, EXIF),
+                            GroupNode.of("WDDX OR MYSQL", MINUS_NODE, OrNode.of(WDDX, MYSQL))
+                    ),
+                    GroupNode.of("PostgreSQL: Year with day-of-year", DOT_NODE, DOY_NODE)
+            )
+    );
+
     private static final GroupNode ISOYearWeek = GroupNode.of(
             "ISO year with ISO week",
             YEAR_4_DIGIT,
@@ -49,84 +96,13 @@ public class DateTimeParser {
             ),
             PatternNode.ofDigits(WEEK)
     );
-    private static final GroupNode MySQL = GroupNode.of(
-            "MySQL",
-            YEAR_4_DIGIT,
-            MINUS_NODE
-
-    );
-
-    private static final GroupNode PostgreSQLYearWithDayOfYear = GroupNode.of(
-            "PostgreSQL: Year with day-of-year",
-            OrNode.of(
-                    AndNode.of(
-                            YEAR_4_DIGIT,
-                            OrNode.of(
-                                    OrNode.of(SymbolNode.of(Symbol.DOT), PatternNode.ofDigits(DAY_OF_YEAR)),
-                                    PatternNode.ofDigits(DAY_OF_YEAR)
-                            )
-                    ),
-                    PatternNode.ofDigits(Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])"))
-            )
-    );
-
-    private static final GroupNode COMPOUND_ROOT = GroupNode.of(
-            "Compound Root",
-            YEAR_4_DIGIT,
-            MINUS_NODE,
-            OrNode.of(
-                    GroupNode.of("WDDX",
-                            PatternNode.ofDigits(MONTH_mm),
-                            MINUS_NODE,
-                            PatternNode.ofDigits(DAY_dd),
-                            CharacterNode.of('T'),
-                            PatternNode.ofDigits(HOUR_hh),
-                            COLON_NODE,
-                            PatternNode.ofDigits(MINUTE_ii),
-                            COLON_NODE,
-                            PatternNode.ofDigits(SECOND_ss)
-                    ),
-                    GroupNode.of(
-                            "MYSQL", Month2.of(), MINUS_NODE, Day2.of(), SymbolNode.of(Symbol.SPACE), Hour24.of(), COLON_NODE, Minute2.of(), COLON_NODE, Second2.of()
-                    )
-            )
-    );
-    private static final GroupNode XMLRPC = GroupNode.of(
-            "XMLRPC",
-            YearMonthDay.of(),
-            CharacterNode.of('T'),
-            OrNode.of(Hour12.of(), Hour24.of()),
-            COLON_NODE,
-            Minute2.of(),
-            COLON_NODE,
-            Second2.of()
-    );
-
-    private static final GroupNode XMLRPC_COMPACT = GroupNode.of(
-            "XMLRPC Compact",
-            YearMonthDay.of(),
-            CharacterNode.ofCaseInsensitive('t'),
-            HourMinuteSecond.of(5, 6)
-    );
-
-    private static final GroupNode WDDX = GroupNode.of(
-            "WDDX",
-            YEAR_4_DIGIT
-
-    );
-
-    private static final GroupNode UNIX_TIMESTAMP = GroupNode.of(
-            "Unix Timestamp",
-            SymbolNode.of(Symbol.AT),
-            SymbolNode.of(Symbol.DIGITS)
-    );
 
     static {
         parseTree.put(Symbol.AT, Arrays.asList(UNIX_TIMESTAMP));
 
         parseTree.put(Symbol.DIGITS, Arrays.asList(
                 // Localized Compound formats
-                COMPOUND_ROOT
+                COMPOUND_ROOT, XMLRPC
         ));
     }
 
@@ -134,6 +110,30 @@ public class DateTimeParser {
 
     DateTimeParser(String dateTime) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> dayOfYearAdjuster() {
+        return (doy, dt) -> dt.withDayOfYear(doy);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> secondAdjuster() {
+        return (s, z) -> z.withSecond(s);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> minuteAdjuster() {
+        return (m, zoned) -> zoned.withMinute(m);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> hourAdjuster() {
+        return (h, zoned) -> zoned.withHour(h);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> dayAdjuster() {
+        return (d, zonedDateTime) -> zonedDateTime.withDayOfMonth(d);
+    }
+
+    private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> monthAdjuster() {
+        return (m, zonedDateTime) -> zonedDateTime.withMonth(m);
     }
 
     public static List<Token> tokenize(final String time) {
@@ -146,32 +146,29 @@ public class DateTimeParser {
         return tokens;
     }
 
-    private static Token pool(LinkedList<Token> tokens) {
-        Token token = tokens.poll();
-        return token == null ? EOF : token;
-    }
-
-    private static Token peek(LinkedList<Token> tokens) {
-        Token token = tokens.peek();
-        return token == null ? EOF : token;
-    }
-
     public ZonedDateTime parse() {
-        LinkedList<Token> tokens = new LinkedList<>();
+        DateTimeParserContext context = new DateTimeParserContext(getTokens(), new Cursor(), tokenizer);
+        Symbol symbol = context.tokenAtCursor().symbol();
 
-        ZonedDateTime date = ZonedDateTime.now();
-        Token t;
-        while ((t = tokenizer.next()) != EOF) tokens.add(t);
+        for (GroupNode nodes : parseTree.get(symbol)) {
+            boolean matches = nodes.matches(context);
 
-        for (GroupNode nodes : parseTree.get(peek(tokens).symbol())) {
-            Cursor cursor = new Cursor();
-            boolean matches = nodes.matches(tokens, cursor, tokenizer);
-
-            if (matches)
+            if (matches) {
+                context.cursor().setValue(0);
+                nodes.apply(context);
                 break;
+            }
         }
 
-        return date;
+        return context.dateTime();
+    }
+
+    private LinkedList<Token> getTokens() {
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        Token t;
+        while ((t = tokenizer.next()) != EOF) tokens.add(t);
+        return tokens;
     }
 
 }

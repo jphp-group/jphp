@@ -3,10 +3,9 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HOUR_12;
 
 import java.nio.CharBuffer;
-import java.util.List;
 
 class Hour12 extends VariableLengthSymbol {
-    Hour12() {
+    private Hour12() {
         super(Symbol.DIGITS, 1, 2);
     }
 
@@ -15,8 +14,15 @@ class Hour12 extends VariableLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
-        CharBuffer cb = tokenizer.readCharBuffer(tokens.get(cursor.value()));
+    public boolean matchesInternal(DateTimeParserContext ctx) {
+        CharBuffer cb = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
         return HOUR_12.matcher(cb).matches();
+    }
+
+    @Override
+    void apply(DateTimeParserContext ctx) {
+        // FIXME create new node
+        int hour = ctx.readIntAtCursor();
+        ctx.dateTime(ctx.dateTime().withHour(hour));
     }
 }
