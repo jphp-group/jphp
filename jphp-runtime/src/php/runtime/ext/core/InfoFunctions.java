@@ -9,6 +9,7 @@ import php.runtime.ext.support.Extension;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.output.PrintR;
 import php.runtime.memory.output.Printer;
@@ -21,7 +22,10 @@ import php.runtime.reflection.FunctionEntity;
 
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class InfoFunctions extends FunctionsContainer {
@@ -277,5 +281,169 @@ public class InfoFunctions extends FunctionsContainer {
 
     public static void restore_include_path(Environment env){
         env.restoreConfigValue("include_path");
+    }
+
+    public static Memory version_compare(String version1, String version2) {
+        return LongMemory.valueOf(version_compare0(version1, version2));
+    }
+
+    public static Memory version_compare(String version1, String version2, String operator) {
+        switch (operator) {
+            case "<":
+            case "lt":
+                return version_compare0(version1, version2) == -1 ? Memory.TRUE : Memory.FALSE;
+            case "<=":
+            case "le":
+                return version_compare0(version1, version2) <= 0 ? Memory.TRUE : Memory.FALSE;
+            case ">":
+            case "gt":
+                return version_compare0(version1, version2) == 1 ? Memory.TRUE : Memory.FALSE;
+            case ">=":
+            case "ge":
+                return version_compare0(version1, version2) >= 0 ? Memory.TRUE : Memory.FALSE;
+            case "=":
+            case "==":
+            case "eq":
+                return version_compare0(version1, version2) == 0 ? Memory.TRUE : Memory.FALSE;
+            case "!=":
+            case "<>":
+            case "ne":
+                return version_compare0(version1, version2) != 0 ? Memory.TRUE : Memory.FALSE;
+            default:
+                return Memory.NULL;
+        }
+    }
+
+    private static int version_compare0(String version1, String version2) {
+        return PHPVersion.of(version1).compareTo(PHPVersion.of(version2));
+    }
+
+    private static String normalizeVersion(String version) {
+        if (version == null || version.isEmpty())
+            return version;
+
+        StringBuilder buff = new StringBuilder(version.length());
+
+        for (int i = 0; i < version.length(); i++) {
+            char c = version.charAt(i);
+
+            switch (c) {
+                case '-':
+                case '+':
+                case '_':
+                    buff.append('.');
+                    break;
+                default:
+                    if (Character.isLetter(c) && i - 1 >= 0 && Character.isDigit(version.charAt(i - 1))) {
+                        buff.append('.');
+                    } else if (Character.isDigit(c) && i - 1 >= 0 && Character.isLetter(version.charAt(i - 1))) {
+                        buff.append('.');
+                    }
+
+                    buff.append(c);
+            }
+        }
+
+        return buff.toString();
+    }
+
+    private static class PHPVersion implements Comparable<PHPVersion> {
+        private static final int UNSPECIFIED = Integer.MIN_VALUE;
+        private static final PHPVersion INVALID_VERSION = new PHPVersion(UNSPECIFIED, UNSPECIFIED, UNSPECIFIED, null, UNSPECIFIED);
+        private static final Map<String, Integer> PRERELEASE_PRECEDENCE;
+
+        static {
+            Map<String, Integer> precedence = new HashMap<>(10);
+            precedence.put("dev", 0);
+            precedence.put("alpha", 1);
+            precedence.put("a", 1);
+            precedence.put("beta", 2);
+            precedence.put("b", 2);
+            precedence.put("RC", 3);
+            precedence.put("rc", 3);
+            precedence.put("#", 4);
+            precedence.put("pl", 5);
+            precedence.put("p", 5);
+
+            PRERELEASE_PRECEDENCE = Collections.unmodifiableMap(precedence);
+        }
+
+        private final int major;
+        private final int minor;
+        private final int patch;
+        private final String preRelease;
+        private final int build;
+
+        private PHPVersion(int major, int minor, int patch, String preRelease, int build) {
+            this.major = major;
+            this.minor = minor;
+            this.patch = patch;
+            this.preRelease = preRelease;
+            this.build = build;
+        }
+
+        static PHPVersion of(String version) {
+            if (version == null || version.isEmpty())
+                return INVALID_VERSION;
+
+            int major = UNSPECIFIED;
+            int minor = UNSPECIFIED;
+            int patch = UNSPECIFIED;
+            String preRelease = null;
+            int build = UNSPECIFIED;
+
+            for (String part : normalizeVersion(version).split("\\.")) {
+                try {
+                    int partInt = Integer.valueOf(part);
+                    if (preRelease == null) {
+                        if (major == UNSPECIFIED) {
+                            major = partInt;
+                        } else if (minor == UNSPECIFIED) {
+                            minor = partInt;
+                        } else if (patch == UNSPECIFIED) {
+                            patch = partInt;
+                        }
+                    } else if (build == UNSPECIFIED) {
+                        build = partInt;
+                    }
+                } catch (NumberFormatException e) {
+                    preRelease = part;
+                }
+            }
+
+            preRelease = preRelease == null ? "#" : preRelease;
+
+            return new PHPVersion(major, minor, patch, preRelease, build);
+        }
+
+        @Override
+        public int compareTo(PHPVersion o) {
+            if (major != o.major)
+                return Integer.compare(major, o.major);
+
+            if (minor != o.minor)
+                return Integer.compare(minor, o.minor);
+
+            if (patch != o.patch)
+                return Integer.compare(patch, o.patch);
+
+            if (preRelease != null && o.preRelease == null)
+                return -1;
+            else if (preRelease == null && o.preRelease != null)
+                return 1;
+
+            if (getPreReleasePrecedence() != o.getPreReleasePrecedence()) {
+                return Integer.compare(getPreReleasePrecedence(), o.getPreReleasePrecedence());
+            }
+
+            if (build != o.build)
+                return Integer.compare(build, o.build);
+
+            return 0;
+        }
+
+        private int getPreReleasePrecedence() {
+            return PRERELEASE_PRECEDENCE.getOrDefault(preRelease, UNSPECIFIED);
+        }
     }
 }

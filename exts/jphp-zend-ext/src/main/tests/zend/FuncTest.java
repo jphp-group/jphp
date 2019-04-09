@@ -40,4 +40,10 @@ public class FuncTest extends ZendJvmTestCase {
     public void testIniAlter(){
         check("zend/func/ini_alter.php");
     }
+
+    @Test
+    public void testVersionCompare() {
+        check("zend/func/version_compare.phpt");
+        check("zend/func/version_compare_invalid_operator.phpt");
+    }
 }
