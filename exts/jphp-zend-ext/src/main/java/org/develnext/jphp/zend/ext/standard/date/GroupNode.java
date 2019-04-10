@@ -8,7 +8,7 @@ class GroupNode extends Node implements Iterable<Node> {
     private final String name;
     private final Node[] nodes;
 
-    private GroupNode(String name, Node[] nodes) {
+    GroupNode(String name, Node[] nodes) {
         this.name = name;
         this.nodes = nodes;
     }
@@ -27,7 +27,7 @@ class GroupNode extends Node implements Iterable<Node> {
         Cursor cursor = ctx.cursor();
         int mark = cursor.value();
 
-        for (; cursor.value() < ctx.tokens().size() && nodeIt.hasNext(); cursor.inc()) {
+        for (; cursor.value() < ctx.tokens().size() && nodeIt.hasNext();) {
             Node node = nodeIt.next();
             boolean matches = node.matches(ctx);
 
@@ -45,7 +45,6 @@ class GroupNode extends Node implements Iterable<Node> {
     void apply(DateTimeParserContext ctx) {
         for (Node node : nodes) {
             node.apply(ctx);
-            ctx.cursor().inc();
         }
     }
 

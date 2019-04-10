@@ -21,6 +21,7 @@ class Month2 extends FixedLengthSymbol {
     void apply(DateTimeParserContext ctx) {
         int month = ctx.readIntAtCursor();
 
-        ctx.dateTime(ctx.dateTime().withMonth(month));
+        ctx.setMonth(month);
+        ctx.cursor().inc();
     }
 }

@@ -17,15 +17,17 @@ class DateTimeTokenizer {
     static final Pattern TWO_DIGIT_MINUTE = Pattern.compile("[0-5][0-9]");
     static final Pattern MINUTE_ii = Pattern.compile("0?[0-9]|[0-5][0-9]");
     static final Pattern SECOND_ss = MINUTE_ii;
+    static final Pattern MINUTE_II = Pattern.compile("[0-5][0-9]");
     static final Pattern TWO_DIGIT_SECOND = TWO_DIGIT_MINUTE;
     static final Pattern FRACTION = Pattern.compile("\\.[0-9]+");
     static final Pattern MERIDIAN = Pattern.compile("[AaPp]\\.?[Mm]\\.?\t?");
     static final Pattern TWO_DIGIT_MONTH = Pattern.compile("[0-1][0-9]");
     static final Pattern MONTH_mm = Pattern.compile("0?[0-9]|1[0-2]");
     static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
+    static final Pattern MONTH_M = Pattern.compile("jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
     static final Pattern TWO_DIGIT_DAY = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
     static final Pattern DAY_OF_YEAR = Pattern.compile("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]");
-    static final Pattern WEEK = Pattern.compile("0[1-9]|[1-5][0-3]");
+    static final Pattern WEEK = Pattern.compile("0[1-9]|[1-4][0-9]|5[0-3]");
 
     private static final int UNDEFINED_POSITION = -1;
     private final char[] chars;
@@ -171,14 +173,34 @@ class DateTimeTokenizer {
                     next = Token.of(Symbol.AT, i++, 1);
                     break loop;
                 }
+                case '+': {
+                    if (isUndefined()) {
+                        if (isNextDigit(i)) {
+                            tokenStart = i;
+                            buff.append(c);
+                            break;
+                        }
+
+                        next = Token.of(Symbol.PLUS, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                    }
+                    resetBuffer();
+                    break loop;
+                }
                 case '-': {
                     // previous one not digit next one is digit
                     if (!Character.isDigit(lookahead(i, -1)) && isNextDigit(i)) {
                         // this is most probably negative number
-                        if (isUndefined())
+                        if (isUndefined()) {
                             tokenStart = i;
+                        } else {
+                            next = createWithGuessedSymbol();
+                            resetBuffer();
+                            break loop;
+                        }
 
-                        buff.append(i);
+                        buff.append(c);
                         break;
                     }
 
@@ -319,7 +341,7 @@ class DateTimeTokenizer {
         return characteristics.size() == many.length && characteristics.containsAll(Arrays.asList(many));
     }
 
-    public char readChar(Token token) {
+    char readChar(Token token) {
         return chars[token.start()];
     }
 
@@ -352,11 +374,11 @@ class DateTimeTokenizer {
         return result * sign;
     }
 
-    public int readInt(Token token) {
+    int readInt(Token token) {
         return (int) readLong(token);
     }
 
-    public int readInt(int start, int length) {
+    int readInt(int start, int length) {
         return (int) toLong(readCharBuffer(start, length), start);
     }
 

@@ -19,6 +19,7 @@ class Minute2 extends FixedLengthSymbol {
     @Override
     void apply(DateTimeParserContext ctx) {
         int minute = ctx.readIntAtCursor();
-        ctx.dateTime(ctx.dateTime().withMinute(minute));
+        ctx.setMinute(minute);
+        ctx.cursor().inc();
     }
 }

@@ -18,6 +18,7 @@ class Year4 extends FixedLengthSymbol {
     void apply(DateTimeParserContext ctx) {
         int year = ctx.readIntAtCursor();
 
-        ctx.dateTime(ctx.dateTime().withYear(year));
+        ctx.setYear(year);
+        ctx.cursor().inc();
     }
 }

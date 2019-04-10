@@ -3,7 +3,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_DAY;
 
 class Day2 extends FixedLengthSymbol {
-    Day2() {
+    private Day2() {
         super(Symbol.DIGITS, 2);
     }
 
@@ -19,6 +19,7 @@ class Day2 extends FixedLengthSymbol {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        ctx.dateTime(ctx.dateTime().withDayOfMonth(ctx.readIntAtCursor()));
+        ctx.setDayOfMonth(ctx.readIntAtCursor());
+        ctx.cursor().inc();
     }
 }

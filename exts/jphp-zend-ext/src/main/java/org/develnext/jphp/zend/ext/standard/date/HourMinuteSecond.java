@@ -29,6 +29,7 @@ class HourMinuteSecond extends VariableLengthSymbol {
         int minute = tokenizer.readInt(start + 2 + offset, 2);
         int second = tokenizer.readInt(start + 4 + offset, 2);
 
-        ctx.dateTime(ctx.dateTime().withHour(hour).withMinute(minute).withSecond(second));
+        ctx.setHour(hour).setMinute(minute).setSecond(second);
+        ctx.cursor().inc();
     }
 }

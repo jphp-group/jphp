@@ -15,7 +15,6 @@ public enum Symbol {
     MINUS("minus", "-"),
     PLUS("plus", "+"),
     SLASH("slash", "/"),
-    TIME_MARKER("time", "[tT]"),
     CHARACTER("char", "[a-z][A-Z]"),
     STRING("string", "[a-z][A-Z]+"),
     AT("at", "@"),

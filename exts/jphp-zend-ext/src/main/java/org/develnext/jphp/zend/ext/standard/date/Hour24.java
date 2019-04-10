@@ -24,7 +24,8 @@ class Hour24 extends FixedLengthSymbol {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        int hour = ctx.tokenizer().readInt(ctx.tokenAtCursor());
-        ctx.dateTime(ctx.dateTime().withHour(hour));
+        int hour = ctx.readIntAtCursor();
+        ctx.setHour(hour);
+        ctx.cursor().inc();
     }
 }

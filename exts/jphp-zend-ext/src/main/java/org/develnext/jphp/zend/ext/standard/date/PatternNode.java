@@ -1,35 +1,38 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.time.ZonedDateTime;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 class PatternNode extends SymbolNode {
     private final Pattern pattern;
-    private final BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster;
+    private final Consumer<DateTimeParserContext> adjuster;
 
-    private PatternNode(Pattern pattern, Symbol symbol, BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster) {
+    private PatternNode(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> adjuster) {
         super(symbol);
         this.pattern = pattern;
         this.adjuster = adjuster;
     }
 
-    static PatternNode ofDigits(Pattern pattern, BiFunction<Integer, ZonedDateTime, ZonedDateTime> adjuster) {
+    static PatternNode ofDigits(Pattern pattern, Consumer<DateTimeParserContext> adjuster) {
         return new PatternNode(pattern, Symbol.DIGITS, adjuster);
     }
 
     static PatternNode ofDigits(Pattern pattern) {
-        return new PatternNode(pattern, Symbol.DIGITS, (integer, zonedDateTime) -> zonedDateTime);
+        return new PatternNode(pattern, Symbol.DIGITS, dateTimeParserContext -> {});
+    }
+
+    static PatternNode of(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> adjuster) {
+        return new PatternNode(pattern, symbol, adjuster);
     }
 
     @Override
     public boolean matchesInternal(DateTimeParserContext ctx) {
-        return pattern.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+        return pattern.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
     }
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        int value = ctx.readIntAtCursor();
-        ctx.dateTime(adjuster.apply(value, ctx.dateTime()));
+        adjuster.accept(ctx);
+        ctx.cursor().inc();
     }
 }

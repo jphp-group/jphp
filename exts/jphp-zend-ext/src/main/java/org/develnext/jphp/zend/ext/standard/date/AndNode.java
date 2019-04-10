@@ -9,22 +9,28 @@ class AndNode extends Node {
         this.r = r;
     }
 
-    static OrNode of(Node l, Node r) {
-        return new OrNode(l, r);
+    static AndNode of(Node l, Node r) {
+        return new AndNode(l, r);
     }
 
     @Override
     public boolean matches(DateTimeParserContext ctx) {
-        return l.matches(ctx) && r.matches(ctx);
+        if (l.matches(ctx)) {
+            if (r.matches(ctx)) {
+                return true;
+            } else {
+                ctx.cursor().dec();
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        Cursor cursor = ctx.cursor();
-        int snapshot = cursor.value();
+        int snapshot = ctx.cursor().value();
         if (matches(ctx)) {
-            cursor.setValue(snapshot);
-            l.apply(ctx);
+            l.apply(ctx.withCursorValue(snapshot));
             r.apply(ctx);
         }
     }

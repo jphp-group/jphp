@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +13,11 @@ import org.junit.Test;
 public class DateTimeParserTest {
 
     private static ZonedDateTime parse(String input) {
-        return new DateTimeParser(input).parse().withNano(0);
+        return parseWithNano(input).withNano(0);
+    }
+
+    private static ZonedDateTime parseWithNano(String input) {
+        return new DateTimeParser(input).parse();
     }
 
     @Test
@@ -136,7 +139,7 @@ public class DateTimeParserTest {
     @Test
     public void test24HourFormat() {
         List<Token> expected = Arrays.asList(
-                Token.of(Symbol.TIME_MARKER, 0, 1),
+                Token.of(Symbol.CHARACTER, 0, 1),
                 Token.of(Symbol.DIGITS, 1, 2),
                 Token.of(Symbol.COLON, 3, 1),
                 Token.of(Symbol.DIGITS, 4, 2)
@@ -191,26 +194,75 @@ public class DateTimeParserTest {
 
     @Test
     public void withTimeZone() {
-        List<Token> tokenize = tokenize("Europe/Oslo");
+        assertEquals(
+                Arrays.asList(
+                        Token.of(Symbol.STRING, 0, 3),
+                        Token.of(Symbol.DIGITS, 3, 5)
+                ),
+                tokenize("GMT+0700"));
+
         assertEquals(
                 Arrays.asList(
                         Token.of(Symbol.STRING, 0, 6),
                         Token.of(Symbol.SLASH, 6, 1),
                         Token.of(Symbol.STRING, 7, 4)
                 ),
-                tokenize
-        );
+                tokenize("Europe/Oslo"));
+    }
+
+    @Test
+    public void fraction() {
+        assertEquals(
+                Arrays.asList(
+                        Token.of(Symbol.DIGITS, 0, 2),
+                        Token.of(Symbol.DOT, 2, 1),
+                        Token.of(Symbol.DIGITS, 3, 2)
+                ),
+                tokenize("17.03"));
     }
 
     @Test
     public void dummy() {
+        //assertEquals(ZonedDateTime.parse("2008-01-28T00:00:00+04:00[Asia/Yerevan]"), parse("2008-W05"));
+        //assertEquals(ZonedDateTime.parse("2007-12-31T00:00:00+04:00[Asia/Yerevan]"), parse("2008W01"));
+        //assertEquals(ZonedDateTime.parse("2007-12-31T00:00:00+04:00[Asia/Yerevan]"), parse("2008-W01-3"));
+
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00[GMT-07:00]"), parse("10/Oct/2000:13:55:36 GMT-7"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36+04:30[GMT+04:30]"), parse("10/Oct/2000:13:55:36 GMT+04:30"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-04:30[GMT-04:30]"), parse("10/Oct/2000:13:55:36 GMT-04:30"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36+07:00[GMT+07:00]"), parse("10/Oct/2000:13:55:36 GMT+7"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36+07:00[GMT+07:00]"), parse("10/Oct/2000:13:55:36 GMT+07"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36+07:00"), parse("10/Oct/2000:13:55:36 +7"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00"), parse("10/Oct/2000:13:55:36 -7"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00"), parse("10/Oct/2000:13:55:36 -0700"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00"), parse("10/Oct/2000:13:55:36 -07:00"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00"), parse("10/Oct/2000:13:55:36 -07"));
+        assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00"), parse("10/Oct/2000:13:55:36 -07"));
         assertEquals(ZonedDateTime.parse("1991-08-07T18:11:31+04:00[Asia/Yerevan]"), parse("1991-08-07 18:11:31"));
         assertEquals(ZonedDateTime.parse("2008-07-01T09:03:37+04:00[Asia/Yerevan]"), parse("2008-7-1T9:3:37"));
         assertEquals(ZonedDateTime.parse("2018-12-07T23:59:59+04:00[Asia/Yerevan]"), parse("2018:12:07 23:59:59"));
         assertEquals(ZonedDateTime.parse("2008-07-01T22:38:07+04:00[Asia/Yerevan]"), parse("20080701T22:38:07"));
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701t53807"));
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701T53807"));
-        assertEquals(ZonedDateTime.parse("2008-07-01T09:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T21:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
         assertEquals(ZonedDateTime.parse("2008-01-02T00:00:00+04:00[Asia/Yerevan]"), parse("2008.002"));
+        assertEquals(ZonedDateTime.parse("2008-01-02T00:00:00+04:00[Asia/Yerevan]"), parse("2008.002"));
+    }
+
+    @Test
+    public void soap() {
+        // microseconds
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+08:00"), parseWithNano("2008-07-01T22:35:17.3+08:00"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.030+08:00"), parseWithNano("2008-07-01T22:35:17.03+08:00"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.0030+08:00"), parseWithNano("2008-07-01T22:35:17.003+08:00"));
+
+        // without timezone
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+04:00[Asia/Yerevan]"), parseWithNano("2008-07-01T22:35:17.3"));
+    }
+
+    @Test
+    public void unixtimestamp() {
+        assertEquals(ZonedDateTime.parse("1969-12-31T23:59:59Z[UTC]"), parse("@-1"));
+        assertEquals(ZonedDateTime.parse("-34521-12-09T08:08:05Z[UTC]"), parse("@-1151515151515"));
     }
 }

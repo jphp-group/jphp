@@ -32,6 +32,7 @@ class YearMonthDay extends FixedLengthSymbol {
         int month = tokenizer.readInt(start + 4, 2);
         int day = tokenizer.readInt(start + 6, 2);
 
-        ctx.dateTime(ctx.dateTime().withYear(year).withMonth(month).withDayOfMonth(day));
+        ctx.setYear(year).setMonth(month).setDayOfMonth(day);
+        ctx.cursor().inc();
     }
 }

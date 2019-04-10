@@ -17,7 +17,7 @@ class OrNode extends Node {
 
     @Override
     public boolean matches(DateTimeParserContext ctx) {
-        return l.matches(new DateTimeParserContext(ctx.tokens(), ctx.cursor(), ctx.tokenizer())) || r.matches(new DateTimeParserContext(ctx.tokens(), ctx.cursor(), ctx.tokenizer()));
+        return l.matches(ctx) || r.matches(ctx);
     }
 
     @Override

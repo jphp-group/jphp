@@ -23,7 +23,11 @@ class SymbolNode extends Node {
     @Override
     public boolean matches(DateTimeParserContext ctx) {
         if (ctx.tokenAtCursor().symbol() == symbol) {
-            return matchesInternal(ctx);
+            boolean match = matchesInternal(ctx);
+            if (match)
+                ctx.cursor().inc();
+
+            return match;
         }
 
         return false;
@@ -31,6 +35,7 @@ class SymbolNode extends Node {
 
     @Override
     void apply(DateTimeParserContext ctx) {
+        ctx.cursor().inc();
     }
 
     public boolean matchesInternal(DateTimeParserContext ctx) {
@@ -42,5 +47,9 @@ class SymbolNode extends Node {
         return new StringJoiner(", ", SymbolNode.class.getSimpleName() + "[", "]")
                 .add("symbol=" + symbol)
                 .toString();
+    }
+
+    Node followedByOptional(Node node) {
+        return OrNode.of(GroupNode.of(this, node), this);
     }
 }

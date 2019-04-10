@@ -24,12 +24,14 @@ class CharacterNode extends SymbolNode {
             return false;
         }
 
-        Token current = ctx.tokens().get(ctx.cursor().value());
-        return caseSensitive ? ctx.tokenizer().readChar(current) == c :
-                Character.toLowerCase(ctx.tokenizer().readChar(current)) == Character.toLowerCase(c);
+        DateTimeTokenizer tokenizer = ctx.tokenizer();
+        Token current = ctx.tokenAtCursor();
+        return caseSensitive ? tokenizer.readChar(current) == c :
+                Character.toLowerCase(tokenizer.readChar(current)) == Character.toLowerCase(c);
     }
 
     @Override
     void apply(DateTimeParserContext ctx) {
+        ctx.cursor().inc();
     }
 }

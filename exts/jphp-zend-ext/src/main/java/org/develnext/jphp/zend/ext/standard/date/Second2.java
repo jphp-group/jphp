@@ -23,6 +23,7 @@ class Second2 extends FixedLengthSymbol {
     void apply(DateTimeParserContext ctx) {
         int sec = ctx.readIntAtCursor();
 
-        ctx.dateTime(ctx.dateTime().withSecond(sec));
+        ctx.setSecond(sec);
+        ctx.cursor().inc();
     }
 }
