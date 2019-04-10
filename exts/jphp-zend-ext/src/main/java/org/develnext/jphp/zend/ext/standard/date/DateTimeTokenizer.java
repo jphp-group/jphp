@@ -159,7 +159,12 @@ class DateTimeTokenizer {
                     }
                 }
                 case '/': {
-                    next = Token.of(Symbol.SLASH, i++, 1);
+                    if (isUndefined()) {
+                        next = Token.of(Symbol.SLASH, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                    }
+                    resetBuffer();
                     break loop;
                 }
                 case '@': {
@@ -184,6 +189,18 @@ class DateTimeTokenizer {
                 case '\t': {
                     next = Token.of(Symbol.SPACE, i++, 1);
                     break loop;
+                }
+                default: {
+                    if (isUndefined())
+                        tokenStart = i;
+
+                    buff.append(c);
+
+                    if (Character.isLetter(c)) {
+                        characteristics.add(LETTERS);
+                    }
+
+                    break;
                 }
             }
 
@@ -290,7 +307,10 @@ class DateTimeTokenizer {
             return Symbol.FRACTION;
         } else if ((hasOnly(LETTERS) || hasOnly(LETTERS, PUNCTUATION)) && MERIDIAN.matcher(buff).matches()) {
             return Symbol.MERIDIAN;
+        } else if (hasOnly(LETTERS)) {
+            return Symbol.STRING;
         }
+
 
         throw new IllegalStateException("Cannot guest type of " + buff.toString());
     }

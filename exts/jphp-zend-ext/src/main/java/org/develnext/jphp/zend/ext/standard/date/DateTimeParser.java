@@ -113,7 +113,7 @@ public class DateTimeParser {
     }
 
     private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> dayOfYearAdjuster() {
-        return (doy, dt) -> dt.withDayOfYear(doy);
+        return (doy, dt) -> dt.withDayOfYear(doy).withHour(0).withMinute(0).withSecond(0).withNano(0);
     }
 
     private static BiFunction<Integer, ZonedDateTime, ZonedDateTime> secondAdjuster() {

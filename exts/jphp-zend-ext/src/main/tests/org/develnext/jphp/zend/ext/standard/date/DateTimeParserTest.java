@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -191,6 +190,19 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void withTimeZone() {
+        List<Token> tokenize = tokenize("Europe/Oslo");
+        assertEquals(
+                Arrays.asList(
+                        Token.of(Symbol.STRING, 0, 6),
+                        Token.of(Symbol.SLASH, 6, 1),
+                        Token.of(Symbol.STRING, 7, 4)
+                ),
+                tokenize
+        );
+    }
+
+    @Test
     public void dummy() {
         assertEquals(ZonedDateTime.parse("1991-08-07T18:11:31+04:00[Asia/Yerevan]"), parse("1991-08-07 18:11:31"));
         assertEquals(ZonedDateTime.parse("2008-07-01T09:03:37+04:00[Asia/Yerevan]"), parse("2008-7-1T9:3:37"));
@@ -199,6 +211,6 @@ public class DateTimeParserTest {
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701t53807"));
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701T53807"));
         assertEquals(ZonedDateTime.parse("2008-07-01T09:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
-        assertEquals(LocalDate.parse("2008-01-02"), parse("2008.002").toLocalDate());
+        assertEquals(ZonedDateTime.parse("2008-01-02T00:00:00+04:00[Asia/Yerevan]"), parse("2008.002"));
     }
 }
