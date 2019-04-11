@@ -79,6 +79,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/mktime_basic1.phpt");
         check("ext/date/mktime-3-64bit.phpt");
         check("ext/date/mktime_no_args.phpt");
+        check("ext/date/big_year.phpt");
         check("ext/date/gmmktime_basic.phpt");
     }
 

@@ -1,4 +1,4 @@
-package date;
+package org.develnext.jphp.zend.ext.standard.date;
 
 import org.develnext.jphp.zend.ZendJvmTestCase;
 import org.junit.FixMethodOrder;

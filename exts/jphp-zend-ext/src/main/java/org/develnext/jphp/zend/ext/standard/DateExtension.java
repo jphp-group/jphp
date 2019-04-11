@@ -2,6 +2,7 @@ package org.develnext.jphp.zend.ext.standard;
 
 import org.develnext.jphp.zend.ext.standard.date.DateInterval;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeInterface;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeZone;
 
 import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
@@ -29,5 +30,6 @@ public class DateExtension extends Extension {
 
         registerClass(scope, DateTimeInterface.class);
         registerClass(scope, DateInterval.class);
+        registerClass(scope, DateTimeZone.class);
     }
 }
