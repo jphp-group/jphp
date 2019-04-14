@@ -22,10 +22,13 @@ import java.util.TimeZone;
 
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
+import org.develnext.jphp.zend.ext.standard.date.DateTime;
+
+import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
+
 import php.runtime.Memory;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapJavaExceptions;
@@ -101,7 +104,6 @@ public class DateFunctions extends FunctionsContainer {
         // from "TZ" environment variable
         String tz = (String) env.getUserValue("env", Map.class).get("TZ");
 
-        System.out.println(tz);
         if (StringUtils.isBlank(tz)) {
             // if "TZ" does not contain value read from ini config
             Memory iniConfig = env.getConfigValue("date.timezone", Memory.UNDEFINED);
@@ -622,6 +624,15 @@ public class DateFunctions extends FunctionsContainer {
 
     private static ZonedDateTime zonedDateTime(Environment env, TraceInfo traceInfo, long time) {
         return Instant.ofEpochSecond(time).atZone(zoneId(date_default_timezone_get(env, traceInfo)));
+    }
+
+    public static Memory date_create(Environment env, TraceInfo traceInfo, Memory time) {
+        DateTime dateTime = new DateTime(env);
+        return dateTime.__construct(env, traceInfo, time);
+    }
+
+    public static Memory date_create(Environment env, TraceInfo traceInfo) {
+        return date_create(env, traceInfo, StringMemory.valueOf("now"));
     }
 
     public static Memory time() {

@@ -13,46 +13,38 @@ date_default_timezone_set("Europe/London");
 
 echo "*** Testing date_create() : basic functionality ***\n";
 
-var_dump( date_create() );
+//print_r( date_create() );
 
-var_dump( date_create("GMT") );
-var_dump( date_create("2005-07-14 22:30:41") );
-var_dump( date_create("2005-07-14 22:30:41 GMT") );
+print_r( date_create("GMT") );
+print_r( date_create("2005-07-14 22:30:41") );
+print_r( date_create("2005-07-14 22:30:41 GMT") );
 
 ?>
 ===DONE===
 --EXPECTF--
 *** Testing date_create() : basic functionality ***
-object(DateTime)#%d (3) {
-  ["date"]=>
-  string(26) "%s"
-  ["timezone_type"]=>
-  int(3)
-  ["timezone"]=>
-  string(13) "Europe/London"
-}
-object(DateTime)#%d (3) {
-  ["date"]=>
-  string(26) "%s"
-  ["timezone_type"]=>
-  int(2)
-  ["timezone"]=>
-  string(3) "GMT"
-}
-object(DateTime)#%d (3) {
-  ["date"]=>
-  string(26) "2005-07-14 22:30:41.000000"
-  ["timezone_type"]=>
-  int(3)
-  ["timezone"]=>
-  string(13) "Europe/London"
-}
-object(DateTime)#%d (3) {
-  ["date"]=>
-  string(26) "2005-07-14 22:30:41.000000"
-  ["timezone_type"]=>
-  int(2)
-  ["timezone"]=>
-  string(3) "GMT"
-}
+DateTime Object
+(
+    [date] => %s
+    [timezone_type] => 3
+    [timezone] => Europe/London
+)
+DateTime Object
+(
+    [date] => %s
+    [timezone_type] => 2
+    [timezone] => GMT
+)
+DateTime Object
+(
+    [date] => 2005-07-14 22:30:41.000000
+    [timezone_type] => 3
+    [timezone] => Europe/London
+)
+DateTime Object
+(
+    [date] => 2005-07-14 22:30:41.000000
+    [timezone_type] => 2
+    [timezone] => GMT
+)
 ===DONE===

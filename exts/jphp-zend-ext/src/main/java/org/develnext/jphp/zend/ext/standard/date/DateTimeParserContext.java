@@ -3,19 +3,24 @@ package org.develnext.jphp.zend.ext.standard.date;
 import java.nio.CharBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalField;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 class DateTimeParserContext {
     private final List<Token> tokens;
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
-    private ZonedDateTime dateTime;
+    private final Map<TemporalField, Boolean> modified;
     private LocalDate date;
     private LocalTime time;
     private ZoneId zone;
@@ -24,7 +29,7 @@ class DateTimeParserContext {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
-        dateTime = ZonedDateTime.now();
+        modified = new HashMap<>();
     }
 
     public List<Token> tokens() {
@@ -37,6 +42,14 @@ class DateTimeParserContext {
 
     public Token tokenAtCursor() {
         return hasMoreTokens() ? tokens.get(cursor.value()) : Token.EOF;
+    }
+
+    public Symbol symbolAtCursor() {
+        return tokenAtCursor().symbol();
+    }
+
+    public boolean isSymbolAtCursor(Symbol symbol) {
+        return tokenAtCursor().symbol() == symbol;
     }
 
     public int readIntAtCursor() {
@@ -85,6 +98,7 @@ class DateTimeParserContext {
     }
 
     private <T extends Temporal> T adjust(T temporal, TemporalField field, int value) {
+        modified.put(field, Boolean.TRUE);
         return (T) temporal.with(field, value);
     }
 
@@ -187,5 +201,46 @@ class DateTimeParserContext {
         date = zonedDateTime.toLocalDate();
         time = zonedDateTime.toLocalTime();
         return this;
+    }
+
+    public DateTimeParserContext setMeridian(boolean am) {
+        if (time == null)
+            throw new IllegalStateException("The time should be initialized at this point!");
+
+        if (am) {
+            time = time.withHour(time.getHour() % 12);
+        } else {
+            time = time.withHour(time.getHour() + 12);
+        }
+
+        if (isNotModified(ChronoField.MINUTE_OF_HOUR)) {
+            time = time.withMinute(0);
+        }
+
+        if (isNotModified(ChronoField.SECOND_OF_MINUTE)) {
+            time = time.withSecond(0);
+        }
+
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", DateTimeParserContext.class.getSimpleName() + "[", "]")
+                .add("cursor=" + cursor)
+                .add("tokenAtCursor=" + tokenAtCursor())
+                .toString();
+    }
+
+    public boolean isModified(TemporalField field) {
+        return modified.containsKey(field);
+    }
+
+    public boolean isNotModified(TemporalField field) {
+        return !isModified(field);
+    }
+
+    public char readCharAtCursor() {
+        return tokenizer.readChar(tokenAtCursor());
     }
 }

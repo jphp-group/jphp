@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 class DateTimeTokenizer {
     static final Pattern HOUR_hh = Pattern.compile("0?[1-9]|1[0-2]");
     static final Pattern HOUR_HH = Pattern.compile("[01][0-9]|2[0-4]");
+    static final Pattern HH_MM = Pattern.compile("([01][0-9]|2[0-4])(0[0-9]|1[0-2])");
     static final Pattern HOUR_12 = HOUR_hh;
     static final Pattern HOUR_24 = HOUR_HH;
     static final Pattern TWO_DIGIT_MINUTE = Pattern.compile("[0-5][0-9]");
@@ -21,7 +22,7 @@ class DateTimeTokenizer {
     static final Pattern TWO_DIGIT_SECOND = TWO_DIGIT_MINUTE;
     static final Pattern FRACTION = Pattern.compile("\\.[0-9]+");
     static final Pattern MERIDIAN = Pattern.compile("[AaPp]\\.?[Mm]\\.?\t?");
-    static final Pattern TWO_DIGIT_MONTH = Pattern.compile("[0-1][0-9]");
+    static final Pattern TWO_DIGIT_MONTH = Pattern.compile("0[0-9]|1[0-2]");
     static final Pattern MONTH_mm = Pattern.compile("0?[0-9]|1[0-2]");
     static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
     static final Pattern MONTH_M = Pattern.compile("jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
@@ -345,9 +346,13 @@ class DateTimeTokenizer {
         return chars[token.start()];
     }
 
+    char readChar(int idx) {
+        return chars[idx];
+    }
+
     public long readLong(Token token) {
         if (token.symbol() != Symbol.DIGITS) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Cannot read long from " + token.symbol());
         }
 
         CharBuffer cb = readCharBuffer(token);

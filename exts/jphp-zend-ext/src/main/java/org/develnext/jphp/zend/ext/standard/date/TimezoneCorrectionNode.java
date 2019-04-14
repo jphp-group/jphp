@@ -1,13 +1,28 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_II;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.COLON_NODE;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.MINUS_NODE;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.PLUS_NODE;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_MINUTE;
 
+import java.nio.CharBuffer;
 import java.time.ZoneId;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class TimezoneCorrectionNode extends Node {
-    private static final Pattern HOUR_hh = Pattern.compile("[+-](0?[1-9]|1[0-2])");
-    private static final Pattern TZ_CORRECTION = Pattern.compile("[+-](0?[1-9]|1[0-2]):?[0-5][0-9]");
+    private static final Pattern TZ_CORRECTION = Pattern.compile("[+-](0?[1-9]|1[0-2]):?([0-5][0-9])?");
+    private static final Pattern TZ_CORRECTION_OPT_SIGN = Pattern.compile("0?([1-9]|1[0-2]):?([0-5][0-9])?");
+    private static final Pattern OFFSET_PREFIX = Pattern.compile("GMT|UTC|UT");
+    private static final Pattern OFFSET_PATTERN = Pattern.compile("GMT|UTC|UT");
+    private static final Pattern hhSigned = Pattern.compile("[+-]0?[1-9]|1[0-2]");
+    private static final Pattern hh = Pattern.compile("0?[1-9]|1[0-2]");
+    private static final Pattern hh_TWO_DIGIT = Pattern.compile("0[1-9]|1[0-2]");
+    private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
+    private static final Pattern hhMMSigned = Pattern.compile("[+-](0?[1-9]|1[0-2])[0-5][0-9]?");
+    private static final Pattern SIGN = Pattern.compile("[+-]");
+
     private ZoneId zoneId;
 
     TimezoneCorrectionNode() {
@@ -15,64 +30,83 @@ class TimezoneCorrectionNode extends Node {
 
     @Override
     boolean matches(DateTimeParserContext ctx) {
-        int snapshot = ctx.cursor().value();
-
         StringBuilder sb = new StringBuilder();
-        if (ctx.tokenAtCursor().symbol() == Symbol.STRING) {
-            sb.append(ctx.readCharBufferAtCursor());
-            ctx.cursor().inc(); // consume the timezone
-        }
+        PatternNode MM_NODE = PatternNode.ofDigits(TWO_DIGIT_MINUTE, c -> append(sb, c));
+        PatternNode GMT_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
+        Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
 
-        if (ctx.tokenAtCursor().symbol() != Symbol.DIGITS) {
-            ctx.withCursorValue(snapshot);
-            return false;
-        }
+        GroupNode[] groupNodes = {
+                GroupNode.of(
+                        "OP? [+-]hh:?MM",
+                        GMT_NODE
+                                .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
+                                .followedByOptional(COLON_NODE),
+                        MM_NODE
+                ),
+                GroupNode.of(
+                        "OP? [+-]hh(:MM)?",
+                        GMT_NODE
+                                .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
+                                .followedByOptional(COLON_NODE.then(MM_NODE))
+                ),
+                GroupNode.of(
+                        "OP? [+-]hhMM",
+                        GMT_NODE.optionalFollowedBy(PatternNode.ofDigits(hhMMSigned, signedHour))
+                ),
+                GroupNode.of(
+                        "[+-] hh (:MM)?",
+                        PLUS_NODE.or(MINUS_NODE)
+                                .then(PatternNode.ofDigits(hh, signedHour)
+                                        .followedByOptional(COLON_NODE.then(MM_NODE))
+                                        .or(PatternNode.ofDigits(hhMM, signedHour))
+                                )
+                ),
+        };
 
-        int length = ctx.tokenAtCursor().length();
-        Pattern pattern = HOUR_hh;
+        for (GroupNode groupNode : groupNodes) {
+            int snapshot = ctx.cursor().value();
+            boolean matches = groupNode.matches(ctx);
 
-        if (length == 5) { // +0700
-            pattern = TZ_CORRECTION;
-        }
-
-        if (notMatch(ctx, snapshot, sb, pattern)) {
-            return false;
-        }
-
-        boolean hasShortLength = length == 5 || length == 3 || length == 2;
-        boolean notColon = ctx.hasMoreTokens() && ctx.tokenAtCursor().symbol() != Symbol.COLON;
-        if ((notColon || !ctx.hasMoreTokens()) && hasShortLength) { // -07, -0700
-            zoneId = ZoneId.of(sb.toString());
-            return true;
-        }
-
-        if (ctx.tokenAtCursor().symbol() == Symbol.COLON)
-            ctx.cursor().inc();
-
-        sb.append(':');
-
-        if (ctx.tokenAtCursor().symbol() == Symbol.DIGITS) {
-            if (notMatch(ctx, snapshot, sb, MINUTE_II)) {
-                return false;
+            if (matches) {
+                ctx.cursor().setValue(snapshot);
+                groupNode.apply(ctx);
+                zoneId = ZoneId.of(sb.toString());
+                return true;
             }
-        } else {
-            sb.append("00");
         }
 
-        zoneId = ZoneId.of(sb.toString());
-        return true;
+        return false;
     }
 
-    private boolean notMatch(DateTimeParserContext ctx, int snapshot, StringBuilder sb, Pattern pattern) {
-        PatternNode node = PatternNode.ofDigits(pattern, context -> sb.append(context.readCharBufferAtCursor()));
-        if (!node.matches(ctx)) {
-            ctx.withCursorValue(snapshot);
-            return true;
+    private void appendSignedHour(StringBuilder sb, DateTimeParserContext c) {
+        CharBuffer cb = c.readCharBufferAtCursor();
+
+        Pattern compile = Pattern.compile("([+-])?(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
+
+        Matcher matcher = compile.matcher(cb);
+        if (!matcher.matches()) {
+            throw new IllegalStateException("DUP!");
         }
 
-        ctx.cursor().dec();
-        node.apply(ctx);
-        return false;
+        if (matcher.group(1) != null) {
+            sb.append(matcher.group(1));
+        } else {
+            sb.append(c.tokenizer().readChar(c.tokenAtCursor().start() - 1));
+        }
+
+        sb.append(String.format("%02d", Integer.parseInt(matcher.group(2))));
+
+        if (matcher.group(3) != null) {
+            sb.append(matcher.group(3));
+        }
+
+        if (matcher.group(4) != null) {
+            sb.append(matcher.group(4));
+        }
+    }
+
+    private void append(StringBuilder sb, DateTimeParserContext c) {
+        sb.append(c.readCharBufferAtCursor());
     }
 
     @Override

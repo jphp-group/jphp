@@ -3,22 +3,30 @@ package org.develnext.jphp.zend.ext.standard.date;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 class GroupNode extends Node implements Iterable<Node> {
+    private static final Consumer<DateTimeParserContext> EMPTY_ACTION = ctx -> {};
     private final String name;
     private final Node[] nodes;
+    private final Consumer<DateTimeParserContext> afterApply;
 
-    GroupNode(String name, Node[] nodes) {
+    GroupNode(String name, Node[] nodes, Consumer<DateTimeParserContext> afterApply) {
         this.name = name;
         this.nodes = nodes;
+        this.afterApply = afterApply;
     }
 
     static GroupNode of(String name, Node... nodes) {
-        return new GroupNode(name, nodes);
+        return new GroupNode(name, nodes, EMPTY_ACTION);
+    }
+
+    static GroupNode of(String name, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
+        return new GroupNode(name, nodes, afterApply);
     }
 
     static GroupNode of(Node... nodes) {
-        return new GroupNode("noname", nodes);
+        return new GroupNode("noname", nodes, EMPTY_ACTION);
     }
 
     @Override
@@ -27,7 +35,7 @@ class GroupNode extends Node implements Iterable<Node> {
         Cursor cursor = ctx.cursor();
         int mark = cursor.value();
 
-        for (; cursor.value() < ctx.tokens().size() && nodeIt.hasNext();) {
+        for (; ctx.hasMoreTokens() && nodeIt.hasNext(); ) {
             Node node = nodeIt.next();
             boolean matches = node.matches(ctx);
 
@@ -35,6 +43,11 @@ class GroupNode extends Node implements Iterable<Node> {
                 cursor.setValue(mark);
                 return false;
             }
+        }
+
+        if (nodeIt.hasNext()) {
+            cursor.setValue(mark);
+            return false;
         }
 
         System.out.println("=== " + name + " ===");
@@ -46,6 +59,8 @@ class GroupNode extends Node implements Iterable<Node> {
         for (Node node : nodes) {
             node.apply(ctx);
         }
+
+        afterApply.accept(ctx);
     }
 
     @Override

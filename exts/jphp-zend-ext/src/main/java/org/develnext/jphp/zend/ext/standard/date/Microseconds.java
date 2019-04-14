@@ -1,7 +1,5 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.nio.CharBuffer;
-
 class Microseconds extends SymbolNode {
     private Microseconds() {
         super(Symbol.DIGITS);
@@ -13,18 +11,12 @@ class Microseconds extends SymbolNode {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        CharBuffer cb = ctx.readCharBufferAtCursor();
-        int mult = 100_000;
+        int l = ctx.tokenAtCursor().length();
+        int m = 1_000_000;
 
-        while (cb.hasRemaining()) {
-            if (cb.get() == '0')
-                mult /= 10;
-            else
-                break;
-        }
+        while (l-- > 0) m /= 10;
 
-        int micro = ctx.readIntAtCursor();
-        micro *= mult;
+        int micro = ctx.readIntAtCursor() * m;
 
         ctx.setMicroseconds(micro).cursor().inc();
     }

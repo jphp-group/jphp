@@ -27,7 +27,7 @@ class PatternNode extends SymbolNode {
 
     @Override
     public boolean matchesInternal(DateTimeParserContext ctx) {
-        return pattern.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
+        return pattern.matcher(ctx.readCharBufferAtCursor()).matches();
     }
 
     @Override

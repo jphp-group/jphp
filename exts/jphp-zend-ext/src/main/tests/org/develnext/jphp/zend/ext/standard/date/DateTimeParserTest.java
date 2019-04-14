@@ -1,10 +1,13 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import static java.time.ZonedDateTime.now;
 import static java.util.Collections.singletonList;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,11 +16,15 @@ import org.junit.Test;
 public class DateTimeParserTest {
 
     private static ZonedDateTime parse(String input) {
-        return parseWithNano(input).withNano(0);
+        return parseWithMicro(input).withNano(0);
     }
 
-    private static ZonedDateTime parseWithNano(String input) {
+    private static ZonedDateTime parseWithMicro(String input) {
         return new DateTimeParser(input).parse();
+    }
+
+    private static ZonedDateTime withTime(int hour, int minute, int second) {
+        return now().withHour(hour).withMinute(minute).withSecond(second).withNano(0);
     }
 
     @Test
@@ -244,7 +251,7 @@ public class DateTimeParserTest {
         assertEquals(ZonedDateTime.parse("2008-07-01T22:38:07+04:00[Asia/Yerevan]"), parse("20080701T22:38:07"));
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701t53807"));
         assertEquals(ZonedDateTime.parse("2038-07-01T05:38:07+04:00[Asia/Yerevan]"), parse("20380701T53807"));
-        assertEquals(ZonedDateTime.parse("2008-07-01T21:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T09:38:07+04:00[Asia/Yerevan]"), parse("20080701T9:38:07"));
         assertEquals(ZonedDateTime.parse("2008-01-02T00:00:00+04:00[Asia/Yerevan]"), parse("2008.002"));
         assertEquals(ZonedDateTime.parse("2008-01-02T00:00:00+04:00[Asia/Yerevan]"), parse("2008.002"));
     }
@@ -252,17 +259,112 @@ public class DateTimeParserTest {
     @Test
     public void soap() {
         // microseconds
-        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+08:00"), parseWithNano("2008-07-01T22:35:17.3+08:00"));
-        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.030+08:00"), parseWithNano("2008-07-01T22:35:17.03+08:00"));
-        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.0030+08:00"), parseWithNano("2008-07-01T22:35:17.003+08:00"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+08:00"), parseWithMicro("2008-07-01T22:35:17.3+08:00"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.030+08:00"), parseWithMicro("2008-07-01T22:35:17.03+08:00"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.0030+08:00"), parseWithMicro("2008-07-01T22:35:17.003+08:00"));
 
         // without timezone
-        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+04:00[Asia/Yerevan]"), parseWithNano("2008-07-01T22:35:17.3"));
+        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+04:00[Asia/Yerevan]"), parseWithMicro("2008-07-01T22:35:17.3"));
     }
 
     @Test
     public void unixtimestamp() {
         assertEquals(ZonedDateTime.parse("1969-12-31T23:59:59Z[UTC]"), parse("@-1"));
         assertEquals(ZonedDateTime.parse("-34521-12-09T08:08:05Z[UTC]"), parse("@-1151515151515"));
+    }
+
+    @Test
+    public void onlyTimeZone() {
+        assertEquals(now(ZoneId.of("GMT")).withNano(0), parse("GMT"));
+    }
+
+    @Test
+    public void hourWithMeridian() {
+        assertEquals(withTime(17, 0, 0).withNano(0), parse("5PM"));
+        assertEquals(withTime(17, 0, 0).withNano(0), parse("5 PM"));
+        assertEquals(withTime(4, 0, 0).withNano(0), parse("4 am"));
+        assertEquals(withTime(4, 0, 0).withNano(0), parse("4 a.m"));
+        assertEquals(withTime(4, 0, 0).withNano(0), parse("4a.m"));
+    }
+
+    @Test
+    public void hourAndMinuteWithMeridian() {
+        assertEquals(now().withHour(4).withMinute(8).withSecond(0).withNano(0), parse("4:08 am"));
+        assertEquals(now().withHour(19).withMinute(19).withSecond(0).withNano(0), parse("7:19P.M."));
+    }
+
+    @Test
+    public void hourMinuteSecondWithMeridian() {
+        assertEquals(now().withHour(4).withMinute(8).withSecond(37).withNano(0), parse("4:08:37 am"));
+        assertEquals(now().withHour(19).withMinute(19).withSecond(19).withNano(0), parse("7:19:19P.M."));
+    }
+
+    @Test
+    public void mssqlTime() {
+        assertEquals(now()
+                        .withHour(4)
+                        .withMinute(8)
+                        .withSecond(39)
+                        .with(ChronoField.MICRO_OF_SECOND, 123130),
+                parseWithMicro("4:08:39:12313am"));
+
+        assertEquals(now()
+                        .withHour(4)
+                        .withMinute(8)
+                        .withSecond(39)
+                        .with(ChronoField.MICRO_OF_SECOND, 123130),
+                parseWithMicro("4:08:39.12313am"));
+
+        assertEquals(now()
+                        .withHour(16)
+                        .withMinute(8)
+                        .withSecond(39)
+                        .with(ChronoField.MICRO_OF_SECOND, 123130),
+                parseWithMicro("4:08:39.12313pm"));
+    }
+
+    @Test
+    public void hour24Notation() {
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19GMT-0700"));
+
+        assertEquals(withTime(4, 8, 0), parse("04:08"));
+        assertEquals(withTime(4, 8, 0), parse("t04:08"));
+        assertEquals(withTime(4, 8, 0), parse("T04:08"));
+        assertEquals(withTime(19, 19, 0), parse("19.19"));
+        assertEquals(withTime(23, 43, 0), parse("T23:43"));
+        assertEquals(withTime(23, 43, 0), parse("t23:43"));
+
+        assertEquals(withTime(4, 8, 59), parse("04:08:59"));
+        assertEquals(withTime(4, 8, 59), parse("t04:08:59"));
+        assertEquals(withTime(4, 8, 59), parse("T04:08:59"));
+        assertEquals(withTime(19, 19, 19), parse("T19.19.19"));
+        assertEquals(withTime(19, 19, 19), parse("t19.19.19"));
+
+        assertEquals(withTime(4, 8, 37).with(ChronoField.MICRO_OF_SECOND, 814120), parseWithMicro("04.08.37.81412"));
+        assertEquals(withTime(19, 19, 19).with(ChronoField.MICRO_OF_SECOND, 532453), parseWithMicro("19:19:19.532453"));
+    }
+
+    @Test
+    public void tz() {
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-6"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-06"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-0630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-6:30"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19GMT-630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -630"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -6:30"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-6:30"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-6"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-06"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07:00"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-0700")), parse("T19:19:19 -0700"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19 GMT-0700"));
     }
 }

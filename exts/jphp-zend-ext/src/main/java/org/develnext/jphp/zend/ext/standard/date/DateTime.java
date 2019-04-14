@@ -1,5 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.time.ZonedDateTime;
+
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Arg;
 import php.runtime.annotation.Reflection.Name;
@@ -16,6 +18,7 @@ import php.runtime.reflection.ClassEntity;
 @Name("DateTime")
 public class DateTime extends BaseObject implements DateTimeInterface {
     private ObjectMemory $this;
+    private ZonedDateTime dateTime;
 
     public DateTime(Environment env) {
         super(env);
@@ -51,6 +54,9 @@ public class DateTime extends BaseObject implements DateTimeInterface {
             @Arg(value = "timezone", type = HintType.OBJECT, optional = @Optional("NULL"))
     }, result = @Arg(type = HintType.OBJECT))
     public Memory __construct(Environment env, TraceInfo traceInfo, Memory... args) {
+        DateTimeParser parser = new DateTimeParser(args[0].toString());
+        dateTime = parser.parse();
+
         return ($this = new ObjectMemory(this));
     }
 
@@ -123,26 +129,31 @@ public class DateTime extends BaseObject implements DateTimeInterface {
     }
 
     @Override
+    @Signature(value = {@Arg(value = "format", type = HintType.STRING)}, result = @Arg(type = HintType.STRING))
     public Memory format(Environment env, TraceInfo traceInfo, String format) {
         return Memory.UNDEFINED;
     }
 
     @Override
+    @Signature(result = @Arg(type = HintType.INT))
     public Memory getOffset(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
     }
 
     @Override
+    @Signature(result = @Arg(type = HintType.INT))
     public Memory getTimestamp(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
     }
 
     @Override
+    @Signature(result = @Arg(type = HintType.OBJECT))
     public Memory getTimezone(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
     }
 
     @Override
+    @Signature(result = @Arg(type = HintType.VOID))
     public Memory __wakeup(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
     }

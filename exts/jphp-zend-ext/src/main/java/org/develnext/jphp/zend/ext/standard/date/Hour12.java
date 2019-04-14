@@ -21,9 +21,7 @@ class Hour12 extends VariableLengthSymbol {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        // FIXME create new node
         int hour = ctx.readIntAtCursor();
-        ctx.setHour12(hour);
-        ctx.cursor().inc();
+        ctx.setHour(hour).cursor().inc();
     }
 }
