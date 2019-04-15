@@ -13,12 +13,12 @@ class DateTimeTokenizer {
     static final Pattern HOUR_hh = Pattern.compile("0?[1-9]|1[0-2]");
     static final Pattern HOUR_HH = Pattern.compile("[01][0-9]|2[0-4]");
     static final Pattern HH_MM = Pattern.compile("([01][0-9]|2[0-4])(0[0-9]|1[0-2])");
+    static final Pattern HH_MM_SS = Pattern.compile("([01][0-9]|2[0-4])([0-5][0-9]){2}");
     static final Pattern HOUR_12 = HOUR_hh;
     static final Pattern HOUR_24 = HOUR_HH;
     static final Pattern TWO_DIGIT_MINUTE = Pattern.compile("[0-5][0-9]");
     static final Pattern MINUTE_ii = Pattern.compile("0?[0-9]|[0-5][0-9]");
     static final Pattern SECOND_ss = MINUTE_ii;
-    static final Pattern MINUTE_II = Pattern.compile("[0-5][0-9]");
     static final Pattern TWO_DIGIT_SECOND = TWO_DIGIT_MINUTE;
     static final Pattern FRACTION = Pattern.compile("\\.[0-9]+");
     static final Pattern MERIDIAN = Pattern.compile("[AaPp]\\.?[Mm]\\.?\t?");
@@ -161,9 +161,10 @@ class DateTimeTokenizer {
                         }
                     }
                 }
+                case '_':
                 case '/': {
                     if (isUndefined()) {
-                        next = Token.of(Symbol.SLASH, i++, 1);
+                        next = Token.of(Symbol.CHARACTER, i++, 1);
                     } else {
                         next = createWithGuessedSymbol();
                     }

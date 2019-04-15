@@ -1,21 +1,29 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.util.function.Consumer;
+
 class CharacterNode extends SymbolNode {
     private final char c;
     private final boolean caseSensitive;
+    private final Consumer<DateTimeParserContext> apply;
 
-    CharacterNode(Symbol symbol, char c, boolean caseSensitive) {
+    private CharacterNode(Symbol symbol, char c, Consumer<DateTimeParserContext> apply, boolean caseSensitive) {
         super(symbol);
         this.c = c;
         this.caseSensitive = caseSensitive;
+        this.apply = apply;
     }
 
     static CharacterNode of(char c) {
-        return new CharacterNode(Symbol.CHARACTER, c, true);
+        return new CharacterNode(Symbol.CHARACTER, c, DateTimeParserContext.empty(), true);
+    }
+
+    static CharacterNode of(char c, Consumer<DateTimeParserContext> apply) {
+        return new CharacterNode(Symbol.CHARACTER, c, apply, true);
     }
 
     static CharacterNode ofCaseInsensitive(char c) {
-        return new CharacterNode(Symbol.CHARACTER, c, false);
+        return new CharacterNode(Symbol.CHARACTER, c, DateTimeParserContext.empty(), false);
     }
 
     @Override
@@ -32,6 +40,16 @@ class CharacterNode extends SymbolNode {
 
     @Override
     void apply(DateTimeParserContext ctx) {
+        if (apply != DateTimeParserContext.empty())
+            apply.accept(ctx);
         ctx.cursor().inc();
+    }
+
+    @Override
+    public String toString() {
+        if (caseSensitive)
+            return "(" + c + ")";
+
+        return "(" + Character.toLowerCase(c) + " OR " + Character.toUpperCase(c) + ")";
     }
 }

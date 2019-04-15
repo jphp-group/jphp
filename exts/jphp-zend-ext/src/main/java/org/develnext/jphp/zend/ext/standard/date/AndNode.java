@@ -34,4 +34,9 @@ class AndNode extends Node {
             r.apply(ctx);
         }
     }
+
+    @Override
+    public String toString() {
+        return "(" + l + " AND " + r + ")";
+    }
 }

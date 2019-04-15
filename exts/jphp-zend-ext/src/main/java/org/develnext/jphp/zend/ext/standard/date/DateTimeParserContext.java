@@ -3,24 +3,24 @@ package org.develnext.jphp.zend.ext.standard.date;
 import java.nio.CharBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalField;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 class DateTimeParserContext {
+    private static final Consumer<DateTimeParserContext> EMPTY_CONSUMER = ctx -> {};
     private final List<Token> tokens;
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
-    private final Map<TemporalField, Boolean> modified;
+    private final Set<TemporalField> modified;
     private LocalDate date;
     private LocalTime time;
     private ZoneId zone;
@@ -29,7 +29,26 @@ class DateTimeParserContext {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
-        modified = new HashMap<>();
+        modified = new HashSet<>();
+    }
+
+    static Consumer<DateTimeParserContext> charBufferAppender(StringBuilder sb) {
+        if (sb == null) return empty();
+
+        return ctx -> sb.append(ctx.readCharBufferAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> empty() {
+        return EMPTY_CONSUMER;
+    }
+
+    static Consumer<DateTimeParserContext> charAppender(StringBuilder sb) {
+        if (sb == null) return empty();
+        return ctx -> sb.append(ctx.readCharAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> cursorIncrementer() {
+        return ctx -> ctx.cursor().inc();
     }
 
     public List<Token> tokens() {
@@ -98,7 +117,7 @@ class DateTimeParserContext {
     }
 
     private <T extends Temporal> T adjust(T temporal, TemporalField field, int value) {
-        modified.put(field, Boolean.TRUE);
+        modified.add(field);
         return (T) temporal.with(field, value);
     }
 
@@ -181,6 +200,10 @@ class DateTimeParserContext {
         return this;
     }
 
+    public DateTimeParserContext setTimezone(String timezone) {
+        return setTimezone(ZoneIdFactory.of(timezone));
+    }
+
     public DateTimeParserContext setDayOfWeek(int dayOfWeek) {
         initDate();
 
@@ -233,7 +256,7 @@ class DateTimeParserContext {
     }
 
     public boolean isModified(TemporalField field) {
-        return modified.containsKey(field);
+        return modified.contains(field);
     }
 
     public boolean isNotModified(TemporalField field) {

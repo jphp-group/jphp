@@ -10,8 +10,11 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.Test;
+
+import php.runtime.common.Pair;
 
 public class DateTimeParserTest {
 
@@ -25,6 +28,11 @@ public class DateTimeParserTest {
 
     private static ZonedDateTime withTime(int hour, int minute, int second) {
         return now().withHour(hour).withMinute(minute).withSecond(second).withNano(0);
+    }
+
+    private static ZonedDateTime withTime(int hour, int minute, int second, String zone) {
+        return now().withHour(hour).withMinute(minute).withSecond(second).withNano(0)
+                .withZoneSameLocal(ZoneId.of(zone));
     }
 
     @Test
@@ -211,7 +219,7 @@ public class DateTimeParserTest {
         assertEquals(
                 Arrays.asList(
                         Token.of(Symbol.STRING, 0, 6),
-                        Token.of(Symbol.SLASH, 6, 1),
+                        Token.of(Symbol.CHARACTER, 6, 1),
                         Token.of(Symbol.STRING, 7, 4)
                 ),
                 tokenize("Europe/Oslo"));
@@ -275,7 +283,7 @@ public class DateTimeParserTest {
 
     @Test
     public void onlyTimeZone() {
-        assertEquals(now(ZoneId.of("GMT")).withNano(0), parse("GMT"));
+        assertEquals(now().withNano(0).withZoneSameLocal(ZoneId.of("GMT")), parse("GMT"));
     }
 
     @Test
@@ -324,9 +332,24 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void hourMinuteNoColon() {
+        assertEquals(withTime(4, 8, 0), parse("0408"));
+        assertEquals(withTime(4, 8, 0), parse("T0408"));
+        assertEquals(withTime(4, 8, 0), parse("t0408"));
+    }
+
+    @Test
+    public void hourMinuteSecondNoColon() {
+        assertEquals(withTime(19, 19, 19), parse("T191919"));
+        assertEquals(withTime(19, 19, 19), parse("191919"));
+        assertEquals(withTime(4, 8, 37), parse("040837"));
+        assertEquals(withTime(4, 8, 37), parse("t040837"));
+        assertEquals(withTime(4, 8, 37), parse("T040837"));
+    }
+
+    @Test
     public void hour24Notation() {
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19GMT-0700"));
-
         assertEquals(withTime(4, 8, 0), parse("04:08"));
         assertEquals(withTime(4, 8, 0), parse("t04:08"));
         assertEquals(withTime(4, 8, 0), parse("T04:08"));
@@ -346,6 +369,10 @@ public class DateTimeParserTest {
 
     @Test
     public void tz() {
+        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("CET")), parse("T040837CEST"));
+        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("CET")), parse("T040837 CEST"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("CET")), parse("T19:19:19CEST"));
+        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("UTC+10:30")), parse("T19:19:19ACDT"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-6"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-06"));
@@ -366,5 +393,25 @@ public class DateTimeParserTest {
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07:00"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-0700")), parse("T19:19:19 -0700"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19 GMT-0700"));
+    }
+
+    @Test
+    public void timezoneLong() {
+        assertEquals(withTime(19, 19, 19, "Europe/Amsterdam"), parse("T19:19:19 Europe/Amsterdam"));
+        assertEquals(withTime(19, 19, 19, "America/Indiana/Knox"), parse("T19:19:19 America/Indiana/Knox"));
+        assertEquals(withTime(19, 19, 19, "Europe/Amsterdam"), parse("T19:19:19Europe/Amsterdam"));
+        assertEquals(withTime(19, 19, 19, "Europe/Amsterdam"), parse("191919Europe/Amsterdam"));
+    }
+
+    @Test
+    public void timezoneAlias() {
+        Stream.of(new Pair<>("CEST", "CET"), new Pair<>("ACDT", "UTC+10:30"))
+                .forEach(pair -> {
+                    ZoneId zoneId = ZoneId.of(pair.getB());
+                    ZonedDateTime actual = parse("T19:19:19" + pair.getA());
+                    ZonedDateTime expected = withTime(19, 19, 19, pair.getB());
+
+                    assertEquals(expected, actual);
+                });
     }
 }

@@ -1,18 +1,29 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 class OrNode extends Node {
     private final Node l;
     private final Node r;
+    private final Consumer<DateTimeParserContext> apply;
+    //private Node matched;
 
-    OrNode(Node l, Node r) {
+    private OrNode(Node l, Node r, Consumer<DateTimeParserContext> apply) {
         this.l = l;
         this.r = r;
+        this.apply = apply;
     }
 
     static OrNode of(Node l, Node r) {
-        return new OrNode(l, r);
+        return new OrNode(l, r, DateTimeParserContext.empty());
+    }
+
+    static OrNode of(Node l, Node r, Consumer<DateTimeParserContext> apply) {
+        return new OrNode(l, r, apply);
+    }
+
+    OrNode with(Consumer<DateTimeParserContext> apply) {
+        return of(l, r, apply);
     }
 
     @Override
@@ -23,18 +34,27 @@ class OrNode extends Node {
     @Override
     void apply(DateTimeParserContext ctx) {
         int snapshot = ctx.cursor().value();
+        Node matched = null;
+
         if (l.matches(ctx)) {
-            l.apply(ctx.withCursorValue(snapshot));
+            matched = l;
         } else if (r.matches(ctx)) {
-            r.apply(ctx.withCursorValue(snapshot));
+            matched = r;
+        }
+
+        if (matched != null) {
+            ctx = ctx.withCursorValue(snapshot);
+
+            if (apply == DateTimeParserContext.empty()) {
+                matched.apply(ctx);
+            } else {
+                apply.accept(ctx);
+            }
         }
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OrNode.class.getSimpleName() + "[", "]")
-                .add("l=" + l)
-                .add("r=" + r)
-                .toString();
+        return "(" + l + " OR " + r + ")";
     }
 }

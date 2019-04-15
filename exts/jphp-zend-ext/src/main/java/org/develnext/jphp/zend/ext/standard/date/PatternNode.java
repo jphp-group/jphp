@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -34,5 +35,12 @@ class PatternNode extends SymbolNode {
     void apply(DateTimeParserContext ctx) {
         adjuster.accept(ctx);
         ctx.cursor().inc();
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PatternNode.class.getSimpleName() + "[", "]")
+                .add("pattern=" + pattern.pattern())
+                .toString();
     }
 }

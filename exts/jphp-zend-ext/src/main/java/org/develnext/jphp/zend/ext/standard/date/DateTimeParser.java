@@ -3,6 +3,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_OF_YEAR;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_dd;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM_SS;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_ii;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_M;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
@@ -10,7 +11,6 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -26,9 +26,10 @@ public class DateTimeParser {
     static final SymbolNode DOT_NODE = SymbolNode.of(Symbol.DOT);
     static final SymbolNode SPACE_NODE = SymbolNode.of(Symbol.SPACE);
     static final SymbolNode COLON_NODE = SymbolNode.of(Symbol.COLON);
-    static final SymbolNode SLASH_NODE = SymbolNode.of(Symbol.SLASH);
     static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
     static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
+    static final CharacterNode SLASH_NODE = CharacterNode.of('/');
+    static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
     private final static EnumMap<Symbol, List<GroupNode>> parseTree = new EnumMap<>(Symbol.class);
     private static final Year4 YEAR_4_DIGIT = Year4.of();
     private static final Hour24 HOUR_24_NODE = Hour24.of();
@@ -42,35 +43,25 @@ public class DateTimeParser {
 
     private static final GroupNode EXIF = GroupNode.of(
             "EXIF",
-            YEAR_4_DIGIT,
-            COLON_NODE,
-            MONTH_2_DIGIT,
-            COLON_NODE,
-            DAY_2_DIGIT,
-            SPACE_NODE,
-            HOUR_24_NODE,
-            COLON_NODE,
-            MINUTE_2_DIGIT,
-            COLON_NODE,
-            SECOND_2_DIGIT
+            YEAR_4_DIGIT.then(COLON_NODE).then(MONTH_2_DIGIT)
+                    .then(COLON_NODE)
+                    .then(DAY_2_DIGIT)
+                    .then(SPACE_NODE)
+                    .then(HOUR_24_NODE)
+                    .then(COLON_NODE)
+                    .then(MINUTE_2_DIGIT)
+                    .then(COLON_NODE)
+                    .then(SECOND_2_DIGIT)
     );
 
     private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
     private static final Pattern TZ_PATTERN = Pattern.compile("\\(?[A-Za-z]{1,6}\\)?|[A-Z][a-z]+([_/][A-Z][a-z]+)+");
     private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
-    private static final PatternNode TZ = PatternNode.of(TZ_PATTERN, Symbol.STRING, timezoneSetter());
+    private static final Node TZ = new TimezoneNode();
     private static final GroupNode PostgreSQLYearWithDayOfYear = GroupNode.of(
             "PostgreSQL: Year with day-of-year",
-            OrNode.of(
-                    AndNode.of(
-                            YEAR_4_DIGIT,
-                            OrNode.of(
-                                    AndNode.of(SymbolNode.of(Symbol.DOT), DOY_NODE),
-                                    DOY_NODE
-                            )
-                    ),
-                    PatternNode.ofDigits(POSTGRESQL_DOY)
-            )
+            YEAR_4_DIGIT.then(DOT_NODE.then(DOY_NODE).or(DOY_NODE))
+                    .or(PatternNode.ofDigits(POSTGRESQL_DOY))
     );
     private static final Hour12 HOUR_12_NODE = Hour12.of();
     private static final GroupNode WDDX = GroupNode.of("WDDX",
@@ -188,23 +179,31 @@ public class DateTimeParser {
             )
 
     );
+    private static final PatternNode HH_MM_SS_NODE = PatternNode.ofDigits(HH_MM_SS, c -> {
+        int start = c.tokenAtCursor().start();
+        int hour = c.tokenizer().readInt(start, 2);
+        int minute = c.tokenizer().readInt(start + 2, 2);
+        int second = c.tokenizer().readInt(start + 4, 2);
+
+        c.setHour(hour).setMinute(minute).setSecond(second);
+    });
+
     private static final GroupNode HOUR_MINUTE_SECOND = GroupNode.of(
             "Hour, minutes and seconds ('t'? HH [.:] MM [.:] II)",
-            T_CI.optionalFollowedBy(HOUR_24_NODE),
-            DOT_OR_COLON,
-            MINUTE_2_DIGIT,
-            DOT_OR_COLON,
-            SECOND_2_DIGIT
+            T_CI.optionalFollowedBy(
+                    HOUR_24_NODE.then(DOT_OR_COLON).then(MINUTE_2_DIGIT).then(DOT_OR_COLON).then(SECOND_2_DIGIT)
+                            .or(HH_MM_SS_NODE)
+            )
     );
 
     private static final GroupNode HOUR_MINUTE_SECOND_TZ = GroupNode.of(
-            "Hour, minutes, seconds and timezone ('t'? HH [.:] MM [.:] II space? ( tzcorrection | tz ))",
-            T_CI.optionalFollowedBy(HOUR_24_NODE),
-            DOT_OR_COLON,
-            MINUTE_2_DIGIT,
-            DOT_OR_COLON,
-            SECOND_2_DIGIT.followedByOptional(SPACE_NODE),
-            TZ_CORRECTION.or(TZ)
+            "Hour, minutes, seconds and timezone ('t'? HH [.:]? MM [.:]? II space? ( tzcorrection | tz ))",
+            T_CI.optionalFollowedBy(
+                    HOUR_24_NODE.then(DOT_OR_COLON).then(MINUTE_2_DIGIT).then(DOT_OR_COLON).then(SECOND_2_DIGIT)
+                            .or(HH_MM_SS_NODE)
+            )
+                    .followedByOptional(SPACE_NODE)
+                    .then(TZ_CORRECTION.or(TZ))
     );
 
     private static final GroupNode HOUR_MINUTE_SECOND_FRACTION = GroupNode.of(
@@ -255,11 +254,7 @@ public class DateTimeParser {
     }
 
     private static Consumer<DateTimeParserContext> timezoneSetter() {
-        return ctx -> {
-            String s = ctx.readStringAtCursor();
-            ZoneId of = ZoneId.of(s);
-            ctx.setTimezone(of);
-        };
+        return ctx -> ctx.setTimezone(ZoneIdFactory.of(ctx.readStringAtCursor()));
     }
 
     private static Consumer<DateTimeParserContext> monthStringAdjuster() {

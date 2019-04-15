@@ -6,7 +6,6 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 class GroupNode extends Node implements Iterable<Node> {
-    private static final Consumer<DateTimeParserContext> EMPTY_ACTION = ctx -> {};
     private final String name;
     private final Node[] nodes;
     private final Consumer<DateTimeParserContext> afterApply;
@@ -18,7 +17,7 @@ class GroupNode extends Node implements Iterable<Node> {
     }
 
     static GroupNode of(String name, Node... nodes) {
-        return new GroupNode(name, nodes, EMPTY_ACTION);
+        return new GroupNode(name, nodes, DateTimeParserContext.empty());
     }
 
     static GroupNode of(String name, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
@@ -26,7 +25,7 @@ class GroupNode extends Node implements Iterable<Node> {
     }
 
     static GroupNode of(Node... nodes) {
-        return new GroupNode("noname", nodes, EMPTY_ACTION);
+        return new GroupNode("noname", nodes, DateTimeParserContext.empty());
     }
 
     @Override
@@ -66,6 +65,10 @@ class GroupNode extends Node implements Iterable<Node> {
     @Override
     public Iterator<Node> iterator() {
         return Arrays.asList(nodes).iterator();
+    }
+
+    Node[] nodes() {
+        return nodes;
     }
 
     @Override

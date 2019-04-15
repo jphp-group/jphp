@@ -12,17 +12,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class TimezoneCorrectionNode extends Node {
-    private static final Pattern TZ_CORRECTION = Pattern.compile("[+-](0?[1-9]|1[0-2]):?([0-5][0-9])?");
-    private static final Pattern TZ_CORRECTION_OPT_SIGN = Pattern.compile("0?([1-9]|1[0-2]):?([0-5][0-9])?");
     private static final Pattern OFFSET_PREFIX = Pattern.compile("GMT|UTC|UT");
-    private static final Pattern OFFSET_PATTERN = Pattern.compile("GMT|UTC|UT");
     private static final Pattern hhSigned = Pattern.compile("[+-]0?[1-9]|1[0-2]");
     private static final Pattern hh = Pattern.compile("0?[1-9]|1[0-2]");
-    private static final Pattern hh_TWO_DIGIT = Pattern.compile("0[1-9]|1[0-2]");
     private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
     private static final Pattern hhMMSigned = Pattern.compile("[+-](0?[1-9]|1[0-2])[0-5][0-9]?");
-    private static final Pattern SIGN = Pattern.compile("[+-]");
-
+    private static final Pattern OPT_SIGNED_CORRECTION = Pattern.compile("([+-])?(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
     private ZoneId zoneId;
 
     TimezoneCorrectionNode() {
@@ -81,10 +76,9 @@ class TimezoneCorrectionNode extends Node {
     private void appendSignedHour(StringBuilder sb, DateTimeParserContext c) {
         CharBuffer cb = c.readCharBufferAtCursor();
 
-        Pattern compile = Pattern.compile("([+-])?(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
-
-        Matcher matcher = compile.matcher(cb);
+        Matcher matcher = OPT_SIGNED_CORRECTION.matcher(cb);
         if (!matcher.matches()) {
+            // if this method is invoked this should not be executed.
             throw new IllegalStateException("DUP!");
         }
 
