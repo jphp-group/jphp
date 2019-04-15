@@ -23,6 +23,7 @@ import java.util.TimeZone;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeParser;
 
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
@@ -633,6 +634,10 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_create(Environment env, TraceInfo traceInfo) {
         return date_create(env, traceInfo, StringMemory.valueOf("now"));
+    }
+
+    public static Memory date_create_from_format(Environment env, TraceInfo traceInfo, Memory... args) {
+        return DateTime.createFromFormat(env, traceInfo, args);
     }
 
     public static Memory time() {

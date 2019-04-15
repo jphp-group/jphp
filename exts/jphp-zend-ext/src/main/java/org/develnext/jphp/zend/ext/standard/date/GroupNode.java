@@ -49,7 +49,7 @@ class GroupNode extends Node implements Iterable<Node> {
             return false;
         }
 
-        System.out.println("=== " + name + " ===");
+        // System.out.println("=== " + name + " ===");
         return true;
     }
 

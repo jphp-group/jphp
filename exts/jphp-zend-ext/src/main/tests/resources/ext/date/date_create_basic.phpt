@@ -13,7 +13,7 @@ date_default_timezone_set("Europe/London");
 
 echo "*** Testing date_create() : basic functionality ***\n";
 
-//print_r( date_create() );
+print_r( date_create() );
 
 print_r( date_create("GMT") );
 print_r( date_create("2005-07-14 22:30:41") );
@@ -25,13 +25,13 @@ print_r( date_create("2005-07-14 22:30:41 GMT") );
 *** Testing date_create() : basic functionality ***
 DateTime Object
 (
-    [date] => %s
+    [date] => %s %s
     [timezone_type] => 3
     [timezone] => Europe/London
 )
 DateTime Object
 (
-    [date] => %s
+    [date] => %s %s
     [timezone_type] => 2
     [timezone] => GMT
 )

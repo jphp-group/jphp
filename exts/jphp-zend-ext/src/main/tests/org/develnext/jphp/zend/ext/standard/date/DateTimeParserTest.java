@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import php.runtime.common.Pair;
@@ -21,6 +22,14 @@ public class DateTimeParserTest {
 
     private static ZonedDateTime parse(String input) {
         return parseWithMicro(input).withNano(0);
+    }
+
+    private static ZonedDateTime parse(String input, String zoneId) {
+        return parseWithMicro(input, zoneId).withNano(0);
+    }
+
+    private static ZonedDateTime parseWithMicro(String input, String zoneId) {
+        return new DateTimeParser(input, ZoneId.of(zoneId)).parse();
     }
 
     private static ZonedDateTime parseWithMicro(String input) {
@@ -437,5 +446,18 @@ public class DateTimeParserTest {
         assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
         assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
         assertThat(parse("1978-12")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12));
+    }
+
+    @Test
+    public void customDates() {
+        assertThat(parse("2005-07-14 22:30:41 GMT", "Europe/London"))
+                .isEqualToIgnoringNanos(now().withYear(2005).withMonth(7).withDayOfMonth(14)
+                        .withHour(22).withMinute(30).withSecond(41)
+                        .withZoneSameLocal(ZoneId.of("GMT"))
+                );
+
+        assertThat(parse("2005-07-14 22:30:41"))
+                .isEqualToIgnoringNanos(now().withYear(2005).withMonth(7).withDayOfMonth(14)
+                        .withHour(22).withMinute(30).withSecond(41));
     }
 }

@@ -1,6 +1,12 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
+import org.develnext.jphp.zend.ext.standard.DateFunctions;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.Arg;
@@ -17,6 +23,7 @@ import php.runtime.reflection.ClassEntity;
 
 @Name("DateTime")
 public class DateTime extends BaseObject implements DateTimeInterface {
+    private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss[.SSSSSS]");
     private ObjectMemory $this;
     private ZonedDateTime dateTime;
 
@@ -34,6 +41,12 @@ public class DateTime extends BaseObject implements DateTimeInterface {
             @Arg(value = "timezone", type = HintType.OBJECT, optional = @Optional("NULL"))
     }, result = @Arg(type = HintType.OBJECT))
     public static Memory createFromFormat(Environment env, TraceInfo traceInfo, Memory... args) {
+        try {
+            ZonedDateTime parse = parse(env, traceInfo, args[1]);
+        } catch (DateTimeException e) {
+            return Memory.FALSE;
+        }
+
         return new ObjectMemory(null);
     }
 
@@ -49,13 +62,24 @@ public class DateTime extends BaseObject implements DateTimeInterface {
         return new ObjectMemory();
     }
 
+    private static ZonedDateTime parse(Environment env, TraceInfo traceInfo, Memory time) {
+        Memory memory = DateFunctions.date_default_timezone_get(env, traceInfo);
+        ZoneId zone = ZoneId.of(memory.toString());
+        String timeStr = time.toString();
+
+        return "now".equals(timeStr) ? ZonedDateTime.now().withZoneSameLocal(zone) : new DateTimeParser(timeStr, zone).parse();
+    }
+
     @Signature(value = {
             @Arg(value = "time", type = HintType.STRING, optional = @Optional("now")),
             @Arg(value = "timezone", type = HintType.OBJECT, optional = @Optional("NULL"))
     }, result = @Arg(type = HintType.OBJECT))
     public Memory __construct(Environment env, TraceInfo traceInfo, Memory... args) {
-        DateTimeParser parser = new DateTimeParser(args[0].toString());
-        dateTime = parser.parse();
+        try {
+            this.dateTime = parse(env, traceInfo, args[0]);
+        } catch (DateTimeParseException e) {
+            return Memory.FALSE;
+        }
 
         return ($this = new ObjectMemory(this));
     }
@@ -156,5 +180,15 @@ public class DateTime extends BaseObject implements DateTimeInterface {
     @Signature(result = @Arg(type = HintType.VOID))
     public Memory __wakeup(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
+    }
+
+    @Override
+    public ArrayMemory getProperties() {
+        ArrayMemory props = super.getProperties();
+        props.refOfIndex("date").assign(DEFAULT_FORMATTER.format(dateTime));
+        props.refOfIndex("timezone_type").assign(DateTimeZone.getTimeZoneType(dateTime.getZone()));
+        props.refOfIndex("timezone").assign(dateTime.getZone().toString());
+
+        return props;
     }
 }

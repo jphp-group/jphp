@@ -28,11 +28,8 @@ class AndNode extends Node {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        int snapshot = ctx.cursor().value();
-        if (matches(ctx)) {
-            l.apply(ctx.withCursorValue(snapshot));
-            r.apply(ctx);
-        }
+        l.apply(ctx);
+        r.apply(ctx);
     }
 
     @Override

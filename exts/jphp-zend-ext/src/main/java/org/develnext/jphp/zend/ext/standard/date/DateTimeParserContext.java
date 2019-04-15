@@ -8,7 +8,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
+import java.time.temporal.ValueRange;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,11 +29,12 @@ class DateTimeParserContext {
     private LocalTime time;
     private ZoneId zone;
 
-    DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer) {
+    DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer, ZoneId defaultZone) {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
-        modified = new HashSet<>();
+        this.modified = new HashSet<>();
+        this.zone = defaultZone;
     }
 
     static Consumer<DateTimeParserContext> charBufferAppender(StringBuilder sb) {
@@ -49,6 +54,10 @@ class DateTimeParserContext {
 
     static Consumer<DateTimeParserContext> cursorIncrementer() {
         return ctx -> ctx.cursor().inc();
+    }
+
+    public boolean hasModifications() {
+        return !modified.isEmpty();
     }
 
     public List<Token> tokens() {
@@ -106,6 +115,9 @@ class DateTimeParserContext {
 
         zone = zone == null ? ZoneId.systemDefault() : zone;
 
+        if (isNotModified(ChronoField.MICRO_OF_SECOND))
+            time = time.with(ChronoField.MICRO_OF_SECOND, 0);
+
         return ZonedDateTime.of(date, time, zone);
     }
 
@@ -140,13 +152,6 @@ class DateTimeParserContext {
     private void initDate() {
         if (date == null)
             date = LocalDate.now();
-    }
-
-    public DateTimeParserContext setHour12(int hour) {
-        initTime();
-
-        time = adjust(time, ChronoField.HOUR_OF_AMPM, hour);
-        return this;
     }
 
     public DateTimeParserContext setHour(int hour) {
@@ -197,6 +202,7 @@ class DateTimeParserContext {
 
     public DateTimeParserContext setTimezone(ZoneId timezone) {
         zone = timezone;
+        modified.add(TimezoneField.INSTANSE);
         return this;
     }
 
@@ -223,6 +229,8 @@ class DateTimeParserContext {
 
         date = zonedDateTime.toLocalDate();
         time = zonedDateTime.toLocalTime();
+        modified.addAll(Arrays.asList(ChronoField.values()));
+
         return this;
     }
 
@@ -265,5 +273,54 @@ class DateTimeParserContext {
 
     public char readCharAtCursor() {
         return tokenizer.readChar(tokenAtCursor());
+    }
+
+    private static class TimezoneField implements TemporalField {
+        private static final TimezoneField INSTANSE = new TimezoneField();
+
+        @Override
+        public TemporalUnit getBaseUnit() {
+            return null;
+        }
+
+        @Override
+        public TemporalUnit getRangeUnit() {
+            return null;
+        }
+
+        @Override
+        public ValueRange range() {
+            return null;
+        }
+
+        @Override
+        public boolean isDateBased() {
+            return false;
+        }
+
+        @Override
+        public boolean isTimeBased() {
+            return false;
+        }
+
+        @Override
+        public boolean isSupportedBy(TemporalAccessor temporal) {
+            return false;
+        }
+
+        @Override
+        public ValueRange rangeRefinedBy(TemporalAccessor temporal) {
+            return null;
+        }
+
+        @Override
+        public long getFrom(TemporalAccessor temporal) {
+            return 0;
+        }
+
+        @Override
+        public <R extends Temporal> R adjustInto(R temporal, long newValue) {
+            return null;
+        }
     }
 }

@@ -94,7 +94,7 @@ public class DateTimeZone extends BaseObject {
     private void init(String zone) {
         this.nativeZone = ZoneId.of(zone);
         this.timezone = StringMemory.valueOf(zone);
-        type = LongMemory.valueOf(getTimeZoneType());
+        type = LongMemory.valueOf(getTimeZoneType(nativeZone));
     }
 
     @Signature
@@ -131,14 +131,14 @@ public class DateTimeZone extends BaseObject {
         return props;
     }
 
-    private int getTimeZoneType() {
-        if (nativeZone == null)
+    static int getTimeZoneType(ZoneId zoneId) {
+        if (zoneId == null)
             return -1;
 
-        if (nativeZone instanceof ZoneOffset) {
+        if (zoneId instanceof ZoneOffset) {
             return 1;
         } else {
-            String id = nativeZone.getId();
+            String id = zoneId.getId();
 
             if (id.contains("/") || id.equals("UTC")) {
                 return 3;

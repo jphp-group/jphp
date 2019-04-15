@@ -19,6 +19,7 @@ class TimezoneCorrectionNode extends Node {
     private static final Pattern hhMMSigned = Pattern.compile("[+-](0?[1-9]|1[0-2])[0-5][0-9]?");
     private static final Pattern OPT_SIGNED_CORRECTION = Pattern.compile("([+-])?(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
     private ZoneId zoneId;
+    private int nodeLength;
 
     TimezoneCorrectionNode() {
     }
@@ -27,26 +28,26 @@ class TimezoneCorrectionNode extends Node {
     boolean matches(DateTimeParserContext ctx) {
         StringBuilder sb = new StringBuilder();
         PatternNode MM_NODE = PatternNode.ofDigits(TWO_DIGIT_MINUTE, c -> append(sb, c));
-        PatternNode GMT_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
+        PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
         Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
 
         GroupNode[] groupNodes = {
                 GroupNode.of(
                         "OP? [+-]hh:?MM",
-                        GMT_NODE
+                        PREFIX_NODE
                                 .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
                                 .followedByOptional(COLON_NODE),
                         MM_NODE
                 ),
                 GroupNode.of(
                         "OP? [+-]hh(:MM)?",
-                        GMT_NODE
+                        PREFIX_NODE
                                 .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
                                 .followedByOptional(COLON_NODE.then(MM_NODE))
                 ),
                 GroupNode.of(
                         "OP? [+-]hhMM",
-                        GMT_NODE.optionalFollowedBy(PatternNode.ofDigits(hhMMSigned, signedHour))
+                        PREFIX_NODE.optionalFollowedBy(PatternNode.ofDigits(hhMMSigned, signedHour))
                 ),
                 GroupNode.of(
                         "[+-] hh (:MM)?",
@@ -65,6 +66,8 @@ class TimezoneCorrectionNode extends Node {
             if (matches) {
                 ctx.cursor().setValue(snapshot);
                 groupNode.apply(ctx);
+
+                nodeLength = ctx.cursor().value() - snapshot;
                 zoneId = ZoneId.of(sb.toString());
                 return true;
             }
@@ -107,8 +110,9 @@ class TimezoneCorrectionNode extends Node {
     void apply(DateTimeParserContext ctx) {
         if (zoneId != null) {
             ctx.setTimezone(zoneId);
+            ctx.cursor().setValue(ctx.cursor().value() + nodeLength);
             zoneId = null;
-            ctx.cursor().inc();
+            nodeLength = 0;
         }
     }
 }

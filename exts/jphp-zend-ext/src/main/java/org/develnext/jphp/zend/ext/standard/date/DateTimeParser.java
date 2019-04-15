@@ -13,6 +13,8 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_y;
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -262,9 +264,15 @@ public class DateTimeParser {
     }
 
     private final DateTimeTokenizer tokenizer;
+    private final ZoneId defaultZone;
 
     DateTimeParser(String dateTime) {
+        this(dateTime, ZoneId.systemDefault());
+    }
+
+    DateTimeParser(String dateTime, ZoneId zoneId) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
+        this.defaultZone = zoneId;
     }
 
     private static Consumer<DateTimeParserContext> timezoneSetter() {
@@ -378,20 +386,42 @@ public class DateTimeParser {
     }
 
     public ZonedDateTime parse() {
-        DateTimeParserContext context = new DateTimeParserContext(getTokens(), new Cursor(), tokenizer);
-        Symbol symbol = context.symbolAtCursor();
+        DateTimeParserContext ctx = new DateTimeParserContext(getTokens(), new Cursor(), tokenizer, defaultZone);
 
-        for (GroupNode nodes : parseTree.get(symbol)) {
-            boolean matches = nodes.matches(context);
+        int lastMatchIdx = 0;
 
-            if (matches) {
-                context.cursor().setValue(0);
-                nodes.apply(context);
-                break;
+        while (ctx.hasMoreTokens()) {
+            if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
+                ctx.cursor().inc();
+                lastMatchIdx++;
+                continue;
+            }
+
+            Symbol symbol = ctx.symbolAtCursor();
+            List<GroupNode> groupNodes = parseTree.get(symbol);
+
+            if (groupNodes == null) {
+                throw new DateTimeException("Cannot find parser tree for symbol: " + symbol);
+            }
+
+            for (GroupNode nodes : groupNodes) {
+                boolean matches = nodes.matches(ctx);
+
+                if (matches) {
+                    int tmp = ctx.cursor().value();
+                    ctx.cursor().setValue(lastMatchIdx);
+                    lastMatchIdx = tmp;
+                    nodes.apply(ctx);
+                    break;
+                }
             }
         }
 
-        return context.dateTime();
+        if (!ctx.hasModifications()) {
+            throw new DateTimeException("DateTimeParserContext should have modifications!");
+        }
+
+        return ctx.dateTime();
     }
 
     private LinkedList<Token> getTokens() {
