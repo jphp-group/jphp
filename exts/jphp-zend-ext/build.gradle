@@ -12,6 +12,7 @@ dependencies {
     provided "com.google.code.gson:gson:2.7"
 
     testCompile 'junit:junit:4.+'
+    testCompile("org.assertj:assertj-core:3.11.1")
     testCompile project(':exts:jphp-json-ext')
     testCompile project(':jphp-core')
     testCompile project(':jphp-core').sourceSets.test.output

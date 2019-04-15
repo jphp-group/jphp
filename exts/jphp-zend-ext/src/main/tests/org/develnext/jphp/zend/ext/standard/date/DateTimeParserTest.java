@@ -2,6 +2,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import static java.time.ZonedDateTime.now;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
@@ -413,5 +414,15 @@ public class DateTimeParserTest {
 
                     assertEquals(expected, actual);
                 });
+    }
+
+    @Test
+    public void americalDate() {
+        assertThat(parse("5/12")).isEqualToIgnoringNanos(now().withMonth(5).withDayOfMonth(12));
+        assertThat(parse("10/27")).isEqualToIgnoringNanos(now().withMonth(10).withDayOfMonth(27));
+
+        assertThat(parse("12/22/78")).isEqualToIgnoringNanos(now().withMonth(12).withDayOfMonth(22).withYear(1978));
+        assertThat(parse("1/17/2006")).isEqualToIgnoringNanos(now().withMonth(1).withDayOfMonth(17).withYear(2006));
+        assertThat(parse("1/17/6")).isEqualToIgnoringNanos(now().withMonth(1).withDayOfMonth(17).withYear(2006));
     }
 }

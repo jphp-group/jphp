@@ -1,6 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_OF_YEAR;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_SUFFIX;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_dd;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM_SS;
@@ -9,6 +10,7 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_y;
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
 import java.time.ZonedDateTime;
@@ -30,6 +32,8 @@ public class DateTimeParser {
     static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
     static final CharacterNode SLASH_NODE = CharacterNode.of('/');
     static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
+    private static final CharacterNode T_CI = CharacterNode.ofCaseInsensitive('t');
+    private static final CharacterNode ISO_WEEK = CharacterNode.of('W');
     private final static EnumMap<Symbol, List<GroupNode>> parseTree = new EnumMap<>(Symbol.class);
     private static final Year4 YEAR_4_DIGIT = Year4.of();
     private static final Hour24 HOUR_24_NODE = Hour24.of();
@@ -37,25 +41,22 @@ public class DateTimeParser {
     private static final Day2 DAY_2_DIGIT = Day2.of();
     private static final Second2 SECOND_2_DIGIT = Second2.of();
     private static final Minute2 MINUTE_2_DIGIT = Minute2.of();
-    private static final CharacterNode ISO_WEEK = CharacterNode.of('W');
     private static final Microseconds MICROSECONDS = Microseconds.of();
     private static final TimezoneCorrectionNode TZ_CORRECTION = new TimezoneCorrectionNode();
+    private static final PatternNode DAY_SUFFIX_NODE = PatternNode.of(DAY_SUFFIX, Symbol.STRING, DateTimeParserContext.empty());
+    private static final Hour12 HOUR_12_NODE = Hour12.of();
+    private static final PatternNode MONTH_mm_NODE = PatternNode.ofDigits(MONTH_mm, monthAdjuster());
+    private static final PatternNode YEAR_y_NODE = PatternNode.ofDigits(YEAR_y, yearAdjuster());
+    private static final PatternNode DAY_dd_NODE = PatternNode.ofDigits(DAY_dd, dayAdjuster());
+    private static final Node DAY_dd_OPT_SUFFIX_NODE = DAY_dd_NODE.followedByOptional(DAY_SUFFIX_NODE);
 
     private static final GroupNode EXIF = GroupNode.of(
             "EXIF",
-            YEAR_4_DIGIT.then(COLON_NODE).then(MONTH_2_DIGIT)
-                    .then(COLON_NODE)
-                    .then(DAY_2_DIGIT)
-                    .then(SPACE_NODE)
-                    .then(HOUR_24_NODE)
-                    .then(COLON_NODE)
-                    .then(MINUTE_2_DIGIT)
-                    .then(COLON_NODE)
-                    .then(SECOND_2_DIGIT)
+            YEAR_4_DIGIT.then(COLON_NODE).then(MONTH_2_DIGIT).then(COLON_NODE).then(DAY_2_DIGIT).then(SPACE_NODE)
+                    .then(HOUR_24_NODE).then(COLON_NODE).then(MINUTE_2_DIGIT).then(COLON_NODE).then(SECOND_2_DIGIT)
     );
 
     private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
-    private static final Pattern TZ_PATTERN = Pattern.compile("\\(?[A-Za-z]{1,6}\\)?|[A-Z][a-z]+([_/][A-Z][a-z]+)+");
     private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
     private static final Node TZ = new TimezoneNode();
     private static final GroupNode PostgreSQLYearWithDayOfYear = GroupNode.of(
@@ -63,13 +64,13 @@ public class DateTimeParser {
             YEAR_4_DIGIT.then(DOT_NODE.then(DOY_NODE).or(DOY_NODE))
                     .or(PatternNode.ofDigits(POSTGRESQL_DOY))
     );
-    private static final Hour12 HOUR_12_NODE = Hour12.of();
+
     private static final GroupNode WDDX = GroupNode.of("WDDX",
             YEAR_4_DIGIT,
             MINUS_NODE,
-            PatternNode.ofDigits(MONTH_mm, monthAdjuster()),
+            MONTH_mm_NODE,
             MINUS_NODE,
-            PatternNode.ofDigits(DAY_dd, dayAdjuster()),
+            DAY_dd_NODE,
             CharacterNode.of('T'),
             HOUR_12_NODE,
             COLON_NODE,
@@ -109,8 +110,8 @@ public class DateTimeParser {
     );
     private static final PatternNode MONTH_SHORT = PatternNode.of(MONTH_M, Symbol.STRING, monthStringAdjuster());
     private static final GroupNode COMMON_LOG = GroupNode.of("Common Log Format", PatternNode.ofDigits(DAY_dd, dayAdjuster()), SLASH_NODE, MONTH_SHORT, SLASH_NODE, YEAR_4_DIGIT, COLON_NODE, HOUR_24_NODE, COLON_NODE, MINUTE_2_DIGIT, COLON_NODE, SECOND_2_DIGIT, SPACE_NODE, TZ_CORRECTION);
-    private static final GroupNode SOAP = GroupNode.of( // YY "-" MM "-" DD "T" HH ":" II ":" SS frac tzcorrection?
-            "SOAP",
+    private static final GroupNode SOAP = GroupNode.of(
+            "SOAP (YY \"-\" MM \"-\" DD \"T\" HH \":\" II \":\" SS frac tzcorrection?)",
             YEAR_4_DIGIT,
             MINUS_NODE,
             MONTH_2_DIGIT,
@@ -150,16 +151,9 @@ public class DateTimeParser {
     );
     private static final GroupNode MSSQL_TIME = GroupNode.of(
             "MS SQL (Hour, minutes, seconds and fraction with meridian), PHP 5.3 and later only",
-            HOUR_12_NODE,
-            COLON_NODE,
-            MINUTE_2_DIGIT,
-            COLON_NODE,
-            SECOND_2_DIGIT,
-            DOT_OR_COLON,
-            MICROSECONDS,
-            MERIDIAN_NODE
+            HOUR_12_NODE.then(COLON_NODE).then(MINUTE_2_DIGIT).then(COLON_NODE)
+                    .then(SECOND_2_DIGIT).then(DOT_OR_COLON).then(MICROSECONDS).then(MERIDIAN_NODE)
     );
-    private static final CharacterNode T_CI = CharacterNode.ofCaseInsensitive('t');
     private static final GroupNode HOUR_MINUTE = GroupNode.of(
             "Hour and minutes ('t'? HH [.:] MM)",
             ctx -> {
@@ -217,6 +211,11 @@ public class DateTimeParser {
             MICROSECONDS
     );
 
+    private static final GroupNode AMERICAN_MONTH_DAY_YEAR = GroupNode.of(
+            "American month, day and optional year (mm '/' dd ('/'y)?)",
+            MONTH_mm_NODE.then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE).followedByOptional(SLASH_NODE.then(YEAR_y_NODE))
+    );
+
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
 
     static {
@@ -243,7 +242,10 @@ public class DateTimeParser {
                 HOUR_MINUTE_SECOND_FRACTION,
                 HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE_SECOND,
-                HOUR_MINUTE
+                HOUR_MINUTE,
+
+                // Date Formats
+                AMERICAN_MONTH_DAY_YEAR
         ));
     }
 
@@ -294,6 +296,21 @@ public class DateTimeParser {
 
     private static Consumer<DateTimeParserContext> monthAdjuster() {
         return ctx -> ctx.setMonth(ctx.readIntAtCursor());
+    }
+
+    private static Consumer<DateTimeParserContext> yearAdjuster() {
+        return ctx -> {
+            int year = ctx.readIntAtCursor();
+            if (year >= 0 && year <= 69) {
+                year += 2000;
+            } else if (year >= 70 && year <= 100) {
+                year += 1900;
+            } else if (year < 0) {
+                year = 1970 + year;
+            }
+
+            ctx.setYear(year);
+        };
     }
 
     public static List<Token> tokenize(final String time) {
