@@ -216,6 +216,16 @@ public class DateTimeParser {
             MONTH_mm_NODE.then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE).followedByOptional(SLASH_NODE.then(YEAR_y_NODE))
     );
 
+    private static final GroupNode YY_mm_dd_NODE = GroupNode.of(
+            "Four digit year, month and day with slashes (YY '/' mm '/' dd)",
+            YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_mm_NODE).then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE)
+    );
+
+    private static final GroupNode GNU_DATE = GroupNode.of(
+            "Four digit year and month (YY '-' mm)",
+            YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_mm_NODE)
+    );
+
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
 
     static {
@@ -232,6 +242,11 @@ public class DateTimeParser {
                 // Localized Compound formats
                 COMMON_LOG, SOAP, POSTGRES_DOY, EXIF, MYSQL, WDDX, XMLRPC, ISOYearWeekAndDay, ISOYearWeek,
 
+                // Date Formats
+                AMERICAN_MONTH_DAY_YEAR,
+                YY_mm_dd_NODE,
+                GNU_DATE,
+
                 // 12 Hour formats
                 HOUR_MINUTE_SECOND_WITH_MERIDIAN,
                 MSSQL_TIME,
@@ -242,10 +257,7 @@ public class DateTimeParser {
                 HOUR_MINUTE_SECOND_FRACTION,
                 HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE_SECOND,
-                HOUR_MINUTE,
-
-                // Date Formats
-                AMERICAN_MONTH_DAY_YEAR
+                HOUR_MINUTE
         ));
     }
 

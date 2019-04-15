@@ -425,4 +425,17 @@ public class DateTimeParserTest {
         assertThat(parse("1/17/2006")).isEqualToIgnoringNanos(now().withMonth(1).withDayOfMonth(17).withYear(2006));
         assertThat(parse("1/17/6")).isEqualToIgnoringNanos(now().withMonth(1).withDayOfMonth(17).withYear(2006));
     }
+
+    @Test
+    public void YYmmdd() {
+        assertThat(parse("2008/6/30")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30));
+        assertThat(parse("1978/12/22")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22));
+    }
+
+    @Test
+    public void GNUDate() {
+        assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
+        assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
+        assertThat(parse("1978-12")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12));
+    }
 }
