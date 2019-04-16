@@ -3,7 +3,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.COLON_NODE;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.MINUS_NODE;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.PLUS_NODE;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_MINUTE;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_II;
 
 import java.nio.CharBuffer;
 import java.time.ZoneId;
@@ -27,7 +27,7 @@ class TimezoneCorrectionNode extends Node {
     @Override
     boolean matches(DateTimeParserContext ctx) {
         StringBuilder sb = new StringBuilder();
-        PatternNode MM_NODE = PatternNode.ofDigits(TWO_DIGIT_MINUTE, c -> append(sb, c));
+        PatternNode MM_NODE = PatternNode.ofDigits(MINUTE_II, c -> append(sb, c));
         PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
         Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
 

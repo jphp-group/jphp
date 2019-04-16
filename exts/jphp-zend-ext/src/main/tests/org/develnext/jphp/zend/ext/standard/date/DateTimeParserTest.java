@@ -6,11 +6,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -314,17 +320,6 @@ public class DateTimeParserTest {
     }
 
     @Test
-    public void hourWithMeridian() {
-        assertEquals(withTime(17, 0, 0).withNano(0), parse("5PM."));
-        assertEquals(withTime(17, 0, 0).withNano(0), parse("5P.M."));
-        assertEquals(withTime(17, 0, 0).withNano(0), parse("5PM"));
-        assertEquals(withTime(17, 0, 0).withNano(0), parse("5 PM"));
-        assertEquals(withTime(4, 0, 0).withNano(0), parse("4 am"));
-        assertEquals(withTime(4, 0, 0).withNano(0), parse("4 a.m"));
-        assertEquals(withTime(4, 0, 0).withNano(0), parse("4a.m"));
-    }
-
-    @Test
     public void hourAndMinuteWithMeridian() {
         assertEquals(now().withHour(4).withMinute(8).withSecond(0).withNano(0), parse("4:08 am"));
         assertEquals(now().withHour(19).withMinute(19).withSecond(0).withNano(0), parse("7:19P.M."));
@@ -475,12 +470,6 @@ public class DateTimeParserTest {
     }
 
     @Test
-    public void YYmmdd() {
-        assertThat(parse("2008/6/30")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30));
-        assertThat(parse("1978/12/22")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22));
-    }
-
-    @Test
     public void GNUDate() {
         assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
         assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
@@ -501,6 +490,34 @@ public class DateTimeParserTest {
 
     @Test
     public void sandbox() {
+
+    }
+
+    @Test
+    public void justYear() {
+        Stream.of("1978", "1979", "1980")
+                .forEach(yearStr -> {
+                    assertThat(parse(yearStr)).isEqualToIgnoringNanos(now().withYear(Integer.parseInt(yearStr)));
+                });
+    }
+
+    @Test
+    public void justMonth() {
+        Locale l = Locale.US;
+        for (Month month : Month.values()) {
+            for (TextStyle value : Arrays.asList(TextStyle.FULL, TextStyle.SHORT)) {
+                String monthName = month.getDisplayName(value, l);
+                ZonedDateTime expected = now().withMonth(month.getValue());
+
+                assertThat(parse(monthName)).isEqualToIgnoringSeconds(expected);
+                assertThat(parse(monthName.toLowerCase())).isEqualToIgnoringSeconds(expected);
+                assertThat(parse(monthName.toUpperCase())).isEqualToIgnoringSeconds(expected);
+            }
+        }
+    }
+
+    @Test
+    public void hourWithMeridian() {
         Stream.of("5P.M.", "5 pm", "5 p.m", "5 p.m.", "5 P.m.", "5 P.M.", "5 p.M.", "5 p.M")
                 .map(DateTimeParserTest::parse)
                 .forEach(dateTime -> {
@@ -509,9 +526,26 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void yearAndTextualMonth() {
+        Stream.of("2008 June", "2008-VI", "2008.VI", "2008 VI", "2008 june", "2008 jUnE", "2008.jUnE")
+                .map(DateTimeParserTest::parse)
+                .forEach(parsed -> {
+                    assertThat(parsed)
+                            .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1));
+                });
+    }
+
+    @Test
     public void customDates() {
         assertThat(parse("March 1879"))
                 .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(1));
+
+        Stream.of("78-Dec-22", "1978-Dec-22", "1978-DEC-22", "78-DEC-22", "78-DEc-22")
+                .map(DateTimeParserTest::parse)
+                .forEach(parsed -> {
+                    ZonedDateTime of = ZonedDateTime.of(LocalDate.of(1978, 12, 22), LocalTime.MIDNIGHT, ZoneId.systemDefault());
+                    assertThat(parsed).isEqualToIgnoringNanos(of);
+                });
 
         Stream.of("DEC-1978", "DEC1978", "DEC 1978", "DEC- 1978", "DEC - 1978", "Dec ----  --- -- 1978",
                 "dec\t- \t\t-- --\t 1978", "dec.-\t1978", "dec.......-\t1978", "dec . . .....--- . \t1978")
@@ -519,6 +553,30 @@ public class DateTimeParserTest {
                 .forEach(parsed -> {
                     assertThat(parsed)
                             .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1));
+                });
+
+        Stream.of("July 1st, 2008", "July 1st , 2008", "July 1, 2008", "July 1,2008", "July 1,08",
+                "July.1,2008", "July.1rd ,2008")
+                .map(DateTimeParserTest::parse)
+                .forEach(parsed -> {
+                    ZonedDateTime of = ZonedDateTime.of(LocalDate.of(2008, 7, 1), LocalTime.MIDNIGHT, ZoneId.systemDefault());
+                    assertThat(parsed).isEqualToIgnoringNanos(of);
+                });
+
+        Stream.of("July 1st,", "July 1st ,", "July 1", "July.1", "July....1", "July  ...1", "July... .. 1,,,.., ", "1 July", "1.July", "1.JulY")
+                .map(DateTimeParserTest::parse)
+                .forEach(parsed -> {
+                    ZonedDateTime of = ZonedDateTime.of(LocalDate.of(Year.now().getValue(), 7, 1), LocalTime.MIDNIGHT, ZoneId.systemDefault());
+
+                    assertThat(parsed).isEqualToIgnoringNanos(of);
+                });
+
+        Stream.of("May-09-78", "May-09-1978", "may-09-1978", "mAY-09-78")
+                .map(DateTimeParserTest::parse)
+                .forEach(parsed -> {
+                    ZonedDateTime of = ZonedDateTime.of(LocalDate.of(1978, 5, 9), LocalTime.MIDNIGHT, ZoneId.systemDefault());
+
+                    assertThat(parsed).isEqualToIgnoringNanos(of);
                 });
 
         assertThat(parse("DEC1978"))
@@ -568,10 +626,42 @@ public class DateTimeParserTest {
 
         assertThat(parse("1999-10-13"))
                 .isEqualToIgnoringNanos(now().withYear(1999).withMonth(10).withDayOfMonth(13));
-/*
+
         assertThat(parse("Oct 13  1999"))
-                .isEqualToIgnoringNanos(now().withYear(1999).withMonth(10).withDayOfMonth(13));
-*/
+                .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1999).withMonth(10).withDayOfMonth(13));
+    }
+
+    @Test
+    public void iso8DigitYearDayMonth() {
+        ZonedDateTime dateTime = withTime(0, 0, 0);
+        assertThat(parse("15810726"))
+                .isEqualToIgnoringNanos(dateTime.withYear(1581).withMonth(07).withDayOfMonth(26));
+
+        assertThat(parse("19780417"))
+                .isEqualToIgnoringNanos(dateTime.withYear(1978).withMonth(04).withDayOfMonth(17));
+
+        assertThat(parse("18140517"))
+                .isEqualToIgnoringNanos(dateTime.withYear(1814).withMonth(05).withDayOfMonth(17));
+    }
+
+    @Test
+    public void isoYearDayMonthWithSlashes() {
+        ZonedDateTime dateTime = withTime(0, 0, 0);
+        assertThat(parse("2008/06/30"))
+                .isEqualToIgnoringNanos(dateTime.withYear(2008).withMonth(06).withDayOfMonth(30));
+
+        assertThat(parse("1978/12/22"))
+                .isEqualToIgnoringNanos(dateTime.withYear(1978).withMonth(12).withDayOfMonth(22));
+    }
+
+    @Test
+    public void isoYearDayMonthWithDashes() {
+        ZonedDateTime dateTime = withTime(0, 0, 0);
+        assertThat(parse("08-06-30"))
+                .isEqualToIgnoringNanos(dateTime.withYear(2008).withMonth(06).withDayOfMonth(30));
+
+        assertThat(parse("78-12-22"))
+                .isEqualToIgnoringNanos(dateTime.withYear(1978).withMonth(12).withDayOfMonth(22));
     }
 
     @Test

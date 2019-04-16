@@ -1,6 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_MINUTE;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_II;
 
 class Minute2 extends FixedLengthSymbol {
     private Minute2() {
@@ -13,7 +13,7 @@ class Minute2 extends FixedLengthSymbol {
 
     @Override
     public boolean matchesInternal(DateTimeParserContext ctx) {
-        return TWO_DIGIT_MINUTE.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+        return MINUTE_II.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_MONTH;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_MM;
 
 class Month2 extends FixedLengthSymbol {
     Month2() {
@@ -13,8 +13,7 @@ class Month2 extends FixedLengthSymbol {
 
     @Override
     public boolean matchesInternal(DateTimeParserContext ctx) {
-        boolean matches = TWO_DIGIT_MONTH.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
-        return matches;
+        return MONTH_MM.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
     }
 
     @Override

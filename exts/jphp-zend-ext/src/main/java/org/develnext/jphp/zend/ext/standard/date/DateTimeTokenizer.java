@@ -17,23 +17,27 @@ class DateTimeTokenizer {
     static final Pattern HH_MM_SS = Pattern.compile("([01][0-9]|2[0-4])([0-5][0-9]){2}");
     static final Pattern HOUR_12 = HOUR_hh;
     static final Pattern HOUR_24 = HOUR_HH;
-    static final Pattern TWO_DIGIT_MINUTE = Pattern.compile("[0-5][0-9]");
+    static final Pattern MINUTE_II = Pattern.compile("[0-5][0-9]");
     static final Pattern MINUTE_ii = Pattern.compile("0?[0-9]|[0-5][0-9]");
     static final Pattern SECOND_ss = MINUTE_ii;
-    static final Pattern TWO_DIGIT_SECOND = TWO_DIGIT_MINUTE;
+    static final Pattern TWO_DIGIT_SECOND = MINUTE_II;
     static final Pattern FRACTION = Pattern.compile("\\.[0-9]+");
-    static final Pattern MERIDIAN = Pattern.compile("[AaPp]\\.?[Mm]\\.?\t?");
-    static final Pattern TWO_DIGIT_MONTH = Pattern.compile("0[0-9]|1[0-2]");
+
+    // Month patterns
     static final Pattern MONTH_mm = Pattern.compile("0?[0-9]|1[0-2]");
-    static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
+    static final Pattern MONTH_MM = Pattern.compile("0[0-9]|1[0-2]");
     static final Pattern MONTH_M = Pattern.compile("jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
     static final Pattern MONTH = Pattern.compile("january|february|march|april|may|june|july|august|september|october|november|december", Pattern.CASE_INSENSITIVE);
     static final Pattern MONTH_ROMAN = Pattern.compile("I{1,3}|IV|VI{1,3}|IX|XI{0,2}");
-    static final Pattern TWO_DIGIT_DAY = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
+
+    static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
+    static final Pattern DAY_DD = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
     static final Pattern DAY_OF_YEAR = Pattern.compile("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]");
     static final Pattern WEEK = Pattern.compile("0[1-9]|[1-4][0-9]|5[0-3]");
+
     static final Pattern YEAR_y = Pattern.compile("[0-9]{1,4}");
     static final Pattern YEAR_yy = Pattern.compile("[0-9]{2}");
+    static final Pattern YY_MM_DD = Pattern.compile("[0-9]{4}(0[0-9]|1[0-2])(0[0-9]|[1-2][0-9]|3[01])");
 
     private static final int UNDEFINED_POSITION = -1;
     private final char[] chars;
@@ -168,6 +172,16 @@ class DateTimeTokenizer {
                 case '-': {
                     if (isUndefined()) {
                         next = Token.of(Symbol.MINUS, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                        resetBuffer();
+                    }
+
+                    break loop;
+                }
+                case ',': {
+                    if (isUndefined()) {
+                        next = Token.of(Symbol.STRING, i++, 1);
                     } else {
                         next = createWithGuessedSymbol();
                         resetBuffer();

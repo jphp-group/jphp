@@ -1,6 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_DAY;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_DD;
 
 class Day2 extends FixedLengthSymbol {
     private Day2() {
@@ -13,7 +13,7 @@ class Day2 extends FixedLengthSymbol {
 
     @Override
     public boolean matchesInternal(DateTimeParserContext ctx) {
-        boolean matches = TWO_DIGIT_DAY.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
+        boolean matches = DAY_DD.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
         return matches;
     }
 

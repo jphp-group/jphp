@@ -280,6 +280,11 @@ class DateTimeParserContext {
         return tokenizer.readChar(tokenAtCursor());
     }
 
+    public DateTimeParserContext timeAtStartOfDay() {
+        time = LocalTime.MIDNIGHT;
+        return this;
+    }
+
     private static class TimezoneField implements TemporalField {
         private static final TimezoneField INSTANSE = new TimezoneField();
 
