@@ -9,7 +9,6 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoField;
 import java.time.temporal.IsoFields;
 import java.time.DateTimeException;
 import java.time.ZoneId;
@@ -20,10 +19,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.develnext.jphp.zend.ext.standard.date.DateFormat;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
-import org.develnext.jphp.zend.ext.standard.date.DateTimeParser;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeZone;
+import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
@@ -32,7 +33,6 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
-import php.runtime.ext.core.classes.WrapJavaExceptions;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
@@ -129,144 +129,21 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format, long time) {
-        StringBuilder sb = new StringBuilder();
-        Memory defaultTimeZone = date_default_timezone_get(env, traceInfo);
-        ZoneId zoneId = zoneId(defaultTimeZone);
+        ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time),
+                zoneId(date_default_timezone_get(env, traceInfo)));
 
-        Instant instant = Instant.ofEpochSecond(time);
-        ZonedDateTime date = ZonedDateTime.ofInstant(instant, zoneId);
-        Locale locale = env.getLocale();
-
-        for (int i = 0, n = format.length(); i < n; i++) {
-            char c = format.charAt(i);
-            switch (c) {
-                case 'Y':
-                    sb.append(String.format(locale, "%04d", date.getYear()));
-                    break;
-                case 'm':
-                    sb.append(String.format(locale, "%02d", date.getMonthValue()));
-                    break;
-                case 'd':
-                    sb.append(String.format(locale, "%02d", date.getDayOfMonth()));
-                    break;
-                case 'j':
-                    sb.append(date.getDayOfMonth());
-                    break;
-                case 'S': {
-                    int dayOfMonth = date.getDayOfMonth();
-                    String suffix;
-                    switch (dayOfMonth) {
-                        case 1:
-                        case 21:
-                        case 31:
-                            suffix = "st";
-                            break;
-                        case 2:
-                        case 22:
-                            suffix = "nd";
-                            break;
-                        case 3:
-                        case 23:
-                            suffix = "rd";
-                            break;
-                        default:
-                            suffix = "th";
-                            break;
-                    }
-                    sb.append(suffix);
-                    break;
-                }
-                case 'w':
-                    sb.append(date.getDayOfWeek().getValue());
-                    break;
-                case 'D':
-                    sb.append(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, locale));
-                    break;
-                case 'F':
-                    sb.append(date.getMonth().getDisplayName(TextStyle.FULL, locale));
-                    break;
-                case 'e':
-                    sb.append(defaultTimeZone);
-                    break;
-                case 'H':
-                    sb.append(String.format(locale, "%02d", date.getHour()));
-                    break;
-                case 'i':
-                    sb.append(String.format(locale, "%02d", date.getMinute()));
-                    break;
-                case 's':
-                    sb.append(String.format(locale, "%02d", date.getSecond()));
-                    break;
-                case 'z':
-                    sb.append(date.getDayOfYear() - 1);
-                    break;
-                case 'n':
-                    sb.append(date.getMonthValue());
-                    break;
-                case 't':
-                    sb.append(date.getMonth().length(Year.isLeap(date.getYear())));
-                    break;
-                case 'L':
-                    sb.append(Year.isLeap(date.getYear()) ? 1 : 0);
-                    break;
-                case 'a':
-                    sb.append(date.getHour() >= 12 ? "pm" : "am");
-                    break;
-                case 'A':
-                    sb.append(date.getHour() >= 12 ? "PM" : "AM");
-                    break;
-                case 'B': {
-                    ZonedDateTime atUTC = date.withZoneSameInstant(ZoneId.of("UTC+01:00"));
-                    int beats = (int) ((atUTC.get(ChronoField.SECOND_OF_MINUTE) +
-                            (atUTC.get(ChronoField.MINUTE_OF_HOUR) * 60) + (atUTC.get(ChronoField.HOUR_OF_DAY) * 3600)) / 86.4);
-                    sb.append(String.format(locale, "%03d", beats));
-                    break;
-                }
-                case 'g': {
-                    int hRem = date.getHour() % 12;
-                    sb.append(hRem > 0 ? hRem : 12);
-                    break;
-                }
-                case 'G': {
-                    sb.append(date.getHour());
-                    break;
-                }
-                case 'Z': {
-                    sb.append(date.getOffset().getTotalSeconds());
-                    break;
-                }
-                case 'U': {
-                    sb.append(date.toEpochSecond());
-                    break;
-                }
-                case 'O': {
-                    long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
-                    String offset = ((hours < 0) ? "-" : "+") + String.format(locale, "%02d", Math.abs(hours));
-                    sb.append(offset);
-
-                    if (hours != 0)
-                        sb.append("00");
-                    break;
-                }
-                case '\\': {
-                    break;
-                }
-                default: {
-                    sb.append(c);
-                }
-                break;
-            }
-        }
-
-        return StringMemory.valueOf(sb.toString());
+        String value = DateFormat.formatForDateFunction(env, date, format, new StringBuilder()).toString();
+        return StringMemory.valueOf(value);
     }
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format) {
         return date(env, traceInfo, format, epochSeconds());
     }
 
-    public static Memory strtotime(Environment env, TraceInfo traceInfo, String time) {
-        throw new WrapJavaExceptions.NotImplementedException(env);
+    public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time) {
+        ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo));
+
+        return LongMemory.valueOf(dateTime.toEpochSecond());
     }
 
     public static Memory mktime(Environment env, TraceInfo traceInfo,
@@ -295,7 +172,7 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     private static ZoneId zoneId(Memory memory) {
-        return ZoneId.of(memory.toString());
+        return ZoneIdFactory.of(memory.toString());
     }
 
     public static Memory mktime(Environment env, TraceInfo traceInfo,
@@ -627,21 +504,32 @@ public class DateFunctions extends FunctionsContainer {
         return Instant.ofEpochSecond(time).atZone(zoneId(date_default_timezone_get(env, traceInfo)));
     }
 
-    public static Memory date_create(Environment env, TraceInfo traceInfo, Memory time) {
+    public static Memory date_create(Environment env, TraceInfo traceInfo, Memory... args) {
         DateTime dateTime = new DateTime(env);
-        return dateTime.__construct(env, traceInfo, time);
+        return dateTime.__construct(env, traceInfo, args[0], args.length == 2 ? args[1] : Memory.NULL);
     }
 
     public static Memory date_create(Environment env, TraceInfo traceInfo) {
-        return date_create(env, traceInfo, StringMemory.valueOf("now"));
+        return date_create(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
     }
 
     public static Memory date_create_from_format(Environment env, TraceInfo traceInfo, Memory... args) {
-        return DateTime.createFromFormat(env, traceInfo, args);
+        if (args.length == 2) {
+            return DateTime.createFromFormat(env, traceInfo, args[0], args[1], Memory.NULL);
+        } else if (args.length == 3) {
+            return DateTime.createFromFormat(env, traceInfo, args[0], args[1], args[2]);
+        }
+
+        return Memory.UNDEFINED;
     }
 
     public static Memory time() {
         return LongMemory.valueOf(epochSeconds());
+    }
+
+    public static Memory timezone_open(Environment env, TraceInfo traceInfo, Memory... args) {
+        DateTimeZone dateTimeZone = new DateTimeZone(env);
+        return dateTimeZone.__construct(env, traceInfo, args[0].toValue(StringMemory.class));
     }
 
     private static long epochSeconds() {

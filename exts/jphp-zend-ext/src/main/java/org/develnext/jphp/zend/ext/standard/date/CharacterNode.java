@@ -15,15 +15,23 @@ class CharacterNode extends SymbolNode {
     }
 
     static CharacterNode of(char c) {
-        return new CharacterNode(Symbol.CHARACTER, c, DateTimeParserContext.empty(), true);
+        return new CharacterNode(Symbol.STRING, c, DateTimeParserContext.empty(), true);
+    }
+
+    static CharacterNode of(char c, Symbol symbol) {
+        return new CharacterNode(symbol, c, DateTimeParserContext.empty(), true);
     }
 
     static CharacterNode of(char c, Consumer<DateTimeParserContext> apply) {
-        return new CharacterNode(Symbol.CHARACTER, c, apply, true);
+        return new CharacterNode(Symbol.STRING, c, apply, true);
     }
 
     static CharacterNode ofCaseInsensitive(char c) {
-        return new CharacterNode(Symbol.CHARACTER, c, DateTimeParserContext.empty(), false);
+        return new CharacterNode(Symbol.STRING, c, DateTimeParserContext.empty(), false);
+    }
+
+    static CharacterNode ofCaseInsensitive(char c, Consumer<DateTimeParserContext> apply) {
+        return new CharacterNode(Symbol.STRING, c, apply, false);
     }
 
     @Override

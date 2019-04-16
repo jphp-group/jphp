@@ -52,6 +52,11 @@ class DateTimeParserContext {
         return ctx -> sb.append(ctx.readCharAtCursor());
     }
 
+    static Consumer<DateTimeParserContext> charLowerAppender(StringBuilder sb) {
+        if (sb == null) return empty();
+        return ctx -> sb.append(Character.toLowerCase(ctx.readCharAtCursor()));
+    }
+
     static Consumer<DateTimeParserContext> cursorIncrementer() {
         return ctx -> ctx.cursor().inc();
     }

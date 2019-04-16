@@ -19,11 +19,15 @@ class PatternNode extends SymbolNode {
     }
 
     static PatternNode ofDigits(Pattern pattern) {
-        return new PatternNode(pattern, Symbol.DIGITS, dateTimeParserContext -> {});
+        return new PatternNode(pattern, Symbol.DIGITS, DateTimeParserContext.empty());
     }
 
     static PatternNode of(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> adjuster) {
         return new PatternNode(pattern, symbol, adjuster);
+    }
+
+    static Node of(Pattern pattern, Symbol symbol) {
+        return new PatternNode(pattern, symbol, DateTimeParserContext.empty());
     }
 
     @Override

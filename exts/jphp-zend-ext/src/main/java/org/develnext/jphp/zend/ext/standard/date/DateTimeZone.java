@@ -4,7 +4,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import php.runtime.Memory;
-import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Arg;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Property;
@@ -49,14 +48,11 @@ public class DateTimeZone extends BaseObject {
     public static final int ALL_WITH_BC = 4095;
     @Property
     public static final int PER_COUNTRY = 4096;
-
-    private ZoneId nativeZone;
-
     @Property("timezone")
     Memory timezone = Memory.UNDEFINED;
     @Property("timezone_type")
     Memory type = Memory.UNDEFINED;
-
+    private ZoneId nativeZone;
     public DateTimeZone(Environment env) {
         super(env);
     }
@@ -81,6 +77,27 @@ public class DateTimeZone extends BaseObject {
     @Signature
     public static Memory listIdentifiers(Environment env, TraceInfo traceInfo) {
         return Memory.UNDEFINED;
+    }
+
+    static int getTimeZoneType(ZoneId zoneId) {
+        if (zoneId == null)
+            return -1;
+
+        if (zoneId instanceof ZoneOffset) {
+            return 1;
+        } else {
+            String id = zoneId.getId();
+
+            if (id.contains("/") || id.equals("UTC")) {
+                return 3;
+            }
+        }
+
+        return 2;
+    }
+
+    ZoneId getNativeZone() {
+        return nativeZone;
     }
 
     @Signature(value = {
@@ -129,22 +146,5 @@ public class DateTimeZone extends BaseObject {
         props.refOfIndex("timezone").assign(timezone);
 
         return props;
-    }
-
-    static int getTimeZoneType(ZoneId zoneId) {
-        if (zoneId == null)
-            return -1;
-
-        if (zoneId instanceof ZoneOffset) {
-            return 1;
-        } else {
-            String id = zoneId.getId();
-
-            if (id.contains("/") || id.equals("UTC")) {
-                return 3;
-            }
-        }
-
-        return 2;
     }
 }

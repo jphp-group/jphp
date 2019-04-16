@@ -10,11 +10,6 @@ class Year4 extends FixedLengthSymbol {
     }
 
     @Override
-    public boolean matchesInternal(DateTimeParserContext ctx) {
-        return true;
-    }
-
-    @Override
     void apply(DateTimeParserContext ctx) {
         int year = ctx.readIntAtCursor();
 

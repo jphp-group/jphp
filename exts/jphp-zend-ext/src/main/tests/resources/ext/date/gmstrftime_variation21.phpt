@@ -36,7 +36,7 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Preferred date and time representation--
-string(%d) "%s %s  %d %02d:%02d:%02d %04d"
+string(%d) "%s %s %d %02d:%02d:%02d %04d"
 string(24) "Fri Aug  8 08:08:08 2008"
 
 --Preferred date representation--

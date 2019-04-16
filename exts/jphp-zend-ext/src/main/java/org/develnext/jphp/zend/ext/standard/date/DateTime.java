@@ -19,6 +19,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 @Name("DateTime")
@@ -40,9 +41,12 @@ public class DateTime extends BaseObject implements DateTimeInterface {
             @Arg(value = "time", type = HintType.STRING),
             @Arg(value = "timezone", type = HintType.OBJECT, optional = @Optional("NULL"))
     }, result = @Arg(type = HintType.OBJECT))
-    public static Memory createFromFormat(Environment env, TraceInfo traceInfo, Memory... args) {
+    public static Memory createFromFormat(Environment env, TraceInfo traceInfo,
+                                          Memory format,
+                                          Memory time,
+                                          Memory timezone) {
         try {
-            ZonedDateTime parse = parse(env, traceInfo, args[1]);
+            parse(env, traceInfo, time, timezone);
         } catch (DateTimeException e) {
             return Memory.FALSE;
         }
@@ -62,9 +66,17 @@ public class DateTime extends BaseObject implements DateTimeInterface {
         return new ObjectMemory();
     }
 
-    private static ZonedDateTime parse(Environment env, TraceInfo traceInfo, Memory time) {
-        Memory memory = DateFunctions.date_default_timezone_get(env, traceInfo);
-        ZoneId zone = ZoneId.of(memory.toString());
+    public static ZonedDateTime parse(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone) {
+        ZoneId zone;
+
+        if (timeZone.isNull()) {
+            zone = ZoneId.of(DateFunctions.date_default_timezone_get(env, traceInfo).toString());
+        } else if (timeZone.isString()) {
+            zone = ZoneIdFactory.of(timeZone.toString());
+        } else {
+            zone = ((DateTimeZone) timeZone.toValue(ObjectMemory.class).value).getNativeZone();
+        }
+
         String timeStr = time.toString();
 
         return "now".equals(timeStr) ? ZonedDateTime.now().withZoneSameLocal(zone) : new DateTimeParser(timeStr, zone).parse();
@@ -74,9 +86,9 @@ public class DateTime extends BaseObject implements DateTimeInterface {
             @Arg(value = "time", type = HintType.STRING, optional = @Optional("now")),
             @Arg(value = "timezone", type = HintType.OBJECT, optional = @Optional("NULL"))
     }, result = @Arg(type = HintType.OBJECT))
-    public Memory __construct(Environment env, TraceInfo traceInfo, Memory... args) {
+    public Memory __construct(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone) {
         try {
-            this.dateTime = parse(env, traceInfo, args[0]);
+            this.dateTime = parse(env, traceInfo, time, timeZone);
         } catch (DateTimeParseException e) {
             return Memory.FALSE;
         }
@@ -155,7 +167,7 @@ public class DateTime extends BaseObject implements DateTimeInterface {
     @Override
     @Signature(value = {@Arg(value = "format", type = HintType.STRING)}, result = @Arg(type = HintType.STRING))
     public Memory format(Environment env, TraceInfo traceInfo, String format) {
-        return Memory.UNDEFINED;
+        return StringMemory.valueOf(DateFormat.formatForDateFunction(env, dateTime, format));
     }
 
     @Override

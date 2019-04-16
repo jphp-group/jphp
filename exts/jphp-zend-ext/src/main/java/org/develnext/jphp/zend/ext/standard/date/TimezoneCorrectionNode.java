@@ -17,7 +17,7 @@ class TimezoneCorrectionNode extends Node {
     private static final Pattern hh = Pattern.compile("0?[1-9]|1[0-2]");
     private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
     private static final Pattern hhMMSigned = Pattern.compile("[+-](0?[1-9]|1[0-2])[0-5][0-9]?");
-    private static final Pattern OPT_SIGNED_CORRECTION = Pattern.compile("([+-])?(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
+    private static final Pattern CORRECTION = Pattern.compile("(0?[1-9]|1[0-2])(\\:)?([0-5][0-9])?");
     private ZoneId zoneId;
     private int nodeLength;
 
@@ -35,28 +35,17 @@ class TimezoneCorrectionNode extends Node {
                 GroupNode.of(
                         "OP? [+-]hh:?MM",
                         PREFIX_NODE
-                                .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
-                                .followedByOptional(COLON_NODE),
+                                .optionalFollowedBy(PLUS_NODE.or(MINUS_NODE).then(PatternNode.ofDigits(hh, signedHour))),
+                        COLON_NODE,
                         MM_NODE
                 ),
                 GroupNode.of(
-                        "OP? [+-]hh(:MM)?",
-                        PREFIX_NODE
-                                .optionalFollowedBy(PatternNode.ofDigits(hhSigned, signedHour))
-                                .followedByOptional(COLON_NODE.then(MM_NODE))
-                ),
-                GroupNode.of(
                         "OP? [+-]hhMM",
-                        PREFIX_NODE.optionalFollowedBy(PatternNode.ofDigits(hhMMSigned, signedHour))
-                ),
-                GroupNode.of(
-                        "[+-] hh (:MM)?",
-                        PLUS_NODE.or(MINUS_NODE)
-                                .then(PatternNode.ofDigits(hh, signedHour)
-                                        .followedByOptional(COLON_NODE.then(MM_NODE))
-                                        .or(PatternNode.ofDigits(hhMM, signedHour))
+                        PREFIX_NODE
+                                .optionalFollowedBy(PLUS_NODE.or(MINUS_NODE)
+                                        .then(PatternNode.ofDigits(hhMM, signedHour).or(PatternNode.ofDigits(hh, signedHour)))
                                 )
-                ),
+                )
         };
 
         for (GroupNode groupNode : groupNodes) {
@@ -77,28 +66,28 @@ class TimezoneCorrectionNode extends Node {
     }
 
     private void appendSignedHour(StringBuilder sb, DateTimeParserContext c) {
+        c.cursor().dec();
+        if (c.isSymbolAtCursor(Symbol.PLUS) || c.isSymbolAtCursor(Symbol.MINUS)) {
+            sb.append(c.readCharAtCursor());
+        }
+        c.cursor().inc();
+
         CharBuffer cb = c.readCharBufferAtCursor();
 
-        Matcher matcher = OPT_SIGNED_CORRECTION.matcher(cb);
+        Matcher matcher = CORRECTION.matcher(cb);
         if (!matcher.matches()) {
             // if this method is invoked this should not be executed.
             throw new IllegalStateException("DUP!");
         }
 
-        if (matcher.group(1) != null) {
-            sb.append(matcher.group(1));
-        } else {
-            sb.append(c.tokenizer().readChar(c.tokenAtCursor().start() - 1));
-        }
+        sb.append(String.format("%02d", Integer.parseInt(matcher.group(1))));
 
-        sb.append(String.format("%02d", Integer.parseInt(matcher.group(2))));
+        if (matcher.group(2) != null) {
+            sb.append(matcher.group(2));
+        }
 
         if (matcher.group(3) != null) {
             sb.append(matcher.group(3));
-        }
-
-        if (matcher.group(4) != null) {
-            sb.append(matcher.group(4));
         }
     }
 

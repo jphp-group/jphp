@@ -85,11 +85,17 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void testDateCreate() {
+        check("ext/date/date_create-2.phpt");
+        check("ext/date/date_create-1.phpt");
         check("ext/date/date_create_basic.phpt");
         check("ext/date/date_create_from_format_basic2.phpt");
-        check("ext/date/date_create-1.phpt");
-        check("ext/date/date_create-2.phpt");
-        check("ext/date/date_create-relative.phpt");
+
+        //check("ext/date/date_create-relative.phpt");
+    }
+
+    @Test
+    public void strtotime() {
+        check("ext/date/002.phpt");
     }
 
     @Test

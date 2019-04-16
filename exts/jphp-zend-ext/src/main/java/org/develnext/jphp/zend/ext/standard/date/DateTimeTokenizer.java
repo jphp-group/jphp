@@ -27,10 +27,13 @@ class DateTimeTokenizer {
     static final Pattern MONTH_mm = Pattern.compile("0?[0-9]|1[0-2]");
     static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
     static final Pattern MONTH_M = Pattern.compile("jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
+    static final Pattern MONTH = Pattern.compile("january|february|march|april|may|june|july|august|september|october|november|december", Pattern.CASE_INSENSITIVE);
+    static final Pattern MONTH_ROMAN = Pattern.compile("I{1,3}|IV|VI{1,3}|IX|XI{0,2}");
     static final Pattern TWO_DIGIT_DAY = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
     static final Pattern DAY_OF_YEAR = Pattern.compile("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]");
     static final Pattern WEEK = Pattern.compile("0[1-9]|[1-4][0-9]|5[0-3]");
     static final Pattern YEAR_y = Pattern.compile("[0-9]{1,4}");
+    static final Pattern YEAR_yy = Pattern.compile("[0-9]{2}");
 
     private static final int UNDEFINED_POSITION = -1;
     private final char[] chars;
@@ -63,24 +66,11 @@ class DateTimeTokenizer {
 
             s0:
             switch (c) {
-                case 'a':
-                case 'A':
-                case 'p':
-                case 'P':
-                case 'm':
-                case 'M':
-                case 'W':
-                    if (isUndefined())
-                        tokenStart = i;
-
-                    buff.append(c);
-                    characteristics.add(LETTERS);
-                    break;
                 case 't':
                 case 'T': {
                     buff.append(c);
                     if (isNextDigit(i)) {
-                        next = Token.of(Symbol.CHARACTER, i++, 1);
+                        next = Token.of(Symbol.STRING, i++, 1);
                         resetBuffer();
                         break loop;
                     }
@@ -101,7 +91,7 @@ class DateTimeTokenizer {
                         tokenStart = i;
 
                     if (Character.isLetter(lastChar())) {
-                        next = createAndReset(Symbol.CHARACTER);
+                        next = createAndReset(Symbol.STRING);
                         break loop;
                     }
 
@@ -139,34 +129,23 @@ class DateTimeTokenizer {
                         break loop;
                     } else {
                         char lc = lastChar();
-                        buff.append(c);
 
-                        // lookbehind
-                        switch (lc) {
-                            case 'a':
-                            case 'A':
-                            case 'p':
-                            case 'P':
-                                break s0; // hoping to read MERIDIAN. Breaks main switch
-                            case 'm':
-                            case 'M':
-                                if (MERIDIAN.matcher(buff).matches()) {
-                                    next = createAndReset(Symbol.MERIDIAN);
-                                }
-                                break s0;
-                            default:
-                                // most probably this is DIGITS
-                                next = createWithGuessedSymbol();
-                                resetBuffer();
-                                break loop;
-
+                        if (Character.isLetter(lc)) {
+                            next = createAndReset(Symbol.STRING);
+                        } else {
+                            // most probably this is DIGITS
+                            buff.append(c);
+                            next = createWithGuessedSymbol();
                         }
+
+                        resetBuffer();
+                        break loop;
                     }
                 }
                 case '_':
                 case '/': {
                     if (isUndefined()) {
-                        next = Token.of(Symbol.CHARACTER, i++, 1);
+                        next = Token.of(Symbol.STRING, i++, 1);
                     } else {
                         next = createWithGuessedSymbol();
                     }
@@ -179,12 +158,6 @@ class DateTimeTokenizer {
                 }
                 case '+': {
                     if (isUndefined()) {
-                        if (isNextDigit(i)) {
-                            tokenStart = i;
-                            buff.append(c);
-                            break;
-                        }
-
                         next = Token.of(Symbol.PLUS, i++, 1);
                     } else {
                         next = createWithGuessedSymbol();
@@ -193,27 +166,23 @@ class DateTimeTokenizer {
                     break loop;
                 }
                 case '-': {
-                    // previous one not digit next one is digit
-                    if (!Character.isDigit(lookahead(i, -1)) && isNextDigit(i)) {
-                        // this is most probably negative number
-                        if (isUndefined()) {
-                            tokenStart = i;
-                        } else {
-                            next = createWithGuessedSymbol();
-                            resetBuffer();
-                            break loop;
-                        }
-
-                        buff.append(c);
-                        break;
+                    if (isUndefined()) {
+                        next = Token.of(Symbol.MINUS, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                        resetBuffer();
                     }
 
-                    next = Token.of(Symbol.MINUS, i++, 1);
                     break loop;
                 }
                 case ' ':
                 case '\t': {
-                    next = Token.of(Symbol.SPACE, i++, 1);
+                    if (isUndefined()) {
+                        next = Token.of(Symbol.SPACE, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                        resetBuffer();
+                    }
                     break loop;
                 }
                 default: {
@@ -268,7 +237,7 @@ class DateTimeTokenizer {
     }
 
     private char lookahead(int current, int to) {
-        if (current + to < length && current + to > 0)
+        if (current + to < length && current + to >= 0)
             return chars[current + to];
 
         return '\0';
@@ -317,8 +286,6 @@ class DateTimeTokenizer {
                 if (onlyDigits) {
                     if (HOUR_12.matcher(buff).matches()) {
                         return Symbol.HOUR_12;
-                    } else if (HOUR_24.matcher(buff).matches()) {
-                        return Symbol.TWO_DIGITS;
                     }
                 }
                 break;
@@ -331,12 +298,9 @@ class DateTimeTokenizer {
 
         if (hasOnly(DIGITS, PUNCTUATION) && FRACTION.matcher(buff).matches()) {
             return Symbol.FRACTION;
-        } else if ((hasOnly(LETTERS) || hasOnly(LETTERS, PUNCTUATION)) && MERIDIAN.matcher(buff).matches()) {
-            return Symbol.MERIDIAN;
         } else if (hasOnly(LETTERS)) {
             return Symbol.STRING;
         }
-
 
         throw new IllegalStateException("Cannot guest type of " + buff.toString());
     }

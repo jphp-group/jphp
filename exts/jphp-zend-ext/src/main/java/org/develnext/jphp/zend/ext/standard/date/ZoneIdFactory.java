@@ -6,12 +6,13 @@ import java.util.Map;
 
 import php.runtime.common.collections.map.CaseInsensitiveMap;
 
-class ZoneIdFactory {
+public class ZoneIdFactory {
     private static final Map<String, String> aliases;
 
     static {
         Map<String, String> m = new CaseInsensitiveMap<>(185);
-        m.put("CEST", "CET");
+        m.put("CET", "UTC+01:00");
+        m.put("CEST", "UTC+02:00");
         m.put("ACDT", "UTC+10:30");
         m.put("ACST", "UTC+09:30");
         m.put("ACT", "UTC−05");
@@ -205,7 +206,7 @@ class ZoneIdFactory {
         return aliases;
     }
 
-    static ZoneId of(String id) {
+    public static ZoneId of(String id) {
         return ZoneId.of(id, aliases);
     }
 }
