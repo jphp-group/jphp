@@ -19,8 +19,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 class DateTimeParserContext {
     private static final Consumer<DateTimeParserContext> EMPTY_CONSUMER = ctx -> {};
+    private static final List<ChronoField> CHRONO_FIELDS = Arrays.asList(ChronoField.values());
     private final List<Token> tokens;
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
@@ -133,6 +135,7 @@ class DateTimeParserContext {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Temporal> T adjust(T temporal, TemporalField field, int value) {
         modified.add(field);
         return (T) temporal.with(field, value);
@@ -206,6 +209,10 @@ class DateTimeParserContext {
     }
 
     public DateTimeParserContext setTimezone(ZoneId timezone) {
+        // UNIX timestamp was set.
+        if (modified.containsAll(CHRONO_FIELDS))
+            return this;
+
         zone = timezone;
         modified.add(TimezoneField.INSTANSE);
         return this;
@@ -234,7 +241,7 @@ class DateTimeParserContext {
 
         date = zonedDateTime.toLocalDate();
         time = zonedDateTime.toLocalTime();
-        modified.addAll(Arrays.asList(ChronoField.values()));
+        modified.addAll(CHRONO_FIELDS);
 
         return this;
     }

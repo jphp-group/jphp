@@ -15,12 +15,14 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK_WEEK_DAY;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_y;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_yy;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YY_MM_DD;
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
 import java.time.DateTimeException;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -40,6 +42,7 @@ public class DateTimeParser {
     static final SymbolNode COLON_NODE = SymbolNode.of(Symbol.COLON);
     static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
     static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
+    static final SymbolNode DIGITS_NODE = SymbolNode.of(Symbol.DIGITS);
     static final CharacterNode SLASH_NODE = CharacterNode.of('/');
     static final CharacterNode COMMA_NODE = CharacterNode.of(',');
     static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
@@ -89,47 +92,29 @@ public class DateTimeParser {
     private static final GroupNode XMLRPC = GroupNode.of("XMLRPC", YearMonthDay.of(), OrNode.of(XMLRPC_FULL, XMLRPC_COMPACT));
     private static final GroupNode UNIX_TIMESTAMP = GroupNode.of("Unix Timestamp", AT_NODE.then(UnixTimestamp.of()));
     private static final GroupNode POSTGRES_DOY = GroupNode.of("POSTGRES DOY", YEAR_4_DIGIT, DOT_NODE, DOY_NODE);
-    private static final GroupNode ISOYearWeek = GroupNode.of(
-            "ISO year with ISO week",
-            YEAR_4_DIGIT,
-            OrNode.of(
-                    ISO_WEEK,
-                    AndNode.of(MINUS_NODE, ISO_WEEK)
-            ),
-            PatternNode.ofDigits(WEEK, isoWeekAdjuster())
+    private static final GroupNode ISOYearWeek = GroupNode.of("ISO year with ISO week",
+            YEAR_4_DIGIT.then(ISO_WEEK).then(PatternNode.ofDigits(WEEK, isoWeekAdjuster()))
     );
     private static final Pattern DAY_OF_WEEK = Pattern.compile("[0-7]");
     private static final PatternNode DAY_OF_WEEK_NODE = PatternNode.ofDigits(DAY_OF_WEEK, dayOfWeekAdjuster());
     private static final GroupNode ISOYearWeekAndDay = GroupNode.of(
             "ISO year with ISO week and day",
-            YEAR_4_DIGIT,
-            OrNode.of(
-                    ISO_WEEK,
-                    AndNode.of(MINUS_NODE, ISO_WEEK)
-            ),
-            PatternNode.ofDigits(WEEK, isoWeekAdjuster()),
-            OrNode.of(
-                    AndNode.of(MINUS_NODE, DAY_OF_WEEK_NODE),
-                    DAY_OF_WEEK_NODE
+            YEAR_4_DIGIT.then(ISO_WEEK).then(
+                    PatternNode.ofDigits(WEEK, isoWeekAdjuster())
+                            .or(PatternNode.ofDigits(WEEK_WEEK_DAY, c -> {
+                                int start = c.tokenAtCursor().start();
+                                int week = c.tokenizer().readInt(start, 2);
+                                int weekDay = c.tokenizer().readInt(start + 2, 1);
+
+                                c.setWeekOfYear(week).setDayOfWeek(weekDay);
+                            }))
             )
     );
     private static final PatternNode MONTH_SHORT = PatternNode.of(MONTH_M, Symbol.STRING, monthStringAdjuster());
     private static final GroupNode COMMON_LOG = GroupNode.of("Common Log Format", PatternNode.ofDigits(DAY_dd, dayAdjuster()), SLASH_NODE, MONTH_SHORT, SLASH_NODE, YEAR_4_DIGIT, COLON_NODE, HOUR_24_NODE, COLON_NODE, MINUTE_2_DIGIT, COLON_NODE, SECOND_2_DIGIT, SPACE_NODE, TZ_CORRECTION);
     private static final GroupNode SOAP = GroupNode.of(
             "SOAP (YY \"-\" MM \"-\" DD \"T\" HH \":\" II \":\" SS frac tzcorrection?)",
-            YEAR_4_DIGIT,
-            MINUS_NODE,
-            MONTH_2_DIGIT,
-            MINUS_NODE,
-            DAY_2_DIGIT,
-            CharacterNode.of('T'),
-            HOUR_24_NODE,
-            COLON_NODE,
-            MINUTE_2_DIGIT,
-            COLON_NODE,
-            SECOND_2_DIGIT,
-            DOT_NODE,
-            MICROSECONDS.followedByOptional(TZ_CORRECTION)
+            YEAR_4_DIGIT, MINUS_NODE, MONTH_2_DIGIT, MINUS_NODE, DAY_2_DIGIT, CharacterNode.of('T'), HOUR_24_NODE, COLON_NODE, MINUTE_2_DIGIT, COLON_NODE, SECOND_2_DIGIT, DOT_NODE, MICROSECONDS.followedByOptional(TZ_CORRECTION)
     );
     private static final MeridianNode MERIDIAN_NODE = MeridianNode.of();
     private static final GroupNode HOUR_WITH_MERIDIAN = GroupNode.of(
@@ -261,7 +246,13 @@ public class DateTimeParser {
 
     private static final GroupNode m_dd_y_NODE = GroupNode.of(
             "Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)",
-            DateTimeParserContext::timeAtStartOfDay,
+            ctx -> {
+                ctx.timeAtStartOfDay();
+                if (ctx.isSymbolAtCursor(Symbol.COLON)) {
+                    ctx.setYear(Year.now().getValue());
+                    ctx.cursor().dec();
+                }
+            },
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))).then(YEAR_y_NODE)
     );
 
@@ -318,20 +309,18 @@ public class DateTimeParser {
 
     private static final GroupNode ISO8601_YY_MM_DD = GroupNode.of(
             "Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)",
+            DateTimeParserContext::timeAtStartOfDay,
             PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT))
     );
 
-    private static final GroupNode JUST_YEAR = GroupNode.of(
-            "Year (and just the year) (YY)",
-            YEAR_4_DIGIT
-    );
-
-    private static final GroupNode JUST_MONTH_m = GroupNode.of(
-            "Textual month (and just the month) (m)",
-            MONTH_m_NODE
-    );
-
+    private static final GroupNode JUST_YEAR = GroupNode.of("Year (and just the year) (YY)", YEAR_4_DIGIT);
+    private static final GroupNode JUST_MONTH_m = GroupNode.of("Textual month (and just the month) (m)", MONTH_m_NODE);
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
+
+    // Relatives
+    private static final GroupNode REL_TIME = GroupNode.of(PLUS_NODE.or(MINUS_NODE)
+            .optionalFollowedBy(DIGITS_NODE.followedByOptional(SPACE_NODE))
+    );
 
     static {
         parseTree.put(Symbol.AT, Collections.singletonList(UNIX_TIMESTAMP));
@@ -557,10 +546,9 @@ public class DateTimeParser {
             for (GroupNode nodes : groupNodes) {
                 matches = nodes.matches(ctx);
                 if (matches) {
-                    int tmp = ctx.cursor().value();
                     ctx.cursor().setValue(lastMatchIdx);
-                    lastMatchIdx = tmp;
                     nodes.apply(ctx);
+                    lastMatchIdx = ctx.cursor().value();
                     break;
                 }
             }

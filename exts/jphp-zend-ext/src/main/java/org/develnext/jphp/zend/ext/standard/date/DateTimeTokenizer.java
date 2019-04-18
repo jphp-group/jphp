@@ -34,6 +34,14 @@ class DateTimeTokenizer {
     static final Pattern DAY_DD = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
     static final Pattern DAY_OF_YEAR = Pattern.compile("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]");
     static final Pattern WEEK = Pattern.compile("0[1-9]|[1-4][0-9]|5[0-3]");
+    static final Pattern WEEK_WEEK_DAY = Pattern.compile("(0[1-9]|[1-4][0-9]|5[0-3])[0-7]");
+
+    // Relative patterns
+    static final Pattern DAY_NAME = Pattern.compile("sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tue|wed|thu|fri|sat", Pattern.CASE_INSENSITIVE);
+    static final Pattern DAY_TEXT = Pattern.compile("weekday|weekdays", Pattern.CASE_INSENSITIVE);
+    static final Pattern ORDINAL = Pattern.compile("first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|next|last|previous|this", Pattern.CASE_INSENSITIVE);
+    static final Pattern RELTEXT = Pattern.compile("next|last|previous|this", Pattern.CASE_INSENSITIVE);
+    static final Pattern UNIT = Pattern.compile("((sec|second|min|minute|hour|day|fortnight|forthnight|month|year)s?)|weeks|weekday|weekdays", Pattern.CASE_INSENSITIVE);
 
     static final Pattern YEAR_y = Pattern.compile("[0-9]{1,4}");
     static final Pattern YEAR_yy = Pattern.compile("[0-9]{2}");

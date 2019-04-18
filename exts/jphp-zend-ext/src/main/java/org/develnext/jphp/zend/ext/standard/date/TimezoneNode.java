@@ -60,7 +60,7 @@ class TimezoneNode extends Node {
 
     static class OneOrMore extends GroupNode {
         OneOrMore(String name, Node[] nodes) {
-            super(name, nodes, DateTimeParserContext.empty());
+            super(name, nodes, isRelative, DateTimeParserContext.empty());
         }
 
         static OneOrMore of(Node... nodes) {

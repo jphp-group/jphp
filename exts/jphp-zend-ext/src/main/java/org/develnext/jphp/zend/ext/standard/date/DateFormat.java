@@ -1,12 +1,14 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
+import java.time.zone.ZoneRules;
 import java.util.Locale;
 
 import php.runtime.annotation.Reflection;
@@ -95,6 +97,9 @@ public class DateFormat {
                 case 'L':
                     sb.append(Year.isLeap(date.getYear()) ? 1 : 0);
                     break;
+                case 'l':
+                    sb.append(date.getDayOfWeek().getDisplayName(TextStyle.FULL, locale));
+                    break;
                 case 'a':
                     sb.append(date.getHour() >= 12 ? "pm" : "am");
                     break;
@@ -128,10 +133,14 @@ public class DateFormat {
                 case 'O': {
                     Duration duration = Duration.ofSeconds(date.getOffset().getTotalSeconds());
                     long hours = duration.toHours();
-                    long minutes = duration.toMinutes() % 60;
+                    long minutes = Math.abs(duration.toMinutes() % 60);
                     String offset = ((hours < 0) ? "-" : "+") + String.format(locale, "%02d", Math.abs(hours));
 
                     sb.append(offset).append(String.format(locale, "%02d", minutes));
+                    break;
+                }
+                case 'P': {
+                    sb.append(date.getOffset().toString());
                     break;
                 }
                 case 'T': {

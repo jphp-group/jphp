@@ -1,12 +1,17 @@
 package date;
 
 import org.develnext.jphp.zend.ZendJvmTestCase;
+import org.develnext.jphp.zend.ext.standard.DateConstants;
+import org.develnext.jphp.zend.ext.standard.DateFunctions;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+
+import php.runtime.Memory;
+import php.runtime.env.TraceInfo;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -79,8 +84,8 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/mktime_basic1.phpt");
         check("ext/date/mktime-3-64bit.phpt");
         check("ext/date/mktime_no_args.phpt");
-        check("ext/date/big_year.phpt");
         check("ext/date/gmmktime_basic.phpt");
+        //check("ext/date/big_year.phpt");
     }
 
     @Test
@@ -95,7 +100,17 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void strtotime() {
+        check("ext/date/strtotime2.phpt");
         check("ext/date/002.phpt");
+        check("ext/date/strtotime.phpt");
+        check("ext/date/strtotime3-64bit.phpt");
+        check("ext/date/strtotime-mysql.phpt");
+        check("ext/date/strtotime_basic2.phpt");
+    }
+
+    @Test
+    public void strtotimeRelative() {
+        check("ext/date/strtotime-relative.phpt");
     }
 
     @Test

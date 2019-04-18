@@ -7,25 +7,31 @@ import java.util.function.Consumer;
 
 class GroupNode extends Node implements Iterable<Node> {
     private final String name;
+    private final boolean relative;
     private final Node[] nodes;
     private final Consumer<DateTimeParserContext> afterApply;
 
-    GroupNode(String name, Node[] nodes, Consumer<DateTimeParserContext> afterApply) {
+    GroupNode(String name, Node[] nodes, boolean relative, Consumer<DateTimeParserContext> afterApply) {
         this.name = name;
         this.nodes = nodes;
+        this.relative = relative;
         this.afterApply = afterApply;
     }
 
     static GroupNode of(String name, Node... nodes) {
-        return new GroupNode(name, nodes, DateTimeParserContext.empty());
+        return new GroupNode(name, nodes, false, DateTimeParserContext.empty());
     }
 
     static GroupNode of(String name, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
-        return new GroupNode(name, nodes, afterApply);
+        return new GroupNode(name, nodes, false, afterApply);
     }
 
     static GroupNode of(Node... nodes) {
-        return new GroupNode("noname", nodes, DateTimeParserContext.empty());
+        return new GroupNode("noname", nodes, false, DateTimeParserContext.empty());
+    }
+
+    static GroupNode of(boolean relative, Node... nodes) {
+        return new GroupNode("noname", nodes, relative, DateTimeParserContext.empty());
     }
 
     @Override
@@ -62,6 +68,10 @@ class GroupNode extends Node implements Iterable<Node> {
         afterApply.accept(ctx);
     }
 
+    public boolean isRelative() {
+        return relative;
+    }
+
     @Override
     public Iterator<Node> iterator() {
         return Arrays.asList(nodes).iterator();
@@ -76,6 +86,7 @@ class GroupNode extends Node implements Iterable<Node> {
         return new StringJoiner(", ", GroupNode.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("nodes=" + Arrays.toString(nodes))
+                .add("relative=" + relative)
                 .toString();
     }
 }

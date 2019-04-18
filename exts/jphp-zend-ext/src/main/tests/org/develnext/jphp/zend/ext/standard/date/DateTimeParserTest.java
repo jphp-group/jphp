@@ -315,8 +315,9 @@ public class DateTimeParserTest {
 
     @Test
     public void onlyTimeZone() {
-        assertThat(parse("GMT"))
-                .isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of("GMT")));
+        for (String tz : Arrays.asList("+0", "+00", "GMT")) {
+            assertThat(parse(tz)).isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of(tz)));
+        }
     }
 
     @Test
@@ -490,7 +491,28 @@ public class DateTimeParserTest {
 
     @Test
     public void sandbox() {
+        ZonedDateTime parse = parse("Dec 21  12:16");
+    }
 
+    @Test
+    public void isoYearWithWeekAndWeekDay() {
+        assertThat(parse("1997W011"))
+                .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1996).withMonth(12).withDayOfMonth(30));
+    }
+
+    @Test
+    public void isoYearWeekWeekDayAndTime() {
+        assertThat(parse("2004W101T05:00+0"))
+                .isEqualToIgnoringNanos(withTime(5, 0, 0).withYear(2004).withMonth(3).withDayOfMonth(1)
+                        .withZoneSameLocal(ZoneId.of("+0")));
+    }
+
+    @Test
+    public void timestampWithTimezone() {
+        ZonedDateTime expected = ZonedDateTime.parse("2005-07-14T20:30:41Z").withZoneSameInstant(ZoneIdFactory.of("CEST"));
+        ZonedDateTime actual = parse("@1121373041 CEST");
+
+        assertThat(actual).isEqualToIgnoringNanos(expected);
     }
 
     @Test
@@ -625,7 +647,7 @@ public class DateTimeParserTest {
                         .withHour(22).withMinute(30).withSecond(41));
 
         assertThat(parse("1999-10-13"))
-                .isEqualToIgnoringNanos(now().withYear(1999).withMonth(10).withDayOfMonth(13));
+                .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1999).withMonth(10).withDayOfMonth(13));
 
         assertThat(parse("Oct 13  1999"))
                 .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1999).withMonth(10).withDayOfMonth(13));
@@ -662,6 +684,11 @@ public class DateTimeParserTest {
 
         assertThat(parse("78-12-22"))
                 .isEqualToIgnoringNanos(dateTime.withYear(1978).withMonth(12).withDayOfMonth(22));
+    }
+
+    @Test
+    public void relativeOffsets() {
+        ZonedDateTime parse = parse("+1 year");
     }
 
     @Test
