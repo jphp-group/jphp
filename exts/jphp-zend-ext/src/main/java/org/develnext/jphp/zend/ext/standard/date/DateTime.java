@@ -80,7 +80,8 @@ public class DateTime extends BaseObject implements DateTimeInterface {
 
         String timeStr = time.toString();
 
-        return "now".equals(timeStr) ? baseDateTime.withZoneSameLocal(zone) : new DateTimeParser(timeStr, baseDateTime, zone).parse();
+        return "now".equals(timeStr) ? baseDateTime.withZoneSameLocal(zone) :
+                new DateTimeParser(timeStr, baseDateTime, zone, env.getLocale()).parse();
     }
 
     @Signature(value = {

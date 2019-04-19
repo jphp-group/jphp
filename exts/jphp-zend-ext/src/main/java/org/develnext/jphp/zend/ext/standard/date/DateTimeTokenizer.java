@@ -41,7 +41,7 @@ class DateTimeTokenizer {
     static final Pattern DAY_TEXT = Pattern.compile("weekday|weekdays", Pattern.CASE_INSENSITIVE);
     static final Pattern ORDINAL = Pattern.compile("first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|next|last|previous|this", Pattern.CASE_INSENSITIVE);
     static final Pattern RELTEXT = Pattern.compile("next|last|previous|this", Pattern.CASE_INSENSITIVE);
-    static final Pattern UNIT = Pattern.compile("((sec|second|min|minute|hour|day|fortnight|forthnight|month|year)s?)|weeks|weekday|weekdays", Pattern.CASE_INSENSITIVE);
+    static final Pattern UNIT = Pattern.compile("((sec|second|min|minute|hour|day|fortnight|forthnight|weekday|week|month|year)s?)", Pattern.CASE_INSENSITIVE);
 
     static final Pattern YEAR_y = Pattern.compile("[0-9]{1,4}");
     static final Pattern YEAR_yy = Pattern.compile("[0-9]{2}");

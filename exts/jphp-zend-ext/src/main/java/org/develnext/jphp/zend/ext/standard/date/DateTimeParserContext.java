@@ -13,6 +13,7 @@ import java.time.temporal.ValueRange;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -26,15 +27,17 @@ class DateTimeParserContext {
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
     private final Set<TemporalField> modified;
+    private final Locale locale;
     private final ZoneId zone;
     private ZonedDateTime dateTime;
 
     DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer,
                           ZonedDateTime dateTime,
-                          ZoneId defaultZone) {
+                          ZoneId defaultZone, Locale locale) {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
+        this.locale = locale;
         this.modified = new HashSet<>();
         this.zone = Optional.ofNullable(defaultZone).orElseGet(ZoneId::systemDefault);
         this.dateTime = dateTime;
@@ -107,6 +110,32 @@ class DateTimeParserContext {
         };
     }
 
+    private static int businessDaysToRealDays(int days) {
+        return days <= 5 ? days : ((days / 5) * 7) + (days % 5);
+    }
+
+    /**
+     * https://stackoverflow.com/questions/33942544/how-to-skip-weekends-while-adding-days-to-localdate-in-java-8/33943576
+     */
+    private static long getAllDays(int dayOfWeek, long businessDays) {
+        long result = 0;
+        if (businessDays != 0) {
+            boolean isStartOnWorkday = dayOfWeek < 6;
+            long absBusinessDays = Math.abs(businessDays);
+
+            if (isStartOnWorkday) {
+                // if negative businessDays: count backwards by shifting weekday
+                int shiftedWorkday = businessDays > 0 ? dayOfWeek : 6 - dayOfWeek;
+                result = absBusinessDays + (absBusinessDays + shiftedWorkday - 1) / 5 * 2;
+            } else { // start on weekend
+                // if negative businessDays: count backwards by shifting weekday
+                int shiftedWeekend = businessDays > 0 ? dayOfWeek : 13 - dayOfWeek;
+                result = absBusinessDays + (absBusinessDays - 1) / 5 * 2 + (7 - shiftedWeekend);
+            }
+        }
+        return result;
+    }
+
     public boolean hasModifications() {
         return !modified.isEmpty();
     }
@@ -137,6 +166,13 @@ class DateTimeParserContext {
 
     public int readIntAtCursorAndInc() {
         int ret = tokenizer.readInt(tokenAtCursor());
+        cursor.inc();
+
+        return ret;
+    }
+
+    public long readLongAtCursorAndInc() {
+        long ret = tokenizer.readLong(tokenAtCursor());
         cursor.inc();
 
         return ret;
@@ -254,42 +290,42 @@ class DateTimeParserContext {
         return this;
     }
 
-    public DateTimeParserContext plusYears(int years) {
+    public DateTimeParserContext plusYears(long years) {
         dateTime = dateTime.plusYears(years);
         modified.add(ChronoField.YEAR);
 
         return this;
     }
 
-    public DateTimeParserContext plusMonths(int months) {
+    public DateTimeParserContext plusMonths(long months) {
         dateTime = dateTime.plusMonths(months);
         modified.add(ChronoField.MONTH_OF_YEAR);
 
         return this;
     }
 
-    public DateTimeParserContext plusDays(int days) {
+    public DateTimeParserContext plusDays(long days) {
         dateTime = dateTime.plusDays(days);
         modified.add(ChronoField.DAY_OF_MONTH);
 
         return this;
     }
 
-    public DateTimeParserContext plusHours(int hours) {
+    public DateTimeParserContext plusHours(long hours) {
         dateTime = dateTime.plusHours(hours);
         modified.add(ChronoField.HOUR_OF_DAY);
 
         return this;
     }
 
-    public DateTimeParserContext plusMinutes(int minutes) {
+    public DateTimeParserContext plusMinutes(long minutes) {
         dateTime = dateTime.plusMinutes(minutes);
         modified.add(ChronoField.MINUTE_OF_HOUR);
 
         return this;
     }
 
-    public DateTimeParserContext plusSeconds(int seconds) {
+    public DateTimeParserContext plusSeconds(long seconds) {
         dateTime = dateTime.plusSeconds(seconds);
         modified.add(ChronoField.SECOND_OF_MINUTE);
 
@@ -364,6 +400,22 @@ class DateTimeParserContext {
                 .withSecond(0)
                 .withMinute(0)
                 .withHour(0);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusWeekDays(long value) {
+        if (!isTimeModified())
+            atStartOfDay();
+
+        if (value == 0)
+            return this;
+
+        long realDays = getAllDays(dateTime.getDayOfWeek().getValue(), value);
+
+        dateTime = dateTime.plusDays(realDays * Long.signum(value));
+
+        modified.add(ChronoField.DAY_OF_WEEK);
 
         return this;
     }

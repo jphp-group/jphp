@@ -10,7 +10,7 @@ public class RelativeTimeNumber extends Node {
         return matchesInternal(ctx) != null;
     }
 
-    private Pair<Integer, String> matchesInternal(DateTimeParserContext ctx) {
+    private Pair<Long, String> matchesInternal(DateTimeParserContext ctx) {
         int snapshot = ctx.cursor().value();
 
         int sign = 1;
@@ -24,7 +24,7 @@ public class RelativeTimeNumber extends Node {
             return null;
         }
 
-        int value = ctx.readIntAtCursorAndInc() * sign;
+        long value = ctx.readLongAtCursorAndInc() * sign;
 
         if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
             ctx.cursor().inc();
@@ -50,8 +50,8 @@ public class RelativeTimeNumber extends Node {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        Pair<Integer, String> pair = matchesInternal(ctx);
-        int value = pair.getA();
+        Pair<Long, String> pair = matchesInternal(ctx);
+        long value = pair.getA();
 
         switch (pair.getB()) {
             case "year":
@@ -82,6 +82,16 @@ public class RelativeTimeNumber extends Node {
             case "secs":
                 ctx.plusSeconds(value);
                 break;
+            case "week":
+            case "weeks":
+                ctx.plusDays(value * 7L);
+                break;
+            case "weekday":
+            case "weekdays":
+                ctx.plusWeekDays(value);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown unit: " + pair.getB());
         }
     }
 }

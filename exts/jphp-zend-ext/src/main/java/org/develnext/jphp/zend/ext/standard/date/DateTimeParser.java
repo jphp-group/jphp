@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -409,6 +410,11 @@ public class DateTimeParser {
     private final ZonedDateTime baseDateTime;
 
     /**
+     * The locale.
+     */
+    private final Locale locale;
+
+    /**
      * The default zone to apply.
      */
     private final ZoneId defaultZone;
@@ -422,13 +428,15 @@ public class DateTimeParser {
         this.defaultZone = zoneId;
         this.relatives = new ArrayDeque<>();
         this.baseDateTime = ZonedDateTime.now().withZoneSameInstant(zoneId);
+        this.locale = Locale.getDefault();
     }
 
-    DateTimeParser(String dateTime, ZonedDateTime baseDateTime, ZoneId zoneId) {
+    DateTimeParser(String dateTime, ZonedDateTime baseDateTime, ZoneId zoneId, Locale locale) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
         this.defaultZone = zoneId;
         this.relatives = new ArrayDeque<>();
         this.baseDateTime = baseDateTime;
+        this.locale = locale;
     }
 
     private static Consumer<DateTimeParserContext> monthStringAdjuster() {
@@ -504,7 +512,7 @@ public class DateTimeParser {
 
     public ZonedDateTime parse() {
         List<Token> tokens = getTokens();
-        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone);
+        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone, locale);
 
         parseNormal(ctx);
 

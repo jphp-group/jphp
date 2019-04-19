@@ -26,19 +26,23 @@ import php.runtime.common.Pair;
 public class DateTimeParserTest {
 
     private static ZonedDateTime parse(String input) {
-        return parseWithMicro(input).withNano(0);
+        return parseWithMicro(input, ZonedDateTime.now()).withNano(0);
     }
 
     private static ZonedDateTime parse(String input, String zoneId) {
         return parseWithMicro(input, zoneId).withNano(0);
     }
 
+    private static ZonedDateTime parseWithMicro(String input) {
+        return new DateTimeParser(input).parse();
+    }
+
     private static ZonedDateTime parseWithMicro(String input, String zoneId) {
         return new DateTimeParser(input, ZoneId.of(zoneId)).parse();
     }
 
-    private static ZonedDateTime parseWithMicro(String input) {
-        return new DateTimeParser(input).parse();
+    private static ZonedDateTime parseWithMicro(String input, ZonedDateTime base) {
+        return new DateTimeParser(input, base, ZoneId.systemDefault(), Locale.getDefault()).parse();
     }
 
     private static ZonedDateTime withTime(int hour, int minute, int second) {
@@ -709,6 +713,31 @@ public class DateTimeParserTest {
                     assertThat(parse(pair.getA()))
                             .isEqualToIgnoringNanos(now().plusYears(pair.getB()));
                 });
+
+        Stream.of(Pair.of("+1 week", 7), Pair.of("1 week", 7), Pair.of("2 weeks", 14),
+                Pair.of("-2 weeks", -14))
+                .forEach(pair -> {
+                    assertThat(parse(pair.getA())).isEqualToIgnoringNanos(now().plusDays(pair.getB()));
+                });
+
+        assertThat(parse("+10 year +15 day -5 secs"))
+                .isEqualToIgnoringNanos(now().plusYears(10).plusDays(15).minusSeconds(5));
+
+    }
+
+    @Test
+    public void relativeWeekDays() {
+        assertThat(parseWithMicro("-6 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
+                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-11T00:00:00+04:00[Asia/Yerevan]"));
+
+        assertThat(parseWithMicro("+1 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
+                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-22T00:00:00+04:00[Asia/Yerevan]"));
+
+        assertThat(parseWithMicro("+5 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
+                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-26T00:00:00+04:00[Asia/Yerevan]"));
+
+        assertThat(parseWithMicro("+7 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
+                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-30T00:00:00+04:00[Asia/Yerevan]"));
     }
 
     @Test
