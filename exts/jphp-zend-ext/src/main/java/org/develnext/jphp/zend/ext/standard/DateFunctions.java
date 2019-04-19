@@ -141,7 +141,13 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time) {
-        ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo));
+        return strtotime(env, traceInfo, time, epochSeconds());
+    }
+
+    public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time, long now) {
+        ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
+        ZonedDateTime base = Instant.ofEpochSecond(now).atZone(zoneId);
+        ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo), base);
 
         return LongMemory.valueOf(dateTime.toEpochSecond());
     }

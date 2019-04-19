@@ -46,7 +46,7 @@ public class DateTime extends BaseObject implements DateTimeInterface {
                                           Memory time,
                                           Memory timezone) {
         try {
-            parse(env, traceInfo, time, timezone);
+            parse(env, traceInfo, time, timezone, ZonedDateTime.now());
         } catch (DateTimeException e) {
             return Memory.FALSE;
         }
@@ -66,7 +66,8 @@ public class DateTime extends BaseObject implements DateTimeInterface {
         return new ObjectMemory();
     }
 
-    public static ZonedDateTime parse(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone) {
+    public static ZonedDateTime parse(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone,
+                                      ZonedDateTime baseDateTime) {
         ZoneId zone;
 
         if (timeZone.isNull()) {
@@ -79,7 +80,7 @@ public class DateTime extends BaseObject implements DateTimeInterface {
 
         String timeStr = time.toString();
 
-        return "now".equals(timeStr) ? ZonedDateTime.now().withZoneSameLocal(zone) : new DateTimeParser(timeStr, zone).parse();
+        return "now".equals(timeStr) ? baseDateTime.withZoneSameLocal(zone) : new DateTimeParser(timeStr, baseDateTime, zone).parse();
     }
 
     @Signature(value = {
@@ -88,7 +89,7 @@ public class DateTime extends BaseObject implements DateTimeInterface {
     }, result = @Arg(type = HintType.OBJECT))
     public Memory __construct(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone) {
         try {
-            this.dateTime = parse(env, traceInfo, time, timeZone);
+            this.dateTime = parse(env, traceInfo, time, timeZone, ZonedDateTime.now());
         } catch (DateTimeParseException e) {
             return Memory.FALSE;
         }

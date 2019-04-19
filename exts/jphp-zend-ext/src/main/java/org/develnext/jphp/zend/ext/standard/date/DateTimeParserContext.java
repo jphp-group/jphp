@@ -2,8 +2,6 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import java.nio.CharBuffer;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -15,6 +13,7 @@ import java.time.temporal.ValueRange;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
@@ -27,16 +26,18 @@ class DateTimeParserContext {
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
     private final Set<TemporalField> modified;
-    private LocalDate date;
-    private LocalTime time;
-    private ZoneId zone;
+    private final ZoneId zone;
+    private ZonedDateTime dateTime;
 
-    DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer, ZoneId defaultZone) {
+    DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer,
+                          ZonedDateTime dateTime,
+                          ZoneId defaultZone) {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
         this.modified = new HashSet<>();
-        this.zone = defaultZone;
+        this.zone = Optional.ofNullable(defaultZone).orElseGet(ZoneId::systemDefault);
+        this.dateTime = dateTime;
     }
 
     static Consumer<DateTimeParserContext> charBufferAppender(StringBuilder sb) {
@@ -61,6 +62,49 @@ class DateTimeParserContext {
 
     static Consumer<DateTimeParserContext> cursorIncrementer() {
         return ctx -> ctx.cursor().inc();
+    }
+
+    static Consumer<DateTimeParserContext> dayOfWeekAdjuster() {
+        return ctx -> ctx.setDayOfWeek(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> isoWeekAdjuster() {
+        return ctx -> ctx.setWeekOfYear(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> dayOfYearAdjuster() {
+        return ctx -> ctx.setDayOfYear(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> secondAdjuster() {
+        return ctx -> ctx.setSecond(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> minuteAdjuster() {
+        return ctx -> ctx.setMinute(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> dayAdjuster() {
+        return ctx -> ctx.setDayOfMonth(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> monthAdjuster() {
+        return ctx -> ctx.setMonth(ctx.readIntAtCursor());
+    }
+
+    static Consumer<DateTimeParserContext> yearAdjuster() {
+        return ctx -> {
+            int year = ctx.readIntAtCursor();
+            if (year >= 0 && year <= 69) {
+                year += 2000;
+            } else if (year >= 70 && year <= 100) {
+                year += 1900;
+            } else if (year < 0) {
+                year = 1970 + year;
+            }
+
+            ctx.setYear(year);
+        };
     }
 
     public boolean hasModifications() {
@@ -91,6 +135,13 @@ class DateTimeParserContext {
         return tokenizer.readInt(tokenAtCursor());
     }
 
+    public int readIntAtCursorAndInc() {
+        int ret = tokenizer.readInt(tokenAtCursor());
+        cursor.inc();
+
+        return ret;
+    }
+
     public long readLongAtCursor() {
         return tokenizer.readLong(tokenAtCursor());
     }
@@ -101,6 +152,13 @@ class DateTimeParserContext {
 
     public String readStringAtCursor() {
         return tokenizer.readString(tokenAtCursor());
+    }
+
+    public String readStringAtCursorAndInc() {
+        String str = tokenizer.readString(tokenAtCursor());
+        cursor.inc();
+
+        return str;
     }
 
     public DateTimeParserContext withCursorValue(int value) {
@@ -117,21 +175,14 @@ class DateTimeParserContext {
     }
 
     public ZonedDateTime dateTime() {
-        initDate();
-        initTime();
-
-        zone = zone == null ? ZoneId.systemDefault() : zone;
-
         if (isNotModified(ChronoField.MICRO_OF_SECOND))
-            time = time.with(ChronoField.MICRO_OF_SECOND, 0);
+            dateTime = dateTime.with(ChronoField.MICRO_OF_SECOND, 0);
 
-        return ZonedDateTime.of(date, time, zone);
+        return dateTime;
     }
 
     public DateTimeParserContext setYear(int year) {
-        initDate();
-
-        date = adjust(date, ChronoField.YEAR, year);
+        dateTime = adjust(dateTime, ChronoField.YEAR, year);
         return this;
     }
 
@@ -142,68 +193,53 @@ class DateTimeParserContext {
     }
 
     public DateTimeParserContext setMonth(int month) {
-        initDate();
-
-        date = adjust(date, ChronoField.MONTH_OF_YEAR, month);
+        dateTime = adjust(dateTime, ChronoField.MONTH_OF_YEAR, month);
 
         return this;
     }
 
     public DateTimeParserContext setDayOfMonth(int day) {
-        initDate();
-
-        date = adjust(date, ChronoField.DAY_OF_MONTH, day);
+        dateTime = adjust(dateTime, ChronoField.DAY_OF_MONTH, day);
 
         return this;
-    }
-
-    private void initDate() {
-        if (date == null)
-            date = LocalDate.now();
     }
 
     public DateTimeParserContext setHour(int hour) {
-        initTime();
-
-        time = adjust(time, ChronoField.HOUR_OF_DAY, hour);
+        dateTime = adjust(dateTime, ChronoField.HOUR_OF_DAY, hour);
         return this;
     }
 
-    private void initTime() {
-        if (time == null)
-            time = LocalTime.now();
-    }
-
     public DateTimeParserContext setMinute(int minute) {
-        initTime();
-
-        time = adjust(time, ChronoField.MINUTE_OF_HOUR, minute);
+        dateTime = adjust(dateTime, ChronoField.MINUTE_OF_HOUR, minute);
         return this;
     }
 
     public DateTimeParserContext setSecond(int second) {
-        initTime();
-
-        time = adjust(time, ChronoField.SECOND_OF_MINUTE, second);
+        dateTime = adjust(dateTime, ChronoField.SECOND_OF_MINUTE, second);
         return this;
     }
 
     public DateTimeParserContext setDayOfYear(int dayOfYear) {
-        initDate();
-        if (time == null)
-            time = LocalTime.MIDNIGHT;
+        if (!isTimeModified())
+            atStartOfDay();
 
-        date = adjust(date, ChronoField.DAY_OF_YEAR, dayOfYear);
-
+        dateTime = adjust(dateTime, ChronoField.DAY_OF_YEAR, dayOfYear);
         return this;
     }
 
-    public DateTimeParserContext setWeekOfYear(int weekOfYear) {
-        initDate();
-        if (time == null)
-            time = LocalTime.MIDNIGHT;
+    public boolean isTimeModified() {
+        return modified.contains(ChronoField.SECOND_OF_MINUTE) ||
+                modified.contains(ChronoField.MINUTE_OF_HOUR) ||
+                modified.contains(ChronoField.HOUR_OF_DAY) ||
+                modified.contains(ChronoField.HOUR_OF_AMPM) ||
+                modified.contains(ChronoField.MICRO_OF_SECOND);
+    }
 
-        date = adjust(date, ChronoField.ALIGNED_WEEK_OF_YEAR, weekOfYear);
+    public DateTimeParserContext setWeekOfYear(int weekOfYear) {
+        if (!isTimeModified())
+            atStartOfDay();
+
+        dateTime = adjust(dateTime, ChronoField.ALIGNED_WEEK_OF_YEAR, Math.max(1, weekOfYear - 1));
 
         return this;
     }
@@ -213,8 +249,50 @@ class DateTimeParserContext {
         if (modified.containsAll(CHRONO_FIELDS))
             return this;
 
-        zone = timezone;
+        dateTime = dateTime.withZoneSameLocal(timezone);
         modified.add(TimezoneField.INSTANSE);
+        return this;
+    }
+
+    public DateTimeParserContext plusYears(int years) {
+        dateTime = dateTime.plusYears(years);
+        modified.add(ChronoField.YEAR);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusMonths(int months) {
+        dateTime = dateTime.plusMonths(months);
+        modified.add(ChronoField.MONTH_OF_YEAR);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusDays(int days) {
+        dateTime = dateTime.plusDays(days);
+        modified.add(ChronoField.DAY_OF_MONTH);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusHours(int hours) {
+        dateTime = dateTime.plusHours(hours);
+        modified.add(ChronoField.HOUR_OF_DAY);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusMinutes(int minutes) {
+        dateTime = dateTime.plusMinutes(minutes);
+        modified.add(ChronoField.MINUTE_OF_HOUR);
+
+        return this;
+    }
+
+    public DateTimeParserContext plusSeconds(int seconds) {
+        dateTime = dateTime.plusSeconds(seconds);
+        modified.add(ChronoField.SECOND_OF_MINUTE);
+
         return this;
     }
 
@@ -223,45 +301,39 @@ class DateTimeParserContext {
     }
 
     public DateTimeParserContext setDayOfWeek(int dayOfWeek) {
-        initDate();
-
-        date = adjust(date, ChronoField.DAY_OF_WEEK, dayOfWeek);
+        dateTime = adjust(dateTime, ChronoField.DAY_OF_WEEK, dayOfWeek);
         return this;
     }
 
     public DateTimeParserContext setMicroseconds(int nano) {
-        initTime();
-        time = adjust(time, ChronoField.MICRO_OF_SECOND, nano);
+        dateTime = adjust(dateTime, ChronoField.MICRO_OF_SECOND, nano);
         return this;
     }
 
     public DateTimeParserContext setUnixTimestamp(long timestamp) {
         setTimezone(ZoneId.of("UTC"));
-        ZonedDateTime zonedDateTime = Instant.ofEpochSecond(timestamp).atZone(zone);
-
-        date = zonedDateTime.toLocalDate();
-        time = zonedDateTime.toLocalTime();
+        dateTime = Instant.ofEpochSecond(timestamp).atZone(zone);
         modified.addAll(CHRONO_FIELDS);
 
         return this;
     }
 
     public DateTimeParserContext setMeridian(boolean am) {
-        if (time == null)
+        if (!isTimeModified())
             throw new IllegalStateException("The time should be initialized at this point!");
 
         if (am) {
-            time = time.withHour(time.getHour() % 12);
+            dateTime = dateTime.withHour(dateTime.getHour() % 12);
         } else {
-            time = time.withHour(time.getHour() + 12);
+            dateTime = dateTime.withHour(dateTime.getHour() + 12);
         }
 
         if (isNotModified(ChronoField.MINUTE_OF_HOUR)) {
-            time = time.withMinute(0);
+            dateTime = dateTime.withMinute(0);
         }
 
         if (isNotModified(ChronoField.SECOND_OF_MINUTE)) {
-            time = time.withSecond(0);
+            dateTime = dateTime.withSecond(0);
         }
 
         return this;
@@ -287,8 +359,12 @@ class DateTimeParserContext {
         return tokenizer.readChar(tokenAtCursor());
     }
 
-    public DateTimeParserContext timeAtStartOfDay() {
-        time = LocalTime.MIDNIGHT;
+    public DateTimeParserContext atStartOfDay() {
+        dateTime = dateTime.with(ChronoField.MICRO_OF_SECOND, 0)
+                .withSecond(0)
+                .withMinute(0)
+                .withHour(0);
+
         return this;
     }
 

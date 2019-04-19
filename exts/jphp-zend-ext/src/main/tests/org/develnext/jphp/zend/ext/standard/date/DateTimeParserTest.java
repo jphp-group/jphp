@@ -502,7 +502,8 @@ public class DateTimeParserTest {
 
     @Test
     public void isoYearWeekWeekDayAndTime() {
-        assertThat(parse("2004W101T05:00+0"))
+        ZonedDateTime parse = parse("2004W101T05:00+0");
+        assertThat(parse)
                 .isEqualToIgnoringNanos(withTime(5, 0, 0).withYear(2004).withMonth(3).withDayOfMonth(1)
                         .withZoneSameLocal(ZoneId.of("+0")));
     }
@@ -688,7 +689,26 @@ public class DateTimeParserTest {
 
     @Test
     public void relativeOffsets() {
-        ZonedDateTime parse = parse("+1 year");
+        Stream.of(
+                Pair.of("150year 150years", 300),
+                Pair.of("+1 year", 1),
+                Pair.of("+5 year", 5),
+                Pair.of("5 year", 5),
+                Pair.of("-5 year", -5),
+                Pair.of("-300 years", -300),
+                Pair.of("300 years", 300),
+                Pair.of("+300 years", 300),
+                Pair.of("+300years", 300),
+                Pair.of("+300year", 300),
+                Pair.of("300year", 300),
+                Pair.of("300year", 300),
+                Pair.of("150year 150years", 300),
+                Pair.of("150year -150 years +1 year", 1)
+        )
+                .forEach(pair -> {
+                    assertThat(parse(pair.getA()))
+                            .isEqualToIgnoringNanos(now().plusYears(pair.getB()));
+                });
     }
 
     @Test

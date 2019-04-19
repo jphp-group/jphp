@@ -1,7 +1,15 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.cursorIncrementer;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfWeekAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfYearAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.empty;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.isoWeekAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.minuteAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.monthAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.secondAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.yearAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_DD;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_OF_YEAR;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_SUFFIX;
@@ -26,12 +34,13 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -247,7 +256,7 @@ public class DateTimeParser {
     private static final GroupNode m_dd_y_NODE = GroupNode.of(
             "Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)",
             ctx -> {
-                ctx.timeAtStartOfDay();
+                ctx.atStartOfDay();
                 if (ctx.isSymbolAtCursor(Symbol.COLON)) {
                     ctx.setYear(Year.now().getValue());
                     ctx.cursor().dec();
@@ -258,7 +267,7 @@ public class DateTimeParser {
 
     private static final GroupNode m_dd_NODE = GroupNode.of(
             "Textual month and day (m ([ .\\t-])* dd [,.stndrh\\t ]*)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS))
                     .then(DAY_dd_OPT_SUFFIX_NODE)
                     .then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE)))
@@ -266,25 +275,25 @@ public class DateTimeParser {
 
     private static final GroupNode dd_m_NODE = GroupNode.of(
             "Day and textual month (d ([ .\\t-])* m)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
     );
 
     private static final GroupNode M_DD_y_NODE = GroupNode.of(
             "Month abbreviation, day and year (M '-' DD '-' y)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             MONTH_M_NODE.then(MINUS_NODE).then(DAY_DD_NODE).then(MINUS_NODE).then(YEAR_y_NODE)
     );
 
     private static final GroupNode y_M_DD_NODE = GroupNode.of(
             "Year, month abbreviation and day (y '-' M '-' DD)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             YEAR_y_NODE.then(MINUS_NODE).then(MONTH_M_NODE).then(MINUS_NODE).then(DAY_DD_NODE)
     );
 
     private static final GroupNode ISO8601_8DIGIT_YY_MM_DD = GroupNode.of(
             "Eight digit year, month and day (YY MM DD)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             PatternNode.ofDigits(YY_MM_DD, ctx -> {
                 int start = ctx.tokenAtCursor().start();
                 int year = ctx.tokenizer().readInt(start, 4);
@@ -297,19 +306,19 @@ public class DateTimeParser {
 
     private static final GroupNode ISO8601_YY_MM_DD_WITH_SLASHES = GroupNode.of(
             "Four digit year, month and day with slashes (YY '/' MM '/' DD)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_2_DIGIT).then(SLASH_NODE).then(DAY_2_DIGIT)
     );
 
     private static final GroupNode ISO8601_yy_MM_DD_WITH_DASHES = GroupNode.of(
             "Two digit year, month and day with dashes (yy '-' MM '-' DD)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             YEAR_yy_NODE.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)
     );
 
     private static final GroupNode ISO8601_YY_MM_DD = GroupNode.of(
             "Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)",
-            DateTimeParserContext::timeAtStartOfDay,
+            DateTimeParserContext::atStartOfDay,
             PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT))
     );
 
@@ -317,15 +326,14 @@ public class DateTimeParser {
     private static final GroupNode JUST_MONTH_m = GroupNode.of("Textual month (and just the month) (m)", MONTH_m_NODE);
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
 
-    // Relatives
-    private static final GroupNode REL_TIME = GroupNode.of(PLUS_NODE.or(MINUS_NODE)
-            .optionalFollowedBy(DIGITS_NODE.followedByOptional(SPACE_NODE))
-    );
+    // Relative formats
+    private static final Node UNIT_NODE = PatternNode.of(DateTimeTokenizer.UNIT, Symbol.STRING);
+    private static final GroupNode REL_TIME = GroupNode.of(true, new RelativeTimeNumber());
 
     static {
         parseTree.put(Symbol.AT, Collections.singletonList(UNIX_TIMESTAMP));
-        parseTree.put(Symbol.PLUS, Arrays.asList(ISO8601_YY_MM_DD, TIMEZONE_INFORMATION));
-        parseTree.put(Symbol.MINUS, Arrays.asList(ISO8601_YY_MM_DD, TIMEZONE_INFORMATION));
+        parseTree.put(Symbol.PLUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, TIMEZONE_INFORMATION));
+        parseTree.put(Symbol.MINUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, TIMEZONE_INFORMATION));
         parseTree.put(Symbol.STRING, Arrays.asList(
                 HOUR_MINUTE_SECOND_FRACTION,
                 HOUR_MINUTE_SECOND_TZ,
@@ -342,6 +350,9 @@ public class DateTimeParser {
         parseTree.put(Symbol.DIGITS, Arrays.asList(
                 // Localized Compound formats
                 COMMON_LOG, SOAP, POSTGRES_DOY, EXIF, MYSQL, WDDX, XMLRPC, ISOYearWeekAndDay, ISOYearWeek,
+
+                // Relative formats
+                REL_TIME,
 
                 // 24 Hour Formats
                 HOUR_MINUTE_SECOND_FRACTION,
@@ -382,7 +393,24 @@ public class DateTimeParser {
         ));
     }
 
+    /**
+     * The input tokenizer.
+     */
     private final DateTimeTokenizer tokenizer;
+
+    /**
+     * The relative date/time statements for delayed execution.
+     */
+    private final Queue<CursorAwareNode> relatives;
+
+    /**
+     * The base time for relative statements.
+     */
+    private final ZonedDateTime baseDateTime;
+
+    /**
+     * The default zone to apply.
+     */
     private final ZoneId defaultZone;
 
     DateTimeParser(String dateTime) {
@@ -392,55 +420,21 @@ public class DateTimeParser {
     DateTimeParser(String dateTime, ZoneId zoneId) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
         this.defaultZone = zoneId;
+        this.relatives = new ArrayDeque<>();
+        this.baseDateTime = ZonedDateTime.now().withZoneSameInstant(zoneId);
+    }
+
+    DateTimeParser(String dateTime, ZonedDateTime baseDateTime, ZoneId zoneId) {
+        this.tokenizer = new DateTimeTokenizer(dateTime);
+        this.defaultZone = zoneId;
+        this.relatives = new ArrayDeque<>();
+        this.baseDateTime = baseDateTime;
     }
 
     private static Consumer<DateTimeParserContext> monthStringAdjuster() {
         return ctx -> {
             int month = monthNameToNumber(ctx.readStringAtCursor().toLowerCase());
             ctx.setMonth(month);
-        };
-    }
-
-    private static Consumer<DateTimeParserContext> dayOfWeekAdjuster() {
-        return ctx -> ctx.setDayOfWeek(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> isoWeekAdjuster() {
-        return ctx -> ctx.setWeekOfYear(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> dayOfYearAdjuster() {
-        return ctx -> ctx.setDayOfYear(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> secondAdjuster() {
-        return ctx -> ctx.setSecond(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> minuteAdjuster() {
-        return ctx -> ctx.setMinute(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> dayAdjuster() {
-        return ctx -> ctx.setDayOfMonth(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> monthAdjuster() {
-        return ctx -> ctx.setMonth(ctx.readIntAtCursor());
-    }
-
-    private static Consumer<DateTimeParserContext> yearAdjuster() {
-        return ctx -> {
-            int year = ctx.readIntAtCursor();
-            if (year >= 0 && year <= 69) {
-                year += 2000;
-            } else if (year >= 70 && year <= 100) {
-                year += 1900;
-            } else if (year < 0) {
-                year = 1970 + year;
-            }
-
-            ctx.setYear(year);
         };
     }
 
@@ -509,10 +503,16 @@ public class DateTimeParser {
     }
 
     public ZonedDateTime parse() {
-        LinkedList<Token> tokens = getTokens();
-        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, defaultZone);
+        List<Token> tokens = getTokens();
+        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone);
 
         parseNormal(ctx);
+
+        // the normal process is over its time to apply all relative nodes
+        while (relatives.peek() != null) {
+            CursorAwareNode relativeNode = relatives.poll();
+            relativeNode.apply(ctx);
+        }
 
         if (!ctx.hasModifications()) {
             throw new DateTimeException("DateTimeParserContext should have modifications!");
@@ -546,8 +546,14 @@ public class DateTimeParser {
             for (GroupNode nodes : groupNodes) {
                 matches = nodes.matches(ctx);
                 if (matches) {
-                    ctx.cursor().setValue(lastMatchIdx);
-                    nodes.apply(ctx);
+                    // we should delay processing the relative groups
+                    if (nodes.isRelative()) {
+                        relatives.offer(new CursorAwareNode(lastMatchIdx, nodes));
+                    } else {
+                        ctx.cursor().setValue(lastMatchIdx);
+                        nodes.apply(ctx);
+                    }
+
                     lastMatchIdx = ctx.cursor().value();
                     break;
                 }
@@ -555,12 +561,32 @@ public class DateTimeParser {
         }
     }
 
-    private LinkedList<Token> getTokens() {
-        LinkedList<Token> tokens = new LinkedList<>();
+    private List<Token> getTokens() {
+        List<Token> tokens = new ArrayList<>();
 
         Token t;
         while ((t = tokenizer.next()) != EOF) tokens.add(t);
         return tokens;
+    }
+
+    private static class CursorAwareNode extends Node {
+        private final int cursor;
+        private final Node node;
+
+        private CursorAwareNode(int cursor, Node node) {
+            this.cursor = cursor;
+            this.node = node;
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return node.matches(ctx.withCursorValue(cursor));
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            node.apply(ctx.withCursorValue(cursor));
+        }
     }
 
 }
