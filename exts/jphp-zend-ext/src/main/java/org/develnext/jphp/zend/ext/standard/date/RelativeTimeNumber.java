@@ -90,6 +90,10 @@ public class RelativeTimeNumber extends Node {
             case "weekdays":
                 ctx.plusWeekDays(value);
                 break;
+            case "fortnight":
+            case "fortnights":
+                ctx.plusDays(value * 14L);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown unit: " + pair.getB());
         }

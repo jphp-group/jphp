@@ -714,30 +714,22 @@ public class DateTimeParserTest {
                             .isEqualToIgnoringNanos(now().plusYears(pair.getB()));
                 });
 
-        Stream.of(Pair.of("+1 week", 7), Pair.of("1 week", 7), Pair.of("2 weeks", 14),
-                Pair.of("-2 weeks", -14))
-                .forEach(pair -> {
-                    assertThat(parse(pair.getA())).isEqualToIgnoringNanos(now().plusDays(pair.getB()));
-                });
-
         assertThat(parse("+10 year +15 day -5 secs"))
                 .isEqualToIgnoringNanos(now().plusYears(10).plusDays(15).minusSeconds(5));
 
     }
 
     @Test
-    public void relativeWeekDays() {
-        assertThat(parseWithMicro("-6 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
-                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-11T00:00:00+04:00[Asia/Yerevan]"));
+    public void relativeWeekdaysAndFortnight() {
+        ZonedDateTime base = ZonedDateTime.parse("2019-04-19T00:00:00+04:00[Asia/Yerevan]");
 
-        assertThat(parseWithMicro("+1 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
-                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-22T00:00:00+04:00[Asia/Yerevan]"));
-
-        assertThat(parseWithMicro("+5 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
-                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-26T00:00:00+04:00[Asia/Yerevan]"));
-
-        assertThat(parseWithMicro("+7 weekdays", ZonedDateTime.parse("2019-04-19T14:03:23+04:00[Asia/Yerevan]")))
-                .isEqualToIgnoringNanos(ZonedDateTime.parse("2019-04-30T00:00:00+04:00[Asia/Yerevan]"));
+        Stream.of(Pair.of("+1 weekdays", 3), Pair.of("+5 weekdays", 7), Pair.of("+7 weekdays", 11),
+                Pair.of("-6 weekdays", -8), Pair.of("+1 fortnight", 14), Pair.of("+2 fortnight", 28),
+                Pair.of("-2 fortnight", -28))
+                .forEach(pair -> {
+                    assertThat(parseWithMicro(pair.getA(), base))
+                            .isEqualToIgnoringNanos(base.plusDays(pair.getB()));
+                });
     }
 
     @Test
