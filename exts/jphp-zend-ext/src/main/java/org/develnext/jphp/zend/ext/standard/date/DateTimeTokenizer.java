@@ -80,6 +80,9 @@ class DateTimeTokenizer {
             switch (c) {
                 case 't':
                 case 'T': {
+                    if (isUndefined())
+                        tokenStart = i;
+
                     buff.append(c);
                     if (isNextDigit(i)) {
                         next = Token.of(Symbol.STRING, i++, 1);

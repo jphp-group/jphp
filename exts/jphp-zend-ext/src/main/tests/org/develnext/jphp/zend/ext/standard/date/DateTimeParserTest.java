@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -716,9 +717,48 @@ public class DateTimeParserTest {
 
         assertThat(parse("+10 year +15 day -5 secs"))
                 .isEqualToIgnoringNanos(now().plusYears(10).plusDays(15).minusSeconds(5));
-
     }
 
+    @Test
+    public void yesterdayAndFriends() {
+        ZonedDateTime base = ZonedDateTime.parse("2019-04-19T15:15:15Z");
+
+        assertThat(parseWithMicro("now", base)).isEqualTo(base);
+        assertThat(parseWithMicro("yesterday", base))
+                .isEqualTo(parseWithMicro("11:00 yesterday", base))
+                .isEqualTo(base.minusDays(1).truncatedTo(ChronoUnit.DAYS));
+        assertThat(parseWithMicro("midnight", base))
+                .isEqualTo(parseWithMicro("today", base))
+                .isEqualTo(base.truncatedTo(ChronoUnit.DAYS));
+
+        assertThat(parseWithMicro("noon", base)).isEqualTo(base.withHour(12).truncatedTo(ChronoUnit.HOURS));
+        assertThat(parseWithMicro("tomorrow", base)).isEqualTo(base.plusDays(1).truncatedTo(ChronoUnit.DAYS));
+
+        assertThat(parseWithMicro("yesterday 14:01", base))
+                .isEqualTo(base.minusDays(1).withHour(14).withMinute(1).withSecond(0));
+
+        assertThat(parseWithMicro("yesterday noon", base))
+                .isEqualTo(base.minusDays(1).withHour(12).withMinute(0).withSecond(0));
+    }
+
+    @Test
+    public void backOfHour() {
+        assertThat(parse("back of 9am"))
+                .isEqualTo(parse("back of 09")).isEqualTo(parse("BACK OF 09")).isEqualTo(parse("BaCK OF 09"))
+                .isEqualToIgnoringNanos(now().withHour(9).withMinute(15).withSecond(0));
+
+        assertThat(parse("back of 9pm")).isEqualToIgnoringNanos(now().withHour(21).withMinute(15).withSecond(0));
+        assertThat(parse("back of 23")).isEqualToIgnoringNanos(now().withHour(23).withMinute(15).withSecond(0));
+        assertThat(parse("back of 5")).isEqualToIgnoringNanos(now().withHour(5).withMinute(15).withSecond(0));
+    }
+
+    @Test
+    public void frontOfHour() {
+        assertThat(parse("front of 5am"))
+                .isEqualToIgnoringNanos(now().withHour(4).withMinute(45).withSecond(0));
+        assertThat(parse("front of 23"))
+                .isEqualToIgnoringNanos(now().withHour(22).withMinute(45).withSecond(0));
+    }
     @Test
     public void relativeWeekdaysAndFortnight() {
         ZonedDateTime base = ZonedDateTime.parse("2019-04-19T00:00:00+04:00[Asia/Yerevan]");

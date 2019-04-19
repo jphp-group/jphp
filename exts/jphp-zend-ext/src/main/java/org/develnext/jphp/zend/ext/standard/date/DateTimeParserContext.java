@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 class DateTimeParserContext {
     private static final Consumer<DateTimeParserContext> EMPTY_CONSUMER = ctx -> {};
     private static final List<ChronoField> CHRONO_FIELDS = Arrays.asList(ChronoField.values());
+    private static final List<ChronoField> TIME_CHRONO_FIELDS = Arrays.asList(ChronoField.MICRO_OF_SECOND, ChronoField.SECOND_OF_MINUTE, ChronoField.MINUTE_OF_HOUR, ChronoField.HOUR_OF_DAY);
     private final List<Token> tokens;
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
@@ -401,6 +402,13 @@ class DateTimeParserContext {
                 .withMinute(0)
                 .withHour(0);
 
+        return this;
+    }
+
+    public DateTimeParserContext atStartOfDayWithMod() {
+        atStartOfDay();
+
+        modified.addAll(TIME_CHRONO_FIELDS);
         return this;
     }
 

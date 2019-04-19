@@ -327,8 +327,36 @@ public class DateTimeParser {
     private static final GroupNode JUST_MONTH_m = GroupNode.of("Textual month (and just the month) (m)", MONTH_m_NODE);
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
 
+    private static final Node YESTERDAY = StringNode.ofCaseInsensitive("yesterday", ctx -> ctx.plusDays(-1).atStartOfDay());
+    private static final Node MIDNIGHT = StringNode.ofCaseInsensitive("midnight", DateTimeParserContext::atStartOfDayWithMod);
+    private static final Node TODAY = StringNode.ofCaseInsensitive("today", DateTimeParserContext::atStartOfDayWithMod);
+    private static final Node NOW = StringNode.ofCaseInsensitive("now", ctx -> ctx.plusSeconds(1).plusSeconds(-1));
+    private static final Node NOON = StringNode.ofCaseInsensitive("noon", ctx -> ctx.setHour(12).setMinute(0).setSecond(0));
+    private static final Node TOMORROW = StringNode.ofCaseInsensitive("tomorrow", ctx -> ctx.plusDays(1).atStartOfDay());
+
     // Relative formats
-    private static final Node UNIT_NODE = PatternNode.of(DateTimeTokenizer.UNIT, Symbol.STRING);
+    private static final GroupNode YESTERDAY_AND_FRIENDS = GroupNode.of("Yesterday",
+            YESTERDAY.or(MIDNIGHT).or(TODAY).or(NOW).or(NOON).or(TOMORROW)
+    );
+
+    private static final GroupNode BACK_OF_HOUR = GroupNode.of(true,
+            ctx -> ctx.setMinute(15).setSecond(0),
+            StringNode.ofCaseInsensitive("back")
+                    .then(SPACE_NODE)
+                    .then(StringNode.ofCaseInsensitive("of"))
+                    .then(SPACE_NODE)
+                    .then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE))
+    );
+
+    private static final GroupNode FRONT_OF_HOUR = GroupNode.of(true,
+            ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0),
+            StringNode.ofCaseInsensitive("front")
+                    .then(SPACE_NODE)
+                    .then(StringNode.ofCaseInsensitive("of"))
+                    .then(SPACE_NODE)
+                    .then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE))
+    );
+
     private static final GroupNode REL_TIME = GroupNode.of(true, new RelativeTimeNumber());
 
     static {
@@ -340,6 +368,9 @@ public class DateTimeParser {
                 HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE_SECOND,
                 HOUR_MINUTE,
+                YESTERDAY_AND_FRIENDS,
+                BACK_OF_HOUR,
+                FRONT_OF_HOUR,
                 M_DD_y_NODE,
                 m_YY_NODE,
                 m_dd_y_NODE,

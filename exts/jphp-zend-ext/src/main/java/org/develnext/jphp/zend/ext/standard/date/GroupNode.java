@@ -30,6 +30,10 @@ class GroupNode extends Node implements Iterable<Node> {
         return new GroupNode("noname", nodes, false, DateTimeParserContext.empty());
     }
 
+    static GroupNode of(boolean relative, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
+        return new GroupNode("noname", nodes, relative, afterApply);
+    }
+
     static GroupNode of(boolean relative, Node... nodes) {
         return new GroupNode("noname", nodes, relative, DateTimeParserContext.empty());
     }
