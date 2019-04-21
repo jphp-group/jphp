@@ -30,6 +30,10 @@ class PatternNode extends SymbolNode {
         return new PatternNode(pattern, Symbol.STRING, consumer);
     }
 
+    static PatternNode ofString(Pattern pattern) {
+        return ofString(pattern, DateTimeParserContext.empty());
+    }
+
     static PatternNode of(Pattern pattern, Symbol symbol) {
         return new PatternNode(pattern, symbol, DateTimeParserContext.empty());
     }

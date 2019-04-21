@@ -6,11 +6,11 @@ abstract class Node {
     abstract void apply(DateTimeParserContext ctx);
 
     Node followedByOptional(Node node) {
-        return OrNode.of(GroupNode.of(this, node), this);
+        return OrNode.of(GroupNode.builder().nodes(this, node).build(), this);
     }
 
     Node optionalFollowedBy(Node node) {
-        return OrNode.of(GroupNode.of(this, node), node);
+        return OrNode.of(GroupNode.builder().nodes(this, node).build(), node);
     }
 
     OrNode or(Node alt) {

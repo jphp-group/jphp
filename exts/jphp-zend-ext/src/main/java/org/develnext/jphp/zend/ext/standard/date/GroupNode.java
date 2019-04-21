@@ -36,18 +36,6 @@ class GroupNode extends Node implements Iterable<Node> {
         return new GroupNode("noname", nodes, false, PRIORITY_LOW, DateTimeParserContext.empty());
     }
 
-    static GroupNode of(boolean relative, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
-        return new GroupNode("noname", nodes, relative, PRIORITY_LOW, afterApply);
-    }
-
-    static GroupNode of(boolean relative, Node... nodes) {
-        return of(relative, PRIORITY_LOW, nodes);
-    }
-
-    static GroupNode of(boolean relative, int priority, Node... nodes) {
-        return new GroupNode("noname", nodes, relative, priority, DateTimeParserContext.empty());
-    }
-
     static GroupNodeBuilder builder() {
         return new GroupNodeBuilder();
     }
@@ -60,9 +48,8 @@ class GroupNode extends Node implements Iterable<Node> {
 
         for (; ctx.hasMoreTokens() && nodeIt.hasNext(); ) {
             Node node = nodeIt.next();
-            boolean matches = node.matches(ctx);
 
-            if (!matches) {
+            if (!node.matches(ctx)) {
                 cursor.setValue(mark);
                 return false;
             }
@@ -79,14 +66,18 @@ class GroupNode extends Node implements Iterable<Node> {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        for (Node node : nodes) {
-            node.apply(ctx);
+        if (nodes.length == 1) {
+            nodes[0].apply(ctx);
+        } else {
+            for (Node node : nodes) {
+                node.apply(ctx);
+            }
         }
 
         afterApply.accept(ctx);
     }
 
-    public boolean isRelative() {
+    boolean isRelative() {
         return relative;
     }
 

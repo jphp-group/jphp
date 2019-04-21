@@ -1,5 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import static org.develnext.jphp.zend.ext.standard.date.Adjusters.nextOrSameDayOfWeek;
+import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.cursorIncrementer;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfWeekAdjuster;
@@ -23,6 +25,7 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_ROMAN;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.ORDINAL;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.RELTEXT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.UNIT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
@@ -33,6 +36,7 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YY_MM_
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
 import java.time.DateTimeException;
+import java.time.DayOfWeek;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -347,13 +351,22 @@ public class DateTimeParser {
     // Relative formats
     private static final GroupNode YESTERDAY_AND_FRIENDS = GroupNode.of("Yesterday", YESTERDAY.or(MIDNIGHT).or(TODAY).or(NOW).or(NOON).or(TOMORROW));
     private static final Node STRING_OF_NODE = StringNode.ofCaseInsensitive("of");
-    private static final GroupNode BACK_OF_HOUR = GroupNode.of(true, ctx -> ctx.setMinute(15).setSecond(0), StringNode.ofCaseInsensitive("back").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)));
-    private static final GroupNode FRONT_OF_HOUR = GroupNode.of(true, ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0), StringNode.ofCaseInsensitive("front").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)));
-    private static final GroupNode FIRST_DAY_OF = GroupNode.of(true, ctx -> {
+    private static final GroupNode BACK_OF_HOUR = GroupNode.builder()
+            .relative(true)
+            .afterApply(ctx -> ctx.setMinute(15).setSecond(0))
+            .nodes(StringNode.ofCaseInsensitive("back").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)))
+            .build();
+    private static final GroupNode FRONT_OF_HOUR = GroupNode.builder()
+            .relative(true)
+            .afterApply(ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0))
+            .nodes(StringNode.ofCaseInsensitive("front").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)))
+            .build();
+    private static final GroupNode FIRST_DAY_OF = GroupNode.builder().relative(true)
+            .afterApply(ctx -> {
                 if (!ctx.hasModifications()) ctx.setDayOfMonth(1);
-            },
-            StringNode.ofCaseInsensitive("first").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE)
-    );
+            })
+            .nodes(StringNode.ofCaseInsensitive("first").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
+            .build();
 
     private static final GroupNode LAST_DAY_OF = GroupNode.builder()
             .relative(true)
@@ -374,11 +387,19 @@ public class DateTimeParser {
             .afterApply(DateTimeParserContext::atStartOfDay)
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(DAY_NAME_NODE).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
+
     private static final GroupNode WEEK_DAY_NAME = GroupNode.builder()
-            .relative(false)
+            .relative(true)
             .name("Moves to the next day of this name.")
             .afterApply(DateTimeParserContext::atStartOfDay)
-            .nodes(DAY_NAME_NODE.withConsumer(ctx -> ctx.withAdjuster(Adjusters.nextOrSameDayOfWeek(ctx.readStringAtCursor()), ChronoField.DAY_OF_WEEK)))
+            .nodes(DAY_NAME_NODE.withConsumer(ctx -> ctx.withAdjuster(nextOrSameDayOfWeek(ctx.readStringAtCursor()), ChronoField.DAY_OF_WEEK)))
+            .build();
+
+    private static final GroupNode REL_WEEK = GroupNode.builder()
+            .relative(true)
+            .name("Handles the special format \"weekday + last/this/next week\".")
+            .priorityNormal()
+            .nodes(PatternNode.ofString(RELTEXT).then(SPACE_NODE).then(StringNode.ofCaseInsensitive("week", relWeek())))
             .build();
 
     private static final GroupNode REL_TIME_TEXT = GroupNode.builder()
@@ -391,7 +412,13 @@ public class DateTimeParser {
             })
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(UNIT_NODE.or(DAY_NAME_NODE.withConsumer(relWeekDayConsumer()))))
             .build();
-    private static final GroupNode REL_TIME = GroupNode.of(true, new RelativeTimeNumber());
+
+    private static final GroupNode REL_TIME = GroupNode.builder()
+            .relative(true)
+            .priorityLow()
+            .name("Handles relative time items where the value is a number. (\"+5 weeks\", \"12 day\", \"-7 weekdays\")")
+            .nodes(new RelativeTimeNumber())
+            .build();
 
     static {
         parseTree.put(Symbol.AT, Collections.singletonList(UNIX_TIMESTAMP));
@@ -409,6 +436,7 @@ public class DateTimeParser {
                 N_TH_WEEKDAY,
                 FIRST_DAY_OF,
                 LAST_DAY_OF,
+                REL_WEEK,
                 REL_TIME_TEXT,
                 M_DD_y_NODE,
                 m_YY_NODE,
@@ -501,6 +529,15 @@ public class DateTimeParser {
         this.locale = locale;
     }
 
+    private static Consumer<DateTimeParserContext> relWeek() {
+        return ctx -> {
+            if (ctx.hasModifications())
+                ctx.atStartOfDay();
+
+            ctx.withAdjuster(relativeDayOfWeek(ctx.readStringAt(ctx.cursor().value() - 2), DayOfWeek.MONDAY), ChronoField.DAY_OF_WEEK);
+        };
+    }
+
     private static Consumer<DateTimeParserContext> nthWeekDayConsumer() {
         return ctx -> {
             int snapshot = ctx.cursor().value();
@@ -519,7 +556,7 @@ public class DateTimeParser {
 
             switch (ordinal) {
                 case "this":
-                    adjuster = Adjusters.nextOrSameDayOfWeek(dayOfWeek);
+                    adjuster = nextOrSameDayOfWeek(dayOfWeek);
                     break;
                 case "previous":
                 case "last":

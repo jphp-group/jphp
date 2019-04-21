@@ -3,7 +3,10 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.TemporalAdjusters.next;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
+import static java.time.temporal.TemporalAdjusters.previous;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
@@ -28,7 +31,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import php.runtime.common.Pair;
@@ -747,6 +749,23 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void relativeWeek() {
+        assertThat(parse("this week"))
+                .isEqualToIgnoringNanos(now().with(previousOrSame(DayOfWeek.MONDAY)));
+
+        assertThat(parse("last week"))
+                .isEqualTo(parse("previous week"))
+                .isEqualToIgnoringNanos(now().with(previous(DayOfWeek.MONDAY)).with(previous(DayOfWeek.MONDAY)));
+        assertThat(parse("next week")).isEqualToIgnoringNanos(now().with(next(DayOfWeek.MONDAY)));
+    }
+
+    @Test
+    public void relativeWeekWithDayName() {
+        assertThat(parseWithMicro("Saturday next week", ZonedDateTime.parse("2019-04-21T00:00+04:00")))
+                .isEqualTo("2019-04-27T00:00+04:00");
+    }
+
+    @Test
     public void yesterdayAndFriends() {
         ZonedDateTime base = ZonedDateTime.parse("2019-04-19T15:15:15Z");
 
@@ -882,7 +901,7 @@ public class DateTimeParserTest {
 
                 assertThat(parse("last " + transformedDayOfWeek))
                         .isEqualTo(parse("previous " + transformedDayOfWeek))
-                        .isEqualTo(now().truncatedTo(DAYS).with(TemporalAdjusters.previous(dayOfWeek)));
+                        .isEqualTo(now().truncatedTo(DAYS).with(previous(dayOfWeek)));
 
                 assertThat(parse("first " + transformedDayOfWeek))
                         .isEqualTo(now().truncatedTo(DAYS).with(nextDayOfWeek));

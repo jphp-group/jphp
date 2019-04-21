@@ -14,6 +14,9 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.ChronoUnit.WEEKS;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static java.time.temporal.TemporalAdjusters.next;
+import static java.time.temporal.TemporalAdjusters.previous;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 import java.time.DayOfWeek;
 import java.time.temporal.ChronoField;
@@ -42,12 +45,54 @@ class Adjusters {
         };
     }
 
+    public static TemporalAdjuster relativeDayOfWeek(String relText, String dow) {
+        TemporalAdjuster adjuster;
+
+        switch (relText.toLowerCase()) {
+            case "this":
+                adjuster = previousOrSame(DayOfWeek.MONDAY);
+                break;
+            case "last":
+            case "previous":
+                adjuster = compose(previous(DayOfWeek.MONDAY), previous(DayOfWeek.MONDAY));
+                break;
+            case "next":
+                adjuster = next(DayOfWeek.MONDAY);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown relative text: " + relText);
+        }
+
+        return temporal -> temporal.with(adjuster);
+    }
+
+    public static TemporalAdjuster relativeDayOfWeek(String relText, DayOfWeek dow) {
+        TemporalAdjuster adjuster;
+
+        switch (relText.toLowerCase()) {
+            case "this":
+                adjuster = previousOrSame(dow);
+                break;
+            case "last":
+            case "previous":
+                adjuster = compose(previous(dow), previous(dow));
+                break;
+            case "next":
+                adjuster = next(dow);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown relative text: " + relText);
+        }
+
+        return temporal -> temporal.with(adjuster);
+    }
+
     public static TemporalAdjuster nextOrSameDayOfWeek(String dow) {
         return TemporalAdjusters.nextOrSame(dayOfWeek(dow));
     }
 
     public static TemporalAdjuster previousDayOfWeek(String dow) {
-        return TemporalAdjusters.previous(dayOfWeek(dow));
+        return previous(dayOfWeek(dow));
     }
 
     public static TemporalAdjuster dayOfWeekInMonth(String ordinal, String dow) {
@@ -134,6 +179,10 @@ class Adjusters {
         return temporal -> am ?
                 temporal.with(HOUR_OF_DAY, temporal.get(HOUR_OF_DAY) % 12) :
                 temporal.with(HOUR_OF_DAY, temporal.get(HOUR_OF_DAY) + 12);
+    }
+
+    public static TemporalAdjuster compose(TemporalAdjuster first, TemporalAdjuster second) {
+        return temporal -> temporal.with(first).with(second);
     }
 
     /**

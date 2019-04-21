@@ -1,5 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
+
 import java.nio.CharBuffer;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -125,7 +127,15 @@ class DateTimeParserContext {
     }
 
     public Token tokenAtCursor() {
-        return hasMoreTokens() ? tokens.get(cursor.value()) : Token.EOF;
+        return hasMoreTokens() ? tokens.get(cursor.value()) : EOF;
+    }
+
+    public Token tokenAt(int idx) {
+        try {
+            return tokens.get(idx);
+        } catch (IndexOutOfBoundsException e) {
+            return EOF;
+        }
     }
 
     public Symbol symbolAtCursor() {
@@ -164,6 +174,10 @@ class DateTimeParserContext {
 
     public String readStringAtCursor() {
         return tokenizer.readString(tokenAtCursor());
+    }
+
+    public String readStringAt(int idx) {
+        return tokenizer.readString(tokenAt(idx));
     }
 
     public String readStringAtCursorAndInc() {
