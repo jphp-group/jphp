@@ -706,6 +706,12 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void rfc850() {
+        assertThat(parse("Sunday, 21-Apr-19 22:17:16 +0200"))
+                .isEqualTo("2019-03-21T22:17:16+02:00");
+    }
+
+    @Test
     public void shouldThrowExceptionWhenDateInvalid() {
         assertThatThrownBy(() -> parse("2009---01"));
     }

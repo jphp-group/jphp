@@ -1,14 +1,12 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
-import java.time.zone.ZoneRules;
 import java.util.Locale;
 
 import php.runtime.annotation.Reflection;
@@ -27,6 +25,9 @@ public class DateFormat {
             switch (c) {
                 case 'Y':
                     sb.append(String.format(locale, "%04d", date.getYear()));
+                    break;
+                case 'y':
+                    sb.append(String.format(locale, "%02d", date.getYear() % 100));
                     break;
                 case 'm':
                     sb.append(String.format(locale, "%02d", date.getMonthValue()));
