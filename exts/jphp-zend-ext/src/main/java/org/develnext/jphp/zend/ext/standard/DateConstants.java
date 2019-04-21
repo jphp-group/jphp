@@ -11,10 +11,10 @@ public class DateConstants extends ConstantsContainer {
     public static final Memory DATE_RFC822 = StringMemory.valueOf("D, d M y H:i:s O");
     public static final Memory DATE_RFC850 = StringMemory.valueOf("l, d-M-y H:i:s T");
     public static final Memory DATE_RFC1036 = StringMemory.valueOf("D, d M y H:i:s O");
-    public static final Memory DATE_RFC1123 = StringMemory.valueOf("D, d M y H:i:s O");
-    public static final Memory DATE_RFC2822 = StringMemory.valueOf("D, d M y H:i:s O");
+    public static final Memory DATE_RFC1123 = StringMemory.valueOf("D, d M Y H:i:s O");
+    public static final Memory DATE_RFC2822 = StringMemory.valueOf("D, d M Y H:i:s O");
     public static final Memory DATE_RFC3339 = StringMemory.valueOf("Y-m-d\\TH:i:sP");
     public static final Memory DATE_RFC3339_EXTENDED = StringMemory.valueOf("Y-m-d\\TH:i:s.vP");
-    public static final Memory DATE_RSS = StringMemory.valueOf("Y-m-d\\TH:i:s.vP");
+    public static final Memory DATE_RSS = StringMemory.valueOf("D, d M Y H:i:s O");
     public static final Memory DATE_W3C = StringMemory.valueOf("Y-m-d\\TH:i:sP");
 }
