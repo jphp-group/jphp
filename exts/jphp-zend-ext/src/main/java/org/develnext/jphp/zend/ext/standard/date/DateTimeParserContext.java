@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjuster;
@@ -100,18 +101,7 @@ class DateTimeParserContext {
     }
 
     static Consumer<DateTimeParserContext> yearAdjuster() {
-        return ctx -> {
-            int year = ctx.readIntAtCursor();
-            if (year >= 0 && year <= 69) {
-                year += 2000;
-            } else if (year >= 70 && year <= 100) {
-                year += 1900;
-            } else if (year < 0) {
-                year = 1970 + year;
-            }
-
-            ctx.setYear(year);
-        };
+        return ctx -> ctx.withAdjuster(Adjusters.year(ctx.readLongAtCursor()), ChronoField.YEAR);
     }
 
     public boolean hasModifications() {
@@ -180,6 +170,10 @@ class DateTimeParserContext {
         return tokenizer.readString(tokenAt(idx));
     }
 
+    public long readLongAt(int idx) {
+        return tokenizer.readLong(tokenAt(idx));
+    }
+
     public String readStringAtCursorAndInc() {
         String str = tokenizer.readString(tokenAtCursor());
         cursor.inc();
@@ -213,7 +207,7 @@ class DateTimeParserContext {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Temporal> T adjust(T temporal, TemporalField field, int value) {
+    private <T extends Temporal> T adjust(T temporal, TemporalField field, long value) {
         modified.add(field);
         return (T) temporal.with(field, value);
     }
@@ -224,7 +218,7 @@ class DateTimeParserContext {
         return this;
     }
 
-    public DateTimeParserContext setDayOfMonth(int day) {
+    public DateTimeParserContext setDayOfMonth(long day) {
         dateTime = adjust(dateTime, ChronoField.DAY_OF_MONTH, day);
 
         return this;
@@ -272,7 +266,8 @@ class DateTimeParserContext {
         if (!isTimeModified())
             atStartOfDay();
 
-        dateTime = adjust(dateTime, ChronoField.ALIGNED_WEEK_OF_YEAR, Math.max(1, weekOfYear - 1));
+        // old value was ChronoField.ALIGNED_WEEK_OF_YEAR
+        dateTime = adjust(dateTime, IsoFields.WEEK_OF_WEEK_BASED_YEAR, weekOfYear);
 
         return this;
     }

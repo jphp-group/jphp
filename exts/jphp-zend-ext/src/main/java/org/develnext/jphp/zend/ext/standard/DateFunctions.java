@@ -147,9 +147,12 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time, long now) {
         ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
         ZonedDateTime base = Instant.ofEpochSecond(now).atZone(zoneId);
-        ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo), base);
-
-        return LongMemory.valueOf(dateTime.toEpochSecond());
+        try {
+            ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo), base);
+            return LongMemory.valueOf(dateTime.toEpochSecond());
+        } catch (DateTimeException e) {
+            return Memory.FALSE;
+        }
     }
 
     public static Memory mktime(Environment env, TraceInfo traceInfo,
@@ -159,6 +162,7 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     private static Memory __mktime(ZoneId zoneId, int hour, int minute, int second, int month, int day, int year) {
+        // TODO replace with adjuster
         if (year >= 0 && year <= 69) {
             year += 2000;
         } else if (year >= 70 && year <= 100) {

@@ -1,6 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
@@ -46,7 +47,7 @@ class GroupNode extends Node implements Iterable<Node> {
         Cursor cursor = ctx.cursor();
         int mark = cursor.value();
 
-        for (; ctx.hasMoreTokens() && nodeIt.hasNext(); ) {
+        while (ctx.hasMoreTokens() && nodeIt.hasNext()) {
             Node node = nodeIt.next();
 
             if (!node.matches(ctx)) {
@@ -60,7 +61,6 @@ class GroupNode extends Node implements Iterable<Node> {
             return false;
         }
 
-        // System.out.println("=== " + name + " ===");
         return true;
     }
 
@@ -87,6 +87,9 @@ class GroupNode extends Node implements Iterable<Node> {
 
     @Override
     public Iterator<Node> iterator() {
+        if (nodes.length == 1)
+            return Collections.singletonList(nodes[0]).iterator();
+
         return Arrays.asList(nodes).iterator();
     }
 

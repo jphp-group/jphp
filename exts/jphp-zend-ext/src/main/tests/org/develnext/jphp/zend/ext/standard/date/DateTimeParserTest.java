@@ -518,12 +518,17 @@ public class DateTimeParserTest {
 
     @Test
     public void sandbox() {
-        ZonedDateTime parse = parse("Dec 21  12:16");
+        assertThat(parse("1 Monday December 2008"))
+                .isEqualTo(now().withYear(2008).withMonth(12).withDayOfMonth(1).truncatedTo(DAYS));
+
+        assertThat(parse("2 Monday December 2008"))
+                .isEqualTo(now().withYear(2008).withMonth(12).withDayOfMonth(8).truncatedTo(DAYS));
     }
 
     @Test
     public void isoYearWithWeekAndWeekDay() {
-        assertThat(parse("1997W011"))
+        ZonedDateTime parse = parse("1997W011");
+        assertThat(parse)
                 .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1996).withMonth(12).withDayOfMonth(30));
     }
 

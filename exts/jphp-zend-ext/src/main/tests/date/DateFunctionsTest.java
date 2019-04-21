@@ -100,9 +100,9 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void strtotime() {
-        check("ext/date/strtotime2.phpt");
         check("ext/date/002.phpt");
         check("ext/date/strtotime.phpt");
+        check("ext/date/strtotime2.phpt");
         check("ext/date/strtotime3-64bit.phpt");
         check("ext/date/strtotime-mysql.phpt");
         check("ext/date/strtotime_basic2.phpt");

@@ -31,13 +31,29 @@ class Adjusters {
     private Adjusters() {
     }
 
-    public static TemporalAdjuster nthDayOfWeek(String dow, String ordinal) {
-        int n = ordinalToNumber(ordinal);
+    public static TemporalAdjuster year(long year) {
+        if (year >= 0 && year <= 69) {
+            year += 2000;
+        } else if (year >= 70 && year <= 100) {
+            year += 1900;
+        } else if (year < 0) {
+            year = 1970 + year;
+        }
 
+        long y = year;
+
+        return temporal -> temporal.with(YEAR, y);
+    }
+
+    public static TemporalAdjuster nthDayOfWeek(String dow, String ordinal) {
+        return nthDayOfWeek(dayOfWeek(dow), ordinalToNumber(ordinal));
+    }
+
+    public static TemporalAdjuster nthDayOfWeek(DayOfWeek dow, long n) {
         if (n < 1)
             throw new IllegalArgumentException("The n should be positive number.");
 
-        int dowValue = weekDayValue(dow);
+        int dowValue = dow.getValue();
         return (temporal) -> {
             int calDow = temporal.get(DAY_OF_WEEK);
             int daysDiff = calDow - dowValue;
@@ -207,7 +223,7 @@ class Adjusters {
         return result;
     }
 
-    private static DayOfWeek dayOfWeek(String dow) {
+    public static DayOfWeek dayOfWeek(String dow) {
         return DayOfWeek.of(weekDayValue(dow));
     }
 

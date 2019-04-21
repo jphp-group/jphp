@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.nextOrSameDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.cursorIncrementer;
@@ -159,8 +160,8 @@ public class DateTimeParser {
     );
     private static final GroupNode MSSQL_TIME = GroupNode.of(
             "MS SQL (Hour, minutes, seconds and fraction with meridian), PHP 5.3 and later only",
-            HOUR_12_NODE.then(COLON_NODE).then(MINUTE_2_DIGIT).then(COLON_NODE)
-                    .then(SECOND_2_DIGIT).then(DOT_OR_COLON).then(MICROSECONDS).then(MERIDIAN_NODE)
+            HOUR_12_NODE.then(COLON_NODE).then(MINUTE_2_DIGIT).then(COLON_NODE).then(SECOND_2_DIGIT).then(DOT_OR_COLON)
+                    .then(MICROSECONDS).then(MERIDIAN_NODE)
     );
     private static final GroupNode HOUR_MINUTE = GroupNode.of(
             "Hour and minutes ('t'? HH [.:] MM)",
@@ -380,7 +381,7 @@ public class DateTimeParser {
     private static final PatternNode DAY_NAME_NODE = PatternNode.ofString(DAY_NAME, nthWeekDayConsumer());
     private static final PatternNode UNIT_NODE = PatternNode.ofString(UNIT, relTimeTextConsumer());
 
-    private static final GroupNode N_TH_WEEKDAY = GroupNode.builder()
+    private static final GroupNode ORDINAL_N_TH_WEEKDAY = GroupNode.builder()
             .relative(true)
             .name("Calculates the x-th week day of the current month. (last sat of July 2008)")
             .priorityNormal()
@@ -388,20 +389,26 @@ public class DateTimeParser {
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(DAY_NAME_NODE).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
 
+    private static final GroupNode NUMBER_N_TH_WEEKDAY = GroupNode.builder()
+            .relative(true)
+            .name("Calculates the x-th week day of the current month. (1 sat)")
+            .priorityNormal()
+            .afterApply(DateTimeParserContext::atStartOfDay)
+            .nodes(PatternNode.ofDigits(Pattern.compile("[0-9]+")).then(SPACE_NODE)
+                    .then(DAY_NAME_NODE.withConsumer(numberNthWeekDay())))
+            .build();
     private static final GroupNode WEEK_DAY_NAME = GroupNode.builder()
             .relative(true)
             .name("Moves to the next day of this name.")
             .afterApply(DateTimeParserContext::atStartOfDay)
             .nodes(DAY_NAME_NODE.withConsumer(ctx -> ctx.withAdjuster(nextOrSameDayOfWeek(ctx.readStringAtCursor()), ChronoField.DAY_OF_WEEK)))
             .build();
-
     private static final GroupNode REL_WEEK = GroupNode.builder()
             .relative(true)
             .name("Handles the special format \"weekday + last/this/next week\".")
             .priorityNormal()
             .nodes(PatternNode.ofString(RELTEXT).then(SPACE_NODE).then(StringNode.ofCaseInsensitive("week", relWeek())))
             .build();
-
     private static final GroupNode REL_TIME_TEXT = GroupNode.builder()
             .relative(true)
             .name("Handles relative time items where the value is text. (\"fifth day\", \"second month\")")
@@ -412,7 +419,6 @@ public class DateTimeParser {
             })
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(UNIT_NODE.or(DAY_NAME_NODE.withConsumer(relWeekDayConsumer()))))
             .build();
-
     private static final GroupNode REL_TIME = GroupNode.builder()
             .relative(true)
             .priorityLow()
@@ -433,7 +439,7 @@ public class DateTimeParser {
                 BACK_OF_HOUR,
                 FRONT_OF_HOUR,
                 WEEK_DAY_NAME,
-                N_TH_WEEKDAY,
+                ORDINAL_N_TH_WEEKDAY,
                 FIRST_DAY_OF,
                 LAST_DAY_OF,
                 REL_WEEK,
@@ -484,6 +490,7 @@ public class DateTimeParser {
                 HOUR_MINUTE_SECOND,
                 HOUR_MINUTE,
 
+                NUMBER_N_TH_WEEKDAY,
                 // timezone
                 TIMEZONE_INFORMATION,
 
@@ -527,6 +534,20 @@ public class DateTimeParser {
         this.relatives = new PriorityQueue<>(Comparator.reverseOrder()); // process bigger priorities first
         this.baseDateTime = baseDateTime;
         this.locale = locale;
+    }
+
+    private static Consumer<DateTimeParserContext> numberNthWeekDay() {
+        return ctx -> {
+            long value = ctx.readLongAt(ctx.cursor().value() - 2);
+            DayOfWeek currentDow = Adjusters.dayOfWeek(ctx.readStringAtCursor());
+            DayOfWeek dayOfWeek = ctx.dateTime().withDayOfMonth(Math.toIntExact(value)).getDayOfWeek();
+
+            if (currentDow != dayOfWeek) {
+                ctx.withAdjuster(dayOfWeekInMonth(Math.toIntExact(value), currentDow), ChronoField.DAY_OF_WEEK);
+            } else {
+                ctx.setDayOfMonth(value);
+            }
+        };
     }
 
     private static Consumer<DateTimeParserContext> relWeek() {
