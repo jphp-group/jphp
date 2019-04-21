@@ -23,8 +23,6 @@ $constants = array(
 
 foreach ($constants as $const) {
 	echo "$const:\t";
-	$date = date(constant($const), $time);
-	var_dump($date);
 	echo ((strtotime(date(constant($const), $time)) === $time) ? "OK" : "FAIL") . "\n";
 }
 ?>

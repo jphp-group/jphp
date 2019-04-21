@@ -86,6 +86,9 @@ public class DateFormat {
                 case 's':
                     sb.append(String.format(locale, "%02d", date.getSecond()));
                     break;
+                case 'v':
+                    sb.append(String.format(locale, "%03d", date.get(ChronoField.MILLI_OF_SECOND)));
+                    break;
                 case 'z':
                     sb.append(date.getDayOfYear() - 1);
                     break;

@@ -13,7 +13,7 @@ class DateTimeTokenizer {
     static final Pattern DAY_SUFFIX = Pattern.compile("st|nd|rd|th");
     static final Pattern HOUR_hh = Pattern.compile("0?[1-9]|1[0-2]");
     static final Pattern HOUR_HH = Pattern.compile("[01][0-9]|2[0-4]");
-    static final Pattern HH_MM = Pattern.compile("([01][0-9]|2[0-4])(0[0-9]|1[0-2])");
+    static final Pattern HH_MM = Pattern.compile("([01][0-9]|2[0-4])([0-5][0-9])");
     static final Pattern HH_MM_SS = Pattern.compile("([01][0-9]|2[0-4])([0-5][0-9]){2}");
     static final Pattern HOUR_12 = HOUR_hh;
     static final Pattern HOUR_24 = HOUR_HH;
@@ -350,6 +350,10 @@ class DateTimeTokenizer {
         CharBuffer cb = readCharBuffer(token);
         int start = token.start();
         return toLong(cb, start);
+    }
+
+    long readLong(int start, int length) {
+        return toLong(readCharBuffer(start, length), start);
     }
 
     private long toLong(CharBuffer cb, int start) {

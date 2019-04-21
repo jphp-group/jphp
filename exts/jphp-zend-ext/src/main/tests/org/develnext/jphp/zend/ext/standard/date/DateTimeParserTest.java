@@ -3,6 +3,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.TemporalAdjusters.next;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.time.temporal.TemporalAdjusters.previous;
@@ -136,6 +137,20 @@ public class DateTimeParserTest {
     public void hourAndMinuteWithMeridian() {
         assertEquals(now().withHour(4).withMinute(8).withSecond(0).withNano(0), parse("4:08 am"));
         assertEquals(now().withHour(19).withMinute(19).withSecond(0).withNano(0), parse("7:19P.M."));
+    }
+
+    @Test
+    public void hourAndMinute() {
+        assertThat(parse("t0222")).isEqualTo(now().withHour(2).withMinute(22).truncatedTo(MINUTES));
+        assertThat(parse("t0222 t0222"))
+                .isEqualTo(now().withYear(222).withHour(2).withMinute(22).truncatedTo(MINUTES));
+    }
+
+    @Test
+    public void postgresDayOfYear() {
+        assertThat(parse("2006167"))
+                .isEqualTo(parse("2006.167"))
+                .isEqualTo(LocalDate.of(2006, 6, 16).atStartOfDay(ZoneId.systemDefault()));
     }
 
     @Test
@@ -708,7 +723,7 @@ public class DateTimeParserTest {
     @Test
     public void rfc850() {
         assertThat(parse("21-Apr-19"))
-            .isEqualTo("2019-04-21T00:00:00+04:00");
+                .isEqualTo("2019-04-21T00:00:00+04:00");
 
         assertThat(parse("Sunday, 21-Apr-19 22:17:16 +0200"))
                 .isEqualTo("2019-04-21T22:17:16+02:00");

@@ -104,18 +104,21 @@ public class DateTimeParser {
     private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
     private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
     private static final Node TZ = new TimezoneNode();
-    private static final GroupNode PostgreSQLYearWithDayOfYear = GroupNode.of(
-            "PostgreSQL: Year with day-of-year",
-            YEAR_4_DIGIT.then(DOT_NODE.then(DOY_NODE).or(DOY_NODE)).or(PatternNode.ofDigits(POSTGRESQL_DOY))
-    );
-
     private static final GroupNode WDDX = GroupNode.of("WDDX", YEAR_4_DIGIT, MINUS_NODE, MONTH_mm_NODE, MINUS_NODE, DAY_dd_NODE, CharacterNode.of('T'), HOUR_12_NODE, COLON_NODE, PatternNode.ofDigits(MINUTE_ii, minuteAdjuster()), COLON_NODE, PatternNode.ofDigits(SECOND_ss, secondAdjuster()));
     private static final GroupNode MYSQL = GroupNode.of("MYSQL", YEAR_4_DIGIT, MINUS_NODE, Month2.of(), MINUS_NODE, Day2.of(), SPACE_NODE, Hour24.of(), COLON_NODE, Minute2.of(), COLON_NODE, SECOND_2_DIGIT);
     private static final GroupNode XMLRPC_FULL = GroupNode.of("XMLRPC Full", CharacterNode.of('T'), OrNode.of(Hour12.of(), Hour24.of()), COLON_NODE, Minute2.of(), COLON_NODE, SECOND_2_DIGIT);
     private static final GroupNode XMLRPC_COMPACT = GroupNode.of("XMLRPC Compact", CharacterNode.ofCaseInsensitive('t'), HourMinuteSecond.of(5, 6));
     private static final GroupNode XMLRPC = GroupNode.of("XMLRPC", YearMonthDay.of(), OrNode.of(XMLRPC_FULL, XMLRPC_COMPACT));
     private static final GroupNode UNIX_TIMESTAMP = GroupNode.of("Unix Timestamp", AT_NODE.then(UnixTimestamp.of()));
-    private static final GroupNode POSTGRES_DOY = GroupNode.of("POSTGRES DOY", YEAR_4_DIGIT, DOT_NODE, DOY_NODE);
+    private static final GroupNode POSTGRES_DOY = GroupNode.builder().relative(false)
+            .name("PostgreSQL: Year with day-of-year (YY '.'? doy)")
+            .nodes(YEAR_4_DIGIT.then(DOT_NODE).then(DOY_NODE).or(PatternNode.ofDigits(POSTGRESQL_DOY, ctx -> {
+                int start = ctx.tokenAtCursor().start();
+                long year = ctx.tokenizer().readLong(start, 4);
+                int doy = ctx.tokenizer().readInt(start + 4, 3);
+                ctx.setYear(year).setDayOfYear(doy);
+            })))
+            .build();
     private static final GroupNode ISOYearWeek = GroupNode.of("ISO year with ISO week",
             YEAR_4_DIGIT.then(ISO_WEEK).then(PatternNode.ofDigits(WEEK, isoWeekAdjuster()))
     );
@@ -163,25 +166,27 @@ public class DateTimeParser {
             HOUR_12_NODE.then(COLON_NODE).then(MINUTE_2_DIGIT).then(COLON_NODE).then(SECOND_2_DIGIT).then(DOT_OR_COLON)
                     .then(MICROSECONDS).then(MERIDIAN_NODE)
     );
-    private static final GroupNode HOUR_MINUTE = GroupNode.of(
-            "Hour and minutes ('t'? HH [.:] MM)",
-            ctx -> {
+    private static final GroupNode HOUR_MINUTE = GroupNode.builder().relative(false)
+            .name("Hour and minutes ('t'? HH [.:] MM)")
+            .afterApply(ctx -> {
                 if (ctx.isNotModified(ChronoField.SECOND_OF_MINUTE)) {
                     ctx.setSecond(0);
                 }
-            },
-            T_CI.optionalFollowedBy(
+            })
+            .nodes(T_CI.optionalFollowedBy(
                     HOUR_24_NODE.then(DOT_OR_COLON).then(MINUTE_2_DIGIT)
                             .or(PatternNode.ofDigits(HH_MM, c -> {
-                                int start = c.tokenAtCursor().start();
-                                int hour = c.tokenizer().readInt(start, 2);
-                                int minute = c.tokenizer().readInt(start + 2, 2);
-
-                                c.setHour(hour).setMinute(minute);
+                                if (c.isTimeModified()) {
+                                    c.setYear(c.readLongAtCursor());
+                                } else {
+                                    int start = c.tokenAtCursor().start();
+                                    int hour = c.tokenizer().readInt(start, 2);
+                                    int minute = c.tokenizer().readInt(start + 2, 2);
+                                    c.setHour(hour).setMinute(minute);
+                                }
                             }))
-            )
-
-    );
+            ))
+            .build();
     private static final PatternNode HH_MM_SS_NODE = PatternNode.ofDigits(HH_MM_SS, c -> {
         int start = c.tokenAtCursor().start();
         int hour = c.tokenizer().readInt(start, 2);
@@ -342,7 +347,8 @@ public class DateTimeParser {
     );
 
     private static final GroupNode JUST_YEAR = GroupNode.of("Year (and just the year) (YY)", YEAR_4_DIGIT);
-    private static final GroupNode JUST_MONTH_m = GroupNode.of("Textual month (and just the month) (m)", MONTH_m_NODE);
+    private static final GroupNode JUST_MONTH_m = GroupNode.builder().relative(false).resetTimeIfNotModified()
+            .name("Textual month (and just the month) (m)").nodes(MONTH_m_NODE).build();
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
 
     private static final Node YESTERDAY = StringNode.ofCaseInsensitive("yesterday", ctx -> ctx.plusDays(-1).atStartOfDay());

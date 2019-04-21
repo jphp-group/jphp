@@ -201,7 +201,7 @@ class DateTimeParserContext {
         return dateTime;
     }
 
-    public DateTimeParserContext setYear(int year) {
+    public DateTimeParserContext setYear(long year) {
         dateTime = adjust(dateTime, ChronoField.YEAR, year);
         return this;
     }
