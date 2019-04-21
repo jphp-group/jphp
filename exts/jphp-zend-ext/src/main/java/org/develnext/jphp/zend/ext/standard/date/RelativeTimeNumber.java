@@ -49,6 +49,19 @@ public class RelativeTimeNumber extends Node {
 
         String unit = ctx.readStringAtCursorAndInc().toLowerCase();
 
+        // try to find "ago" token.
+        if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
+            snapshot = ctx.cursor().value();
+            ctx.cursor().inc();
+
+            if (ctx.isSymbolAtCursor(Symbol.STRING) && "ago".equalsIgnoreCase(ctx.readStringAtCursor())) {
+                value = -value;
+                ctx.cursor().inc();
+            } else {
+                ctx.withCursorValue(snapshot);
+            }
+        }
+
         return new Pair<>(value, unit);
     }
 

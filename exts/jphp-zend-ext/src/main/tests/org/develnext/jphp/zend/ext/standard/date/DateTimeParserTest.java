@@ -2,6 +2,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -739,15 +740,20 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void relativeOffsetAgo() {
+        assertThat(parse("2 years ago")).isEqualToIgnoringNanos(now().minusYears(2));
+        assertThat(parse("-2 years ago")).isEqualToIgnoringNanos(now().plusYears(2));
+        assertThat(parse("8 days ago 14:00")).isEqualToIgnoringNanos(now().minusDays(8).withHour(14).truncatedTo(HOURS));
+    }
+
+    @Test
     public void yesterdayAndFriends() {
         ZonedDateTime base = ZonedDateTime.parse("2019-04-19T15:15:15Z");
 
         assertThat(parseWithMicro("now", base)).isEqualTo(base);
-        assertThat(parseWithMicro("yesterday", base))
-                .isEqualTo(parseWithMicro("11:00 yesterday", base))
+        assertThat(parseWithMicro("yesterday", base)).isEqualTo(parseWithMicro("11:00 yesterday", base))
                 .isEqualTo(base.minusDays(1).truncatedTo(DAYS));
-        assertThat(parseWithMicro("midnight", base))
-                .isEqualTo(parseWithMicro("today", base))
+        assertThat(parseWithMicro("midnight", base)).isEqualTo(parseWithMicro("today", base))
                 .isEqualTo(base.truncatedTo(DAYS));
 
         assertThat(parseWithMicro("noon", base)).isEqualTo(base.withHour(12).truncatedTo(ChronoUnit.HOURS));
