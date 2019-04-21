@@ -9,7 +9,6 @@ import static java.time.temporal.TemporalAdjusters.previous;
 import static java.time.temporal.TemporalAdjusters.previousOrSame;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
 import java.time.DayOfWeek;
@@ -73,218 +72,6 @@ public class DateTimeParserTest {
     private static ZonedDateTime withTime(int hour, int minute, int second, String zone) {
         return now().withHour(hour).withMinute(minute).withSecond(second).withNano(0)
                 .withZoneSameLocal(ZoneId.of(zone));
-    }
-
-    @Test
-    public void hourAndMinute() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 2),
-                Token.of(Symbol.COLON, 2, 1),
-                Token.of(Symbol.DIGITS, 3, 2)
-        ), tokenize("00:15"));
-    }
-
-    @Test
-    public void hourMinuteSecond() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 2),
-                Token.of(Symbol.COLON, 2, 1),
-                Token.of(Symbol.DIGITS, 3, 2),
-                Token.of(Symbol.COLON, 5, 1),
-                Token.of(Symbol.DIGITS, 6, 2)
-        ), tokenize("00:15:00"));
-    }
-
-    @Test
-    public void hourMinuteSecondsWithMicros() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 2),
-                Token.of(Symbol.COLON, 2, 1),
-                Token.of(Symbol.DIGITS, 3, 2),
-                Token.of(Symbol.COLON, 5, 1),
-                Token.of(Symbol.DIGITS, 6, 2),
-                Token.of(Symbol.DOT, 8, 1),
-                Token.of(Symbol.DIGITS, 9, 4)
-        ), tokenize("00:15:00.0000"));
-    }
-
-    @Test
-    public void meridianOnly() {
-        assertThat(tokenize("A.m."))
-                .containsExactly(
-                        Token.of(Symbol.STRING, 0, 1),
-                        Token.of(Symbol.DOT, 1, 1),
-                        Token.of(Symbol.STRING, 2, 1),
-                        Token.of(Symbol.DOT, 3, 1)
-                );
-
-        assertThat(tokenize("am")).containsOnly(Token.of(Symbol.STRING, 0, 2));
-        assertThat(tokenize("Am")).containsOnly(Token.of(Symbol.STRING, 0, 2));
-        assertThat(tokenize("A.m")).containsExactly(
-                Token.of(Symbol.STRING, 0, 1),
-                Token.of(Symbol.DOT, 1, 1),
-                Token.of(Symbol.STRING, 2, 1)
-        );
-    }
-
-    @Test
-    public void meridianWithHour() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.STRING, 1, 2)
-        ), tokenize("4am"));
-
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.STRING, 1, 2)
-        ), tokenize("4pm"));
-
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.STRING, 1, 1),
-                Token.of(Symbol.DOT, 2, 1),
-                Token.of(Symbol.STRING, 3, 1),
-                Token.of(Symbol.DOT, 4, 1)
-        ), tokenize("4A.M."));
-
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.SPACE, 1, 1),
-                Token.of(Symbol.STRING, 2, 1),
-                Token.of(Symbol.DOT, 3, 1),
-                Token.of(Symbol.STRING, 4, 1),
-                Token.of(Symbol.DOT, 5, 1)
-        ), tokenize("4 A.M."));
-    }
-
-    @Test
-    public void test12HourFormat() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.COLON, 1, 1),
-                Token.of(Symbol.DIGITS, 2, 2),
-                Token.of(Symbol.SPACE, 4, 1),
-                Token.of(Symbol.STRING, 5, 2)
-        ), tokenize("4:08 am"));
-
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.COLON, 1, 1),
-                Token.of(Symbol.DIGITS, 2, 2),
-                Token.of(Symbol.STRING, 4, 1),
-                Token.of(Symbol.DOT, 5, 1),
-                Token.of(Symbol.STRING, 6, 1),
-                Token.of(Symbol.DOT, 7, 1)
-        ), tokenize("7:19P.M."));
-
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 1),
-                Token.of(Symbol.COLON, 1, 1),
-                Token.of(Symbol.DIGITS, 2, 2),
-                Token.of(Symbol.COLON, 4, 1),
-                Token.of(Symbol.DIGITS, 5, 2),
-                Token.of(Symbol.SPACE, 7, 1),
-                Token.of(Symbol.STRING, 8, 2)
-        ), tokenize("4:08:37 am"));
-    }
-
-    @Test
-    public void test24HourFormat() {
-        List<Token> expected = Arrays.asList(
-                Token.of(Symbol.STRING, 0, 1),
-                Token.of(Symbol.DIGITS, 1, 2),
-                Token.of(Symbol.COLON, 3, 1),
-                Token.of(Symbol.DIGITS, 4, 2)
-        );
-        assertEquals(expected, tokenize("T23:43"));
-        assertEquals(expected, tokenize("t23:43"));
-    }
-
-    @Test
-    public void negativeTimestamp() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.AT, 0, 1),
-                Token.of(Symbol.MINUS, 1, 1),
-                Token.of(Symbol.DIGITS, 2, 1)
-        ), tokenize("@-1"));
-
-        assertEquals(-15L, new DateTimeTokenizer("@-15").readLong(Token.of(Symbol.DIGITS, 1, 3)));
-    }
-
-    @Test
-    public void testDateFormat() {
-        assertThat(tokenize("8-6-21"))
-                .containsExactly(
-                        Token.of(Symbol.DIGITS, 0, 1),
-                        Token.of(Symbol.MINUS, 1, 1),
-                        Token.of(Symbol.DIGITS, 2, 1),
-                        Token.of(Symbol.MINUS, 3, 1),
-                        Token.of(Symbol.DIGITS, 4, 2)
-                );
-    }
-
-    @Test
-    public void xmlrpc() {
-        assertEquals(Arrays.asList(
-                Token.of(Symbol.DIGITS, 0, 8),
-                Token.of(Symbol.STRING, 8, 1),
-                Token.of(Symbol.DIGITS, 9, 2),
-                Token.of(Symbol.COLON, 11, 1),
-                Token.of(Symbol.DIGITS, 12, 2),
-                Token.of(Symbol.COLON, 14, 1),
-                Token.of(Symbol.DIGITS, 15, 2)
-        ), tokenize("20080701T22:38:07"));
-    }
-
-    @Test
-    public void isoYearWeek() {
-        assertEquals(
-                Arrays.asList(
-                        Token.of(Symbol.DIGITS, 0, 4),
-                        Token.of(Symbol.STRING, 4, 1),
-                        Token.of(Symbol.DIGITS, 5, 2)
-                ),
-                tokenize("2008W27"));
-
-        assertEquals(
-                Arrays.asList(
-                        Token.of(Symbol.DIGITS, 0, 4),
-                        Token.of(Symbol.MINUS, 4, 1),
-                        Token.of(Symbol.STRING, 5, 1),
-                        Token.of(Symbol.DIGITS, 6, 2)
-                ),
-                tokenize("2008-W27"));
-
-    }
-
-    @Test
-    public void withTimeZone() {
-        assertEquals(
-                Arrays.asList(
-                        Token.of(Symbol.STRING, 0, 3),
-                        Token.of(Symbol.PLUS, 3, 1),
-                        Token.of(Symbol.DIGITS, 4, 4)
-                ),
-                tokenize("GMT+0700"));
-
-        assertEquals(
-                Arrays.asList(
-                        Token.of(Symbol.STRING, 0, 6),
-                        Token.of(Symbol.STRING, 6, 1),
-                        Token.of(Symbol.STRING, 7, 4)
-                ),
-                tokenize("Europe/Oslo"));
-    }
-
-    @Test
-    public void fraction() {
-        assertEquals(
-                Arrays.asList(
-                        Token.of(Symbol.DIGITS, 0, 2),
-                        Token.of(Symbol.DOT, 2, 1),
-                        Token.of(Symbol.DIGITS, 3, 2)
-                ),
-                tokenize("17.03"));
     }
 
     @Test
@@ -398,23 +185,6 @@ public class DateTimeParserTest {
     }
 
     @Test
-    public void tokenizeTimezoneWithCorrection() {
-        assertThat(tokenize("GMT+0700"))
-                .containsExactly(
-                        Token.of(Symbol.STRING, 0, 3),
-                        Token.of(Symbol.PLUS, 3, 1),
-                        Token.of(Symbol.DIGITS, 4, 4)
-                );
-
-        assertThat(tokenize("GMT-0700"))
-                .containsExactly(
-                        Token.of(Symbol.STRING, 0, 3),
-                        Token.of(Symbol.MINUS, 3, 1),
-                        Token.of(Symbol.DIGITS, 4, 4)
-                );
-    }
-
-    @Test
     public void hour24Notation() {
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT+0700")), parse("T19:19:19GMT+0700"));
         assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19GMT-0700"));
@@ -502,18 +272,6 @@ public class DateTimeParserTest {
         assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
         assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
         assertThat(parse("1978-12")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12));
-    }
-
-    @Test
-    public void textualMonth() {
-        assertThat(tokenize("30-June 2008"))
-                .containsExactly(
-                        Token.of(Symbol.DIGITS, 0, 2),
-                        Token.of(Symbol.MINUS, 2, 1),
-                        Token.of(Symbol.STRING, 3, 4),
-                        Token.of(Symbol.SPACE, 7, 1),
-                        Token.of(Symbol.DIGITS, 8, 4)
-                );
     }
 
     @Test
@@ -940,6 +698,11 @@ public class DateTimeParserTest {
                     assertThat(parseWithMicro(pair.getA(), base))
                             .isEqualToIgnoringNanos(base.plusDays(pair.getB()));
                 });
+    }
+
+    @Test
+    public void cookieDate() {
+        assertThat(parse("Sunday, 21-Apr-2019 12:14:15 PDT")).isEqualTo("2019-04-21T12:14:15-07:00");
     }
 
     @Test

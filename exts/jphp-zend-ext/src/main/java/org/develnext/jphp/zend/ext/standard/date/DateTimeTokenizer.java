@@ -192,7 +192,7 @@ class DateTimeTokenizer {
                 }
                 case ',': {
                     if (isUndefined()) {
-                        next = Token.of(Symbol.STRING, i++, 1);
+                        next = Token.of(Symbol.COMMA, i++, 1);
                     } else {
                         next = createWithGuessedSymbol();
                         resetBuffer();

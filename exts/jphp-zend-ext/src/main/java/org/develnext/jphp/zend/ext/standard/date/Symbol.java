@@ -5,11 +5,11 @@ public enum Symbol {
     DIGITS("HH", "[0-9]+"),
     FRACTION("frac", ".[0-9]+"),
     HOUR_12("hh", "\"0\"?[1-9] | \"1\"[0-2]"),
-    MERIDIAN("meridian", "[AaPp] .? [Mm] .? [\\0\\t ]"),
     COLON("colon", ":"),
     DOT("dot", "."),
     MINUS("minus", "-"),
     PLUS("plus", "+"),
+    COMMA("comma", ","),
     STRING("string", "[a-z][A-Z]+"),
     AT("at", "@"),
     SPACE("space", "[ \\t]");

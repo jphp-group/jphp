@@ -67,8 +67,8 @@ public class DateTimeParser {
     static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
     static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
     static final SymbolNode DIGITS_NODE = SymbolNode.of(Symbol.DIGITS);
+    static final Node COMMA_NODE = SymbolNode.of(Symbol.COMMA);
     static final CharacterNode SLASH_NODE = CharacterNode.of('/');
-    static final CharacterNode COMMA_NODE = CharacterNode.of(',');
     static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
     static final CharacterNode TAB_NODE = CharacterNode.of('\t', Symbol.SPACE);
     private static final CharacterNode T_CI = CharacterNode.ofCaseInsensitive('t');
@@ -394,13 +394,16 @@ public class DateTimeParser {
             .name("Calculates the x-th week day of the current month. (1 sat)")
             .priorityNormal()
             .afterApply(DateTimeParserContext::atStartOfDay)
-            .nodes(PatternNode.ofDigits(Pattern.compile("[0-9]+")).then(SPACE_NODE)
+            .nodes(DIGITS_NODE.then(SPACE_NODE)
                     .then(DAY_NAME_NODE.withConsumer(numberNthWeekDay())))
             .build();
     private static final GroupNode WEEK_DAY_NAME = GroupNode.builder()
             .relative(true)
             .name("Moves to the next day of this name.")
-            .afterApply(DateTimeParserContext::atStartOfDay)
+            .afterApply(ctx -> {
+                if (!ctx.isTimeModified())
+                    ctx.atStartOfDay();
+            })
             .nodes(DAY_NAME_NODE.withConsumer(ctx -> ctx.withAdjuster(nextOrSameDayOfWeek(ctx.readStringAtCursor()), ChronoField.DAY_OF_WEEK)))
             .build();
     private static final GroupNode REL_WEEK = GroupNode.builder()
@@ -606,16 +609,6 @@ public class DateTimeParser {
         return ctx -> ctx.withAdjuster(Adjusters.month(ctx.readStringAtCursor()), ChronoField.MONTH_OF_YEAR);
     }
 
-    public static List<Token> tokenize(final String time) {
-        List<Token> tokens = new ArrayList<>();
-        DateTimeTokenizer tokenizer = new DateTimeTokenizer(time);
-
-        Token t;
-        while ((t = tokenizer.next()) != EOF) tokens.add(t);
-
-        return tokens;
-    }
-
     public ZonedDateTime parse() {
         List<Token> tokens = getTokens();
         DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone, locale);
@@ -648,7 +641,7 @@ public class DateTimeParser {
         boolean matches = true;
 
         while (ctx.hasMoreTokens() && matches) {
-            if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
+            if (ctx.isSymbolAtCursor(Symbol.SPACE) || ctx.isSymbolAtCursor(Symbol.COMMA)) {
                 ctx.cursor().inc();
                 lastMatchIdx++;
                 continue;
