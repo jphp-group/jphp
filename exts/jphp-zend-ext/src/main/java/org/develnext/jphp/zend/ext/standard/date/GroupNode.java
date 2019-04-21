@@ -153,6 +153,10 @@ class GroupNode extends Node implements Iterable<Node> {
             return this;
         }
 
+        public GroupNodeBuilder afterApplyResetTime() {
+            return afterApply(DateTimeParserContext::atStartOfDay);
+        }
+
         GroupNode build() {
             return new GroupNode(name, nodes, relative, priority, afterApply);
         }

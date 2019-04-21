@@ -234,21 +234,24 @@ public class DateTimeParser {
             YEAR_y_NODE.then(MINUS_NODE).then(MONTH_mm_NODE).then(MINUS_NODE).then(DAY_dd_NODE)
     );
 
-    private static final GroupNode dd_mm_YY_NODE = GroupNode.of(
-            "Day, month and four digit year, with dots, tabs or dashes (dd [.\\t-] mm [.-] YY)",
-            DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE).or(MINUS_NODE)).then(MONTH_mm_NODE).then(DOT_NODE.or(MINUS_NODE)).then(YEAR_4_DIGIT)
-    );
+    private static final GroupNode dd_mm_YY_NODE = GroupNode.builder().relative(false)
+            .name("Day, month and four digit year, with dots, tabs or dashes (dd [.\\t-] mm [.-] YY)")
+            .afterApplyResetTime()
+            .nodes(DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE).or(MINUS_NODE)).then(MONTH_mm_NODE).then(DOT_NODE.or(MINUS_NODE)).then(YEAR_4_DIGIT))
+            .build();
 
-    private static final GroupNode dd_mm_yy_NODE = GroupNode.of(
-            "Day, month and two digit year, with dots or tabs (dd [.\\t] mm '.' yy)",
-            DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE)).then(MONTH_mm_NODE).then(DOT_NODE).then(YEAR_yy_NODE)
-    );
+    private static final GroupNode dd_mm_yy_NODE = GroupNode.builder().relative(false)
+            .name("Day, month and two digit year, with dots or tabs (dd [.\\t] mm '.' yy)")
+            .afterApplyResetTime()
+            .nodes(DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE)).then(MONTH_mm_NODE).then(DOT_NODE).then(YEAR_yy_NODE))
+            .build();
 
     private static final OrNode SPACE_OR_DOT_OR_MINUS = SPACE_NODE.or(DOT_NODE).or(MINUS_NODE);
-    private static final GroupNode dd_m_y_NODE = GroupNode.of(
-            "Day, textual month and year (dd ([ \\t.-])* m ([ \\t.-])* y)",
-            DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_y_NODE)
-    );
+    private static final GroupNode dd_m_y_NODE = GroupNode.builder().relative(false)
+            .name("Day, textual month and year (dd ([ \\t.-])* m ([ \\t.-])* y)")
+            .afterApplyResetTime()
+            .nodes(DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_y_NODE))
+            .build();
 
     private static final GroupNode m_YY_NODE = GroupNode.of(
             "Textual month and four digit year (Day reset to 1) (m ([ \\t.-])* YY)",
@@ -385,7 +388,7 @@ public class DateTimeParser {
             .relative(true)
             .name("Calculates the x-th week day of the current month. (last sat of July 2008)")
             .priorityNormal()
-            .afterApply(DateTimeParserContext::atStartOfDay)
+            .afterApplyResetTime()
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(DAY_NAME_NODE).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
 
@@ -472,14 +475,14 @@ public class DateTimeParser {
                 ISO8601_yy_MM_DD_WITH_DASHES,
 
                 AMERICAN_MONTH_DAY_YEAR,
-                y_M_DD_NODE,
-                YY_mm_dd_NODE,
-                YY_m_NODE,
-                y_mm_dd_NODE,
                 dd_mm_YY_NODE,
                 dd_mm_yy_NODE,
                 dd_m_y_NODE,
                 dd_m_NODE,
+                y_M_DD_NODE,
+                YY_mm_dd_NODE,
+                YY_m_NODE,
+                y_mm_dd_NODE,
                 GNU_DATE,
 
                 // 12 Hour formats

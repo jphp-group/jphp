@@ -399,25 +399,25 @@ public class DateTimeParserTest {
                 .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1).truncatedTo(DAYS));
 
         assertThat(parse("14 III 1879"))
-                .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(14));
+                .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(14).truncatedTo(DAYS));
 
         assertThat(parse("22DEC78"))
-                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22));
+                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
         assertThat(parse("30-June 2008"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30));
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
 
         assertThat(parse("22\t12.78"))
-                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22));
+                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
         assertThat(parse("30.6.08"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30));
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
 
         assertThat(parse("22.12.1978"))
-                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22));
+                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
         assertThat(parse("30-6-2008"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30));
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
 
         assertThat(parse("8-6-21"))
                 .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(21));
@@ -707,8 +707,11 @@ public class DateTimeParserTest {
 
     @Test
     public void rfc850() {
+        assertThat(parse("21-Apr-19"))
+            .isEqualTo("2019-04-21T00:00:00+04:00");
+
         assertThat(parse("Sunday, 21-Apr-19 22:17:16 +0200"))
-                .isEqualTo("2019-03-21T22:17:16+02:00");
+                .isEqualTo("2019-04-21T22:17:16+02:00");
     }
 
     @Test
