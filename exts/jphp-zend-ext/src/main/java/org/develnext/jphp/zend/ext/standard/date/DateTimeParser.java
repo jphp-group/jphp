@@ -11,6 +11,7 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.mo
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.secondAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.yearAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_DD;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_NAME;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_OF_YEAR;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_SUFFIX;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_dd;
@@ -21,7 +22,9 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_M;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_ROMAN;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.ORDINAL;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.UNIT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK_WEEK_DAY;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_y;
@@ -34,16 +37,22 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.ArrayDeque;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+
+import php.runtime.common.Pair;
 
 public class DateTimeParser {
     static final SymbolNode AT_NODE = SymbolNode.of(Symbol.AT);
@@ -241,6 +250,7 @@ public class DateTimeParser {
             ctx -> {
                 if (ctx.isNotModified(ChronoField.DAY_OF_MONTH))
                     ctx.setDayOfMonth(1);
+                ctx.atStartOfDay();
             },
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_4_DIGIT)
     );
@@ -335,28 +345,52 @@ public class DateTimeParser {
     private static final Node TOMORROW = StringNode.ofCaseInsensitive("tomorrow", ctx -> ctx.plusDays(1).atStartOfDay());
 
     // Relative formats
-    private static final GroupNode YESTERDAY_AND_FRIENDS = GroupNode.of("Yesterday",
-            YESTERDAY.or(MIDNIGHT).or(TODAY).or(NOW).or(NOON).or(TOMORROW)
+    private static final GroupNode YESTERDAY_AND_FRIENDS = GroupNode.of("Yesterday", YESTERDAY.or(MIDNIGHT).or(TODAY).or(NOW).or(NOON).or(TOMORROW));
+    private static final Node STRING_OF_NODE = StringNode.ofCaseInsensitive("of");
+    private static final GroupNode BACK_OF_HOUR = GroupNode.of(true, ctx -> ctx.setMinute(15).setSecond(0), StringNode.ofCaseInsensitive("back").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)));
+    private static final GroupNode FRONT_OF_HOUR = GroupNode.of(true, ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0), StringNode.ofCaseInsensitive("front").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)));
+    private static final GroupNode FIRST_DAY_OF = GroupNode.of(true, ctx -> {
+                if (!ctx.hasModifications()) ctx.setDayOfMonth(1);
+            },
+            StringNode.ofCaseInsensitive("first").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE)
     );
 
-    private static final GroupNode BACK_OF_HOUR = GroupNode.of(true,
-            ctx -> ctx.setMinute(15).setSecond(0),
-            StringNode.ofCaseInsensitive("back")
-                    .then(SPACE_NODE)
-                    .then(StringNode.ofCaseInsensitive("of"))
-                    .then(SPACE_NODE)
-                    .then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE))
-    );
+    private static final GroupNode LAST_DAY_OF = GroupNode.builder()
+            .relative(true)
+            .name("Sets the day to the last day of the current month. This phrase is best used together with a month name following it.")
+            .priorityNormal()
+            .afterApply(ctx -> ctx.withAdjuster(TemporalAdjusters.lastDayOfMonth(), ChronoField.DAY_OF_MONTH))
+            .nodes(StringNode.ofCaseInsensitive("last").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
+            .build();
 
-    private static final GroupNode FRONT_OF_HOUR = GroupNode.of(true,
-            ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0),
-            StringNode.ofCaseInsensitive("front")
-                    .then(SPACE_NODE)
-                    .then(StringNode.ofCaseInsensitive("of"))
-                    .then(SPACE_NODE)
-                    .then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE))
-    );
+    private static final PatternNode ORDINAL_NODE = PatternNode.of(ORDINAL, Symbol.STRING);
+    private static final PatternNode DAY_NAME_NODE = PatternNode.ofString(DAY_NAME, nthWeekDayConsumer());
+    private static final PatternNode UNIT_NODE = PatternNode.ofString(UNIT, relTimeTextConsumer());
 
+    private static final GroupNode N_TH_WEEKDAY = GroupNode.builder()
+            .relative(true)
+            .name("Calculates the x-th week day of the current month. (last sat of July 2008)")
+            .priorityNormal()
+            .afterApply(DateTimeParserContext::atStartOfDay)
+            .nodes(ORDINAL_NODE.then(SPACE_NODE).then(DAY_NAME_NODE).then(SPACE_NODE).then(STRING_OF_NODE))
+            .build();
+    private static final GroupNode WEEK_DAY_NAME = GroupNode.builder()
+            .relative(false)
+            .name("Moves to the next day of this name.")
+            .afterApply(DateTimeParserContext::atStartOfDay)
+            .nodes(DAY_NAME_NODE.withConsumer(ctx -> ctx.withAdjuster(Adjusters.nextOrSameDayOfWeek(ctx.readStringAtCursor()), ChronoField.DAY_OF_WEEK)))
+            .build();
+
+    private static final GroupNode REL_TIME_TEXT = GroupNode.builder()
+            .relative(true)
+            .name("Handles relative time items where the value is text. (\"fifth day\", \"second month\")")
+            .priorityHigh()
+            .afterApply(ctx -> {
+                if (ctx.isModified(ChronoField.DAY_OF_WEEK))
+                    ctx.atStartOfDay();
+            })
+            .nodes(ORDINAL_NODE.then(SPACE_NODE).then(UNIT_NODE.or(DAY_NAME_NODE.withConsumer(relWeekDayConsumer()))))
+            .build();
     private static final GroupNode REL_TIME = GroupNode.of(true, new RelativeTimeNumber());
 
     static {
@@ -371,6 +405,11 @@ public class DateTimeParser {
                 YESTERDAY_AND_FRIENDS,
                 BACK_OF_HOUR,
                 FRONT_OF_HOUR,
+                WEEK_DAY_NAME,
+                N_TH_WEEKDAY,
+                FIRST_DAY_OF,
+                LAST_DAY_OF,
+                REL_TIME_TEXT,
                 M_DD_y_NODE,
                 m_YY_NODE,
                 m_dd_y_NODE,
@@ -429,22 +468,18 @@ public class DateTimeParser {
      * The input tokenizer.
      */
     private final DateTimeTokenizer tokenizer;
-
     /**
      * The relative date/time statements for delayed execution.
      */
     private final Queue<CursorAwareNode> relatives;
-
     /**
      * The base time for relative statements.
      */
     private final ZonedDateTime baseDateTime;
-
     /**
      * The locale.
      */
     private final Locale locale;
-
     /**
      * The default zone to apply.
      */
@@ -455,26 +490,62 @@ public class DateTimeParser {
     }
 
     DateTimeParser(String dateTime, ZoneId zoneId) {
-        this.tokenizer = new DateTimeTokenizer(dateTime);
-        this.defaultZone = zoneId;
-        this.relatives = new ArrayDeque<>();
-        this.baseDateTime = ZonedDateTime.now().withZoneSameInstant(zoneId);
-        this.locale = Locale.getDefault();
+        this(dateTime, ZonedDateTime.now().withZoneSameInstant(zoneId), zoneId, Locale.getDefault());
     }
 
     DateTimeParser(String dateTime, ZonedDateTime baseDateTime, ZoneId zoneId, Locale locale) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
         this.defaultZone = zoneId;
-        this.relatives = new ArrayDeque<>();
+        this.relatives = new PriorityQueue<>(Comparator.reverseOrder()); // process bigger priorities first
         this.baseDateTime = baseDateTime;
         this.locale = locale;
     }
 
-    private static Consumer<DateTimeParserContext> monthStringAdjuster() {
+    private static Consumer<DateTimeParserContext> nthWeekDayConsumer() {
         return ctx -> {
-            int month = monthNameToNumber(ctx.readStringAtCursor().toLowerCase());
-            ctx.setMonth(month);
+            int snapshot = ctx.cursor().value();
+            String dayOfWeek = ctx.readStringAtCursor();
+            String ordinal = ctx.withCursorValue(snapshot - 2).readStringAtCursor();
+            ctx.withAdjuster(Adjusters.dayOfWeekInMonth(ordinal, dayOfWeek), ChronoField.DAY_OF_WEEK);
         };
+    }
+
+    private static Consumer<DateTimeParserContext> relWeekDayConsumer() {
+        return ctx -> {
+            int snapshot = ctx.cursor().value();
+            String dayOfWeek = ctx.readStringAtCursor();
+            String ordinal = ctx.withCursorValue(snapshot - 2).readStringAtCursor().toLowerCase();
+            final TemporalAdjuster adjuster;
+
+            switch (ordinal) {
+                case "this":
+                    adjuster = Adjusters.nextOrSameDayOfWeek(dayOfWeek);
+                    break;
+                case "previous":
+                case "last":
+                    adjuster = Adjusters.previousDayOfWeek(dayOfWeek);
+                    break;
+                case "next":
+                default:
+                    adjuster = Adjusters.nthDayOfWeek(dayOfWeek, ordinal);
+                    break;
+            }
+
+            ctx.withAdjuster(adjuster, ChronoField.DAY_OF_WEEK);
+        };
+    }
+
+    private static Consumer<DateTimeParserContext> relTimeTextConsumer() {
+        return ctx -> {
+            int snapshot = ctx.cursor().value();
+            Pair<TemporalAdjuster, TemporalField> pair = Adjusters.relativeUnit(ctx.readStringAtCursor(),
+                    ctx.withCursorValue(snapshot - 2).readStringAtCursor());
+            ctx.withAdjuster(pair.getA(), pair.getB());
+        };
+    }
+
+    private static Consumer<DateTimeParserContext> monthStringAdjuster() {
+        return ctx -> ctx.withAdjuster(Adjusters.month(ctx.readStringAtCursor()), ChronoField.MONTH_OF_YEAR);
     }
 
     public static List<Token> tokenize(final String time) {
@@ -487,65 +558,14 @@ public class DateTimeParser {
         return tokens;
     }
 
-    private static int monthNameToNumber(String month) {
-        switch (month) {
-            case "january":
-            case "jan":
-            case "i":
-                return 1;
-            case "february":
-            case "feb":
-            case "ii":
-                return 2;
-            case "march":
-            case "mar":
-            case "iii":
-                return 3;
-            case "april":
-            case "apr":
-            case "iv":
-                return 4;
-            case "may":
-            case "v":
-                return 5;
-            case "june":
-            case "jun":
-            case "vi":
-                return 6;
-            case "july":
-            case "jul":
-            case "vii":
-                return 7;
-            case "august":
-            case "aug":
-            case "viii":
-                return 8;
-            case "september":
-            case "sep":
-            case "ix":
-                return 9;
-            case "october":
-            case "oct":
-            case "x":
-                return 10;
-            case "november":
-            case "nov":
-            case "xi":
-                return 11;
-            case "december":
-            case "dec":
-            case "xii":
-                return 12;
-            default:
-                throw new IllegalArgumentException("Not a month: " + month);
-        }
-    }
-
     public ZonedDateTime parse() {
         List<Token> tokens = getTokens();
         DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone, locale);
 
         parseNormal(ctx);
+
+        // saving cursor value before apply relative statements
+        int snapshot = ctx.cursor().value();
 
         // the normal process is over its time to apply all relative nodes
         while (relatives.peek() != null) {
@@ -557,7 +577,8 @@ public class DateTimeParser {
             throw new DateTimeException("DateTimeParserContext should have modifications!");
         }
 
-        if (ctx.hasMoreTokens()) {
+        // restoring cursor
+        if (ctx.withCursorValue(snapshot).hasMoreTokens()) {
             throw new DateTimeException("Unparsed tokens are present!");
         }
 
@@ -607,25 +628,4 @@ public class DateTimeParser {
         while ((t = tokenizer.next()) != EOF) tokens.add(t);
         return tokens;
     }
-
-    private static class CursorAwareNode extends Node {
-        private final int cursor;
-        private final Node node;
-
-        private CursorAwareNode(int cursor, Node node) {
-            this.cursor = cursor;
-            this.node = node;
-        }
-
-        @Override
-        boolean matches(DateTimeParserContext ctx) {
-            return node.matches(ctx.withCursorValue(cursor));
-        }
-
-        @Override
-        void apply(DateTimeParserContext ctx) {
-            node.apply(ctx.withCursorValue(cursor));
-        }
-    }
-
 }

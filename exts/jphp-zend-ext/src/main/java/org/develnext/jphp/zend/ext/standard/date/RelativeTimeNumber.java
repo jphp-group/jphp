@@ -1,5 +1,9 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeUnit;
+
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalField;
 import java.util.regex.Matcher;
 
 import php.runtime.common.Pair;
@@ -51,51 +55,7 @@ public class RelativeTimeNumber extends Node {
     @Override
     void apply(DateTimeParserContext ctx) {
         Pair<Long, String> pair = matchesInternal(ctx);
-        long value = pair.getA();
-
-        switch (pair.getB()) {
-            case "year":
-            case "years":
-                ctx.plusYears(value);
-                break;
-            case "month":
-            case "months":
-                ctx.plusMonths(value);
-                break;
-            case "day":
-            case "days":
-                ctx.plusDays(value);
-                break;
-            case "hour":
-            case "hours":
-                ctx.plusHours(value);
-                break;
-            case "minute":
-            case "minutes":
-            case "min":
-            case "mins":
-                ctx.plusMinutes(value);
-                break;
-            case "second":
-            case "seconds":
-            case "sec":
-            case "secs":
-                ctx.plusSeconds(value);
-                break;
-            case "week":
-            case "weeks":
-                ctx.plusDays(value * 7L);
-                break;
-            case "weekday":
-            case "weekdays":
-                ctx.plusWeekDays(value);
-                break;
-            case "fortnight":
-            case "fortnights":
-                ctx.plusDays(value * 14L);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown unit: " + pair.getB());
-        }
+        Pair<TemporalAdjuster, TemporalField> pair1 = relativeUnit(pair.getB(), pair.getA());
+        ctx.withAdjuster(pair1.getA(), pair1.getB());
     }
 }

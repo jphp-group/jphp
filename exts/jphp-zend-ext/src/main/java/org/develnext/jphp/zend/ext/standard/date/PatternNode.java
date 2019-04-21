@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 
 class PatternNode extends SymbolNode {
     private final Pattern pattern;
-    private final Consumer<DateTimeParserContext> adjuster;
+    private final Consumer<DateTimeParserContext> consumer;
 
-    private PatternNode(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> adjuster) {
+    private PatternNode(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> consumer) {
         super(symbol);
         this.pattern = pattern;
-        this.adjuster = adjuster;
+        this.consumer = consumer;
     }
 
     static PatternNode ofDigits(Pattern pattern, Consumer<DateTimeParserContext> adjuster) {
@@ -22,11 +22,15 @@ class PatternNode extends SymbolNode {
         return new PatternNode(pattern, Symbol.DIGITS, DateTimeParserContext.empty());
     }
 
-    static PatternNode of(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> adjuster) {
-        return new PatternNode(pattern, symbol, adjuster);
+    static PatternNode of(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> consumer) {
+        return new PatternNode(pattern, symbol, consumer);
     }
 
-    static Node of(Pattern pattern, Symbol symbol) {
+    static PatternNode ofString(Pattern pattern, Consumer<DateTimeParserContext> consumer) {
+        return new PatternNode(pattern, Symbol.STRING, consumer);
+    }
+
+    static PatternNode of(Pattern pattern, Symbol symbol) {
         return new PatternNode(pattern, symbol, DateTimeParserContext.empty());
     }
 
@@ -37,8 +41,12 @@ class PatternNode extends SymbolNode {
 
     @Override
     void apply(DateTimeParserContext ctx) {
-        adjuster.accept(ctx);
+        consumer.accept(ctx);
         ctx.cursor().inc();
+    }
+
+    public PatternNode withConsumer(Consumer<DateTimeParserContext> consumer) {
+        return new PatternNode(pattern, symbol(), consumer);
     }
 
     @Override

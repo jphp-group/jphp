@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.ValueRange;
@@ -22,7 +24,6 @@ import java.util.function.Consumer;
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 class DateTimeParserContext {
     private static final Consumer<DateTimeParserContext> EMPTY_CONSUMER = ctx -> {};
-    private static final List<ChronoField> CHRONO_FIELDS = Arrays.asList(ChronoField.values());
     private static final List<ChronoField> TIME_CHRONO_FIELDS = Arrays.asList(ChronoField.MICRO_OF_SECOND, ChronoField.SECOND_OF_MINUTE, ChronoField.MINUTE_OF_HOUR, ChronoField.HOUR_OF_DAY);
     private final List<Token> tokens;
     private final Cursor cursor;
@@ -109,32 +110,6 @@ class DateTimeParserContext {
 
             ctx.setYear(year);
         };
-    }
-
-    private static int businessDaysToRealDays(int days) {
-        return days <= 5 ? days : ((days / 5) * 7) + (days % 5);
-    }
-
-    /**
-     * https://stackoverflow.com/questions/33942544/how-to-skip-weekends-while-adding-days-to-localdate-in-java-8/33943576
-     */
-    private static long getAllDays(int dayOfWeek, long businessDays) {
-        long result = 0;
-        if (businessDays != 0) {
-            boolean isStartOnWorkday = dayOfWeek < 6;
-            long absBusinessDays = Math.abs(businessDays);
-
-            if (isStartOnWorkday) {
-                // if negative businessDays: count backwards by shifting weekday
-                int shiftedWorkday = businessDays > 0 ? dayOfWeek : 6 - dayOfWeek;
-                result = absBusinessDays + (absBusinessDays + shiftedWorkday - 1) / 5 * 2;
-            } else { // start on weekend
-                // if negative businessDays: count backwards by shifting weekday
-                int shiftedWeekend = businessDays > 0 ? dayOfWeek : 13 - dayOfWeek;
-                result = absBusinessDays + (absBusinessDays - 1) / 5 * 2 + (7 - shiftedWeekend);
-            }
-        }
-        return result;
     }
 
     public boolean hasModifications() {
@@ -264,6 +239,13 @@ class DateTimeParserContext {
         return this;
     }
 
+    public DateTimeParserContext withAdjuster(TemporalAdjuster adjuster, TemporalField field) {
+        dateTime = dateTime.with(adjuster);
+
+        modified.add(field);
+        return this;
+    }
+
     public boolean isTimeModified() {
         return modified.contains(ChronoField.SECOND_OF_MINUTE) ||
                 modified.contains(ChronoField.MINUTE_OF_HOUR) ||
@@ -283,25 +265,11 @@ class DateTimeParserContext {
 
     public DateTimeParserContext setTimezone(ZoneId timezone) {
         // UNIX timestamp was set.
-        if (modified.containsAll(CHRONO_FIELDS))
+        if (modified.contains(ChronoField.EPOCH_DAY))
             return this;
 
         dateTime = dateTime.withZoneSameLocal(timezone);
         modified.add(TimezoneField.INSTANSE);
-        return this;
-    }
-
-    public DateTimeParserContext plusYears(long years) {
-        dateTime = dateTime.plusYears(years);
-        modified.add(ChronoField.YEAR);
-
-        return this;
-    }
-
-    public DateTimeParserContext plusMonths(long months) {
-        dateTime = dateTime.plusMonths(months);
-        modified.add(ChronoField.MONTH_OF_YEAR);
-
         return this;
     }
 
@@ -315,13 +283,6 @@ class DateTimeParserContext {
     public DateTimeParserContext plusHours(long hours) {
         dateTime = dateTime.plusHours(hours);
         modified.add(ChronoField.HOUR_OF_DAY);
-
-        return this;
-    }
-
-    public DateTimeParserContext plusMinutes(long minutes) {
-        dateTime = dateTime.plusMinutes(minutes);
-        modified.add(ChronoField.MINUTE_OF_HOUR);
 
         return this;
     }
@@ -350,7 +311,7 @@ class DateTimeParserContext {
     public DateTimeParserContext setUnixTimestamp(long timestamp) {
         setTimezone(ZoneId.of("UTC"));
         dateTime = Instant.ofEpochSecond(timestamp).atZone(zone);
-        modified.addAll(CHRONO_FIELDS);
+        modified.add(ChronoField.EPOCH_DAY);
 
         return this;
     }
@@ -359,11 +320,7 @@ class DateTimeParserContext {
         if (!isTimeModified())
             throw new IllegalStateException("The time should be initialized at this point!");
 
-        if (am) {
-            dateTime = dateTime.withHour(dateTime.getHour() % 12);
-        } else {
-            dateTime = dateTime.withHour(dateTime.getHour() + 12);
-        }
+        dateTime = dateTime.with(Adjusters.meridian(am));
 
         if (isNotModified(ChronoField.MINUTE_OF_HOUR)) {
             dateTime = dateTime.withMinute(0);
@@ -397,10 +354,7 @@ class DateTimeParserContext {
     }
 
     public DateTimeParserContext atStartOfDay() {
-        dateTime = dateTime.with(ChronoField.MICRO_OF_SECOND, 0)
-                .withSecond(0)
-                .withMinute(0)
-                .withHour(0);
+        dateTime = dateTime.truncatedTo(ChronoUnit.DAYS);
 
         return this;
     }
@@ -409,22 +363,6 @@ class DateTimeParserContext {
         atStartOfDay();
 
         modified.addAll(TIME_CHRONO_FIELDS);
-        return this;
-    }
-
-    public DateTimeParserContext plusWeekDays(long value) {
-        if (!isTimeModified())
-            atStartOfDay();
-
-        if (value == 0)
-            return this;
-
-        long realDays = getAllDays(dateTime.getDayOfWeek().getValue(), value);
-
-        dateTime = dateTime.plusDays(realDays * Long.signum(value));
-
-        modified.add(ChronoField.DAY_OF_WEEK);
-
         return this;
     }
 

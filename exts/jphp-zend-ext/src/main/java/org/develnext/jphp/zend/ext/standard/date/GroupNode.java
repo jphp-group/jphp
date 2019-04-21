@@ -6,36 +6,50 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 class GroupNode extends Node implements Iterable<Node> {
+    public static final int PRIORITY_HIGH = 1000;
+    public static final int PRIORITY_NORMAL = PRIORITY_HIGH - 500;
+    public static final int PRIORITY_LOW = PRIORITY_NORMAL - 500;
+
     private final String name;
     private final boolean relative;
+    private final int priority;
     private final Node[] nodes;
     private final Consumer<DateTimeParserContext> afterApply;
 
-    GroupNode(String name, Node[] nodes, boolean relative, Consumer<DateTimeParserContext> afterApply) {
+    GroupNode(String name, Node[] nodes, boolean relative, int priority, Consumer<DateTimeParserContext> afterApply) {
         this.name = name;
         this.nodes = nodes;
         this.relative = relative;
+        this.priority = priority;
         this.afterApply = afterApply;
     }
 
     static GroupNode of(String name, Node... nodes) {
-        return new GroupNode(name, nodes, false, DateTimeParserContext.empty());
+        return new GroupNode(name, nodes, false, PRIORITY_LOW, DateTimeParserContext.empty());
     }
 
     static GroupNode of(String name, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
-        return new GroupNode(name, nodes, false, afterApply);
+        return new GroupNode(name, nodes, false, PRIORITY_LOW, afterApply);
     }
 
     static GroupNode of(Node... nodes) {
-        return new GroupNode("noname", nodes, false, DateTimeParserContext.empty());
+        return new GroupNode("noname", nodes, false, PRIORITY_LOW, DateTimeParserContext.empty());
     }
 
     static GroupNode of(boolean relative, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
-        return new GroupNode("noname", nodes, relative, afterApply);
+        return new GroupNode("noname", nodes, relative, PRIORITY_LOW, afterApply);
     }
 
     static GroupNode of(boolean relative, Node... nodes) {
-        return new GroupNode("noname", nodes, relative, DateTimeParserContext.empty());
+        return of(relative, PRIORITY_LOW, nodes);
+    }
+
+    static GroupNode of(boolean relative, int priority, Node... nodes) {
+        return new GroupNode("noname", nodes, relative, priority, DateTimeParserContext.empty());
+    }
+
+    static GroupNodeBuilder builder() {
+        return new GroupNodeBuilder();
     }
 
     @Override
@@ -76,6 +90,10 @@ class GroupNode extends Node implements Iterable<Node> {
         return relative;
     }
 
+    int priority() {
+        return priority;
+    }
+
     @Override
     public Iterator<Node> iterator() {
         return Arrays.asList(nodes).iterator();
@@ -92,5 +110,57 @@ class GroupNode extends Node implements Iterable<Node> {
                 .add("nodes=" + Arrays.toString(nodes))
                 .add("relative=" + relative)
                 .toString();
+    }
+
+    static final class GroupNodeBuilder {
+        private String name = "noname";
+        private boolean relative;
+        private int priority = PRIORITY_LOW;
+        private Node[] nodes;
+        private Consumer<DateTimeParserContext> afterApply = DateTimeParserContext.empty();
+
+        private GroupNodeBuilder() {
+        }
+
+        public GroupNodeBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        GroupNodeBuilder relative(boolean relative) {
+            this.relative = relative;
+            return this;
+        }
+
+        GroupNodeBuilder priority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        GroupNodeBuilder priorityHigh() {
+            return priority(PRIORITY_HIGH);
+        }
+
+        public GroupNodeBuilder priorityNormal() {
+            return priority(PRIORITY_NORMAL);
+        }
+
+        public GroupNodeBuilder priorityLow() {
+            return priority(PRIORITY_LOW);
+        }
+
+        GroupNodeBuilder nodes(Node... nodes) {
+            this.nodes = nodes;
+            return this;
+        }
+
+        public GroupNodeBuilder afterApply(Consumer<DateTimeParserContext> afterApply) {
+            this.afterApply = afterApply;
+            return this;
+        }
+
+        GroupNode build() {
+            return new GroupNode(name, nodes, relative, priority, afterApply);
+        }
     }
 }

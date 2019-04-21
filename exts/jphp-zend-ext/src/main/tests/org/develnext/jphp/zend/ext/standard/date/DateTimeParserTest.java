@@ -1,11 +1,14 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import static java.time.ZonedDateTime.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParser.tokenize;
 import static org.junit.Assert.assertEquals;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
@@ -15,16 +18,30 @@ import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import php.runtime.common.Pair;
 
 public class DateTimeParserTest {
+    private static final Map<DayOfWeek, List<String>> DAY_OF_WEEKS = Arrays.stream(DayOfWeek.values())
+            .collect(Collectors.toMap(o -> o, dow -> Arrays.asList(
+                    dow.getDisplayName(TextStyle.FULL, Locale.US),
+                    dow.getDisplayName(TextStyle.FULL, Locale.US).toLowerCase(),
+                    dow.getDisplayName(TextStyle.FULL, Locale.US).toUpperCase(),
+                    dow.getDisplayName(TextStyle.SHORT, Locale.US),
+                    dow.getDisplayName(TextStyle.SHORT, Locale.US).toLowerCase(),
+                    dow.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase()
+            )));
 
     private static ZonedDateTime parse(String input) {
         return parseWithMicro(input, ZonedDateTime.now()).withNano(0);
@@ -418,31 +435,33 @@ public class DateTimeParserTest {
 
     @Test
     public void tz() {
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-6"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
+        ZonedDateTime expected = withTime(19, 19, 19);
+
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-6"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
         assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T040837CEST"));
         assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T040837 CEST"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T19:19:19CEST"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("UTC+10:30")), parse("T19:19:19ACDT"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-06"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-0630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-6:30"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19GMT-630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -630"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -6:30"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-6:30"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-6"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-06"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07:00"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("-0700")), parse("T19:19:19 -0700"));
-        assertEquals(withTime(19, 19, 19).withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19 GMT-0700"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T19:19:19CEST"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("UTC+10:30")), parse("T19:19:19ACDT"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-06"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-0630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19-6:30"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19GMT-630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -630"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:30")), parse("T19:19:19 -6:30"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:30")), parse("T19:19:19 GMT-6:30"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-6"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19 GMT-06"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-07:00")), parse("T19:19:19 -07:00"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("-0700")), parse("T19:19:19 -0700"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-0700")), parse("T19:19:19 GMT-0700"));
     }
 
     @Test
@@ -566,7 +585,7 @@ public class DateTimeParserTest {
     @Test
     public void customDates() {
         assertThat(parse("March 1879"))
-                .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(1));
+                .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(1).truncatedTo(DAYS));
 
         Stream.of("78-Dec-22", "1978-Dec-22", "1978-DEC-22", "78-DEC-22", "78-DEc-22")
                 .map(DateTimeParserTest::parse)
@@ -580,7 +599,7 @@ public class DateTimeParserTest {
                 .map(DateTimeParserTest::parse)
                 .forEach(parsed -> {
                     assertThat(parsed)
-                            .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1));
+                            .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1).truncatedTo(DAYS));
                 });
 
         Stream.of("July 1st, 2008", "July 1st , 2008", "July 1, 2008", "July 1,2008", "July 1,08",
@@ -608,10 +627,10 @@ public class DateTimeParserTest {
                 });
 
         assertThat(parse("DEC1978"))
-                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1));
+                .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1).truncatedTo(DAYS));
 
         assertThat(parse("June 2008"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1));
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1).truncatedTo(DAYS));
 
         assertThat(parse("14 III 1879"))
                 .isEqualToIgnoringNanos(now().withYear(1879).withMonth(3).withDayOfMonth(14));
@@ -726,13 +745,13 @@ public class DateTimeParserTest {
         assertThat(parseWithMicro("now", base)).isEqualTo(base);
         assertThat(parseWithMicro("yesterday", base))
                 .isEqualTo(parseWithMicro("11:00 yesterday", base))
-                .isEqualTo(base.minusDays(1).truncatedTo(ChronoUnit.DAYS));
+                .isEqualTo(base.minusDays(1).truncatedTo(DAYS));
         assertThat(parseWithMicro("midnight", base))
                 .isEqualTo(parseWithMicro("today", base))
-                .isEqualTo(base.truncatedTo(ChronoUnit.DAYS));
+                .isEqualTo(base.truncatedTo(DAYS));
 
         assertThat(parseWithMicro("noon", base)).isEqualTo(base.withHour(12).truncatedTo(ChronoUnit.HOURS));
-        assertThat(parseWithMicro("tomorrow", base)).isEqualTo(base.plusDays(1).truncatedTo(ChronoUnit.DAYS));
+        assertThat(parseWithMicro("tomorrow", base)).isEqualTo(base.plusDays(1).truncatedTo(DAYS));
 
         assertThat(parseWithMicro("yesterday 14:01", base))
                 .isEqualTo(base.minusDays(1).withHour(14).withMinute(1).withSecond(0));
@@ -759,6 +778,127 @@ public class DateTimeParserTest {
         assertThat(parse("front of 23"))
                 .isEqualToIgnoringNanos(now().withHour(22).withMinute(45).withSecond(0));
     }
+
+    @Test
+    public void firstDayOf() {
+        assertThat(parse("first day of March 2005")).isEqualToIgnoringNanos(now().withYear(2005).withMonth(3).withDayOfMonth(1).truncatedTo(DAYS));
+        assertThat(parse("first day of")).isEqualToIgnoringNanos(now().withDayOfMonth(1));
+    }
+
+    @Test
+    public void relativeTimeText() {
+        String[] ordinals = {"this", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth"};
+        for (int i = 0; i < ordinals.length; i++) {
+            String ordinal = ordinals[i];
+            assertThat(parse(ordinal + " sec"))
+                    .isEqualTo(parse(ordinal + " secs"))
+                    .isEqualTo(parse(ordinal + " second"))
+                    .isEqualTo(parse(ordinal + " seconds"))
+                    .isEqualToIgnoringNanos(now().plusSeconds(i));
+
+            assertThat(parse(ordinal + " min"))
+                    .isEqualTo(parse(ordinal + " mins"))
+                    .isEqualTo(parse(ordinal + " minute"))
+                    .isEqualTo(parse(ordinal + " minutes"))
+                    .isEqualToIgnoringNanos(now().plusMinutes(i));
+
+            assertThat(parse(ordinal + " hour")).isEqualTo(parse(ordinal + " hours"))
+                    .isEqualToIgnoringNanos(now().plusHours(i));
+
+            assertThat(parse(ordinal + " day")).isEqualTo(parse(ordinal + " days"))
+                    .isEqualToIgnoringNanos(now().plusDays(i));
+
+            assertThat(parse(ordinal + " fortnight")).isEqualTo(parse(ordinal + " fortnights"))
+                    .isEqualToIgnoringNanos(now().plusDays(i * 14));
+
+            assertThat(parse(ordinal + " forthnight")).isEqualTo(parse(ordinal + " forthnights"))
+                    .isEqualToIgnoringNanos(now().plusDays(i * 14));
+
+            assertThat(parse(ordinal + " month")).isEqualTo(parse(ordinal + " months"))
+                    .isEqualToIgnoringNanos(now().plusMonths(i));
+
+            assertThat(parse(ordinal + " year")).isEqualTo(parse(ordinal + " years"))
+                    .isEqualToIgnoringNanos(now().plusYears(i));
+        }
+
+        assertThat(parse("this month")).isEqualToIgnoringNanos(now());
+        assertThat(parse("next month")).isEqualToIgnoringNanos(now().plusMonths(1));
+        assertThat(parse("previous month")).isEqualTo(parse("last month"))
+                .isEqualToIgnoringNanos(now().minusMonths(1));
+    }
+
+    @Test
+    public void lastDayOf() {
+        assertThat(parse("last day of next month"))
+                .isEqualToIgnoringNanos(now().plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()));
+
+        assertThat(parse("last day of this month"))
+                .isEqualTo(parse("last day of"))
+                .isEqualToIgnoringNanos(now().with(TemporalAdjusters.lastDayOfMonth()));
+
+        assertThat(parse("last day of previous month"))
+                .isEqualToIgnoringNanos(now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()));
+    }
+
+    @Test
+    public void nthDayOfMonth() {
+        ZonedDateTime expected = now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS);
+        String[] ordinals = {"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth"};
+
+        for (int i = 0, days = 7; i < ordinals.length; i++, days += 7) {
+            assertThat(parse(ordinals[i] + " monday of July 2008"))
+                    .isEqualTo(parse(ordinals[i] + " mon of July 2008"))
+                    .isEqualTo(expected.plusDays(days));
+        }
+
+        Stream.of(
+                Pair.of("last monday of July 2008", "2008-07-28"),
+                Pair.of("previous monday of July 2008", "2008-07-28"),
+                Pair.of("next sunday of July 2008", "2008-07-06"),
+                Pair.of("previous sunday of July 2008", "2008-07-27")
+        ).forEach(pair -> {
+            assertThat(parse(pair.getA()))
+                    .isEqualTo(LocalDate.parse(pair.getB()).atStartOfDay(ZoneId.systemDefault()));
+        });
+    }
+
+    @Test
+    public void relativeDayOfWeek() {
+
+        DAY_OF_WEEKS.forEach((dayOfWeek, strings) -> {
+            for (String transformedDayOfWeek : strings) {
+                assertThat(parse("this " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(nextOrSame(dayOfWeek)));
+                TemporalAdjuster nextDayOfWeek = TemporalAdjusters.next(dayOfWeek);
+
+                assertThat(parse("next " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(nextDayOfWeek));
+
+                assertThat(parse("last " + transformedDayOfWeek))
+                        .isEqualTo(parse("previous " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(TemporalAdjusters.previous(dayOfWeek)));
+
+                assertThat(parse("first " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(nextDayOfWeek));
+
+                assertThat(parse("second " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(nextDayOfWeek).with(nextDayOfWeek));
+
+                assertThat(parse("third " + transformedDayOfWeek))
+                        .isEqualTo(now().truncatedTo(DAYS).with(nextDayOfWeek).with(nextDayOfWeek).with(nextDayOfWeek));
+            }
+        });
+    }
+
+    @Test
+    public void dayofWeek() {
+        DAY_OF_WEEKS.forEach((dayOfWeek, strings) -> {
+            for (String dayOfWeekStr : strings) {
+                assertThat(parse(dayOfWeekStr)).isEqualTo(now().with(nextOrSame(dayOfWeek)).truncatedTo(DAYS));
+            }
+        });
+    }
+
     @Test
     public void relativeWeekdaysAndFortnight() {
         ZonedDateTime base = ZonedDateTime.parse("2019-04-19T00:00:00+04:00[Asia/Yerevan]");
