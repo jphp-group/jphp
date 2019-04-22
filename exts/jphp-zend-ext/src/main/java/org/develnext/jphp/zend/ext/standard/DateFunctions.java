@@ -130,15 +130,27 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format, long time) {
-        ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time),
-                zoneId(date_default_timezone_get(env, traceInfo)));
-
-        String value = DateFormat.formatForDateFunction(env, date, format, new StringBuilder()).toString();
-        return StringMemory.valueOf(value);
+        ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
+        return __date(env, traceInfo, zoneId, format, time);
     }
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format) {
         return date(env, traceInfo, format, epochSeconds());
+    }
+
+    public static Memory gmdate(Environment env, TraceInfo traceInfo, String format, long time) {
+        return __date(env, traceInfo, ZONE_GMT, format, time);
+    }
+
+    public static Memory gmdate(Environment env, TraceInfo traceInfo, String format) {
+        return gmdate(env, traceInfo, format, epochSeconds());
+    }
+
+    private static Memory __date(Environment env, TraceInfo traceInfo, ZoneId zoneId, String format, long time) {
+        ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId);
+
+        String value = DateFormat.formatForDateFunction(env, date, format, new StringBuilder()).toString();
+        return StringMemory.valueOf(value);
     }
 
     public static Memory date_format(Environment env, TraceInfo traceInfo, Memory object, String format) {
