@@ -274,14 +274,17 @@ public class DateTimeParser {
             },
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_4_DIGIT)
     );
-    private static final GroupNode YY_m_NODE = GroupNode.of(
-            "Four digit year and textual month (Day reset to 1) (YY ([ \\t.-])* m)",
-            ctx -> {
+    private static final GroupNode YY_m_NODE = GroupNode.builder()
+            .name("Four digit year and textual month (Day reset to 1) (YY ([ \\t.-])* m)")
+            .afterApply(ctx -> {
+                if (!ctx.isTimeModified())
+                    ctx.atStartOfDay();
+
                 if (ctx.isNotModified(ChronoField.DAY_OF_MONTH))
                     ctx.setDayOfMonth(1);
-            },
-            YEAR_4_DIGIT.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
-    );
+            })
+            .nodes(YEAR_4_DIGIT.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE))
+            .build();
     private static final GroupNode m_dd_y_NODE = GroupNode.builder().relative(false)
             .afterApply(ctx -> {
                 if (!ctx.isTimeModified())

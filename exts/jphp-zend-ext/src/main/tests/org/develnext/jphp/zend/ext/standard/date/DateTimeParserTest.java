@@ -745,7 +745,12 @@ public class DateTimeParserTest {
     @Test
     public void relativeOffsetNotParserAsTimezone() {
         assertThat(parse("28 Feb 2008 12:00:00 +400 years"))
-            .isEqualTo(now().withYear(2408).withMonth(2).withDayOfMonth(28).withHour(12).truncatedTo(HOURS));
+                .isEqualTo(now().withYear(2408).withMonth(2).withDayOfMonth(28).withHour(12).truncatedTo(HOURS));
+    }
+
+    @Test
+    public void monthYearAndYearMonth() {
+        assertThat(parse("2001 Oct")).isEqualTo(parse("Oct 2001"));
     }
 
     @Test

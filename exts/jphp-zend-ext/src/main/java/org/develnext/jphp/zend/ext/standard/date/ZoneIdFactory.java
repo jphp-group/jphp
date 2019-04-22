@@ -71,9 +71,15 @@ public class ZoneIdFactory {
     }
 
     static String aliasFor(ZoneId zoneId) {
-        String alias = idToAliases.get(zoneId.getId());
+        String id = zoneId.getId();
+        switch (id) {
+            case "GMT":
+                return id;
+            default:
+                String alias = idToAliases.get(id);
 
-        return alias == null ? null : alias.toUpperCase();
+                return alias == null ? null : alias.toUpperCase();
+        }
     }
 
     public static ZoneId of(String id) {

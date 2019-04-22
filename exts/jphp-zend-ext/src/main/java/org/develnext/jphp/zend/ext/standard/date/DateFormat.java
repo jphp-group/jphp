@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Year;
 import java.time.ZoneId;
@@ -7,6 +8,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
 import java.util.Locale;
 
 import org.develnext.jphp.zend.ext.standard.DateConstants;
@@ -19,7 +22,7 @@ public class DateFormat {
     private DateFormat() {
     }
 
-    public static StringBuilder formatForDateFunction(Environment env, ZonedDateTime date, String format, StringBuilder sb) {
+    private static StringBuilder formatForDateFunction(Environment env, ZonedDateTime date, String format, StringBuilder sb) {
         Locale locale = env.getLocale();
 
         for (int i = 0, n = format.length(); i < n; i++) {
@@ -72,6 +75,10 @@ public class DateFormat {
                     break;
                 case 'D':
                     sb.append(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, locale));
+                    break;
+                case 'W':
+                    TemporalField woy = WeekFields.of(DayOfWeek.MONDAY, 4).weekOfWeekBasedYear();
+                    sb.append(String.format(locale, "%02d", date.get(woy)));
                     break;
                 case 'F':
                     sb.append(date.getMonth().getDisplayName(TextStyle.FULL, locale));

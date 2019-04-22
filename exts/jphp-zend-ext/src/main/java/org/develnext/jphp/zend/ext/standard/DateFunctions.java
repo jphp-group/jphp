@@ -149,9 +149,7 @@ public class DateFunctions extends FunctionsContainer {
 
     private static Memory __date(Environment env, TraceInfo traceInfo, ZoneId zoneId, String format, long time) {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId);
-
-        String value = DateFormat.formatForDateFunction(env, date, format, new StringBuilder()).toString();
-        return StringMemory.valueOf(value);
+        return StringMemory.valueOf(DateFormat.formatForDateFunction(env, date, format));
     }
 
     public static Memory date_format(Environment env, TraceInfo traceInfo, Memory object, String format) {

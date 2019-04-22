@@ -2,6 +2,8 @@ package date;
 
 import java.time.Duration;
 
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.develnext.jphp.zend.ZendJvmTestCase;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -96,6 +98,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void strtotime() {
+        check("ext/date/bug26198.phpt");
         check("ext/date/002.phpt");
         check("ext/date/strtotime.phpt");
         check("ext/date/strtotime2.phpt");
@@ -109,8 +112,32 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/bug14561.phpt");
         check("ext/date/bug17988.phpt");
         check("ext/date/bug21399.phpt");
+        check("ext/date/bug26320.phpt");
+
+        check("ext/date/bug28088.phpt");
+        check("ext/date/bug28599.phpt");
+        check("ext/date/bug29150.phpt");
+        check("ext/date/bug29595.phpt");
+        check("ext/date/bug30096.phpt");
+        check("ext/date/bug32588.phpt");
+        check("ext/date/bug33056.phpt");
+        check("ext/date/bug33452.phpt");
+        check("ext/date/bug33532.phpt");
 
         // fail
+        check("ext/date/bug33415-2.phpt");
+        check("ext/date/bug33414-2.phpt");
+        check("ext/date/bug33415-1.phpt");
+        check("ext/date/bug33414-1.phpt");
+        check("ext/date/bug32555.phpt");
+        check("ext/date/bug32270.phpt");
+        check("ext/date/bug32086.phpt");
+        check("ext/date/bug30532.phpt");
+        check("ext/date/bug29585.phpt");
+        check("ext/date/bug28024.phpt");
+        check("ext/date/bug27780.phpt");
+        check("ext/date/bug26694.phpt");
+        check("ext/date/bug26317.phpt");
         check("ext/date/bug26090.phpt");
         check("ext/date/bug20382-1.phpt");
     }
