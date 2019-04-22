@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
@@ -32,19 +31,14 @@ class DateTimeParserContext {
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
     private final Set<TemporalField> modified;
-    private final Locale locale;
-    private final ZoneId zone;
     private ZonedDateTime dateTime;
 
     DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer,
-                          ZonedDateTime dateTime,
-                          ZoneId defaultZone, Locale locale) {
+                          ZonedDateTime dateTime) {
         this.tokens = tokens;
         this.cursor = cursor;
         this.tokenizer = tokenizer;
-        this.locale = locale;
         this.modified = new HashSet<>();
-        this.zone = Optional.ofNullable(defaultZone).orElseGet(ZoneId::systemDefault);
         this.dateTime = dateTime;
     }
 
@@ -318,8 +312,9 @@ class DateTimeParserContext {
     }
 
     public DateTimeParserContext setUnixTimestamp(long timestamp) {
-        setTimezone(ZoneId.of("UTC"));
-        dateTime = Instant.ofEpochSecond(timestamp).atZone(zone);
+        ZoneId utc = ZoneId.of("UTC");
+        setTimezone(utc);
+        dateTime = Instant.ofEpochSecond(timestamp).atZone(utc);
         modified.add(ChronoField.EPOCH_DAY);
 
         return this;

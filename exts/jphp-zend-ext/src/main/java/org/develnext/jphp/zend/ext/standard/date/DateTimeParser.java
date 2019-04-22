@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -500,28 +499,19 @@ public class DateTimeParser {
      * The base time for relative statements.
      */
     private final ZonedDateTime baseDateTime;
-    /**
-     * The locale.
-     */
-    private final Locale locale;
-    /**
-     * The default zone to apply.
-     */
-    private final ZoneId defaultZone;
+
     DateTimeParser(String dateTime) {
         this(dateTime, ZoneId.systemDefault());
     }
 
     DateTimeParser(String dateTime, ZoneId zoneId) {
-        this(dateTime, ZonedDateTime.now().withZoneSameInstant(zoneId), zoneId, Locale.getDefault());
+        this(dateTime, ZonedDateTime.now().withZoneSameInstant(zoneId));
     }
 
-    DateTimeParser(String dateTime, ZonedDateTime baseDateTime, ZoneId zoneId, Locale locale) {
+    DateTimeParser(String dateTime, ZonedDateTime baseDateTime) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
-        this.defaultZone = zoneId;
         this.relatives = new PriorityQueue<>(Comparator.reverseOrder()); // process bigger priorities first
         this.baseDateTime = baseDateTime;
-        this.locale = locale;
     }
 
     private static Consumer<DateTimeParserContext> mySqlTimestamp() {
@@ -609,7 +599,7 @@ public class DateTimeParser {
 
     public ZonedDateTime parse() {
         List<Token> tokens = getTokens();
-        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime, defaultZone, locale);
+        DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime);
 
         parseNormal(ctx);
 

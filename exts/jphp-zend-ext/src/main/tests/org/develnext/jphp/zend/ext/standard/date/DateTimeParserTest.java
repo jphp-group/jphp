@@ -63,7 +63,7 @@ public class DateTimeParserTest {
     }
 
     private static ZonedDateTime parseWithMicro(String input, ZonedDateTime base) {
-        return new DateTimeParser(input, base, ZoneId.systemDefault(), Locale.getDefault()).parse();
+        return new DateTimeParser(input, base).parse();
     }
 
     private static ZonedDateTime withTime(int hour, int minute, int second) {

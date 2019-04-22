@@ -522,7 +522,7 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_create(Environment env, TraceInfo traceInfo, Memory... args) {
         DateTime dateTime = new DateTime(env);
-        if (args.length == 0)
+        if (args == null || args.length == 0)
             return dateTime.__construct(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
         return dateTime.__construct(env, traceInfo, args[0], args.length == 2 ? args[1] : Memory.NULL);
     }
