@@ -536,6 +536,10 @@ public class DateFunctions extends FunctionsContainer {
         return Memory.UNDEFINED;
     }
 
+    public static Memory date_date_set(Environment env, TraceInfo traceInfo, Memory object, int year, int month, int day) {
+        return object.toObject(DateTime.class).setDate(env, traceInfo, year, month, day);
+    }
+
     public static Memory time() {
         return LongMemory.valueOf(epochSeconds());
     }

@@ -1,6 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.time.DateTimeException;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -116,8 +117,35 @@ public class DateTime extends BaseObject implements DateTimeInterface {
             @Arg(value = "month", type = HintType.INT),
             @Arg(value = "day", type = HintType.INT),
     }, result = @Arg(type = HintType.OBJECT, nativeType = DateTime.class))
-    public Memory setDate(Environment env, TraceInfo traceInfo, Memory... args) {
+    public Memory setDate(Environment env, TraceInfo traceInfo, int year, int month, int day) {
+        dateTime = dateTime.withYear(year);
+        if (month > 12) {
+            int years = month / 12;
+            int monthRem = month % 12;
+            if (monthRem > 0)
+                ++years;
+
+            dateTime = dateTime.plusYears(Math.max(years - 1, 1)).withMonth(monthRem == 0 ? 12 : monthRem);
+        } else if (month <= 0) {
+            dateTime = dateTime.withMonth(1).plusMonths(--month);
+        } else {
+            dateTime = dateTime.withMonth(month);
+        }
+
+        if (day > getMonthLength()) {
+            dateTime = dateTime.withDayOfMonth(1).plusDays(--day);
+        } else if (day <= 0) {
+            dateTime = dateTime.minusMonths(1);
+            dateTime = dateTime.withDayOfMonth(getMonthLength()).plusDays(day);
+        } else {
+            dateTime = dateTime.withDayOfMonth(day);
+        }
+
         return $this;
+    }
+
+    private int getMonthLength() {
+        return dateTime.getMonth().length(Year.isLeap(dateTime.getYear()));
     }
 
     @Signature(value = {

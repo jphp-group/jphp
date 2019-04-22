@@ -6,6 +6,7 @@ import org.develnext.jphp.zend.ZendJvmTestCase;
 import org.develnext.jphp.zend.ext.standard.DateConstants;
 import org.develnext.jphp.zend.ext.standard.DateFunctions;
 import org.develnext.jphp.zend.ext.standard.LangFunctions;
+import org.develnext.jphp.zend.ext.standard.date.DateTime;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -111,6 +112,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/strtotime_basic.phpt");
         check("ext/date/strtotime_basic2.phpt");
         check("ext/date/strtotime-relative.phpt");
+    }
+
+    @Test
+    public void testDateDateSet() {
+        check("ext/date/013.phpt");
     }
 
     @Test
