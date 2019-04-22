@@ -335,7 +335,7 @@ public class DateTimeParserTest {
         for (Month month : Month.values()) {
             for (TextStyle value : Arrays.asList(TextStyle.FULL, TextStyle.SHORT)) {
                 String monthName = month.getDisplayName(value, l);
-                ZonedDateTime expected = now().withMonth(month.getValue());
+                ZonedDateTime expected = now().withMonth(month.getValue()).truncatedTo(DAYS);
 
                 assertThat(parse(monthName)).isEqualToIgnoringSeconds(expected);
                 assertThat(parse(monthName.toLowerCase())).isEqualToIgnoringSeconds(expected);
@@ -727,6 +727,18 @@ public class DateTimeParserTest {
 
         assertThat(parse("Sunday, 21-Apr-19 22:17:16 +0200"))
                 .isEqualTo("2019-04-21T22:17:16+02:00");
+    }
+
+    @Test
+    public void mysqlTimestamp() {
+        assertThat(parse("20800410101010")).isEqualTo("2080-04-10T10:10:10+04:00");
+        assertThat(parse("20800410101010")).isEqualTo("2080-04-10T10:10:10+04:00");
+    }
+
+    @Test
+    public void relativeOffsetNotParserAsTimezone() {
+        assertThat(parse("28 Feb 2008 12:00:00 +400 years"))
+            .isEqualTo(now().withYear(2408).withMonth(2).withDayOfMonth(28).withHour(12).truncatedTo(HOURS));
     }
 
     @Test

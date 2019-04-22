@@ -18,12 +18,14 @@ import static java.time.temporal.TemporalAdjusters.next;
 import static java.time.temporal.TemporalAdjusters.previous;
 import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
+import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
+import java.time.temporal.ValueRange;
 
 import php.runtime.common.Pair;
 
@@ -123,16 +125,22 @@ class Adjusters {
         return relativeUnit(unit, ordinalToNumber(ordinal));
     }
 
-    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(String unit, long value) {
+    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(String unit, final long value) {
         ChronoUnit chronoUnit;
         TemporalField field;
 
         switch (unit.toLowerCase()) {
             case "year":
             case "years":
-                chronoUnit = YEARS;
-                field = YEAR;
-                break;
+                return Pair.of(temporal -> {
+                    try {
+                        return temporal.plus(value, YEARS);
+                    } catch (DateTimeException e) {
+                        ValueRange range = YEAR.range();
+                        long validYear = value < range.getMinimum() ? range.getMinimum() : range.getMaximum();
+                        return temporal.with(YEAR, validYear);
+                    }
+                }, YEAR);
             case "month":
             case "months":
                 chronoUnit = MONTHS;
@@ -171,10 +179,7 @@ class Adjusters {
             case "forthnight":
             case "fortnights":
             case "forthnights":
-                value *= 14L;
-                chronoUnit = DAYS;
-                field = DAY_OF_MONTH;
-                break;
+                return Pair.of(temporal -> temporal.plus(value * 14L, DAYS), DAY_OF_MONTH);
             case "weekday":
             case "weekdays":
                 return Pair.of(plusBusinessDays(value), DAY_OF_MONTH);
@@ -182,9 +187,7 @@ class Adjusters {
                 throw new IllegalArgumentException("Unknown unit: " + unit);
         }
 
-        final long val = value;
-
-        return Pair.of(temporal -> temporal.plus(val, chronoUnit), field);
+        return Pair.of(temporal -> temporal.plus(value, chronoUnit), field);
     }
 
     public static TemporalAdjuster plusBusinessDays(long days) {

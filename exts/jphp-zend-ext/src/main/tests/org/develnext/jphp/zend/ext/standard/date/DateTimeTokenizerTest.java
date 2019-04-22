@@ -265,5 +265,7 @@ public class DateTimeTokenizerTest {
     @Test
     public void comma() {
         assertThat(tokenize(",")).containsOnly(Token.of(Symbol.COMMA, 0, 1));
+
+        List<Token> tokenize = tokenize("28 Feb 2008 12:00:00 +400 years");
     }
 }

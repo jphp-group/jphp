@@ -23,6 +23,7 @@ import org.develnext.jphp.zend.ext.standard.date.DateFormat;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeInterface;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeZone;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
@@ -37,6 +38,7 @@ import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.LongMemory;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 
 public class DateFunctions extends FunctionsContainer {
@@ -138,6 +140,10 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format) {
         return date(env, traceInfo, format, epochSeconds());
+    }
+
+    public static Memory date_format(Environment env, TraceInfo traceInfo, Memory object, String format) {
+        return object.toObject(DateTimeInterface.class).format(env, traceInfo, format);
     }
 
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time) {
@@ -516,11 +522,9 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_create(Environment env, TraceInfo traceInfo, Memory... args) {
         DateTime dateTime = new DateTime(env);
+        if (args.length == 0)
+            return dateTime.__construct(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
         return dateTime.__construct(env, traceInfo, args[0], args.length == 2 ? args[1] : Memory.NULL);
-    }
-
-    public static Memory date_create(Environment env, TraceInfo traceInfo) {
-        return date_create(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
     }
 
     public static Memory date_create_from_format(Environment env, TraceInfo traceInfo, Memory... args) {

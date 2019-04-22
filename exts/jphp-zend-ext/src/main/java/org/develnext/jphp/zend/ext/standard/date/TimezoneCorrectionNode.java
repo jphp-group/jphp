@@ -16,6 +16,7 @@ class TimezoneCorrectionNode extends Node {
     private static final Pattern hh = Pattern.compile("0?[0-9]|1[0-2]");
     private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
     private static final Pattern CORRECTION = Pattern.compile("(0?[0-9]|1[0-2])(\\:)?([0-5][0-9])?");
+    private static final Node SIGN = PLUS_NODE.or(MINUS_NODE);
     private ZoneId zoneId;
     private int nodeLength;
 
@@ -25,39 +26,24 @@ class TimezoneCorrectionNode extends Node {
     @Override
     boolean matches(DateTimeParserContext ctx) {
         StringBuilder sb = new StringBuilder();
-        PatternNode MM_NODE = PatternNode.ofDigits(MINUTE_II, c -> append(sb, c));
-        PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
         Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
 
-        GroupNode[] groupNodes = {
-                GroupNode.of(
-                        "OP? [+-]hh:?MM",
-                        PREFIX_NODE
-                                .optionalFollowedBy(PLUS_NODE.or(MINUS_NODE).then(PatternNode.ofDigits(hh, signedHour))),
-                        COLON_NODE,
-                        MM_NODE
-                ),
-                GroupNode.of(
-                        "OP? [+-]hhMM",
-                        PREFIX_NODE
-                                .optionalFollowedBy(PLUS_NODE.or(MINUS_NODE)
-                                        .then(PatternNode.ofDigits(hhMM, signedHour).or(PatternNode.ofDigits(hh, signedHour)))
-                                )
-                )
-        };
+        PatternNode hh = PatternNode.ofDigits(TimezoneCorrectionNode.hh, signedHour);
+        PatternNode hhMM = PatternNode.ofDigits(TimezoneCorrectionNode.hhMM, signedHour);
+        PatternNode MM_NODE = PatternNode.ofDigits(MINUTE_II, c -> append(sb, c));
+        PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
 
-        for (GroupNode groupNode : groupNodes) {
-            int snapshot = ctx.cursor().value();
-            boolean matches = groupNode.matches(ctx);
+        Node node = PREFIX_NODE.optionalFollowedBy(SIGN.then(hh.then(COLON_NODE).then(MM_NODE).or(hhMM.or(hh))));
 
-            if (matches) {
-                ctx.cursor().setValue(snapshot);
-                groupNode.apply(ctx);
+        int snapshot = ctx.cursor().value();
 
-                nodeLength = ctx.cursor().value() - snapshot;
-                zoneId = ZoneId.of(sb.toString());
-                return true;
-            }
+        if (node.matches(ctx)) {
+            ctx.cursor().setValue(snapshot);
+            node.apply(ctx);
+
+            nodeLength = ctx.cursor().value() - snapshot;
+            zoneId = ZoneId.of(sb.toString());
+            return true;
         }
 
         return false;

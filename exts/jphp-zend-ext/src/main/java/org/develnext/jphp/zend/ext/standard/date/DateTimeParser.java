@@ -102,10 +102,15 @@ public class DateTimeParser {
     );
 
     private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
+    private static final Pattern MYSQL_TIMESTAMP = Pattern.compile("[0-9]{4}(0[0-9]|1[0-2])(0[0-9]|[1-2][0-9]|3[01])([01][0-9]|2[0-4])([0-5][0-9]){2}");
     private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
     private static final Node TZ = new TimezoneNode();
     private static final GroupNode WDDX = GroupNode.of("WDDX", YEAR_4_DIGIT, MINUS_NODE, MONTH_mm_NODE, MINUS_NODE, DAY_dd_NODE, CharacterNode.of('T'), HOUR_12_NODE, COLON_NODE, PatternNode.ofDigits(MINUTE_ii, minuteAdjuster()), COLON_NODE, PatternNode.ofDigits(SECOND_ss, secondAdjuster()));
-    private static final GroupNode MYSQL = GroupNode.of("MYSQL", YEAR_4_DIGIT, MINUS_NODE, Month2.of(), MINUS_NODE, Day2.of(), SPACE_NODE, Hour24.of(), COLON_NODE, Minute2.of(), COLON_NODE, SECOND_2_DIGIT);
+    private static final GroupNode MYSQL = GroupNode
+            .builder()
+            .name("MYSQL")
+            .nodes(PatternNode.of(MYSQL_TIMESTAMP, Symbol.DIGITS, mySqlTimestamp()))
+            .build();
     private static final GroupNode XMLRPC_FULL = GroupNode.of("XMLRPC Full", CharacterNode.of('T'), OrNode.of(Hour12.of(), Hour24.of()), COLON_NODE, Minute2.of(), COLON_NODE, SECOND_2_DIGIT);
     private static final GroupNode XMLRPC_COMPACT = GroupNode.of("XMLRPC Compact", CharacterNode.ofCaseInsensitive('t'), HourMinuteSecond.of(5, 6));
     private static final GroupNode XMLRPC = GroupNode.of("XMLRPC", YearMonthDay.of(), OrNode.of(XMLRPC_FULL, XMLRPC_COMPACT));
@@ -195,7 +200,6 @@ public class DateTimeParser {
 
         c.setHour(hour).setMinute(minute).setSecond(second);
     });
-
     private static final GroupNode HOUR_MINUTE_SECOND = GroupNode.of(
             "Hour, minutes and seconds ('t'? HH [.:] MM [.:] II)",
             T_CI.optionalFollowedBy(
@@ -203,7 +207,6 @@ public class DateTimeParser {
                             .or(HH_MM_SS_NODE)
             )
     );
-
     private static final GroupNode HOUR_MINUTE_SECOND_TZ = GroupNode.of(
             "Hour, minutes, seconds and timezone ('t'? HH [.:]? MM [.:]? II space? ( tzcorrection | tz ))",
             T_CI.optionalFollowedBy(
@@ -213,51 +216,42 @@ public class DateTimeParser {
                     .followedByOptional(SPACE_NODE)
                     .then(TZ_CORRECTION.or(TZ))
     );
-
     private static final GroupNode HOUR_MINUTE_SECOND_FRACTION = GroupNode.of(
             "Hour, minutes, seconds and fraction ('t'? HH [.:] MM [.:] II frac)",
             T_CI.optionalFollowedBy(HOUR_24_NODE), DOT_OR_COLON, MINUTE_2_DIGIT, DOT_OR_COLON, SECOND_2_DIGIT, DOT_NODE, MICROSECONDS
     );
-
     private static final GroupNode AMERICAN_MONTH_DAY_YEAR = GroupNode.of(
             "American month, day and optional year (mm '/' dd ('/'y)?)",
             MONTH_mm_NODE.then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE).followedByOptional(SLASH_NODE.then(YEAR_y_NODE))
     );
-
     private static final GroupNode YY_mm_dd_NODE = GroupNode.of(
             "Four digit year, month and day with slashes (YY '/' mm '/' dd)",
             YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_mm_NODE).then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE)
     );
-
     private static final GroupNode GNU_DATE = GroupNode.of(
             "Four digit year and month (YY '-' mm)",
             YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_mm_NODE)
     );
-
     private static final GroupNode y_mm_dd_NODE = GroupNode.of(
             "Year, month and day with dashes (y '-' mm '-' dd)",
             YEAR_y_NODE.then(MINUS_NODE).then(MONTH_mm_NODE).then(MINUS_NODE).then(DAY_dd_NODE)
     );
-
     private static final GroupNode dd_mm_YY_NODE = GroupNode.builder().relative(false)
             .name("Day, month and four digit year, with dots, tabs or dashes (dd [.\\t-] mm [.-] YY)")
             .afterApplyResetTime()
             .nodes(DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE).or(MINUS_NODE)).then(MONTH_mm_NODE).then(DOT_NODE.or(MINUS_NODE)).then(YEAR_4_DIGIT))
             .build();
-
     private static final GroupNode dd_mm_yy_NODE = GroupNode.builder().relative(false)
             .name("Day, month and two digit year, with dots or tabs (dd [.\\t] mm '.' yy)")
             .afterApplyResetTime()
             .nodes(DAY_dd_NODE.then(DOT_NODE.or(TAB_NODE)).then(MONTH_mm_NODE).then(DOT_NODE).then(YEAR_yy_NODE))
             .build();
-
     private static final OrNode SPACE_OR_DOT_OR_MINUS = SPACE_NODE.or(DOT_NODE).or(MINUS_NODE);
     private static final GroupNode dd_m_y_NODE = GroupNode.builder().relative(false)
             .name("Day, textual month and year (dd ([ \\t.-])* m ([ \\t.-])* y)")
             .afterApplyResetTime()
             .nodes(DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_y_NODE))
             .build();
-
     private static final GroupNode m_YY_NODE = GroupNode.of(
             "Textual month and four digit year (Day reset to 1) (m ([ \\t.-])* YY)",
             ctx -> {
@@ -267,7 +261,6 @@ public class DateTimeParser {
             },
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_4_DIGIT)
     );
-
     private static final GroupNode YY_m_NODE = GroupNode.of(
             "Four digit year and textual month (Day reset to 1) (YY ([ \\t.-])* m)",
             ctx -> {
@@ -276,7 +269,6 @@ public class DateTimeParser {
             },
             YEAR_4_DIGIT.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
     );
-
     private static final GroupNode m_dd_y_NODE = GroupNode.of(
             "Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)",
             ctx -> {
@@ -288,7 +280,6 @@ public class DateTimeParser {
             },
             MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))).then(YEAR_y_NODE)
     );
-
     private static final GroupNode m_dd_NODE = GroupNode.of(
             "Textual month and day (m ([ .\\t-])* dd [,.stndrh\\t ]*)",
             DateTimeParserContext::atStartOfDay,
@@ -296,25 +287,21 @@ public class DateTimeParser {
                     .then(DAY_dd_OPT_SUFFIX_NODE)
                     .then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE)))
     );
-
     private static final GroupNode dd_m_NODE = GroupNode.of(
             "Day and textual month (d ([ .\\t-])* m)",
             DateTimeParserContext::atStartOfDay,
             DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
     );
-
     private static final GroupNode M_DD_y_NODE = GroupNode.of(
             "Month abbreviation, day and year (M '-' DD '-' y)",
             DateTimeParserContext::atStartOfDay,
             MONTH_M_NODE.then(MINUS_NODE).then(DAY_DD_NODE).then(MINUS_NODE).then(YEAR_y_NODE)
     );
-
     private static final GroupNode y_M_DD_NODE = GroupNode.of(
             "Year, month abbreviation and day (y '-' M '-' DD)",
             DateTimeParserContext::atStartOfDay,
             YEAR_y_NODE.then(MINUS_NODE).then(MONTH_M_NODE).then(MINUS_NODE).then(DAY_DD_NODE)
     );
-
     private static final GroupNode ISO8601_8DIGIT_YY_MM_DD = GroupNode.of(
             "Eight digit year, month and day (YY MM DD)",
             DateTimeParserContext::atStartOfDay,
@@ -327,37 +314,31 @@ public class DateTimeParser {
                 ctx.setYear(year).setMonth(month).setDayOfMonth(day);
             })
     );
-
     private static final GroupNode ISO8601_YY_MM_DD_WITH_SLASHES = GroupNode.of(
             "Four digit year, month and day with slashes (YY '/' MM '/' DD)",
             DateTimeParserContext::atStartOfDay,
             YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_2_DIGIT).then(SLASH_NODE).then(DAY_2_DIGIT)
     );
-
     private static final GroupNode ISO8601_yy_MM_DD_WITH_DASHES = GroupNode.of(
             "Two digit year, month and day with dashes (yy '-' MM '-' DD)",
             DateTimeParserContext::atStartOfDay,
             YEAR_yy_NODE.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)
     );
-
     private static final GroupNode ISO8601_YY_MM_DD = GroupNode.of(
             "Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)",
             DateTimeParserContext::atStartOfDay,
             PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT))
     );
-
     private static final GroupNode JUST_YEAR = GroupNode.of("Year (and just the year) (YY)", YEAR_4_DIGIT);
     private static final GroupNode JUST_MONTH_m = GroupNode.builder().relative(false).resetTimeIfNotModified()
             .name("Textual month (and just the month) (m)").nodes(MONTH_m_NODE).build();
     private static final GroupNode TIMEZONE_INFORMATION = GroupNode.of("Time zone information", TZ_CORRECTION.or(TZ));
-
     private static final Node YESTERDAY = StringNode.ofCaseInsensitive("yesterday", ctx -> ctx.plusDays(-1).atStartOfDay());
     private static final Node MIDNIGHT = StringNode.ofCaseInsensitive("midnight", DateTimeParserContext::atStartOfDayWithMod);
     private static final Node TODAY = StringNode.ofCaseInsensitive("today", DateTimeParserContext::atStartOfDayWithMod);
     private static final Node NOW = StringNode.ofCaseInsensitive("now", ctx -> ctx.plusSeconds(1).plusSeconds(-1));
     private static final Node NOON = StringNode.ofCaseInsensitive("noon", ctx -> ctx.setHour(12).setMinute(0).setSecond(0));
     private static final Node TOMORROW = StringNode.ofCaseInsensitive("tomorrow", ctx -> ctx.plusDays(1).atStartOfDay());
-
     // Relative formats
     private static final GroupNode YESTERDAY_AND_FRIENDS = GroupNode.of("Yesterday", YESTERDAY.or(MIDNIGHT).or(TODAY).or(NOW).or(NOON).or(TOMORROW));
     private static final Node STRING_OF_NODE = StringNode.ofCaseInsensitive("of");
@@ -377,7 +358,6 @@ public class DateTimeParser {
             })
             .nodes(StringNode.ofCaseInsensitive("first").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
-
     private static final GroupNode LAST_DAY_OF = GroupNode.builder()
             .relative(true)
             .name("Sets the day to the last day of the current month. This phrase is best used together with a month name following it.")
@@ -385,11 +365,9 @@ public class DateTimeParser {
             .afterApply(ctx -> ctx.withAdjuster(TemporalAdjusters.lastDayOfMonth(), ChronoField.DAY_OF_MONTH))
             .nodes(StringNode.ofCaseInsensitive("last").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
-
     private static final PatternNode ORDINAL_NODE = PatternNode.of(ORDINAL, Symbol.STRING);
     private static final PatternNode DAY_NAME_NODE = PatternNode.ofString(DAY_NAME, nthWeekDayConsumer());
     private static final PatternNode UNIT_NODE = PatternNode.ofString(UNIT, relTimeTextConsumer());
-
     private static final GroupNode ORDINAL_N_TH_WEEKDAY = GroupNode.builder()
             .relative(true)
             .name("Calculates the x-th week day of the current month. (last sat of July 2008)")
@@ -397,7 +375,6 @@ public class DateTimeParser {
             .afterApplyResetTime()
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(DAY_NAME_NODE).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
-
     private static final GroupNode NUMBER_N_TH_WEEKDAY = GroupNode.builder()
             .relative(true)
             .name("Calculates the x-th week day of the current month. (1 sat)")
@@ -498,8 +475,8 @@ public class DateTimeParser {
                 HOUR_WITH_MERIDIAN,
 
                 // 24 Hour Formats
-                HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE_SECOND,
+                HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE,
 
                 NUMBER_N_TH_WEEKDAY,
@@ -531,7 +508,6 @@ public class DateTimeParser {
      * The default zone to apply.
      */
     private final ZoneId defaultZone;
-
     DateTimeParser(String dateTime) {
         this(dateTime, ZoneId.systemDefault());
     }
@@ -546,6 +522,19 @@ public class DateTimeParser {
         this.relatives = new PriorityQueue<>(Comparator.reverseOrder()); // process bigger priorities first
         this.baseDateTime = baseDateTime;
         this.locale = locale;
+    }
+
+    private static Consumer<DateTimeParserContext> mySqlTimestamp() {
+        return ctx -> {
+            int s = ctx.tokenAtCursor().start();
+            DateTimeTokenizer t = ctx.tokenizer();
+            ctx.setYear(t.readInt(s, 4))
+                    .setMonth(t.readInt(s + 4, 2))
+                    .setDayOfMonth(t.readInt(s + 6, 2))
+                    .setHour(t.readInt(s + 8, 2))
+                    .setMinute(t.readInt(s + 10, 2))
+                    .setSecond(t.readInt(s + 12, 2));
+        };
     }
 
     private static Consumer<DateTimeParserContext> numberNthWeekDay() {

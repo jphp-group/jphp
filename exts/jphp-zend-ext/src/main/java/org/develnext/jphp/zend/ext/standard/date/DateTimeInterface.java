@@ -10,9 +10,10 @@ import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.lang.IObject;
 
 @Reflection.Name("DateTimeInterface")
-public interface DateTimeInterface {
+public interface DateTimeInterface extends IObject {
     Memory ATOM = DateConstants.DATE_ATOM;
     Memory COOKIE = DateConstants.DATE_COOKIE;
     Memory ISO8601 = DateConstants.DATE_ISO8601;

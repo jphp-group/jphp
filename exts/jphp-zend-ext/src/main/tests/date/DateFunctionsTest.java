@@ -90,17 +90,16 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/mktime-3-64bit.phpt");
         check("ext/date/mktime_no_args.phpt");
         check("ext/date/gmmktime_basic.phpt");
-        //check("ext/date/big_year.phpt");
+        check("ext/date/big_year.phpt");
     }
 
     @Test
     public void testDateCreate() {
+        check("ext/date/date_create-relative.phpt");
         check("ext/date/date_create-2.phpt");
         check("ext/date/date_create-1.phpt");
         check("ext/date/date_create_basic.phpt");
         check("ext/date/date_create_from_format_basic2.phpt");
-
-        //check("ext/date/date_create-relative.phpt");
     }
 
     @Test
@@ -110,13 +109,9 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/strtotime2.phpt");
         check("ext/date/strtotime3-64bit.phpt");
         check("ext/date/strtotime-mysql-64bit.phpt");
-        check("ext/date/strtotime_basic2.phpt");
-    }
-
-    @Test
-    public void strtotimeRelative() {
-        check("ext/date/strtotime-relative.phpt");
         check("ext/date/strtotime_basic.phpt");
+        check("ext/date/strtotime_basic2.phpt");
+        check("ext/date/strtotime-relative.phpt");
     }
 
     @Test

@@ -9,6 +9,8 @@ import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
 
+import org.develnext.jphp.zend.ext.standard.DateConstants;
+
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
 
@@ -145,6 +147,10 @@ public class DateFormat {
                 }
                 case 'P': {
                     sb.append(date.getOffset().toString());
+                    break;
+                }
+                case 'r': {
+                    formatForDateFunction(env, date, DateConstants.DATE_RFC2822.toString(), sb);
                     break;
                 }
                 case 'T': {

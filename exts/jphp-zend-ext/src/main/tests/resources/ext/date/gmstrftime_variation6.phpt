@@ -38,7 +38,7 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Hour as decimal by 24-hour format--
-%d
+%02d
 string(2) "08"
 
 --Hour as decimal by 12-hour format--
