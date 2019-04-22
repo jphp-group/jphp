@@ -157,9 +157,12 @@ public class DateFormat {
                     ZoneId zone = date.getZone();
                     if (zone instanceof ZoneOffset) {
                         sb.append("GMT");
+                        formatForDateFunction(env, date, "O", sb);
+                    } else {
+                        String str = ZoneIdFactory.aliasFor(zone);
+                        sb.append(str);
                     }
 
-                    formatForDateFunction(env, date, "O", sb);
                     break;
                 }
                 case '\\': {

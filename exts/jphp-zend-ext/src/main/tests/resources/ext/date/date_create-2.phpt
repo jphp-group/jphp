@@ -11,4 +11,4 @@ echo $d->format('D, d M Y H:i:s T'), "\n";
 ?>
 --EXPECT--
 Mon, 18 Jul 2005 22:10:00 GMT+0400
-Mon, 18 Jul 2005 18:10:00 +0000
+Mon, 18 Jul 2005 18:10:00 UTC

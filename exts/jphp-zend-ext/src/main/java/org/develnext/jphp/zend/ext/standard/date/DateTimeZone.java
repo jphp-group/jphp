@@ -53,6 +53,7 @@ public class DateTimeZone extends BaseObject {
     @Property("timezone_type")
     Memory type = Memory.UNDEFINED;
     private ZoneId nativeZone;
+
     public DateTimeZone(Environment env) {
         super(env);
     }
@@ -71,7 +72,7 @@ public class DateTimeZone extends BaseObject {
 
     @Signature
     public static Memory listAbbreviations(Environment env, TraceInfo traceInfo) {
-        return Memory.UNDEFINED;
+        return ZoneIdFactory.listAbbreviations();
     }
 
     @Signature

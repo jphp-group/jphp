@@ -1,23 +1,14 @@
 package date;
 
-import static php.runtime.ext.core.LangFunctions.constant;
+import java.time.Duration;
 
 import org.develnext.jphp.zend.ZendJvmTestCase;
-import org.develnext.jphp.zend.ext.standard.DateConstants;
-import org.develnext.jphp.zend.ext.standard.DateFunctions;
-import org.develnext.jphp.zend.ext.standard.LangFunctions;
-import org.develnext.jphp.zend.ext.standard.date.DateTime;
-import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-
-import php.runtime.Memory;
-import php.runtime.env.TraceInfo;
-import php.runtime.memory.StringMemory;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -86,6 +77,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void testMkTime() {
+        check("ext/date/bug21966.phpt");
         check("ext/date/mktime-1.phpt");
         check("ext/date/mktime_basic1.phpt");
         check("ext/date/mktime-3-64bit.phpt");
@@ -97,9 +89,9 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     public void testDateCreate() {
         check("ext/date/date_create-relative.phpt");
         check("ext/date/date_create-2.phpt");
-        check("ext/date/date_create-1.phpt");
         check("ext/date/date_create_basic.phpt");
         check("ext/date/date_create_from_format_basic2.phpt");
+        check("ext/date/date_create-1.phpt");
     }
 
     @Test
@@ -116,6 +108,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/bug13142.phpt");
         check("ext/date/bug14561.phpt");
         check("ext/date/bug17988.phpt");
+        check("ext/date/bug21399.phpt");
+
+        // fail
+        check("ext/date/bug26090.phpt");
+        check("ext/date/bug20382-1.phpt");
     }
 
     @Test
@@ -131,13 +128,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     }
 
     @Test
-    @Ignore
     public void testTimezoneAbbreviationsList() {
         check("ext/date/010.phpt");
     }
 
     @Test
-    @Ignore
     public void testTimezoneNameFromAbbr() {
         check("ext/date/011.phpt");
     }

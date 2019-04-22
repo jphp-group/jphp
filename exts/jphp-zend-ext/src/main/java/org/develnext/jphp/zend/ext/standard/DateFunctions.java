@@ -46,6 +46,7 @@ public class DateFunctions extends FunctionsContainer {
     private static final LocalDateTime UNIX_EPOCH = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
     private static final String TWO_DIGIT_INT = "%02d";
     private static final ZoneId ZONE_GMT = ZoneId.of("GMT");
+    private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
 
     public static Memory microtime(boolean getAsFloat) {
         double now = System.currentTimeMillis() / 1000.0;
@@ -188,14 +189,13 @@ public class DateFunctions extends FunctionsContainer {
             year = 1970 + year;
         }
 
-        ZonedDateTime tmp = ZonedDateTime.of(UNIX_EPOCH, zoneId).plusYears(year - 1970);
+        LocalDateTime tmp = UNIX_EPOCH.plusYears(year - 1970);
         tmp = tmp.plusMonths(month - 1);
         tmp = tmp.plusDays(day - 1);
 
-        tmp = tmp.plusMinutes(minute).plusHours(hour);
-        tmp = tmp.plusSeconds(second);
+        tmp = tmp.plusMinutes(minute).plusHours(hour).plusSeconds(second);
 
-        return LongMemory.valueOf(tmp.toEpochSecond());
+        return LongMemory.valueOf(tmp.atZone(zoneId).toEpochSecond());
     }
 
     private static ZoneId zoneId(Memory memory) {
@@ -554,6 +554,26 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory time() {
         return LongMemory.valueOf(epochSeconds());
+    }
+
+    public static Memory timezone_name_from_abbr(Environment env, TraceInfo traceInfo, String abbr, int gmtOffset, int isDst) {
+        String timezone = ZoneIdFactory.abbrToRegion(abbr, gmtOffset, isDst);
+        if (timezone == null)
+            return Memory.FALSE;
+
+        return StringMemory.valueOf(timezone);
+    }
+
+    public static Memory timezone_name_from_abbr(Environment env, TraceInfo traceInfo, String abbr, int gmtOffset) {
+        return timezone_name_from_abbr(env, traceInfo, abbr, gmtOffset, -1);
+    }
+
+    public static Memory timezone_name_from_abbr(Environment env, TraceInfo traceInfo, String abbr) {
+        return timezone_name_from_abbr(env, traceInfo, abbr, -1);
+    }
+
+    public static Memory timezone_abbreviations_list(Environment env, TraceInfo traceInfo) {
+        return DateTimeZone.listAbbreviations(env, traceInfo);
     }
 
     public static Memory timezone_open(Environment env, TraceInfo traceInfo, Memory... args) {

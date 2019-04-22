@@ -3,6 +3,10 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.nextOrSameDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeDayOfWeek;
+import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeUnit;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charAppender;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charBufferAppender;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charLowerAppender;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.cursorIncrementer;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfWeekAdjuster;
@@ -20,14 +24,19 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_SU
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_dd;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HH_MM_SS;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HOUR_12;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HOUR_24;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_II;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_ii;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_M;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_MM;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_ROMAN;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.ORDINAL;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.RELTEXT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_SECOND;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.UNIT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK_WEEK_DAY;
@@ -36,6 +45,7 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YEAR_y
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.YY_MM_DD;
 import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
 
+import java.nio.CharBuffer;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.Year;
@@ -50,10 +60,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.StringJoiner;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import php.runtime.common.Pair;
@@ -668,5 +682,1170 @@ public class DateTimeParser {
         Token t;
         while ((t = tokenizer.next()) != EOF) tokens.add(t);
         return tokens;
+    }
+
+    static class ZeroOrMore extends Node {
+        private final Node node;
+
+        private ZeroOrMore(Node node) {
+            this.node = node;
+        }
+
+        static ZeroOrMore of(Node node) {
+            return new ZeroOrMore(node);
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            while (node.matches(ctx)) { /*empty*/ }
+
+            return true;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            matches(ctx);
+        }
+    }
+
+    static class UnixTimestamp extends SymbolNode {
+        private UnixTimestamp() {
+            super(Symbol.DIGITS);
+        }
+
+        static UnixTimestamp of() {
+            return new UnixTimestamp();
+        }
+
+        @Override
+        public boolean matches(DateTimeParserContext ctx) {
+            if (ctx.isSymbolAtCursor(Symbol.MINUS))
+                ctx.cursor().inc();
+
+            return super.matches(ctx);
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int sign = 1;
+            if (ctx.isSymbolAtCursor(Symbol.MINUS)) {
+                ctx.cursor().inc();
+                sign = -1;
+            }
+
+            // FIXME: handle overflow
+            long timestamp = ctx.readLongAtCursor() * sign;
+            ctx.setUnixTimestamp(timestamp).cursor().inc();
+        }
+    }
+
+    abstract static class VariableLengthSymbol extends SymbolNode {
+        private final int min;
+        private final int max;
+
+        VariableLengthSymbol(Symbol symbol, int min, int max) {
+            super(symbol);
+            this.min = min;
+            this.max = max;
+        }
+
+        public int min() {
+            return min;
+        }
+
+        public int max() {
+            return max;
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            Token current = ctx.tokens().get(ctx.cursor().value());
+            return current.length() >= min && current.length() <= max;
+        }
+    }
+
+    static class Year4 extends FixedLengthSymbol {
+        private Year4() {
+            super(Symbol.DIGITS, 4);
+        }
+
+        static Year4 of() {
+            return new Year4();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int year = ctx.readIntAtCursor();
+
+            ctx.setYear(year);
+            ctx.cursor().inc();
+        }
+    }
+
+    /**
+     * Matches following pattern: YYYYMMDD
+     */
+    static class YearMonthDay extends FixedLengthSymbol {
+        private static final Pattern PATTERN = Pattern.compile("[0-9]{4}([0][0-9]|1[0-2])([01][0-9]|2[0-4])");
+
+        private YearMonthDay() {
+            super(Symbol.DIGITS, 8);
+        }
+
+        static YearMonthDay of() {
+            return new YearMonthDay();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            CharBuffer cb = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
+            return PATTERN.matcher(cb).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int start = ctx.tokenAtCursor().start();
+
+            DateTimeTokenizer tokenizer = ctx.tokenizer();
+            int year = tokenizer.readInt(start, 4);
+            int month = tokenizer.readInt(start + 4, 2);
+            int day = tokenizer.readInt(start + 6, 2);
+
+            ctx.setYear(year).setMonth(month).setDayOfMonth(day);
+            ctx.cursor().inc();
+        }
+    }
+
+    /**
+     * Matches tokens with specified symbol.
+     */
+    static class SymbolNode extends Node {
+        private final Symbol symbol;
+
+        SymbolNode(Symbol symbol) {
+            this.symbol = symbol;
+        }
+
+        static SymbolNode of(Symbol symbol) {
+            return new SymbolNode(symbol);
+        }
+
+        public Symbol symbol() {
+            return symbol;
+        }
+
+        @Override
+        public boolean matches(DateTimeParserContext ctx) {
+            if (ctx.isSymbolAtCursor(symbol)) {
+                boolean match = matchesInternal(ctx);
+                if (match)
+                    ctx.cursor().inc();
+
+                return match;
+            }
+
+            return false;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            ctx.cursor().inc();
+        }
+
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", SymbolNode.class.getSimpleName() + "[", "]")
+                    .add("symbol=" + symbol)
+                    .toString();
+        }
+
+    }
+
+    static class TimezoneCorrectionNode extends Node {
+        private static final Pattern OFFSET_PREFIX = Pattern.compile("GMT|UTC|UT");
+        private static final Pattern hh = Pattern.compile("0?[0-9]|1[0-2]");
+        private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
+        private static final Pattern CORRECTION = Pattern.compile("(0?[0-9]|1[0-2])(\\:)?([0-5][0-9])?");
+        private static final Node SIGN = PLUS_NODE.or(MINUS_NODE);
+        private ZoneId zoneId;
+        private int nodeLength;
+
+        TimezoneCorrectionNode() {
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            StringBuilder sb = new StringBuilder();
+            Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
+
+            PatternNode hh = PatternNode.ofDigits(TimezoneCorrectionNode.hh, signedHour);
+            PatternNode hhMM = PatternNode.ofDigits(TimezoneCorrectionNode.hhMM, signedHour);
+            PatternNode MM_NODE = PatternNode.ofDigits(MINUTE_II, c -> append(sb, c));
+            PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
+
+            Node node = PREFIX_NODE.optionalFollowedBy(SIGN.then(hh.then(COLON_NODE).then(MM_NODE).or(hhMM.or(hh))));
+
+            int snapshot = ctx.cursor().value();
+
+            if (node.matches(ctx)) {
+                ctx.cursor().setValue(snapshot);
+                node.apply(ctx);
+
+                nodeLength = ctx.cursor().value() - snapshot;
+                zoneId = ZoneId.of(sb.toString());
+                return true;
+            }
+
+            return false;
+        }
+
+        private void appendSignedHour(StringBuilder sb, DateTimeParserContext c) {
+            c.cursor().dec();
+            if (c.isSymbolAtCursor(Symbol.PLUS) || c.isSymbolAtCursor(Symbol.MINUS)) {
+                sb.append(c.readCharAtCursor());
+            }
+            c.cursor().inc();
+
+            CharBuffer cb = c.readCharBufferAtCursor();
+
+            Matcher matcher = CORRECTION.matcher(cb);
+            if (!matcher.matches()) {
+                // if this method is invoked this should not be executed.
+                throw new IllegalStateException("DUP!");
+            }
+
+            sb.append(String.format("%02d", Integer.parseInt(matcher.group(1))));
+
+            if (matcher.group(2) != null) {
+                sb.append(matcher.group(2));
+            }
+
+            if (matcher.group(3) != null) {
+                sb.append(matcher.group(3));
+            }
+        }
+
+        private void append(StringBuilder sb, DateTimeParserContext c) {
+            sb.append(c.readCharBufferAtCursor());
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            if (zoneId != null) {
+                ctx.setTimezone(zoneId);
+                ctx.cursor().setValue(ctx.cursor().value() + nodeLength);
+                zoneId = null;
+                nodeLength = 0;
+            }
+        }
+    }
+
+    static class TimezoneNode extends Node {
+        private static final Pattern TZ_PATTERN = Pattern.compile("\\(?[A-Za-z]{1,6}\\)?|[A-Z][a-z]+([_/][A-Z][a-z]+)+");
+        private static final Pattern TZ_SHORT = Pattern.compile("[A-Za-z]{1,6}");
+        private static final CharacterNode BRACKET_OPEN = CharacterNode.of('(');
+        private static final CharacterNode BRACKET_CLOSE = CharacterNode.of(')');
+        private static final Pattern REGION = Pattern.compile("[A-Z][a-z]+");
+
+        public static TimezoneNode of() {
+            return new TimezoneNode();
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            boolean matches = matchesInternal(ctx, null);
+
+            return matches;
+        }
+
+        private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder sb) {
+            int snapshot = ctx.cursor().value();
+
+            Consumer<DateTimeParserContext> appender = charBufferAppender(sb);
+
+            PatternNode TZ_SHORT_NODE = PatternNode.of(TZ_SHORT, Symbol.STRING, appender);
+            Node underscoreOrSlash = UNDERSCORE_NODE.or(SLASH_NODE).with(charAppender(sb).andThen(cursorIncrementer()));
+            Node shortTimezone = BRACKET_OPEN.then(TZ_SHORT_NODE).then(BRACKET_CLOSE).or(TZ_SHORT_NODE);
+            Node regionBaseTimezoneNode = PatternNode.of(REGION, Symbol.STRING, appender)
+                    .then(OneOrMore.of(underscoreOrSlash, PatternNode.of(REGION, Symbol.STRING, appender)));
+
+            OrNode tz = regionBaseTimezoneNode.or(shortTimezone);
+            boolean matches = tz.matches(ctx);
+
+            if (sb != null) {
+                ctx = ctx.withCursorValue(snapshot);
+                tz.apply(ctx);
+            }
+            return matches;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            StringBuilder tzBuff = new StringBuilder();
+            boolean matches = matchesInternal(ctx, tzBuff);
+
+            if (matches) {
+                ctx.setTimezone(tzBuff.toString());
+            }
+        }
+
+        static class OneOrMore extends GroupNode {
+            OneOrMore(String name, Node[] nodes) {
+                super(name, nodes, false, PRIORITY_LOW, empty());
+            }
+
+            static OneOrMore of(Node... nodes) {
+                return new OneOrMore("", nodes);
+            }
+
+            @Override
+            boolean matches(DateTimeParserContext ctx) {
+                return matchesInternal(ctx, null);
+            }
+
+            private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder buff) {
+                Node[] nodes = nodes();
+                int mark = ctx.cursor().value();
+
+                int i = 0;
+                while (ctx.hasMoreTokens()) {
+                    Node node = nodes[i % nodes.length];
+                    boolean matches = node.matches(ctx);
+
+                    if (!matches) {
+                        ctx.cursor().setValue(mark);
+                        return isFullMatch(i);
+                    }
+                    i++;
+                }
+
+                boolean fullMatch = isFullMatch(i);
+
+                return fullMatch;
+            }
+
+            private boolean isFullMatch(int i) {
+                return i != 0 && (i % nodes().length) == 0;
+            }
+
+            @Override
+            void apply(DateTimeParserContext ctx) {
+                Node[] nodes = nodes();
+                int i = 0;
+                while (ctx.hasMoreTokens()) {
+                    Node node = nodes[i % nodes.length];
+                    node.apply(ctx);
+                    i++;
+                }
+            }
+        }
+    }
+
+    static class StringNode extends FixedLengthSymbol {
+        private final String value;
+        private final BiFunction<String, String, Boolean> matcher;
+        private final Consumer<DateTimeParserContext> applier;
+
+        private StringNode(String value, boolean caseSensitive, Consumer<DateTimeParserContext> applier) {
+            super(Symbol.STRING, value.length());
+            this.value = value;
+            this.matcher = caseSensitive ? String::equals : String::equalsIgnoreCase;
+            this.applier = applier == empty() ?
+                    cursorIncrementer() :
+                    applier.andThen(cursorIncrementer());
+        }
+
+        static Node of(String value) {
+            return of(value, empty());
+        }
+
+        static Node of(String value, Consumer<DateTimeParserContext> applier) {
+            if (value.length() == 1)
+                return CharacterNode.of(value.charAt(0));
+
+            return new StringNode(value, true, applier);
+        }
+
+        static Node ofCaseInsensitive(String value) {
+            return ofCaseInsensitive(value, empty());
+        }
+
+        static Node ofCaseInsensitive(String value, Consumer<DateTimeParserContext> applier) {
+            if (value.length() == 1)
+                return CharacterNode.ofCaseInsensitive(value.charAt(0));
+
+            return new StringNode(value, false, applier);
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            if (!super.matchesInternal(ctx))
+                return false;
+
+            return matcher.apply(value, ctx.readStringAtCursor());
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", StringNode.class.getSimpleName() + "[", "]")
+                    .add("value='" + value + "'")
+                    .toString();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            applier.accept(ctx);
+        }
+    }
+
+    static class Second2 extends FixedLengthSymbol {
+        private Second2() {
+            super(Symbol.DIGITS, 2);
+        }
+
+        public static Second2 of() {
+            return new Second2();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            CharBuffer input = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
+            return TWO_DIGIT_SECOND.matcher(input).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int sec = ctx.readIntAtCursor();
+
+            ctx.setSecond(sec);
+            ctx.cursor().inc();
+        }
+    }
+
+    public static class RelativeTimeNumber extends Node {
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return matchesInternal(ctx) != null;
+        }
+
+        private Pair<Long, String> matchesInternal(DateTimeParserContext ctx) {
+            int snapshot = ctx.cursor().value();
+
+            int sign = 1;
+            if (ctx.isSymbolAtCursor(Symbol.PLUS) || ctx.isSymbolAtCursor(Symbol.MINUS)) {
+                sign = ctx.isSymbolAtCursor(Symbol.PLUS) ? 1 : -1;
+                ctx.cursor().inc();
+            }
+
+            if (!ctx.isSymbolAtCursor(Symbol.DIGITS)) {
+                ctx.withCursorValue(snapshot);
+                return null;
+            }
+
+            long value = ctx.readLongAtCursorAndInc() * sign;
+
+            if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
+                ctx.cursor().inc();
+            }
+
+            if (!ctx.isSymbolAtCursor(Symbol.STRING)) {
+                ctx.withCursorValue(snapshot);
+                return null;
+            }
+
+            Matcher matcher = UNIT.matcher(ctx.readCharBufferAtCursor());
+            boolean unitMatches = matcher.matches();
+
+            if (!unitMatches) {
+                ctx.withCursorValue(snapshot);
+                return null;
+            }
+
+            String unit = ctx.readStringAtCursorAndInc().toLowerCase();
+
+            // try to find "ago" token.
+            if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
+                snapshot = ctx.cursor().value();
+                ctx.cursor().inc();
+
+                if (ctx.isSymbolAtCursor(Symbol.STRING) && "ago".equalsIgnoreCase(ctx.readStringAtCursor())) {
+                    value = -value;
+                    ctx.cursor().inc();
+                } else {
+                    ctx.withCursorValue(snapshot);
+                }
+            }
+
+            return new Pair<>(value, unit);
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            Pair<Long, String> pair = matchesInternal(ctx);
+            Pair<TemporalAdjuster, TemporalField> pair1 = relativeUnit(pair.getB(), pair.getA());
+            ctx.withAdjuster(pair1.getA(), pair1.getB());
+        }
+    }
+
+    static class PatternNode extends SymbolNode {
+        private final Pattern pattern;
+        private final Consumer<DateTimeParserContext> consumer;
+
+        private PatternNode(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> consumer) {
+            super(symbol);
+            this.pattern = pattern;
+            this.consumer = consumer;
+        }
+
+        static PatternNode ofDigits(Pattern pattern, Consumer<DateTimeParserContext> adjuster) {
+            return new PatternNode(pattern, Symbol.DIGITS, adjuster);
+        }
+
+        static PatternNode ofDigits(Pattern pattern) {
+            return new PatternNode(pattern, Symbol.DIGITS, empty());
+        }
+
+        static PatternNode of(Pattern pattern, Symbol symbol, Consumer<DateTimeParserContext> consumer) {
+            return new PatternNode(pattern, symbol, consumer);
+        }
+
+        static PatternNode ofString(Pattern pattern, Consumer<DateTimeParserContext> consumer) {
+            return new PatternNode(pattern, Symbol.STRING, consumer);
+        }
+
+        static PatternNode ofString(Pattern pattern) {
+            return ofString(pattern, empty());
+        }
+
+        static PatternNode of(Pattern pattern, Symbol symbol) {
+            return new PatternNode(pattern, symbol, empty());
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return pattern.matcher(ctx.readCharBufferAtCursor()).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            consumer.accept(ctx);
+            ctx.cursor().inc();
+        }
+
+        public PatternNode withConsumer(Consumer<DateTimeParserContext> consumer) {
+            return new PatternNode(pattern, symbol(), consumer);
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", PatternNode.class.getSimpleName() + "[", "]")
+                    .add("pattern=" + pattern.pattern())
+                    .toString();
+        }
+    }
+
+    static class OrNode extends Node {
+        private final Node l;
+        private final Node r;
+        private final Consumer<DateTimeParserContext> apply;
+        //private Node matched;
+
+        private OrNode(Node l, Node r, Consumer<DateTimeParserContext> apply) {
+            this.l = l;
+            this.r = r;
+            this.apply = apply;
+        }
+
+        static OrNode of(Node l, Node r) {
+            return new OrNode(l, r, empty());
+        }
+
+        static OrNode of(Node l, Node r, Consumer<DateTimeParserContext> apply) {
+            return new OrNode(l, r, apply);
+        }
+
+        OrNode with(Consumer<DateTimeParserContext> apply) {
+            return of(l, r, apply);
+        }
+
+        @Override
+        public boolean matches(DateTimeParserContext ctx) {
+            return l.matches(ctx) || r.matches(ctx);
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int snapshot = ctx.cursor().value();
+            Node matched = null;
+
+            if (l.matches(ctx)) {
+                matched = l;
+            } else if (r.matches(ctx)) {
+                matched = r;
+            }
+
+            if (matched != null) {
+                ctx = ctx.withCursorValue(snapshot);
+
+                if (apply == empty()) {
+                    matched.apply(ctx);
+                } else {
+                    apply.accept(ctx);
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "(" + l + " OR " + r + ")";
+        }
+    }
+
+    abstract static class Node {
+        abstract boolean matches(DateTimeParserContext ctx);
+
+        abstract void apply(DateTimeParserContext ctx);
+
+        Node followedByOptional(Node node) {
+            return OrNode.of(GroupNode.builder().nodes(this, node).build(), this);
+        }
+
+        Node optionalFollowedBy(Node node) {
+            return OrNode.of(GroupNode.builder().nodes(this, node).build(), node);
+        }
+
+        OrNode or(Node alt) {
+            return OrNode.of(this, alt);
+        }
+
+        AndNode then(Node node) {
+            return AndNode.of(this, node);
+        }
+    }
+
+    static class Month2 extends FixedLengthSymbol {
+        Month2() {
+            super(Symbol.DIGITS, 2);
+        }
+
+        public static Month2 of() {
+            return new Month2();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return MONTH_MM.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int month = ctx.readIntAtCursor();
+
+            ctx.setMonth(month);
+            ctx.cursor().inc();
+        }
+    }
+
+    static class Minute2 extends FixedLengthSymbol {
+        private Minute2() {
+            super(Symbol.DIGITS, 2);
+        }
+
+        public static Minute2 of() {
+            return new Minute2();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return MINUTE_II.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int minute = ctx.readIntAtCursor();
+            ctx.setMinute(minute);
+            ctx.cursor().inc();
+        }
+    }
+
+    static class Microseconds extends SymbolNode {
+        private Microseconds() {
+            super(Symbol.DIGITS);
+        }
+
+        static Microseconds of() {
+            return new Microseconds();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int l = ctx.tokenAtCursor().length();
+            int m = 1_000_000;
+
+            while (l-- > 0) m /= 10;
+
+            int micro = ctx.readIntAtCursor() * m;
+
+            ctx.setMicroseconds(micro).cursor().inc();
+        }
+    }
+
+    static class MeridianNode extends Node {
+        private static final OrNode A_OR_P = CharacterNode.ofCaseInsensitive('a').or(CharacterNode.ofCaseInsensitive('p'));
+        private static final Pattern AM_PM = Pattern.compile("[ap]m", Pattern.CASE_INSENSITIVE);
+
+        static MeridianNode of() {
+            return new MeridianNode();
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return matchesInternal(ctx, null);
+        }
+
+        private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder buff) {
+            GroupNode[] nodes = new GroupNode[]{
+                    GroupNode.of(A_OR_P.with(charAppender(buff).andThen(cursorIncrementer())), DOT_NODE, CharacterNode.ofCaseInsensitive('m', charLowerAppender(buff)), DOT_NODE),
+                    GroupNode.of(A_OR_P.with(charAppender(buff).andThen(cursorIncrementer())), DOT_NODE, CharacterNode.ofCaseInsensitive('m', charLowerAppender(buff))),
+                    GroupNode.of(PatternNode.of(AM_PM, Symbol.STRING, charBufferAppender(buff)), DOT_NODE),
+                    GroupNode.of(PatternNode.of(AM_PM, Symbol.STRING, charBufferAppender(buff))),
+            };
+
+            for (GroupNode groupNode : nodes) {
+                int snapshot = ctx.cursor().value();
+                boolean matches = groupNode.matches(ctx);
+
+                if (matches) {
+                    if (buff != null) {
+                        ctx = ctx.withCursorValue(snapshot);
+                        groupNode.apply(ctx);
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            StringBuilder buff = new StringBuilder();
+            boolean matches = matchesInternal(ctx, buff);
+
+            if (matches) {
+                String s = buff.toString().toLowerCase();
+                ctx.setMeridian("am".equals(s));
+            }
+        }
+    }
+
+    static class HourMinuteSecond extends VariableLengthSymbol {
+        private static final Pattern PATTERN = Pattern.compile("((0?[1-9]|1[0-2])|([01][0-9]|2[0-4]))[0-5][0-9][0-5][0-9]");
+
+        private HourMinuteSecond(int min, int max) {
+            super(Symbol.DIGITS, min, max);
+        }
+
+        static HourMinuteSecond of(int min, int max) {
+            return new HourMinuteSecond(min, max);
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return PATTERN.matcher(ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()))).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            Token token = ctx.tokenAtCursor();
+            int start = token.start();
+            int offset = token.length() - max();
+
+            DateTimeTokenizer tokenizer = ctx.tokenizer();
+            int hour = tokenizer.readInt(start, 2 + offset);
+            int minute = tokenizer.readInt(start + 2 + offset, 2);
+            int second = tokenizer.readInt(start + 4 + offset, 2);
+
+            ctx.setHour(hour).setMinute(minute).setSecond(second);
+            ctx.cursor().inc();
+        }
+    }
+
+    /**
+     * Matches the hour in 24 hour format: "04", "07", "19"
+     */
+    static class Hour24 extends FixedLengthSymbol {
+        private Hour24() {
+            super(Symbol.DIGITS, 2);
+        }
+
+        static Hour24 of() {
+            return new Hour24();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            CharBuffer cb = ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor());
+            return HOUR_24.matcher(cb).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int hour = ctx.readIntAtCursor();
+            ctx.setHour(hour);
+            ctx.cursor().inc();
+        }
+    }
+
+    static class Hour12 extends VariableLengthSymbol {
+        private Hour12() {
+            super(Symbol.DIGITS, 1, 2);
+        }
+
+        static Hour12 of() {
+            return new Hour12();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            CharBuffer cb = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
+            return HOUR_12.matcher(cb).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            int hour = ctx.readIntAtCursor();
+            ctx.setHour(hour).cursor().inc();
+        }
+    }
+
+    static class GroupNode extends Node implements Iterable<Node> {
+        static final int PRIORITY_HIGH = 1000;
+        static final int PRIORITY_NORMAL = PRIORITY_HIGH - 500;
+        static final int PRIORITY_LOW = PRIORITY_NORMAL - 500;
+
+        private final String name;
+        private final boolean relative;
+        private final int priority;
+        private final Node[] nodes;
+        private final Consumer<DateTimeParserContext> afterApply;
+
+        GroupNode(String name, Node[] nodes, boolean relative, int priority, Consumer<DateTimeParserContext> afterApply) {
+            this.name = name;
+            this.nodes = nodes;
+            this.relative = relative;
+            this.priority = priority;
+            this.afterApply = afterApply;
+        }
+
+        static GroupNode of(String name, Node... nodes) {
+            return new GroupNode(name, nodes, false, PRIORITY_LOW, empty());
+        }
+
+        static GroupNode of(String name, Consumer<DateTimeParserContext> afterApply, Node... nodes) {
+            return new GroupNode(name, nodes, false, PRIORITY_LOW, afterApply);
+        }
+
+        static GroupNode of(Node... nodes) {
+            return new GroupNode("noname", nodes, false, PRIORITY_LOW, empty());
+        }
+
+        static GroupNodeBuilder builder() {
+            return new GroupNodeBuilder();
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            Iterator<Node> nodeIt = iterator();
+            Cursor cursor = ctx.cursor();
+            int mark = cursor.value();
+
+            while (ctx.hasMoreTokens() && nodeIt.hasNext()) {
+                Node node = nodeIt.next();
+
+                if (!node.matches(ctx)) {
+                    cursor.setValue(mark);
+                    return false;
+                }
+            }
+
+            if (nodeIt.hasNext()) {
+                cursor.setValue(mark);
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            if (nodes.length == 1) {
+                nodes[0].apply(ctx);
+            } else {
+                for (Node node : nodes) {
+                    node.apply(ctx);
+                }
+            }
+
+            afterApply.accept(ctx);
+        }
+
+        boolean isRelative() {
+            return relative;
+        }
+
+        int priority() {
+            return priority;
+        }
+
+        @Override
+        public Iterator<Node> iterator() {
+            if (nodes.length == 1)
+                return Collections.singletonList(nodes[0]).iterator();
+
+            return Arrays.asList(nodes).iterator();
+        }
+
+        Node[] nodes() {
+            return nodes;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", GroupNode.class.getSimpleName() + "[", "]")
+                    .add("name='" + name + "'")
+                    .add("nodes=" + Arrays.toString(nodes))
+                    .add("relative=" + relative)
+                    .toString();
+        }
+
+        static final class GroupNodeBuilder {
+            private String name = "noname";
+            private boolean relative;
+            private int priority = PRIORITY_LOW;
+            private Node[] nodes;
+            private Consumer<DateTimeParserContext> afterApply = empty();
+
+            private GroupNodeBuilder() {
+            }
+
+            public GroupNodeBuilder name(String name) {
+                this.name = name;
+                return this;
+            }
+
+            GroupNodeBuilder relative(boolean relative) {
+                this.relative = relative;
+                return this;
+            }
+
+            GroupNodeBuilder priority(int priority) {
+                this.priority = priority;
+                return this;
+            }
+
+            GroupNodeBuilder priorityHigh() {
+                return priority(PRIORITY_HIGH);
+            }
+
+            public GroupNodeBuilder priorityNormal() {
+                return priority(PRIORITY_NORMAL);
+            }
+
+            public GroupNodeBuilder priorityLow() {
+                return priority(PRIORITY_LOW);
+            }
+
+            GroupNodeBuilder nodes(Node... nodes) {
+                this.nodes = nodes;
+                return this;
+            }
+
+            public GroupNodeBuilder afterApply(Consumer<DateTimeParserContext> afterApply) {
+                this.afterApply = afterApply;
+                return this;
+            }
+
+            public GroupNodeBuilder afterApplyResetTime() {
+                return afterApply(DateTimeParserContext::atStartOfDay);
+            }
+
+            public GroupNodeBuilder resetTimeIfNotModified() {
+                return afterApply(ctx -> {
+                    if (!ctx.isTimeModified())
+                        ctx.atStartOfDay();
+                });
+            }
+
+            GroupNode build() {
+                return new GroupNode(name, nodes, relative, priority, afterApply);
+            }
+        }
+    }
+
+    /**
+     * Matches tokens with specified length.
+     */
+    abstract static class FixedLengthSymbol extends SymbolNode {
+        private final int length;
+
+        FixedLengthSymbol(Symbol symbol, int length) {
+            super(symbol);
+            this.length = length;
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return ctx.tokenAtCursor().length() == length;
+        }
+    }
+
+    static class Day2 extends FixedLengthSymbol {
+        private Day2() {
+            super(Symbol.DIGITS, 2);
+        }
+
+        public static Day2 of() {
+            return new Day2();
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            return DAY_DD.matcher(ctx.tokenizer().readCharBuffer(ctx.tokenAtCursor())).matches();
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            ctx.setDayOfMonth(ctx.readIntAtCursor());
+            ctx.cursor().inc();
+        }
+    }
+
+    static class AndNode extends Node {
+        private final Node l;
+        private final Node r;
+
+        AndNode(Node l, Node r) {
+            this.l = l;
+            this.r = r;
+        }
+
+        static AndNode of(Node l, Node r) {
+            return new AndNode(l, r);
+        }
+
+        @Override
+        public boolean matches(DateTimeParserContext ctx) {
+            if (l.matches(ctx)) {
+                if (r.matches(ctx)) {
+                    return true;
+                } else {
+                    ctx.cursor().dec();
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            l.apply(ctx);
+            r.apply(ctx);
+        }
+
+        @Override
+        public String toString() {
+            return "(" + l + " AND " + r + ")";
+        }
+    }
+
+    static class CharacterNode extends SymbolNode {
+        private final char c;
+        private final boolean caseSensitive;
+        private final Consumer<DateTimeParserContext> apply;
+
+        private CharacterNode(Symbol symbol, char c, Consumer<DateTimeParserContext> apply, boolean caseSensitive) {
+            super(symbol);
+            this.c = c;
+            this.caseSensitive = caseSensitive;
+            this.apply = apply;
+        }
+
+        static CharacterNode of(char c) {
+            return new CharacterNode(Symbol.STRING, c, empty(), true);
+        }
+
+        static CharacterNode of(char c, Symbol symbol) {
+            return new CharacterNode(symbol, c, empty(), true);
+        }
+
+        static CharacterNode of(char c, Consumer<DateTimeParserContext> apply) {
+            return new CharacterNode(Symbol.STRING, c, apply, true);
+        }
+
+        static CharacterNode ofCaseInsensitive(char c) {
+            return new CharacterNode(Symbol.STRING, c, empty(), false);
+        }
+
+        static CharacterNode ofCaseInsensitive(char c, Consumer<DateTimeParserContext> apply) {
+            return new CharacterNode(Symbol.STRING, c, apply, false);
+        }
+
+        @Override
+        public boolean matchesInternal(DateTimeParserContext ctx) {
+            if (!super.matchesInternal(ctx)) {
+                return false;
+            }
+
+            DateTimeTokenizer tokenizer = ctx.tokenizer();
+            Token current = ctx.tokenAtCursor();
+            return caseSensitive ? tokenizer.readChar(current) == c :
+                    Character.toLowerCase(tokenizer.readChar(current)) == Character.toLowerCase(c);
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            if (apply != empty())
+                apply.accept(ctx);
+            ctx.cursor().inc();
+        }
+
+        @Override
+        public String toString() {
+            if (caseSensitive)
+                return "(" + c + ")";
+
+            return "(" + Character.toLowerCase(c) + " OR " + Character.toUpperCase(c) + ")";
+        }
+    }
+
+    static class CursorAwareNode extends Node implements Comparable<CursorAwareNode> {
+        private final int cursor;
+        private final GroupNode node;
+
+        CursorAwareNode(int cursor, GroupNode node) {
+            this.cursor = cursor;
+            this.node = node;
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return node.matches(ctx.withCursorValue(cursor));
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            node.apply(ctx.withCursorValue(cursor));
+        }
+
+        @Override
+        public int compareTo(CursorAwareNode o) {
+            return Integer.compare(node.priority(), o.node.priority());
+        }
     }
 }
