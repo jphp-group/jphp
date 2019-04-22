@@ -299,6 +299,13 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void timeShouldNotReset() {
+        assertThat(parse("19:30 Dec 17 2005"))
+                .isEqualTo(parse("Dec 17 19:30 2005"))
+                .isEqualTo(now().withYear(2005).withMonth(12).withDayOfMonth(17).withHour(19).withMinute(30).truncatedTo(MINUTES));
+    }
+
+    @Test
     public void isoYearWithWeekAndWeekDay() {
         ZonedDateTime parse = parse("1997W011");
         assertThat(parse)

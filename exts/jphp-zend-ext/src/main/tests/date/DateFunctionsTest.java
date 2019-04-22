@@ -112,6 +112,10 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/strtotime_basic.phpt");
         check("ext/date/strtotime_basic2.phpt");
         check("ext/date/strtotime-relative.phpt");
+
+        check("ext/date/bug13142.phpt");
+        check("ext/date/bug14561.phpt");
+        check("ext/date/bug17988.phpt");
     }
 
     @Test

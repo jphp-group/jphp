@@ -268,17 +268,19 @@ public class DateTimeParser {
             },
             YEAR_4_DIGIT.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
     );
-    private static final GroupNode m_dd_y_NODE = GroupNode.of(
-            "Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)",
-            ctx -> {
-                ctx.atStartOfDay();
+    private static final GroupNode m_dd_y_NODE = GroupNode.builder().relative(false)
+            .afterApply(ctx -> {
+                if (!ctx.isTimeModified())
+                    ctx.atStartOfDay();
+
                 if (ctx.isSymbolAtCursor(Symbol.COLON)) {
                     ctx.setYear(Year.now().getValue());
                     ctx.cursor().dec();
                 }
-            },
-            MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))).then(YEAR_y_NODE)
-    );
+            })
+            .name("Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)")
+            .nodes(MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))).then(YEAR_y_NODE))
+            .build();
     private static final GroupNode m_dd_NODE = GroupNode.of(
             "Textual month and day (m ([ .\\t-])* dd [,.stndrh\\t ]*)",
             DateTimeParserContext::atStartOfDay,
