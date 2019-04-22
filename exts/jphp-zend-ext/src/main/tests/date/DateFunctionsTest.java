@@ -107,13 +107,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/strtotime_basic.phpt");
         check("ext/date/strtotime_basic2.phpt");
         check("ext/date/strtotime-relative.phpt");
-
         check("ext/date/bug13142.phpt");
         check("ext/date/bug14561.phpt");
         check("ext/date/bug17988.phpt");
         check("ext/date/bug21399.phpt");
         check("ext/date/bug26320.phpt");
-
         check("ext/date/bug28088.phpt");
         check("ext/date/bug28599.phpt");
         check("ext/date/bug29150.phpt");
@@ -122,9 +120,9 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/bug32588.phpt");
         check("ext/date/bug33056.phpt");
         check("ext/date/bug33452.phpt");
-        check("ext/date/bug33532.phpt");
 
         // fail
+        check("ext/date/bug33532.phpt");
         check("ext/date/bug33415-2.phpt");
         check("ext/date/bug33414-2.phpt");
         check("ext/date/bug33415-1.phpt");
