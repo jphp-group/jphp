@@ -127,6 +127,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/bug26090.phpt");
         check("ext/date/bug26694.phpt");
         check("ext/date/bug26317.phpt");
+        check("ext/date/bug27780.phpt");
 
         // fail
         check("ext/date/bug28024.phpt");
@@ -142,7 +143,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void strtotimeFails() {
-        check("ext/date/bug27780.phpt"); // spec
+
     }
 
     @Test

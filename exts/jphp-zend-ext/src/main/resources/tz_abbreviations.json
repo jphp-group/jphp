@@ -3737,11 +3737,6 @@
     {
       "dst": true,
       "offset": -18000,
-      "timezone_id": "America\/Chicago"
-    },
-    {
-      "dst": true,
-      "offset": -18000,
       "timezone_id": "America\/Atikokan"
     },
     {

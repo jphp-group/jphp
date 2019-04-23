@@ -764,11 +764,6 @@ public class DateTimeParserTest {
     }
 
     @Test
-    public void usMilitaryTimezones() {
-        ZonedDateTime parse = parse("2003-11-19 09:20:42 T");
-    }
-
-    @Test
     public void shouldThrowExceptionWhenDateInvalid() {
         assertThatThrownBy(() -> parse("2009---01"));
     }

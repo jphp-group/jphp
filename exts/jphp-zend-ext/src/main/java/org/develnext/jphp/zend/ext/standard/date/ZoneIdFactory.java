@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -99,7 +100,8 @@ public final class ZoneIdFactory {
         List<TimezoneWithAlias> aliases = idToAliases.get(id);
         ZoneId zone = dateTime.getZone();
         ZoneRules rules = zone.getRules();
-        ZoneOffset zoneOffset = rules.getOffset(dateTime.toLocalDateTime());
+        LocalDateTime localDateTime = dateTime.toLocalDateTime();
+        ZoneOffset zoneOffset = rules.getOffset(localDateTime);
 
         int offset = zoneOffset.getTotalSeconds();
 
