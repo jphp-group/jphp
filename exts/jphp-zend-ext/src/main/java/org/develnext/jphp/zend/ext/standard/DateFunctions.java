@@ -473,7 +473,11 @@ public class DateFunctions extends FunctionsContainer {
                             __strftime(date, l, "%z", buff);
                         } else {
                             String str = ZoneIdFactory.aliasFor(date);
-                            buff.append(str);
+                            if (str == null) {
+                                __strftime(date, l, "%z", buff);
+                            } else {
+                                buff.append(str);
+                            }
                         }
                         break;
                     }

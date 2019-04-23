@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,10 +43,10 @@ import php.runtime.memory.StringMemory;
 public final class ZoneIdFactory {
     // TODO break region base timezones on continents or countries.
     private static final Map<String, List<TimezoneWithAlias>> idToAliases;
-    private static final Map<String, Set<Timezone>> ABBREVIATION;
+    private static final Map<String, List<Timezone>> ABBREVIATION;
 
     private static final String TZ_ABBREVIATIONS_JSON = "tz_abbreviations.json";
-    private static final Type TYPE = new TypeToken<CaseInsensitiveMap<LinkedHashSet<Timezone>>>() {
+    private static final Type TYPE = new TypeToken<CaseInsensitiveMap<List<Timezone>>>() {
     }.getType();
 
     static {
@@ -60,7 +61,7 @@ public final class ZoneIdFactory {
                     tmpMap.compute(timezoneId, (k, twa) -> {
                         twa = twa == null ? new ArrayList<>() : twa;
                         twa.add(timezone.withAlias(alias));
-
+                        twa.sort(Comparator.comparing(o -> o.alias));
                         return twa;
                     });
                 }));
@@ -73,7 +74,7 @@ public final class ZoneIdFactory {
         idToAliases = Collections.unmodifiableMap(tmpMap);
     }
 
-    private static Map<String, Set<Timezone>> readTZAbbreviations() {
+    private static Map<String, List<Timezone>> readTZAbbreviations() {
         InputStream stream = ZoneIdFactory.class.getClassLoader().getResourceAsStream(TZ_ABBREVIATIONS_JSON);
         if (stream == null) {
             return Collections.emptyMap();
@@ -98,15 +99,20 @@ public final class ZoneIdFactory {
         }
 
         List<TimezoneWithAlias> aliases = idToAliases.get(id);
+        if (aliases == null) {
+            return null;
+        }
+
         ZoneId zone = dateTime.getZone();
         ZoneRules rules = zone.getRules();
         LocalDateTime localDateTime = dateTime.toLocalDateTime();
+        boolean dst = zone.getRules().isDaylightSavings(dateTime.toInstant());
         ZoneOffset zoneOffset = rules.getOffset(localDateTime);
 
         int offset = zoneOffset.getTotalSeconds();
 
         for (TimezoneWithAlias alias : aliases) {
-            if (alias.timezone.getOffset() == offset) {
+            if (alias.timezone.getOffset() == offset && alias.timezone.isDst() == dst) {
                 return alias.alias.toUpperCase();
             }
         }
@@ -143,7 +149,7 @@ public final class ZoneIdFactory {
             return abbreviationByOffsetAndDst(offset, isDst == 1);
         }
 
-        Set<Timezone> timezoneItems = ABBREVIATION.get(abbreviation);
+        List<Timezone> timezoneItems = ABBREVIATION.get(abbreviation);
 
         if (timezoneItems != null && offset == -1 && isDst == -1) {
             return timezoneItems.iterator().next().timezoneId;
@@ -153,7 +159,7 @@ public final class ZoneIdFactory {
     }
 
     private static String abbreviationByOffsetAndDst(int offset, boolean dst) {
-        for (Set<Timezone> value : ABBREVIATION.values()) {
+        for (List<Timezone> value : ABBREVIATION.values()) {
             for (Timezone timezone : value) {
                 if (timezone.getOffset() == offset && timezone.isDst() == dst) {
                     return timezone.getTimezoneId();
@@ -278,6 +284,14 @@ public final class ZoneIdFactory {
         private TimezoneWithAlias(String alias, Timezone timezone) {
             this.alias = alias;
             this.timezone = timezone;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", TimezoneWithAlias.class.getSimpleName() + "[", "]")
+                    .add("alias='" + alias + "'")
+                    .add("timezone=" + timezone)
+                    .toString();
         }
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -168,8 +169,7 @@ public class DateFormat {
                     break;
                 }
                 case 'T': {
-                    ZoneId zone = date.getZone();
-                    if (zone instanceof ZoneOffset) {
+                    if (date.getZone() instanceof ZoneOffset) {
                         out.append("GMT");
                         formatForDateFunction(env, date, "O", fmt);
                     } else {
@@ -177,6 +177,10 @@ public class DateFormat {
                         out.append(str);
                     }
 
+                    break;
+                }
+                case 'I': {
+                    out.append(date.getZone().getRules().isDaylightSavings(date.toInstant()) ? '1' : '0');
                     break;
                 }
                 case '\\': {

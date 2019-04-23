@@ -16,7 +16,7 @@ array(5) {
     ["offset"]=>
     int(0)
     ["timezone_id"]=>
-    string(16) "Antarctica/Troll"
+    string(13) "Etc/Universal"
   }
   [1]=>
   array(3) {
@@ -25,7 +25,7 @@ array(5) {
     ["offset"]=>
     int(0)
     ["timezone_id"]=>
-    string(13) "Etc/Universal"
+    string(7) "Etc/UTC"
   }
   [2]=>
   array(3) {
@@ -34,7 +34,7 @@ array(5) {
     ["offset"]=>
     int(0)
     ["timezone_id"]=>
-    string(7) "Etc/UTC"
+    string(8) "Etc/Zulu"
   }
   [3]=>
   array(3) {
@@ -43,7 +43,7 @@ array(5) {
     ["offset"]=>
     int(0)
     ["timezone_id"]=>
-    string(8) "Etc/Zulu"
+    string(3) "UTC"
   }
   [4]=>
   array(3) {
