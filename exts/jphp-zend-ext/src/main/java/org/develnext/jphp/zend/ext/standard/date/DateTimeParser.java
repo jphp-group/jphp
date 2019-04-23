@@ -342,11 +342,12 @@ public class DateTimeParser {
             DateTimeParserContext::atStartOfDay,
             YEAR_yy_NODE.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)
     );
-    private static final GroupNode ISO8601_YY_MM_DD = GroupNode.of(
-            "Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)",
-            DateTimeParserContext::atStartOfDay,
-            PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT))
-    );
+    private static final GroupNode ISO8601_YY_MM_DD = GroupNode.builder()
+            .resetTimeIfNotModified()
+            .name("Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)")
+            .nodes(PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)))
+            .build();
+
     private static final GroupNode JUST_YEAR = GroupNode.of("Year (and just the year) (YY)", YEAR_4_DIGIT);
     private static final GroupNode JUST_MONTH_m = GroupNode.builder().relative(false).resetTimeIfNotModified()
             .name("Textual month (and just the month) (m)").nodes(MONTH_m_NODE).build();

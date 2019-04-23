@@ -295,6 +295,17 @@ public class DateTimeParserTest {
 
     @Test
     public void sandbox() {
+
+    }
+
+    @Test
+    public void dateNotResetingTimeWhenTimeIsPresent() {
+        assertThat(parse("17:00 2004-01-01"))
+                .isEqualTo(now().withYear(2004).withMonth(01).withDayOfMonth(01).withHour(17).truncatedTo(HOURS));
+    }
+
+    @Test
+    public void ordinalAndNumberDifference() {
         assertThat(parse("1 Monday December 2008"))
                 .isEqualTo(now().withYear(2008).withMonth(12).withDayOfMonth(1).truncatedTo(DAYS));
 
