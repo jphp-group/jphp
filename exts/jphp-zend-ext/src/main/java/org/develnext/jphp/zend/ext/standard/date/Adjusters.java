@@ -20,6 +20,7 @@ import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
@@ -121,11 +122,11 @@ class Adjusters {
         return temporal -> temporal.with(ChronoField.MONTH_OF_YEAR, monthNameToNumber(month));
     }
 
-    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(String unit, String ordinal) {
-        return relativeUnit(unit, ordinalToNumber(ordinal));
+    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit, String ordinal) {
+        return relativeUnit(ctx, unit, ordinalToNumber(ordinal));
     }
 
-    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(String unit, final long value) {
+    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit, final long value) {
         ChronoUnit chronoUnit;
         TemporalField field;
 
@@ -155,7 +156,15 @@ class Adjusters {
             case "hours":
                 chronoUnit = HOURS;
                 field = HOUR_OF_DAY;
-                break;
+                return Pair.of(temporal -> {
+                    if (!ctx.isModifiedTimezone() && temporal instanceof ZonedDateTime) {
+                        ZonedDateTime dateTime = (ZonedDateTime) temporal;
+
+                        return dateTime.toLocalDateTime().plusHours(value).atZone(dateTime.getZone());
+                    }
+
+                    return temporal.plus(value, chronoUnit);
+                }, field);
             case "minute":
             case "minutes":
             case "min":

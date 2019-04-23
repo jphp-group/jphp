@@ -607,7 +607,7 @@ public class DateTimeParser {
     private static Consumer<DateTimeParserContext> relTimeTextConsumer() {
         return ctx -> {
             int snapshot = ctx.cursor().value();
-            Pair<TemporalAdjuster, TemporalField> pair = Adjusters.relativeUnit(ctx.readStringAtCursor(),
+            Pair<TemporalAdjuster, TemporalField> pair = Adjusters.relativeUnit(ctx, ctx.readStringAtCursor(),
                     ctx.withCursorValue(snapshot - 2).readStringAtCursor());
             ctx.withAdjuster(pair.getA(), pair.getB());
         };
@@ -1190,7 +1190,7 @@ public class DateTimeParser {
         @Override
         void apply(DateTimeParserContext ctx) {
             Pair<Long, String> pair = matchesInternal(ctx);
-            Pair<TemporalAdjuster, TemporalField> pair1 = relativeUnit(pair.getB(), pair.getA());
+            Pair<TemporalAdjuster, TemporalField> pair1 = relativeUnit(ctx, pair.getB(), pair.getA());
             ctx.withAdjuster(pair1.getA(), pair1.getB());
         }
     }

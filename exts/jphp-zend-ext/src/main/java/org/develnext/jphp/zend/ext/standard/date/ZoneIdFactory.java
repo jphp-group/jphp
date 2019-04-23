@@ -105,9 +105,8 @@ public final class ZoneIdFactory {
 
         ZoneId zone = dateTime.getZone();
         ZoneRules rules = zone.getRules();
-        LocalDateTime localDateTime = dateTime.toLocalDateTime();
         boolean dst = zone.getRules().isDaylightSavings(dateTime.toInstant());
-        ZoneOffset zoneOffset = rules.getOffset(localDateTime);
+        ZoneOffset zoneOffset = rules.getOffset(dateTime.toInstant());
 
         int offset = zoneOffset.getTotalSeconds();
 

@@ -231,10 +231,10 @@ public class DateTimeParserTest {
 
         assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-6"));
         assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
-        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T040837CEST"));
-        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T040837 CEST"));
-        assertEquals(expected.withZoneSameLocal(ZoneId.of("UTC+02:00")), parse("T19:19:19CEST"));
-        assertEquals(expected.withZoneSameLocal(ZoneId.of("UTC+10:30")), parse("T19:19:19ACDT"));
+        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("+02:00")), parse("T040837CEST"));
+        assertEquals(withTime(4, 8, 37).withZoneSameLocal(ZoneId.of("+02:00")), parse("T040837 CEST"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("+02:00")), parse("T19:19:19CEST"));
+        assertEquals(expected.withZoneSameLocal(ZoneId.of("+10:30")), parse("T19:19:19ACDT"));
         assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT+06:00")), parse("T19:19:19GMT+6"));
         assertEquals(expected.withZoneSameLocal(ZoneId.of("GMT-06:00")), parse("T19:19:19GMT-06"));
         assertEquals(expected.withZoneSameLocal(ZoneId.of("-06:00")), parse("T19:19:19-6"));
@@ -266,7 +266,7 @@ public class DateTimeParserTest {
 
     @Test
     public void timezoneAlias() {
-        Stream.of(new Pair<>("CEST", "UTC+02:00"), new Pair<>("ACDT", "UTC+10:30"))
+        Stream.of(new Pair<>("CEST", "+02:00"), new Pair<>("ACDT", "+10:30"))
                 .forEach(pair -> {
                     ZoneId zoneId = ZoneId.of(pair.getB());
                     ZonedDateTime actual = parse("T19:19:19" + pair.getA());
@@ -387,7 +387,7 @@ public class DateTimeParserTest {
                 .map(DateTimeParserTest::parse)
                 .forEach(parsed -> {
                     assertThat(parsed)
-                            .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1));
+                            .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1).truncatedTo(DAYS));
                 });
     }
 

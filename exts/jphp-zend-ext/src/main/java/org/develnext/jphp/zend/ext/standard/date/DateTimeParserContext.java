@@ -349,6 +349,10 @@ class DateTimeParserContext {
         return modified.contains(field);
     }
 
+    public boolean isModifiedTimezone() {
+        return modified.contains(TimezoneField.INSTANSE);
+    }
+
     public boolean isNotModified(TemporalField field) {
         return !isModified(field);
     }

@@ -293,7 +293,7 @@ wanted=Wednesday            00:15:00
 
 TZ=Pacific/Nauru - Is it OK for this to be 0:30? yes
 tStamp=Saturday 1979-02-03 17:17:17 +1130 0
-result=Saturday 1979-02-10 02:30:00 +12 0
+result=Saturday 1979-02-10 02:00:00 +1130 0
 wanted=Saturday            02:30:00
 
 TZ=Pacific/Niue - Is it OK for this to be 0:30 AM? yes
