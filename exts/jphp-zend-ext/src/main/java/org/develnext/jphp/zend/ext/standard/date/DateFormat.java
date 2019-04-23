@@ -11,6 +11,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
@@ -177,9 +178,15 @@ public class DateFormat {
                         if (str != null) {
                             out.append(str);
                         } else {
-                            long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
+                            Duration duration = Duration.ofSeconds(date.getOffset().getTotalSeconds());
+                            long hours = duration.toHours();
                             out.append(hours < 0 ? '-' : '+');
                             fmt.format("%02d", Math.abs(hours));
+
+                            long minutes =  Math.abs(duration.toMinutes() % 60);
+                            if (minutes > 0) {
+                                fmt.format("%02d", minutes);
+                            }
                         }
                     }
 

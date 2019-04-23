@@ -257,7 +257,7 @@ wanted=Friday            00:00:00
 
 TZ=Pacific/Kwajalein - wrong day.
 tStamp=Saturday 1993-08-14 17:17:17 -12 0
-result=Sunday 1993-08-22 00:00:00 +12 0
+result=Saturday 1993-08-21 00:00:00 +12 0
 wanted=Sunday            00:00:00
 
 TZ=Asia/Ulan_Bator - wrong day.
