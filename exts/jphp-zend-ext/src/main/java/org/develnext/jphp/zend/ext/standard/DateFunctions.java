@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.IsoFields;
@@ -466,7 +467,14 @@ public class DateFunctions extends FunctionsContainer {
                         break;
                     }
                     case 'Z': {
-                        buff.append(date.getZone().getDisplayName(TextStyle.SHORT, l));
+                        ZoneId zone = date.getZone();
+                        if (zone instanceof ZoneOffset) {
+                            buff.append("GMT");
+                            __strftime(date, l, "%z", buff);
+                        } else {
+                            String str = ZoneIdFactory.aliasFor(date);
+                            buff.append(str);
+                        }
                         break;
                     }
                     // Timestamps

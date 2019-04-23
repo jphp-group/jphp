@@ -871,7 +871,7 @@ public class DateTimeParser {
     static class TimezoneCorrectionNode extends Node {
         private static final Pattern OFFSET_PREFIX = Pattern.compile("GMT|UTC|UT");
         private static final Pattern hh = Pattern.compile("0?[0-9]|1[0-2]");
-        private static final Pattern hhMM = Pattern.compile("(0?[1-9]|1[0-2])[0-5][0-9]?");
+        private static final Pattern hhMM = Pattern.compile("(0?[0-9]|1[0-2])[0-5][0-9]?");
         private static final Pattern CORRECTION = Pattern.compile("(0?[0-9]|1[0-2])(\\:)?([0-5][0-9])?");
         private static final Node SIGN = PLUS_NODE.or(MINUS_NODE);
         private ZoneId zoneId;

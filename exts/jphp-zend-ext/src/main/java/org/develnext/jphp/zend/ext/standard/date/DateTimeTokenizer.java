@@ -83,6 +83,8 @@ class DateTimeTokenizer {
                         tokenStart = i;
 
                     buff.append(c);
+                    characteristics.add(LETTERS);
+
                     if (isNextDigit(i)) {
                         next = Token.of(Symbol.STRING, i++, 1);
                         resetBuffer();

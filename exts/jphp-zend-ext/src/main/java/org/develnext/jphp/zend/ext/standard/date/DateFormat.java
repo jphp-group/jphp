@@ -173,7 +173,7 @@ public class DateFormat {
                         out.append("GMT");
                         formatForDateFunction(env, date, "O", fmt);
                     } else {
-                        String str = ZoneIdFactory.aliasFor(zone);
+                        String str = ZoneIdFactory.aliasFor(date);
                         out.append(str);
                     }
 

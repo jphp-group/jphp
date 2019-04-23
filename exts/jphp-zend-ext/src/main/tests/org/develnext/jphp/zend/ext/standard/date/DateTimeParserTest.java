@@ -128,8 +128,12 @@ public class DateTimeParserTest {
 
     @Test
     public void onlyTimeZone() {
-        for (String tz : Arrays.asList("+0", "+00", "GMT")) {
-            assertThat(parse(tz)).isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of(tz)));
+        assertThat(parse("+0000 GMT"))
+                .isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of("Z")));
+
+        for (String tz : Arrays.asList("+0", "+00", "+0000", "GMT")) {
+            assertThat(parse(tz))
+                    .isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of(tz)));
         }
     }
 
@@ -310,6 +314,12 @@ public class DateTimeParserTest {
         ZonedDateTime parse = parse("1997W011");
         assertThat(parse)
                 .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(1996).withMonth(12).withDayOfMonth(30));
+    }
+
+    @Test
+    public void isoYearWithWeek() {
+        assertThat(parse("2004W30"))
+                .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(2004).withMonth(7).withDayOfMonth(19));
     }
 
     @Test
@@ -751,6 +761,11 @@ public class DateTimeParserTest {
     @Test
     public void monthYearAndYearMonth() {
         assertThat(parse("2001 Oct")).isEqualTo(parse("Oct 2001"));
+    }
+
+    @Test
+    public void usMilitaryTimezones() {
+        ZonedDateTime parse = parse("2003-11-19 09:20:42 T");
     }
 
     @Test

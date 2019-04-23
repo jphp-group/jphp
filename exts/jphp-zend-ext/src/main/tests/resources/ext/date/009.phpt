@@ -28,8 +28,8 @@ echo "Done\n";
 --EXPECTF--
 bool(false)
 string(5) "%q %a"
-string(178) "Tue Tuesday Jun June Tue Jun 27 00:00:00 2006 20 27 06/27/06 27 06 2006 Jun 00 12 178 06 00 
- AM 12:00:00 AM 00:00 00 	 00:00:00 2 26 26 26 2 06/27/06 00:00:00 06 2006 IT +0300 %"
+string(179) "Tue Tuesday Jun June Tue Jun 27 00:00:00 2006 20 27 06/27/06 27 06 2006 Jun 00 12 178 06 00 
+ AM 12:00:00 AM 00:00 00 	 00:00:00 2 26 26 26 2 06/27/06 00:00:00 06 2006 IDT +0300 %"
 string(5) "%q %a"
 string(2) "%q"
 string(4) "blah"
