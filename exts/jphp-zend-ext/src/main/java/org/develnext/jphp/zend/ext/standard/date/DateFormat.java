@@ -174,7 +174,13 @@ public class DateFormat {
                         formatForDateFunction(env, date, "O", fmt);
                     } else {
                         String str = ZoneIdFactory.aliasFor(date);
-                        out.append(str);
+                        if (str != null) {
+                            out.append(str);
+                        } else {
+                            long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
+                            out.append(hours < 0 ? '-' : '+');
+                            fmt.format("%02d", Math.abs(hours));
+                        }
                     }
 
                     break;

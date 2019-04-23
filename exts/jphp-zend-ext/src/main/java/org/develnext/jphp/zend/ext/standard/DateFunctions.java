@@ -474,7 +474,8 @@ public class DateFunctions extends FunctionsContainer {
                         } else {
                             String str = ZoneIdFactory.aliasFor(date);
                             if (str == null) {
-                                __strftime(date, l, "%z", buff);
+                                long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
+                                buff.append(hours < 0 ? '-' : '+').append(String.format(l, "%02d", Math.abs(hours)));
                             } else {
                                 buff.append(str);
                             }
