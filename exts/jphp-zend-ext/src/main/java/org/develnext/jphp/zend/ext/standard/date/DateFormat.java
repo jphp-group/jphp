@@ -162,7 +162,12 @@ public class DateFormat {
                     break;
                 }
                 case 'P': {
-                    out.append(date.getOffset().toString());
+                    if ("Z".equals(date.getOffset().getId())) {
+                        out.append("+00:00");
+                    } else {
+                        out.append(date.getOffset().toString());
+                    }
+
                     break;
                 }
                 case 'r': {
