@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import php.runtime.Memory;
@@ -25,6 +27,7 @@ import php.runtime.memory.StringMemory;
 
 public class Test {
     private static final Set<String> sectionNames;
+    static final Pattern SECTION_NAME_PATTERN = Pattern.compile("--([A-Z]+)--");
 
     static {
         Set<String> names = new HashSet<>(30);
@@ -161,8 +164,8 @@ public class Test {
     }
 
     private static boolean isSectionName(String line) {
-        return line.startsWith("--") && line.endsWith("--") && line.length() > 4 &&
-                sectionNames.contains(line.substring(2, line.length() - 2));
+        Matcher matcher = SECTION_NAME_PATTERN.matcher(line);
+        return matcher.matches() && sectionNames.contains(matcher.group(1));
     }
 
     public boolean run(PrintStream output) {
