@@ -27,7 +27,7 @@ import php.runtime.memory.StringMemory;
 
 public class Test {
     private static final Set<String> sectionNames;
-    static final Pattern SECTION_NAME_PATTERN = Pattern.compile("--([A-Z]+)--");
+    private static final Pattern SECTION_NAME_PATTERN = Pattern.compile("--([A-Z]+)--");
 
     static {
         Set<String> names = new HashSet<>(30);
