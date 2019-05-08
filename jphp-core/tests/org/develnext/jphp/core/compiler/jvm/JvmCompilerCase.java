@@ -26,8 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 abstract public class JvmCompilerCase {
     protected Environment environment = new Environment();
@@ -202,9 +203,13 @@ abstract public class JvmCompilerCase {
 
         //environment.setErrorFlags(ErrorType.E_ALL.value);
 
-        Test test = new Test(file = new File(
-                Thread.currentThread().getContextClassLoader().getResource("resources/" + name).getFile()
-        ));
+        String resourceName = "resources/" + name;
+        URL resource = Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource(resourceName))
+                .orElseThrow(() -> new RuntimeException("The file is not found: " + resourceName));
+
+        Test test = new Test(file = new File(resource.getFile()));
+
+        test.getIniEntries().forEach(environment::setConfigValue);
         Context context = new Context(test.getFile(), file);
 
         try {
