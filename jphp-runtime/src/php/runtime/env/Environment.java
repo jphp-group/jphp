@@ -1071,6 +1071,10 @@ public class Environment {
         triggerMessage(new NoticeMessage(peekCall(0), new Messages.Item(message), args));
     }
 
+    public void notice(TraceInfo trace, String message, Object... args) {
+        error(trace, E_NOTICE, message, args);
+    }
+
     public OutputBuffer getDefaultBuffer() {
         return defaultBuffer;
     }
