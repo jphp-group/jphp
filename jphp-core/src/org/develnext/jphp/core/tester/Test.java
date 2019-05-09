@@ -1,12 +1,70 @@
 package org.develnext.jphp.core.tester;
 
-import php.runtime.common.StringUtils;
+import static java.util.stream.Collectors.toMap;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import php.runtime.Memory;
+import php.runtime.common.StringUtils;
+import php.runtime.memory.StringMemory;
 
 public class Test {
+    private static final Set<String> sectionNames;
+    private static final Pattern SECTION_NAME_PATTERN = Pattern.compile("--([A-Z]+)--");
+
+    static {
+        Set<String> names = new HashSet<>(30);
+        names.add("TEST");
+        names.add("DESCRIPTION");
+        names.add("CREDITS");
+        names.add("SKIPIF");
+        names.add("REQUEST");
+        names.add("POST");
+        names.add("POST_RAW");
+        names.add("PUT");
+        names.add("GZIP_POST");
+        names.add("DEFLATE_POST");
+        names.add("GET");
+        names.add("COOKIE");
+        names.add("STDIN");
+        names.add("INI");
+        names.add("ARGS");
+        names.add("ENV");
+        names.add("FILE");
+        names.add("FILEEOF");
+        names.add("FILE_EXTERNAL");
+        names.add("REDIRECT_TEST");
+        names.add("HEADERS");
+        names.add("CGI");
+        names.add("XFAIL");
+        names.add("EXPECT_HEADERS");
+        names.add("EXPECT");
+        names.add("EXPECTF");
+        names.add("EXPECTREGEX");
+        names.add("EXPECTEXTERNAL");
+        names.add("EXPECTREGEX_EXTERNAL");
+        names.add("CLEAN");
+
+        sectionNames = Collections.unmodifiableSet(names);
+    }
+
     protected String test;
     protected String description;
     protected String credits;
@@ -32,29 +90,28 @@ public class Test {
     private Map<String, String> _sections;
     private Map<String, Integer> _sectionLines;
 
-    public Test(File file){
-        try {
-            _sections = new LinkedHashMap<String, String>();
-            _sectionLines = new HashMap<String, Integer>();
+    public Test(File file) {
+        _sections = new LinkedHashMap<>();
+        _sectionLines = new HashMap<>();
 
-            Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
+        try (Scanner reader = new Scanner(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
             String line;
-            List<String> content = new ArrayList<String>();
+            List<String> content = new ArrayList<>();
             String section = null;
             int i = 0;
-            while (reader.hasNextLine()){
+            while (reader.hasNextLine()) {
                 line = reader.nextLine();
                 if (line == null)
                     line = "";
 
-                if (line.startsWith("--") && line.endsWith("--") && line.length() > 2
-                        && Character.isLetter(line.charAt(2))){
-                    if (section != null)
+                if (isSectionName(line)) {
+                    if (section != null) {
                         _sections.put(section, StringUtils.join(content, '\n'));
+                    }
 
                     section = line.substring(2, line.length() - 2);
                     _sectionLines.put(section, i);
-                    content = new ArrayList<String>();
+                    content = new ArrayList<>();
                 } else if (section != null) {
                     content.add(line);
                 }
@@ -63,7 +120,6 @@ public class Test {
 
             if (section != null)
                 _sections.put(section, StringUtils.join(content, '\n'));
-
 
             this.test = _sections.get("TEST");
             this.description = _sections.get("DESCRIPTION");
@@ -107,11 +163,16 @@ public class Test {
         }
     }
 
-    public boolean run(PrintStream output){
+    private static boolean isSectionName(String line) {
+        Matcher matcher = SECTION_NAME_PATTERN.matcher(line);
+        return matcher.matches() && sectionNames.contains(matcher.group(1));
+    }
+
+    public boolean run(PrintStream output) {
         return true;
     }
 
-    public Map<String, String> getSections(){
+    public Map<String, String> getSections() {
         return _sections;
     }
 
@@ -135,7 +196,22 @@ public class Test {
         return cookie;
     }
 
-    public int getSectionLine(String section){
+    public String getIni() {
+        return ini;
+    }
+
+    public Map<String, Memory> getIniEntries() {
+        return Optional.ofNullable(ini)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> s.split("\\r?\\n"))
+                .map(Stream::of)
+                .map(stringStream -> stringStream.map(s -> s.split("=", 2)))
+                .map(stream -> stream.collect(toMap((String[] o) -> o[0], (String[] o) -> StringMemory.valueOf(o[1]), (k1, k2) -> k2)))
+                .map(Collections::unmodifiableMap)
+                .orElseGet(Collections::emptyMap);
+    }
+
+    public int getSectionLine(String section) {
         return _sectionLines.get(section);
     }
 }
