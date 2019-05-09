@@ -105,4 +105,17 @@ public class LangTest extends ZendJvmTestCase {
         check("zend/php7/ns_095.phpt");
         check("zend/php7/ns_096.phpt", true);
     }
+
+    @Test
+    public void testUnicodeEscape() {
+        check("zend/lang/string/unicode_escape.phpt");
+        check("zend/lang/string/unicode_escape_empty.phpt", true);
+        check("zend/lang/string/unicode_escape_incomplete.phpt", true);
+        check("zend/lang/string/unicode_escape_large_codepoint.phpt", true);
+        check("zend/lang/string/unicode_escape_legacy.phpt", true);
+        check("zend/lang/string/unicode_escape_sign.phpt", true);
+        check("zend/lang/string/unicode_escape_sign2.phpt", true);
+        //check("zend/lang/string/unicode_escape_surrogates.phpt", true);
+        check("zend/lang/string/unicode_escape_whitespace.phpt", true);
+    }
 }

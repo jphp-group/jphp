@@ -125,6 +125,8 @@ final public class Messages {
     public final static Item ERR_YIELD_CAN_ONLY_INSIDE_FUNCTION = new Item("The \"yield\" expression can only be used inside a function");
 
     public final static Item ERR_RETURN_TYPE_INVALID = new Item("Return value of %s() must be %s, %s returned");
+    public final static Item ERR_INVALID_UNICODE_ESCAPE_SEQUENCE = new Item("Invalid UTF-8 codepoint escape sequence");
+    public final static Item ERR_INVALID_UNICODE_ESCAPE_SEQUENCE_WITH_REASON = new Item(ERR_INVALID_UNICODE_ESCAPE_SEQUENCE.message + ": %s");
 
     public static class Item {
         private String message;

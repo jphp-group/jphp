@@ -84,11 +84,15 @@ public class GrammarUtils {
         }
         for (int i = 2; i < word.length(); i++) {
             ch = word.charAt(i);
-            if (!(ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch))) {
+            if (!isHexDigit(ch)) {
                 return false;
             }
         }
         return true;
+    }
+
+    public static boolean isHexDigit(char ch) {
+        return ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f' || Character.isDigit(ch);
     }
 
     public static boolean isSimpleFloat(String word) {
