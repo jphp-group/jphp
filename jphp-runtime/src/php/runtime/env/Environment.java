@@ -1,14 +1,61 @@
 package php.runtime.env;
 
+import static php.runtime.exceptions.support.ErrorType.E_ALL;
+import static php.runtime.exceptions.support.ErrorType.E_DEPRECATED;
+import static php.runtime.exceptions.support.ErrorType.E_ERROR;
+import static php.runtime.exceptions.support.ErrorType.E_NOTICE;
+import static php.runtime.exceptions.support.ErrorType.E_PARSE;
+import static php.runtime.exceptions.support.ErrorType.E_STRICT;
+import static php.runtime.exceptions.support.ErrorType.E_WARNING;
+
+import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import php.runtime.Information;
 import php.runtime.Memory;
-import php.runtime.common.*;
-import php.runtime.env.handler.*;
+import php.runtime.common.AbstractCompiler;
+import php.runtime.common.Callback;
+import php.runtime.common.Constants;
+import php.runtime.common.LangMode;
+import php.runtime.common.Messages;
+import php.runtime.common.StringUtils;
+import php.runtime.env.handler.ConfigChangeHandler;
+import php.runtime.env.handler.ErrorHandler;
+import php.runtime.env.handler.ErrorReportHandler;
+import php.runtime.env.handler.ExceptionHandler;
+import php.runtime.env.handler.ShellExecHandler;
+import php.runtime.env.handler.ShutdownHandler;
+import php.runtime.env.handler.TickHandler;
 import php.runtime.env.message.CustomSystemMessage;
 import php.runtime.env.message.NoticeMessage;
 import php.runtime.env.message.SystemMessage;
 import php.runtime.env.message.WarningMessage;
-import php.runtime.exceptions.*;
+import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.CustomErrorException;
+import php.runtime.exceptions.FatalException;
+import php.runtime.exceptions.FinallyException;
+import php.runtime.exceptions.JPHPException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapEnvironmentVariables;
@@ -19,7 +66,11 @@ import php.runtime.ext.support.compile.CompileFunctionSpec;
 import php.runtime.invoke.Invoker;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.invoke.cache.ClassCallCache;
-import php.runtime.lang.*;
+import php.runtime.lang.BaseException;
+import php.runtime.lang.Closure;
+import php.runtime.lang.ForeachIterator;
+import php.runtime.lang.IObject;
+import php.runtime.lang.UncaughtException;
 import php.runtime.lang.exception.BaseBaseException;
 import php.runtime.lang.exception.BaseError;
 import php.runtime.lang.exception.BaseParseError;
@@ -30,22 +81,13 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.output.OutputBuffer;
-import php.runtime.reflection.*;
+import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ConstantEntity;
+import php.runtime.reflection.FunctionEntity;
+import php.runtime.reflection.MethodEntity;
+import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.util.JVMStackTracer;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static php.runtime.exceptions.support.ErrorType.*;
 
 public class Environment {
     public final int id;
@@ -1901,18 +1943,15 @@ public class Environment {
 
     static {
         configurationHandler = new HashMap<String, ConfigChangeHandler>();
-        configurationHandler.put("include_path", new ConfigChangeHandler() {
-            @Override
-            public void onChange(Environment env, Memory value) {
-                if (value == null)
-                    env.setIncludePaths(Collections.<String>emptySet());
-                else {
-                    String[] files = StringUtils.split(value.toString(), Constants.PATH_SEPARATOR, 255);
-                    Set<String> paths = new HashSet<String>();
-                    Collections.addAll(paths, files);
+        configurationHandler.put("include_path", (env, value) -> {
+            if (value == null)
+                env.setIncludePaths(Collections.emptySet());
+            else {
+                String[] files = StringUtils.split(value.toString(), Constants.PATH_SEPARATOR, 255);
+                Set<String> paths = new HashSet<String>();
+                Collections.addAll(paths, files);
 
-                    env.setIncludePaths(paths);
-                }
+                env.setIncludePaths(paths);
             }
         });
     }

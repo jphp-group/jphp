@@ -42,11 +42,7 @@ public class ErrorHandler {
             try {
                 invoker.setTrace(null);
                 return (invoker.call(args).toValue() != Memory.FALSE);
-            } catch (ErrorException e){
-                throw e;
-            } catch (BaseException e){
-                throw e;
-            } catch (DieException e){
+            } catch (ErrorException | DieException | BaseException e){
                 throw e;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
