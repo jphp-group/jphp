@@ -1,10 +1,28 @@
 package php.runtime.loader;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ServiceLoader;
+import java.util.function.Function;
+
 import php.runtime.Memory;
 import php.runtime.Startup;
 import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
-import php.runtime.env.*;
+import php.runtime.env.CompileScope;
+import php.runtime.env.ConcurrentEnvironment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.core.classes.WrapClassLoader;
@@ -20,12 +38,6 @@ import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
 import php.runtime.reflection.support.ReflectionUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
 
 public class StandaloneLoader {
     protected final CompileScope scope;
@@ -43,44 +55,21 @@ public class StandaloneLoader {
         env = new ConcurrentEnvironment(scope, System.out);
         env.getDefaultBuffer().setImplicitFlush(true);
 
-        scope.addClassEntityFetchHandler(new EntityFetchHandler() {
-            @Override
-            public void fetch(CompileScope scope, String originName, String name) {
-                ModuleEntity module = fetchClass(name);
+        scope.addClassEntityFetchHandler(moduleRegisteringFetchHandler(this::fetchClass));
+        scope.addFunctionEntityFetchHandler(moduleRegisteringFetchHandler(this::fetchFunction));
+        scope.addConstantEntityFetchHandler(moduleRegisteringFetchHandler(this::fetchConstant));
+    }
 
-                if (module != null) {
-                        loadModule(module);
-                        scope.loadModule(module, false);
-                        scope.registerModule(module);
-                }
+    private EntityFetchHandler moduleRegisteringFetchHandler(Function<String, ModuleEntity> moduleFetcher) {
+        return (scope, name, lowerName) -> {
+            ModuleEntity module = moduleFetcher.apply(lowerName);
+
+            if (module != null) {
+                loadModule(module);
+                scope.loadModule(module, false);
+                scope.registerModule(module);
             }
-        });
-
-        scope.addFunctionEntityFetchHandler(new EntityFetchHandler() {
-            @Override
-            public void fetch(CompileScope scope, String originName, String name) {
-                ModuleEntity module = fetchFunction(name);
-
-                if (module != null) {
-                        loadModule(module);
-                        scope.loadModule(module, false);
-                        scope.registerModule(module);
-                }
-            }
-        });
-
-        scope.addConstantEntityFetchHandler(new EntityFetchHandler() {
-            @Override
-            public void fetch(CompileScope scope, String originName, String name) {
-                ModuleEntity module = fetchConstant(name);
-
-                if (module != null) {
-                        loadModule(module);
-                        scope.loadModule(module, false);
-                        scope.registerModule(module);
-                }
-            }
-        });
+        };
     }
 
     public StandaloneLoader(ClassLoader classLoader) {
