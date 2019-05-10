@@ -12,6 +12,7 @@ dependencies {
     compile group: 'org.ow2.asm', name: 'asm-all', version:'5.2'
 
     testCompile 'junit:junit:4.+'
+    testCompile 'org.assertj:assertj-core:3.12.2'
     testCompile project(':jphp-runtime')
     testCompile project(':exts:jphp-zend-ext')
     testCompile project(':exts:jphp-json-ext')

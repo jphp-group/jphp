@@ -1,28 +1,107 @@
 package org.develnext.jphp;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.develnext.jphp.assertj.CustomAssertions.assertThat;
+import static org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken.Quote.DOC;
+import static org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken.Quote.DOUBLE;
+import static org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken.Quote.SINGLE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.stream.Stream;
+
+import org.assertj.core.api.Assertions;
+import org.develnext.jphp.core.tokenizer.Tokenizer;
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
+import org.develnext.jphp.core.tokenizer.token.Token;
+import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
+import org.develnext.jphp.core.tokenizer.token.expr.DollarExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanAnd2ExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanAndExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanNotEqualExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanNotExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanOr2ExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanOrExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.BooleanXorExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ConcatExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.DivExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.DynamicAccessExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.EqualExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.GreaterOrEqualExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.IdenticalExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.MinusExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ModExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.MulExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.NotIdenticalExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.PlusExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.PowExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.SmallerOrEqualToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.BooleanExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.DoubleExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.IntegerExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NewExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StaticExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.ClassMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.DirMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.FileMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.FunctionMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.LineMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.MethodMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.NamespaceMacroToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.TraitMacroToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.AbstractStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.CaseStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.CatchStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.DeclareStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.DefaultStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.DoStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ElseIfStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ElseStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EndforStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EndforeachStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EndifStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EndswitchStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EndwhileStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ExtendsStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.FinalStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.FinallyStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ForStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ForeachStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.FunctionStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.GlobalStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.IfStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ImplementsStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.NamespaceUseStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.PrivateStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ProtectedStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.PublicStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ReturnStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.SwitchStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.TryStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.WhileStmtToken;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.ParseException;
-import org.develnext.jphp.core.tokenizer.Tokenizer;
-import org.develnext.jphp.core.tokenizer.token.CommentToken;
-import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
-import org.develnext.jphp.core.tokenizer.token.Token;
-import org.develnext.jphp.core.tokenizer.token.expr.*;
-import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
-import org.develnext.jphp.core.tokenizer.token.expr.value.*;
-import org.develnext.jphp.core.tokenizer.token.expr.value.macro.*;
-import org.develnext.jphp.core.tokenizer.token.stmt.*;
-
-import java.io.IOException;
-import java.math.BigInteger;
-
-import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -32,31 +111,31 @@ public class TokenizerTest {
 
     @Test
     public void testSimple() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(new Context( ""));
+        Tokenizer tokenizer = new Tokenizer(new Context(""));
 
         assertNull(tokenizer.nextToken());
         assertEquals("", tokenizer.getCode());
 
-        tokenizer = new Tokenizer(new Context( " "));
+        tokenizer = new Tokenizer(new Context(" "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context( "  "));
+        tokenizer = new Tokenizer(new Context("  "));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context( "\t"));
+        tokenizer = new Tokenizer(new Context("\t"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context( "\n"));
+        tokenizer = new Tokenizer(new Context("\n"));
         assertNull(tokenizer.nextToken());
 
-        tokenizer = new Tokenizer(new Context( "\r"));
+        tokenizer = new Tokenizer(new Context("\r"));
         assertNull(tokenizer.nextToken());
     }
 
     @Test
     public void testScalarTokens() throws IOException {
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context( "10 3.3 'foo' '' \"xyz\" 0xCC 0b0011 true false"));
+        Tokenizer tokenizer = new Tokenizer(new Context("10 3.3 'foo' '' \"xyz\" 0xCC 0b0011 true false"));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof IntegerExprToken);
@@ -78,7 +157,7 @@ public class TokenizerTest {
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
-        assertEquals(StringExprToken.Quote.DOUBLE, ((StringExprToken) token).getQuote());
+        assertEquals(DOUBLE, ((StringExprToken) token).getQuote());
         assertEquals("xyz", ((StringExprToken) token).getValue());
 
         token = tokenizer.nextToken();
@@ -104,7 +183,7 @@ public class TokenizerTest {
     @Test
     public void testStringSlashes() throws IOException {
         Token token;
-        Tokenizer tokenizer = new Tokenizer(new Context( " 'foo\\'bar' \"foo\\\"bar\""));
+        Tokenizer tokenizer = new Tokenizer(new Context(" 'foo\\'bar' \"foo\\\"bar\""));
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
@@ -125,14 +204,14 @@ public class TokenizerTest {
         assertEquals(".{$foo}", ((StringExprToken) token).getValue());
         assertEquals(1, ((StringExprToken) token).getSegments().size());
 
-        StringExprToken.Segment segment =((StringExprToken) token).getSegments().get(0);
+        StringExprToken.Segment segment = ((StringExprToken) token).getSegments().get(0);
         assertEquals(1, segment.from);
         assertEquals(7, segment.to);
     }
 
     @Test
     public void testComplexOperators() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(new Context( "== >= <= === !== != && ||"));
+        Tokenizer tokenizer = new Tokenizer(new Context("== >= <= === !== != && ||"));
 
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
         assertTrue(tokenizer.nextToken() instanceof GreaterOrEqualExprToken);
@@ -146,7 +225,7 @@ public class TokenizerTest {
 
     @Test
     public void testSimpleOperators() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(new Context( "= + - / * % . and or new && || ! xor **"));
+        Tokenizer tokenizer = new Tokenizer(new Context("= + - / * % . and or new && || ! xor **"));
 
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof PlusExprToken);
@@ -169,11 +248,11 @@ public class TokenizerTest {
     @Test
     public void testParseError() throws IOException {
         Throwable ex = null;
-        Tokenizer tokenizer = new Tokenizer(new Context( "  'foobar \n "));
+        Tokenizer tokenizer = new Tokenizer(new Context("  'foobar \n "));
 
         try {
             tokenizer.nextToken();
-        } catch (Throwable e){
+        } catch (Throwable e) {
             ex = e;
         }
 
@@ -189,7 +268,7 @@ public class TokenizerTest {
 
     @Test
     public void testComplex() throws IOException {
-        Tokenizer tokenizer = new Tokenizer(new Context( "0==10==='30';"));
+        Tokenizer tokenizer = new Tokenizer(new Context("0==10==='30';"));
 
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
         assertTrue(tokenizer.nextToken() instanceof EqualExprToken);
@@ -202,7 +281,7 @@ public class TokenizerTest {
 
         Token token;
         assertTrue((token = tokenizer.nextToken()) instanceof NameToken);
-        assertEquals("F", ((NameToken)token).getName());
+        assertEquals("F", ((NameToken) token).getName());
         assertTrue(tokenizer.nextToken() instanceof AssignExprToken);
         assertTrue(tokenizer.nextToken() instanceof SemicolonToken);
         assertTrue(tokenizer.nextToken() instanceof IntegerExprToken);
@@ -277,8 +356,8 @@ public class TokenizerTest {
     public void testStmt() throws IOException {
         Tokenizer tokenizer = new Tokenizer(new Context(
                 "class function private public protected static final try catch for if foreach switch while " +
-                "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
-                "abstract use namespace finally extends implements global"
+                        "default return declare case do else elseif endif endfor endforeach endwhile endswitch " +
+                        "abstract use namespace finally extends implements global"
         ));
 
         assertTrue(tokenizer.nextToken() instanceof ClassStmtToken);
@@ -388,7 +467,6 @@ public class TokenizerTest {
         assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
         assertEquals(" \n<foobar> ", ((StringExprToken) token).getValue());
 
-
         tokenizer = new Tokenizer(
                 new Context("<<<'DOC'\n \\n<foobar> \nDOC;\n")
         );
@@ -408,6 +486,81 @@ public class TokenizerTest {
         assertTrue(token instanceof StringExprToken);
         assertEquals(StringExprToken.Quote.DOC, ((StringExprToken) token).getQuote());
         assertEquals("<foobar>", ((StringExprToken) token).getValue());
+    }
+
+    @Test
+    public void testUnicodeEscape() {
+        Stream.of(
+                "\"\\u{61}\"",
+                "\"\\u{061}\"",
+                "\"\\u{0061}\"",
+                "\"\\u{00061}\"",
+                "\"\\u{000000000000000000000000000000000061}\""
+        ).forEach(s -> assertThat(s).nextIsStringToken("\u0061", DOUBLE));
+
+        assertThat("\"\\u{2603}\"").nextIsStringToken("☃", DOUBLE);
+        assertThat("\"\\u{1F602}\"").nextIsStringToken("\uD83D\uDE02", DOUBLE);
+        assertThat("\"\\u{0000001F602}\"").nextIsStringToken("\uD83D\uDE02", DOUBLE);
+    }
+
+    @Test
+    public void testUnicodeEscapeIsCaseInsensitive() {
+        assertThat("\"\\u{FF}\"").nextIsStringToken("ÿ", DOUBLE);
+        assertThat("\"\\u{ff}\"").nextIsStringToken("ÿ", DOUBLE);
+    }
+
+    @Test
+    public void testUnicodeEscapeLeadingZeroesArePermitted() {
+        assertThat("\"\\u{0000001F602}\"").nextIsStringToken("\uD83D\uDE02", DOUBLE);
+    }
+
+    @Test
+    public void testUnicodeEscapeSequence() {
+        // continuous sequence
+        assertThat("\"\\u{0061}\\u{0062}\\u{0063}\\u{0064}\"").nextIsStringToken("abcd", DOUBLE);
+
+        // braking sequences
+        Stream.of(
+                "\"abcd\"",
+                "\"\\u{0061}b\\u{0063}\\u{0064}\"",
+                "\"\\u{0061}bc\\u{0064}\"",
+                "\"\\u{0061}b\\u{0063}d\"",
+                "\"ab\\u{0063}d\"",
+                "\"ab\\u{0063}\\u{0064}\""
+        )
+                .forEach(content -> assertThat(content).nextIsStringToken("abcd", DOUBLE));
+    }
+
+    @Test
+    public void testUnicodeEscapeRtl() {
+        assertThat("\"\\u{202E}Reversed text\"").nextIsStringToken("\u202EReversed text");
+    }
+
+    @Test
+    public void testUnicodeEscapeWithSingleQuote() {
+        // unicode escape sequences in single
+        // quoted string literals should be interpreted as is.
+        assertThat("'\\u{0061}\\u{0062}\\u{0063}\\u{0064}'")
+                .nextIsStringToken("\\u{0061}\\u{0062}\\u{0063}\\u{0064}", SINGLE);
+    }
+
+    @Test
+    public void testUnicodeEscapeError() {
+        assertThatExceptionOfType(ParseException.class)
+                .isThrownBy(() -> new Tokenizer(new Context("\"\\u{}\"")).nextToken())
+                .satisfies(e ->
+                        Assertions.assertThat(e.getTraceInfo())
+                                .extracting(TraceInfo::getStartLine, TraceInfo::getEndLine, TraceInfo::getStartPosition,
+                                        TraceInfo::getEndPosition)
+                                .containsExactly(0, 0, 3, 4)
+                );
+    }
+
+    @Test
+    public void testUnicodeEscapeSequenceInHeredoc() {
+        assertThat("<<<DOC\nThe Armenian language: \\u{0540}\\u{0561}\\u{0575}\\u{0578}\\u{0581}" +
+                " \\u{056c}\\u{0565}\\u{0566}\\u{0578}\\u{0582}\nDOC;\n")
+                .nextIsStringToken("The Armenian language: Հայոց լեզու", DOC);
     }
 
     @Test

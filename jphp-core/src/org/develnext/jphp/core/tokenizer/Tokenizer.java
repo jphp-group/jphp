@@ -1,23 +1,32 @@
 package org.develnext.jphp.core.tokenizer;
 
-import org.develnext.jphp.core.common.TokenizeGrammarUtils;
-import org.develnext.jphp.core.tokenizer.token.*;
-import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
-import org.develnext.jphp.core.tokenizer.token.stmt.EchoRawToken;
-import php.runtime.common.Directive;
-import php.runtime.common.Messages;
-import php.runtime.env.Context;
-import php.runtime.env.TraceInfo;
-import php.runtime.exceptions.ParseException;
+import static php.runtime.common.Messages.ERR_INVALID_UNICODE_ESCAPE_SEQUENCE_WITH_REASON;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.develnext.jphp.core.common.TokenizeGrammarUtils;
+import org.develnext.jphp.core.tokenizer.token.BreakToken;
+import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.OpenEchoTagToken;
+import org.develnext.jphp.core.tokenizer.token.StringStartDocToken;
+import org.develnext.jphp.core.tokenizer.token.Token;
+import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.EchoRawToken;
+
+import php.runtime.common.Directive;
+import php.runtime.common.GrammarUtils;
+import php.runtime.common.Messages;
+import php.runtime.env.Context;
+import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.ParseException;
 
 public class Tokenizer {
     protected Context context;
@@ -211,6 +220,7 @@ public class Tokenizer {
         int i = currentPosition + 1, pos = relativePosition + 1;
         StringExprToken.Quote ch_quote = null;
         boolean slash = false;
+        boolean useUTF8 = false;
         StringBuilder sb = new StringBuilder();
 
         boolean isMagic = quote != null && quote.isMagic();
@@ -356,6 +366,55 @@ public class Tokenizer {
 
                 if (slash){
                     switch (ch){
+                        case 'u': {
+                            // avoid getfield opcode
+                            final String code = this.code;
+                            final int codeLength = this.codeLength;
+                            final Messages.Item msg = Messages.ERR_INVALID_UNICODE_ESCAPE_SEQUENCE;
+
+                            // hit the Unicode escape sequence
+                            if (i + 1 < codeLength && code.charAt(i + 1) == '{') {
+                                int codePoint = 0;
+
+                                char c;
+                                for (int j = i + 2; j < codeLength; j++) {
+                                    c = code.charAt(j);
+
+                                    if (c == '}') {
+                                        // the escape sequence is empty: \\u{}
+                                        if (j == i + 2)
+                                            throw parseException(msg, startLine, i + 1, j);
+
+                                        // reached end of the sequence
+                                        sb.append(decodeCodepoint(codePoint, startLine, i + 1, j));
+                                        useUTF8 = true;
+                                        i = j;
+                                        break;
+                                    } else if (c == '\\' && j + 1 < codeLength && code.charAt(j + 1) == 'u') {
+                                        // append previously decoded sequence item and empty buffer.
+                                        sb.append(decodeCodepoint(codePoint, startLine, i + 1, j));
+                                        codePoint = 0;
+
+                                        j += 2; // skip the "u" character
+                                    } else {
+                                        if (!GrammarUtils.isHexDigit(c))
+                                            throw parseException(msg, startLine, i + 1, j);
+
+                                        codePoint = (codePoint << 4) + Character.digit(c, 16);
+                                    }
+                                }
+
+                                // the } is not found!
+                                if (!useUTF8)
+                                    throw parseException(msg, startLine, i, i + 1);
+
+                            } else {
+                                sb.append('\\').append(ch);
+                            }
+
+                            slash = false;
+                            break;
+                        }
                         case 'r': sb.append('\r'); slash = false; break;
                         case 'n': sb.append('\n'); slash = false; break;
                         case 't': sb.append('\t'); slash = false; break;
@@ -506,11 +565,25 @@ public class Tokenizer {
             meta.setEndIndex(currentPosition + 1);
         }
 
-        meta.setWord(sb.toString());
+        String word = useUTF8 ? new String(sb.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8) :
+                sb.toString();
+
+        meta.setWord(word);
 
         StringExprToken expr = new StringExprToken(meta, quote);
         expr.setSegments(segments);
         return expr;
+    }
+
+    private char[] decodeCodepoint(int codePoint, int startLine, int startPos, int pos) {
+        // OK, we read the whole sequence of hex characters
+        // but it sill can be invalid due to Unicode range overflow.
+        try {
+            return Character.toChars(codePoint);
+        } catch (IllegalArgumentException e) {
+            throw parseException(ERR_INVALID_UNICODE_ESCAPE_SEQUENCE_WITH_REASON
+                    .fetch("Codepoint too large"), startLine, startLine, startPos, pos);
+        }
     }
 
     protected Token readComment(CommentToken.Kind kind, int startPosition, int startLine){
@@ -803,5 +876,13 @@ public class Tokenizer {
 
     public Context getContext() {
         return context;
+    }
+
+    private ParseException parseException(Messages.Item messageItem, int line, int startPos, int endPos) {
+        return parseException(messageItem.fetch(), line, line, startPos, endPos);
+    }
+
+    private ParseException parseException(String message, int startLine, int endLine, int startPos, int endPos) {
+        return new ParseException(message, new TraceInfo(context, startLine, endLine, startPos, endPos));
     }
 }
