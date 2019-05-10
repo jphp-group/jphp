@@ -9,7 +9,7 @@ import php.runtime.env.TraceInfo;
 import php.runtime.env.handler.TickHandler;
 import php.runtime.memory.ArrayMemory;
 
-public class DebugTickHandler extends TickHandler {
+public class DebugTickHandler implements TickHandler {
     protected Debugger debugger;
     protected boolean init = false;
 
