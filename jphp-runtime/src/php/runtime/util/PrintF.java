@@ -99,7 +99,7 @@ public class PrintF {
                         case '+':
                             isShowSign = true;
                             break;
-                        case ' ': case ',': case '(':
+                        case ' ': case ',': case '(': case 'l':
                             flags.append(ch);
                             break;
                         default:
@@ -216,6 +216,9 @@ public class PrintF {
                             if (isShowSign)
                                 sb.append('+');
 
+                            if (flags.indexOf("l") != -1)
+                                flags.deleteCharAt(flags.indexOf("l"));
+
                             sb.append(flags);
 
                             if (width > 0) {
@@ -245,9 +248,17 @@ public class PrintF {
                                 sb.append('-');
                             if (isAlt)
                                 sb.append('#');
+
                             sb.append(flags);
-                            sb.append(format, head, j);
-                            sb.append(ch);
+
+                            // Skipping the unknown modifiers like in original implementation
+                            if (sb.length() == 1 && sb.charAt(0) == '%') {
+                                sb.setLength(0);
+                            } else {
+                                sb.append(format, head, j);
+                                sb.append(ch);
+                            }
+
                             i = j;
                             break loop;
                     }
@@ -459,6 +470,11 @@ public class PrintF {
                 format = '%' + format;
             }
 
+            // Modifier %ld is not supported by Java formatter. The %d is enough.
+            if (format.charAt(1) == 'l') {
+                format = format.substring(0, 1) + format.substring(2);
+            }
+
             if (format.length() > 1 && format.charAt(1) == '.') {
                 int i;
 
@@ -471,23 +487,22 @@ public class PrintF {
                 format = '%' + format.substring(i);
             }
 
-            if (format.charAt(format.length() - 1) == 'x'
-                    || format.charAt(format.length() - 1) == 'X') {
+            char last = format.charAt(format.length() - 1);
+            if (last == 'x' || last == 'X') {
                 HexSegment hex = HexSegment.valueOf(format, index);
 
                 if (hex != null)
                     return hex;
             }
 
-            if (format.charAt(format.length() - 1) == 'b'
-                    || format.charAt(format.length() - 1) == 'B') {
+            if (last == 'b' || last == 'B') {
                 BinarySegment bin = BinarySegment.valueOf(format, index);
 
                 if (bin != null)
                     return bin;
             }
 
-            if (format.charAt(format.length() - 1) == 'u') {
+            if (last == 'u') {
                 UnsignedSegment unsign = UnsignedSegment.valueOf(format, index);
 
                 if (unsign != null)
@@ -607,7 +622,6 @@ public class PrintF {
             return true;
         }
     }
-
 
     static class BinarySegment extends Segment {
         private final int _index;

@@ -119,6 +119,7 @@ abstract public class Memory implements Comparable<Memory> {
     public static final Memory CONST_DOUBLE_NAN = new DoubleMemory(Double.NaN);
 
     public static final Memory CONST_EMPTY_STRING = new StringMemory("");
+    public static final Memory[] CONST_EMPTY_ARRAY = new Memory[0];
 
     public boolean isNull(){
         return type == Type.NULL;

@@ -177,8 +177,16 @@ public class StringFunctions extends FunctionsContainer {
     }
 
 
-    public static Memory sprintf(Environment env, TraceInfo trace, String format, Memory... args) {
-        PrintF printF = new PrintF(env.getLocale(), format, args);
+    public static Memory sprintf(Environment env, TraceInfo trace, Memory formatMemory, Memory... args) {
+        if (formatMemory.isArray()) {
+            env.notice(trace, "Array to string conversion");
+        }
+
+        if (args == null) {
+            args = Memory.CONST_EMPTY_ARRAY;
+        }
+
+        PrintF printF = new PrintF(env.getLocale(), formatMemory.toString(), args);
         String result = printF.toString();
         if (result == null) {
             env.warning(trace, "Too few arguments");
@@ -187,14 +195,14 @@ public class StringFunctions extends FunctionsContainer {
             return new StringMemory(result);
     }
 
-    public static Memory vsprintf(Environment env, TraceInfo trace, String format, Memory array) {
+    public static Memory vsprintf(Environment env, TraceInfo trace, Memory format, Memory array) {
         if (array.isArray()) {
             return sprintf(env, trace, format, array.toValue(ArrayMemory.class).values());
         } else
             return sprintf(env, trace, format, array);
     }
 
-    public static int printf(Environment env, TraceInfo trace, String format, Memory... args) {
+    public static int printf(Environment env, TraceInfo trace, Memory format, Memory... args) {
         Memory str = sprintf(env, trace, format, args);
         if (str.isNull())
             return 0;
@@ -205,7 +213,7 @@ public class StringFunctions extends FunctionsContainer {
         }
     }
 
-    public static int vprintf(Environment env, TraceInfo trace, String format, Memory array) {
+    public static int vprintf(Environment env, TraceInfo trace, Memory format, Memory array) {
         if (array.isArray()) {
             return printf(env, trace, format, array.toValue(ArrayMemory.class).values());
         } else
