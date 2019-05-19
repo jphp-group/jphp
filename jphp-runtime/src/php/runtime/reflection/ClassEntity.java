@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClassEntity extends Entity implements Cloneable {
     private final static int FLAG_GET = 4000;
@@ -649,6 +650,12 @@ ClassReader classReader;
 
     public Collection<PropertyEntity> getProperties() {
         return properties.values();
+    }
+
+    public Collection<PropertyEntity> getProperties(Modifier modifier) {
+        return properties.values().stream()
+                .filter(propertyEntity -> propertyEntity.getModifier() == modifier)
+                .collect(Collectors.toList());
     }
 
     public Collection<PropertyEntity> getStaticProperties() {

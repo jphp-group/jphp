@@ -29,4 +29,7 @@ public class StringConstants extends ConstantsContainer {
     public final static int PHP_URL_PATH = 5;
     public final static int PHP_URL_QUERY = 6;
     public final static int PHP_URL_FRAGMENT = 7;
+
+    public final static int PHP_QUERY_RFC1738 = 1;
+    public final static int PHP_QUERY_RFC3986 = 2;
 }
